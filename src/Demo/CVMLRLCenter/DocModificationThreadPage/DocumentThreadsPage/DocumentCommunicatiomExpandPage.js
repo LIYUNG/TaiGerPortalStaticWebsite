@@ -146,11 +146,7 @@ const StudentItem = ({ student, selectedStudentId, onClick }) => {
                                 {`${student.firstname} ${student.lastname}`}
                             </Typography>
                         }
-                        secondary={
-                            <Typography variant="body2">
-                                {`${student?.completeThreadCount}/${student?.threadCount}`}
-                            </Typography>
-                        }
+                        secondary={`${student?.completeThreadCount}/${student?.threadCount}`}
                     />
                     {highlightItem ? (
                         <FiberManualRecordIcon
