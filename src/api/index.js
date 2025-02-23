@@ -629,16 +629,6 @@ export const getUniassistArticle = () => getArticle('uniassist');
 
 export const getCertificationArticle = () => getArticle('certification');
 
-//Task:
-export const initTasks = (studentId) => request.post(`/api/tasks/${studentId}`);
-export const getMyStudentsTasks = () =>
-    request.get('/api/tasks/my-students-tasks');
-export const getMyStudentTasks = (studentId) =>
-    request.get(`/api/tasks/${studentId}`);
-export const getMyTask = () => request.get('/api/tasks/mytask');
-export const getStudentTask = (student_id) =>
-    request.get(`/api/tasks/${student_id}`);
-
 // remove Banner/notification
 export const updateBanner = (notification_key) =>
     request.post(`/api/account/student/notifications`, {
