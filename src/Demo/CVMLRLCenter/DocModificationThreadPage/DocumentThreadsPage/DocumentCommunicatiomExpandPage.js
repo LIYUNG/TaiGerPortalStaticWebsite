@@ -330,120 +330,175 @@ const DocumentCommunicationExpandPage = () => {
         return studentMetricsError;
     }
 
-    return (
-        <Box>
-            <Grid container spacing={1.5}>
-                <Grid item xs={1.5}>
-                    {studentMetricsIsLoading ? (
-                        <Loading />
-                    ) : (
-                        <>
-                            <Stack
-                                alignItems="center"
-                                direction="row"
-                                spacing={1}
-                            >
-                                <SearchIcon />
-                                <InputBase
-                                    onChange={(e) =>
-                                        setStudentSearchTerm(e.target.value)
-                                    }
-                                    value={studentSearchTerm}
-                                />
-                            </Stack>
-                            <List>
-                                {students
-                                    ?.filter((student) => {
-                                        return `${student?.firstname} ${student?.lastname}`
-                                            .toLowerCase()
-                                            .includes(
-                                                studentSearchTerm.toLowerCase()
-                                            );
-                                    })
-                                    ?.sort((a, b) => {
-                                        const isAcompleted =
-                                            a.threadCount ===
-                                            a.completeThreadCount;
-                                        const isBcompleted =
-                                            b.threadCount ===
-                                            b.completeThreadCount;
-                                        if (a.needToReply !== b.needToReply) {
-                                            return a.needToReply ? -1 : 1;
-                                        }
-                                        if (isAcompleted !== isBcompleted) {
-                                            return isAcompleted ? 1 : -1;
-                                        }
-                                        return a.firstname.localeCompare(
-                                            b.firstname
-                                        );
-                                    })
-                                    ?.map((student) => (
-                                        <StudentItem
-                                            key={student._id}
-                                            onClick={() => {
-                                                handleOnClickStudent(
-                                                    student._id
-                                                );
-                                                window.scrollTo({
-                                                    top: 0,
-                                                    behavior: 'smooth'
-                                                });
-                                            }}
-                                            selectedStudentId={studentId}
-                                            student={student}
-                                        />
-                                    ))}
-                            </List>
-                        </>
-                    )}
-                </Grid>
-                <Grid item xs={2.5}>
-                    {studentThreadIsLoading ? <Loading /> : null}
-                    <Checkbox
-                        checked={showAllThreads}
-                        disabled={sortedThreads.every(
-                            (thread) => thread?.isFinalVersion
-                        )}
-                        onChange={() => setShowAllThreads(!showAllThreads)}
-                    />{' '}
-                    Show completed threads
-                    <List>
-                        {sortedThreads
-                            ?.filter(
-                                (thread) =>
-                                    showAllThreads || !thread?.isFinalVersion
-                            )
-                            ?.map((thread) => {
-                                const category = getCategory(thread.file_type);
-                                const showCategoryLabel =
-                                    category !== currentCategory;
-                                currentCategory = category;
+    const APP_BAR_HEIGHT = 64;
 
-                                return (
-                                    <React.Fragment key={thread._id}>
-                                        {showCategoryLabel ? (
-                                            <Divider
-                                                sx={{
-                                                    paddingX: 3,
-                                                    paddingY: 1
+    return (
+        <Box
+            style={{
+                marginLeft: '-24px',
+                marginRight: '-18px',
+                marginTop: '-24px',
+                marginBottom: '-24px'
+            }}
+        >
+            <Grid container spacing={0}>
+                <Grid
+                    item
+                    md="auto"
+                    sx={{
+                        maxHeight: `calc(100vh - ${APP_BAR_HEIGHT}px)`,
+                        overflowY: 'auto',
+                        display: { xs: 'none', md: 'flex' }
+                    }}
+                    xs={12}
+                >
+                    <Box
+                        sx={{
+                            maxWidth: '300px' // Responsive width
+                        }}
+                    >
+                        {studentMetricsIsLoading ? (
+                            <Loading />
+                        ) : (
+                            <>
+                                <Stack
+                                    alignItems="center"
+                                    direction="row"
+                                    spacing={1}
+                                >
+                                    <SearchIcon />
+                                    <InputBase
+                                        onChange={(e) =>
+                                            setStudentSearchTerm(e.target.value)
+                                        }
+                                        value={studentSearchTerm}
+                                    />
+                                </Stack>
+                                <List>
+                                    {students
+                                        ?.filter((student) => {
+                                            return `${student?.firstname} ${student?.lastname}`
+                                                .toLowerCase()
+                                                .includes(
+                                                    studentSearchTerm.toLowerCase()
+                                                );
+                                        })
+                                        ?.sort((a, b) => {
+                                            const isAcompleted =
+                                                a.threadCount ===
+                                                a.completeThreadCount;
+                                            const isBcompleted =
+                                                b.threadCount ===
+                                                b.completeThreadCount;
+                                            if (
+                                                a.needToReply !== b.needToReply
+                                            ) {
+                                                return a.needToReply ? -1 : 1;
+                                            }
+                                            if (isAcompleted !== isBcompleted) {
+                                                return isAcompleted ? 1 : -1;
+                                            }
+                                            return a.firstname.localeCompare(
+                                                b.firstname
+                                            );
+                                        })
+                                        ?.map((student) => (
+                                            <StudentItem
+                                                key={student._id}
+                                                onClick={() => {
+                                                    handleOnClickStudent(
+                                                        student._id
+                                                    );
+                                                    window.scrollTo({
+                                                        top: 0,
+                                                        behavior: 'smooth'
+                                                    });
                                                 }}
-                                                textAlign="center"
-                                            >
-                                                {category}
-                                            </Divider>
-                                        ) : null}
-                                        <ThreadItem
-                                            onClick={() => {
-                                                handleOnClickThread(thread._id);
-                                            }}
-                                            thread={thread}
-                                        />
-                                    </React.Fragment>
-                                );
-                            })}
-                    </List>
+                                                selectedStudentId={studentId}
+                                                student={student}
+                                            />
+                                        ))}
+                                </List>
+                            </>
+                        )}
+                    </Box>
                 </Grid>
-                <Grid item xs={8}>
+                <Grid
+                    item
+                    md="auto"
+                    sx={{
+                        maxHeight: `calc(100vh - ${APP_BAR_HEIGHT}px)`,
+                        overflowY: 'auto',
+                        display: { xs: 'none', md: 'flex' }
+                    }}
+                    xs={12}
+                >
+                    <Box
+                        sx={{
+                            maxWidth: '300px' // Responsive width
+                        }}
+                    >
+                        {studentThreadIsLoading ? <Loading /> : null}
+                        <Checkbox
+                            checked={showAllThreads}
+                            disabled={sortedThreads.every(
+                                (thread) => thread?.isFinalVersion
+                            )}
+                            onChange={() => setShowAllThreads(!showAllThreads)}
+                        />{' '}
+                        Show completed threads
+                        <List>
+                            {sortedThreads
+                                ?.filter(
+                                    (thread) =>
+                                        showAllThreads ||
+                                        !thread?.isFinalVersion
+                                )
+                                ?.map((thread) => {
+                                    const category = getCategory(
+                                        thread.file_type
+                                    );
+                                    const showCategoryLabel =
+                                        category !== currentCategory;
+                                    currentCategory = category;
+
+                                    return (
+                                        <React.Fragment key={thread._id}>
+                                            {showCategoryLabel ? (
+                                                <Divider
+                                                    sx={{
+                                                        paddingX: 3,
+                                                        paddingY: 1
+                                                    }}
+                                                    textAlign="center"
+                                                >
+                                                    {category}
+                                                </Divider>
+                                            ) : null}
+                                            <ThreadItem
+                                                onClick={() => {
+                                                    handleOnClickThread(
+                                                        thread._id
+                                                    );
+                                                }}
+                                                thread={thread}
+                                            />
+                                        </React.Fragment>
+                                    );
+                                })}
+                        </List>
+                    </Box>
+                </Grid>
+                <Grid
+                    item
+                    md
+                    sx={{
+                        height: `calc(100vh - ${APP_BAR_HEIGHT}px)`, // Subtract header
+                        overflowY: 'auto',
+                        display: { xs: 'none', md: 'flex' },
+                        p: 2
+                    }}
+                >
                     {threadId ? (
                         <DocModificationThreadPage
                             isEmbedded
