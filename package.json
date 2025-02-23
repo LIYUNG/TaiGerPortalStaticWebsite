@@ -93,7 +93,7 @@
     "lint-staged": {
         "**/*.js": [
             "prettier --write",
-            "eslint --fix --cache src/** --ignore-pattern src/build --ignore-pattern src/i18n --ignore-pattern src/**/*css",
+            "eslint --fix --cache",
             "git add"
         ]
     },
