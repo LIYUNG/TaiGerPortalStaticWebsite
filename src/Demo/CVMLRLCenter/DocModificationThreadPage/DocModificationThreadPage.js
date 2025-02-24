@@ -534,6 +534,225 @@ const InformationBlock = ({
         </Card>
     );
 };
+const OriginAuthorStatementBar = ({
+    thread,
+    student_name,
+    student_name_zh,
+    docName,
+    theme,
+    user
+}) => {
+    const [openOriginAuthorModal, setOpenOriginAuthorModal] = useState(false);
+    const [originAuthorConfirmed, setOriginAuthorConfirmed] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [originAuthorCheckboxConfirmed, setOriginAuthorCheckboxConfirmed] =
+        useState(false);
+    useEffect(() => {
+        setOriginAuthorConfirmed(
+            thread?.isOriginAuthorDeclarationConfirmedByStudent
+        );
+    }, [thread]);
+    const postOriginAuthorConfirmed = (checked) => {
+        setOriginAuthorConfirmed(checked);
+        setIsLoading(true);
+        putOriginAuthorConfirmedByStudent(
+            thread._id,
+            thread.student_id._id,
+            originAuthorCheckboxConfirmed
+        ).then(
+            (resp) => {
+                const { success } = resp.data;
+                if (success) {
+                    setOriginAuthorConfirmed(true);
+                }
+            },
+            () => {}
+        );
+    };
+
+    return thread?.file_type === 'Essay' ? (
+        <Box className="sticky-top">
+            <Stack alignItems="center" direction="row" spacing={1}>
+                {originAuthorConfirmed ? (
+                    <>
+                        <CheckCircleIcon
+                            size={18}
+                            style={{ color: green[500] }}
+                            title="Agree"
+                        />
+                        <Typography variant="body1">
+                            {i18next.t('confirmDocument', {
+                                ns: 'documents',
+                                studentName: student_name,
+                                studentNameZh: student_name_zh,
+                                docName
+                            })}
+                            <span
+                                onClick={() =>
+                                    setOpenOriginAuthorModal(
+                                        !openOriginAuthorModal
+                                    )
+                                }
+                                style={{
+                                    color: theme.palette.primary.main,
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                {i18next.t('Read More')}
+                            </span>
+                        </Typography>
+                    </>
+                ) : (
+                    <>
+                        <HelpIcon size={18} style={{ color: grey[400] }} />
+                        <Typography variant="body1">
+                            {i18next.t('notConfirmDocument', {
+                                ns: 'documents',
+                                studentName: student_name,
+                                studentNameZh: student_name_zh,
+                                docName
+                            })}
+                            &nbsp;
+                            <span
+                                onClick={() =>
+                                    setOpenOriginAuthorModal(
+                                        !openOriginAuthorModal
+                                    )
+                                }
+                                style={{
+                                    color: theme.palette.primary.main,
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                {i18next.t('Read More')}
+                            </span>
+                        </Typography>
+                    </>
+                )}
+            </Stack>
+            <Dialog
+                aria-labelledby="modal-orginal-declaration"
+                onClose={() => {}}
+                open={
+                    (thread.file_type === 'Essay' &&
+                        is_TaiGer_Student(user) &&
+                        !originAuthorConfirmed) ||
+                    openOriginAuthorModal
+                }
+            >
+                <DialogTitle>
+                    {i18next.t('Warning', { ns: 'common' })}
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        <Typography sx={{ my: 2 }} variant="body1">
+                            {i18next.t('hello-students', {
+                                ns: 'common',
+                                tenant: appConfig.companyName
+                            })}
+                        </Typography>
+                        <Typography sx={{ my: 2 }} variant="body1">
+                            {i18next.t(
+                                'essay-responsibility-declaration-content',
+                                {
+                                    ns: 'common',
+                                    tenant: appConfig.companyFullName
+                                }
+                            )}
+                        </Typography>
+                        <Typography sx={{ my: 2 }} variant="body1">
+                            {i18next.t(
+                                'essay-responsibility-declaration-signature',
+                                {
+                                    ns: 'common',
+                                    tenant: appConfig.companyFullName
+                                }
+                            )}
+                        </Typography>
+                    </DialogContentText>
+                    {is_TaiGer_Student(user) ? (
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={
+                                        originAuthorCheckboxConfirmed ||
+                                        thread.isOriginAuthorDeclarationConfirmedByStudent
+                                    }
+                                    disabled={
+                                        thread.isOriginAuthorDeclarationConfirmedByStudent
+                                    }
+                                    onChange={() =>
+                                        setOriginAuthorCheckboxConfirmed(
+                                            !originAuthorCheckboxConfirmed
+                                        )
+                                    }
+                                />
+                            }
+                            label={`${i18next.t(
+                                'i-declare-without-help-of-ai',
+                                {
+                                    ns: 'common',
+                                    studentFullName: `${student_name} ${student_name_zh}`,
+                                    docName: docName
+                                }
+                            )}`}
+                            sx={{ my: 2 }}
+                        />
+                    ) : null}
+                    <br />
+                    {is_TaiGer_Student(user) ? (
+                        thread?.isOriginAuthorDeclarationConfirmedByStudent ? (
+                            <Button
+                                color="primary"
+                                fullWidth
+                                onClick={() =>
+                                    setOpenOriginAuthorModal(
+                                        !openOriginAuthorModal
+                                    )
+                                }
+                                sx={{ mr: 2 }}
+                                variant="contained"
+                            >
+                                {i18next.t('Close', { ns: 'common' })}
+                            </Button>
+                        ) : (
+                            <Button
+                                color="primary"
+                                disabled={!originAuthorCheckboxConfirmed}
+                                fullWidth
+                                onClick={() =>
+                                    postOriginAuthorConfirmed(
+                                        originAuthorCheckboxConfirmed
+                                    )
+                                }
+                                sx={{ mr: 2 }}
+                                variant="contained"
+                            >
+                                {isLoading ? (
+                                    <CircularProgress />
+                                ) : (
+                                    i18next.t('I Agree', { ns: 'common' })
+                                )}
+                            </Button>
+                        )
+                    ) : (
+                        <Button
+                            color="primary"
+                            fullWidth
+                            onClick={() =>
+                                setOpenOriginAuthorModal(!openOriginAuthorModal)
+                            }
+                            sx={{ mr: 2 }}
+                            variant="contained"
+                        >
+                            {i18next.t('Close', { ns: 'common' })}
+                        </Button>
+                    )}
+                </DialogContent>
+            </Dialog>
+        </Box>
+    ) : null;
+};
 
 const DocModificationThreadPage = ({ threadId, isEmbedded = false }) => {
     const { user } = useAuth();
@@ -564,10 +783,7 @@ const DocModificationThreadPage = ({ threadId, isEmbedded = false }) => {
     const [checkResult, setCheckResult] = useState([]);
     const { hash } = useLocation();
     const [value, setValue] = useState(THREAD_TABS[hash.replace('#', '')] || 0);
-    const [openOriginAuthorModal, setOpenOriginAuthorModal] = useState(false);
-    const [originAuthorConfirmed, setOriginAuthorConfirmed] = useState(false);
-    const [originAuthorCheckboxConfirmed, setOriginAuthorCheckboxConfirmed] =
-        useState(false);
+
     const { data, error } = useQuery(getMessagThreadQuery(documentsthreadId));
 
     useEffect(() => {
@@ -584,10 +800,6 @@ const DocModificationThreadPage = ({ threadId, isEmbedded = false }) => {
             const { status } = data;
 
             if (success) {
-                setOriginAuthorConfirmed(
-                    threadData?.isOriginAuthorDeclarationConfirmedByStudent
-                );
-
                 setDocModificationThreadPageState((prevState) => ({
                     ...prevState,
                     success,
@@ -732,48 +944,6 @@ const DocModificationThreadPage = ({ threadId, isEmbedded = false }) => {
                 .fill()
                 .map((x, i) => i) // to expand all]
         }));
-    };
-
-    const postOriginAuthorConfirmed = (checked) => {
-        setOriginAuthorConfirmed(checked);
-        putOriginAuthorConfirmedByStudent(
-            docModificationThreadPageState.documentsthreadId,
-            docModificationThreadPageState.thread.student_id._id,
-            originAuthorCheckboxConfirmed
-        ).then(
-            (resp) => {
-                const { success } = resp.data;
-                const { status } = resp;
-                if (success) {
-                    setDocModificationThreadPageState((prevState) => ({
-                        ...prevState,
-                        success,
-                        thread: {
-                            ...docModificationThreadPageState.thread,
-                            isOriginAuthorDeclarationConfirmedByStudent: true
-                        }
-                    }));
-                } else {
-                    const { message } = resp.data;
-                    setDocModificationThreadPageState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        buttonDisabled: false,
-                        res_modal_message: message,
-                        res_modal_status: status
-                    }));
-                }
-            },
-            (error) => {
-                setDocModificationThreadPageState((prevState) => ({
-                    ...prevState,
-                    isLoaded: true,
-                    error,
-                    res_modal_status: 500,
-                    res_modal_message: ''
-                }));
-            }
-        );
     };
 
     const handleClickSave = (e, editorState) => {
@@ -1141,71 +1311,14 @@ const DocModificationThreadPage = ({ threadId, isEmbedded = false }) => {
     return (
         <Box>
             {!isLoaded ? <Loading /> : null}
-            {thread?.file_type === 'Essay' ? (
-                <Box className="sticky-top">
-                    <Stack alignItems="center" direction="row" spacing={1}>
-                        {originAuthorConfirmed ? (
-                            <>
-                                <CheckCircleIcon
-                                    size={18}
-                                    style={{ color: green[500] }}
-                                    title="Agree"
-                                />
-                                <Typography variant="body1">
-                                    {i18next.t('confirmDocument', {
-                                        ns: 'documents',
-                                        studentName: student_name,
-                                        studentNameZh: student_name_zh,
-                                        docName
-                                    })}
-                                    <span
-                                        onClick={() =>
-                                            setOpenOriginAuthorModal(
-                                                !openOriginAuthorModal
-                                            )
-                                        }
-                                        style={{
-                                            color: theme.palette.primary.main,
-                                            cursor: 'pointer'
-                                        }}
-                                    >
-                                        {i18next.t('Read More')}
-                                    </span>
-                                </Typography>
-                            </>
-                        ) : (
-                            <>
-                                <HelpIcon
-                                    size={18}
-                                    style={{ color: grey[400] }}
-                                />
-                                <Typography variant="body1">
-                                    {i18next.t('notConfirmDocument', {
-                                        ns: 'documents',
-                                        studentName: student_name,
-                                        studentNameZh: student_name_zh,
-                                        docName
-                                    })}
-                                    &nbsp;
-                                    <span
-                                        onClick={() =>
-                                            setOpenOriginAuthorModal(
-                                                !openOriginAuthorModal
-                                            )
-                                        }
-                                        style={{
-                                            color: theme.palette.primary.main,
-                                            cursor: 'pointer'
-                                        }}
-                                    >
-                                        {i18next.t('Read More')}
-                                    </span>
-                                </Typography>
-                            </>
-                        )}
-                    </Stack>
-                </Box>
-            ) : null}
+            <OriginAuthorStatementBar
+                docName={docName}
+                student_name={student_name}
+                student_name_zh={student_name_zh}
+                theme={theme}
+                thread={thread}
+                user={user}
+            />
             {/* TODO */}
             {/* {false ? <button onClick={generatePDF}>Generate PDF</button> : null} */}
             <Box
@@ -1460,126 +1573,7 @@ const DocModificationThreadPage = ({ threadId, isEmbedded = false }) => {
             <CustomTabPanel index={2} value={value}>
                 <Audit audit={threadAuditLog} />
             </CustomTabPanel>
-            <Dialog
-                aria-labelledby="modal-orginal-declaration"
-                onClose={() => {}}
-                open={
-                    (thread.file_type === 'Essay' &&
-                        is_TaiGer_Student(user) &&
-                        !originAuthorConfirmed) ||
-                    openOriginAuthorModal
-                }
-            >
-                <DialogTitle>
-                    {i18next.t('Warning', { ns: 'common' })}
-                </DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
-                        <Typography sx={{ my: 2 }} variant="body1">
-                            {i18next.t('hello-students', {
-                                ns: 'common',
-                                tenant: appConfig.companyName
-                            })}
-                        </Typography>
-                        <Typography sx={{ my: 2 }} variant="body1">
-                            {i18next.t(
-                                'essay-responsibility-declaration-content',
-                                {
-                                    ns: 'common',
-                                    tenant: appConfig.companyFullName
-                                }
-                            )}
-                        </Typography>
-                        <Typography sx={{ my: 2 }} variant="body1">
-                            {i18next.t(
-                                'essay-responsibility-declaration-signature',
-                                {
-                                    ns: 'common',
-                                    tenant: appConfig.companyFullName
-                                }
-                            )}
-                        </Typography>
-                    </DialogContentText>
-                    {is_TaiGer_Student(user) ? (
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={
-                                        originAuthorCheckboxConfirmed ||
-                                        thread.isOriginAuthorDeclarationConfirmedByStudent
-                                    }
-                                    disabled={
-                                        thread.isOriginAuthorDeclarationConfirmedByStudent
-                                    }
-                                    onChange={() =>
-                                        setOriginAuthorCheckboxConfirmed(
-                                            !originAuthorCheckboxConfirmed
-                                        )
-                                    }
-                                />
-                            }
-                            label={`${i18next.t(
-                                'i-declare-without-help-of-ai',
-                                {
-                                    ns: 'common',
-                                    studentFullName: `${student_name} ${student_name_zh}`,
-                                    docName: docName
-                                }
-                            )}`}
-                            sx={{ my: 2 }}
-                        />
-                    ) : null}
-                    <br />
-                    {is_TaiGer_Student(user) ? (
-                        thread?.isOriginAuthorDeclarationConfirmedByStudent ? (
-                            <Button
-                                color="primary"
-                                fullWidth
-                                onClick={() =>
-                                    setOpenOriginAuthorModal(
-                                        !openOriginAuthorModal
-                                    )
-                                }
-                                sx={{ mr: 2 }}
-                                variant="contained"
-                            >
-                                {i18next.t('Close', { ns: 'common' })}
-                            </Button>
-                        ) : (
-                            <Button
-                                color="primary"
-                                disabled={!originAuthorCheckboxConfirmed}
-                                fullWidth
-                                onClick={() =>
-                                    postOriginAuthorConfirmed(
-                                        originAuthorCheckboxConfirmed
-                                    )
-                                }
-                                sx={{ mr: 2 }}
-                                variant="contained"
-                            >
-                                {isSubmissionLoaded ? (
-                                    i18next.t('I Agree', { ns: 'common' })
-                                ) : (
-                                    <CircularProgress />
-                                )}
-                            </Button>
-                        )
-                    ) : (
-                        <Button
-                            color="primary"
-                            fullWidth
-                            onClick={() =>
-                                setOpenOriginAuthorModal(!openOriginAuthorModal)
-                            }
-                            sx={{ mr: 2 }}
-                            variant="contained"
-                        >
-                            {i18next.t('Close', { ns: 'common' })}
-                        </Button>
-                    )}
-                </DialogContent>
-            </Dialog>
+
             <DocumentCheckingResultModal
                 docName={docName}
                 file_type={thread.file_type}

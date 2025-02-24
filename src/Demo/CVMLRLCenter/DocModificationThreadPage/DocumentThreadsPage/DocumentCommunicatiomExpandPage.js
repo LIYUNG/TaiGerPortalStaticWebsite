@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
-// import { useTranslation } from 'react-i18next';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -17,7 +17,8 @@ import {
     Stack,
     useTheme,
     useMediaQuery,
-    Drawer
+    Drawer,
+    IconButton
 } from '@mui/material';
 import {
     Search as SearchIcon,
@@ -363,7 +364,6 @@ const DocumentCommunicationExpandPage = () => {
     const navigate = useNavigate();
 
     const { user } = useAuth();
-    // const { t } = useTranslation();
     const [showAllThreads, setShowAllThreads] = useState(true);
     const [studentId, setStudentId] = useState(null);
     const [threadId, setThreadId] = useState(paramThreadId || null);
@@ -399,10 +399,10 @@ const DocumentCommunicationExpandPage = () => {
         if (!studentId) {
             return;
         }
-        const firstThreadId = students?.find(
-            (student) => student._id === studentId
-        )?.threads?.[0];
-        setThreadId(firstThreadId);
+        // const firstThreadId = students?.find(
+        //     (student) => student._id === studentId
+        // )?.threads?.[0];
+        // setThreadId(firstThreadId);
     }, [studentId]);
 
     const handleOnClickStudent = (id) => {
@@ -553,6 +553,23 @@ const DocumentCommunicationExpandPage = () => {
                         }}
                         variant="temporary"
                     >
+                        <Box
+                            className="sticky-top"
+                            sx={{
+                                my: 1,
+                                display: 'flex'
+                            }}
+                        >
+                            <IconButton
+                                aria-label="open drawer"
+                                color="inherit"
+                                edge="start"
+                                onClick={() => setStudentId(null)}
+                                style={{ marginLeft: '4px' }}
+                            >
+                                <ArrowBackIcon />
+                            </IconButton>
+                        </Box>
                         <ThreadsList
                             currentCategory={currentCategory}
                             handleOnClickThread={handleOnClickThread}
@@ -575,6 +592,23 @@ const DocumentCommunicationExpandPage = () => {
                         }}
                         variant="temporary"
                     >
+                        <Box
+                            className="sticky-top"
+                            sx={{
+                                my: 1,
+                                display: 'flex'
+                            }}
+                        >
+                            <IconButton
+                                aria-label="open drawer"
+                                color="inherit"
+                                edge="start"
+                                onClick={() => setThreadId(null)}
+                                style={{ marginLeft: '4px' }}
+                            >
+                                <ArrowBackIcon />
+                            </IconButton>
+                        </Box>
                         <DocModificationThreadPage
                             isEmbedded
                             threadId={threadId}
