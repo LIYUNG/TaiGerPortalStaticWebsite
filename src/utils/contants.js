@@ -1171,6 +1171,7 @@ export const convertDateUXFriendly = (date) => {
     const hours = Math.floor(timeDiff / (1000 * 60 * 60));
     const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
     const weeks = Math.floor(days / 7);
+    const month = Math.floor(days / 31);
 
     let timeDisplay;
     if (!date) {
@@ -1182,8 +1183,10 @@ export const convertDateUXFriendly = (date) => {
         timeDisplay = i18next.t('timeHours', { ns: 'common', hours });
     } else if (days < 7) {
         timeDisplay = i18next.t('timeDays', { ns: 'common', days });
-    } else {
+    } else if (days < 31) {
         timeDisplay = i18next.t('timeWeeks', { ns: 'common', weeks });
+    } else {
+        timeDisplay = i18next.t('timeMonth', { ns: 'common', month });
     }
     return timeDisplay;
 };

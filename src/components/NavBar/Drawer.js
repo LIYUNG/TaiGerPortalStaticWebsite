@@ -100,7 +100,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
     justifyContent: 'flex-end'
 }));
 
-export const CustomDrawer = (props) => {
+export const CustomDrawer = ({ open, ismobile, handleDrawerClose, theme }) => {
     const { user } = useAuth();
     const { t } = useTranslation();
 
@@ -121,7 +121,7 @@ export const CustomDrawer = (props) => {
         <Drawer
             anchor="left"
             data-testid="navbar_drawer_component"
-            open={props.open}
+            open={open}
             sx={{
                 width: drawerWidth,
                 flexShrink: 0,
@@ -130,12 +130,12 @@ export const CustomDrawer = (props) => {
                     boxSizing: 'border-box'
                 }
             }}
-            variant={props.ismobile ? 'temporary' : 'persistent'}
+            variant={ismobile ? 'temporary' : 'persistent'}
         >
             <DrawerHeader>
                 <Typography variant="h6">{appConfig.companyName}</Typography>
-                <IconButton onClick={props.handleDrawerClose}>
-                    {props.theme.direction === 'ltr' ? (
+                <IconButton onClick={handleDrawerClose}>
+                    {theme.direction === 'ltr' ? (
                         <ChevronLeftIcon />
                     ) : (
                         <ChevronRightIcon />

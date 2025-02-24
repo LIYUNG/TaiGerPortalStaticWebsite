@@ -400,5 +400,6 @@
     "timeHours": "{{hours}}h",
     "timeMinutes": "{{minutes}}m",
     "timeWeeks": "{{weeks}}w",
+    "timeMonth": "{{month}}mo",
     "valid-only-two-years": "valid only 2 years"
 }

@@ -399,5 +399,6 @@
     "timeHours": "{{hours}}小时",
     "timeMinutes": "{{minutes}}分钟",
     "timeWeeks": "{{weeks}}周",
+    "timeMonth": "{{month}}月",
     "valid-only-two-years": "有效两年"
 }

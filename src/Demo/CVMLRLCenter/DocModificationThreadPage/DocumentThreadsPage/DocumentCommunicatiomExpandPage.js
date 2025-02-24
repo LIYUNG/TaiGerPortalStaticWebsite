@@ -15,7 +15,9 @@ import {
     Grid,
     Typography,
     Stack,
-    useTheme
+    useTheme,
+    useMediaQuery,
+    Drawer
 } from '@mui/material';
 import {
     Search as SearchIcon,
@@ -30,7 +32,8 @@ import Loading from '../../../../components/Loading/Loading';
 import DocModificationThreadPage from '../DocModificationThreadPage';
 import {
     FILE_OK_SYMBOL,
-    FILE_MISSING_SYMBOL
+    FILE_MISSING_SYMBOL,
+    convertDateUXFriendly
 } from '../../../../utils/contants';
 import {
     getMyStudentThreadMetrics,
@@ -189,7 +192,7 @@ const ThreadItem = ({ thread, onClick }) => {
             <ListItemButton
                 onClick={onClick}
                 sx={{ paddingY: 0 }}
-                title={programName}
+                title={`${programName} - ${convertDateUXFriendly(thread.updatedAt)}`}
             >
                 <Stack
                     alignItems="center"
@@ -208,7 +211,7 @@ const ThreadItem = ({ thread, onClick }) => {
                                     textOverflow: 'ellipsis'
                                 }}
                             >
-                                {`${thread.file_type}`}
+                                {`${thread.file_type} - ${convertDateUXFriendly(thread.updatedAt)}`}
                             </Typography>
                         }
                         secondary={
@@ -239,8 +242,124 @@ const ThreadItem = ({ thread, onClick }) => {
     );
 };
 
+const StudentsList = ({
+    students,
+    studentId,
+    handleOnClickStudent,
+    studentMetricsIsLoading,
+    setStudentSearchTerm,
+    studentSearchTerm
+}) => {
+    return studentMetricsIsLoading ? (
+        <Loading />
+    ) : (
+        <>
+            <Stack alignItems="center" direction="row" spacing={1}>
+                <SearchIcon />
+                <InputBase
+                    onChange={(e) => setStudentSearchTerm(e.target.value)}
+                    value={studentSearchTerm}
+                />
+            </Stack>
+            <List>
+                {students
+                    ?.filter((student) => {
+                        return `${student?.firstname} ${student?.lastname}`
+                            .toLowerCase()
+                            .includes(studentSearchTerm.toLowerCase());
+                    })
+                    ?.sort((a, b) => {
+                        const isAcompleted =
+                            a.threadCount === a.completeThreadCount;
+                        const isBcompleted =
+                            b.threadCount === b.completeThreadCount;
+                        if (a.needToReply !== b.needToReply) {
+                            return a.needToReply ? -1 : 1;
+                        }
+                        if (isAcompleted !== isBcompleted) {
+                            return isAcompleted ? 1 : -1;
+                        }
+                        return a.firstname.localeCompare(b.firstname);
+                    })
+                    ?.map((student) => (
+                        <StudentItem
+                            key={student._id}
+                            onClick={() => {
+                                handleOnClickStudent(student._id);
+                                window.scrollTo({
+                                    top: 0,
+                                    behavior: 'smooth'
+                                });
+                            }}
+                            selectedStudentId={studentId}
+                            student={student}
+                        />
+                    ))}
+            </List>
+        </>
+    );
+};
+
+const ThreadsList = ({
+    studentThreadIsLoading,
+    showAllThreads,
+    sortedThreads,
+    onChange,
+    currentCategory,
+    handleOnClickThread
+}) => {
+    return (
+        <>
+            {studentThreadIsLoading ? <Loading /> : null}
+            <Checkbox
+                checked={showAllThreads}
+                disabled={sortedThreads.every(
+                    (thread) => thread?.isFinalVersion
+                )}
+                onChange={() => onChange(!showAllThreads)}
+            />{' '}
+            Show completed threads
+            <List>
+                {sortedThreads
+                    ?.filter(
+                        (thread) => showAllThreads || !thread?.isFinalVersion
+                    )
+                    ?.map((thread) => {
+                        const category = getCategory(thread.file_type);
+                        const showCategoryLabel = category !== currentCategory;
+                        currentCategory = category;
+
+                        return (
+                            <React.Fragment key={thread._id}>
+                                {showCategoryLabel ? (
+                                    <Divider
+                                        sx={{
+                                            paddingX: 3,
+                                            paddingY: 1
+                                        }}
+                                        textAlign="center"
+                                    >
+                                        {category}
+                                    </Divider>
+                                ) : null}
+                                <ThreadItem
+                                    onClick={() => {
+                                        handleOnClickThread(thread._id);
+                                    }}
+                                    thread={thread}
+                                />
+                            </React.Fragment>
+                        );
+                    })}
+            </List>
+        </>
+    );
+};
+
 const DocumentCommunicationExpandPage = () => {
     const { threadId: paramThreadId } = useParams();
+    const theme = useTheme();
+    const ismobile = useMediaQuery(theme.breakpoints.down('md'));
     const navigate = useNavigate();
 
     const { user } = useAuth();
@@ -337,172 +456,132 @@ const DocumentCommunicationExpandPage = () => {
                 marginBottom: '-24px'
             }}
         >
-            <Grid container spacing={0}>
-                <Grid
-                    item
-                    md="auto"
-                    sx={{
-                        maxHeight: `calc(100vh - ${APP_BAR_HEIGHT}px)`,
-                        overflowY: 'auto',
-                        display: { xs: 'none', md: 'flex' }
-                    }}
-                    xs={12}
-                >
-                    <Box
+            {!ismobile ? (
+                <Grid container spacing={0}>
+                    <Grid
+                        item
+                        md="auto"
                         sx={{
-                            maxWidth: '300px' // Responsive width
+                            maxHeight: `calc(100vh - ${APP_BAR_HEIGHT}px)`,
+                            overflowY: 'auto',
+                            display: { xs: 'none', md: 'flex' }
+                        }}
+                        xs={12}
+                    >
+                        <Box
+                            sx={{
+                                maxWidth: '300px' // Responsive width
+                            }}
+                        >
+                            <StudentsList
+                                handleOnClickStudent={handleOnClickStudent}
+                                setStudentSearchTerm={setStudentSearchTerm}
+                                studentId={studentId}
+                                studentMetricsIsLoading={
+                                    studentMetricsIsLoading
+                                }
+                                studentSearchTerm={studentSearchTerm}
+                                students={students}
+                            />
+                        </Box>
+                    </Grid>
+                    <Grid
+                        item
+                        md="auto"
+                        sx={{
+                            maxHeight: `calc(100vh - ${APP_BAR_HEIGHT}px)`,
+                            overflowY: 'auto',
+                            display: { xs: 'none', md: 'flex' }
+                        }}
+                        xs={12}
+                    >
+                        <Box
+                            sx={{
+                                maxWidth: '240px'
+                            }}
+                        >
+                            <ThreadsList
+                                currentCategory={currentCategory}
+                                handleOnClickThread={handleOnClickThread}
+                                onChange={setShowAllThreads}
+                                showAllThreads={showAllThreads}
+                                sortedThreads={sortedThreads}
+                                studentThreadIsLoading={studentThreadIsLoading}
+                            />
+                        </Box>
+                    </Grid>
+                    <Grid
+                        item
+                        md
+                        sx={{
+                            height: `calc(100vh - ${APP_BAR_HEIGHT}px)`, // Subtract header
+                            overflowY: 'auto',
+                            display: { xs: 'none', md: 'flex' },
+                            p: 2
                         }}
                     >
-                        {studentMetricsIsLoading ? (
-                            <Loading />
-                        ) : (
-                            <>
-                                <Stack
-                                    alignItems="center"
-                                    direction="row"
-                                    spacing={1}
-                                >
-                                    <SearchIcon />
-                                    <InputBase
-                                        onChange={(e) =>
-                                            setStudentSearchTerm(e.target.value)
-                                        }
-                                        value={studentSearchTerm}
-                                    />
-                                </Stack>
-                                <List>
-                                    {students
-                                        ?.filter((student) => {
-                                            return `${student?.firstname} ${student?.lastname}`
-                                                .toLowerCase()
-                                                .includes(
-                                                    studentSearchTerm.toLowerCase()
-                                                );
-                                        })
-                                        ?.sort((a, b) => {
-                                            const isAcompleted =
-                                                a.threadCount ===
-                                                a.completeThreadCount;
-                                            const isBcompleted =
-                                                b.threadCount ===
-                                                b.completeThreadCount;
-                                            if (
-                                                a.needToReply !== b.needToReply
-                                            ) {
-                                                return a.needToReply ? -1 : 1;
-                                            }
-                                            if (isAcompleted !== isBcompleted) {
-                                                return isAcompleted ? 1 : -1;
-                                            }
-                                            return a.firstname.localeCompare(
-                                                b.firstname
-                                            );
-                                        })
-                                        ?.map((student) => (
-                                            <StudentItem
-                                                key={student._id}
-                                                onClick={() => {
-                                                    handleOnClickStudent(
-                                                        student._id
-                                                    );
-                                                    window.scrollTo({
-                                                        top: 0,
-                                                        behavior: 'smooth'
-                                                    });
-                                                }}
-                                                selectedStudentId={studentId}
-                                                student={student}
-                                            />
-                                        ))}
-                                </List>
-                            </>
-                        )}
-                    </Box>
+                        {threadId ? (
+                            <DocModificationThreadPage
+                                isEmbedded
+                                threadId={threadId}
+                            />
+                        ) : null}
+                    </Grid>
                 </Grid>
-                <Grid
-                    item
-                    md="auto"
-                    sx={{
-                        maxHeight: `calc(100vh - ${APP_BAR_HEIGHT}px)`,
-                        overflowY: 'auto',
-                        display: { xs: 'none', md: 'flex' }
-                    }}
-                    xs={12}
-                >
-                    <Box
-                        sx={{
-                            maxWidth: '240px' // Responsive width
-                        }}
-                    >
-                        {studentThreadIsLoading ? <Loading /> : null}
-                        <Checkbox
-                            checked={showAllThreads}
-                            disabled={sortedThreads.every(
-                                (thread) => thread?.isFinalVersion
-                            )}
-                            onChange={() => setShowAllThreads(!showAllThreads)}
-                        />{' '}
-                        Show completed threads
-                        <List>
-                            {sortedThreads
-                                ?.filter(
-                                    (thread) =>
-                                        showAllThreads ||
-                                        !thread?.isFinalVersion
-                                )
-                                ?.map((thread) => {
-                                    const category = getCategory(
-                                        thread.file_type
-                                    );
-                                    const showCategoryLabel =
-                                        category !== currentCategory;
-                                    currentCategory = category;
+            ) : null}
+            {ismobile ? (
+                <>
+                    <StudentsList
+                        handleOnClickStudent={handleOnClickStudent}
+                        setStudentSearchTerm={setStudentSearchTerm}
+                        studentId={studentId}
+                        studentMetricsIsLoading={studentMetricsIsLoading}
+                        studentSearchTerm={studentSearchTerm}
+                        students={students}
+                    />
 
-                                    return (
-                                        <React.Fragment key={thread._id}>
-                                            {showCategoryLabel ? (
-                                                <Divider
-                                                    sx={{
-                                                        paddingX: 3,
-                                                        paddingY: 1
-                                                    }}
-                                                    textAlign="center"
-                                                >
-                                                    {category}
-                                                </Divider>
-                                            ) : null}
-                                            <ThreadItem
-                                                onClick={() => {
-                                                    handleOnClickThread(
-                                                        thread._id
-                                                    );
-                                                }}
-                                                thread={thread}
-                                            />
-                                        </React.Fragment>
-                                    );
-                                })}
-                        </List>
-                    </Box>
-                </Grid>
-                <Grid
-                    item
-                    md
-                    sx={{
-                        height: `calc(100vh - ${APP_BAR_HEIGHT}px)`, // Subtract header
-                        overflowY: 'auto',
-                        display: { xs: 'none', md: 'flex' },
-                        p: 2
-                    }}
-                >
-                    {threadId ? (
+                    <Drawer
+                        anchor="right"
+                        data-testid="navbar_drawer_component"
+                        open={studentId ? true : false}
+                        sx={{
+                            flexShrink: 0,
+                            '& .MuiDrawer-paper': {
+                                width: '100%', // Make Drawer full width on small screens
+                                maxWidth: '100vw'
+                            }
+                        }}
+                        variant="temporary"
+                    >
+                        <ThreadsList
+                            currentCategory={currentCategory}
+                            handleOnClickThread={handleOnClickThread}
+                            onChange={setShowAllThreads}
+                            showAllThreads={showAllThreads}
+                            sortedThreads={sortedThreads}
+                            studentThreadIsLoading={studentThreadIsLoading}
+                        />
+                    </Drawer>
+                    <Drawer
+                        anchor="right"
+                        data-testid="navbar_drawer_component"
+                        open={studentId && threadId ? true : false}
+                        sx={{
+                            flexShrink: 0,
+                            '& .MuiDrawer-paper': {
+                                width: '100%', // Make Drawer full width on small screens
+                                maxWidth: '100vw'
+                            }
+                        }}
+                        variant="temporary"
+                    >
                         <DocModificationThreadPage
                             isEmbedded
                             threadId={threadId}
                         />
-                    ) : null}
-                </Grid>
-            </Grid>
+                    </Drawer>
+                </>
+            ) : null}
         </Box>
     );
 };
