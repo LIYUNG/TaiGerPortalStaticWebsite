@@ -22,6 +22,7 @@ const DocumentCheckingResultModal = ({
     onConfirm,
     title,
     isFinalVersion,
+    isSubmissionLoaded,
     file_type,
     thread_id,
     student_name,
@@ -152,11 +153,18 @@ const DocumentCheckingResultModal = ({
             <DialogActions>
                 <Button
                     disabled={
-                        file_type === 'CV' && !isFinalVersion
-                            ? loading || !acknowledge
-                            : false
+                        !isSubmissionLoaded
+                            ? true
+                            : file_type === 'CV' && !isFinalVersion
+                              ? loading || !acknowledge
+                              : false
                     }
                     onClick={onConfirm}
+                    startIcon={
+                        !isSubmissionLoaded ? (
+                            <CircularProgress size={20} />
+                        ) : null
+                    }
                     variant="contained"
                 >
                     Yes

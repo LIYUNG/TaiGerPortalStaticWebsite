@@ -1448,6 +1448,9 @@ const DocModificationThreadPage = ({
                 docName={docName}
                 file_type={thread.file_type}
                 isFinalVersion={thread.isFinalVersion}
+                isSubmissionLoaded={
+                    docModificationThreadPageState.isSubmissionLoaded
+                }
                 onClose={closeSetAsFinalFileModelWindow}
                 onConfirm={(e) => ConfirmSetAsFinalFileHandler(e)}
                 open={docModificationThreadPageState.SetAsFinalFileModel}
