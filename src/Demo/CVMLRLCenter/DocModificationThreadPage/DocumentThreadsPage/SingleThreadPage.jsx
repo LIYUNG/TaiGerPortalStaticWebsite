@@ -39,7 +39,6 @@ const SingleThreadPage = () => {
         docName = thread.file_type;
     }
 
-    const isEmbedded = true;
     return (
         <>
             <Box
@@ -73,11 +72,7 @@ const SingleThreadPage = () => {
                             color="primary"
                             component={LinkDom}
                             size="small"
-                            to={
-                                isEmbedded
-                                    ? `/document-modification/${documentsthreadId}`
-                                    : `/doc-communications/${documentsthreadId}`
-                            }
+                            to={`/doc-communications/${documentsthreadId}`}
                             variant="contained"
                         >
                             {i18next.t('Switch View', { ns: 'common' })}

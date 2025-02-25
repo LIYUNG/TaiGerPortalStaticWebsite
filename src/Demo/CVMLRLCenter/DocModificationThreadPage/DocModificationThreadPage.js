@@ -740,11 +740,7 @@ const OriginAuthorStatementBar = ({
     ) : null;
 };
 
-const DocModificationThreadPage = ({
-    isEmbedded = false,
-    threadProps,
-    similarThreads
-}) => {
+const DocModificationThreadPage = ({ threadProps, similarThreads }) => {
     const { user } = useAuth();
     const theme = useTheme();
     const { documentsthreadId } = useParams();
@@ -1219,29 +1215,7 @@ const DocModificationThreadPage = ({
             />
             {/* TODO */}
             {/* {false ? <button onClick={generatePDF}>Generate PDF</button> : null} */}
-            <Box
-                alignItems="center"
-                display="flex"
-                justifyContent="space-between"
-            >
-                {!is_TaiGer_Student(user) ? (
-                    <Box style={{ textAlign: 'left' }}>
-                        <Button
-                            color="primary"
-                            component={LinkDom}
-                            size="small"
-                            to={
-                                isEmbedded
-                                    ? `/document-modification/${documentsthreadId}`
-                                    : `/doc-communications/${documentsthreadId}`
-                            }
-                            variant="contained"
-                        >
-                            {i18next.t('Switch View', { ns: 'common' })}
-                        </Button>
-                    </Box>
-                ) : null}
-            </Box>
+
             {docModificationThreadPageState.thread.isFinalVersion ? (
                 <TopBar />
             ) : null}

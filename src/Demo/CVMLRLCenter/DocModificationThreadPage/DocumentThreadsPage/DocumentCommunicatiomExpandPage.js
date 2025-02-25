@@ -28,8 +28,6 @@ import {
 import { useAuth } from '../../../../components/AuthProvider';
 import { is_TaiGer_role } from '@taiger-common/core';
 import DEMO from '../../../../store/constant';
-import Loading from '../../../../components/Loading/Loading';
-
 import {
     FILE_OK_SYMBOL,
     FILE_MISSING_SYMBOL,
@@ -41,6 +39,7 @@ import {
     getThreadsByStudent
 } from '../../../../api';
 import { EmbeddedThreadComponent } from './EmbeddedThreadComponent';
+import ChildLoading from '../../../../components/Loading/ChildLoading';
 
 const categories = {
     General: [
@@ -253,7 +252,7 @@ const StudentsList = ({
     studentSearchTerm
 }) => {
     return studentMetricsIsLoading ? (
-        <Loading />
+        <ChildLoading />
     ) : (
         <>
             <Stack alignItems="center" direction="row" spacing={1}>
@@ -312,7 +311,7 @@ const ThreadsList = ({
 }) => {
     return (
         <Box>
-            {studentThreadIsLoading ? <Loading /> : null}
+            {studentThreadIsLoading ? <ChildLoading /> : null}
             <Checkbox
                 checked={showAllThreads}
                 disabled={sortedThreads.every(
@@ -471,7 +470,9 @@ const DocumentCommunicationExpandPage = () => {
                         sx={{
                             maxHeight: `calc(100vh - ${APP_BAR_HEIGHT}px)`,
                             overflowY: 'auto',
-                            display: { xs: 'none', md: 'flex' }
+                            display: { xs: 'none', md: 'flex' },
+                            flexShrink: 0, // Prevents shrinking too much
+                            minWidth: '250px' // Ensures sidebar stays readable
                         }}
                         xs={12}
                     >
@@ -498,7 +499,9 @@ const DocumentCommunicationExpandPage = () => {
                         sx={{
                             maxHeight: `calc(100vh - ${APP_BAR_HEIGHT}px)`,
                             overflowY: 'auto',
-                            display: { xs: 'none', md: 'flex' }
+                            display: { xs: 'none', md: 'flex' },
+                            flexShrink: 0, // Prevents shrinking too much
+                            minWidth: '220px' // Ensures sidebar stays readable
                         }}
                         xs={12}
                     >
@@ -522,10 +525,8 @@ const DocumentCommunicationExpandPage = () => {
                             item
                             md
                             sx={{
-                                height: `calc(100vh - ${APP_BAR_HEIGHT}px)`, // Subtract header
-                                overflowY: 'auto',
-                                display: { xs: 'none', md: 'flex' },
-                                p: 2
+                                flexGrow: 1, // Takes up remaining space
+                                minWidth: 0 // Prevents it from forcing wrap
                             }}
                         >
                             <EmbeddedThreadComponent />
@@ -609,31 +610,7 @@ const DocumentCommunicationExpandPage = () => {
                         }}
                         variant="temporary"
                     >
-                        <Box
-                            className="sticky-top"
-                            sx={{
-                                my: 1,
-                                display: 'flex'
-                            }}
-                        >
-                            <IconButton
-                                aria-label="open drawer"
-                                color="inherit"
-                                edge="start"
-                                onClick={() => setThreadId(null)}
-                                style={{ marginLeft: '4px' }}
-                            >
-                                <ArrowBackIcon />
-                            </IconButton>
-                        </Box>
-                        <Box
-                            sx={{
-                                height: `calc(100vh - ${APP_BAR_HEIGHT}px)`, // Subtract header
-                                overflowY: 'auto'
-                            }}
-                        >
-                            <EmbeddedThreadComponent />
-                        </Box>
+                        <EmbeddedThreadComponent setThreadId={setThreadId} />
                     </Drawer>
                 </>
             ) : null}
