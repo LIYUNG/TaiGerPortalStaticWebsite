@@ -1191,6 +1191,8 @@ export const convertDateUXFriendly = (date) => {
     return timeDisplay;
 };
 
+export const APP_BAR_HEIGHT = 64;
+
 const create_years = (start_year, end_year) => {
     const num = end_year - start_year;
     const year_array = Array.from({ length: num }, (_, i) => i + start_year);

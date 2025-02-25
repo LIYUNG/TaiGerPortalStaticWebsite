@@ -34,7 +34,8 @@ import DocModificationThreadPage from '../DocModificationThreadPage';
 import {
     FILE_OK_SYMBOL,
     FILE_MISSING_SYMBOL,
-    convertDateUXFriendly
+    convertDateUXFriendly,
+    APP_BAR_HEIGHT
 } from '../../../../utils/contants';
 import {
     getMyStudentThreadMetrics,
@@ -310,7 +311,7 @@ const ThreadsList = ({
     handleOnClickThread
 }) => {
     return (
-        <>
+        <Box>
             {studentThreadIsLoading ? <Loading /> : null}
             <Checkbox
                 checked={showAllThreads}
@@ -353,7 +354,7 @@ const ThreadsList = ({
                         );
                     })}
             </List>
-        </>
+        </Box>
     );
 };
 
@@ -366,6 +367,7 @@ const DocumentCommunicationExpandPage = () => {
     const { user } = useAuth();
     const [showAllThreads, setShowAllThreads] = useState(true);
     const [studentId, setStudentId] = useState(null);
+    const [studentName, setStudentName] = useState(null);
     const [threadId, setThreadId] = useState(paramThreadId || null);
     const [studentSearchTerm, setStudentSearchTerm] = useState('');
 
@@ -389,10 +391,13 @@ const DocumentCommunicationExpandPage = () => {
         }
         navigate(`/doc-communications/${threadId}`, { replace: true });
         // get student id by thread id
-        const studentId = students?.find((student) =>
+
+        const student = students?.find((student) =>
             student?.threads?.includes(threadId)
-        )?._id;
+        );
+        const { _id: studentId, firstname, lastname } = student;
         setStudentId(studentId);
+        setStudentName(`${firstname} ${lastname}`);
     }, [students, threadId, navigate]);
 
     useEffect(() => {
@@ -444,8 +449,6 @@ const DocumentCommunicationExpandPage = () => {
     if (studentMetricsIsError) {
         return studentMetricsError;
     }
-
-    const APP_BAR_HEIGHT = 64;
 
     return (
         <Box
@@ -542,7 +545,6 @@ const DocumentCommunicationExpandPage = () => {
 
                     <Drawer
                         anchor="right"
-                        data-testid="navbar_drawer_component"
                         open={studentId ? true : false}
                         sx={{
                             flexShrink: 0,
@@ -560,24 +562,38 @@ const DocumentCommunicationExpandPage = () => {
                                 display: 'flex'
                             }}
                         >
-                            <IconButton
-                                aria-label="open drawer"
-                                color="inherit"
-                                edge="start"
-                                onClick={() => setStudentId(null)}
-                                style={{ marginLeft: '4px' }}
+                            <Stack
+                                alignItems="center"
+                                direction="row"
+                                spacing={1}
                             >
-                                <ArrowBackIcon />
-                            </IconButton>
+                                <IconButton
+                                    aria-label="open drawer"
+                                    color="inherit"
+                                    edge="start"
+                                    onClick={() => setStudentId(null)}
+                                    style={{ marginLeft: '4px' }}
+                                >
+                                    <ArrowBackIcon />
+                                </IconButton>
+                                <Typography>{studentName}</Typography>
+                            </Stack>
                         </Box>
-                        <ThreadsList
-                            currentCategory={currentCategory}
-                            handleOnClickThread={handleOnClickThread}
-                            onChange={setShowAllThreads}
-                            showAllThreads={showAllThreads}
-                            sortedThreads={sortedThreads}
-                            studentThreadIsLoading={studentThreadIsLoading}
-                        />
+                        <Box
+                            sx={{
+                                height: `calc(100vh - ${APP_BAR_HEIGHT}px)`, // Subtract header
+                                overflowY: 'auto'
+                            }}
+                        >
+                            <ThreadsList
+                                currentCategory={currentCategory}
+                                handleOnClickThread={handleOnClickThread}
+                                onChange={setShowAllThreads}
+                                showAllThreads={showAllThreads}
+                                sortedThreads={sortedThreads}
+                                studentThreadIsLoading={studentThreadIsLoading}
+                            />
+                        </Box>
                     </Drawer>
                     <Drawer
                         anchor="right"
@@ -609,10 +625,17 @@ const DocumentCommunicationExpandPage = () => {
                                 <ArrowBackIcon />
                             </IconButton>
                         </Box>
-                        <DocModificationThreadPage
-                            isEmbedded
-                            threadId={threadId}
-                        />
+                        <Box
+                            sx={{
+                                height: `calc(100vh - ${APP_BAR_HEIGHT}px)`, // Subtract header
+                                overflowY: 'auto'
+                            }}
+                        >
+                            <DocModificationThreadPage
+                                isEmbedded
+                                threadId={threadId}
+                            />
+                        </Box>
                     </Drawer>
                 </>
             ) : null}
