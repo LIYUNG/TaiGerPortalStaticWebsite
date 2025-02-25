@@ -1,32 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Link as LinkDom } from 'react-router-dom';
-import { Card, CircularProgress, Link } from '@mui/material';
+import { Card, Link } from '@mui/material';
 import { FileIcon, defaultStyles } from 'react-file-icon';
 
 import { BASE_URL } from '../../../api/request';
 
-const FileItem = (props) => {
-    const [fileItemState, setFileItemState] = useState({
-        editorState: null,
-        ConvertedContent: '',
-        message_id: '',
-        isLoaded: false,
-        deleteMessageModalShow: false
-    });
-
-    useEffect(() => {
-        setFileItemState((prevState) => ({
-            ...prevState,
-            isLoaded: props.isLoaded,
-            deleteMessageModalShow: false
-        }));
-    }, [props.message.message]);
-
-    if (!fileItemState.isLoaded) {
-        return <CircularProgress />;
-    }
-
-    const files_info = props.message?.file.map((file, i) => (
+const FileItem = ({ message }) => {
+    const files_info = message?.file.map((file, i) => (
         <Card key={i} sx={{ p: 1 }}>
             <span>
                 <Link
@@ -67,8 +47,7 @@ const FileItem = (props) => {
                         />
                     </svg>
                 </Link>
-                by {props.message.user_id.firstname}{' '}
-                {props.message.user_id.lastname}
+                by {message.user_id.firstname} {message.user_id.lastname}
             </span>
         </Card>
     ));

@@ -15,8 +15,24 @@ import {
     getCourse,
     getCommunicationThreadV2,
     getPdfV2,
-    getMyCommunicationThreadV2
+    getMyCommunicationThreadV2,
+    getMessagThread
 } from '.';
+
+export const getMessagThreadQuery = (threadId) => ({
+    queryKey: ['MessageThread', threadId],
+    queryFn: async () => {
+        try {
+            const response = await getMessagThread(threadId);
+            return response;
+        } catch (error) {
+            console.log(error);
+            throw error;
+        }
+    },
+    staleTime: 1000 * 60, // 1 minutes
+    cacheTime: 10 * 60 * 1000 // 10 minutes
+});
 
 export const getProgramQuery = ({ programId }) => ({
     queryKey: ['programs', programId],

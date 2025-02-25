@@ -196,9 +196,10 @@ const StudentDatabase = React.lazy(
 const CVMLRL_Modification_Thread = React.lazy(
     () =>
         import(
-            './Demo/CVMLRLCenter/DocModificationThreadPage/DocModificationThreadPage'
+            './Demo/CVMLRLCenter/DocModificationThreadPage/DocumentThreadsPage/SingleThreadPage'
         )
 );
+
 const CVMLRL_Modification_ThreadInput = React.lazy(
     () =>
         import(
@@ -849,7 +850,7 @@ if (appConfig.messengerEnable) {
         Component: CommunicationExpandPage
     });
     routes.push({
-        path: '/doc-communications/:threadId?',
+        path: '/doc-communications/:documentsthreadId?',
         name: 'All Chat',
         Component: DocumentCommunicatiomExpandPage
     });

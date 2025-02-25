@@ -183,7 +183,7 @@ const MessageCard = (props) => {
         <>
             <Accordion
                 disableGutters
-                expanded={props.accordionKeys[props.idx] === props.idx}
+                expanded={true}
                 sx={{
                     overflowWrap: 'break-word', // Add this line
                     maxWidth: window.innerWidth - 64,
@@ -200,7 +200,7 @@ const MessageCard = (props) => {
                     aria-controls={'accordion' + props.idx}
                     expandIcon={<ExpandMoreIcon />}
                     id={`${props.idx}`}
-                    onClick={() => props.singleExpandtHandler(props.idx)}
+                    // onClick={() => props.singleExpandtHandler(props.idx)}
                 >
                     <Avatar {...stringAvatar(full_name)} />
                     <Typography style={{ marginLeft: '10px', flex: 1 }}>

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { Link as LinkDom, useLocation, useParams } from 'react-router-dom';
 // import jsPDF from 'jspdf';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -9,6 +8,10 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import HelpIcon from '@mui/icons-material/Help';
 import StarBorderRoundedIcon from '@mui/icons-material/StarBorderRounded';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
+import ChatIcon from '@mui/icons-material/Chat';
+import FolderIcon from '@mui/icons-material/Folder';
+import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
+import HistoryIcon from '@mui/icons-material/History';
 import {
     Typography,
     Button,
@@ -19,7 +22,6 @@ import {
     Box,
     CircularProgress,
     Grid,
-    Breadcrumbs,
     useTheme,
     Avatar,
     IconButton,
@@ -61,7 +63,6 @@ import {
 import { BASE_URL } from '../../../api/request';
 import {
     SubmitMessageWithAttachment,
-    getMessagThread,
     deleteAMessageInThread,
     SetFileAsFinal,
     updateEssayWriter,
@@ -73,7 +74,6 @@ import DEMO from '../../../store/constant';
 import FilesList from './FilesList';
 import { appConfig } from '../../../config';
 import { useAuth } from '../../../components/AuthProvider';
-import Loading from '../../../components/Loading/Loading';
 import EditEssayWritersSubpage from '../../Dashboard/MainViewTab/StudDocsOverview/EditEssayWritersSubpage';
 import { TopBar } from '../../../components/TopBar/TopBar';
 import MessageList from '../../../components/Message/MessageList';
@@ -81,21 +81,6 @@ import DocumentCheckingResultModal from './DocumentCheckingResultModal';
 import { a11yProps, CustomTabPanel } from '../../../components/Tabs';
 import Audit from '../../Audit';
 import i18next from 'i18next';
-
-const getMessagThreadQuery = (threadId) => ({
-    queryKey: ['MessageThread', threadId],
-    queryFn: async () => {
-        try {
-            const response = await getMessagThread(threadId);
-            return response;
-        } catch (error) {
-            console.log(error);
-            throw error;
-        }
-    },
-    staleTime: 1000 * 60, // 1 minutes
-    cacheTime: 10 * 60 * 1000 // 10 minutes
-});
 
 const DescriptionBlock = ({ thread, template_obj, documentsthreadId }) => {
     const { user } = useAuth();
@@ -537,7 +522,6 @@ const InformationBlock = ({
 const OriginAuthorStatementBar = ({
     thread,
     student_name,
-    student_name_zh,
     docName,
     theme,
     user
@@ -569,6 +553,8 @@ const OriginAuthorStatementBar = ({
             () => {}
         );
     };
+
+    const student_name_zh = `${thread.student_id.lastname_chinese}${thread.student_id.firstname_chinese}`;
 
     return thread?.file_type === 'Essay' ? (
         <Box className="sticky-top">
@@ -754,19 +740,22 @@ const OriginAuthorStatementBar = ({
     ) : null;
 };
 
-const DocModificationThreadPage = ({ threadId, isEmbedded = false }) => {
+const DocModificationThreadPage = ({
+    isEmbedded = false,
+    threadProps,
+    similarThreads
+}) => {
     const { user } = useAuth();
     const theme = useTheme();
-    const { documentsthreadId: paramDocumentsthreadId } = useParams();
-    const documentsthreadId = threadId || paramDocumentsthreadId;
+    const { documentsthreadId } = useParams();
     const [docModificationThreadPageState, setDocModificationThreadPageState] =
         useState({
             error: '',
             file: null,
-            isLoaded: false,
             showEditorPage: false,
             isSubmissionLoaded: true,
-            thread: null,
+            isLoaded: true,
+            thread: threadProps,
             buttonDisabled: false,
             editorState: {},
             expand: true,
@@ -783,60 +772,12 @@ const DocModificationThreadPage = ({ threadId, isEmbedded = false }) => {
     const [checkResult, setCheckResult] = useState([]);
     const { hash } = useLocation();
     const [value, setValue] = useState(THREAD_TABS[hash.replace('#', '')] || 0);
-
-    const { data, error } = useQuery(getMessagThreadQuery(documentsthreadId));
-
     useEffect(() => {
-        if (data) {
-            const {
-                success,
-                data: threadData,
-                editors,
-                agents,
-                threadAuditLog,
-                deadline,
-                conflict_list
-            } = data.data;
-            const { status } = data;
-
-            if (success) {
-                setDocModificationThreadPageState((prevState) => ({
-                    ...prevState,
-                    success,
-                    thread: threadData,
-                    threadAuditLog,
-                    editors,
-                    agents,
-                    deadline,
-                    conflict_list,
-                    isLoaded: true,
-                    documentsthreadId: documentsthreadId,
-                    file: null,
-                    accordionKeys: new Array(threadData.messages.length)
-                        .fill()
-                        .map((x, i) =>
-                            i === threadData.messages.length - 1 ? i : -1
-                        ), // to collapse all
-                    res_status: status
-                }));
-            } else {
-                setDocModificationThreadPageState((prevState) => ({
-                    ...prevState,
-                    isLoaded: true,
-                    res_status: status
-                }));
-            }
-        }
-
-        if (error) {
-            setDocModificationThreadPageState((prevState) => ({
-                ...prevState,
-                isLoaded: true,
-                error,
-                res_status: 500
-            }));
-        }
-    }, [data, error]);
+        setDocModificationThreadPageState((prevState) => ({
+            ...prevState,
+            thread: threadProps
+        }));
+    }, [documentsthreadId]);
 
     const closeSetAsFinalFileModelWindow = () => {
         setDocModificationThreadPageState((prevState) => ({
@@ -913,39 +854,6 @@ const DocModificationThreadPage = ({ threadId, isEmbedded = false }) => {
         }));
     };
 
-    const singleExpandtHandler = (idx) => {
-        let accordionKeys = [...docModificationThreadPageState.accordionKeys];
-        accordionKeys[idx] = accordionKeys[idx] !== idx ? idx : -1;
-        setDocModificationThreadPageState((prevState) => ({
-            ...prevState,
-            accordionKeys: accordionKeys
-        }));
-    };
-
-    const AllCollapsetHandler = () => {
-        setDocModificationThreadPageState((prevState) => ({
-            ...prevState,
-            expand: false,
-            accordionKeys: new Array(
-                docModificationThreadPageState.thread.messages.length
-            )
-                .fill()
-                .map(() => -1) // to collapse all]
-        }));
-    };
-
-    const AllExpandtHandler = () => {
-        setDocModificationThreadPageState((prevState) => ({
-            ...prevState,
-            expand: true,
-            accordionKeys: new Array(
-                docModificationThreadPageState.thread.messages.length
-            )
-                .fill()
-                .map((x, i) => i) // to expand all]
-        }));
-    };
-
     const handleClickSave = (e, editorState) => {
         e.preventDefault();
         setDocModificationThreadPageState((prevState) => ({
@@ -962,9 +870,9 @@ const DocModificationThreadPage = ({ threadId, isEmbedded = false }) => {
         }
 
         formData.append('message', message);
-
+        console.log(docModificationThreadPageState.thread);
         SubmitMessageWithAttachment(
-            docModificationThreadPageState.documentsthreadId,
+            documentsthreadId,
             docModificationThreadPageState.thread.student_id._id,
             formData
         ).then(
@@ -1108,10 +1016,7 @@ const DocModificationThreadPage = ({ threadId, isEmbedded = false }) => {
             ...prevState,
             isLoaded: false
         }));
-        deleteAMessageInThread(
-            docModificationThreadPageState.documentsthreadId,
-            message_id
-        ).then(
+        deleteAMessageInThread(documentsthreadId, message_id).then(
             (resp) => {
                 const { success } = resp.data;
                 const { status } = resp;
@@ -1262,7 +1167,6 @@ const DocModificationThreadPage = ({ threadId, isEmbedded = false }) => {
     };
 
     const {
-        isLoaded,
         isSubmissionLoaded,
         conflict_list,
         threadAuditLog,
@@ -1271,10 +1175,6 @@ const DocModificationThreadPage = ({ threadId, isEmbedded = false }) => {
         res_modal_status,
         res_modal_message
     } = docModificationThreadPageState;
-
-    if (!isLoaded || !thread) {
-        return <Loading />;
-    }
 
     if (res_status >= 400) {
         return <ErrorPage res_status={res_status} />;
@@ -1298,7 +1198,7 @@ const DocModificationThreadPage = ({ threadId, isEmbedded = false }) => {
     );
     let docName;
     const student_name = `${thread.student_id.firstname} ${thread.student_id.lastname}`;
-    const student_name_zh = `${thread.student_id.lastname_chinese}${thread.student_id.firstname_chinese}`;
+
     if (thread.program_id) {
         const { school, degree, program_name } = thread.program_id;
         docName = `${school} - ${degree} - ${program_name} ${thread.file_type}`;
@@ -1310,11 +1210,9 @@ const DocModificationThreadPage = ({ threadId, isEmbedded = false }) => {
     TabTitle(`${student_name} ${docName}`);
     return (
         <Box>
-            {!isLoaded ? <Loading /> : null}
             <OriginAuthorStatementBar
                 docName={docName}
                 student_name={student_name}
-                student_name_zh={student_name_zh}
                 theme={theme}
                 thread={thread}
                 user={user}
@@ -1326,54 +1224,6 @@ const DocModificationThreadPage = ({ threadId, isEmbedded = false }) => {
                 display="flex"
                 justifyContent="space-between"
             >
-                <Box>
-                    <Breadcrumbs aria-label="breadcrumb">
-                        <Link
-                            color="inherit"
-                            component={LinkDom}
-                            to={`${DEMO.DASHBOARD_LINK}`}
-                            underline="hover"
-                        >
-                            {appConfig.companyName}
-                        </Link>
-                        <Link
-                            color="inherit"
-                            component={LinkDom}
-                            to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                                docModificationThreadPageState.thread.student_id._id.toString(),
-                                DEMO.CVMLRL_HASH
-                            )}`}
-                            underline="hover"
-                        >
-                            {student_name}
-                        </Link>
-                        <Typography color="text.primary" variant="body1">
-                            {docName}
-                            {i18next.t('discussion-thread', { ns: 'common' })}
-                        </Typography>
-                        <span style={{ float: 'right' }}>
-                            {docModificationThreadPageState.expand ? (
-                                <Button
-                                    color="secondary"
-                                    onClick={() => AllCollapsetHandler()}
-                                    size="small"
-                                    variant="outlined"
-                                >
-                                    {i18next.t('Collapse')}
-                                </Button>
-                            ) : (
-                                <Button
-                                    color="secondary"
-                                    onClick={() => AllExpandtHandler()}
-                                    size="small"
-                                    variant="outlined"
-                                >
-                                    {i18next.t('Expand')}
-                                </Button>
-                            )}
-                        </span>
-                    </Breadcrumbs>
-                </Box>
                 {!is_TaiGer_Student(user) ? (
                     <Box style={{ textAlign: 'left' }}>
                         <Button
@@ -1404,6 +1254,7 @@ const DocModificationThreadPage = ({ threadId, isEmbedded = false }) => {
                 variant="scrollable"
             >
                 <Tab
+                    icon={<ChatIcon />}
                     label={i18next.t('discussion-thread', { ns: 'common' })}
                     {...a11yProps(value, 0)}
                     sx={{
@@ -1411,17 +1262,32 @@ const DocModificationThreadPage = ({ threadId, isEmbedded = false }) => {
                     }}
                 />
                 <Tab
+                    icon={<FolderIcon />}
                     label={i18next.t('files', { ns: 'common' })}
                     {...a11yProps(value, 1)}
                     sx={{
                         fontWeight: value === 1 ? 'bold' : 'normal' // Bold for selected tab
                     }}
                 />
+                {is_TaiGer_role(user) ? (
+                    <Tab
+                        icon={<LibraryBooksIcon />}
+                        label={i18next.t('Database', { ns: 'common' })}
+                        {...a11yProps(value, 2)}
+                        sx={{
+                            fontWeight: value === 2 ? 'bold' : 'normal' // Bold for selected tab
+                        }}
+                    />
+                ) : null}
                 <Tab
+                    icon={<HistoryIcon />}
                     label={i18next.t('Audit', { ns: 'common' })}
-                    {...a11yProps(value, 2)}
+                    {...a11yProps(value, is_TaiGer_role(user) ? 3 : 2)}
                     sx={{
-                        fontWeight: value === 2 ? 'bold' : 'normal' // Bold for selected tab
+                        fontWeight:
+                            value === (is_TaiGer_role(user) ? 3 : 2)
+                                ? 'bold'
+                                : 'normal' // Bold for selected tab
                     }}
                 />
             </Tabs>
@@ -1443,12 +1309,9 @@ const DocModificationThreadPage = ({ threadId, isEmbedded = false }) => {
                 <MessageList
                     accordionKeys={docModificationThreadPageState.accordionKeys}
                     apiPrefix="/api/document-threads"
-                    documentsthreadId={
-                        docModificationThreadPageState.documentsthreadId
-                    }
+                    documentsthreadId={documentsthreadId}
                     isLoaded={docModificationThreadPageState.isLoaded}
                     onDeleteSingleMessage={onDeleteSingleMessage}
-                    singleExpandtHandler={singleExpandtHandler}
                     thread={thread}
                     user={user}
                 />
@@ -1558,19 +1421,26 @@ const DocModificationThreadPage = ({ threadId, isEmbedded = false }) => {
             </CustomTabPanel>
             <CustomTabPanel index={1} value={value}>
                 Files Overview
-                <FilesList
-                    accordionKeys={docModificationThreadPageState.accordionKeys}
-                    documentsthreadId={
-                        docModificationThreadPageState.documentsthreadId
-                    }
-                    isLoaded={docModificationThreadPageState.isLoaded}
-                    onDeleteSingleMessage={onDeleteSingleMessage}
-                    singleExpandtHandler={singleExpandtHandler}
-                    thread={thread}
-                    user={user}
-                />
+                <FilesList thread={thread} />
             </CustomTabPanel>
-            <CustomTabPanel index={2} value={value}>
+            {is_TaiGer_role(user) ? (
+                <CustomTabPanel index={2} value={value}>
+                    {similarThreads && similarThreads?.length > 0
+                        ? similarThreads.map((t) => (
+                              <Link
+                                  component={LinkDom}
+                                  key={t._id}
+                                  target="_blank"
+                                  to={DEMO.DOCUMENT_MODIFICATION_LINK(t._id)}
+                              >
+                                  {`${t.student_id.firstname} ${t.student_id.lastname} ${t.program_id.school}
+                                  ${t.program_id.program_name}`}
+                              </Link>
+                          ))
+                        : null}
+                </CustomTabPanel>
+            ) : null}
+            <CustomTabPanel index={is_TaiGer_role(user) ? 3 : 2} value={value}>
                 <Audit audit={threadAuditLog} />
             </CustomTabPanel>
 

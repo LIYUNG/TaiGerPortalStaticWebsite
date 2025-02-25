@@ -30,7 +30,6 @@ import { is_TaiGer_role } from '@taiger-common/core';
 import DEMO from '../../../../store/constant';
 import Loading from '../../../../components/Loading/Loading';
 
-import DocModificationThreadPage from '../DocModificationThreadPage';
 import {
     FILE_OK_SYMBOL,
     FILE_MISSING_SYMBOL,
@@ -41,6 +40,7 @@ import {
     getMyStudentThreadMetrics,
     getThreadsByStudent
 } from '../../../../api';
+import { EmbeddedThreadComponent } from './EmbeddedThreadComponent';
 
 const categories = {
     General: [
@@ -359,7 +359,7 @@ const ThreadsList = ({
 };
 
 const DocumentCommunicationExpandPage = () => {
-    const { threadId: paramThreadId } = useParams();
+    const { documentsthreadId } = useParams();
     const theme = useTheme();
     const ismobile = useMediaQuery(theme.breakpoints.down('md'));
     const navigate = useNavigate();
@@ -368,7 +368,7 @@ const DocumentCommunicationExpandPage = () => {
     const [showAllThreads, setShowAllThreads] = useState(true);
     const [studentId, setStudentId] = useState(null);
     const [studentName, setStudentName] = useState(null);
-    const [threadId, setThreadId] = useState(paramThreadId || null);
+    const [threadId, setThreadId] = useState(documentsthreadId || null);
     const [studentSearchTerm, setStudentSearchTerm] = useState('');
 
     const {
@@ -395,7 +395,11 @@ const DocumentCommunicationExpandPage = () => {
         const student = students?.find((student) =>
             student?.threads?.includes(threadId)
         );
-        const { _id: studentId, firstname, lastname } = student;
+        const {
+            _id: studentId = null,
+            firstname = '',
+            lastname = ''
+        } = student || { _id: '', firstname: '', lastname: '' };
         setStudentId(studentId);
         setStudentName(`${firstname} ${lastname}`);
     }, [students, threadId, navigate]);
@@ -513,23 +517,20 @@ const DocumentCommunicationExpandPage = () => {
                             />
                         </Box>
                     </Grid>
-                    <Grid
-                        item
-                        md
-                        sx={{
-                            height: `calc(100vh - ${APP_BAR_HEIGHT}px)`, // Subtract header
-                            overflowY: 'auto',
-                            display: { xs: 'none', md: 'flex' },
-                            p: 2
-                        }}
-                    >
-                        {threadId ? (
-                            <DocModificationThreadPage
-                                isEmbedded
-                                threadId={threadId}
-                            />
-                        ) : null}
-                    </Grid>
+                    {threadId ? (
+                        <Grid
+                            item
+                            md
+                            sx={{
+                                height: `calc(100vh - ${APP_BAR_HEIGHT}px)`, // Subtract header
+                                overflowY: 'auto',
+                                display: { xs: 'none', md: 'flex' },
+                                p: 2
+                            }}
+                        >
+                            <EmbeddedThreadComponent />
+                        </Grid>
+                    ) : null}
                 </Grid>
             ) : null}
             {ismobile ? (
@@ -631,10 +632,7 @@ const DocumentCommunicationExpandPage = () => {
                                 overflowY: 'auto'
                             }}
                         >
-                            <DocModificationThreadPage
-                                isEmbedded
-                                threadId={threadId}
-                            />
+                            <EmbeddedThreadComponent />
                         </Box>
                     </Drawer>
                 </>

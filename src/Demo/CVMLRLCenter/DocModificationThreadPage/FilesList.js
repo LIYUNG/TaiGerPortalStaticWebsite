@@ -2,17 +2,9 @@ import React from 'react';
 
 import FileItem from './FileItem';
 
-const FilesList = (props) => {
-    const fileList = props.thread.messages.map((message, i) => (
-        <FileItem
-            documentsthreadId={props.documentsthreadId}
-            id={message._id}
-            idx={i}
-            isLoaded={props.isLoaded}
-            key={i}
-            lastupdate={props.lastupdate}
-            message={message}
-        />
+const FilesList = ({ thread }) => {
+    const fileList = thread.messages.map((message, i) => (
+        <FileItem id={message._id} idx={i} key={i} message={message} />
     ));
     return fileList;
 };
