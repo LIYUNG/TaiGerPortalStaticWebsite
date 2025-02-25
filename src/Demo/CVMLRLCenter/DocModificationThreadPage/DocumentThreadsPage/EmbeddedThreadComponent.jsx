@@ -22,11 +22,14 @@ import { APP_BAR_HEIGHT, stringAvatar } from '../../../../utils/contants';
 import DEMO from '../../../../store/constant';
 import i18next from 'i18next';
 import ChildLoading from '../../../../components/Loading/ChildLoading';
+import { useRef } from 'react';
 
 export const EmbeddedThreadComponent = ({ setThreadId }) => {
     const { documentsthreadId } = useParams();
     const theme = useTheme();
     const ismobile = useMediaQuery(theme.breakpoints.down('md'));
+    const scrollableRef = useRef(null);
+
     const { data, isLoading, error } = useQuery(
         getMessagThreadQuery(documentsthreadId)
     );
@@ -124,7 +127,7 @@ export const EmbeddedThreadComponent = ({ setThreadId }) => {
                         <Typography
                             fontWeight="bold"
                             sx={{ mx: 1 }}
-                            variant="h4"
+                            variant="body1"
                         >
                             {file_type}
                         </Typography>
@@ -149,6 +152,7 @@ export const EmbeddedThreadComponent = ({ setThreadId }) => {
                 }}
             >
                 <DocModificationThreadPage
+                    scrollableRef={scrollableRef}
                     similarThreads={similarThreads}
                     threadProps={thread}
                 />

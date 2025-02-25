@@ -112,8 +112,8 @@ const StudentItem = ({ student, selectedStudentId, onClick }) => {
     return (
         <ListItem
             disablePadding
-            divider
             sx={{
+                py: 1,
                 backgroundColor: !highlightItem
                     ? theme.palette.background.default
                     : theme.palette.action.disabled,
@@ -150,7 +150,10 @@ const StudentItem = ({ student, selectedStudentId, onClick }) => {
                                 {`${student.firstname} ${student.lastname}`}
                             </Typography>
                         }
-                        secondary={`${student?.completeThreadCount}/${student?.threadCount}`}
+                        secondary={`
+                            ${student?.completeThreadCount}/${student?.threadCount}
+                            (${student?.application_preference?.expected_application_date || '-'}
+                            ${student?.application_preference?.expected_application_semester || '-'})`}
                     />
                     {highlightItem ? (
                         <FiberManualRecordIcon
@@ -265,9 +268,17 @@ const StudentsList = ({
             <List>
                 {students
                     ?.filter((student) => {
-                        return `${student?.firstname} ${student?.lastname}`
-                            .toLowerCase()
-                            .includes(studentSearchTerm.toLowerCase());
+                        return (
+                            `${student?.firstname} ${student?.lastname}`
+                                .toLowerCase()
+                                .includes(studentSearchTerm.toLowerCase()) ||
+                            `${student?.application_preference?.expected_application_semester}`?.includes(
+                                String(studentSearchTerm)
+                            ) ||
+                            `${student?.application_preference?.expected_application_date}`?.includes(
+                                String(studentSearchTerm)
+                            )
+                        );
                     })
                     ?.sort((a, b) => {
                         const isAcompleted =
@@ -471,8 +482,7 @@ const DocumentCommunicationExpandPage = () => {
                             maxHeight: `calc(100vh - ${APP_BAR_HEIGHT}px)`,
                             overflowY: 'auto',
                             display: { xs: 'none', md: 'flex' },
-                            flexShrink: 0, // Prevents shrinking too much
-                            minWidth: '250px' // Ensures sidebar stays readable
+                            flexShrink: 0 // Prevents shrinking too much
                         }}
                         xs={12}
                     >

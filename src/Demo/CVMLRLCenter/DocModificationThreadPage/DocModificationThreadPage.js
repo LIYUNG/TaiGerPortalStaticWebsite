@@ -740,7 +740,11 @@ const OriginAuthorStatementBar = ({
     ) : null;
 };
 
-const DocModificationThreadPage = ({ threadProps, similarThreads }) => {
+const DocModificationThreadPage = ({
+    threadProps,
+    similarThreads,
+    scrollableRef
+}) => {
     const { user } = useAuth();
     const theme = useTheme();
     const { documentsthreadId } = useParams();
@@ -774,6 +778,16 @@ const DocModificationThreadPage = ({ threadProps, similarThreads }) => {
             thread: threadProps
         }));
     }, [documentsthreadId]);
+    useEffect(() => {
+        if (scrollableRef?.current) {
+            setTimeout(() => {
+                scrollableRef.current.scrollTo({
+                    top: scrollableRef.current.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }, 100);
+        }
+    }, []);
 
     const closeSetAsFinalFileModelWindow = () => {
         setDocModificationThreadPageState((prevState) => ({
