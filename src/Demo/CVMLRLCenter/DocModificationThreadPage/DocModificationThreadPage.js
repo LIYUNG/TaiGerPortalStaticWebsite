@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link as LinkDom, useLocation, useParams } from 'react-router-dom';
+import ArticleIcon from '@mui/icons-material/Article'; // Using Article icon for thread links
+
 // import jsPDF from 'jspdf';
 import DownloadIcon from '@mui/icons-material/Download';
 import LaunchIcon from '@mui/icons-material/Launch';
@@ -1266,7 +1268,7 @@ const DocModificationThreadPage = ({
                 {is_TaiGer_role(user) ? (
                     <Tab
                         icon={<LibraryBooksIcon />}
-                        label={i18next.t('Database', { ns: 'common' })}
+                        label={`${i18next.t('Database', { ns: 'common' })} (${similarThreads?.length || 0})`}
                         {...a11yProps(value, 2)}
                         sx={{
                             fontWeight: value === 2 ? 'bold' : 'normal' // Bold for selected tab
@@ -1419,19 +1421,55 @@ const DocModificationThreadPage = ({
             </CustomTabPanel>
             {is_TaiGer_role(user) ? (
                 <CustomTabPanel index={2} value={value}>
-                    {similarThreads && similarThreads?.length > 0
-                        ? similarThreads.map((t) => (
-                              <Link
-                                  component={LinkDom}
-                                  key={t._id}
-                                  target="_blank"
-                                  to={DEMO.DOCUMENT_MODIFICATION_LINK(t._id)}
-                              >
-                                  {`${t.student_id.firstname} ${t.student_id.lastname} ${t.program_id.school}
-                                  ${t.program_id.program_name}`}
-                              </Link>
-                          ))
-                        : null}
+                    {similarThreads && similarThreads?.length > 0 ? (
+                        <Stack spacing={1.5} sx={{ mx: 2 }}>
+                            {similarThreads.map((t) => (
+                                <Link
+                                    component={LinkDom}
+                                    key={t._id}
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 1,
+                                        p: 1,
+                                        borderRadius: 1,
+                                        transition: 'background 0.2s',
+                                        '&:hover': {
+                                            backgroundColor: 'action.hover'
+                                        }
+                                    }}
+                                    target="_blank"
+                                    to={DEMO.DOCUMENT_MODIFICATION_LINK(t._id)}
+                                    underline="hover"
+                                >
+                                    <ArticleIcon />
+                                    <Box>
+                                        <Typography
+                                            fontWeight="bold"
+                                            variant="subtitle1"
+                                        >
+                                            {`${t.student_id.firstname} ${t.student_id.lastname}`}
+                                        </Typography>
+                                        <Typography
+                                            color="text.secondary"
+                                            variant="body2"
+                                        >
+                                            {`${t.student_id.application_preference?.expected_application_date}
+                                          ${'-'}
+                                          ${t.file_type}
+                                        `}
+                                        </Typography>
+                                    </Box>
+                                </Link>
+                            ))}
+                        </Stack>
+                    ) : (
+                        <Typography sx={{ m: 2 }} variant="text.secondary">
+                            {i18next.t('No similar threads found', {
+                                ns: 'common'
+                            })}
+                        </Typography>
+                    )}
                 </CustomTabPanel>
             ) : null}
             <CustomTabPanel index={is_TaiGer_role(user) ? 3 : 2} value={value}>
