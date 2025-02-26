@@ -27,6 +27,11 @@ const SingleThreadPage = () => {
         return <ErrorPage />;
     }
     const thread = data.data?.data;
+    const agents = data.data?.agents;
+    const conflict_list = data.data?.conflict_list;
+    const editors = data.data?.editors;
+    const deadline = data.data?.deadline;
+    const threadAuditLog = data.data?.threadAuditLog;
     const similarThreads = data.data?.similarThreads;
     console.log(thread);
     const student_name = `${thread.student_id.firstname} ${thread.student_id.lastname}`;
@@ -81,8 +86,13 @@ const SingleThreadPage = () => {
                 ) : null}
             </Box>
             <DocModificationThreadPage
+                agents={agents}
+                conflictList={conflict_list}
+                deadline={deadline}
+                editors={editors}
                 similarThreads={similarThreads}
                 threadProps={thread}
+                threadauditLog={threadAuditLog}
             />
         </>
     );

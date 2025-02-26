@@ -41,6 +41,11 @@ export const EmbeddedThreadComponent = ({ setThreadId }) => {
         return <ErrorPage />;
     }
     const thread = data.data?.data;
+    const deadline = data.data?.deadline;
+    const agents = data.data?.agents;
+    const conflict_list = data.data?.conflict_list;
+    const editors = data.data?.editors;
+    const threadAuditLog = data.data?.threadAuditLog;
     const similarThreads = data.data?.similarThreads;
     const studentName = `${thread.student_id.firstname} ${thread.student_id.lastname}`;
     const schoolName = thread.program_id?.school;
@@ -152,9 +157,14 @@ export const EmbeddedThreadComponent = ({ setThreadId }) => {
                 }}
             >
                 <DocModificationThreadPage
+                    agents={agents}
+                    conflictList={conflict_list}
+                    deadline={deadline}
+                    editors={editors}
                     scrollableRef={scrollableRef}
                     similarThreads={similarThreads}
                     threadProps={thread}
+                    threadauditLog={threadAuditLog}
                 />
             </Box>
         </>

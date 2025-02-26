@@ -739,9 +739,14 @@ const OriginAuthorStatementBar = ({
 };
 
 const DocModificationThreadPage = ({
+    agents,
+    conflictList,
+    deadline,
+    editors,
     threadProps,
     similarThreads,
-    scrollableRef
+    scrollableRef,
+    threadauditLog
 }) => {
     const { user } = useAuth();
     const theme = useTheme();
@@ -750,6 +755,7 @@ const DocModificationThreadPage = ({
         useState({
             error: '',
             file: null,
+            threadAuditLog: threadauditLog,
             showEditorPage: false,
             isSubmissionLoaded: true,
             isLoaded: true,
@@ -757,10 +763,10 @@ const DocModificationThreadPage = ({
             buttonDisabled: false,
             editorState: {},
             expand: true,
-            editors: [],
-            agents: [],
-            conflict_list: [],
-            deadline: '',
+            editors: editors,
+            agents: agents,
+            conflict_list: conflictList,
+            deadline: deadline,
             SetAsFinalFileModel: false,
             accordionKeys: [0], // to expand all]
             res_status: 0,
