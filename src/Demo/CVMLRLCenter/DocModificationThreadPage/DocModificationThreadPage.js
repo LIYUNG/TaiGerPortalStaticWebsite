@@ -527,15 +527,13 @@ const OriginAuthorStatementBar = ({
     user
 }) => {
     const [openOriginAuthorModal, setOpenOriginAuthorModal] = useState(false);
-    const [originAuthorConfirmed, setOriginAuthorConfirmed] = useState(false);
+    const [originAuthorConfirmed, setOriginAuthorConfirmed] = useState(
+        thread?.isOriginAuthorDeclarationConfirmedByStudent
+    );
     const [isLoading, setIsLoading] = useState(false);
     const [originAuthorCheckboxConfirmed, setOriginAuthorCheckboxConfirmed] =
         useState(false);
-    useEffect(() => {
-        setOriginAuthorConfirmed(
-            thread?.isOriginAuthorDeclarationConfirmedByStudent
-        );
-    }, [thread]);
+
     const postOriginAuthorConfirmed = (checked) => {
         setOriginAuthorConfirmed(checked);
         setIsLoading(true);
@@ -556,7 +554,7 @@ const OriginAuthorStatementBar = ({
 
     const student_name_zh = `${thread.student_id.lastname_chinese}${thread.student_id.firstname_chinese}`;
 
-    return thread?.file_type === 'Essay' ? (
+    return (
         <Box className="sticky-top">
             <Stack alignItems="center" direction="row" spacing={1}>
                 {originAuthorConfirmed ? (
@@ -737,7 +735,7 @@ const OriginAuthorStatementBar = ({
                 </DialogContent>
             </Dialog>
         </Box>
-    ) : null;
+    );
 };
 
 const DocModificationThreadPage = ({
@@ -1220,13 +1218,15 @@ const DocModificationThreadPage = ({
     TabTitle(`${student_name} ${docName}`);
     return (
         <Box>
-            <OriginAuthorStatementBar
-                docName={docName}
-                student_name={student_name}
-                theme={theme}
-                thread={thread}
-                user={user}
-            />
+            {thread?.file_type === 'Essay' ? (
+                <OriginAuthorStatementBar
+                    docName={docName}
+                    student_name={student_name}
+                    theme={theme}
+                    thread={thread}
+                    user={user}
+                />
+            ) : null}
             {/* TODO */}
             {/* {false ? <button onClick={generatePDF}>Generate PDF</button> : null} */}
 

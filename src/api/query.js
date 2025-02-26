@@ -31,7 +31,7 @@ export const getMessagThreadQuery = (threadId) => ({
         }
     },
     staleTime: 1000 * 60, // 1 minutes
-    cacheTime: 10 * 60 * 1000 // 10 minutes
+    cacheTime: 60 * 1000 // 1 minutes
 });
 
 export const getProgramQuery = ({ programId }) => ({
