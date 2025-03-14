@@ -406,7 +406,7 @@ export const EstimationCard = ({
     );
 };
 
-export const CourseAnalysisComponent = ({ sheet, student }) => {
+export const CourseAnalysisComponent = ({ factor, sheet, student }) => {
     const sortedCourses = sheet.sorted;
     const scores = sheet.scores;
     const firstRoundConsidered = scores.firstRoundConsidered;
@@ -506,7 +506,7 @@ export const CourseAnalysisComponent = ({ sheet, student }) => {
                                     <Box sx={{ ml: 2 }}>
                                         <Typography variant="body1">
                                             {i18next.t('ects-conversion-rate')}:
-                                            1.5x
+                                            {factor}x
                                         </Typography>
                                     </Box>
                                     <Box>
@@ -819,10 +819,13 @@ export default function CourseAnalysisV2() {
                 if (success) {
                     const timestamp = json['timestamp'];
                     delete json['timestamp'];
+                    const factor = json['factor'];
+                    delete json['factor'];
                     setStatedata((prevState) => ({
                         ...prevState,
                         sheetNames: Object.keys(json),
                         sheets: json,
+                        factor,
                         student,
                         isLoaded: true,
                         timestamp
@@ -1019,6 +1022,7 @@ export default function CourseAnalysisV2() {
             ) : null}
             {sheetName !== 'General' ? (
                 <CourseAnalysisComponent
+                    factor={statedata.factor}
                     sheet={statedata.sheets?.[sheetName]}
                     student={statedata.student}
                 />
