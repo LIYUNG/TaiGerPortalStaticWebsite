@@ -232,10 +232,16 @@ export const WidgetTranscriptanalyser = (
         courses,
         table_data_string_taiger_guided
     });
-export const WidgetTranscriptanalyserV2 = (language, courses, requirementIds) =>
+export const WidgetTranscriptanalyserV2 = (
+    language,
+    courses,
+    requirementIds,
+    factor
+) =>
     request.post(`/api/widgets/transcript/engine/v2/${language}`, {
         courses,
-        requirementIds
+        requirementIds,
+        factor
     });
 
 export const WidgetanalyzedFileDownload = (adminId) =>
@@ -259,10 +265,12 @@ export const transcriptanalyser_test = (studentId, category, language) =>
 export const transcriptanalyser_testV2 = ({
     language,
     studentId,
-    requirementIds
+    requirementIds,
+    factor
 }) =>
     request.post(`/api/courses/transcript/v2/${studentId}/${language}`, {
-        requirementIds
+        requirementIds,
+        factor
     });
 
 export const analyzedFileDownload_test = (studentId) =>

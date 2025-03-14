@@ -356,12 +356,13 @@ export default function MyCourses() {
         );
     };
 
-    const onAnalyseV2 = async (requirementIds, lang) => {
+    const onAnalyseV2 = async (requirementIds, lang, factor) => {
         try {
             const response = await transcriptanalyser_testV2({
                 language: lang,
                 studentId: statedata.student._id.toString(),
-                requirementIds
+                requirementIds,
+                factor
             });
             const { data, success } = response.data;
             const { status } = response;

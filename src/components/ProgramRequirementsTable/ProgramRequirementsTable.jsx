@@ -4,9 +4,12 @@ import {
     CircularProgress,
     FormControl,
     FormControlLabel,
+    InputLabel,
     lighten,
+    MenuItem,
     Radio,
-    RadioGroup
+    RadioGroup,
+    Select
 } from '@mui/material';
 import { PROGRAM_SUBJECTS } from '@taiger-common/core';
 import i18next from 'i18next';
@@ -24,6 +27,7 @@ import CourseAnalysisConfirmDialog from '../../Demo/MyCourses/CourseAnalysisConf
 
 export const ProgramRequirementsTable = ({ data, onAnalyseV2 }) => {
     const [language, setLanguage] = useState('zh'); // 'en' for English, 'zh' for 中文
+    const [factor, setFactor] = useState(1.5); // 'en' for English, 'zh' for 中文
     const [isAnalysingV2, setIsAnalysingV2] = useState(false);
     const [rowSelection, setRowSelection] = useState({});
     let [statedata, setStatedata] = useState({});
@@ -39,7 +43,8 @@ export const ProgramRequirementsTable = ({ data, onAnalyseV2 }) => {
         setIsAnalysingV2(true);
         await onAnalyseV2(
             Object.keys(rowSelection)?.map((idx) => data[idx]?._id),
-            language
+            language,
+            factor
         );
         setIsAnalysingV2(false);
         setModalHide();
@@ -179,6 +184,31 @@ export const ProgramRequirementsTable = ({ data, onAnalyseV2 }) => {
                             alignItems: 'center'
                         }}
                     >
+                        <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+                            <InputLabel id="select-factor">
+                                {i18next.t('Conversion factor', {
+                                    ns: 'common'
+                                })}
+                            </InputLabel>
+                            <Select
+                                defaultValue={factor}
+                                id="convertFactor"
+                                label="conversion factor"
+                                labelId="convertFactor"
+                                name="convertFactor"
+                                onChange={(e) => setFactor(e.target.value)}
+                            >
+                                <MenuItem value={1}>
+                                    {i18next.t('1', { ns: 'common' })}
+                                </MenuItem>
+                                <MenuItem value={1.5}>
+                                    {i18next.t('1.5', { ns: 'common' })}
+                                </MenuItem>
+                                <MenuItem value={2}>
+                                    {i18next.t('2', { ns: 'common' })}
+                                </MenuItem>
+                            </Select>
+                        </FormControl>
                         <FormControl component="fieldset">
                             <RadioGroup
                                 aria-label="language"

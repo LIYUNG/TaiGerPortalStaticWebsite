@@ -243,7 +243,7 @@ export default function CourseWidgetBody({ programRequirements }) {
         };
     });
 
-    const onAnalyseV2 = async (requirementIds, lang) => {
+    const onAnalyseV2 = async (requirementIds, lang, factor) => {
         setStatedata((state) => ({
             ...state,
             isAnalysing: true
@@ -253,7 +253,8 @@ export default function CourseWidgetBody({ programRequirements }) {
             const resp = await WidgetTranscriptanalyserV2(
                 lang,
                 statedata.coursesdata,
-                requirementIds
+                requirementIds,
+                factor
             );
 
             const { data, success } = resp.data;
