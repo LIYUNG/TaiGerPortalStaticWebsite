@@ -22,7 +22,6 @@ import {
     TableCell,
     Grid,
     Stack,
-    Alert,
     Card,
     CardHeader,
     CardContent,
@@ -32,7 +31,8 @@ import {
     IconButton,
     ListItem,
     Tabs,
-    Tab
+    Tab,
+    Button
 } from '@mui/material';
 import { Gauge, gaugeClasses } from '@mui/x-charts/Gauge';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -49,6 +49,7 @@ import i18next from 'i18next';
 import { useTheme } from '@mui/material/styles';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import SortIcon from '@mui/icons-material/Sort';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import {
     convertDate,
@@ -418,7 +419,15 @@ export const EstimationCard = ({
     );
 };
 
-export const CourseAnalysisComponent = ({ factor, sheet, student }) => {
+export const CourseAnalysisComponent = ({
+    factor,
+    sheet,
+    student,
+    onBackToOverview,
+    currentProgram,
+    programs,
+    onProgramChange
+}) => {
     const sortedCourses = sheet.sorted;
     const scores = sheet.scores;
     const firstRoundConsidered = scores.firstRoundConsidered;
@@ -442,237 +451,363 @@ export const CourseAnalysisComponent = ({ factor, sheet, student }) => {
         requiredects > 0 ? (acquiredects * 100) / requiredects : 0;
 
     return (
-        <Grid container spacing={1}>
-            <Grid item md={6} xs={12}>
-                {Object.keys(sortedCourses).map((category, i) => (
-                    <Paper key={i} sx={{ p: 2, mb: 1 }}>
-                        <Box
-                            alignItems="center"
-                            display="flex"
-                            justifyContent="space-between"
-                        >
-                            <Stack
-                                alignItems="center"
-                                direction="row"
-                                justifyContent="flex-start"
-                            >
-                                {satisfiedRequirement(
-                                    sortedCourses[category]
-                                ) ? (
-                                    <CheckCircleIcon
-                                        style={{
-                                            color: green[500],
-                                            marginRight: '8px'
-                                        }}
-                                    />
-                                ) : (
-                                    <WarningIcon
-                                        style={{
-                                            color: 'red',
-                                            marginRight: '8px'
-                                        }}
-                                    />
-                                )}
-                                <Typography fontWeight="bold" variant="h5">
-                                    {category}
-                                </Typography>
-                            </Stack>
-                            <Stack
-                                alignItems="center"
-                                direction="row"
-                                justifyContent="flex-end"
-                            >
-                                {getMaxScoreECTS(sortedCourses[category]) !==
-                                0 ? (
-                                    <Typography fontWeight="bold" variant="h5">
-                                        {i18next.t('acquired-score')}:{' '}
-                                        {satisfiedRequirement(
-                                            sortedCourses[category]
-                                        )
-                                            ? getMaxScoreECTS(
-                                                  sortedCourses[category]
-                                              )
-                                            : 0}
-                                        {' / '}
-                                        {getMaxScoreECTS(
-                                            sortedCourses[category]
-                                        )}
-                                    </Typography>
-                                ) : null}
-                            </Stack>
-                        </Box>
-
-                        {/* Sorted Courses */}
-                        {sortedCourses[category].length > 0 ? (
-                            <Box
-                                display="flex"
-                                flexDirection="column"
-                                gap={2}
-                                sx={{ mb: 3 }}
-                            >
-                                <Box
-                                    alignItems="center"
-                                    display="flex"
-                                    justifyContent="space-between"
+        <>
+            <Box sx={{ mb: 3 }}>
+                <Box
+                    sx={{
+                        mb: 2,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 2
+                    }}
+                >
+                    <Button
+                        onClick={onBackToOverview}
+                        size="small"
+                        startIcon={<ArrowBackIcon />}
+                        variant="outlined"
+                    >
+                        Back to Overview
+                    </Button>
+                    <Typography sx={{ flexGrow: 1 }} variant="h6">
+                        Program Analysis
+                    </Typography>
+                </Box>
+                <Card variant="outlined">
+                    <CardContent sx={{ py: 2 }}>
+                        <Grid alignItems="center" container spacing={2}>
+                            <Grid item md={4} xs={12}>
+                                <Typography
+                                    color="text.secondary"
+                                    gutterBottom
+                                    variant="subtitle2"
                                 >
-                                    <Box sx={{ ml: 2 }}>
-                                        <Typography variant="body1">
-                                            {i18next.t('ects-conversion-rate')}:
-                                            {factor}x
+                                    Current Program
+                                </Typography>
+                                <Select
+                                    fullWidth
+                                    onChange={(e) => onProgramChange(e)}
+                                    size="small"
+                                    value={currentProgram - 1}
+                                >
+                                    {programs.map((program, index) => (
+                                        <MenuItem
+                                            key={program}
+                                            sx={{
+                                                whiteSpace: 'normal',
+                                                wordWrap: 'break-word'
+                                            }}
+                                            value={index}
+                                        >
+                                            {program}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </Grid>
+                            <Grid item md={8} xs={12}>
+                                <Stack
+                                    alignItems="center"
+                                    direction="row"
+                                    spacing={2}
+                                >
+                                    <Box>
+                                        <Typography
+                                            color="text.secondary"
+                                            gutterBottom
+                                            variant="subtitle2"
+                                        >
+                                            Matching Score
+                                        </Typography>
+                                        <Typography
+                                            color="primary"
+                                            variant="h6"
+                                        >
+                                            {matchingOverallECTSPercentage.toFixed(
+                                                0
+                                            )}
+                                            %
                                         </Typography>
                                     </Box>
                                     <Box>
-                                        <Box alignItems="center" display="flex">
-                                            <FlagIcon
-                                                style={{ marginRight: '8px' }}
-                                            />
-                                            <Typography
-                                                style={{
-                                                    fontWeight: 'normal',
-                                                    color: 'inherit'
-                                                }}
-                                            >
-                                                {i18next.t('required-ects')}:{' '}
-                                                {requiredECTS(
-                                                    sortedCourses[category]
-                                                )}
-                                            </Typography>
-                                        </Box>
-                                        <Stack
-                                            alignItems="center"
-                                            direction="row"
-                                            justifyContent="flex-end"
+                                        <Typography
+                                            color="text.secondary"
+                                            gutterBottom
+                                            variant="subtitle2"
                                         >
-                                            {satisfiedRequirement(
-                                                sortedCourses[category]
-                                            ) ? (
-                                                <>
-                                                    <CheckCircleIcon
-                                                        style={{
-                                                            color: green[500]
-                                                        }}
-                                                    />
-                                                    <Typography
-                                                        style={{
-                                                            fontWeight:
-                                                                'normal',
-                                                            color: 'inherit'
-                                                        }}
-                                                    >
-                                                        {i18next.t(
-                                                            'your-acquired-ects'
-                                                        )}
-                                                        :{' '}
-                                                        {acquiredECTS(
-                                                            sortedCourses[
-                                                                category
-                                                            ]
-                                                        )}
-                                                    </Typography>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <WarningIcon
-                                                        style={{ color: 'red' }}
-                                                    />
-                                                    <Typography
-                                                        style={{
-                                                            fontWeight: 'bold',
-                                                            color: 'red'
-                                                        }}
-                                                    >
-                                                        {i18next.t(
-                                                            'your-acquired-ects'
-                                                        )}
-                                                        :{' '}
-                                                        {acquiredECTS(
-                                                            sortedCourses[
-                                                                category
-                                                            ]
-                                                        )}
-                                                    </Typography>
-                                                </>
-                                            )}
-                                        </Stack>
+                                            Required ECTS
+                                        </Typography>
+                                        <Typography variant="h6">
+                                            {acquiredects}/{requiredects}
+                                        </Typography>
                                     </Box>
-                                </Box>
-                                <CourseTable
-                                    data={sortedCourses[category]?.slice(0, -1)}
-                                    tableKey={category}
-                                />
-                            </Box>
-                        ) : null}
-
-                        {/* Suggested Courses */}
-                        {suggestedCourses[category] &&
-                        suggestedCourses[category].length > 0 ? (
-                            <Box display="flex" flexDirection="column" gap={2}>
-                                <Typography variant="h6">
-                                    {i18next.t('Suggested Courses', {
-                                        ns: 'courses'
-                                    })}
-                                </Typography>
-                                <Typography variant="body1">
-                                    {suggestedCourses[category]
-                                        .map((sug) => sug['建議修課'])
-                                        .filter((sug) => sug)
-                                        .join('， ')}
-                                </Typography>
-                            </Box>
-                        ) : null}
-                    </Paper>
-                ))}
-            </Grid>
-            <Grid item md={6} xs={12}>
-                <Card sx={{ height: 300, mb: 1 }}>
-                    <CardHeader
-                        subheader="Course requirement covergage for this program"
-                        title="Course Matching Score"
-                    />{' '}
-                    <CardContent>
-                        <Stack alignItems="center" direction="row" spacing={1}>
-                            <Gauge
-                                {...settings}
-                                endAngle={110}
-                                startAngle={-110}
-                                sx={{
-                                    [`& .${gaugeClasses.valueText}`]: {
-                                        fontSize: 40,
-                                        transform: 'translate(0px, 0px)'
-                                    }
-                                }}
-                                text={({ value }) => `${value}%`}
-                                value={matchingOverallECTSPercentage.toFixed(0)}
-                            />
-                        </Stack>
+                                </Stack>
+                            </Grid>
+                        </Grid>
                     </CardContent>
                 </Card>
-                {firstRoundConsidered && firstRoundConsidered?.length > 0 ? (
-                    <EstimationCard
-                        academic_background={academic_background}
-                        directAd={DIRECT_ADMISSION_SCORE}
-                        directRej={DIRECT_REJECTION_SCORE}
-                        round={firstRoundConsidered}
-                        scores={scores}
-                        sortedCourses={sortedCourses}
-                        stage={1}
-                        subtitle="Basic Academic background check"
-                    />
-                ) : null}
-                {secondRoundConsidered && secondRoundConsidered?.length > 0 ? (
-                    <EstimationCard
-                        academic_background={academic_background}
-                        directAd={DIRECT_ADMISSION_SECOND_SCORE}
-                        directRej={DIRECT_REJECTION_SECOND_SCORE}
-                        round={secondRoundConsidered}
-                        scores={scores}
-                        sortedCourses={sortedCourses}
-                        stage={2}
-                        subtitle="Advanced academic background check"
-                    />
-                ) : null}
+            </Box>
+            <Grid container spacing={1}>
+                <Grid item md={6} xs={12}>
+                    {Object.keys(sortedCourses).map((category, i) => (
+                        <Paper key={i} sx={{ p: 2, mb: 1 }}>
+                            <Box
+                                alignItems="center"
+                                display="flex"
+                                justifyContent="space-between"
+                            >
+                                <Stack
+                                    alignItems="center"
+                                    direction="row"
+                                    justifyContent="flex-start"
+                                >
+                                    {satisfiedRequirement(
+                                        sortedCourses[category]
+                                    ) ? (
+                                        <CheckCircleIcon
+                                            style={{
+                                                color: green[500],
+                                                marginRight: '8px'
+                                            }}
+                                        />
+                                    ) : (
+                                        <WarningIcon
+                                            style={{
+                                                color: 'red',
+                                                marginRight: '8px'
+                                            }}
+                                        />
+                                    )}
+                                    <Typography fontWeight="bold" variant="h5">
+                                        {category}
+                                    </Typography>
+                                </Stack>
+                                <Stack
+                                    alignItems="center"
+                                    direction="row"
+                                    justifyContent="flex-end"
+                                >
+                                    {getMaxScoreECTS(
+                                        sortedCourses[category]
+                                    ) !== 0 ? (
+                                        <Typography
+                                            fontWeight="bold"
+                                            variant="h5"
+                                        >
+                                            {i18next.t('acquired-score')}:{' '}
+                                            {satisfiedRequirement(
+                                                sortedCourses[category]
+                                            )
+                                                ? getMaxScoreECTS(
+                                                      sortedCourses[category]
+                                                  )
+                                                : 0}
+                                            {' / '}
+                                            {getMaxScoreECTS(
+                                                sortedCourses[category]
+                                            )}
+                                        </Typography>
+                                    ) : null}
+                                </Stack>
+                            </Box>
+
+                            {/* Sorted Courses */}
+                            {sortedCourses[category].length > 0 ? (
+                                <Box
+                                    display="flex"
+                                    flexDirection="column"
+                                    gap={2}
+                                    sx={{ mb: 3 }}
+                                >
+                                    <Box
+                                        alignItems="center"
+                                        display="flex"
+                                        justifyContent="space-between"
+                                    >
+                                        <Box sx={{ ml: 2 }}>
+                                            <Typography variant="body1">
+                                                {i18next.t(
+                                                    'ects-conversion-rate'
+                                                )}
+                                                :{factor}x
+                                            </Typography>
+                                        </Box>
+                                        <Box>
+                                            <Box
+                                                alignItems="center"
+                                                display="flex"
+                                            >
+                                                <FlagIcon
+                                                    style={{
+                                                        marginRight: '8px'
+                                                    }}
+                                                />
+                                                <Typography
+                                                    style={{
+                                                        fontWeight: 'normal',
+                                                        color: 'inherit'
+                                                    }}
+                                                >
+                                                    {i18next.t('required-ects')}
+                                                    :{' '}
+                                                    {requiredECTS(
+                                                        sortedCourses[category]
+                                                    )}
+                                                </Typography>
+                                            </Box>
+                                            <Stack
+                                                alignItems="center"
+                                                direction="row"
+                                                justifyContent="flex-end"
+                                            >
+                                                {satisfiedRequirement(
+                                                    sortedCourses[category]
+                                                ) ? (
+                                                    <>
+                                                        <CheckCircleIcon
+                                                            style={{
+                                                                color: green[500]
+                                                            }}
+                                                        />
+                                                        <Typography
+                                                            style={{
+                                                                fontWeight:
+                                                                    'normal',
+                                                                color: 'inherit'
+                                                            }}
+                                                        >
+                                                            {i18next.t(
+                                                                'your-acquired-ects'
+                                                            )}
+                                                            :{' '}
+                                                            {acquiredECTS(
+                                                                sortedCourses[
+                                                                    category
+                                                                ]
+                                                            )}
+                                                        </Typography>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <WarningIcon
+                                                            style={{
+                                                                color: 'red'
+                                                            }}
+                                                        />
+                                                        <Typography
+                                                            style={{
+                                                                fontWeight:
+                                                                    'bold',
+                                                                color: 'red'
+                                                            }}
+                                                        >
+                                                            {i18next.t(
+                                                                'your-acquired-ects'
+                                                            )}
+                                                            :{' '}
+                                                            {acquiredECTS(
+                                                                sortedCourses[
+                                                                    category
+                                                                ]
+                                                            )}
+                                                        </Typography>
+                                                    </>
+                                                )}
+                                            </Stack>
+                                        </Box>
+                                    </Box>
+                                    <CourseTable
+                                        data={sortedCourses[category]?.slice(
+                                            0,
+                                            -1
+                                        )}
+                                        tableKey={category}
+                                    />
+                                </Box>
+                            ) : null}
+
+                            {/* Suggested Courses */}
+                            {suggestedCourses[category] &&
+                            suggestedCourses[category].length > 0 ? (
+                                <Box
+                                    display="flex"
+                                    flexDirection="column"
+                                    gap={2}
+                                >
+                                    <Typography variant="h6">
+                                        {i18next.t('Suggested Courses', {
+                                            ns: 'courses'
+                                        })}
+                                    </Typography>
+                                    <Typography variant="body1">
+                                        {suggestedCourses[category]
+                                            .map((sug) => sug['建議修課'])
+                                            .filter((sug) => sug)
+                                            .join('， ')}
+                                    </Typography>
+                                </Box>
+                            ) : null}
+                        </Paper>
+                    ))}
+                </Grid>
+                <Grid item md={6} xs={12}>
+                    <Card sx={{ height: 300, mb: 1 }}>
+                        <CardHeader
+                            subheader="Course requirement covergage for this program"
+                            title="Course Matching Score"
+                        />
+                        <CardContent>
+                            <Stack
+                                alignItems="center"
+                                direction="row"
+                                spacing={1}
+                            >
+                                <Gauge
+                                    {...settings}
+                                    endAngle={110}
+                                    startAngle={-110}
+                                    sx={{
+                                        [`& .${gaugeClasses.valueText}`]: {
+                                            fontSize: 40,
+                                            transform: 'translate(0px, 0px)'
+                                        }
+                                    }}
+                                    text={({ value }) => `${value}%`}
+                                    value={matchingOverallECTSPercentage.toFixed(
+                                        0
+                                    )}
+                                />
+                            </Stack>
+                        </CardContent>
+                    </Card>
+                    {firstRoundConsidered &&
+                    firstRoundConsidered?.length > 0 ? (
+                        <EstimationCard
+                            academic_background={academic_background}
+                            directAd={DIRECT_ADMISSION_SCORE}
+                            directRej={DIRECT_REJECTION_SCORE}
+                            round={firstRoundConsidered}
+                            scores={scores}
+                            sortedCourses={sortedCourses}
+                            stage={1}
+                            subtitle="Basic Academic background check"
+                        />
+                    ) : null}
+                    {secondRoundConsidered &&
+                    secondRoundConsidered?.length > 0 ? (
+                        <EstimationCard
+                            academic_background={academic_background}
+                            directAd={DIRECT_ADMISSION_SECOND_SCORE}
+                            directRej={DIRECT_REJECTION_SECOND_SCORE}
+                            round={secondRoundConsidered}
+                            scores={scores}
+                            sortedCourses={sortedCourses}
+                            stage={2}
+                            subtitle="Advanced academic background check"
+                        />
+                    ) : null}
+                </Grid>
             </Grid>
-        </Grid>
+        </>
     );
 };
 
@@ -798,7 +933,139 @@ const GPACard = memo(({ student, myGermanGPA }) => {
 });
 GPACard.displayName = 'GPACard';
 
-export const GeneralCourseAnalysisComponent = ({ sheets, student }) => {
+const ProgramMatchingScores = memo(
+    ({ programSheetsArray, onProgramSelect }) => {
+        const calculateProgramMatchingScore = (sortedCourses) => {
+            const requiredects = Object.keys(sortedCourses).reduce(
+                (sum, category) => sum + requiredECTS(sortedCourses[category]),
+                0
+            );
+            const acquiredects = Object.keys(sortedCourses).reduce(
+                (sum, category) =>
+                    sum +
+                    (satisfiedRequirement(sortedCourses[category])
+                        ? requiredECTS(sortedCourses[category])
+                        : acquiredECTS(sortedCourses[category])),
+                0
+            );
+            return requiredects > 0 ? (acquiredects * 100) / requiredects : 0;
+        };
+
+        return (
+            <Card>
+                <CardHeader
+                    subheader="Course requirement coverage for each analyzed program"
+                    title="Program-wise Matching Scores"
+                    titleTypography={{ variant: 'h6', fontWeight: 'medium' }}
+                />
+                <CardContent sx={{ pb: 3 }}>
+                    <Grid container spacing={3}>
+                        {programSheetsArray.map(({ key, value }, index) => (
+                            <Grid item key={key} lg={3} md={4} sm={6} xs={12}>
+                                <Card
+                                    onClick={() => onProgramSelect(index)}
+                                    sx={{
+                                        height: 'auto',
+                                        minHeight: 220,
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        cursor: 'pointer',
+                                        '&:hover': {
+                                            boxShadow: (theme) =>
+                                                theme.shadows[4],
+                                            transform: 'translateY(-2px)',
+                                            bgcolor: 'action.hover'
+                                        },
+                                        transition: 'all 0.2s ease-in-out'
+                                    }}
+                                    variant="outlined"
+                                >
+                                    <CardHeader
+                                        sx={{
+                                            p: 2,
+                                            pb: 1,
+                                            '& .MuiCardHeader-content': {
+                                                overflow: 'visible'
+                                            }
+                                        }}
+                                        title={
+                                            <Typography
+                                                component="div"
+                                                sx={{
+                                                    fontWeight: 'medium',
+                                                    fontSize: '0.875rem',
+                                                    lineHeight: 1.3,
+                                                    mb: 0.5,
+                                                    wordBreak: 'break-word'
+                                                }}
+                                            >
+                                                {key}
+                                            </Typography>
+                                        }
+                                    />
+                                    <CardContent
+                                        sx={{
+                                            flexGrow: 1,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            p: 2,
+                                            pt: 0
+                                        }}
+                                    >
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                alignItems: 'center',
+                                                gap: 1
+                                            }}
+                                        >
+                                            <Gauge
+                                                {...settings}
+                                                endAngle={110}
+                                                size={100}
+                                                startAngle={-110}
+                                                sx={{
+                                                    [`& .${gaugeClasses.valueText}`]:
+                                                        {
+                                                            fontSize: 30,
+                                                            fontWeight: 'bold'
+                                                        }
+                                                }}
+                                                text={({ value }) =>
+                                                    `${value}%`
+                                                }
+                                                value={Number(
+                                                    calculateProgramMatchingScore(
+                                                        value.sorted
+                                                    )
+                                                ).toFixed(0)}
+                                            />
+                                            <Typography
+                                                color="text.secondary"
+                                                variant="body2"
+                                            >
+                                                Click to view details
+                                            </Typography>
+                                        </Box>
+                                    </CardContent>
+                                </Card>
+                            </Grid>
+                        ))}
+                    </Grid>
+                </CardContent>
+            </Card>
+        );
+    }
+);
+ProgramMatchingScores.displayName = 'ProgramMatchingScores';
+
+export const GeneralCourseAnalysisComponent = ({
+    sheets,
+    student,
+    onProgramSelect
+}) => {
     const [tabTag, setTabTag] = useState(0);
     const theme = useTheme();
 
@@ -815,8 +1082,8 @@ export const GeneralCourseAnalysisComponent = ({ sheets, student }) => {
     );
 
     const generalSheetKeysArray = useMemo(
-        () => Object.keys(sheets.General),
-        [sheets.General]
+        () => Object.keys(sheets?.General || {}),
+        [sheets?.General]
     );
 
     const myGermanGPA = useMemo(
@@ -937,6 +1204,13 @@ export const GeneralCourseAnalysisComponent = ({ sheets, student }) => {
                     <Grid item md={4} xs={12}>
                         <GPACard myGermanGPA={myGermanGPA} student={student} />
                     </Grid>
+
+                    <Grid item xs={12}>
+                        <ProgramMatchingScores
+                            onProgramSelect={onProgramSelect}
+                            programSheetsArray={programSheetsArray}
+                        />
+                    </Grid>
                 </Grid>
             </CustomTabPanel>
             <CustomTabPanel index={1} value={tabTag}>
@@ -1039,12 +1313,28 @@ export default function CourseAnalysisV2() {
         );
     }, []);
 
-    const handleChange = (event) => {
-        const selectedIndex = event.target.value;
-        setValue(selectedIndex);
-        const selectedSheetName = statedata.sheetNames[selectedIndex];
-        setSheetName(selectedSheetName);
-    };
+    const handleProgramChange = useCallback(
+        (event) => {
+            const selectedIndex = event.target.value + 1;
+            setValue(selectedIndex);
+            setSheetName(statedata.sheetNames[selectedIndex]);
+        },
+        [statedata.sheetNames]
+    );
+
+    const handleProgramSelect = useCallback(
+        (index) => {
+            const selectedIndex = index + 1;
+            setValue(selectedIndex);
+            setSheetName(statedata.sheetNames[selectedIndex]);
+        },
+        [statedata.sheetNames]
+    );
+
+    const handleBackToOverview = useCallback(() => {
+        setValue(0);
+        setSheetName('General');
+    }, []);
 
     const ConfirmError = () => {
         setStatedata((state) => ({
@@ -1122,38 +1412,22 @@ export default function CourseAnalysisV2() {
                     {t('Courses Analysis')} Beta
                 </Typography>
             </Breadcrumbs>
-            <Alert severity="warning" sx={{ mt: 1 }}>
-                This is internal testing only. Student will not see this.
-            </Alert>
-            <Typography sx={{ pt: 1 }} variant="body1">
-                {t('Course Analysis banner', { ns: 'courses' })}
-            </Typography>
-            <Typography sx={{ pt: 2, pb: 1 }} variant="body1">
-                {t('Programs')}:
-            </Typography>
-            <Select
-                aria-label="course analysis tabs"
-                fullWidth
-                onChange={handleChange}
-                size="small"
-                sx={{ mb: 2 }}
-                value={value}
-            >
-                {statedata.sheetNames.map((sn, i) => (
-                    <MenuItem key={sn} name={sn} value={i}>
-                        {sn}
-                    </MenuItem>
-                ))}
-            </Select>
             {sheetName === 'General' ? (
                 <GeneralCourseAnalysisComponent
+                    onProgramSelect={handleProgramSelect}
                     sheets={statedata.sheets}
                     student={statedata.student}
                 />
             ) : null}
             {sheetName !== 'General' ? (
                 <CourseAnalysisComponent
+                    currentProgram={value}
                     factor={statedata.factor}
+                    onBackToOverview={handleBackToOverview}
+                    onProgramChange={handleProgramChange}
+                    programs={statedata.sheetNames.filter(
+                        (name) => name !== 'General'
+                    )}
                     sheet={statedata.sheets?.[sheetName]}
                     student={statedata.student}
                 />
