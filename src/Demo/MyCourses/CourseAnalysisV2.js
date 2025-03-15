@@ -1,7 +1,13 @@
-import React, { useState, useEffect, Fragment } from 'react';
+import React, {
+    useState,
+    useEffect,
+    Fragment,
+    memo,
+    useCallback,
+    useMemo
+} from 'react';
 import {
     Box,
-    Button,
     Breadcrumbs,
     Link,
     Typography,
@@ -24,13 +30,15 @@ import {
     TableFooter,
     Collapse,
     IconButton,
-    ListItem
+    ListItem,
+    Tabs,
+    Tab
 } from '@mui/material';
 import { Gauge, gaugeClasses } from '@mui/x-charts/Gauge';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { useTranslation } from 'react-i18next';
-import { Link as LinkDom, useNavigate, useParams } from 'react-router-dom';
+import { Link as LinkDom, useParams } from 'react-router-dom';
 import 'react-datasheet-grid/dist/style.css';
 import { Bayerische_Formel, is_TaiGer_role } from '@taiger-common/core';
 import WarningIcon from '@mui/icons-material/Warning';
@@ -38,6 +46,9 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import FlagIcon from '@mui/icons-material/Flag';
 import { green } from '@mui/material/colors';
 import i18next from 'i18next';
+import { useTheme } from '@mui/material/styles';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import SortIcon from '@mui/icons-material/Sort';
 
 import {
     convertDate,
@@ -61,6 +72,7 @@ import DEMO from '../../store/constant';
 import { useAuth } from '../../components/AuthProvider';
 import Loading from '../../components/Loading/Loading';
 import { appConfig } from '../../config';
+import { a11yProps, CustomTabPanel } from '../../components/Tabs';
 
 const settings = {
     display: 'flex',
@@ -697,92 +709,267 @@ const allAcquiredECTSCrossPrograms = (programSheetsArray) => {
     return sum;
 };
 
-export const GeneralCourseAnalysisComponent = ({ sheets, student }) => {
-    const programSheetsArray = Object.entries(sheets)
-        .filter(([key]) => !['General'].includes(key))
-        .map(([key, value]) => ({ key, value }));
-    console.log(programSheetsArray);
-    const generalSheetKeysArray = Object.keys(sheets.General);
-    const myGermanGPA = Bayerische_Formel(
-        student?.academic_background?.university?.Highest_GPA_Uni,
-        student?.academic_background?.university?.Passing_GPA_Uni,
-        student?.academic_background?.university?.My_GPA_Uni
+const GaugeCard = memo(({ title, subtitle, value, height = 250 }) => {
+    return (
+        <Card sx={{ height }}>
+            <CardHeader
+                subheader={subtitle}
+                sx={{ pb: 0 }}
+                title={title}
+                titleTypography={{ variant: 'h6', fontWeight: 'medium' }}
+            />
+            <CardContent>
+                <Stack
+                    alignItems="center"
+                    direction="column"
+                    justifyContent="center"
+                    sx={{ height: '100%' }}
+                >
+                    <Gauge
+                        {...settings}
+                        endAngle={110}
+                        startAngle={-110}
+                        sx={{
+                            [`& .${gaugeClasses.valueText}`]: {
+                                fontSize: 40,
+                                fontWeight: 'bold',
+                                transform: 'translate(0px, 0px)'
+                            }
+                        }}
+                        text={({ value }) => `${value}%`}
+                        value={Number(value).toFixed(0)}
+                    />
+                </Stack>
+            </CardContent>
+        </Card>
     );
-    const matchingOverallECTSPercentage =
-        allRequiredECTSCrossPrograms(programSheetsArray) > 0
-            ? (allAcquiredECTSCrossPrograms(programSheetsArray) * 100) /
-              allRequiredECTSCrossPrograms(programSheetsArray)
-            : 0;
-    const numPrograms = Object.entries(sheets).filter(
-        ([key]) => !['General'].includes(key)
-    )?.length;
+});
+GaugeCard.displayName = 'GaugeCard';
+
+const GPACard = memo(({ student, myGermanGPA }) => {
+    const theme = useTheme();
 
     return (
-        <Grid container spacing={1}>
-            <Grid item md={4} xs={12}>
-                <Card sx={{ height: 250 }}>
-                    <CardHeader title="Analysed Programs" />
-                    <CardContent>
-                        <Stack
-                            alignItems="center"
-                            direction="column"
-                            spacing={1}
+        <Card sx={{ height: 250 }}>
+            <CardHeader
+                title="GPA Information"
+                titleTypography={{ variant: 'h6', fontWeight: 'medium' }}
+            />
+            <CardContent>
+                <Stack spacing={3}>
+                    <Box>
+                        <Typography
+                            color="text.secondary"
+                            gutterBottom
+                            variant="subtitle2"
                         >
-                            <Typography variant="h3">{numPrograms}</Typography>
-                        </Stack>
-                    </CardContent>
-                </Card>
-            </Grid>
-            <Grid item md={4} xs={12}>
-                <Card sx={{ height: 250 }}>
-                    <CardHeader title="Overall Matching Score" />{' '}
-                    <CardContent>
-                        <Stack alignItems="center" direction="row" spacing={1}>
-                            <Gauge
-                                {...settings}
-                                endAngle={110}
-                                startAngle={-110}
-                                sx={{
-                                    [`& .${gaugeClasses.valueText}`]: {
-                                        fontSize: 40,
-                                        transform: 'translate(0px, 0px)'
-                                    }
-                                }}
-                                text={({ value }) => `${value}%`}
-                                value={matchingOverallECTSPercentage.toFixed(0)}
-                            />
-                        </Stack>
-                    </CardContent>
-                </Card>
-            </Grid>
-            <Grid item md={4} xs={12}>
-                <Card sx={{ height: 250 }}>
-                    <CardContent>
-                        <Typography>
-                            My GPA:{' '}
-                            {
-                                student?.academic_background?.university
-                                    ?.My_GPA_Uni
+                            My GPA
+                        </Typography>
+                        <Typography variant="h4">
+                            {student?.academic_background?.university
+                                ?.My_GPA_Uni || 'N/A'}
+                        </Typography>
+                    </Box>
+                    <Box>
+                        <Typography
+                            color="text.secondary"
+                            gutterBottom
+                            variant="subtitle2"
+                        >
+                            German GPA Equivalent
+                        </Typography>
+                        <Typography
+                            color={
+                                myGermanGPA <= 2.5
+                                    ? theme.palette.success.main
+                                    : myGermanGPA <= 3.0
+                                      ? theme.palette.warning.main
+                                      : theme.palette.error.main
                             }
+                            variant="h4"
+                        >
+                            {myGermanGPA || 'N/A'}
                         </Typography>
-                        <Typography>My German GPA: {myGermanGPA}</Typography>
-                    </CardContent>
-                </Card>
-            </Grid>
-            {generalSheetKeysArray?.map((keyName) => (
-                <Grid item key={keyName} md={12} xs={12}>
-                    <Card sx={{ p: 2 }}>
-                        <Typography>
-                            {sheets.General?.[keyName][0][keyName]}
-                        </Typography>
-                        <CourseTable
-                            data={sheets.General?.[keyName] || []}
-                            tableKey="courses"
+                    </Box>
+                </Stack>
+            </CardContent>
+        </Card>
+    );
+});
+GPACard.displayName = 'GPACard';
+
+export const GeneralCourseAnalysisComponent = ({ sheets, student }) => {
+    const [tabTag, setTabTag] = useState(0);
+    const theme = useTheme();
+
+    const handleTabChange = useCallback((event, newValue) => {
+        setTabTag(newValue);
+    }, []);
+
+    const programSheetsArray = useMemo(
+        () =>
+            Object.entries(sheets)
+                .filter(([key]) => !['General'].includes(key))
+                .map(([key, value]) => ({ key, value })),
+        [sheets]
+    );
+
+    const generalSheetKeysArray = useMemo(
+        () => Object.keys(sheets.General),
+        [sheets.General]
+    );
+
+    const myGermanGPA = useMemo(
+        () =>
+            Bayerische_Formel(
+                student?.academic_background?.university?.Highest_GPA_Uni,
+                student?.academic_background?.university?.Passing_GPA_Uni,
+                student?.academic_background?.university?.My_GPA_Uni
+            ),
+        [student?.academic_background?.university]
+    );
+
+    const matchingOverallECTSPercentage = useMemo(() => {
+        const required = allRequiredECTSCrossPrograms(programSheetsArray);
+        return required > 0
+            ? (allAcquiredECTSCrossPrograms(programSheetsArray) * 100) /
+                  required
+            : 0;
+    }, [programSheetsArray]);
+
+    const numPrograms = useMemo(
+        () =>
+            Object.entries(sheets).filter(([key]) => !['General'].includes(key))
+                ?.length,
+        [sheets]
+    );
+
+    return (
+        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+            <Tabs
+                aria-label="Course analysis tabs"
+                onChange={handleTabChange}
+                scrollButtons="auto"
+                sx={{
+                    mb: 2,
+                    borderBottom: 1,
+                    borderColor: 'divider',
+                    '& .MuiTab-root': {
+                        minWidth: 120,
+                        fontWeight: 'medium',
+                        minHeight: 40,
+                        py: 0.5
+                    },
+                    '& .MuiTab-iconWrapper': {
+                        marginRight: 1,
+                        marginBottom: '0 !important'
+                    }
+                }}
+                value={tabTag}
+                variant="scrollable"
+            >
+                <Tab
+                    label={i18next.t('Overview', { ns: 'courses' })}
+                    {...a11yProps(tabTag, 0)}
+                    icon={<AssessmentIcon sx={{ fontSize: 20 }} />}
+                    iconPosition="start"
+                />
+                <Tab
+                    label="Course Sorting"
+                    {...a11yProps(tabTag, 1)}
+                    icon={<SortIcon sx={{ fontSize: 20 }} />}
+                    iconPosition="start"
+                />
+            </Tabs>
+
+            <CustomTabPanel index={0} value={tabTag}>
+                <Grid container spacing={2}>
+                    <Grid item md={4} xs={12}>
+                        <Card sx={{ height: 250 }}>
+                            <CardHeader
+                                subheader="Total number of programs being analyzed"
+                                title="Analyzed Programs"
+                                titleTypography={{
+                                    variant: 'h6',
+                                    fontWeight: 'medium'
+                                }}
+                            />
+                            <CardContent>
+                                <Stack
+                                    alignItems="center"
+                                    justifyContent="center"
+                                    spacing={2}
+                                    sx={{ height: '100%' }}
+                                >
+                                    <Typography
+                                        color="primary"
+                                        sx={{
+                                            fontWeight: 'bold',
+                                            fontSize: '4rem'
+                                        }}
+                                        variant="h1"
+                                    >
+                                        {numPrograms}
+                                    </Typography>
+                                    <Typography
+                                        align="center"
+                                        color="text.secondary"
+                                        variant="subtitle1"
+                                    >
+                                        {numPrograms === 1
+                                            ? 'Program'
+                                            : 'Programs'}{' '}
+                                        Analyzed
+                                    </Typography>
+                                </Stack>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+
+                    <Grid item md={4} xs={12}>
+                        <GaugeCard
+                            subtitle="Average course requirement coverage across all programs"
+                            title="Overall Matching Score"
+                            value={matchingOverallECTSPercentage}
                         />
-                    </Card>
+                    </Grid>
+
+                    <Grid item md={4} xs={12}>
+                        <GPACard myGermanGPA={myGermanGPA} student={student} />
+                    </Grid>
                 </Grid>
-            ))}
-        </Grid>
+            </CustomTabPanel>
+            <CustomTabPanel index={1} value={tabTag}>
+                <Grid container spacing={3}>
+                    {generalSheetKeysArray?.map((keyName) => (
+                        <Grid item key={keyName} xs={12}>
+                            <Card
+                                elevation={2}
+                                sx={{
+                                    p: 3,
+                                    '&:hover': {
+                                        boxShadow: theme.shadows[4]
+                                    },
+                                    transition: 'box-shadow 0.3s ease-in-out'
+                                }}
+                            >
+                                <Typography
+                                    color="primary"
+                                    gutterBottom
+                                    variant="h6"
+                                >
+                                    {sheets.General?.[keyName][0][keyName]}
+                                </Typography>
+                                <CourseTable
+                                    data={sheets.General?.[keyName] || []}
+                                    tableKey="courses"
+                                />
+                            </Card>
+                        </Grid>
+                    ))}
+                </Grid>
+            </CustomTabPanel>
+        </Box>
     );
 };
 
@@ -791,7 +978,6 @@ export default function CourseAnalysisV2() {
     const { t } = useTranslation();
     const { user } = useAuth();
     const [value, setValue] = useState(0);
-    const navigate = useNavigate();
     const [sheetName, setSheetName] = useState('General');
     let [statedata, setStatedata] = useState({
         error: '',
@@ -858,42 +1044,6 @@ export default function CourseAnalysisV2() {
         setValue(selectedIndex);
         const selectedSheetName = statedata.sheetNames[selectedIndex];
         setSheetName(selectedSheetName);
-    };
-
-    const onDownload = () => {
-        setStatedata((state) => ({
-            ...state,
-            isDownloading: true
-        }));
-        // TODO: timeout? success?
-        if (statedata.excel_file !== {}) {
-            const blob = statedata.excel_file;
-            if (blob.size === 0) return;
-
-            const url = window.URL.createObjectURL(new Blob([blob]));
-
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', `${statedata.file_name}`);
-            // Append to html link element page
-            document.body.appendChild(link);
-            // Start download
-            link.click();
-            // Clean up and remove the link
-            link.parentNode.removeChild(link);
-            setStatedata((state) => ({
-                ...state,
-                isDownloading: false
-            }));
-        } else {
-            setStatedata((state) => ({
-                ...state,
-                isLoaded: true,
-                res_modal_status: 500,
-                res_modal_message: 'Please try it later',
-                isDownloading: false
-            }));
-        }
     };
 
     const ConfirmError = () => {
@@ -978,25 +1128,6 @@ export default function CourseAnalysisV2() {
             <Typography sx={{ pt: 1 }} variant="body1">
                 {t('Course Analysis banner', { ns: 'courses' })}
             </Typography>
-            <Button
-                color="primary"
-                disabled
-                onClick={() => navigate(DEMO.COURSES_ANALYSIS_EXPLANATION_LINK)}
-                size="small"
-                sx={{ mr: 2 }}
-                variant="contained"
-            >
-                {t('Course Analysis explanation button')}
-            </Button>
-            <Button
-                color="secondary"
-                disabled
-                onClick={() => onDownload()}
-                size="small"
-                variant="contained"
-            >
-                {t('Download', { ns: 'common' })} Report
-            </Button>
             <Typography sx={{ pt: 2, pb: 1 }} variant="body1">
                 {t('Programs')}:
             </Typography>
