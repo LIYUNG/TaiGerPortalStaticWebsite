@@ -230,6 +230,7 @@ const StudentOverviewTable = ({ students }) => {
                 total_base_docs_needed,
                 isEnglishPassed,
                 isGermanPassed,
+                program_selection: `${num_apps_decided}/${student.applying_program_count}`,
                 nextProgram: getNextProgramName(student),
                 nextProgramDeadline: getNextProgramDeadline(student),
                 nextProgramDayleft: getNextProgramDayleft(student),
@@ -356,14 +357,12 @@ const StudentOverviewTable = ({ students }) => {
                                         {FILE_MISSING_SYMBOL}
                                     </IconButton>
                                 )}
-                                (
                                 {params.row.num_apps_decided >
                                 params.row.applying_program_count ? (
-                                    <b>{params.row.num_apps_decided}</b>
+                                    <b>{params.row.program_selection}</b>
                                 ) : (
-                                    params.row.num_apps_decided
+                                    params.row.program_selection
                                 )}
-                                /{params.row.applying_program_count})
                             </Typography>
                         </Link>
                     );
