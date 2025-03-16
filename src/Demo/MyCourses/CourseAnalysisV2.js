@@ -844,6 +844,13 @@ const allAcquiredECTSCrossPrograms = (programSheetsArray) => {
     return sum;
 };
 
+const getGaugeColor = (value) => {
+    const theme = useTheme();
+    if (value >= 75) return theme.palette.primary.main; // blue for high scores
+    if (value >= 50) return theme.palette.success.main; // green for medium scores
+    return theme.palette.error.main; // red for low scores
+};
+
 const GaugeCard = memo(({ title, subtitle, value, height = 250 }) => {
     return (
         <Card sx={{ height }}>
@@ -865,6 +872,9 @@ const GaugeCard = memo(({ title, subtitle, value, height = 250 }) => {
                         endAngle={110}
                         startAngle={-110}
                         sx={{
+                            [`& .${gaugeClasses.valueArc}`]: {
+                                fill: getGaugeColor(Number(value).toFixed(0))
+                            },
                             [`& .${gaugeClasses.valueText}`]: {
                                 fontSize: 40,
                                 fontWeight: 'bold',
@@ -1046,99 +1056,114 @@ const ProgramMatchingScores = memo(
                 />
                 <CardContent sx={{ pb: 3 }}>
                     <Grid container spacing={3}>
-                        {programSheetsArray.map(({ key, value }, index) => (
-                            <Grid item key={key} lg={3} md={4} sm={6} xs={12}>
-                                <Card
-                                    onClick={() => onProgramSelect(index)}
-                                    sx={{
-                                        height: 'auto',
-                                        minHeight: 220,
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        cursor: 'pointer',
-                                        '&:hover': {
-                                            boxShadow: (theme) =>
-                                                theme.shadows[4],
-                                            transform: 'translateY(-2px)',
-                                            bgcolor: 'action.hover'
-                                        },
-                                        transition: 'all 0.2s ease-in-out'
-                                    }}
-                                    variant="outlined"
+                        {programSheetsArray.map(({ key, value }, index) => {
+                            const score = Number(
+                                calculateProgramMatchingScore(value.sorted)
+                            ).toFixed(0);
+                            return (
+                                <Grid
+                                    item
+                                    key={key}
+                                    lg={3}
+                                    md={4}
+                                    sm={6}
+                                    xs={12}
                                 >
-                                    <CardHeader
+                                    <Card
+                                        onClick={() => onProgramSelect(index)}
                                         sx={{
-                                            p: 2,
-                                            pb: 1,
-                                            '& .MuiCardHeader-content': {
-                                                overflow: 'visible'
-                                            }
-                                        }}
-                                        title={
-                                            <Typography
-                                                component="div"
-                                                sx={{
-                                                    fontWeight: 'medium',
-                                                    fontSize: '0.875rem',
-                                                    lineHeight: 1.3,
-                                                    mb: 0.5,
-                                                    wordBreak: 'break-word'
-                                                }}
-                                            >
-                                                {key}
-                                            </Typography>
-                                        }
-                                    />
-                                    <CardContent
-                                        sx={{
-                                            flexGrow: 1,
+                                            height: 'auto',
+                                            minHeight: 220,
                                             display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            p: 2,
-                                            pt: 0
+                                            flexDirection: 'column',
+                                            cursor: 'pointer',
+                                            '&:hover': {
+                                                boxShadow: (theme) =>
+                                                    theme.shadows[4],
+                                                transform: 'translateY(-2px)',
+                                                bgcolor: 'action.hover'
+                                            },
+                                            transition: 'all 0.2s ease-in-out'
                                         }}
+                                        variant="outlined"
                                     >
-                                        <Box
+                                        <CardHeader
                                             sx={{
+                                                p: 2,
+                                                pb: 1,
+                                                '& .MuiCardHeader-content': {
+                                                    overflow: 'visible'
+                                                }
+                                            }}
+                                            title={
+                                                <Typography
+                                                    component="div"
+                                                    sx={{
+                                                        fontWeight: 'medium',
+                                                        fontSize: '0.875rem',
+                                                        lineHeight: 1.3,
+                                                        mb: 0.5,
+                                                        wordBreak: 'break-word'
+                                                    }}
+                                                >
+                                                    {key}
+                                                </Typography>
+                                            }
+                                        />
+                                        <CardContent
+                                            sx={{
+                                                flexGrow: 1,
                                                 display: 'flex',
-                                                flexDirection: 'column',
                                                 alignItems: 'center',
-                                                gap: 1
+                                                justifyContent: 'center',
+                                                p: 2,
+                                                pt: 0
                                             }}
                                         >
-                                            <Gauge
-                                                {...settings}
-                                                endAngle={110}
-                                                size={100}
-                                                startAngle={-110}
+                                            <Box
                                                 sx={{
-                                                    [`& .${gaugeClasses.valueText}`]:
-                                                        {
-                                                            fontSize: 30,
-                                                            fontWeight: 'bold'
-                                                        }
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    alignItems: 'center',
+                                                    gap: 1
                                                 }}
-                                                text={({ value }) =>
-                                                    `${value}%`
-                                                }
-                                                value={Number(
-                                                    calculateProgramMatchingScore(
-                                                        value.sorted
-                                                    )
-                                                ).toFixed(0)}
-                                            />
-                                            <Typography
-                                                color="text.secondary"
-                                                variant="body2"
                                             >
-                                                Click to view details
-                                            </Typography>
-                                        </Box>
-                                    </CardContent>
-                                </Card>
-                            </Grid>
-                        ))}
+                                                <Gauge
+                                                    {...settings}
+                                                    endAngle={110}
+                                                    size={100}
+                                                    startAngle={-110}
+                                                    sx={{
+                                                        [`& .${gaugeClasses.valueArc}`]:
+                                                            {
+                                                                fill: getGaugeColor(
+                                                                    score
+                                                                )
+                                                            },
+                                                        [`& .${gaugeClasses.valueText}`]:
+                                                            {
+                                                                fontSize: 30,
+                                                                fontWeight:
+                                                                    'bold'
+                                                            }
+                                                    }}
+                                                    text={({ value }) =>
+                                                        `${value}%`
+                                                    }
+                                                    value={score}
+                                                />
+                                                <Typography
+                                                    color="text.secondary"
+                                                    variant="body2"
+                                                >
+                                                    Click to view details
+                                                </Typography>
+                                            </Box>
+                                        </CardContent>
+                                    </Card>
+                                </Grid>
+                            );
+                        })}
                     </Grid>
                 </CardContent>
             </Card>
