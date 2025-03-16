@@ -134,57 +134,10 @@ export const ProgramRequirementsTable = ({ data, onAnalyseV2 }) => {
                 )
             },
             {
-                accessorKey: 'attributes',
-                header: i18next.t('Attributes', { ns: 'common' }),
-                size: isMobile ? 120 : 150,
-                Cell: ({ cell }) => {
-                    const attributes = cell.getValue();
-                    if (
-                        !attributes ||
-                        !Array.isArray(attributes) ||
-                        attributes.length === 0
-                    ) {
-                        return (
-                            <Box
-                                sx={{
-                                    color: theme.palette.text.secondary,
-                                    fontSize: '0.75rem'
-                                }}
-                            >
-                                {i18next.t('No attributes', { ns: 'common' })}
-                            </Box>
-                        );
-                    }
-
-                    return (
-                        <Box
-                            sx={{
-                                display: 'flex',
-                                gap: '0.5rem',
-                                flexWrap: 'wrap'
-                            }}
-                        >
-                            {attributes.map((attr) => (
-                                <Tooltip
-                                    key={attr}
-                                    title={PROGRAM_SUBJECTS[attr]?.label}
-                                >
-                                    <Chip
-                                        label={attr}
-                                        size="small"
-                                        sx={{
-                                            backgroundColor:
-                                                theme.palette.primary.light,
-                                            color: theme.palette.primary
-                                                .contrastText,
-                                            fontSize: '0.75rem'
-                                        }}
-                                    />
-                                </Tooltip>
-                            ))}
-                        </Box>
-                    );
-                }
+                accessorKey: 'lang',
+                filterVariant: 'autocomplete',
+                header: i18next.t('Language', { ns: 'common' }),
+                size: isMobile ? 100 : 120
             },
             {
                 accessorKey: 'country',
@@ -194,10 +147,8 @@ export const ProgramRequirementsTable = ({ data, onAnalyseV2 }) => {
             },
             {
                 accessorKey: 'updatedAt',
-                header: i18next.t('Last Updated', { ns: 'common' }),
-                size: isMobile ? 120 : 150,
-                Cell: ({ cell }) =>
-                    new Date(cell.getValue()).toLocaleDateString()
+                header: 'updatedAt',
+                size: 90
             }
         ],
         [isMobile, theme]
@@ -219,7 +170,7 @@ export const ProgramRequirementsTable = ({ data, onAnalyseV2 }) => {
                 }}
             >
                 <Box sx={{ flex: 1 }}>
-                    <Stack direction="row" spacing={1} alignItems="center">
+                    <Stack alignItems="center" direction="row" spacing={1}>
                         <MRTGlobalFilterTextField table={table} />
                         <MRTToggleFiltersButton table={table} />
                     </Stack>
@@ -286,19 +237,19 @@ export const ProgramRequirementsTable = ({ data, onAnalyseV2 }) => {
                     </FormControl>
                     <FormControl component="fieldset">
                         <RadioGroup
+                            onChange={handleLanguageChange}
                             row
                             value={language}
-                            onChange={handleLanguageChange}
                         >
                             <FormControlLabel
-                                value="en"
                                 control={<Radio size="small" />}
                                 label="English"
+                                value="en"
                             />
                             <FormControlLabel
-                                value="zh"
                                 control={<Radio size="small" />}
                                 label="中文"
+                                value="zh"
                             />
                         </RadioGroup>
                     </FormControl>
@@ -325,9 +276,9 @@ export const ProgramRequirementsTable = ({ data, onAnalyseV2 }) => {
                                         <AnalyticsIcon />
                                     )
                                 }
+                                fullWidth={isMobile}
                                 onClick={setModalShow2}
                                 variant="contained"
-                                fullWidth={isMobile}
                             >
                                 {isAnalysingV2
                                     ? i18next.t('Analysing', {
