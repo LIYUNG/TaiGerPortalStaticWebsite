@@ -56,8 +56,9 @@ export const ProgramRequirementsTable = ({ data, onAnalyseV2 }) => {
     const onAnalyse = async (e) => {
         e.preventDefault();
         setIsAnalysingV2(true);
+        const selectedRows = table.getSelectedRowModel().rows;
         await onAnalyseV2(
-            Object.keys(rowSelection)?.map((idx) => data[idx]?._id),
+            selectedRows.map(row => row.original._id),
             language,
             factor
         );
@@ -364,7 +365,7 @@ export const ProgramRequirementsTable = ({ data, onAnalyseV2 }) => {
                     </Box>
                 )}
                 <CourseAnalysisConfirmDialog
-                    data={Object.keys(rowSelection)?.map((idx) => data[idx])}
+                    data={table.getSelectedRowModel().rows.map(row => row.original)}
                     isButtonDisable={
                         isAnalysingV2 || !Object.keys(rowSelection)?.length > 0
                     }
