@@ -231,6 +231,12 @@ const StudentOverviewTable = ({ students }) => {
                 isEnglishPassed,
                 isGermanPassed,
                 program_selection: `${areProgramsAllDecided ? 'O' : '-'}${num_apps_decided}/${student.applying_program_count}`,
+                application: `${
+                    is_All_Applications_Submitted &&
+                    num_apps_closed >= student.applying_program_count
+                        ? 'O'
+                        : '-'
+                }${num_apps_closed}/${student.applying_program_count}`,
                 nextProgram: getNextProgramName(student),
                 nextProgramDeadline: getNextProgramDeadline(student),
                 nextProgramDayleft: getNextProgramDayleft(student),
@@ -376,46 +382,26 @@ const StudentOverviewTable = ({ students }) => {
                 headerName: t('Application', { ns: 'common' }),
                 width: 100,
                 renderCell: (params) => {
+                    const application = params.row.application
+                        ?.replaceAll('-', '')
+                        .replaceAll('O', '');
                     return (
                         <Link
                             component={LinkDom}
                             to={`${DEMO.STUDENT_APPLICATIONS_ID_LINK(params.row.id)}`}
                         >
-                            {params.row.is_All_Applications_Submitted ? (
-                                <Typography>
-                                    {params.row.num_apps_closed >=
+                            <Typography>
+                                {params.row.is_All_Applications_Submitted &&
+                                params.row.num_apps_closed >=
                                     params.row.applying_program_count ? (
-                                        <>
-                                            <IconButton>
-                                                {FILE_OK_SYMBOL}
-                                            </IconButton>
-                                            <b>({params.row.num_apps_closed}</b>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <IconButton>
-                                                {FILE_MISSING_SYMBOL}
-                                            </IconButton>
-                                            ({params.row.num_apps_closed}
-                                        </>
-                                    )}
-                                    /{params.row.applying_program_count})
-                                </Typography>
-                            ) : (
-                                <Typography title="incomplete">
+                                    <IconButton>{FILE_OK_SYMBOL}</IconButton>
+                                ) : (
                                     <IconButton>
                                         {FILE_MISSING_SYMBOL}
                                     </IconButton>
-                                    (
-                                    {params.row.num_apps_closed >
-                                    params.row.applying_program_count ? (
-                                        <b>{params.row.num_apps_closed}</b>
-                                    ) : (
-                                        params.row.num_apps_closed
-                                    )}
-                                    /{params.row.applying_program_count})
-                                </Typography>
-                            )}
+                                )}
+                                {application}
+                            </Typography>
                         </Link>
                     );
                 }
