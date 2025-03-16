@@ -883,50 +883,136 @@ GaugeCard.displayName = 'GaugeCard';
 
 const GPACard = memo(({ student, myGermanGPA }) => {
     const theme = useTheme();
+    const university = student?.academic_background?.university || {};
+
+    const getGradeColor = (gpa) => {
+        if (!gpa) return theme.palette.text.secondary;
+        if (gpa <= 1.5) return theme.palette.success.main;
+        if (gpa <= 2.5) return theme.palette.info.main;
+        if (gpa <= 3.5) return theme.palette.warning.main;
+        return theme.palette.error.main;
+    };
+
+    const getGradeLabel = (gpa) => {
+        if (!gpa) return 'N/A';
+        if (gpa <= 1.5) return '(Sehr gut)';
+        if (gpa <= 2.5) return '(Gut)';
+        if (gpa <= 3.5) return '(Befriedigend)';
+        return '(Ausreichend)';
+    };
 
     return (
-        <Card sx={{ height: 250 }}>
+        <Card>
             <CardHeader
+                sx={{ pb: 1 }}
                 title="GPA Information"
                 titleTypography={{ variant: 'h6', fontWeight: 'medium' }}
             />
             <CardContent>
-                <Stack spacing={3}>
-                    <Box>
-                        <Typography
-                            color="text.secondary"
-                            gutterBottom
-                            variant="subtitle2"
-                        >
-                            My GPA
-                        </Typography>
-                        <Typography variant="h4">
-                            {student?.academic_background?.university
-                                ?.My_GPA_Uni || 'N/A'}
-                        </Typography>
-                    </Box>
-                    <Box>
-                        <Typography
-                            color="text.secondary"
-                            gutterBottom
-                            variant="subtitle2"
-                        >
-                            German GPA Equivalent
-                        </Typography>
-                        <Typography
-                            color={
-                                myGermanGPA <= 2.5
-                                    ? theme.palette.success.main
-                                    : myGermanGPA <= 3.0
-                                      ? theme.palette.warning.main
-                                      : theme.palette.error.main
-                            }
-                            variant="h4"
-                        >
-                            {myGermanGPA || 'N/A'}
-                        </Typography>
-                    </Box>
-                </Stack>
+                <Grid container spacing={3}>
+                    <Grid item xs={6}>
+                        <Box>
+                            <Typography
+                                color="text.secondary"
+                                gutterBottom
+                                sx={{ fontSize: '0.875rem', mb: 0.5 }}
+                                variant="subtitle2"
+                            >
+                                My GPA
+                            </Typography>
+                            <Stack
+                                alignItems="baseline"
+                                direction="row"
+                                spacing={1}
+                            >
+                                <Typography
+                                    sx={{
+                                        fontSize: '2rem',
+                                        fontWeight: 'medium',
+                                        lineHeight: 1
+                                    }}
+                                    variant="h4"
+                                >
+                                    {university?.My_GPA_Uni || 'N/A'}
+                                </Typography>
+                                <Typography
+                                    color="text.secondary"
+                                    sx={{ fontSize: '0.875rem' }}
+                                    variant="body1"
+                                >
+                                    / {university?.Highest_GPA_Uni || '-'}
+                                </Typography>
+                            </Stack>
+                            <Typography
+                                color="text.secondary"
+                                sx={{
+                                    mt: 0.5,
+                                    fontSize: '0.75rem'
+                                }}
+                                variant="body2"
+                            >
+                                Passing Grade:{' '}
+                                {university?.Passing_GPA_Uni || '-'}
+                            </Typography>
+                        </Box>
+                    </Grid>
+                    <Grid item xs={6}>
+                        <Box>
+                            <Typography
+                                color="text.secondary"
+                                gutterBottom
+                                sx={{ fontSize: '0.875rem', mb: 0.5 }}
+                                variant="subtitle2"
+                            >
+                                German GPA Equivalent
+                            </Typography>
+                            <Stack
+                                alignItems="baseline"
+                                direction="row"
+                                spacing={1}
+                            >
+                                <Typography
+                                    color={getGradeColor(myGermanGPA)}
+                                    sx={{
+                                        fontSize: '2rem',
+                                        fontWeight: 'medium',
+                                        lineHeight: 1
+                                    }}
+                                >
+                                    {myGermanGPA || 'N/A'}
+                                </Typography>
+                                <Typography
+                                    color="text.secondary"
+                                    sx={{ fontSize: '0.875rem' }}
+                                    variant="body1"
+                                >
+                                    {getGradeLabel(myGermanGPA)}
+                                </Typography>
+                            </Stack>
+                            <Typography
+                                color="text.secondary"
+                                sx={{
+                                    mt: 0.5,
+                                    fontSize: '0.75rem'
+                                }}
+                                variant="body2"
+                            >
+                                German Scale: 1.0 (Best) - 4.0 (Passing)
+                            </Typography>
+                            <Typography
+                                color="text.secondary"
+                                sx={{
+                                    mt: 0.5,
+                                    fontSize: '0.75rem'
+                                }}
+                                variant="body2"
+                            >
+                                1.0-1.5: Excellent | 1.6-2.5: Good | 2.6-3.5:
+                                Satisfactory | 3.6-4.0: Sufficient
+                            </Typography>
+                        </Box>
+                    </Grid>
+                </Grid>
             </CardContent>
         </Card>
     );
