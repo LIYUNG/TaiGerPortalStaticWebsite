@@ -9,7 +9,14 @@ import {
     MenuItem,
     Radio,
     RadioGroup,
-    Select
+    Select,
+    Stack,
+    Tooltip,
+    useMediaQuery,
+    useTheme,
+    Chip,
+    Autocomplete,
+    TextField
 } from '@mui/material';
 import { PROGRAM_SUBJECTS } from '@taiger-common/core';
 import i18next from 'i18next';
@@ -22,15 +29,23 @@ import {
 import { useMemo, useState } from 'react';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import InfoIcon from '@mui/icons-material/Info';
+import AnalyticsIcon from '@mui/icons-material/Analytics';
 
 import CourseAnalysisConfirmDialog from '../../Demo/MyCourses/CourseAnalysisConfirmDialog';
 
 export const ProgramRequirementsTable = ({ data, onAnalyseV2 }) => {
-    const [language, setLanguage] = useState('zh'); // 'en' for English, 'zh' for 中文
-    const [factor, setFactor] = useState(1.5); // 'en' for English, 'zh' for 中文
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const [language, setLanguage] = useState('zh');
+    const [factor, setFactor] = useState(1.5);
     const [isAnalysingV2, setIsAnalysingV2] = useState(false);
     const [rowSelection, setRowSelection] = useState({});
-    let [statedata, setStatedata] = useState({});
+    const [selectedAttributes, setSelectedAttributes] = useState([]);
+    const [statedata, setStatedata] = useState({
+        modalShowAssignWindow: false
+    });
+
     const setModalHide = () => {
         setStatedata((state) => ({
             ...state,
@@ -58,16 +73,43 @@ export const ProgramRequirementsTable = ({ data, onAnalyseV2 }) => {
     };
 
     const handleLanguageChange = (event) => {
-        const newLanguage = event.target.value;
-        setLanguage(newLanguage);
+        setLanguage(event.target.value);
     };
+
+    const filteredData = useMemo(() => {
+        if (selectedAttributes.length === 0) return data;
+        return data.filter((program) => {
+            const attributes = program?.attributes;
+            if (!attributes) return false;
+            // Handle attributes as string and check if any selected attribute is included
+            return selectedAttributes.some((selected) =>
+                attributes.includes(selected)
+            );
+        });
+    }, [data, selectedAttributes]);
+
+    const attributeOptions = useMemo(() => {
+        const options = [];
+        Object.entries(PROGRAM_SUBJECTS).forEach(
+            ([code, { label, category }]) => {
+                options.push({
+                    code,
+                    label,
+                    category,
+                    groupBy: category
+                });
+            }
+        );
+        return options;
+    }, []);
+
     const columns = useMemo(
         () => [
             {
-                accessorKey: 'program_name', //id is still required when using accessorFn instead of accessorKey
-                header: 'Program Name',
-                size: 450,
-                Cell: ({ renderedCellValue }) => (
+                accessorKey: 'program_name',
+                header: i18next.t('Program Name', { ns: 'common' }),
+                size: isMobile ? 200 : 450,
+                Cell: ({ row }) => (
                     <Box
                         sx={{
                             display: 'flex',
@@ -75,52 +117,237 @@ export const ProgramRequirementsTable = ({ data, onAnalyseV2 }) => {
                             gap: '1rem'
                         }}
                     >
-                        {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
-                        <span>{renderedCellValue}</span>
+                        <Tooltip title={row.original.program_name}>
+                            <span
+                                style={{
+                                    color: theme.palette.primary.main,
+                                    cursor: 'pointer',
+                                    '&:hover': {
+                                        textDecoration: 'underline'
+                                    }
+                                }}
+                            >
+                                {row.original.program_name}
+                            </span>
+                        </Tooltip>
                     </Box>
                 )
             },
             {
-                accessorKey: 'attributes', //accessorKey used to define `data` column. `id` gets set to accessorKey automatically
-                filterVariant: 'multi-select',
-                filterSelectOptions: Object.keys(PROGRAM_SUBJECTS), //custom options list (as opposed to faceted list)
-                header: 'Attributes',
-                size: 90
-                // Filter: ({ column }) => (
-                //   <MaterialReactTable.MRT_FilterDropdown
-                //     options={Object.keys(PROGRAM_SUBJECTS)}
-                //     onSelectChange={(selectedValues) => {
-                //       // Handle changes to the selected values here
-                //     }}
-                //     renderOption={(option, { selected }) => (
-                //       <MenuItem key={option} value={option}>
-                //         <Checkbox checked={selected} />
-                //         <ListItemText primary={PROGRAM_SUBJECTS[option]} />
-                //       </MenuItem>
-                //     )}
-                //   />
-                // )
+                accessorKey: 'attributes',
+                header: i18next.t('Attributes', { ns: 'common' }),
+                size: isMobile ? 120 : 150,
+                Cell: ({ cell }) => {
+                    const attributes = cell.getValue();
+                    if (
+                        !attributes ||
+                        !Array.isArray(attributes) ||
+                        attributes.length === 0
+                    ) {
+                        return (
+                            <Box
+                                sx={{
+                                    color: theme.palette.text.secondary,
+                                    fontSize: '0.75rem'
+                                }}
+                            >
+                                {i18next.t('No attributes', { ns: 'common' })}
+                            </Box>
+                        );
+                    }
+
+                    return (
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                gap: '0.5rem',
+                                flexWrap: 'wrap'
+                            }}
+                        >
+                            {attributes.map((attr) => (
+                                <Tooltip
+                                    key={attr}
+                                    title={PROGRAM_SUBJECTS[attr]?.label}
+                                >
+                                    <Chip
+                                        label={attr}
+                                        size="small"
+                                        sx={{
+                                            backgroundColor:
+                                                theme.palette.primary.light,
+                                            color: theme.palette.primary
+                                                .contrastText,
+                                            fontSize: '0.75rem'
+                                        }}
+                                    />
+                                </Tooltip>
+                            ))}
+                        </Box>
+                    );
+                }
             },
             {
-                accessorKey: 'country', //accessorKey used to define `data` column. `id` gets set to accessorKey automatically
-                // enableClickToCopy: true,
+                accessorKey: 'country',
                 filterVariant: 'autocomplete',
-                header: 'Country',
-                size: 90
+                header: i18next.t('Country', { ns: 'common' }),
+                size: isMobile ? 100 : 120
             },
             {
-                accessorKey: 'updatedAt', //accessorKey used to define `data` column. `id` gets set to accessorKey automatically
-                // enableClickToCopy: true,
-                header: 'updatedAt',
-                size: 90
+                accessorKey: 'updatedAt',
+                header: i18next.t('Last Updated', { ns: 'common' }),
+                size: isMobile ? 120 : 150,
+                Cell: ({ cell }) =>
+                    new Date(cell.getValue()).toLocaleDateString()
             }
         ],
-        []
+        [isMobile, theme]
     );
+
+    const renderTopToolbar = ({ table }) => {
+        const selectedRows = Object.keys(rowSelection).length;
+
+        return (
+            <Stack
+                direction={isMobile ? 'column' : 'row'}
+                spacing={2}
+                sx={{
+                    p: '16px',
+                    backgroundColor: lighten(
+                        theme.palette.background.default,
+                        0.05
+                    )
+                }}
+            >
+                <Box sx={{ flex: 1 }}>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                        <MRTGlobalFilterTextField table={table} />
+                        <MRTToggleFiltersButton table={table} />
+                    </Stack>
+                </Box>
+                <Stack
+                    alignItems={isMobile ? 'stretch' : 'center'}
+                    direction={isMobile ? 'column' : 'row'}
+                    spacing={2}
+                >
+                    <Autocomplete
+                        getOptionLabel={(option) =>
+                            `${option.code} (${option.label})`
+                        }
+                        multiple
+                        onChange={(event, newValue) => {
+                            setSelectedAttributes(
+                                newValue.map((item) => item.code)
+                            );
+                        }}
+                        options={attributeOptions}
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                label={i18next.t('Filter by Attributes', {
+                                    ns: 'common'
+                                })}
+                                sx={{ minWidth: 250 }}
+                            />
+                        )}
+                        renderTags={(value, getTagProps) =>
+                            value.map((option, index) => (
+                                <Chip
+                                    key={option.code}
+                                    label={option.code}
+                                    size="small"
+                                    {...getTagProps({ index })}
+                                />
+                            ))
+                        }
+                        size="small"
+                        value={attributeOptions.filter((option) =>
+                            selectedAttributes.includes(option.code)
+                        )}
+                    />
+                    <FormControl size="small">
+                        <InputLabel id="select-factor">
+                            {i18next.t('Conversion factor', {
+                                ns: 'common'
+                            })}
+                        </InputLabel>
+                        <Select
+                            defaultValue={factor}
+                            id="convertFactor"
+                            label={i18next.t('Conversion factor', {
+                                ns: 'common'
+                            })}
+                            labelId="convertFactor"
+                            onChange={(e) => setFactor(e.target.value)}
+                        >
+                            <MenuItem value={1}>1</MenuItem>
+                            <MenuItem value={1.5}>1.5</MenuItem>
+                            <MenuItem value={2}>2</MenuItem>
+                        </Select>
+                    </FormControl>
+                    <FormControl component="fieldset">
+                        <RadioGroup
+                            row
+                            value={language}
+                            onChange={handleLanguageChange}
+                        >
+                            <FormControlLabel
+                                value="en"
+                                control={<Radio size="small" />}
+                                label="English"
+                            />
+                            <FormControlLabel
+                                value="zh"
+                                control={<Radio size="small" />}
+                                label="中文"
+                            />
+                        </RadioGroup>
+                    </FormControl>
+                    <Tooltip
+                        title={
+                            selectedRows === 0
+                                ? i18next.t(
+                                      'Please select programs to analyze',
+                                      { ns: 'common' }
+                                  )
+                                : i18next.t('Analyze selected programs', {
+                                      ns: 'common'
+                                  })
+                        }
+                    >
+                        <span>
+                            <Button
+                                color="primary"
+                                disabled={selectedRows === 0}
+                                endIcon={
+                                    isAnalysingV2 ? (
+                                        <CircularProgress size={20} />
+                                    ) : (
+                                        <AnalyticsIcon />
+                                    )
+                                }
+                                onClick={setModalShow2}
+                                variant="contained"
+                                fullWidth={isMobile}
+                            >
+                                {isAnalysingV2
+                                    ? i18next.t('Analysing', {
+                                          ns: 'courses'
+                                      })
+                                    : i18next.t('Analyse V2', {
+                                          ns: 'courses'
+                                      })}
+                                {selectedRows > 0 && ` (${selectedRows})`}
+                            </Button>
+                        </span>
+                    </Tooltip>
+                </Stack>
+            </Stack>
+        );
+    };
 
     const table = useMaterialReactTable({
         columns,
-        data, //data must be memoized or stable (useState, useMemo, defined outside of this component, etc.)
+        data: filteredData,
         enableColumnFilterModes: true,
         enableColumnOrdering: true,
         enableColumnPinning: true,
@@ -131,12 +358,17 @@ export const ProgramRequirementsTable = ({ data, onAnalyseV2 }) => {
             showGlobalFilter: true,
             columnPinning: {
                 left: ['mrt-row-expand', 'mrt-row-select']
-            }
+            },
+            density: 'compact'
         },
         muiTableBodyRowProps: ({ row }) => ({
-            //add onClick to row to select upon clicking anywhere in the row
             onClick: row.getToggleSelectedHandler(),
-            sx: { cursor: 'pointer' }
+            sx: {
+                cursor: 'pointer',
+                '&:hover': {
+                    backgroundColor: lighten(theme.palette.primary.light, 0.9)
+                }
+            }
         }),
         onRowSelectionChange: setRowSelection,
         state: { rowSelection },
@@ -144,7 +376,9 @@ export const ProgramRequirementsTable = ({ data, onAnalyseV2 }) => {
         positionToolbarAlertBanner: 'bottom',
         muiSearchTextFieldProps: {
             size: 'small',
-            variant: 'outlined'
+            variant: 'outlined',
+            placeholder: i18next.t('Search programs...', { ns: 'common' }),
+            sx: { minWidth: isMobile ? '100%' : 300 }
         },
         muiPaginationProps: {
             color: 'secondary',
@@ -152,122 +386,42 @@ export const ProgramRequirementsTable = ({ data, onAnalyseV2 }) => {
             shape: 'rounded',
             variant: 'outlined'
         },
-
-        renderTopToolbar: ({ table }) => {
-            return (
-                <Box
-                    sx={(theme) => ({
-                        backgroundColor: lighten(
-                            theme.palette.background.default,
-                            0.05
-                        ),
-                        display: 'flex',
-                        gap: '0.5rem',
-                        p: '8px',
-                        justifyContent: 'space-between'
-                    })}
-                >
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            gap: '0.5rem',
-                            alignItems: 'center'
-                        }}
-                    >
-                        <MRTGlobalFilterTextField table={table} />
-                        <MRTToggleFiltersButton table={table} />
-                    </Box>
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            gap: '0.5rem',
-                            alignItems: 'center'
-                        }}
-                    >
-                        <FormControl fullWidth size="small" sx={{ mb: 2 }}>
-                            <InputLabel id="select-factor">
-                                {i18next.t('Conversion factor', {
-                                    ns: 'common'
-                                })}
-                            </InputLabel>
-                            <Select
-                                defaultValue={factor}
-                                id="convertFactor"
-                                label="conversion factor"
-                                labelId="convertFactor"
-                                name="convertFactor"
-                                onChange={(e) => setFactor(e.target.value)}
-                            >
-                                <MenuItem value={1}>
-                                    {i18next.t('1', { ns: 'common' })}
-                                </MenuItem>
-                                <MenuItem value={1.5}>
-                                    {i18next.t('1.5', { ns: 'common' })}
-                                </MenuItem>
-                                <MenuItem value={2}>
-                                    {i18next.t('2', { ns: 'common' })}
-                                </MenuItem>
-                            </Select>
-                        </FormControl>
-                        <FormControl component="fieldset">
-                            <RadioGroup
-                                aria-label="language"
-                                name="language"
-                                onChange={handleLanguageChange}
-                                row
-                                value={language}
-                            >
-                                <FormControlLabel
-                                    control={<Radio />}
-                                    label="English"
-                                    value="en"
-                                />
-                                <FormControlLabel
-                                    control={<Radio />}
-                                    label="中文"
-                                    value="zh"
-                                />
-                            </RadioGroup>
-                        </FormControl>
-                        <Box sx={{ display: 'flex', gap: '0.5rem' }}>
-                            <Button
-                                color="primary"
-                                disabled={
-                                    !Object.keys(rowSelection)?.length > 0
-                                }
-                                endIcon={
-                                    statedata.isAnalysingV2 ? (
-                                        <CircularProgress size={24} />
-                                    ) : null
-                                }
-                                onClick={setModalShow2}
-                                variant="contained"
-                            >
-                                {statedata.isAnalysingV2
-                                    ? i18next.t('Analysing', { ns: 'courses' })
-                                    : i18next.t('Analyse V2', {
-                                          ns: 'courses'
-                                      })}
-                            </Button>
-                        </Box>
-                    </Box>
-                </Box>
-            );
-        }
+        renderTopToolbar
     });
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <MaterialReactTable table={table} />
-            <CourseAnalysisConfirmDialog
-                data={Object.keys(rowSelection)?.map((idx) => data[idx])}
-                isButtonDisable={
-                    isAnalysingV2 || !Object.keys(rowSelection)?.length > 0
-                }
-                onAnalyse={onAnalyse}
-                setModalHide={setModalHide}
-                show={statedata.modalShowAssignWindow}
-            />
+            <Box sx={{ position: 'relative' }}>
+                <MaterialReactTable table={table} />
+                {data.length === 0 && (
+                    <Box
+                        sx={{
+                            position: 'absolute',
+                            top: '50%',
+                            left: '50%',
+                            transform: 'translate(-50%, -50%)',
+                            textAlign: 'center',
+                            color: theme.palette.text.secondary
+                        }}
+                    >
+                        <InfoIcon sx={{ fontSize: 48, mb: 1 }} />
+                        <Box>
+                            {i18next.t('No programs available', {
+                                ns: 'common'
+                            })}
+                        </Box>
+                    </Box>
+                )}
+                <CourseAnalysisConfirmDialog
+                    data={Object.keys(rowSelection)?.map((idx) => data[idx])}
+                    isButtonDisable={
+                        isAnalysingV2 || !Object.keys(rowSelection)?.length > 0
+                    }
+                    onAnalyse={onAnalyse}
+                    setModalHide={setModalHide}
+                    show={statedata.modalShowAssignWindow}
+                />
+            </Box>
         </LocalizationProvider>
     );
 };
