@@ -32,7 +32,11 @@ import {
     ListItem,
     Tabs,
     Tab,
-    Button
+    Button,
+    ToggleButton,
+    ToggleButtonGroup,
+    TextField,
+    InputAdornment
 } from '@mui/material';
 import { Gauge, gaugeClasses } from '@mui/x-charts/Gauge';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -50,6 +54,11 @@ import { useTheme } from '@mui/material/styles';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import SortIcon from '@mui/icons-material/Sort';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import GaugeCard from '../../components/GaugeCard';
+import { DataGrid } from '@mui/x-data-grid';
+import ViewModuleIcon from '@mui/icons-material/ViewModule';
+import TableViewIcon from '@mui/icons-material/TableView';
+import SearchIcon from '@mui/icons-material/Search';
 
 import {
     convertDate,
@@ -844,53 +853,6 @@ const allAcquiredECTSCrossPrograms = (programSheetsArray) => {
     return sum;
 };
 
-const getGaugeColor = (value) => {
-    const theme = useTheme();
-    if (value >= 75) return theme.palette.primary.main; // blue for high scores
-    if (value >= 50) return theme.palette.success.main; // green for medium scores
-    return theme.palette.error.main; // red for low scores
-};
-
-const GaugeCard = memo(({ title, subtitle, value, height = 250 }) => {
-    return (
-        <Card sx={{ height }}>
-            <CardHeader
-                subheader={subtitle}
-                sx={{ pb: 0 }}
-                title={title}
-                titleTypography={{ variant: 'h6', fontWeight: 'medium' }}
-            />
-            <CardContent>
-                <Stack
-                    alignItems="center"
-                    direction="column"
-                    justifyContent="center"
-                    sx={{ height: '100%' }}
-                >
-                    <Gauge
-                        {...settings}
-                        endAngle={110}
-                        startAngle={-110}
-                        sx={{
-                            [`& .${gaugeClasses.valueArc}`]: {
-                                fill: getGaugeColor(Number(value).toFixed(0))
-                            },
-                            [`& .${gaugeClasses.valueText}`]: {
-                                fontSize: 40,
-                                fontWeight: 'bold',
-                                transform: 'translate(0px, 0px)'
-                            }
-                        }}
-                        text={({ value }) => `${value}%`}
-                        value={Number(value).toFixed(0)}
-                    />
-                </Stack>
-            </CardContent>
-        </Card>
-    );
-});
-GaugeCard.displayName = 'GaugeCard';
-
 const GPACard = memo(({ student, myGermanGPA }) => {
     const theme = useTheme();
     const university = student?.academic_background?.university || {};
@@ -1031,6 +993,17 @@ GPACard.displayName = 'GPACard';
 
 const ProgramMatchingScores = memo(
     ({ programSheetsArray, onProgramSelect }) => {
+        const theme = useTheme();
+        const [viewMode, setViewMode] = useState('cards');
+        const [pageSize, setPageSize] = useState(10);
+        const [searchText, setSearchText] = useState('');
+
+        const handleViewChange = (event, newView) => {
+            if (newView !== null) {
+                setViewMode(newView);
+            }
+        };
+
         const calculateProgramMatchingScore = (sortedCourses) => {
             const requiredects = Object.keys(sortedCourses).reduce(
                 (sum, category) => sum + requiredECTS(sortedCourses[category]),
@@ -1047,124 +1020,329 @@ const ProgramMatchingScores = memo(
             return requiredects > 0 ? (acquiredects * 100) / requiredects : 0;
         };
 
+        const calculateRequiredECTS = (sortedCourses) => {
+            return Object.keys(sortedCourses).reduce(
+                (sum, category) => sum + requiredECTS(sortedCourses[category]),
+                0
+            );
+        };
+
+        const calculateAcquiredECTS = (sortedCourses) => {
+            return Object.keys(sortedCourses).reduce(
+                (sum, category) =>
+                    sum +
+                    (satisfiedRequirement(sortedCourses[category])
+                        ? requiredECTS(sortedCourses[category])
+                        : acquiredECTS(sortedCourses[category])),
+                0
+            );
+        };
+
+        const getScoreColor = (score) => {
+            if (score >= 75) return theme.palette.primary.main;
+            if (score >= 50) return theme.palette.success.main;
+            return theme.palette.error.main;
+        };
+
+        const getECTSColor = (acquired, required) => {
+            const percentage = (acquired / required) * 100;
+            if (percentage >= 100) return theme.palette.success.main;
+            if (percentage >= 75) return theme.palette.primary.main;
+            if (percentage >= 50) return theme.palette.warning.main;
+            return theme.palette.error.main;
+        };
+
+        const columns = [
+            {
+                field: 'programName',
+                headerName: 'Program Name',
+                flex: 2,
+                minWidth: 250,
+                renderCell: (params) => (
+                    <Link
+                        component="button"
+                        onClick={() => onProgramSelect(params.row.index)}
+                        sx={{
+                            textAlign: 'left',
+                            cursor: 'pointer',
+                            textDecoration: 'none',
+                            '&:hover': {
+                                textDecoration: 'underline'
+                            }
+                        }}
+                    >
+                        {params.value}
+                    </Link>
+                )
+            },
+            {
+                field: 'matchingScore',
+                headerName: 'Matching Score',
+                flex: 1,
+                minWidth: 150,
+                type: 'number',
+                renderCell: (params) => {
+                    const score = params.value;
+                    return (
+                        <Box
+                            sx={{
+                                width: '100%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1
+                            }}
+                        >
+                            <Box
+                                sx={{
+                                    width: '50px',
+                                    height: '50px',
+                                    borderRadius: '50%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    backgroundColor: getScoreColor(score),
+                                    color: 'white',
+                                    fontWeight: 'bold'
+                                }}
+                            >
+                                {score}%
+                            </Box>
+                            <Box>
+                                {score >= 75
+                                    ? 'Excellent Match'
+                                    : score >= 50
+                                      ? 'Good Match'
+                                      : 'Low Match'}
+                            </Box>
+                        </Box>
+                    );
+                },
+                sortComparator: (v1, v2) => Number(v1) - Number(v2)
+            },
+            {
+                field: 'ectsProgress',
+                headerName: 'ECTS Progress',
+                flex: 1.5,
+                minWidth: 200,
+                renderCell: (params) => {
+                    const acquired = params.row.acquiredECTS;
+                    const required = params.row.requiredECTS;
+                    const percentage = Math.min(
+                        100,
+                        (acquired / required) * 100
+                    );
+
+                    return (
+                        <Box
+                            sx={{
+                                width: '100%',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 0.5,
+                                justifyContent: 'center',
+                                height: '100%'
+                            }}
+                        >
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    width: '100%'
+                                }}
+                            >
+                                <Typography
+                                    color={getECTSColor(acquired, required)}
+                                    sx={{ fontWeight: 'medium' }}
+                                    variant="body2"
+                                >
+                                    {acquired} / {required} ECTS
+                                </Typography>
+                                <Typography
+                                    color="text.secondary"
+                                    variant="body2"
+                                >
+                                    {percentage.toFixed(0)}%
+                                </Typography>
+                            </Box>
+                            <Box
+                                sx={{
+                                    width: '100%',
+                                    bgcolor: 'background.neutral',
+                                    borderRadius: 1,
+                                    height: 6
+                                }}
+                            >
+                                <Box
+                                    sx={{
+                                        width: `${percentage}%`,
+                                        height: '100%',
+                                        borderRadius: 1,
+                                        bgcolor: getECTSColor(
+                                            acquired,
+                                            required
+                                        ),
+                                        transition: 'width 0.5s ease-in-out'
+                                    }}
+                                />
+                            </Box>
+                        </Box>
+                    );
+                }
+            }
+        ];
+
+        const rows = programSheetsArray.map(({ key, value }, index) => {
+            const requiredECTS = calculateRequiredECTS(value.sorted);
+            const acquiredECTS = calculateAcquiredECTS(value.sorted);
+            return {
+                id: index,
+                index: index,
+                programName: key,
+                matchingScore: Number(
+                    calculateProgramMatchingScore(value.sorted)
+                ).toFixed(0),
+                requiredECTS,
+                acquiredECTS
+            };
+        });
+
+        const filteredRows = searchText
+            ? rows.filter(
+                  (row) =>
+                      row.programName
+                          .toLowerCase()
+                          .includes(searchText.toLowerCase()) ||
+                      row.matchingScore.toString().includes(searchText) ||
+                      row.requiredECTS.toString().includes(searchText) ||
+                      row.acquiredECTS.toString().includes(searchText)
+              )
+            : rows;
+
         return (
             <Card>
                 <CardHeader
+                    action={
+                        <Stack alignItems="center" direction="row" spacing={2}>
+                            {viewMode === 'table' && (
+                                <Box sx={{ width: 250 }}>
+                                    <TextField
+                                        InputProps={{
+                                            startAdornment: (
+                                                <InputAdornment position="start">
+                                                    <SearchIcon />
+                                                </InputAdornment>
+                                            )
+                                        }}
+                                        fullWidth
+                                        onChange={(e) =>
+                                            setSearchText(e.target.value)
+                                        }
+                                        placeholder="Search programs..."
+                                        size="small"
+                                        value={searchText}
+                                    />
+                                </Box>
+                            )}
+                            <ToggleButtonGroup
+                                exclusive
+                                onChange={handleViewChange}
+                                size="small"
+                                value={viewMode}
+                            >
+                                <ToggleButton
+                                    aria-label="cards view"
+                                    value="cards"
+                                >
+                                    <ViewModuleIcon />
+                                </ToggleButton>
+                                <ToggleButton
+                                    aria-label="table view"
+                                    value="table"
+                                >
+                                    <TableViewIcon />
+                                </ToggleButton>
+                            </ToggleButtonGroup>
+                        </Stack>
+                    }
                     subheader="Course requirement coverage for each analyzed program"
                     title="Program-wise Matching Scores"
                     titleTypography={{ variant: 'h6', fontWeight: 'medium' }}
                 />
                 <CardContent sx={{ pb: 3 }}>
-                    <Grid container spacing={3}>
-                        {programSheetsArray.map(({ key, value }, index) => {
-                            const score = Number(
-                                calculateProgramMatchingScore(value.sorted)
-                            ).toFixed(0);
-                            return (
-                                <Grid
-                                    item
-                                    key={key}
-                                    lg={3}
-                                    md={4}
-                                    sm={6}
-                                    xs={12}
-                                >
-                                    <Card
-                                        onClick={() => onProgramSelect(index)}
-                                        sx={{
-                                            height: 'auto',
-                                            minHeight: 220,
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            cursor: 'pointer',
-                                            '&:hover': {
-                                                boxShadow: (theme) =>
-                                                    theme.shadows[4],
-                                                transform: 'translateY(-2px)',
-                                                bgcolor: 'action.hover'
-                                            },
-                                            transition: 'all 0.2s ease-in-out'
-                                        }}
-                                        variant="outlined"
+                    {viewMode === 'cards' ? (
+                        <Grid container spacing={3}>
+                            {programSheetsArray.map(({ key, value }, index) => {
+                                const score = Number(
+                                    calculateProgramMatchingScore(value.sorted)
+                                ).toFixed(0);
+                                return (
+                                    <Grid
+                                        item
+                                        key={key}
+                                        lg={3}
+                                        md={4}
+                                        sm={6}
+                                        xs={12}
                                     >
-                                        <CardHeader
-                                            sx={{
-                                                p: 2,
-                                                pb: 1,
-                                                '& .MuiCardHeader-content': {
-                                                    overflow: 'visible'
-                                                }
-                                            }}
-                                            title={
-                                                <Typography
-                                                    component="div"
-                                                    sx={{
-                                                        fontWeight: 'medium',
-                                                        fontSize: '0.875rem',
-                                                        lineHeight: 1.3,
-                                                        mb: 0.5,
-                                                        wordBreak: 'break-word'
-                                                    }}
-                                                >
-                                                    {key}
-                                                </Typography>
+                                        <GaugeCard
+                                            onClick={() =>
+                                                onProgramSelect(index)
                                             }
+                                            score={score}
+                                            settings={settings}
+                                            subtitle="Click to view details"
+                                            title={key}
                                         />
-                                        <CardContent
-                                            sx={{
-                                                flexGrow: 1,
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                p: 2,
-                                                pt: 0
-                                            }}
-                                        >
-                                            <Box
-                                                sx={{
-                                                    display: 'flex',
-                                                    flexDirection: 'column',
-                                                    alignItems: 'center',
-                                                    gap: 1
-                                                }}
-                                            >
-                                                <Gauge
-                                                    {...settings}
-                                                    endAngle={110}
-                                                    size={100}
-                                                    startAngle={-110}
-                                                    sx={{
-                                                        [`& .${gaugeClasses.valueArc}`]:
-                                                            {
-                                                                fill: getGaugeColor(
-                                                                    score
-                                                                )
-                                                            },
-                                                        [`& .${gaugeClasses.valueText}`]:
-                                                            {
-                                                                fontSize: 30,
-                                                                fontWeight:
-                                                                    'bold'
-                                                            }
-                                                    }}
-                                                    text={({ value }) =>
-                                                        `${value}%`
-                                                    }
-                                                    value={score}
-                                                />
-                                                <Typography
-                                                    color="text.secondary"
-                                                    variant="body2"
-                                                >
-                                                    Click to view details
-                                                </Typography>
-                                            </Box>
-                                        </CardContent>
-                                    </Card>
-                                </Grid>
-                            );
-                        })}
-                    </Grid>
+                                    </Grid>
+                                );
+                            })}
+                        </Grid>
+                    ) : (
+                        <Box sx={{ height: 600, width: '100%' }}>
+                            <DataGrid
+                                columns={columns}
+                                density="comfortable"
+                                disableSelectionOnClick
+                                initialState={{
+                                    sorting: {
+                                        sortModel: [
+                                            {
+                                                field: 'matchingScore',
+                                                sort: 'desc'
+                                            }
+                                        ]
+                                    }
+                                }}
+                                onPageSizeChange={(newPageSize) =>
+                                    setPageSize(newPageSize)
+                                }
+                                onRowClick={(params) =>
+                                    onProgramSelect(params.row.index)
+                                }
+                                pageSize={pageSize}
+                                rows={filteredRows}
+                                rowsPerPageOptions={[5, 10, 25, 50]}
+                                sx={{
+                                    '& .MuiDataGrid-cell:focus': {
+                                        outline: 'none'
+                                    },
+                                    '& .MuiDataGrid-row:hover': {
+                                        backgroundColor: 'action.hover',
+                                        cursor: 'pointer'
+                                    },
+                                    border: 'none',
+                                    '& .MuiDataGrid-columnHeaders': {
+                                        backgroundColor: 'background.neutral',
+                                        borderRadius: 1
+                                    },
+                                    '& .MuiDataGrid-footerContainer': {
+                                        borderTop: `1px solid ${theme.palette.divider}`
+                                    }
+                                }}
+                            />
+                        </Box>
+                    )}
                 </CardContent>
             </Card>
         );
@@ -1306,9 +1484,19 @@ export const GeneralCourseAnalysisComponent = ({
 
                     <Grid item md={4} xs={12}>
                         <GaugeCard
+                            CardHeaderProps={{
+                                titleTypography: {
+                                    variant: 'h6',
+                                    fontWeight: 'medium'
+                                }
+                            }}
+                            score={Number(
+                                matchingOverallECTSPercentage
+                            ).toFixed(0)}
+                            settings={settings}
                             subtitle="Average course requirement coverage across all programs"
+                            sx={{ height: 250 }}
                             title="Overall Matching Score"
-                            value={matchingOverallECTSPercentage}
                         />
                     </Grid>
 
