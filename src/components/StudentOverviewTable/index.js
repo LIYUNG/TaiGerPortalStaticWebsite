@@ -230,7 +230,7 @@ const StudentOverviewTable = ({ students }) => {
                 total_base_docs_needed,
                 isEnglishPassed,
                 isGermanPassed,
-                program_selection: `${num_apps_decided}/${student.applying_program_count}`,
+                program_selection: `${areProgramsAllDecided ? 'O' : '-'}${num_apps_decided}/${student.applying_program_count}`,
                 nextProgram: getNextProgramName(student),
                 nextProgramDeadline: getNextProgramDeadline(student),
                 nextProgramDayleft: getNextProgramDayleft(student),
@@ -344,6 +344,9 @@ const StudentOverviewTable = ({ students }) => {
                 headerName: t('Program Selection', { ns: 'common' }),
                 width: 100,
                 renderCell: (params) => {
+                    const programSelection = params.row.program_selection
+                        ?.replaceAll('-', '')
+                        .replaceAll('O', '');
                     return (
                         <Link
                             component={LinkDom}
@@ -359,9 +362,9 @@ const StudentOverviewTable = ({ students }) => {
                                 )}
                                 {params.row.num_apps_decided >
                                 params.row.applying_program_count ? (
-                                    <b>{params.row.program_selection}</b>
+                                    <b>{programSelection}</b>
                                 ) : (
-                                    params.row.program_selection
+                                    programSelection
                                 )}
                             </Typography>
                         </Link>
