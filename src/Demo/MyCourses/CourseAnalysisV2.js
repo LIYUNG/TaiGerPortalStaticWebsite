@@ -1327,6 +1327,8 @@ export default function CourseAnalysisV2() {
             const selectedIndex = index + 1;
             setValue(selectedIndex);
             setSheetName(statedata.sheetNames[selectedIndex]);
+            // Smooth scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         },
         [statedata.sheetNames]
     );
