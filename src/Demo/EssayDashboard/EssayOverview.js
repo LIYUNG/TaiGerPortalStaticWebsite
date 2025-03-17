@@ -121,7 +121,7 @@ const EssayOverview = (props) => {
                 }
             },
             {
-                field: 'outsourced_user_id',
+                field: 'outsourced_user_name_joined',
                 headerName: t('Essay Writer', { ns: 'common' }),
                 align: 'left',
                 headerAlign: 'left',
@@ -146,7 +146,7 @@ const EssayOverview = (props) => {
                 }
             },
             {
-                field: 'editors',
+                field: 'editors_joined',
                 headerName: t('Editors', { ns: 'common' }),
                 align: 'left',
                 headerAlign: 'left',

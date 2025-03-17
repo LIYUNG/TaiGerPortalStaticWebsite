@@ -1577,6 +1577,9 @@ const prepEssayTaskThread = (student, thread) => {
         latest_message_left_by_id: latestReplyUserId(thread),
         isFinalVersion: thread.isFinalVersion,
         outsourced_user_id: thread?.outsourced_user_id,
+        outsourced_user_name_joined: thread?.outsourced_user_id
+            ?.map((outsourcer) => outsourcer.firstname)
+            .join(' '),
         flag_by_user_id: thread?.flag_by_user_id,
         file_type: thread.file_type,
         aged_days: differenceInDays(new Date(), thread.updatedAt),

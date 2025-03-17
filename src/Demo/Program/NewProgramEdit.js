@@ -16,7 +16,7 @@ import {
     Checkbox,
     Autocomplete
 } from '@mui/material';
-import { is_TaiGer_Admin } from '@taiger-common/core';
+import { DIFFICULTY, is_TaiGer_Admin } from '@taiger-common/core';
 
 import SearchableMultiSelect from '../../components/Input/searchableMuliselect';
 import {
@@ -562,6 +562,33 @@ const NewProgramEdit = (props) => {
                     </Grid>
                     <Grid item md={6} xs={12}>
                         <Typography variant="body1">
+                            {t('Goethe Zertifikat Requirement', {
+                                ns: 'common'
+                            })}
+                        </Typography>
+                    </Grid>
+                    <Grid item md={6} xs={12}>
+                        <FormControl fullWidth>
+                            <Select
+                                id="goetheZertifikat"
+                                labelId="goetheZertifikat"
+                                name="goetheZertifikat"
+                                onChange={(e) => handleChange(e)}
+                                size="small"
+                                value={program.goetheZertifikat || '-'}
+                            >
+                                {['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].map(
+                                    (level) => (
+                                        <MenuItem key={level} value={level}>
+                                            {level}
+                                        </MenuItem>
+                                    )
+                                )}
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                    <Grid item md={6} xs={12}>
+                        <Typography variant="body1">
                             {t('TestDaF Requirement', { ns: 'common' })}
                         </Typography>
                     </Grid>
@@ -575,6 +602,23 @@ const NewProgramEdit = (props) => {
                             size="small"
                             type="text"
                             value={program.testdaf || ''}
+                        />
+                    </Grid>
+                    <Grid item md={6} xs={12}>
+                        <Typography variant="body1">
+                            {t('DSH Requirement', { ns: 'common' })}
+                        </Typography>
+                    </Grid>
+                    <Grid item md={6} xs={12}>
+                        <TextField
+                            fullWidth
+                            id="dsh"
+                            name="dsh"
+                            onChange={(e) => handleChange(e)}
+                            placeholder="2"
+                            size="small"
+                            type="text"
+                            value={program.dsh || ''}
                         />
                     </Grid>
                     <Grid item md={6} xs={12}>
@@ -744,6 +788,32 @@ const NewProgramEdit = (props) => {
                                         value={option.value}
                                     >
                                         {option.label}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                    <Grid item md={6} xs={12}>
+                        <Typography variant="body1">
+                            {t('Essay Difficulty', { ns: 'common' })}
+                        </Typography>
+                    </Grid>
+                    <Grid item md={6} xs={12}>
+                        <FormControl fullWidth>
+                            <Select
+                                id="essay_difficulty"
+                                labelId="essay_difficulty"
+                                name="essay_difficulty"
+                                onChange={(e) => handleChange(e)}
+                                size="small"
+                                value={program.essay_difficulty || ''}
+                            >
+                                {Object.values(DIFFICULTY).map((difficulty) => (
+                                    <MenuItem
+                                        key={difficulty}
+                                        value={difficulty}
+                                    >
+                                        {difficulty}
                                     </MenuItem>
                                 ))}
                             </Select>
