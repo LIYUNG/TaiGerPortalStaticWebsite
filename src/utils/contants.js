@@ -1010,7 +1010,9 @@ export const program_fields_english_languages_test = [
 ];
 
 export const program_fields_other_test = [
+    { name: 'Goethe Zertifikat Requirement', prop: 'goetheZertifikat' },
     { name: 'TestDaF Requirement', prop: 'testdaf' },
+    { name: 'DSH Requirement', prop: 'dsh' },
     { name: 'GRE Requirement', prop: 'gre' },
     { name: 'GMAT Requirement', prop: 'gmat' },
     { name: 'GPA Requirement (German system)', prop: 'gpa_requirement' }
