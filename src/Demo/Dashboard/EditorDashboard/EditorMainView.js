@@ -31,6 +31,8 @@ import {
 import DEMO from '../../../store/constant';
 import { useAuth } from '../../../components/AuthProvider';
 import { useTranslation } from 'react-i18next';
+import AssignEssayWriterRow from '../MainViewTab/Common/AssignEssayWriterRow';
+import AssignEditorRow from '../MainViewTab/Common/AssignEditorRow';
 
 const EditorMainView = (props) => {
     const { user } = useAuth();
@@ -194,45 +196,12 @@ const EditorMainView = (props) => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                <TableRow>
-                                    <TableCell>
-                                        <Link
-                                            component={LinkDom}
-                                            to={`${DEMO.ASSIGN_EDITOR_LINK}`}
-                                        >
-                                            {t('Assign Editors')}
-                                        </Link>
-                                    </TableCell>
-                                    <TableCell>
-                                        {t('Please assign editors', {
-                                            ns: 'common'
-                                        })}
-                                    </TableCell>
-                                    <TableCell />
-                                </TableRow>
-                                {!does_essay_have_writers(
-                                    props.essayDocumentThreads?.filter(
-                                        (thread) => !thread.isFinalVersion
-                                    )
-                                ) ? (
-                                    <TableRow>
-                                        <TableCell>
-                                            <Link
-                                                component={LinkDom}
-                                                to={`${DEMO.ASSIGN_ESSAY_WRITER_LINK}`}
-                                            >
-                                                {t('Assign Essay Writer', {
-                                                    ns: 'common'
-                                                })}
-                                            </Link>
-                                        </TableCell>
-                                        <TableCell>
-                                            {t('Please assign essay writers', {
-                                                ns: 'common'
-                                            })}
-                                        </TableCell>
-                                    </TableRow>
-                                ) : null}
+                                <AssignEditorRow students={props.students} />
+                                <AssignEssayWriterRow
+                                    essayDocumentThreads={
+                                        props.essayDocumentThreads
+                                    }
+                                />
                             </TableBody>
                         </Table>
                     </Card>

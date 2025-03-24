@@ -2143,6 +2143,22 @@ export const does_essay_have_writers = (essayDocumentThreads) => {
     return true;
 };
 
+export const number_of_threads_without_essay_writers_assigned_with_input = (
+    essayDocumentThreads
+) => {
+    let count = 0;
+    for (let i = 0; i < essayDocumentThreads.length; i += 1) {
+        if (
+            (essayDocumentThreads[i].outsourced_user_id === undefined ||
+                essayDocumentThreads[i].outsourced_user_id.length === 0) &&
+            essayDocumentThreads[i].messages.length > 0
+        ) {
+            count += 1;
+        }
+    }
+    return count;
+};
+
 export const extractTextFromDocx = async (arrayBuffer) => {
     const zip = await JSZip.loadAsync(arrayBuffer);
     const documentXml = await zip.file('word/document.xml')?.async('string');

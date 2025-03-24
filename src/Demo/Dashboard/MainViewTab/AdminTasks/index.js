@@ -4,12 +4,12 @@ import { Link, TableCell, TableRow } from '@mui/material';
 
 import {
     does_student_have_agents,
-    does_student_have_editors,
-    does_essay_have_writers,
     is_num_Program_Not_specified
 } from '../../../Utils/checking-functions';
 import DEMO from '../../../../store/constant';
 import { useTranslation } from 'react-i18next';
+import AssignEssayWriterRow from '../Common/AssignEssayWriterRow';
+import AssignEditorRow from '../Common/AssignEditorRow';
 
 const AdminTasks = (props) => {
     const { t } = useTranslation();
@@ -57,40 +57,11 @@ const AdminTasks = (props) => {
                     </TableCell>
                 </TableRow>
             ) : null}
-            {!does_student_have_editors(props.students) ? (
-                <TableRow>
-                    <TableCell>
-                        <Link
-                            component={LinkDom}
-                            to={`${DEMO.ASSIGN_EDITOR_LINK}`}
-                        >
-                            {t('Assign Editors')}
-                        </Link>
-                    </TableCell>
-                    <TableCell>
-                        {t('Please assign editors', { ns: 'common' })}
-                    </TableCell>
-                </TableRow>
-            ) : null}
-            {!does_essay_have_writers(
-                props.essayDocumentThreads.filter(
-                    (thread) => !thread.isFinalVersion
-                )
-            ) ? (
-                <TableRow>
-                    <TableCell>
-                        <Link
-                            component={LinkDom}
-                            to={`${DEMO.ASSIGN_ESSAY_WRITER_LINK}`}
-                        >
-                            {t('Assign Essay Writer', { ns: 'common' })}
-                        </Link>
-                    </TableCell>
-                    <TableCell>
-                        {t('Please assign essay writers', { ns: 'common' })}
-                    </TableCell>
-                </TableRow>
-            ) : null}
+            <AssignEditorRow students={props.students} />
+            <AssignEssayWriterRow
+                essayDocumentThreads={props.essayDocumentThreads}
+            />
+
             {/* assign number of application according to contract */}
             {missing_number_of_applications_students}
         </>

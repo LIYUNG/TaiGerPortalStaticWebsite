@@ -131,10 +131,11 @@ const NoWritersEssaysCard = (props) => {
                     </TableCell>
                     <TableCell>
                         {/* TODO: adjust condition and backend returned data: message !== 0 && no outsourcer */}
-                        {props.essayDocumentThread.outsourced_user_id ===
+                        {(props.essayDocumentThread.outsourced_user_id ===
                             undefined ||
-                        props.essayDocumentThread.outsourced_user_id.length ===
-                            0 ? (
+                            props.essayDocumentThread.outsourced_user_id
+                                ?.length === 0) &&
+                        props.essayDocumentThread.messages?.length > 0 ? (
                             <Typography fontWeight="bold">
                                 Ready to Assign
                             </Typography>
