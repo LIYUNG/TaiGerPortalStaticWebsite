@@ -15,6 +15,7 @@ import {
     Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import SaveIcon from '@mui/icons-material/Save';
 
 import { getEssayWriters } from '../../../../api';
 import { FILE_TYPE_E } from '../../../Utils/checking-functions';
@@ -155,13 +156,21 @@ const EditEssayWritersSubpage = (props) => {
                             color="primary"
                             disabled={
                                 !checkboxState.updateEditorList ||
-                                checkboxState.updateEditorList?.length === 0
+                                checkboxState.updateEditorList?.length === 0 ||
+                                props.isSubmitting
                             }
                             onClick={(e) =>
                                 props.submitUpdateEssayWriterlist(
                                     e,
                                     checkboxState.updateEditorList,
                                     props.essayDocumentThread._id
+                                )
+                            }
+                            startIcon={
+                                props.isSubmitting ? (
+                                    <CircularProgress size={24} />
+                                ) : (
+                                    <SaveIcon />
                                 )
                             }
                             variant="contained"

@@ -83,6 +83,7 @@ import DocumentCheckingResultModal from './DocumentCheckingResultModal';
 import { a11yProps, CustomTabPanel } from '../../../components/Tabs';
 import Audit from '../../Audit';
 import i18next from 'i18next';
+import { useSnackBar } from '../../../contexts/use-snack-bar';
 
 const DescriptionBlock = ({ thread, template_obj, documentsthreadId }) => {
     const { user } = useAuth();
@@ -753,6 +754,7 @@ const DocModificationThreadPage = ({
     const { user } = useAuth();
     const theme = useTheme();
     const { documentsthreadId } = useParams();
+    const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
     const [docModificationThreadPageState, setDocModificationThreadPageState] =
         useState({
             error: '',
@@ -766,6 +768,7 @@ const DocModificationThreadPage = ({
             editorState: {},
             expand: true,
             editors: editors,
+            isSubmitting: false,
             agents: agents,
             conflict_list: conflictList,
             deadline: deadline,
@@ -1003,6 +1006,13 @@ const DocModificationThreadPage = ({
                         SetAsFinalFileModel: false,
                         res_modal_status: status
                     }));
+                    setSeverity('success');
+                    setMessage(
+                        data.isFinalVersion
+                            ? 'Thread closed successfully!'
+                            : 'Thread opened successfully!'
+                    );
+                    setOpenSnackbar(true);
                 } else {
                     const { message } = resp.data;
                     setDocModificationThreadPageState((prevState) => ({
@@ -1059,6 +1069,9 @@ const DocModificationThreadPage = ({
                         buttonDisabled: false,
                         res_modal_status: status
                     }));
+                    setSeverity('success');
+                    setMessage('Message deleted successfully!');
+                    setOpenSnackbar(true);
                 } else {
                     // TODO: what if data is oversize? data type not match?
                     const { message } = resp.data;
@@ -1108,7 +1121,10 @@ const DocModificationThreadPage = ({
         essayDocumentThread_id
     ) => {
         e.preventDefault();
-        setEditorModalhide();
+        setDocModificationThreadPageState((prevState) => ({
+            ...prevState,
+            isSubmitting: true
+        }));
         updateEssayWriter(updateEssayWriterList, essayDocumentThread_id).then(
             (resp) => {
                 const { data, success } = resp.data;
@@ -1121,11 +1137,16 @@ const DocModificationThreadPage = ({
                     setDocModificationThreadPageState((prevState) => ({
                         ...prevState,
                         isLoaded: true, //false to reload everything
+                        isSubmitting: false,
                         thread: essays_temp,
                         success: success,
                         updateEditorList: [],
                         res_modal_status: status
                     }));
+                    setEditorModalhide();
+                    setSeverity('success');
+                    setMessage('Essay Writer assigned successfully!');
+                    setOpenSnackbar(true);
                 } else {
                     const { message } = resp.data;
                     setDocModificationThreadPageState((prevState) => ({
@@ -1137,13 +1158,11 @@ const DocModificationThreadPage = ({
                 }
             },
             (error) => {
-                setDocModificationThreadPageState((prevState) => ({
-                    ...prevState,
-                    isLoaded: true,
-                    error,
-                    res_modal_status: 500,
-                    res_modal_message: ''
-                }));
+                setSeverity('error');
+                setMessage(
+                    error.message || 'An error occurred. Please try again.'
+                );
+                setOpenSnackbar(true);
             }
         );
     };
@@ -1165,7 +1184,11 @@ const DocModificationThreadPage = ({
             (resp) => {
                 const { success } = resp.data;
                 const { status } = resp;
-                if (!success) {
+                if (success) {
+                    setSeverity('success');
+                    setMessage('Added to favorite successfully!');
+                    setOpenSnackbar(true);
+                } else {
                     setDocModificationThreadPageState((prevState) => ({
                         ...prevState,
                         res_status: status
@@ -1500,6 +1523,7 @@ const DocModificationThreadPage = ({
                     }
                     editors={docModificationThreadPageState.editors}
                     essayDocumentThread={thread}
+                    isSubmitting={docModificationThreadPageState.isSubmitting}
                     onHide={setEditorModalhide}
                     setmodalhide={setEditorModalhide}
                     show={docModificationThreadPageState.showEditorPage}
