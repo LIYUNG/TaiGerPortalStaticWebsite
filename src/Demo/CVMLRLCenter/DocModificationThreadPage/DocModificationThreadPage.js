@@ -1186,7 +1186,11 @@ const DocModificationThreadPage = ({
                 const { status } = resp;
                 if (success) {
                     setSeverity('success');
-                    setMessage('Added to favorite successfully!');
+                    setMessage(
+                        isFavorite
+                            ? 'Removed from favorite successfully!'
+                            : 'Added to favorite successfully!'
+                    );
                     setOpenSnackbar(true);
                 } else {
                     setDocModificationThreadPageState((prevState) => ({
