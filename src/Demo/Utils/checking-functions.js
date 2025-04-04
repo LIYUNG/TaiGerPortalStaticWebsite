@@ -1655,7 +1655,12 @@ const prepEssayTask = (essay, user) => {
                 : is_TaiGer_Agent(user)
                   ? essay.student_id?.agents.some(
                         (agent) => agent._id.toString() === user._id.toString()
-                    ) || false
+                    ) ||
+                    essay.outsourced_user_id?.some(
+                        (outsourcer) =>
+                            outsourcer._id.toString() === user._id.toString()
+                    ) ||
+                    false
                   : true,
         document_name: `${essay.file_type} - ${essay.program_id.school} - ${essay.program_id.degree} -${essay.program_id.program_name}`,
         days_left:
