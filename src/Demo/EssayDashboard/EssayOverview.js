@@ -167,6 +167,25 @@ const EssayOverview = (props) => {
                 }
             },
             {
+                field: 'agentName',
+                headerName: t('Agent', { ns: 'common' }),
+                minWidth: 120,
+                renderCell: (params) => {
+                    return params.row.agents?.map((agent) => (
+                        <Link
+                            component={LinkDom}
+                            key={`${agent._id.toString()}`}
+                            target="_blank"
+                            title={agent.firstname}
+                            to={DEMO.TEAM_AGENT_LINK(agent._id.toString())}
+                            underline="hover"
+                        >
+                            {`${agent.firstname} `}
+                        </Link>
+                    ));
+                }
+            },
+            {
                 field: 'deadline',
                 headerName: t('Deadline', { ns: 'common' }),
                 minWidth: 100
