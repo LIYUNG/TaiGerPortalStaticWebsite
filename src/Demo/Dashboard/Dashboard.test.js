@@ -69,7 +69,11 @@ const routes = [
         errorElement: <div>Error</div>,
         loader: () => {
             return {
-                studentAndEssays: { data: mockSingleData, essays: { data: [] } }
+                studentAndEssaysAndInterview: {
+                    data: mockSingleData,
+                    essays: { data: [] },
+                    interviews: { data: [] }
+                }
             };
         }
     }

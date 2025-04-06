@@ -7,16 +7,18 @@ import { Box } from '@mui/material';
 import Loading from '../../components/Loading/Loading';
 
 const Dashboard = () => {
-    const { studentAndEssays } = useLoaderData();
+    const { studentAndEssaysAndInterview } = useLoaderData();
 
     TabTitle('Home Page');
 
     return (
         <Box data-testid="dashoboard_component">
             <Suspense fallback={<Loading />}>
-                <Await resolve={studentAndEssays}>
+                <Await resolve={studentAndEssaysAndInterview}>
                     {(loadedData) => (
-                        <DashboardBody studentAndEssays={loadedData} />
+                        <DashboardBody
+                            studentAndEssaysAndInterview={loadedData}
+                        />
                     )}
                 </Await>
             </Suspense>

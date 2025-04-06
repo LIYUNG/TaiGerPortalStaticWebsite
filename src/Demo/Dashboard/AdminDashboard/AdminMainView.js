@@ -43,10 +43,10 @@ const AdminMainView = (props) => {
                   ? -1
                   : 1
         );
-
     const admin_tasks = (
         <AdminTasks
             essayDocumentThreads={props.essayDocumentThreads}
+            interviews={props.interviews}
             students={students}
         />
     );

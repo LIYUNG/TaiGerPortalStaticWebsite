@@ -5,6 +5,7 @@ const DEMO = {
     ASSIGN_AGENT_LINK: '/assignment/agents',
     ASSIGN_EDITOR_LINK: '/assignment/editors',
     ASSIGN_ESSAY_WRITER_LINK: '/assignment/essay-writers',
+    ASSIGN_INTERVIEW_TRAINER_LINK: '/assignment/interview-trainers',
     ACCOUNTING_LINK: '/internal/accounting',
     ACCOUNTING_USER_ID_LINK: (user_id) => {
         return `/internal/accounting/users/${user_id}`;

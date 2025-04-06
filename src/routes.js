@@ -22,7 +22,8 @@ import {
     AllActiveStudentsV2Loader,
     getProgramRequirementsV2Loader,
     getAllCoursesLoader,
-    getCourseLoader
+    getCourseLoader,
+    getAllOpenInterviewsLoader
 } from './api/dataLoader';
 import DefaultErrorPage from './Demo/Utils/DefaultErrorPage';
 import StudentApplicationsAssignPage from './Demo/StudentApplications/assignPage';
@@ -247,6 +248,10 @@ const EditorsAssignment = React.lazy(
 const EssayWritersAssignment = React.lazy(
     () => import('./Demo/AssignmentAgentsEditors/AssignEssayWriters/index')
 );
+
+const InterviewTrainersAssignment = React.lazy(
+    () => import('./Demo/AssignmentAgentsEditors/AssignInterviewTrainers/index')
+);
 // TODO: conditional configuration.
 const routes = [
     {
@@ -269,6 +274,12 @@ const routes = [
                 errorElement: <DefaultErrorPage />,
                 loader: getAllActiveEssaysLoader,
                 element: <EssayWritersAssignment />
+            },
+            {
+                path: 'interview-trainers',
+                errorElement: <DefaultErrorPage />,
+                loader: getAllOpenInterviewsLoader,
+                element: <InterviewTrainersAssignment />
             }
         ]
     },
