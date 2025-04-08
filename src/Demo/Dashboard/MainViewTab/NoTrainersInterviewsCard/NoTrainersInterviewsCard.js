@@ -39,7 +39,7 @@ const NoTrainersInterviewsCard = (props) => {
             showTrainerPage: false
         }));
     };
-    console.log('props.interview', props.interview);
+
     const startEditingTrainer = () => {
         setNoTrainersInterviewsCardState((prevState) => ({
             ...prevState,
@@ -100,7 +100,7 @@ const NoTrainersInterviewsCard = (props) => {
                         <Link
                             component={LinkDom}
                             to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                                props.interview.student_id?._id.toString(),
+                                props.interview.student_id?._id?.toString(),
                                 DEMO.PROFILE_HASH
                             )}`}
                         >
@@ -125,8 +125,8 @@ const NoTrainersInterviewsCard = (props) => {
                         {!props.interview.interview_date ? (
                             <Typography fontWeight="bold">TBA</Typography>
                         ) : (
-                            props.interview.interview_date &&
-                            `${convertDate(props.interview.interview_date)}`
+                            props.interview?.interview_date &&
+                            `${convertDate(props.interview?.interview_date)}`
                         )}
                     </TableCell>
                 </TableRow>

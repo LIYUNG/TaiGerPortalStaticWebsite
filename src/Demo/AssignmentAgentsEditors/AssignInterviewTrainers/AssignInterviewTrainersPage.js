@@ -11,9 +11,8 @@ import {
     Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-
 import ModalMain from '../../Utils/ModalHandler/ModalMain';
-import { getInterview } from '../../../api';
+import { updateInterview } from '../../../api';
 import NoTrainersInterviewsCard from '../../Dashboard/MainViewTab/NoTrainersInterviewsCard/NoTrainersInterviewsCard';
 import i18next from 'i18next';
 
@@ -51,44 +50,62 @@ const AssignInterviewTrainersPage = ({ interviews }) => {
         interviews
     });
 
-    const updateInterviewTrainerList = useCallback(async (interview_id) => {
-        try {
-            const resp = await getInterview(interview_id);
-            const { data, success } = resp.data;
-            const { status } = resp;
+    const updateInterviewTrainerList = useCallback(
+        async (trainer_ids, interview_id) => {
+            try {
+                // Get the selected trainer IDs (where value is true)
+                const selectedTrainerIds = Object.entries(trainer_ids)
+                    .filter(([, isSelected]) => isSelected)
+                    .map(([id]) => id);
 
-            setState((prevState) => {
-                if (success) {
-                    const updatedInterviews = prevState.interviews.map(
-                        (interview) =>
-                            interview._id === interview_id ? data : interview
-                    );
-                    return {
-                        ...prevState,
-                        isLoaded: true,
-                        interviews: updatedInterviews,
-                        success,
-                        res_modal_status: status
-                    };
-                } else {
-                    return {
-                        ...prevState,
-                        isLoaded: true,
-                        res_modal_message: resp.data.message,
-                        res_modal_status: status
-                    };
+                if (selectedTrainerIds.length === 0) {
+                    throw new Error('No trainer selected');
                 }
-            });
-        } catch (error) {
-            setState((prevState) => ({
-                ...prevState,
-                isLoaded: true,
-                error,
-                res_modal_status: 500,
-                res_modal_message: ''
-            }));
-        }
-    }, []);
+
+                // Pass trainer_id as an array directly
+                const resp = await updateInterview(interview_id, {
+                    trainer_id: selectedTrainerIds
+                });
+
+                const { data, success } = resp.data;
+                const { status } = resp;
+
+                setState((prevState) => {
+                    if (success) {
+                        const updatedInterviews = prevState.interviews.map(
+                            (interview) =>
+                                interview._id === interview_id
+                                    ? data
+                                    : interview
+                        );
+                        return {
+                            ...prevState,
+                            isLoaded: true,
+                            interviews: updatedInterviews,
+                            success,
+                            res_modal_status: status
+                        };
+                    } else {
+                        return {
+                            ...prevState,
+                            isLoaded: true,
+                            res_modal_message: resp.data.message,
+                            res_modal_status: status
+                        };
+                    }
+                });
+            } catch (error) {
+                setState((prevState) => ({
+                    ...prevState,
+                    isLoaded: true,
+                    error,
+                    res_modal_status: 500,
+                    res_modal_message: error.message || ''
+                }));
+            }
+        },
+        []
+    );
 
     const handleSubmit = useCallback(
         (e, updateTrainerList, interview_id) => {
@@ -132,7 +149,7 @@ const AssignInterviewTrainersPage = ({ interviews }) => {
             )}
             <Card sx={{ p: 2 }}>
                 <Typography variant="h6">
-                    {t('No Interview Trainer Students')}
+                    {t('No Interview Trainer')}
                 </Typography>
                 <InterviewsTable noTrainerInterviews={noTrainerInterviews} />
             </Card>

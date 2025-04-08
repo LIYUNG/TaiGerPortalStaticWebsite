@@ -58,8 +58,7 @@ const routes = [
             return {
                 studentAndEssaysAndInterview: {
                     data: [],
-                    essays: { data: [] },
-                    interviews: { data: [] }
+                    essays: { data: [] }
                 }
             };
         }
