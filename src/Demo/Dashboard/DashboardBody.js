@@ -134,6 +134,7 @@ const DashboardBody = ({ studentAndEssaysAndInterview }) => {
             {is_TaiGer_Editor(user) ? (
                 <EditorMainView
                     essayDocumentThreads={essayDocumentThreads}
+                    interviews={interviews}
                     students={students}
                     submitUpdateEditorlist={submitUpdateEditorlist}
                     updateStudentArchivStatus={updateStudentArchivStatus}

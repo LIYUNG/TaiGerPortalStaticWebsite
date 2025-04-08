@@ -113,7 +113,9 @@ const EditInterviewTrainersSubpage = (props) => {
                                     <TableRow>
                                         <TableCell>
                                             <Typography variant="h6">
-                                                {t('No Interview Trainer')}
+                                                {t(
+                                                    'No Interview Trainer Students'
+                                                )}
                                             </Typography>
                                         </TableCell>
                                     </TableRow>

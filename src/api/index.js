@@ -376,8 +376,8 @@ export const SetFileAsFinal = (documentsthreadId, studentId, program_id) =>
 export const updateEssayWriter = (editor_id, documentsthreadId) =>
     request.post(`/api/document-threads/${documentsthreadId}/essay`, editor_id);
 
-export const updateInterviewTrainer = (trainer_id, interview_id) =>
-    request.post(`/api/interviews/${interview_id}/trainers`, trainer_id);
+// export const updateInterviewTrainer = (trainer_id, interview_id) =>
+//     request.post(`/api/interviews/${interview_id}/trainers`, trainer_id);
 
 export const getAllActiveEssays = () =>
     request.get(`/api/document-threads/essays/all`);
