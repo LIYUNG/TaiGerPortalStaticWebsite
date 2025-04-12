@@ -875,13 +875,14 @@ export const does_student_have_agents = (students) => {
 
 export const getStudentEditorStatus = (students) => {
     const studentsWithoutEditors = students.filter(
-        (student) =>
-            (!student.editors || student.editors.length === 0) &&
-            student.needEditor
+        (student) => !student.editors || student.editors.length === 0
     );
+
     return {
         allHaveEditors: studentsWithoutEditors.length === 0,
-        countWithoutEditors: studentsWithoutEditors.length
+        countWithoutEditors: studentsWithoutEditors?.filter(
+            (student) => student.needEditor
+        ).length
     };
 };
 
