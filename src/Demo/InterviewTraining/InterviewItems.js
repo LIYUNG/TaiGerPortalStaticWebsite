@@ -504,7 +504,7 @@ const InterviewItems = (props) => {
                                 <ExpandMoreIcon />
                             )}
                             <Typography sx={{ ml: 1 }} variant="h6">
-                                Official Details
+                                {t('Official Details', { ns: 'interviews' })}
                             </Typography>
                         </Box>
                         <Collapse in={isOfficialDetailsOpen}>
