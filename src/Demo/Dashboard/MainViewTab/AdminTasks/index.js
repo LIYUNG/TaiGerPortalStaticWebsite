@@ -10,6 +10,7 @@ import DEMO from '../../../../store/constant';
 import { useTranslation } from 'react-i18next';
 import AssignEssayWriterRow from '../Common/AssignEssayWriterRow';
 import AssignEditorRow from '../Common/AssignEditorRow';
+import AssignInterviewTrainerRow from '../Common/AssignInterviewTrainerRow';
 
 const AdminTasks = (props) => {
     const { t } = useTranslation();
@@ -61,7 +62,7 @@ const AdminTasks = (props) => {
             <AssignEssayWriterRow
                 essayDocumentThreads={props.essayDocumentThreads}
             />
-
+            <AssignInterviewTrainerRow interviews={props.interviews} />
             {/* assign number of application according to contract */}
             {missing_number_of_applications_students}
         </>

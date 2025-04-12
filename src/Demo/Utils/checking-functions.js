@@ -2303,3 +2303,18 @@ export const readXLSX = async (file, studentName) => {
     });
     return result;
 };
+
+export const does_interview_have_trainers = (interviews) => {
+    return interviews.every(
+        (interview) =>
+            interview.trainer_id !== undefined &&
+            interview.trainer_id.length > 0
+    );
+};
+
+export const number_of_interviews_without_interview_trainers_assigned_with_input =
+    (interviews) => {
+        return interviews.filter(
+            (interview) => interview.trainer_id.length === 0
+        ).length;
+    };

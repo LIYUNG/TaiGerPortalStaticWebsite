@@ -21,7 +21,8 @@ import {
     does_student_have_editors,
     frequencyDistribution,
     open_tasks,
-    open_tasks_with_editors
+    open_tasks_with_editors,
+    does_interview_have_trainers
 } from '../../Utils/checking-functions';
 import {
     academic_background_header,
@@ -33,6 +34,7 @@ import { useAuth } from '../../../components/AuthProvider';
 import { useTranslation } from 'react-i18next';
 import AssignEssayWriterRow from '../MainViewTab/Common/AssignEssayWriterRow';
 import AssignEditorRow from '../MainViewTab/Common/AssignEditorRow';
+import AssignInterviewTrainerRow from '../MainViewTab/Common/AssignInterviewTrainerRow';
 
 const EditorMainView = (props) => {
     const { user } = useAuth();
@@ -178,7 +180,8 @@ const EditorMainView = (props) => {
                 </Card>
             </Grid>
             {!does_student_have_editors(props.students) ||
-            !does_essay_have_writers(props.essayDocumentThreads) ? (
+            !does_essay_have_writers(props.essayDocumentThreads) ||
+            !does_interview_have_trainers(props.interviews) ? (
                 <Grid item md={12} xs={12}>
                     <Card sx={{ p: 2 }}>
                         <Typography fontWeight="bold">
@@ -201,6 +204,9 @@ const EditorMainView = (props) => {
                                     essayDocumentThreads={
                                         props.essayDocumentThreads
                                     }
+                                />
+                                <AssignInterviewTrainerRow
+                                    interviews={props.interviews}
                                 />
                             </TableBody>
                         </Table>

@@ -45,7 +45,7 @@ import ExternalMainView from './ExternalDashboard/ExternalMainView';
 //     { icon: <ShareIcon />, name: 'Share' }
 // ];
 
-const DashboardBody = ({ studentAndEssays }) => {
+const DashboardBody = ({ studentAndEssaysAndInterview }) => {
     const { user } = useAuth();
     const {
         data: {
@@ -54,9 +54,9 @@ const DashboardBody = ({ studentAndEssays }) => {
             notification,
             auditLog
         },
-        essays: { data: essayDocumentThreads }
-    } = studentAndEssays;
-
+        essays: { data: essayDocumentThreads },
+        interviews: { data: interviews }
+    } = studentAndEssaysAndInterview;
     const { t } = useTranslation();
     const {
         students,
@@ -102,6 +102,7 @@ const DashboardBody = ({ studentAndEssays }) => {
                 <AdminMainView
                     auditLog={auditLog}
                     essayDocumentThreads={essayDocumentThreads}
+                    interviews={interviews}
                     students={students}
                     submitUpdateAgentlist={submitUpdateAgentlist}
                     submitUpdateAttributeslist={submitUpdateAttributeslist}
@@ -133,6 +134,7 @@ const DashboardBody = ({ studentAndEssays }) => {
             {is_TaiGer_Editor(user) ? (
                 <EditorMainView
                     essayDocumentThreads={essayDocumentThreads}
+                    interviews={interviews}
                     students={students}
                     submitUpdateEditorlist={submitUpdateEditorlist}
                     updateStudentArchivStatus={updateStudentArchivStatus}

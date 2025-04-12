@@ -56,7 +56,10 @@ const routes = [
         errorElement: <div>Error</div>,
         loader: () => {
             return {
-                studentAndEssays: { data: [], essays: { data: [] } }
+                studentAndEssaysAndInterview: {
+                    data: [],
+                    essays: { data: [] }
+                }
             };
         }
     }
