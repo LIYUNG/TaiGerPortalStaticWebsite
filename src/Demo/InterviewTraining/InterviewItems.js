@@ -466,6 +466,24 @@ const InterviewItems = (props) => {
                             sx={{ mt: 2 }}
                             variant="body1"
                         >
+                            {t('Interview Training Documentation', {
+                                ns: 'interviews'
+                            })}
+                            :&nbsp;
+                        </Typography>{' '}
+                        <Link
+                            component={LinkDom}
+                            target="_blank"
+                            to="https://taigerconsultancy-portal.com/docs/search/64b264c824f22df42a1af4b5"
+                            underline="hover"
+                        >
+                            https://taigerconsultancy-portal.com/docs/search/64b264c824f22df42a1af4b5
+                        </Link>
+                        <Typography
+                            fontWeight="bold"
+                            sx={{ mt: 2 }}
+                            variant="body1"
+                        >
                             {t('Interview Training Survey', {
                                 ns: 'interviews'
                             })}
