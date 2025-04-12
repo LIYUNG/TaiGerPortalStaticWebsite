@@ -43,12 +43,20 @@ const Friend = (props) => {
                   ?.join('')
                   .replace(/<\/?[^>]+(>|$)|&[^;]+;?/g, '') || ''
             : '';
-    const backgroundColor =
+    const isMessageRead =
         props.data?.latestCommunication?.readBy?.includes(props.activeId) ||
         props.data?.latestCommunication?.user_id?.toString() ===
-            user._id?.toString()
-            ? theme.palette.background.default
-            : theme.palette.action.disabled; // Set your desired background color
+            user._id?.toString();
+
+    const backgroundColor = isMessageRead
+        ? theme.palette.background.default
+        : theme.palette.action.disabled; // Set your desired background color
+
+    const isReplyNeeded =
+        props.data?.latestCommunication?.user_id ===
+            props.data?.latestCommunication?.student_id &&
+        props.data?.latestCommunication?.ignore_message !== true;
+
     return (
         <ListItem
             disablePadding
@@ -59,14 +67,9 @@ const Friend = (props) => {
                     backgroundColor: theme.palette.action.hover // Set a different color on hover if needed
                 },
                 transition: 'background-color 0.3s ease-in-out', // Smooth color transitions
-                color:
-                    props.data?.latestCommunication?.readBy?.includes(
-                        props.activeId
-                    ) ||
-                    props.data?.latestCommunication?.user_id?.toString() ===
-                        user._id?.toString()
-                        ? theme.palette.text.primary // Regular text for read messages
-                        : theme.palette.text.secondary // Secondary text color for unread messages
+                color: isMessageRead
+                    ? theme.palette.text.primary // Regular text for read messages
+                    : theme.palette.text.secondary // Secondary text color for unread messages
             }}
         >
             <ListItemButton
@@ -101,7 +104,7 @@ const Friend = (props) => {
                                         props.data.lastname_chinese
                                             ? props.data.lastname_chinese
                                             : ''
-                                    }${
+                                    } ${
                                         props.data.firstname_chinese
                                             ? props.data.firstname_chinese
                                             : ''
@@ -124,10 +127,7 @@ const Friend = (props) => {
                     />
                     <ListItemSecondaryAction>
                         <IconButton edge="end">
-                            {props.data?.latestCommunication?.user_id ===
-                                props.data?.latestCommunication?.student_id &&
-                            props.data?.latestCommunication?.ignore_message !==
-                                true ? (
+                            {isReplyNeeded ? (
                                 <FiberManualRecordIcon
                                     fontSize="small"
                                     style={{ marginLeft: '4px' }}

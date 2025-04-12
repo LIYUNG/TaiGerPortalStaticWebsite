@@ -33,7 +33,7 @@ import { LinkableNewlineText } from '../Utils/checking-functions';
 import DEMO from '../../store/constant';
 import {
     addInterviewTrainingDateTime,
-    getEditors,
+    getEssayWriters,
     updateInterview
 } from '../../api';
 import NotesEditor from '../Notes/NotesEditor';
@@ -121,7 +121,8 @@ const InterviewItems = (props) => {
     };
 
     const getEditor = async () => {
-        const { data } = await getEditors();
+        // const { data } = await getEditors();
+        const { data } = await getEssayWriters();
         const { data: editors_a } = data;
         setEditors(editors_a);
     };
