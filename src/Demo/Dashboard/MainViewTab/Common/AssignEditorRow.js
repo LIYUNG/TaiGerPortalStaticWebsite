@@ -3,14 +3,18 @@ import { Link as LinkDom } from 'react-router-dom';
 import { t } from 'i18next';
 
 import DEMO from '../../../../store/constant';
-import { does_student_have_editors } from '../../../Utils/checking-functions';
+import { getStudentEditorStatus } from '../../../Utils/checking-functions';
 
 const AssignEditorRow = (props) => {
-    return !does_student_have_editors(props.students) ? (
+    const { allHaveEditors, countWithoutEditors } = getStudentEditorStatus(
+        props.students
+    );
+    return !allHaveEditors ? (
         <TableRow>
             <TableCell>
                 <Link component={LinkDom} to={`${DEMO.ASSIGN_EDITOR_LINK}`}>
-                    {t('Assign Editors')}
+                    {t('Assign Editors', { ns: 'common' })} (
+                    {countWithoutEditors})
                 </Link>
             </TableCell>
             <TableCell>

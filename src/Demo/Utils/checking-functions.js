@@ -873,10 +873,23 @@ export const does_student_have_agents = (students) => {
     );
 };
 
-export const does_student_have_editors = (students) => {
-    return students.every(
-        (student) => student.editors !== undefined && student.editors.length > 0
+export const getStudentEditorStatus = (students) => {
+    const studentsWithoutEditors = students.filter(
+        (student) => !student.editors || student.editors.length === 0
     );
+    return {
+        allHaveEditors: studentsWithoutEditors.length === 0,
+        countWithoutEditors: studentsWithoutEditors.length
+    };
+};
+
+// For backward compatibility
+export const does_student_have_editors = (students) => {
+    return getStudentEditorStatus(students).allHaveEditors;
+};
+
+export const number_of_students_without_editors = (students) => {
+    return getStudentEditorStatus(students).countWithoutEditors;
 };
 
 export const check_applications_to_decided = (student) => {
