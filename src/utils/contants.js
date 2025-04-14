@@ -1100,6 +1100,11 @@ export const ATTRIBUTES = [
         name: 'German-Risk',
         definition:
             'German not passed yet. Please double check if German is passed and if tasks need to be processed.'
+    },
+    {
+        value: 12,
+        name: 'Free-Service',
+        definition: 'No service fee student.'
     }
 ];
 
