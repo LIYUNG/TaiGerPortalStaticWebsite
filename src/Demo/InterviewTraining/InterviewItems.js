@@ -578,7 +578,7 @@ const InterviewItems = (props) => {
                                 sx={{ mt: 2 }}
                                 variant="body1"
                             >
-                                {t('Interview Time')} (
+                                {t('Official Interview Time')} (
                                 {t('Your timezone local time')}{' '}
                                 {`${
                                     Intl.DateTimeFormat().resolvedOptions()

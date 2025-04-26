@@ -322,7 +322,7 @@ const AddInterview = () => {
                         <TableRow>
                             <TableCell>
                                 <Typography>
-                                    {t('Interview Time')} (
+                                    {t('Official Interview Time')} (
                                     {
                                         Intl.DateTimeFormat().resolvedOptions()
                                             .timeZone
