@@ -202,7 +202,7 @@ const InterviewResponseTable = () => {
         },
         {
             field: 'interview_date',
-            headerName: t('Interview Time', { ns: 'interviews' }),
+            headerName: t('Official Interview Time', { ns: 'interviews' }),
             align: 'left',
             headerAlign: 'left',
             width: 100,
