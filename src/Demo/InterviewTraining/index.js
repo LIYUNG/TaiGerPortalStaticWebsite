@@ -17,8 +17,8 @@ import DEMO from '../../store/constant';
 import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';
 import Loading from '../../components/Loading/Loading';
-import { MuiDataGrid } from '../../components/MuiDataGrid';
 import { convertDate, showTimezoneOffset } from '../../utils/contants';
+import ExampleWithLocalizationProvider from '../../components/MaterialReactTable';
 
 const InterviewTraining = () => {
     const { user } = useAuth();
@@ -138,94 +138,87 @@ const InterviewTraining = () => {
     TabTitle('Interview training');
     const column = [
         {
-            field: 'status',
-            headerName: t('Status', { ns: 'common' }),
-            align: 'left',
-            headerAlign: 'left',
+            accessorKey: 'status',
+            header: t('Status', { ns: 'common' }),
             width: 100
         },
         {
-            field: 'firstname_lastname',
-            headerName: t('First-/ Last Name', { ns: 'common' }),
-            align: 'left',
-            headerAlign: 'left',
-            width: 200,
-            renderCell: (params) => {
+            accessorKey: 'firstname_lastname',
+            header: t('First-/ Last Name', { ns: 'common' }),
+            size: 200,
+            Cell: (params) => {
+                const { row } = params;
                 const linkUrl = `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                    params.row.student_id,
+                    row.original.student_id,
                     DEMO.PROFILE_HASH
                 )}`;
                 return (
                     <Link
                         component={LinkDom}
                         target="_blank"
-                        title={params.value}
+                        title={row.original.firstname_lastname}
                         to={linkUrl}
                         underline="hover"
                     >
-                        {params.value}
+                        {row.original.firstname_lastname}
                     </Link>
                 );
             }
         },
         {
-            field: 'trainer_id',
-            headerName: t('Trainer', { ns: 'common' }),
-            align: 'left',
-            headerAlign: 'left',
-            minWidth: 100,
-            renderCell: (params) => {
+            accessorKey: 'trainer_id',
+            header: t('Trainer', { ns: 'common' }),
+            size: 100,
+            Cell: (params) => {
+                const { row } = params;
                 return (
-                    params.row.trainer_id?.map(
+                    row.original.trainer_id?.map(
                         (trainer) => trainer.firstname
                     ) || []
                 );
             }
         },
         {
-            field: 'event_id',
-            headerName: `${t('Training Time', { ns: 'interviews' })} (${
+            accessorKey: 'event_id',
+            header: `${t('Training Time', { ns: 'interviews' })} (${
                 Intl.DateTimeFormat().resolvedOptions().timeZone
             } ${showTimezoneOffset()})`,
-            align: 'left',
-            headerAlign: 'left',
-            width: 250,
-            renderCell: (params) => {
+            size: 280,
+            Cell: (params) => {
+                const { row } = params;
                 return (
-                    params.row.event_id &&
-                    `${convertDate(params.row.event_id.start)}`
+                    row.original.event_id &&
+                    `${convertDate(row.original.event_id.start)}`
                 );
             }
         },
         {
-            field: 'interview_date',
-            headerName: t('Official Interview Time', { ns: 'interviews' }),
-            align: 'left',
-            headerAlign: 'left',
-            width: 100,
-            renderCell: (params) => {
+            accessorKey: 'interview_date',
+            header: t('Official Interview Time', { ns: 'interviews' }),
+            size: 200,
+            Cell: (params) => {
+                const { row } = params;
                 return (
-                    params.row.interview_date &&
-                    `${convertDate(params.row.interview_date)}`
+                    row.original.interview_date &&
+                    `${convertDate(row.original.interview_date)}`
                 );
             }
         },
         {
-            field: 'program_name',
-            headerName: t('Interview', { ns: 'interviews' }),
-            align: 'left',
-            headerAlign: 'left',
-            width: 400,
-            renderCell: (params) => {
+            accessorKey: 'program_name',
+            header: t('Interview', { ns: 'interviews' }),
+            size: 400,
+            Cell: (params) => {
+                const { row } = params;
                 return (
                     <Link
                         component={LinkDom}
                         target="_blank"
-                        title={params.row.program_name}
-                        to={DEMO.INTERVIEW_SINGLE_LINK(params.row.id)}
+                        title={row.original.program_name}
+                        to={DEMO.INTERVIEW_SINGLE_LINK(row.original.id)}
                         underline="hover"
                     >
-                        {params.row.program_name}
+                        {row.original.program_name}
                     </Link>
                 );
             }
@@ -331,8 +324,10 @@ const InterviewTraining = () => {
                     ) : null}
                 </Box>
             </Box>
-
-            <MuiDataGrid columns={memoizedColumns} rows={rows} />
+            <ExampleWithLocalizationProvider
+                col={memoizedColumns}
+                data={rows}
+            />
         </Box>
     );
 };
