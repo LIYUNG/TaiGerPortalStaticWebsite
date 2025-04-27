@@ -825,13 +825,6 @@ export const SINGLE_STUDENT_REVERSED_TABS = {
     8: 'audit'
 };
 
-export const spinner_style = {
-    position: 'fixed',
-    top: '40%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)'
-};
-
 export const spinner_style2 = {
     transform: 'rotate(360deg)',
     textAlign: 'left',

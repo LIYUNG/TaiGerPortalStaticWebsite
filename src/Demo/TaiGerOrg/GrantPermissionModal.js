@@ -65,6 +65,7 @@ const GrantPermissionModal = (props) => {
         ['canAssignEditors', 'Can assign editors'],
         ['canModifyDocumentation', 'Can modify documentation'],
         ['canAccessStudentDatabase', 'Can access student database'],
+        ['canAddUser', 'Can add user'],
         ['canUseTaiGerAI', 'Can use TaiGer AI']
     ];
     const permissionsQuota = [['taigerAiQuota', 'TaiGerAI Quota']];
