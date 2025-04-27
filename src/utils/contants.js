@@ -2308,6 +2308,12 @@ export const GENERAL_SCORES_ESSAY = {
     description: 'Essay score (if applicable)'
 };
 
+export const GENERAL_SCORES_WORK_EXPERIENCE = {
+    name: 'workExperienceScore',
+    label: 'Work Experience Score',
+    description: 'Work experience score (if applicable)'
+};
+
 export const GENERAL_SCORES_INTERVIEW = {
     name: 'interviewScore',
     label: 'Interview Score',
@@ -2375,6 +2381,7 @@ export const GENERAL_SCORES = [
     GENERAL_SCORES_ML,
     GENERAL_SCORES_RL,
     GENERAL_SCORES_ESSAY,
+    GENERAL_SCORES_WORK_EXPERIENCE,
     GENERAL_SCORES_INTERVIEW,
     GENERAL_SCORES_GMAT,
     GENERAL_SCORES_GRE,
