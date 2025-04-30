@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link as LinkDom, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import TimezoneSelect from 'react-timezone-select';
@@ -38,7 +38,8 @@ import DEMO from '../../store/constant';
 import {
     addInterviewTrainingDateTime,
     getEssayWriters,
-    updateInterview
+    updateInterview,
+    getInterviewsByProgramId
 } from '../../api';
 import NotesEditor from '../Notes/NotesEditor';
 import { useAuth } from '../../components/AuthProvider';
@@ -264,6 +265,33 @@ const InterviewItems = (props) => {
     };
 
     const [isOfficialDetailsOpen, setIsOfficialDetailsOpen] = useState(false);
+    const [
+        isPreviousInterviewQuestionnaireOpen,
+        setPreviousInterviewQuestionnaireOpen
+    ] = useState(false);
+    const [programInterviews, setProgramInterviews] = useState([]);
+
+    useEffect(() => {
+        const fetchProgramInterviews = async () => {
+            if (
+                isPreviousInterviewQuestionnaireOpen &&
+                interview.program_id._id
+            ) {
+                try {
+                    const response = await getInterviewsByProgramId(
+                        interview.program_id._id
+                    );
+                    if (response.data.success) {
+                        setProgramInterviews(response.data.data);
+                    }
+                } catch (error) {
+                    console.error('Error fetching program interviews:', error);
+                }
+            }
+        };
+
+        fetchProgramInterviews();
+    }, [isPreviousInterviewQuestionnaireOpen, interview.program_id]);
 
     return (
         <>
@@ -543,7 +571,12 @@ const InterviewItems = (props) => {
                                 <Typography variant="body1">
                                     {t('Previous questions records:')}&nbsp;
                                     <Button size="small" variant="outlined">
-                                        {props.questionsNum}
+                                        {programInterviews?.filter(
+                                            (interview) =>
+                                                interview.isClosed === true &&
+                                                interview._id !==
+                                                    props.interview._id
+                                        )?.length || 0}
                                     </Button>
                                 </Typography>
                             ) : null}
@@ -625,6 +658,79 @@ const InterviewItems = (props) => {
                             />
                         </Collapse>
                     </Box>
+                    {is_TaiGer_role(user) && (
+                        <Box>
+                            <Box
+                                onClick={() =>
+                                    setPreviousInterviewQuestionnaireOpen(
+                                        !isPreviousInterviewQuestionnaireOpen
+                                    )
+                                }
+                                sx={{
+                                    cursor: 'pointer',
+                                    px: 1,
+                                    py: 2,
+                                    borderRadius: 1,
+                                    display: 'flex',
+                                    alignItems: 'center'
+                                }}
+                            >
+                                {isPreviousInterviewQuestionnaireOpen ? (
+                                    <ExpandLessIcon />
+                                ) : (
+                                    <ExpandMoreIcon />
+                                )}
+                                <Typography sx={{ ml: 1 }} variant="h6">
+                                    {t('Previous Interview Questionnaire', {
+                                        ns: 'interviews'
+                                    })}
+                                </Typography>
+                            </Box>
+                            <Collapse in={isPreviousInterviewQuestionnaireOpen}>
+                                <Box>
+                                    <Box pl={2}>
+                                        {programInterviews?.map(
+                                            (programInterview) =>
+                                                programInterview.isClosed ===
+                                                    true &&
+                                                programInterview._id !==
+                                                    interview._id && (
+                                                    <Link
+                                                        component={LinkDom}
+                                                        display="block"
+                                                        key={
+                                                            programInterview._id
+                                                        }
+                                                        mb={0.5}
+                                                        target="_blank"
+                                                        to={`${DEMO.INTERVIEW_SINGLE_SURVEY_LINK(
+                                                            programInterview._id.toString()
+                                                        )}`}
+                                                        underline="hover"
+                                                    >
+                                                        {`${convertDate(programInterview.interview_date)} - ${programInterview.student_id.firstname} ${programInterview.student_id.lastname}`}
+                                                    </Link>
+                                                )
+                                        )}
+                                        <Typography
+                                            color="text.secondary"
+                                            mt={1}
+                                            variant="body2"
+                                        >
+                                            {t('Total interview records:')}{' '}
+                                            {programInterviews?.filter(
+                                                (interview) =>
+                                                    interview.isClosed ===
+                                                        true &&
+                                                    interview._id !==
+                                                        props.interview._id
+                                            )?.length || 0}
+                                        </Typography>
+                                    </Box>
+                                </Box>
+                            </Collapse>
+                        </Box>
+                    )}
                 </AccordionDetails>
             </Accordion>
             <Dialog
