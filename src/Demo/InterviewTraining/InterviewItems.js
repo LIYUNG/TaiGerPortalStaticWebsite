@@ -801,7 +801,7 @@ const InterviewItems = (props) => {
                                                             }
                                                             mb={0.5}
                                                             target="_blank"
-                                                            to={`${DEMO.INTERVIEW_SINGLE_SURVEY_LINK(
+                                                            to={`${DEMO.INTERVIEW_SINGLE_LINK(
                                                                 studentInterview._id.toString()
                                                             )}`}
                                                             underline="hover"
