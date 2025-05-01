@@ -1,9 +1,8 @@
 import React from 'react';
 import { Navigate, Link as LinkDom } from 'react-router-dom';
-import { Box, Breadcrumbs, Card, Link, Typography } from '@mui/material';
+import { Box, Breadcrumbs, Link, Typography } from '@mui/material';
 import { is_TaiGer_role } from '@taiger-common/core';
 
-import TabStudBackgroundDashboard from '../Dashboard/MainViewTab/StudDocsOverview/TabStudBackgroundDashboard';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '../../store/constant';
 import { useAuth } from '../../components/AuthProvider';
@@ -13,6 +12,7 @@ import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { getAllStudentsQuery } from '../../api/query';
+import { StudentsTable } from './StudentsTable';
 
 const StudentDatabase = () => {
     const { user } = useAuth();
@@ -38,6 +38,27 @@ const StudentDatabase = () => {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
+    const studentsTransformed = students.map((student) => ({
+        ...student,
+        name: `${student.firstname} ${student.lastname} | ${student.firstname_chinese} ${student.lastname_chinese}`,
+        application_year:
+            student.application_preference?.expected_application_date,
+        application_semester:
+            student.application_preference?.expected_application_semester,
+        attended_university:
+            student.academic_background?.university?.attended_university,
+        attended_university_program:
+            student.academic_background?.university
+                ?.attended_university_program,
+        agentNames: student.agents.map((agent) => agent.firstname)?.join(', '),
+        editorNames: student.editors
+            .map((editor) => editor.firstname)
+            ?.join(', '),
+        attributesString: student.attributes
+            ?.map((attribute) => attribute.name)
+            ?.join('#')
+    }));
+
     TabTitle(t('Students Database', { ns: 'common' }));
     return (
         <Box data-testid="student_datdabase">
@@ -58,17 +79,15 @@ const StudentDatabase = () => {
                     {students?.length})
                 </Typography>
             </Breadcrumbs>
-            <Box>
-                <Card>
-                    <TabStudBackgroundDashboard
-                        students={students}
-                        submitUpdateAgentlist={submitUpdateAgentlist}
-                        submitUpdateAttributeslist={submitUpdateAttributeslist}
-                        submitUpdateEditorlist={submitUpdateEditorlist}
-                        updateStudentArchivStatus={updateStudentArchivStatus}
-                    />
-                </Card>
-            </Box>
+            <StudentsTable
+                data={studentsTransformed}
+                isLoading={false}
+                submitUpdateAgentlist={submitUpdateAgentlist}
+                submitUpdateAttributeslist={submitUpdateAttributeslist}
+                submitUpdateEditorlist={submitUpdateEditorlist}
+                updateStudentArchivStatus={updateStudentArchivStatus}
+            />
+
             {res_modal_status >= 400 ? (
                 <ModalMain
                     ConfirmError={ConfirmError}
