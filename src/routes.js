@@ -9,7 +9,6 @@ import {
     combinedLoader,
     getAllActiveEssaysLoader,
     getAllStudentsV2Loader,
-    getAllArchivedStudentsLoader,
     getAllComplaintTicketsLoader,
     getComplaintTicketLoader,
     getDistinctSchoolsLoader,
@@ -66,9 +65,6 @@ const ProgramRequirements = React.lazy(
     () => import('./Demo/CourseAnalysis/ProgramRequirements')
 );
 
-const AllArchivStudent = React.lazy(
-    () => import('./Demo/ArchivStudent/AllIndex')
-);
 const ArchivStudent = React.lazy(() => import('./Demo/ArchivStudent/index'));
 
 const CommunicationSinglePage = React.lazy(
@@ -351,12 +347,6 @@ const routes = [
                 exact: true,
                 name: 'My Archived Students',
                 Component: ArchivStudent
-            },
-            {
-                path: 'students/all',
-                errorElement: <DefaultErrorPage />,
-                loader: getAllArchivedStudentsLoader,
-                element: <AllArchivStudent />
             }
         ]
     },

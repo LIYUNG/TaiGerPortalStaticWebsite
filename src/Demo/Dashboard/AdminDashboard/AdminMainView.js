@@ -1,5 +1,4 @@
 import React from 'react';
-// import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import {
     Alert,
     Card,
@@ -16,9 +15,10 @@ import { useTranslation } from 'react-i18next';
 import AdminTasks from '../MainViewTab/AdminTasks/index';
 import useStudents from '../../../hooks/useStudents';
 import ModalMain from '../../Utils/ModalHandler/ModalMain';
-import TabStudBackgroundDashboard from '../MainViewTab/StudDocsOverview/TabStudBackgroundDashboard';
 import ProgramReportCard from '../../Program/ProgramReportCard';
 import MiniAudit from '../../Audit/MiniAudit';
+import { StudentsTable } from '../../StudentDatabase/StudentsTable';
+import { student_transform } from '../../Utils/checking-functions';
 
 const AdminMainView = (props) => {
     const { t } = useTranslation();
@@ -49,6 +49,10 @@ const AdminMainView = (props) => {
             interviews={props.interviews}
             students={students}
         />
+    );
+
+    const studentsTransformed = student_transform(
+        students?.filter((student) => !student.archiv)
     );
 
     return (
@@ -85,10 +89,9 @@ const AdminMainView = (props) => {
                     </Card>
                 </Grid>
                 <Grid item xs={12}>
-                    <TabStudBackgroundDashboard
-                        students={students?.filter(
-                            (student) => !student.archiv
-                        )}
+                    <StudentsTable
+                        data={studentsTransformed}
+                        isLoading={false}
                         submitUpdateAgentlist={submitUpdateAgentlist}
                         submitUpdateAttributeslist={submitUpdateAttributeslist}
                         submitUpdateEditorlist={submitUpdateEditorlist}
