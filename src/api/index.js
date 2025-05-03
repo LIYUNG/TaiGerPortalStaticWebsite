@@ -72,9 +72,6 @@ export const getAllActiveStudents = () =>
 
 export const getAllActiveStudentsV2 = () => getData(`/api/students/all/active`);
 
-export const getAllArchivedStudents = () =>
-    request.get(`/api/students/all/archiv`);
-
 export const getAdmissions = () => getData(`/api/admissions`);
 
 export const getExpenses = () => request.get(`/api/expenses`);

@@ -19,9 +19,9 @@ import {
 
 import {
     frequencyDistribution,
-    programs_refactor
+    programs_refactor,
+    student_transform
 } from '../Utils/checking-functions';
-import TabStudBackgroundDashboard from '../Dashboard/MainViewTab/StudDocsOverview/TabStudBackgroundDashboard';
 import ApplicationProgressCardBody from '../../components/ApplicationProgressCard/ApplicationProgressCardBody';
 import DEMO from '../../store/constant';
 import { useAuth } from '../../components/AuthProvider';
@@ -33,6 +33,7 @@ import TasksDistributionBarChart from '../../components/Charts/TasksDistribution
 import useStudents from '../../hooks/useStudents';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { DECISION_STATUS_E, SUBMISSION_STATUS_E } from '../../utils/contants';
+import { StudentsTable } from '../StudentDatabase/StudentsTable';
 
 CustomTabPanel.propTypes = {
     children: PropTypes.node,
@@ -217,6 +218,10 @@ const ApplicationOverviewTabs = ({ students: stds }) => {
     };
     const open = Boolean(anchorEl);
 
+    const studentsTransformed = student_transform(
+        students?.filter((student) => !student.archiv)
+    );
+
     return (
         <>
             <Box sx={{ width: '100%' }}>
@@ -275,10 +280,9 @@ const ApplicationOverviewTabs = ({ students: stds }) => {
                 </Box>
                 <CustomTabPanel index={0} value={value}>
                     {is_TaiGer_role(user) ? (
-                        <TabStudBackgroundDashboard
-                            students={students?.filter(
-                                (student) => !student.archiv
-                            )}
+                        <StudentsTable
+                            data={studentsTransformed}
+                            isLoading={false}
                             submitUpdateAgentlist={submitUpdateAgentlist}
                             submitUpdateAttributeslist={
                                 submitUpdateAttributeslist

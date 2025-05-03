@@ -3,7 +3,6 @@ import { Navigate, useParams } from 'react-router-dom';
 import { Box } from '@mui/material';
 import { is_TaiGer_role } from '@taiger-common/core';
 
-import TabStudBackgroundDashboard from '../Dashboard/MainViewTab/StudDocsOverview/TabStudBackgroundDashboard';
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { getArchivStudents, updateArchivStudents } from '../../api';
@@ -14,6 +13,8 @@ import Loading from '../../components/Loading/Loading';
 import { appConfig } from '../../config';
 import { useTranslation } from 'react-i18next';
 import { BreadcrumbsNavigation } from '../../components/BreadcrumbsNavigation/BreadcrumbsNavigation';
+import { StudentsTable } from '../StudentDatabase/StudentsTable';
+import { student_transform } from '../Utils/checking-functions';
 
 const ArchivStudents = () => {
     const { user } = useAuth();
@@ -120,6 +121,8 @@ const ArchivStudents = () => {
         return <ErrorPage res_status={res_status} />;
     }
 
+    const studentsTransformed = student_transform(archivStudentsState.students);
+
     if (archivStudentsState.success) {
         return (
             <Box data-testid="archiv_student_component">
@@ -142,8 +145,12 @@ const ArchivStudents = () => {
                     />
                 ) : null}
                 <Box sx={{ mt: 2 }}>
-                    <TabStudBackgroundDashboard
-                        students={archivStudentsState.students}
+                    <StudentsTable
+                        data={studentsTransformed}
+                        isLoading={false}
+                        // submitUpdateAgentlist={submitUpdateAgentlist}
+                        // submitUpdateAttributeslist={submitUpdateAttributeslist}
+                        // submitUpdateEditorlist={submitUpdateEditorlist}
                         updateStudentArchivStatus={updateStudentArchivStatus}
                     />
                 </Box>
