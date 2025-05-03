@@ -1080,7 +1080,7 @@ export const ATTRIBUTES = [
     },
     { value: 4, name: 'Slow Response', definition: '' },
     { value: 5, name: 'Disappear', definition: '' },
-    { value: 6, name: 'Low-IQ', definition: '' },
+    { value: 6, name: 'ADHD', definition: '' },
     { value: 7, name: 'Refunding', definition: '' },
     { value: 8, name: 'Done', definition: '' },
     { value: 9, name: 'Refund-Risk', definition: '' },
@@ -1100,6 +1100,11 @@ export const ATTRIBUTES = [
         value: 12,
         name: 'Free-Service',
         definition: 'No service fee student.'
+    },
+    {
+        value: 13,
+        name: 'Partial-Service',
+        definition: 'Partial service fee student.'
     }
 ];
 
