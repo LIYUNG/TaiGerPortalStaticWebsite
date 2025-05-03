@@ -793,12 +793,14 @@ export const THREADS_TABLE_REVERSED_TABS = {
 
 export const THREAD_TABS = {
     communication: 0,
-    audit: 1
+    history: 1,
+    audit: 2
 };
 
 export const THREAD_REVERSED_TABS = {
     0: 'communication',
-    1: 'audit'
+    1: 'history',
+    2: 'audit'
 };
 
 export const SINGLE_STUDENT_TABS = {

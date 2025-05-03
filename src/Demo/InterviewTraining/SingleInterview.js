@@ -45,6 +45,7 @@ import MessageList from '../../components/Message/MessageList';
 import DocThreadEditor from '../../components/Message/DocThreadEditor';
 import { a11yProps, CustomTabPanel } from '../../components/Tabs';
 import Audit from '../Audit';
+import { InterviewFeedback } from './InterviewFeedback';
 
 const SingleInterview = () => {
     const { interview_id } = useParams();
@@ -481,9 +482,15 @@ const SingleInterview = () => {
                             label={t('discussion-thread', { ns: 'common' })}
                             {...a11yProps(value, 0)}
                         />
+                        {is_TaiGer_role(user) ? (
+                            <Tab
+                                label={t('History', { ns: 'common' })}
+                                {...a11yProps(value, 1)}
+                            />
+                        ) : null}
                         <Tab
                             label={t('Audit', { ns: 'common' })}
-                            {...a11yProps(value, 1)}
+                            {...a11yProps(value, is_TaiGer_role(user) ? 2 : 1)}
                         />
                     </Tabs>
                     <CustomTabPanel index={0} value={value}>
@@ -602,7 +609,15 @@ const SingleInterview = () => {
                             </Card>
                         )}
                     </CustomTabPanel>
-                    <CustomTabPanel index={1} value={value}>
+                    {is_TaiGer_role(user) ? (
+                        <CustomTabPanel index={1} value={value}>
+                            <InterviewFeedback interview={interview} />
+                        </CustomTabPanel>
+                    ) : null}
+                    <CustomTabPanel
+                        index={is_TaiGer_role(user) ? 2 : 1}
+                        value={value}
+                    >
                         <Audit audit={interviewAuditLog} />
                     </CustomTabPanel>
                 </>
