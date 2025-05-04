@@ -745,8 +745,8 @@ export const isEnglishOK = (program, student) => {
 };
 
 export const getApplicationYear = (student) => {
-    return student.application_preference?.expected_application_date
-        ? parseInt(student.application_preference.expected_application_date)
+    return student?.application_preference?.expected_application_date
+        ? parseInt(student?.application_preference?.expected_application_date)
         : '<TBD>';
 };
 

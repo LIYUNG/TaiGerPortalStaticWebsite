@@ -21,6 +21,8 @@ import {
     TableContainer,
     TableHead,
     TableRow,
+    ToggleButton,
+    ToggleButtonGroup,
     Typography
 } from '@mui/material';
 
@@ -64,11 +66,13 @@ import { useNavigate } from 'react-router-dom';
 import { ImportStudentProgramsCard } from './ImportStudentProgramsCard';
 import { StudentPreferenceCard } from './StudentPreferenceCard';
 import { ConfirmationModal } from '../../components/Modal/ConfirmationModal';
+import ApplicationCard from './ApplicationCard';
 
 const StudentApplicationsTableTemplate = (props) => {
     const { user } = useAuth();
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
     const { t } = useTranslation();
+    const [view, setView] = useState('table');
     const navigate = useNavigate();
     const [
         studentApplicationsTableTemplateState,
@@ -104,7 +108,7 @@ const StudentApplicationsTableTemplate = (props) => {
     const handleChange = (e, application_idx) => {
         e.preventDefault();
         let applications_temp = [
-            ...studentApplicationsTableTemplateState.student.applications
+            ...studentApplicationsTableTemplateState.applications
         ];
         applications_temp[application_idx][e.target.name] = e.target.value;
         setStudentApplicationsTableTemplateState((prevState) => ({
@@ -193,7 +197,7 @@ const StudentApplicationsTableTemplate = (props) => {
     const handleSubmit = (e, student_id) => {
         e.preventDefault();
         let applications_temp = [
-            ...studentApplicationsTableTemplateState.student.applications
+            ...studentApplicationsTableTemplateState.applications
         ];
         let applying_program_count =
             studentApplicationsTableTemplateState.applying_program_count;
@@ -272,6 +276,12 @@ const StudentApplicationsTableTemplate = (props) => {
         }));
     };
 
+    const handleViewChange = (event, newView) => {
+        if (newView !== null) {
+            setView(newView);
+        }
+    };
+
     const {
         res_status,
         isLoaded,
@@ -291,10 +301,10 @@ const StudentApplicationsTableTemplate = (props) => {
     }
     var applying_university_info;
     var today = new Date();
+
     if (
-        studentApplicationsTableTemplateState.student.applications ===
-            undefined ||
-        studentApplicationsTableTemplateState.student.applications.length === 0
+        studentApplicationsTableTemplateState.applications === undefined ||
+        studentApplicationsTableTemplateState.applications.length === 0
     ) {
         applying_university_info = (
             <TableRow>
@@ -339,7 +349,7 @@ const StudentApplicationsTableTemplate = (props) => {
         );
     } else {
         applying_university_info =
-            studentApplicationsTableTemplateState.student.applications.map(
+            studentApplicationsTableTemplateState.applications.map(
                 (application, application_idx) => (
                     <TableRow key={application_idx}>
                         {!is_TaiGer_Student(user) ? (
@@ -693,224 +703,252 @@ const StudentApplicationsTableTemplate = (props) => {
                     {t('Applications', { ns: 'common' })}
                 </Typography>
             </Breadcrumbs>
-            <Box>
-                <Grid container spacing={2} sx={{ mt: 0 }}>
-                    <Grid item md={is_TaiGer_role(user) ? 6 : 12} xs={12}>
-                        <StudentPreferenceCard student={props.student} />
-                    </Grid>
-                    {is_TaiGer_role(user) ? (
-                        <Grid item md={6} xs={12}>
-                            <ImportStudentProgramsCard
-                                student={props.student}
-                            />
-                        </Grid>
-                    ) : null}
-                </Grid>
+            <Box
+                alignItems="center"
+                display="flex"
+                justifyContent="space-between"
+            >
+                <Typography variant="h6">
+                    {t('Applications', { ns: 'common' })}
+                </Typography>
+                <ToggleButtonGroup
+                    color="primary"
+                    exclusive
+                    onChange={handleViewChange}
+                    size="small"
+                    sx={{
+                        borderRadius: 1,
+                        overflow: 'hidden'
+                    }}
+                    value={view}
+                >
+                    <ToggleButton value="card">Card View</ToggleButton>
+                    <ToggleButton value="table">Table View</ToggleButton>
+                </ToggleButtonGroup>
+                {is_TaiGer_role(user) ? (
+                    <Button
+                        color="primary"
+                        onClick={onClickProgramAssignHandler}
+                        variant="contained"
+                    >
+                        {t('Add New Program')}
+                    </Button>
+                ) : null}
             </Box>
-            <>
-                {isProgramNotSelectedEnough([
-                    studentApplicationsTableTemplateState.student
-                ]) ? (
-                    <Card>
-                        {props.student.firstname} {props.student.lastname} did
-                        not choose enough programs.
-                    </Card>
-                ) : null}
-                {is_TaiGer_Admin(user) &&
-                is_num_Program_Not_specified(
-                    studentApplicationsTableTemplateState.student
-                ) ? (
-                    <Card>
-                        The number of student&apos;s applications is not
-                        specified! Please determine the number of the programs
-                        according to the contract
-                    </Card>
-                ) : null}
-                <Grid container spacing={2}>
-                    <Grid item xs={4}>
-                        <Typography variant="h6">
-                            {t('Applying Program Count', { ns: 'common' })}:{' '}
-                        </Typography>
-                    </Grid>
-                    {is_TaiGer_Admin(user) ? (
-                        <Grid item xs={2}>
-                            <FormControl fullWidth>
-                                <Select
-                                    id="applying_program_count"
-                                    name="applying_program_count"
-                                    onChange={(e) =>
-                                        handleChangeProgramCount(e)
-                                    }
-                                    size="small"
-                                    value={
-                                        studentApplicationsTableTemplateState.applying_program_count
-                                    }
-                                >
-                                    <MenuItem value="0">Please Select</MenuItem>
-                                    <MenuItem value="1">1</MenuItem>
-                                    <MenuItem value="2">2</MenuItem>
-                                    <MenuItem value="3">3</MenuItem>
-                                    <MenuItem value="4">4</MenuItem>
-                                    <MenuItem value="5">5</MenuItem>
-                                    <MenuItem value="6">6</MenuItem>
-                                    <MenuItem value="7">7</MenuItem>
-                                    <MenuItem value="8">8</MenuItem>
-                                    <MenuItem value="9">9</MenuItem>
-                                    <MenuItem value="10">10</MenuItem>
-                                </Select>
-                            </FormControl>
-                        </Grid>
-                    ) : (
-                        <Grid item xs={2}>
-                            <Typography variant="h6">
-                                {
-                                    studentApplicationsTableTemplateState
-                                        .student.applying_program_count
-                                }
-                            </Typography>
-                        </Grid>
-                    )}
-                </Grid>
-                <Box>
-                    <Card>
-                        <Box>
-                            <Banner
-                                ReadOnlyMode={true}
-                                bg="primary"
-                                link_name=""
-                                notification_key={undefined}
-                                removeBanner={null}
-                                text={`${appConfig.companyName} Portal 網站上的學程資訊主要為管理申請進度為主，學校學程詳細資訊仍以學校網站為主。`}
-                                title="info"
-                                to={`${DEMO.BASE_DOCUMENTS_LINK}`}
-                            />
-                            <Banner
-                                ReadOnlyMode={true}
-                                bg="secondary"
-                                link_name=""
-                                notification_key={undefined}
-                                removeBanner={null}
-                                text="請選擇要申請的學程打在 Decided: Yes，不要申請打的 No。"
-                                title="warning"
-                                to={`${DEMO.BASE_DOCUMENTS_LINK}`}
-                            />
-                            <Banner
-                                ReadOnlyMode={true}
-                                bg="danger"
-                                link_name=""
-                                notification_key={undefined}
-                                removeBanner={null}
-                                text="請選擇要申請的學程打在 Submitted: Submitted，若想中斷申請請告知顧問，或是 選擇 Withdraw (如果東西都已準備好且解鎖)"
-                                title="warning"
-                                to={`${DEMO.BASE_DOCUMENTS_LINK}`}
-                            />
-                            <TableContainer style={{ overflowX: 'auto' }}>
-                                <Table size="small">
-                                    <TableHead>
-                                        <TableRow>
-                                            {!is_TaiGer_Student(user) ? (
-                                                <TableCell>-</TableCell>
-                                            ) : null}
-                                            {programstatuslist.map(
-                                                (doc, index) => (
-                                                    <TableCell key={index}>
-                                                        <Typography>
-                                                            {t(doc.name, {
-                                                                ns: 'common'
-                                                            })}
-                                                        </Typography>
-                                                    </TableCell>
-                                                )
-                                            )}
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {applying_university_info}
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
-                        </Box>
-                    </Card>
+            {view === 'card' ? (
+                studentApplicationsTableTemplateState.applications.map(
+                    (application) => (
+                        <ApplicationCard
+                            application={application}
+                            key={application._id}
+                            student={props.student}
+                        />
+                    )
+                )
+            ) : (
+                <>
                     <Box>
-                        <Button
-                            color="primary"
-                            disabled={
-                                !studentApplicationsTableTemplateState.application_status_changed ||
-                                !studentApplicationsTableTemplateState.isLoaded
-                            }
-                            fullWidth
-                            onClick={(e) =>
-                                handleSubmit(
-                                    e,
-                                    studentApplicationsTableTemplateState
-                                        .student._id
-                                )
-                            }
-                            sx={{ mt: 2 }}
-                            variant="contained"
-                        >
-                            {studentApplicationsTableTemplateState.isLoaded ? (
-                                t('Update', { ns: 'common' })
-                            ) : (
-                                <CircularProgress size={16} />
-                            )}
-                        </Button>
+                        <Grid container spacing={2} sx={{ mt: 0 }}>
+                            <Grid
+                                item
+                                md={is_TaiGer_role(user) ? 6 : 12}
+                                xs={12}
+                            >
+                                <StudentPreferenceCard
+                                    student={props.student}
+                                />
+                            </Grid>
+                            {is_TaiGer_role(user) ? (
+                                <Grid item md={6} xs={12}>
+                                    <ImportStudentProgramsCard
+                                        student={props.student}
+                                    />
+                                </Grid>
+                            ) : null}
+                        </Grid>
                     </Box>
-                    {is_TaiGer_role(user) ? (
-                        <>
-                            <Box>
-                                <Typography>
-                                    <span
-                                        style={{
-                                            display: 'flex',
-                                            justifyContent: 'center'
-                                        }}
-                                    >
-                                        You want to add more programs to{' '}
-                                        {props.student.firstname}{' '}
-                                        {props.student.lastname}?
-                                    </span>
+                    <>
+                        {isProgramNotSelectedEnough([
+                            studentApplicationsTableTemplateState.student
+                        ]) ? (
+                            <Card>
+                                {props.student.firstname}{' '}
+                                {props.student.lastname} did not choose enough
+                                programs.
+                            </Card>
+                        ) : null}
+                        {is_TaiGer_Admin(user) &&
+                        is_num_Program_Not_specified(
+                            studentApplicationsTableTemplateState.student
+                        ) ? (
+                            <Card>
+                                The number of student&apos;s applications is not
+                                specified! Please determine the number of the
+                                programs according to the contract
+                            </Card>
+                        ) : null}
+                        <Grid container spacing={2}>
+                            <Grid item xs={4}>
+                                <Typography variant="h6">
+                                    {t('Applying Program Count', {
+                                        ns: 'common'
+                                    })}
+                                    :{' '}
                                 </Typography>
-                            </Box>
-                            <Box>
-                                <Typography>
-                                    <span
-                                        style={{
-                                            display: 'flex',
-                                            justifyContent: 'center'
-                                        }}
-                                    >
-                                        <Button
-                                            color="primary"
-                                            onClick={
-                                                onClickProgramAssignHandler
+                            </Grid>
+                            {is_TaiGer_Admin(user) ? (
+                                <Grid item xs={2}>
+                                    <FormControl fullWidth>
+                                        <Select
+                                            id="applying_program_count"
+                                            name="applying_program_count"
+                                            onChange={(e) =>
+                                                handleChangeProgramCount(e)
                                             }
                                             size="small"
-                                            variant="contained"
+                                            value={
+                                                studentApplicationsTableTemplateState.applying_program_count
+                                            }
                                         >
-                                            {t('Add New Program')}
-                                        </Button>{' '}
-                                    </span>
-                                </Typography>
+                                            <MenuItem value="0">
+                                                Please Select
+                                            </MenuItem>
+                                            <MenuItem value="1">1</MenuItem>
+                                            <MenuItem value="2">2</MenuItem>
+                                            <MenuItem value="3">3</MenuItem>
+                                            <MenuItem value="4">4</MenuItem>
+                                            <MenuItem value="5">5</MenuItem>
+                                            <MenuItem value="6">6</MenuItem>
+                                            <MenuItem value="7">7</MenuItem>
+                                            <MenuItem value="8">8</MenuItem>
+                                            <MenuItem value="9">9</MenuItem>
+                                            <MenuItem value="10">10</MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                            ) : (
+                                <Grid item xs={2}>
+                                    <Typography variant="h6">
+                                        {
+                                            studentApplicationsTableTemplateState
+                                                .student.applying_program_count
+                                        }
+                                    </Typography>
+                                </Grid>
+                            )}
+                        </Grid>
+                        <Box>
+                            <Card>
+                                <Box>
+                                    <Banner
+                                        ReadOnlyMode={true}
+                                        bg="primary"
+                                        link_name=""
+                                        notification_key={undefined}
+                                        removeBanner={null}
+                                        text={`${appConfig.companyName} Portal 網站上的學程資訊主要為管理申請進度為主，學校學程詳細資訊仍以學校網站為主。`}
+                                        title="info"
+                                        to={`${DEMO.BASE_DOCUMENTS_LINK}`}
+                                    />
+                                    <Banner
+                                        ReadOnlyMode={true}
+                                        bg="secondary"
+                                        link_name=""
+                                        notification_key={undefined}
+                                        removeBanner={null}
+                                        text="請選擇要申請的學程打在 Decided: Yes，不要申請打的 No。"
+                                        title="warning"
+                                        to={`${DEMO.BASE_DOCUMENTS_LINK}`}
+                                    />
+                                    <Banner
+                                        ReadOnlyMode={true}
+                                        bg="danger"
+                                        link_name=""
+                                        notification_key={undefined}
+                                        removeBanner={null}
+                                        text="請選擇要申請的學程打在 Submitted: Submitted，若想中斷申請請告知顧問，或是 選擇 Withdraw (如果東西都已準備好且解鎖)"
+                                        title="warning"
+                                        to={`${DEMO.BASE_DOCUMENTS_LINK}`}
+                                    />
+                                    <TableContainer
+                                        style={{ overflowX: 'auto' }}
+                                    >
+                                        <Table size="small">
+                                            <TableHead>
+                                                <TableRow>
+                                                    {!is_TaiGer_Student(
+                                                        user
+                                                    ) ? (
+                                                        <TableCell>-</TableCell>
+                                                    ) : null}
+                                                    {programstatuslist.map(
+                                                        (doc, index) => (
+                                                            <TableCell
+                                                                key={index}
+                                                            >
+                                                                <Typography>
+                                                                    {t(
+                                                                        doc.name,
+                                                                        {
+                                                                            ns: 'common'
+                                                                        }
+                                                                    )}
+                                                                </Typography>
+                                                            </TableCell>
+                                                        )
+                                                    )}
+                                                </TableRow>
+                                            </TableHead>
+                                            <TableBody>
+                                                {applying_university_info}
+                                            </TableBody>
+                                        </Table>
+                                    </TableContainer>
+                                </Box>
+                            </Card>
+                            <Box>
+                                <Button
+                                    color="primary"
+                                    disabled={
+                                        !studentApplicationsTableTemplateState.application_status_changed ||
+                                        !studentApplicationsTableTemplateState.isLoaded
+                                    }
+                                    fullWidth
+                                    onClick={(e) =>
+                                        handleSubmit(
+                                            e,
+                                            studentApplicationsTableTemplateState
+                                                .student._id
+                                        )
+                                    }
+                                    sx={{ mt: 2 }}
+                                    variant="contained"
+                                >
+                                    {studentApplicationsTableTemplateState.isLoaded ? (
+                                        t('Update', { ns: 'common' })
+                                    ) : (
+                                        <CircularProgress size={16} />
+                                    )}
+                                </Button>
                             </Box>
-                        </>
-                    ) : null}
-                    <ConfirmationModal
-                        closeText={t('No', { ns: 'common' })}
-                        confirmText={t('Yes', { ns: 'common' })}
-                        content="This will delete all message and editted files in discussion. Are you sure?"
-                        isLoading={
-                            !studentApplicationsTableTemplateState.isLoaded
-                        }
-                        onClose={onHideModalDeleteApplication}
-                        onConfirm={handleDeleteConfirm}
-                        open={
-                            studentApplicationsTableTemplateState.modalDeleteApplication
-                        }
-                        title={t('Warning', { ns: 'common' })}
-                    />
-                </Box>
-            </>
+                            <ConfirmationModal
+                                closeText={t('No', { ns: 'common' })}
+                                confirmText={t('Yes', { ns: 'common' })}
+                                content="This will delete all message and editted files in discussion. Are you sure?"
+                                isLoading={
+                                    !studentApplicationsTableTemplateState.isLoaded
+                                }
+                                onClose={onHideModalDeleteApplication}
+                                onConfirm={handleDeleteConfirm}
+                                open={
+                                    studentApplicationsTableTemplateState.modalDeleteApplication
+                                }
+                                title={t('Warning', { ns: 'common' })}
+                            />
+                        </Box>
+                    </>
+                </>
+            )}
         </Box>
     );
 };

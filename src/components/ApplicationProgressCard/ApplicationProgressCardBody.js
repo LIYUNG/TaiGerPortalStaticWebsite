@@ -22,9 +22,9 @@ const DocumentMissingIcon = () => {
 
 export default function ApplicationProgressCardBody(props) {
     return (
-        <List variant="flush">
+        <List dense variant="flush">
             {props.student?.generaldocs_threads?.map((thread, idx) => (
-                <ListItem key={idx}>
+                <ListItem disablePadding key={idx}>
                     <Typography>
                         <Link
                             color="inherit"
@@ -56,7 +56,7 @@ export default function ApplicationProgressCardBody(props) {
                 props.student?.academic_background?.language
                     ?.english_isPassed === 'O' ? (
                     isEnglishOK(props.application?.programId, props.student) ? (
-                        <ListItem>
+                        <ListItem disablePadding>
                             <Typography>
                                 <Link
                                     color="inherit"
@@ -71,18 +71,21 @@ export default function ApplicationProgressCardBody(props) {
                                 </Link>
                                 {' - '}
                                 {
-                                    props.student.academic_background.language
+                                    props.student?.academic_background.language
                                         .english_certificate
                                 }
                                 {' - '}
                                 {
-                                    props.student.academic_background?.language
+                                    props.student?.academic_background?.language
                                         ?.english_score
                                 }
                             </Typography>
                         </ListItem>
                     ) : (
-                        <ListItem title="English Requirements not met with your input in Profile">
+                        <ListItem
+                            disablePadding
+                            title="English Requirements not met with your input in Profile"
+                        >
                             <Typography>
                                 <Link
                                     color="inherit"
@@ -100,19 +103,19 @@ export default function ApplicationProgressCardBody(props) {
                                 </Link>
                                 {' - '}
                                 {
-                                    props.student.academic_background.language
+                                    props.student?.academic_background.language
                                         .english_certificate
                                 }
                                 {' - '}
                                 {
-                                    props.student.academic_background?.language
+                                    props.student?.academic_background?.language
                                         ?.english_score
                                 }
                             </Typography>
                         </ListItem>
                     )
                 ) : (
-                    <ListItem>
+                    <ListItem disablePadding>
                         <Typography>
                             <Link
                                 color="inherit"
@@ -127,7 +130,7 @@ export default function ApplicationProgressCardBody(props) {
                             </Link>
                             {' - '}{' '}
                             {
-                                props.student.academic_background?.language
+                                props.student?.academic_background?.language
                                     ?.english_test_date
                             }
                         </Typography>
@@ -138,7 +141,7 @@ export default function ApplicationProgressCardBody(props) {
                 props.application?.programId?.testdaf === '-' ? null : props
                       .student?.academic_background?.language
                       ?.german_isPassed === 'O' ? (
-                    <ListItem>
+                    <ListItem disablePadding>
                         <Typography>
                             <Link
                                 color="inherit"
@@ -154,7 +157,7 @@ export default function ApplicationProgressCardBody(props) {
                         </Typography>
                     </ListItem>
                 ) : (
-                    <ListItem>
+                    <ListItem disablePadding>
                         <Typography>
                             <Link
                                 color="inherit"
@@ -174,7 +177,7 @@ export default function ApplicationProgressCardBody(props) {
             {props.application?.programId?.gre ? (
                 props.application?.programId?.gre === '-' ? null : props.student
                       ?.academic_background?.language?.gre_isPassed === 'O' ? (
-                    <ListItem>
+                    <ListItem disablePadding>
                         <Typography>
                             <Link
                                 color="inherit"
@@ -190,7 +193,7 @@ export default function ApplicationProgressCardBody(props) {
                         </Typography>
                     </ListItem>
                 ) : (
-                    <ListItem>
+                    <ListItem disablePadding>
                         <Typography>
                             <Link
                                 color="inherit"
@@ -211,7 +214,7 @@ export default function ApplicationProgressCardBody(props) {
                 props.application?.programId?.gmat === '-' ? null : props
                       .student?.academic_background?.language?.gmat_isPassed ===
                   'O' ? (
-                    <ListItem>
+                    <ListItem disablePadding>
                         <Typography>
                             <Link
                                 color="inherit"
@@ -227,7 +230,7 @@ export default function ApplicationProgressCardBody(props) {
                         </Typography>
                     </ListItem>
                 ) : (
-                    <ListItem>
+                    <ListItem disablePadding>
                         <Typography>
                             <Link
                                 color="inherit"
@@ -246,13 +249,13 @@ export default function ApplicationProgressCardBody(props) {
             ) : null}
             {props.application?.programId?.application_portal_a ||
             props.application?.programId?.application_portal_b ? (
-                <ListItem>
+                <ListItem disablePadding>
                     <Typography>
                         <Link
                             color="inherit"
                             component={LinkDom}
                             to={`${DEMO.PORTALS_MANAGEMENT_STUDENTID_LINK(
-                                props.student._id.toString()
+                                props.student?._id.toString()
                             )}`}
                             underline="hover"
                         >
@@ -276,7 +279,7 @@ export default function ApplicationProgressCardBody(props) {
                 </ListItem>
             ) : null}
             {props.application?.doc_modification_thread?.map((thread, idx) => (
-                <ListItem key={idx}>
+                <ListItem disablePadding key={idx}>
                     <Typography>
                         <Link
                             color="inherit"
@@ -304,7 +307,7 @@ export default function ApplicationProgressCardBody(props) {
             ))}
 
             {props.application?.programId?.uni_assist?.includes('VPD') ? (
-                <ListItem>
+                <ListItem disablePadding>
                     <Typography>
                         <Link
                             color="inherit"
@@ -332,13 +335,13 @@ export default function ApplicationProgressCardBody(props) {
                 </ListItem>
             ) : null}
 
-            <ListItem>
+            <ListItem disablePadding>
                 <Typography>
                     <Link
                         color="inherit"
                         component={LinkDom}
                         to={`${DEMO.STUDENT_APPLICATIONS_ID_LINK(
-                            props.student._id.toString()
+                            props.student?._id.toString()
                         )}`}
                         underline="hover"
                     >

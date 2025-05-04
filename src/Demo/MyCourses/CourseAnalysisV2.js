@@ -101,12 +101,20 @@ import { a11yProps, CustomTabPanel } from '../../components/Tabs';
 //     return top3;
 // };
 
-const countSuggestedCourses = (data, missingCourses) => {
-    delete data.Others;
-    const categories = Object.keys(data);
+const countSuggestedCourses = (
+    sortedCourses,
+    suggestionCourses,
+    missingCourses
+) => {
+    delete sortedCourses.Others;
+    delete suggestionCourses.Others;
+    const categories = Object.keys(suggestionCourses);
     for (const category of categories) {
-        const list = data[category];
-
+        const list = suggestionCourses[category];
+        const sortedList = sortedCourses[category];
+        if (acquiredECTS(sortedList) >= requiredECTS(sortedList)) {
+            continue;
+        }
         for (const item of list) {
             if (item && item['建議修課']) {
                 const course = item['建議修課'];
@@ -874,8 +882,10 @@ const allRequiredECTSCrossPrograms = (programSheetsArray) => {
 const allMissCoursesCrossPrograms = (programSheetsArray) => {
     let missingCourses = {};
     for (let i = 0; i < programSheetsArray?.length; i += 1) {
+        const sortedCourses = programSheetsArray[i]?.value?.sorted;
         const suggestionCourses = programSheetsArray[i]?.value?.suggestion;
         missingCourses = countSuggestedCourses(
+            sortedCourses,
             suggestionCourses,
             missingCourses
         );
