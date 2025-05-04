@@ -29,18 +29,24 @@ import DoneIcon from '@mui/icons-material/Done';
 import UndoIcon from '@mui/icons-material/Undo';
 import CancelIcon from '@mui/icons-material/Cancel';
 import InterpreterModeIcon from '@mui/icons-material/InterpreterMode';
+import LockIcon from '@mui/icons-material/Lock';
 
 import ApplicationProgressCardBody from '../../components/ApplicationProgressCard/ApplicationProgressCardBody';
 import { useSnackBar } from '../../contexts/use-snack-bar';
 import i18next from 'i18next';
 import { useNavigate } from 'react-router-dom';
 import DEMO from '../../store/constant';
-import { ConfirmationModal } from '../../components/Modal/ConfirmationModal';
-import { updateStudentApplicationResult } from '../../api';
+import { updateStudentApplicationResultV2 } from '../../api';
 import {
     application_deadline_calculator,
+    is_program_ml_rl_essay_ready,
+    is_the_uni_assist_vpd_uploaded,
+    isCVFinished,
     progressBarCounter
 } from '../Utils/checking-functions';
+import { BASE_URL } from '../../api/request';
+import { appConfig } from '../../config';
+import OverlayButton from '../../components/Overlay/OverlayButton';
 
 const DecidedSubmittedButtons = ({ openSetResultModal }) => {
     const navigate = useNavigate();
@@ -48,7 +54,7 @@ const DecidedSubmittedButtons = ({ openSetResultModal }) => {
         <Stack direction="row" mt="auto" spacing={1}>
             <Button
                 color="primary"
-                onClick={(e) => openSetResultModal(e, 'O')}
+                onClick={(e) => openSetResultModal(e, { admission: 'O' })}
                 startIcon={<DoneIcon />}
                 variant="contained"
             >
@@ -56,7 +62,7 @@ const DecidedSubmittedButtons = ({ openSetResultModal }) => {
             </Button>
             <Button
                 color="primary"
-                onClick={(e) => openSetResultModal(e, 'X')}
+                onClick={(e) => openSetResultModal(e, { admission: 'X' })}
                 startIcon={<CancelIcon />}
                 variant="outlined"
             >
@@ -65,7 +71,7 @@ const DecidedSubmittedButtons = ({ openSetResultModal }) => {
             {/* TODO: Unsubmit */}
             <Button
                 color="primary"
-                onClick={(e) => openSetResultModal(e, '-')}
+                onClick={(e) => openSetResultModal(e, { closed: '-' })}
                 startIcon={<CancelIcon />}
                 variant="outlined"
             >
@@ -83,27 +89,64 @@ const DecidedSubmittedButtons = ({ openSetResultModal }) => {
     );
 };
 
-const DecidedWithdrawnButtons = () => (
+const DecidedWithdrawnButtons = ({ openSetResultModal }) => (
     <Stack direction="row" mt="auto" spacing={1}>
-        <Button color="primary" startIcon={<DoneIcon />} variant="contained">
+        <Button
+            color="primary"
+            onClick={(e) => openSetResultModal(e, { closed: '-' })}
+            startIcon={<UndoIcon />}
+            variant="outlined"
+        >
             Re-apply
-        </Button>
-        <Button color="primary" startIcon={<CancelIcon />} variant="outlined">
-            Withdraw
         </Button>
     </Stack>
 );
 
-const DecidedUnsubmittedButtons = () => (
-    <Stack direction="row" mt="auto" spacing={1}>
-        <Button color="primary" startIcon={<DoneIcon />} variant="contained">
-            Mark as Complete
-        </Button>
-        <Button color="primary" startIcon={<CancelIcon />} variant="outlined">
-            Mark as Withdrawn
-        </Button>
-    </Stack>
-);
+const DecidedUnsubmittedButtons = ({
+    openSetResultModal,
+    application,
+    student
+}) => {
+    const isSubmissionAllowed =
+        is_program_ml_rl_essay_ready(application) &&
+        isCVFinished(student) &&
+        (!appConfig.vpdEnable || is_the_uni_assist_vpd_uploaded(application));
+
+    const reminderText = `Please make sure ${
+        !isCVFinished(student) ? 'CV ' : ''
+    }${!is_program_ml_rl_essay_ready(application) ? 'ML/RL/Essay ' : ''}${
+        !is_the_uni_assist_vpd_uploaded(application) ? 'Uni-Assist ' : ''
+    }are prepared to unlock this.`;
+
+    return (
+        <Stack direction="row" mt="auto" spacing={1}>
+            {isSubmissionAllowed ? (
+                <Button
+                    color="primary"
+                    disabled={!isSubmissionAllowed}
+                    onClick={(e) => openSetResultModal(e, { closed: 'O' })}
+                    startIcon={<DoneIcon />}
+                    title={!isSubmissionAllowed ? reminderText : null}
+                    variant="contained"
+                >
+                    Mark as Complete
+                </Button>
+            ) : (
+                <OverlayButton startIcon={<LockIcon />} text={reminderText} variant="contained">
+                    Mark as Complete
+                </OverlayButton>
+            )}
+            <Button
+                color="primary"
+                onClick={(e) => openSetResultModal(e, { closed: 'X' })}
+                startIcon={<CancelIcon />}
+                variant="outlined"
+            >
+                Mark as Withdrawn
+            </Button>
+        </Stack>
+    );
+};
 
 const UndecidedButtons = () => (
     <Stack direction="row" mt="auto" spacing={1}>
@@ -116,11 +159,12 @@ const UndecidedButtons = () => (
     </Stack>
 );
 
-const AdmittedOrRejectedButtons = ({ openUndoModal }) => (
+const AdmittedOrRejectedButtons = ({ application, openSetResultModal }) => (
     <Stack direction="row" mt="auto" spacing={1}>
+        <AdmissionLetterLink application={application} />
         <Button
             color="primary"
-            onClick={(e) => openUndoModal(e)}
+            onClick={(e) => openSetResultModal(e, { admission: '-' })}
             startIcon={<UndoIcon />}
             variant="contained"
         >
@@ -129,7 +173,7 @@ const AdmittedOrRejectedButtons = ({ openUndoModal }) => (
     </Stack>
 );
 
-const DynamicButtons = ({ application, openSetResultModal, openUndoModal }) => {
+const DynamicButtons = ({ application, openSetResultModal, student }) => {
     const isDecided = isProgramDecided(application);
     const isSubmitted = isProgramSubmitted(application);
     const isWithdrawn = isProgramWithdraw(application);
@@ -139,7 +183,12 @@ const DynamicButtons = ({ application, openSetResultModal, openUndoModal }) => {
     // --- Conditional rendering ---
     const renderButtons = () => {
         if (isAdmitted || isRejected)
-            return <AdmittedOrRejectedButtons openUndoModal={openUndoModal} />;
+            return (
+                <AdmittedOrRejectedButtons
+                    application={application}
+                    openSetResultModal={openSetResultModal}
+                />
+            );
         if (isSubmitted)
             return (
                 <DecidedSubmittedButtons
@@ -147,12 +196,44 @@ const DynamicButtons = ({ application, openSetResultModal, openUndoModal }) => {
                 />
             );
         if (!isDecided) return <UndecidedButtons />;
-        if (isWithdrawn) return <DecidedWithdrawnButtons />;
+        if (isWithdrawn)
+            return (
+                <DecidedWithdrawnButtons
+                    openSetResultModal={openSetResultModal}
+                />
+            );
 
-        return <DecidedUnsubmittedButtons />;
+        return (
+            <DecidedUnsubmittedButtons
+                application={application}
+                openSetResultModal={openSetResultModal}
+                student={student}
+            />
+        );
     };
 
     return <Box>{renderButtons()}</Box>;
+};
+
+const AdmissionLetterLink = ({ application }) => {
+    return (
+        (isProgramAdmitted(application) || isProgramRejected(application)) &&
+        application.admission_letter?.status === 'uploaded' && (
+            <a
+                className="text-info"
+                href={`${BASE_URL}/api/admissions/${application.admission_letter.admission_file_path.replace(
+                    /\\/g,
+                    '/'
+                )}`}
+                rel="noopener noreferrer"
+                target="_blank"
+            >
+                {isProgramAdmitted(application)
+                    ? i18next.t('Admission Letter', { ns: 'admissions' })
+                    : i18next.t('Rejection Letter', { ns: 'admissions' })}
+            </a>
+        )
+    );
 };
 
 export default function ApplicationCard({
@@ -166,7 +247,6 @@ export default function ApplicationCard({
     const [resultState, setResultState] = useState('-');
     const [letter, setLetter] = useState(null);
     const [returnedMessage, setReturnedMessage] = useState('');
-    const [showUndoModal, setShowUndoModal] = useState(false);
     const [showSetResultModal, setShowSetResultModal] = useState(false);
 
     const { programId } = application;
@@ -195,15 +275,6 @@ export default function ApplicationCard({
         }
     };
 
-    const openUndoModal = (e) => {
-        e.stopPropagation();
-        setShowUndoModal(true);
-    };
-
-    const closeUndoModal = () => {
-        setShowUndoModal(false);
-    };
-
     const closeSetResultModal = () => {
         setShowSetResultModal(false);
     };
@@ -216,24 +287,30 @@ export default function ApplicationCard({
         if (letter) {
             formData.append('file', letter);
         }
-        updateStudentApplicationResult(
+        if (result.admission) {
+            formData.append('admission', result.admission);
+        }
+        if (result.closed) {
+            formData.append('closed', result.closed);
+        }
+        updateStudentApplicationResultV2(
             student._id.toString(),
             application.programId._id.toString(),
-            result,
-            formData
+            formData,
+            result.admission
         ).then(
             (res) => {
                 const { success, data } = res.data;
                 if (success) {
                     const application_tmep = { ...application };
-                    application_tmep.admission = result;
+                    application_tmep.admission = data.admission;
+                    application_tmep.closed = data.closed;
                     application_tmep.admission_letter = data.admission_letter;
                     setSeverity('success');
                     setMessage('Uploaded application status successfully!');
                     setOpenSnackbar(true);
                     setApplication(application_tmep);
                     setLetter(null);
-                    setShowUndoModal(false);
                     setShowSetResultModal(false);
                     setIsLoading(false);
                 } else {
@@ -355,27 +432,12 @@ export default function ApplicationCard({
                         {/* Buttons */}
                         <DynamicButtons
                             application={application}
-                            color="primary"
                             openSetResultModal={openSetResultModal}
-                            openUndoModal={openUndoModal}
-                            startIcon={<DoneIcon />}
-                            variant="contained"
+                            student={student}
                         />
                     </Box>
                 </Grid>
             </Grid>
-            <ConfirmationModal
-                closeText={i18next.t('Cancel', { ns: 'common' })}
-                confirmText={i18next.t('Confirm', { ns: 'common' })}
-                content={`${i18next.t(
-                    'Do you want to reset the result of the application of'
-                )} ${application.programId.school} - ${application.programId.degree} - ${application.programId.program_name}?`}
-                isLoading={isLoading}
-                onClose={closeUndoModal}
-                onConfirm={(e) => handleUpdateResult(e, '-')}
-                open={showUndoModal}
-                title={i18next.t('Attention')}
-            />
             <Dialog
                 fullWidth={true}
                 maxWidth="md"
@@ -384,64 +446,108 @@ export default function ApplicationCard({
             >
                 <DialogTitle>{i18next.t('Attention')}</DialogTitle>
                 <DialogContent>
-                    {application.admission === '-' ? (
+                    {resultState.admission && resultState.admission === '-' ? (
+                        <Typography id="modal-modal-description" sx={{ my: 2 }}>
+                            {`${i18next.t(
+                                'Do you want to reset the result of the application of'
+                            )} ${application.programId.school} - ${application.programId.degree} - ${application.programId.program_name}?`}{' '}
+                            ?
+                        </Typography>
+                    ) : null}
+                    {resultState.admission && resultState.admission !== '-' ? (
                         <Typography id="modal-modal-description" sx={{ my: 2 }}>
                             {i18next.t('Do you want to set the application of')}{' '}
                             <b>{`${application.programId.school}-${application.programId.degree}-${application.programId.program_name}`}</b>{' '}
                             <b>
-                                {resultState === 'O'
+                                {resultState.admission === 'O'
                                     ? i18next.t('Admitted', { ns: 'common' })
                                     : i18next.t('Rejected', { ns: 'common' })}
                             </b>
                             ?
                         </Typography>
                     ) : null}
-                    <Typography sx={{ my: 2 }}>
-                        {resultState === 'O'
-                            ? i18next.t(
-                                  'Attach Admission Letter or Admission Email pdf or Email screenshot',
-                                  { ns: 'admissions' }
-                              )
-                            : i18next.t(
-                                  'Attach Rejection Letter or Admission Email pdf or Email screenshot',
-                                  { ns: 'admissions' }
-                              )}
-                    </Typography>
-                    <TextField
-                        fullWidth
-                        onChange={(e) => onFileChange(e)}
-                        size="small"
-                        sx={{ mb: 2 }}
-                        type="file"
-                    />
-                    <Typography sx={{ mb: 2 }} variant="body2">
-                        {i18next.t(
-                            'Your agents and editors will receive your application result notification.',
-                            { ns: 'admissions' }
-                        )}
-                    </Typography>
-                    {returnedMessage !== '' ? (
-                        <Typography style={{ color: 'red' }} sx={{ mb: 2 }}>
-                            {returnedMessage}
+
+                    {resultState.admission && resultState.admission !== '-' && (
+                        <>
+                            <Typography sx={{ my: 2 }}>
+                                {resultState.admission === 'O'
+                                    ? i18next.t(
+                                          'Attach Admission Letter or Admission Email pdf or Email screenshot',
+                                          { ns: 'admissions' }
+                                      )
+                                    : i18next.t(
+                                          'Attach Rejection Letter or Admission Email pdf or Email screenshot',
+                                          { ns: 'admissions' }
+                                      )}
+                            </Typography>
+                            <TextField
+                                fullWidth
+                                onChange={(e) => onFileChange(e)}
+                                size="small"
+                                sx={{ mb: 2 }}
+                                type="file"
+                            />
+                            <Typography sx={{ mb: 2 }} variant="body2">
+                                {i18next.t(
+                                    'Your agents and editors will receive your application result notification.',
+                                    { ns: 'admissions' }
+                                )}
+                            </Typography>
+                            {returnedMessage !== '' ? (
+                                <Typography
+                                    style={{ color: 'red' }}
+                                    sx={{ mb: 2 }}
+                                >
+                                    {returnedMessage}
+                                </Typography>
+                            ) : null}
+                        </>
+                    )}
+                    {resultState.closed && resultState.closed === '-' ? (
+                        <Typography id="modal-modal-description" sx={{ my: 2 }}>
+                            {i18next.t(
+                                'Do you want to unsubmit the application of'
+                            )}{' '}
+                            <b>{`${application.programId.school}-${application.programId.degree}-${application.programId.program_name}`}</b>{' '}
+                        </Typography>
+                    ) : null}
+                    {resultState.closed && resultState.closed === 'X' ? (
+                        <Typography id="modal-modal-description" sx={{ my: 2 }}>
+                            {i18next.t(
+                                'Do you want to withdraw the application of'
+                            )}{' '}
+                            <b>{`${application.programId.school}-${application.programId.degree}-${application.programId.program_name}`}</b>{' '}
+                        </Typography>
+                    ) : null}
+                    {resultState.closed && resultState.closed === 'O' ? (
+                        <Typography id="modal-modal-description" sx={{ my: 2 }}>
+                            {i18next.t(
+                                'Do you want to submit the application of'
+                            )}{' '}
+                            <b>{`${application.programId.school}-${application.programId.degree}-${application.programId.program_name}`}</b>{' '}
                         </Typography>
                     ) : null}
                 </DialogContent>
                 <DialogActions>
                     <Button
-                        color={resultState === 'O' ? 'primary' : 'secondary'}
-                        disabled={
-                            isLoading
-                            // || !hasFile
+                        color={
+                            resultState.admission === 'O'
+                                ? 'primary'
+                                : 'secondary'
                         }
+                        disabled={isLoading}
                         onClick={(e) => handleUpdateResult(e, resultState)}
                         startIcon={
                             isLoading ? <CircularProgress size={24} /> : null
                         }
                         variant="contained"
                     >
-                        {resultState === 'O'
-                            ? i18next.t('Admitted', { ns: 'common' })
-                            : i18next.t('Rejected', { ns: 'common' })}
+                        {resultState.admission &&
+                            (resultState.admission === 'O'
+                                ? i18next.t('Admitted', { ns: 'common' })
+                                : i18next.t('Rejected', { ns: 'common' }))}
+                        {resultState.closed &&
+                            i18next.t('Yes', { ns: 'common' })}
                     </Button>
                     <Button
                         color="secondary"

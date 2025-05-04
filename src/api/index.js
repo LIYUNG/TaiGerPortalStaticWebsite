@@ -336,6 +336,17 @@ export const updateStudentApplicationResult = (
         data
     );
 
+export const updateStudentApplicationResultV2 = (
+    studentId,
+    programId,
+    data,
+    admission
+) =>
+    request.post(
+        `/api/account/applications/result/v2/${studentId}/${programId}/${admission}`,
+        data
+    );
+
 export const deleteGenralFileThread = (documentsthreadId, studentId) =>
     request.delete(`/api/document-threads/${documentsthreadId}/${studentId}`);
 

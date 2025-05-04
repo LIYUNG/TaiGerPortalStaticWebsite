@@ -27,6 +27,7 @@ import {
 } from '@mui/material';
 
 import { Link as LinkDom } from 'react-router-dom';
+import LockIcon from '@mui/icons-material/Lock';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useTranslation } from 'react-i18next';
 import {
@@ -540,7 +541,9 @@ const StudentApplicationsTableTemplate = (props) => {
                                                 ? 'Uni-Assist '
                                                 : ''
                                         }are prepared to unlock this.`}
-                                    />
+                                    >
+                                        <LockIcon />
+                                    </OverlayButton>
                                 )}
                             </TableCell>
                         ) : (
