@@ -47,11 +47,17 @@ import {
 import { BASE_URL } from '../../api/request';
 import { appConfig } from '../../config';
 import OverlayButton from '../../components/Overlay/OverlayButton';
+import SchoolIcon from '@mui/icons-material/School';
+import { Link as LinkDom } from 'react-router-dom';
 
 const DecidedSubmittedButtons = ({ openSetResultModal }) => {
     const navigate = useNavigate();
     return (
-        <Stack direction="row" mt="auto" spacing={1}>
+        <Stack
+            direction={{ xs: 'column', sm: 'column', md: 'row' }}
+            mt="auto"
+            spacing={1}
+        >
             <Button
                 color="primary"
                 onClick={(e) => openSetResultModal(e, { admission: 'O' })}
@@ -132,7 +138,11 @@ const DecidedUnsubmittedButtons = ({
                     Mark as Complete
                 </Button>
             ) : (
-                <OverlayButton startIcon={<LockIcon />} text={reminderText} variant="contained">
+                <OverlayButton
+                    startIcon={<LockIcon />}
+                    text={reminderText}
+                    variant="contained"
+                >
                     Mark as Complete
                 </OverlayButton>
             )}
@@ -335,8 +345,8 @@ export default function ApplicationCard({
     return (
         <Card
             sx={{
-                borderLeft: '6px solid orange',
-                maxWidth: 800,
+                borderLeft: `8px solid ${isProgramSubmitted(application) ? 'green' : 'red'}`,
+                maxWidth: 900,
                 bgcolor: 'background.paper',
                 color: 'text.primary',
                 my: 1
@@ -348,10 +358,12 @@ export default function ApplicationCard({
                     <Box height="100%" p={2}>
                         <Typography
                             color="primary"
+                            component={LinkDom}
                             fontWeight="bold"
+                            to={`${DEMO.SINGLE_PROGRAM_LINK(programId._id.toString())}`}
                             variant="h6"
                         >
-                            {programId?.school || 'ETH Zurich'}
+                            {programId?.school}
                         </Typography>
                         <Typography
                             color="text.secondary"
@@ -361,8 +373,7 @@ export default function ApplicationCard({
                             {programId?.degree || 'M. Sc.'} –{' '}
                             <strong>{programId?.program_name}</strong>
                         </Typography>
-
-                        <Box mt={2}>
+                        <Box mt={1}>
                             {/* I need icon for each of the following: Deadline, Semester, Language
                              */}
                             <Stack alignItems="center" direction="row">
@@ -395,6 +406,17 @@ export default function ApplicationCard({
                                     {application.programId.lang}
                                 </Typography>
                             </Stack>
+                            <Stack alignItems="center" direction="row">
+                                <IconButton>
+                                    <SchoolIcon fontSize="small" />
+                                </IconButton>
+                                <Typography variant="body2">
+                                    <strong>Website:</strong>{' '}
+                                    <a href={application.programId.website} target="_blank" rel="noopener noreferrer">
+                                        Program Link
+                                    </a>
+                                </Typography>
+                            </Stack>
                         </Box>
                     </Box>
                 </Grid>
@@ -408,7 +430,7 @@ export default function ApplicationCard({
                         }}
                     >
                         {/* Checklist Section */}
-                        <Box sx={{ height: '240px', overflow: 'auto' }}>
+                        <Box sx={{ height: '200px', overflow: 'auto' }}>
                             <ApplicationProgressCardBody
                                 application={application}
                                 student={student}

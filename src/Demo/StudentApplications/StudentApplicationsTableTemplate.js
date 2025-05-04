@@ -742,15 +742,79 @@ const StudentApplicationsTableTemplate = (props) => {
                 </Box>
             </Box>
             {view === 'card' ? (
-                studentApplicationsTableTemplateState.applications.map(
-                    (application) => (
-                        <ApplicationCard
-                            application={application}
-                            key={application._id}
-                            student={props.student}
-                        />
-                    )
-                )
+                <Grid container spacing={2}>
+                    <Grid item md={6} xs={12}>
+                        <Box>
+                            <Grid container spacing={2}>
+                                <Grid item xs={8}>
+                                    <Typography variant="h6">
+                                        {t('Applying Program Count', {
+                                            ns: 'common'
+                                        })}
+                                        :{' '}
+                                    </Typography>
+                                </Grid>
+                                {is_TaiGer_Admin(user) ? (
+                                    <Grid item xs={4}>
+                                        <FormControl fullWidth>
+                                            <Select
+                                                id="applying_program_count"
+                                                name="applying_program_count"
+                                                onChange={(e) =>
+                                                    handleChangeProgramCount(e)
+                                                }
+                                                size="small"
+                                                value={
+                                                    studentApplicationsTableTemplateState.applying_program_count
+                                                }
+                                            >
+                                                <MenuItem value="0">
+                                                    Please Select
+                                                </MenuItem>
+                                                <MenuItem value="1">1</MenuItem>
+                                                <MenuItem value="2">2</MenuItem>
+                                                <MenuItem value="3">3</MenuItem>
+                                                <MenuItem value="4">4</MenuItem>
+                                                <MenuItem value="5">5</MenuItem>
+                                                <MenuItem value="6">6</MenuItem>
+                                                <MenuItem value="7">7</MenuItem>
+                                                <MenuItem value="8">8</MenuItem>
+                                                <MenuItem value="9">9</MenuItem>
+                                                <MenuItem value="10">
+                                                    10
+                                                </MenuItem>
+                                            </Select>
+                                        </FormControl>
+                                    </Grid>
+                                ) : (
+                                    <Grid item xs={2}>
+                                        <Typography variant="h6">
+                                            {
+                                                studentApplicationsTableTemplateState
+                                                    .student
+                                                    .applying_program_count
+                                            }
+                                        </Typography>
+                                    </Grid>
+                                )}
+                            </Grid>
+                            <StudentPreferenceCard student={props.student} />
+                        </Box>
+                    </Grid>
+                    <Grid item md={6} xs={12}>
+                        <Box>
+                            {studentApplicationsTableTemplateState.applications.map(
+                                (application) => (
+                                    <ApplicationCard
+                                        application={application}
+                                        key={application._id}
+                                        student={props.student}
+                                    />
+                                )
+                            )}
+                        </Box>
+                    </Grid>
+                </Grid>
             ) : (
                 <>
                     <Box>
