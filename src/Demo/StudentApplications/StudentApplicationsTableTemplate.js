@@ -711,29 +711,32 @@ const StudentApplicationsTableTemplate = (props) => {
                 <Typography variant="h6">
                     {t('Applications', { ns: 'common' })}
                 </Typography>
-                <ToggleButtonGroup
-                    color="primary"
-                    exclusive
-                    onChange={handleViewChange}
-                    size="small"
-                    sx={{
-                        borderRadius: 1,
-                        overflow: 'hidden'
-                    }}
-                    value={view}
-                >
-                    <ToggleButton value="card">Card View</ToggleButton>
-                    <ToggleButton value="table">Table View</ToggleButton>
-                </ToggleButtonGroup>
-                {is_TaiGer_role(user) ? (
-                    <Button
+                <Box>
+                    <ToggleButtonGroup
                         color="primary"
-                        onClick={onClickProgramAssignHandler}
-                        variant="contained"
+                        exclusive
+                        onChange={handleViewChange}
+                        size="small"
+                        sx={{
+                            mx: 1,
+                            borderRadius: 1,
+                            overflow: 'hidden'
+                        }}
+                        value={view}
                     >
-                        {t('Add New Program')}
-                    </Button>
-                ) : null}
+                        <ToggleButton value="card">Card View</ToggleButton>
+                        <ToggleButton value="table">Table View</ToggleButton>
+                    </ToggleButtonGroup>
+                    {is_TaiGer_role(user) ? (
+                        <Button
+                            color="primary"
+                            onClick={onClickProgramAssignHandler}
+                            variant="contained"
+                        >
+                            {t('Add New Program')}
+                        </Button>
+                    ) : null}
+                </Box>
             </Box>
             {view === 'card' ? (
                 studentApplicationsTableTemplateState.applications.map(
