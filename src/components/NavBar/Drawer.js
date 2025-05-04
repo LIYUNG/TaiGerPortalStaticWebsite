@@ -141,7 +141,7 @@ export const CustomDrawer = ({ open, ismobile, handleDrawerClose, theme }) => {
                 </IconButton>
             </DrawerHeader>
             <Divider />
-            <List disablePadding>
+            <List dense disablePadding>
                 {MenuSidebar.filter(
                     (menuItem) => !ExcludeMenu[user?.role].includes(menuItem.id)
                 ).map((menuItem) =>
@@ -157,6 +157,12 @@ export const CustomDrawer = ({ open, ismobile, handleDrawerClose, theme }) => {
                                                 ? true
                                                 : !prevState[menuItem.id]
                                     }));
+                                }}
+                                sx={{
+                                    '&:hover': {
+                                        backgroundColor:
+                                            theme.palette?.action.hover
+                                    }
                                 }}
                             >
                                 <ListItemIcon>{menuItem.icon}</ListItemIcon>
@@ -177,7 +183,7 @@ export const CustomDrawer = ({ open, ismobile, handleDrawerClose, theme }) => {
                                 timeout="auto"
                                 unmountOnExit
                             >
-                                <List disablePadding>
+                                <List dense disablePadding>
                                     {menuItem.children
                                         .filter(
                                             (subItem) =>
@@ -193,7 +199,14 @@ export const CustomDrawer = ({ open, ismobile, handleDrawerClose, theme }) => {
                                                     subMenuItem.url ===
                                                     location.pathname
                                                 }
-                                                sx={{ pl: 4 }}
+                                                sx={{
+                                                    pl: 4,
+                                                    '&:hover': {
+                                                        backgroundColor:
+                                                            theme.palette
+                                                                ?.action.hover
+                                                    }
+                                                }}
                                                 to={subMenuItem.url}
                                             >
                                                 <ListItemIcon>
@@ -214,7 +227,15 @@ export const CustomDrawer = ({ open, ismobile, handleDrawerClose, theme }) => {
                             </Collapse>
                         </Box>
                     ) : (
-                        <ListItem disablePadding key={menuItem.id}>
+                        <ListItem
+                            disablePadding
+                            key={menuItem.id}
+                            sx={{
+                                '&:hover': {
+                                    backgroundColor: theme.palette?.action.hover
+                                }
+                            }}
+                        >
                             <ListItemButton
                                 component={LinkDom}
                                 selected={menuItem.url === location.pathname}

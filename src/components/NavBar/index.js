@@ -77,7 +77,6 @@ const AppBar = styled(MuiAppBar, {
     marginLeft: ismobile === 'true' ? 0 : `-${drawerWidth}px`,
     ...(open && {
         width: ismobile === 'true' ? '100%' : `calc(100% - ${drawerWidth}px)`,
-        // marginLeft: ismobile ? `${drawerWidth}px` : 0,
         transition: theme.transitions.create(['margin', 'width'], {
             easing: theme.transitions.easing.easeOut,
             duration: theme.transitions.duration.enteringScreen
