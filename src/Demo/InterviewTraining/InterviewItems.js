@@ -52,8 +52,12 @@ import {
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 
 const InterviewItems = (props) => {
+    const { user } = useAuth();
     const { t } = useTranslation();
     const [isCollapse, setIsCollapse] = useState(props.expanded);
+    const [isOfficialDetailsOpen, setIsOfficialDetailsOpen] = useState(
+        is_TaiGer_role(user)
+    );
     const [showModal, setShowModal] = useState(false);
     const [interview, setiInterview] = useState({
         ...props.interview,
@@ -77,7 +81,7 @@ const InterviewItems = (props) => {
         res_modal_message: '',
         res_modal_status: 0
     });
-    const { user } = useAuth();
+
     const [timezone, setTimezone] = useState(
         user.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone
     );
@@ -262,8 +266,6 @@ const InterviewItems = (props) => {
             res_modal_message: ''
         }));
     };
-
-    const [isOfficialDetailsOpen, setIsOfficialDetailsOpen] = useState(false);
 
     return (
         <>
