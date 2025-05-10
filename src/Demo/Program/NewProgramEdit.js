@@ -821,6 +821,32 @@ const NewProgramEdit = (props) => {
                     </Grid>
                     <Grid item md={6} xs={12}>
                         <Typography variant="body1">
+                            {t('Essay consultant required?', { ns: 'common' })}
+                        </Typography>
+                    </Grid>
+                    <Grid item md={6} xs={12}>
+                        <FormControl fullWidth>
+                            <Select
+                                id="isEssayConsultantNeeded"
+                                labelId="isEssayConsultantNeeded"
+                                name="isEssayConsultantNeeded"
+                                onChange={(e) => handleChange(e)}
+                                size="small"
+                                value={program.isEssayConsultantNeeded || ''}
+                            >
+                                {YES_NO_BOOLEAN_OPTIONS.map((option) => (
+                                    <MenuItem
+                                        key={option.value}
+                                        value={option.value}
+                                    >
+                                        {option.label}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                    <Grid item md={6} xs={12}>
+                        <Typography variant="body1">
                             {t('Essay Requirements', { ns: 'common' })}
                         </Typography>
                     </Grid>
