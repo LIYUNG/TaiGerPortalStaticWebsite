@@ -25,6 +25,7 @@ import {
     is_TaiGer_Agent,
     is_TaiGer_Editor,
     is_TaiGer_External,
+    is_TaiGer_role,
     is_TaiGer_Student
 } from '@taiger-common/core';
 import { useAuth } from '../../components/AuthProvider';
@@ -138,7 +139,7 @@ const UsersTable = () => {
         }));
     };
 
-    if (!is_TaiGer_Admin(user)) {
+    if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
     TabTitle(t('User List', { ns: 'common' }));

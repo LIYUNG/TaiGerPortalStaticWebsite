@@ -185,13 +185,6 @@ if (appConfig.meetingEnable) {
 all_students_nestedList = [
     ...all_students_nestedList,
     {
-        id: 'archiv-student',
-        title: 'All Archived Students',
-        type: 'item',
-        icon: <ArchiveOutlinedIcon />,
-        url: '/archiv/students/all'
-    },
-    {
         id: 'prev_students_database',
         title: 'Students Database',
         type: 'item',

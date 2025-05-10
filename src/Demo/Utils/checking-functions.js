@@ -22,6 +22,28 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 
 export const is_User_Archived = (user) => user?.archiv === true;
 
+export const student_transform = (students) =>
+    students?.map((student) => ({
+        ...student,
+        name: `${student.firstname} ${student.lastname} | ${student.firstname_chinese} ${student.lastname_chinese}`,
+        application_year:
+            student.application_preference?.expected_application_date,
+        application_semester:
+            student.application_preference?.expected_application_semester,
+        attended_university:
+            student.academic_background?.university?.attended_university,
+        attended_university_program:
+            student.academic_background?.university
+                ?.attended_university_program,
+        agentNames: student.agents.map((agent) => agent.firstname)?.join(', '),
+        editorNames: student.editors
+            .map((editor) => editor.firstname)
+            ?.join(', '),
+        attributesString: student.attributes
+            ?.map((attribute) => attribute.name)
+            ?.join('#')
+    })) || [];
+
 // Tested
 export const calculateDisplayLength = (text) => {
     let length = 0;

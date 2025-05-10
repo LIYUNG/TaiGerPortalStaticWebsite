@@ -793,12 +793,14 @@ export const THREADS_TABLE_REVERSED_TABS = {
 
 export const THREAD_TABS = {
     communication: 0,
-    audit: 1
+    history: 1,
+    audit: 2
 };
 
 export const THREAD_REVERSED_TABS = {
     0: 'communication',
-    1: 'audit'
+    1: 'history',
+    2: 'audit'
 };
 
 export const SINGLE_STUDENT_TABS = {
@@ -823,13 +825,6 @@ export const SINGLE_STUDENT_REVERSED_TABS = {
     6: 'courses',
     7: 'notes',
     8: 'audit'
-};
-
-export const spinner_style = {
-    position: 'fixed',
-    top: '40%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)'
 };
 
 export const spinner_style2 = {
@@ -1085,7 +1080,7 @@ export const ATTRIBUTES = [
     },
     { value: 4, name: 'Slow Response', definition: '' },
     { value: 5, name: 'Disappear', definition: '' },
-    { value: 6, name: 'Low-IQ', definition: '' },
+    { value: 6, name: 'ADHD', definition: '' },
     { value: 7, name: 'Refunding', definition: '' },
     { value: 8, name: 'Done', definition: '' },
     { value: 9, name: 'Refund-Risk', definition: '' },
@@ -1105,6 +1100,11 @@ export const ATTRIBUTES = [
         value: 12,
         name: 'Free-Service',
         definition: 'No service fee student.'
+    },
+    {
+        value: 13,
+        name: 'Partial-Service',
+        definition: 'Partial service fee student.'
     }
 ];
 
@@ -2315,6 +2315,12 @@ export const GENERAL_SCORES_ESSAY = {
     description: 'Essay score (if applicable)'
 };
 
+export const GENERAL_SCORES_WORK_EXPERIENCE = {
+    name: 'workExperienceScore',
+    label: 'Work Experience Score',
+    description: 'Work experience score (if applicable)'
+};
+
 export const GENERAL_SCORES_INTERVIEW = {
     name: 'interviewScore',
     label: 'Interview Score',
@@ -2382,6 +2388,7 @@ export const GENERAL_SCORES = [
     GENERAL_SCORES_ML,
     GENERAL_SCORES_RL,
     GENERAL_SCORES_ESSAY,
+    GENERAL_SCORES_WORK_EXPERIENCE,
     GENERAL_SCORES_INTERVIEW,
     GENERAL_SCORES_GMAT,
     GENERAL_SCORES_GRE,

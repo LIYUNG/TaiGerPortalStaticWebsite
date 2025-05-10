@@ -49,7 +49,7 @@ import WarningIcon from '@mui/icons-material/Warning';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import FlagIcon from '@mui/icons-material/Flag';
 import { green } from '@mui/material/colors';
-import i18next from 'i18next';
+import i18next, { t } from 'i18next';
 import { useTheme } from '@mui/material/styles';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import SortIcon from '@mui/icons-material/Sort';
@@ -83,6 +83,40 @@ import { useAuth } from '../../components/AuthProvider';
 import Loading from '../../components/Loading/Loading';
 import { appConfig } from '../../config';
 import { a11yProps, CustomTabPanel } from '../../components/Tabs';
+
+// const getTop3Keywords = (keywords) => {
+//     const frequencyMap = {};
+
+//     // Count frequency of each keyword
+//     for (const keyword of keywords) {
+//         frequencyMap[keyword] = (frequencyMap[keyword] || 0) + 1;
+//     }
+
+//     // Convert map to array of [keyword, frequency], then sort and take top 3
+//     const top3 = Object.entries(frequencyMap)
+//         .sort((a, b) => b[1] - a[1]) // Sort descending by frequency
+//         .slice(0, 3) // Take top 3
+//         .map((entry) => entry[0]); // Return only the keyword
+
+//     return top3;
+// };
+
+const countSuggestedCourses = (data, missingCourses) => {
+    delete data.Others;
+    const categories = Object.keys(data);
+    for (const category of categories) {
+        const list = data[category];
+
+        for (const item of list) {
+            if (item && item['建議修課']) {
+                const course = item['建議修課'];
+                missingCourses[course] = (missingCourses[course] || 0) + 1;
+            }
+        }
+    }
+
+    return missingCourses;
+};
 
 const settings = {
     display: 'flex',
@@ -479,7 +513,9 @@ export const CourseAnalysisComponent = ({
                         Back to Overview
                     </Button>
                     <Typography sx={{ flexGrow: 1 }} variant="h6">
-                        Program Analysis
+                        {t('Program Analysis', {
+                            ns: 'courses'
+                        })}
                     </Typography>
                 </Box>
                 <Card variant="outlined">
@@ -835,6 +871,18 @@ const allRequiredECTSCrossPrograms = (programSheetsArray) => {
     return sum;
 };
 
+const allMissCoursesCrossPrograms = (programSheetsArray) => {
+    let missingCourses = {};
+    for (let i = 0; i < programSheetsArray?.length; i += 1) {
+        const suggestionCourses = programSheetsArray[i]?.value?.suggestion;
+        missingCourses = countSuggestedCourses(
+            suggestionCourses,
+            missingCourses
+        );
+    }
+    return missingCourses;
+};
+
 const allAcquiredECTSCrossPrograms = (programSheetsArray) => {
     let sum = 0;
     for (let i = 0; i < programSheetsArray?.length; i += 1) {
@@ -1057,7 +1105,7 @@ const ProgramMatchingScores = memo(
                 field: 'programName',
                 headerName: 'Program Name',
                 flex: 2,
-                minWidth: 250,
+                minWidth: 280,
                 renderCell: (params) => (
                     <Link
                         component="button"
@@ -1393,6 +1441,20 @@ export const GeneralCourseAnalysisComponent = ({
             : 0;
     }, [programSheetsArray]);
 
+    const missingCoursesRanking = useMemo(() => {
+        const missing_courses_ranking =
+            allMissCoursesCrossPrograms(programSheetsArray);
+        return missing_courses_ranking;
+    }, [programSheetsArray]);
+    // can you sort by value to get the top 3 courses of missingCoursesRanking? also show number of courses
+    const topMissingCourses = useMemo(() => {
+        return Object.entries(missingCoursesRanking)
+            .sort(([, a], [, b]) => b - a)
+            .slice(0, 20)
+            .map(([course, count]) => ({ course, count }));
+    }, [missingCoursesRanking]);
+    console.log(topMissingCourses);
+
     const numPrograms = useMemo(
         () =>
             Object.entries(sheets).filter(([key]) => !['General'].includes(key))
@@ -1440,8 +1502,8 @@ export const GeneralCourseAnalysisComponent = ({
 
             <CustomTabPanel index={0} value={tabTag}>
                 <Grid container spacing={2}>
-                    <Grid item md={4} xs={12}>
-                        <Card sx={{ height: 250 }}>
+                    <Grid item md={3} xs={12}>
+                        <Card sx={{ height: 280 }}>
                             <CardHeader
                                 subheader="Total number of programs being analyzed"
                                 title="Analyzed Programs"
@@ -1481,8 +1543,7 @@ export const GeneralCourseAnalysisComponent = ({
                             </CardContent>
                         </Card>
                     </Grid>
-
-                    <Grid item md={4} xs={12}>
+                    <Grid item md={3} xs={12}>
                         <GaugeCard
                             CardHeaderProps={{
                                 titleTypography: {
@@ -1495,13 +1556,61 @@ export const GeneralCourseAnalysisComponent = ({
                             ).toFixed(0)}
                             settings={settings}
                             subtitle="Average course requirement coverage across all programs"
-                            sx={{ height: 250 }}
+                            sx={{ height: 280 }}
                             title="Overall Matching Score"
                         />
                     </Grid>
-
-                    <Grid item md={4} xs={12}>
+                    <Grid item md={3} xs={12}>
                         <GPACard myGermanGPA={myGermanGPA} student={student} />
+                    </Grid>
+                    <Grid item md={3} xs={12}>
+                        <Card sx={{ height: 280, overflowY: 'auto' }}>
+                            <CardHeader
+                                title="Top Missing Courses"
+                                titleTypography={{
+                                    variant: 'h6',
+                                    fontWeight: 'medium'
+                                }}
+                            />
+                            <CardContent>
+                                <Box
+                                    sx={{
+                                        height: 'calc(100% - 48px)',
+                                        overflowY: 'auto',
+                                        '&::-webkit-scrollbar': {
+                                            width: '8px'
+                                        },
+                                        '&::-webkit-scrollbar-track': {
+                                            background: '#f1f1f1',
+                                            borderRadius: '4px'
+                                        },
+                                        '&::-webkit-scrollbar-thumb': {
+                                            background: '#888',
+                                            borderRadius: '4px',
+                                            '&:hover': {
+                                                background: '#555'
+                                            }
+                                        }
+                                    }}
+                                >
+                                    {topMissingCourses.map((course) => (
+                                        <Typography
+                                            key={course.course}
+                                            sx={{
+                                                py: 0.5,
+                                                borderBottom: '1px solid',
+                                                borderColor: 'divider',
+                                                '&:last-child': {
+                                                    borderBottom: 'none'
+                                                }
+                                            }}
+                                        >
+                                            {course.course} ({course.count})
+                                        </Typography>
+                                    ))}
+                                </Box>
+                            </CardContent>
+                        </Card>
                     </Grid>
 
                     <Grid item xs={12}>

@@ -541,14 +541,6 @@ const InterviewItems = (props) => {
                             >
                                 {`${interview.program_id.school} - ${interview.program_id.program_name} ${interview.program_id.degree}`}
                             </Link>
-                            {is_TaiGer_role(user) ? (
-                                <Typography variant="body1">
-                                    {t('Previous questions records:')}&nbsp;
-                                    <Button size="small" variant="outlined">
-                                        {props.questionsNum}
-                                    </Button>
-                                </Typography>
-                            ) : null}
                             <Typography
                                 fontWeight="bold"
                                 sx={{ mt: 2 }}

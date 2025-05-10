@@ -198,6 +198,13 @@ const AgentRow = ({ agent, setModalShow, user }) => {
                     : 'x'}
             </TableCell>
             <TableCell>
+                {agent.permissions?.length > 0
+                    ? agent.permissions[0].canAddUser
+                        ? 'O'
+                        : 'X'
+                    : 'x'}
+            </TableCell>
+            <TableCell>
                 {agent.permissions.length > 0
                     ? agent.permissions[0].canUseTaiGerAI
                         ? 'O'
@@ -469,6 +476,9 @@ const TaiGerOrg = () => {
                                 </TableCell>
                                 <TableCell>
                                     Can Access <br /> Students
+                                </TableCell>
+                                <TableCell>
+                                    Can Add <br /> User
                                 </TableCell>
                                 <TableCell>
                                     Can User <br /> TaiGerAI

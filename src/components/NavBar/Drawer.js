@@ -67,7 +67,6 @@ const ExcludeMenu = {
     Agent: [
         'contact_us',
         'application_overivew',
-        'user-list',
         'academicsurvey',
         'my-courses',
         'customer-center-student'
@@ -75,7 +74,6 @@ const ExcludeMenu = {
     Editor: [
         'contact_us',
         'application_overivew',
-        'user-list',
         'tools-widgets',
         'academicsurvey',
         'my-courses',

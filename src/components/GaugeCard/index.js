@@ -14,7 +14,7 @@ const GaugeCard = ({
     title,
     score,
     onClick,
-    minHeight = 220,
+    minHeight = 250,
     gaugeSize = 100,
     startAngle = -110,
     endAngle = 110,

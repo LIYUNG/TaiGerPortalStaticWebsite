@@ -1,9 +1,8 @@
 import React from 'react';
 import { Navigate, Link as LinkDom } from 'react-router-dom';
-import { Box, Breadcrumbs, Card, Link, Typography } from '@mui/material';
+import { Box, Breadcrumbs, Link, Typography } from '@mui/material';
 import { is_TaiGer_role } from '@taiger-common/core';
 
-import TabStudBackgroundDashboard from '../Dashboard/MainViewTab/StudDocsOverview/TabStudBackgroundDashboard';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '../../store/constant';
 import { useAuth } from '../../components/AuthProvider';
@@ -13,6 +12,8 @@ import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { getAllStudentsQuery } from '../../api/query';
+import { StudentsTable } from './StudentsTable';
+import { student_transform } from '../Utils/checking-functions';
 
 const StudentDatabase = () => {
     const { user } = useAuth();
@@ -38,6 +39,8 @@ const StudentDatabase = () => {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
+    const studentsTransformed = student_transform(students);
+
     TabTitle(t('Students Database', { ns: 'common' }));
     return (
         <Box data-testid="student_datdabase">
@@ -58,17 +61,15 @@ const StudentDatabase = () => {
                     {students?.length})
                 </Typography>
             </Breadcrumbs>
-            <Box>
-                <Card>
-                    <TabStudBackgroundDashboard
-                        students={students}
-                        submitUpdateAgentlist={submitUpdateAgentlist}
-                        submitUpdateAttributeslist={submitUpdateAttributeslist}
-                        submitUpdateEditorlist={submitUpdateEditorlist}
-                        updateStudentArchivStatus={updateStudentArchivStatus}
-                    />
-                </Card>
-            </Box>
+            <StudentsTable
+                data={studentsTransformed}
+                isLoading={false}
+                submitUpdateAgentlist={submitUpdateAgentlist}
+                submitUpdateAttributeslist={submitUpdateAttributeslist}
+                submitUpdateEditorlist={submitUpdateEditorlist}
+                updateStudentArchivStatus={updateStudentArchivStatus}
+            />
+
             {res_modal_status >= 400 ? (
                 <ModalMain
                     ConfirmError={ConfirmError}
