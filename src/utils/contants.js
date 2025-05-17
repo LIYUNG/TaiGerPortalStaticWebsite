@@ -1105,6 +1105,11 @@ export const ATTRIBUTES = [
         value: 13,
         name: 'Partial-Service',
         definition: 'Partial service fee student.'
+    },
+    {
+        value: 14,
+        name: 'Not-Paid-Yet',
+        definition: 'Not paid student.'
     }
 ];
 
@@ -1431,10 +1436,10 @@ export const IS_PASSED_OPTIONS = [
 export const ENGLISH_CERTIFICATE_ARRAY_OPTIONS = [
     { value: '', label: 'Please Select' },
     { value: 'TOEFL', label: 'TOEFL iBT (現場考)' },
-    { value: 'IELTS', label: 'IELTS Academy (現場考)' },
+    { value: 'IELTS', label: 'IELTS Academy (現場考(電腦模式 / 紙筆模式))' },
     { value: 'Duolingo', label: 'Duolingo (極少數承認)' },
     { value: 'Native', label: 'English Native 母語' },
-    { value: 'Others', label: '其餘考試不適用' }
+    { value: 'Others', label: '其餘居家考試不適用' }
 ];
 
 export const GERMAN_CERTIFICATE_ARRAY_OPTIONS = [
@@ -1446,6 +1451,7 @@ export const GERMAN_CERTIFICATE_ARRAY_OPTIONS = [
     { value: 'TestDaF', label: 'TestDaF' },
     { value: 'Telc', label: 'Telc' },
     { value: 'DSH', label: 'DSH' },
+    { value: 'Feststellungspruefung', label: 'Feststellungsprüfung' },
     { value: 'Native', label: 'Native' },
     {
         value: 'OTHERS',
