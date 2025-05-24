@@ -138,6 +138,7 @@ const InterviewTraining = () => {
     const columns = [
         {
             accessorKey: 'status',
+            filterVariant: 'multi-select',
             header: t('Status', { ns: 'common' }),
             width: 100
         },
