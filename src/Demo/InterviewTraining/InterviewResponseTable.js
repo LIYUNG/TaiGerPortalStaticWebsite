@@ -192,26 +192,14 @@ const InterviewResponseTable = () => {
             } ${showTimezoneOffset()})`,
             align: 'left',
             headerAlign: 'left',
-            width: 250,
-            renderCell: (params) => {
-                return (
-                    params.row.event_id &&
-                    `${convertDate(params.row.event_id.start)}`
-                );
-            }
+            width: 250
         },
         {
             field: 'interview_date',
             headerName: t('Official Interview Time', { ns: 'interviews' }),
             align: 'left',
             headerAlign: 'left',
-            width: 100,
-            renderCell: (params) => {
-                return (
-                    params.row.interview_date &&
-                    `${convertDate(params.row.interview_date)}`
-                );
-            }
+            width: 100
         },
         {
             field: 'program_name',
@@ -243,6 +231,8 @@ const InterviewResponseTable = () => {
             result.push({
                 ...interview,
                 id: `${interview._id}`,
+                start: convertDate(interview.event_id.start),
+                interview_date: convertDate(interview.interview_date),
                 student_id: interview.student_id._id,
                 trainer_id: interview.trainer_id,
                 program_name: `${interview.program_id.school} ${interview.program_id.program_name} ${interview.program_id.degree} ${interview.program_id.semester}`,

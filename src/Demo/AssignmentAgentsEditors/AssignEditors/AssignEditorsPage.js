@@ -26,7 +26,7 @@ const NoEditorsTableHeader = () => {
                 <TableCell>
                     {t('First-, Last Name', { ns: 'common' })}
                 </TableCell>
-                <TableCell>{t('Email', { ns: 'common' })}</TableCell>
+                <TableCell>{t('Attributes', { ns: 'common' })}</TableCell>
                 <TableCell>{t('Status', { ns: 'common' })}</TableCell>
                 <TableCell>{t('Target Program Language')}</TableCell>
                 <TableCell>{t('Target Year', { ns: 'common' })}</TableCell>

@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Button,
+    Chip,
     Link,
     Menu,
     MenuItem,
     TableCell,
     TableRow,
+    Tooltip,
     Typography
 } from '@mui/material';
 import { Link as LinkDom } from 'react-router-dom';
@@ -15,6 +17,7 @@ import { is_TaiGer_role } from '@taiger-common/core';
 import EditEditorsSubpage from '../StudDocsOverview/EditEditorsSubpage';
 import DEMO from '../../../../store/constant';
 import { useAuth } from '../../../../components/AuthProvider';
+import { ATTRIBUTES, COLORS } from '../../../../utils/contants';
 
 const NoEditorsStudentsCard = (props) => {
     const { user } = useAuth();
@@ -100,7 +103,23 @@ const NoEditorsStudentsCard = (props) => {
                             {props.student.firstname}, {props.student.lastname}
                         </Link>
                     </TableCell>
-                    <TableCell>{props.student.email}</TableCell>
+                    <TableCell>
+                        {props.student.attributes?.map((att) => (
+                            <Tooltip
+                                key={att._id}
+                                title={`${att.name}: ${
+                                    ATTRIBUTES[att.value - 1].definition
+                                }`}
+                            >
+                                <Chip
+                                    color={COLORS[att.value]}
+                                    data-testid={`chip-${att.name}`}
+                                    label={att.name}
+                                    size="small"
+                                />
+                            </Tooltip>
+                        ))}
+                    </TableCell>
                     <TableCell>
                         <Typography fontWeight="bold">
                             {props.student.needEditor ? 'Ready to Assign' : '-'}

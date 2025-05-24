@@ -912,7 +912,13 @@ export const twoYearsInDays = 730; // days
 
 export const getDate = (date) => {
     // const userLocale = navigator.language;
-    let dat = new Date(date).toLocaleDateString('zh-Hans-CN');
+    let dat = new Date(date)
+        .toLocaleDateString('zh-Hans-CN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        })
+        .replace(/\//g, '-');
 
     const currentDate = new Date();
     const input_date_point = new Date(date);
@@ -946,7 +952,13 @@ export const getTime = (date) => {
 
 export const convertDate = (date) => {
     // const userLocale = navigator.language;
-    let dat = new Date(date).toLocaleDateString('zh-Hans-CN');
+    let dat = new Date(date)
+        .toLocaleDateString('zh-Hans-CN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        })
+        .replace(/\//g, '-');
     let time = new Date(date).toLocaleTimeString('en-US', {
         hour: '2-digit',
         minute: '2-digit',
@@ -1171,8 +1183,6 @@ export const sortProgramFields = (a, b) => {
 };
 
 export const convertDateUXFriendly = (date) => {
-    // let dat = new Date(date).toLocaleDateString('zh-Hans-CN');
-
     const currentDate = new Date();
     const input_date_point = new Date(date);
     // Calculate the time difference in milliseconds
