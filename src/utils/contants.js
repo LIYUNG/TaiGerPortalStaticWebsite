@@ -953,12 +953,12 @@ export const getTime = (date) => {
 export const convertDate = (date) => {
     // const userLocale = navigator.language;
     let dat = new Date(date)
-        .toLocaleDateString('zh-Hans-CN', {
+        ?.toLocaleDateString('zh-Hans-CN', {
             year: 'numeric',
             month: '2-digit',
             day: '2-digit'
         })
-        .replace(/\//g, '-');
+        ?.replace(/\//g, '-');
     let time = new Date(date).toLocaleTimeString('en-US', {
         hour: '2-digit',
         minute: '2-digit',

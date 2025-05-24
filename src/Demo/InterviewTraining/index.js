@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link as LinkDom, useNavigate } from 'react-router-dom';
 import { Box, Button, Breadcrumbs, Link, Typography } from '@mui/material';
@@ -18,7 +18,7 @@ import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';
 import Loading from '../../components/Loading/Loading';
 import { convertDate, showTimezoneOffset } from '../../utils/contants';
-import ExampleWithLocalizationProvider from '../../components/MaterialReactTable';
+import { InterviewsTable } from './InterviewsTable';
 
 const InterviewTraining = () => {
     const { user } = useAuth();
@@ -136,7 +136,7 @@ const InterviewTraining = () => {
     };
 
     TabTitle('Interview training');
-    const column = [
+    const columns = [
         {
             accessorKey: 'status',
             header: t('Status', { ns: 'common' }),
@@ -168,40 +168,32 @@ const InterviewTraining = () => {
         {
             accessorKey: 'trainer_id',
             header: t('Trainer', { ns: 'common' }),
-            size: 100,
-            Cell: (params) => {
-                const { row } = params;
-                return (
-                    row.original.trainer_id?.map(
-                        (trainer) => trainer.firstname
-                    ) || []
-                );
-            }
+            size: 100
         },
         {
-            accessorKey: 'event_id',
+            accessorKey: 'start',
             header: `${t('Training Time', { ns: 'interviews' })} (${
                 Intl.DateTimeFormat().resolvedOptions().timeZone
             } ${showTimezoneOffset()})`,
-            size: 280,
+            align: 'left',
+            headerAlign: 'left',
+            filterFn: 'contains',
+            width: 250,
             Cell: (params) => {
                 const { row } = params;
-                return (
-                    row.original.event_id &&
-                    `${convertDate(row.original.event_id.start)}`
-                );
+                return row.original.start;
             }
         },
         {
             accessorKey: 'interview_date',
             header: t('Official Interview Time', { ns: 'interviews' }),
-            size: 200,
+            align: 'left',
+            headerAlign: 'left',
+            filterFn: 'contains',
+            width: 100,
             Cell: (params) => {
                 const { row } = params;
-                return (
-                    row.original.interview_date &&
-                    `${convertDate(row.original.interview_date)}`
-                );
+                return row.original.interview_date;
             }
         },
         {
@@ -233,15 +225,26 @@ const InterviewTraining = () => {
             result.push({
                 ...interview,
                 id: `${interview._id}`,
+                start:
+                    (interview.event_id?.start &&
+                        convertDate(interview.event_id?.start)) ||
+                    '',
+                interview_date:
+                    (interview.interview_date &&
+                        convertDate(interview.interview_date)) ||
+                    '',
                 student_id: interview.student_id._id,
-                trainer_id: interview.trainer_id,
+                trainer_id:
+                    interview.trainer_id
+                        ?.map((trainer) => trainer.firstname)
+                        ?.join(', ') || [],
                 program_name: `${interview.program_id.school} ${interview.program_id.program_name} ${interview.program_id.degree} ${interview.program_id.semester}`,
                 firstname_lastname: `${interview.student_id.firstname} ${interview.student_id.lastname}`
             });
         }
         return result;
     };
-    const memoizedColumns = useMemo(() => column, [column]);
+    // const memoizedColumns = useMemo(() => column, [column]);
 
     const {
         res_status,
@@ -261,6 +264,7 @@ const InterviewTraining = () => {
 
     const rows = transform(interviewslist);
 
+    console.log(rows);
     return (
         <Box>
             {res_modal_status >= 400 ? (
@@ -324,10 +328,7 @@ const InterviewTraining = () => {
                     ) : null}
                 </Box>
             </Box>
-            <ExampleWithLocalizationProvider
-                col={memoizedColumns}
-                data={rows}
-            />
+            <InterviewsTable columns={columns} data={rows} />
         </Box>
     );
 };

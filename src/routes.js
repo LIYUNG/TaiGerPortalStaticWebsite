@@ -39,9 +39,6 @@ const Questionnaire = React.lazy(
 const AddInterview = React.lazy(
     () => import('./Demo/InterviewTraining/AddInterview')
 );
-const InterviewResponseTable = React.lazy(
-    () => import('./Demo/InterviewTraining/InterviewResponseTable')
-);
 
 const DashboardDefault = React.lazy(() => import('./Demo/Dashboard'));
 
@@ -780,12 +777,6 @@ if (appConfig.interviewEnable) {
         exact: true,
         name: 'AddInterview',
         Component: AddInterview
-    });
-    routes.push({
-        path: '/interview-training/survey',
-        exact: true,
-        name: 'InterviewResponseTable',
-        Component: InterviewResponseTable
     });
     routes.push({
         path: '/interview-training/:interview_id/survey',
