@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Card, IconButton, Link, Typography } from '@mui/material';
+import { Card, Chip, IconButton, Link, Typography } from '@mui/material';
 import { Link as LinkDom } from 'react-router-dom';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import HelpIcon from '@mui/icons-material/Help';
@@ -10,7 +10,11 @@ import {
     ProfileNameType
 } from '@taiger-common/core';
 
-import { FILE_MISSING_SYMBOL, FILE_OK_SYMBOL } from '../../utils/contants';
+import {
+    COLORS,
+    FILE_MISSING_SYMBOL,
+    FILE_OK_SYMBOL
+} from '../../utils/contants';
 import { MuiDataGrid } from '../MuiDataGrid';
 import {
     areProgramsDecidedMoreThanContract,
@@ -129,6 +133,9 @@ const StudentOverviewTable = ({ students }) => {
                 }`,
                 id: student._id.toString(),
                 student,
+                attributesJoined: student.attributes
+                    ?.map((attribute) => attribute.name)
+                    .join(' '),
                 target_degree,
                 isGraduated:
                     student.academic_background?.university
@@ -301,6 +308,23 @@ const StudentOverviewTable = ({ students }) => {
                 align: 'left',
                 headerAlign: 'left',
                 width: 80
+            },
+            {
+                field: 'attributesJoined',
+                headerName: t('Attributes', { ns: 'common' }),
+                align: 'left',
+                headerAlign: 'left',
+                width: 80,
+                renderCell: (params) => {
+                    return params.row.attributes?.map((attribute) => (
+                        <Chip
+                            color={COLORS[attribute.value]}
+                            key={attribute._id}
+                            label={attribute.name}
+                            size="small"
+                        />
+                    ));
+                }
             },
             {
                 field: 'agents_joined',
