@@ -16,7 +16,6 @@ import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '../../store/constant';
 import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';
-import Loading from '../../components/Loading/Loading';
 import { convertDate, showTimezoneOffset } from '../../utils/contants';
 import { InterviewsTable } from './InterviewsTable';
 
@@ -166,7 +165,7 @@ const InterviewTraining = () => {
             }
         },
         {
-            accessorKey: 'trainer_id',
+            accessorKey: 'trainer_name',
             header: t('Trainer', { ns: 'common' }),
             size: 100
         },
@@ -234,7 +233,7 @@ const InterviewTraining = () => {
                         convertDate(interview.interview_date)) ||
                     '',
                 student_id: interview.student_id._id,
-                trainer_id:
+                trainer_name:
                     interview.trainer_id
                         ?.map((trainer) => trainer.firstname)
                         ?.join(', ') || [],
@@ -254,15 +253,11 @@ const InterviewTraining = () => {
         interviewslist
     } = interviewTrainingState;
 
-    if (!isLoaded) {
-        return <Loading />;
-    }
-
     if (res_status >= 400) {
         return <ErrorPage res_status={res_status} />;
     }
 
-    const rows = transform(interviewslist);
+    const rows = isLoaded && transform(interviewslist);
 
     console.log(rows);
     return (
@@ -328,7 +323,11 @@ const InterviewTraining = () => {
                     ) : null}
                 </Box>
             </Box>
-            <InterviewsTable columns={columns} data={rows} />
+            <InterviewsTable
+                columns={columns}
+                data={rows}
+                isLoading={!isLoaded}
+            />
         </Box>
     );
 };
