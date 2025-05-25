@@ -7,17 +7,29 @@ import {
 import { getTableConfig, useTableStyles } from '../../components/table';
 import { useTranslation } from 'react-i18next';
 import { Link } from '@mui/material';
+import { Box, Chip } from '@mui/material';
 
 import DEMO from '../../store/constant';
 import { TopToolbar } from '../../components/table/programs-table/TopToolbar';
 import { AssignProgramsToStudentDialog } from './AssignProgramsToStudentDialog';
 import { COUNTRIES_ARRAY_OPTIONS } from '../../utils/contants';
+import { PROGRAM_SUBJECTS } from '@taiger-common/core';
 
 export const ProgramsTable = ({ isLoading, data }) => {
     const customTableStyles = useTableStyles();
     const { t } = useTranslation();
     const tableConfig = getTableConfig(customTableStyles, isLoading);
     const [openAssignDialog, setOpenAssignDialog] = useState(false);
+
+    // Get unique subject groups from PROGRAM_SUBJECTS
+    const subjectGroups = Object.entries(PROGRAM_SUBJECTS).map(
+        ([code, { label, category }]) => ({
+            code,
+            label,
+            category,
+            groupBy: category
+        })
+    );
 
     const columns = [
         {
@@ -55,6 +67,50 @@ export const ProgramsTable = ({ isLoading, data }) => {
                     >
                         {params.row.original.program_name}
                     </Link>
+                );
+            }
+        },
+        {
+            accessorKey: 'programSubjects',
+            header: t('Subjects', { ns: 'common' }),
+            filterVariant: 'multi-select',
+            filterSelectOptions: subjectGroups.map((item) => item.value),
+            size: 200,
+            Cell: ({ row }) => {
+                const subjects = row.original.programSubjects || [];
+                return (
+                    <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                        {subjects.map((subject, index) => (
+                            <Chip
+                                key={index}
+                                label={subject}
+                                size="small"
+                                sx={{ m: 0.5 }}
+                            />
+                        ))}
+                    </Box>
+                );
+            }
+        },
+        {
+            accessorKey: 'tags',
+            header: t('Tags', { ns: 'common' }),
+            filterVariant: 'multi-select',
+            filterSelectOptions: subjectGroups.map((item) => item.value),
+            size: 200,
+            Cell: ({ row }) => {
+                const tags = row.original.tags || [];
+                return (
+                    <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                        {tags.map((tag, index) => (
+                            <Chip
+                                key={index}
+                                label={tag}
+                                size="small"
+                                sx={{ m: 0.5 }}
+                            />
+                        ))}
+                    </Box>
                 );
             }
         },

@@ -10,6 +10,7 @@ export const getTableConfig = (customTableStyles, isLoading) => ({
         showColumnFilters: true,
         showGlobalFilter: true,
         density: 'compact',
+        columnVisibility: { programSubjects: false, tags: false },
         columnPinning: {
             left: ['mrt-row-expand', 'mrt-row-select'],
             right: ['mrt-row-actions']
