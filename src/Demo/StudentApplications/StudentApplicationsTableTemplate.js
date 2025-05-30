@@ -43,7 +43,7 @@ import {
     is_program_ml_rl_essay_ready,
     is_the_uni_assist_vpd_uploaded,
     isCVFinished,
-    application_deadline_calculator
+    application_deadline_V2_calculator
 } from '../Utils/checking-functions';
 import OverlayButton from '../../components/Overlay/OverlayButton';
 import Banner from '../../components/Banner/Banner';
@@ -438,8 +438,7 @@ const StudentApplicationsTableTemplate = (props) => {
                                 </Typography>
                             ) : (
                                 <Typography>
-                                    {application_deadline_calculator(
-                                        props.student,
+                                    {application_deadline_V2_calculator(
                                         application
                                     )}
                                 </Typography>
@@ -613,8 +612,7 @@ const StudentApplicationsTableTemplate = (props) => {
                                     ? '-'
                                     : application.programId.application_deadline
                                       ? differenceInDays(
-                                            application_deadline_calculator(
-                                                props.student,
+                                            application_deadline_V2_calculator(
                                                 application
                                             ),
                                             today

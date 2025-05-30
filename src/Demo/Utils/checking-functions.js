@@ -799,6 +799,36 @@ export const application_date_calculator = (student, application) => {
     return formatApplicationDate(application_year, application_start);
 };
 
+export const application_deadline_V2_calculator = (application) => {
+    if (isProgramWithdraw(application)) {
+        return 'WITHDRAW';
+    }
+    const { application_deadline, semester } = application?.programId || {};
+
+    if (!application_deadline) {
+        return 'No Data';
+    }
+    let application_year = application.application_year;
+    if (!application_deadline) {
+        return `${application_year}-<TBD>`;
+    }
+    if (application_deadline?.toLowerCase()?.includes('rolling')) {
+        // include Rolling
+        return `${application_year}-Rolling`;
+    }
+    let deadline_month = parseInt(
+        application.programId.application_deadline.split('-')[0]
+    );
+
+    application_year = adjustYearForSemester(
+        application_year,
+        deadline_month,
+        semester
+    );
+
+    return formatApplicationDate(application_year, application_deadline);
+};
+
 export const application_deadline_calculator = (student, application) => {
     if (isProgramWithdraw(application)) {
         return 'WITHDRAW';
@@ -838,10 +868,8 @@ export const GetCVDeadline = (student) => {
     let hasRolling = false;
     student.applications.forEach((application) => {
         if (isProgramDecided(application) && application.closed === '-') {
-            const applicationDeadline = application_deadline_calculator(
-                student,
-                application
-            );
+            const applicationDeadline =
+                application_deadline_V2_calculator(application);
             if (applicationDeadline?.toLowerCase()?.includes('rolling')) {
                 hasRolling = true;
                 daysLeftRollingMin = '-';
@@ -1449,7 +1477,7 @@ export const isEnglishCertificateExpiredBeforeDeadline = (student) => {
 
         if (
             differenceInDays(
-                application_deadline_calculator(student, app),
+                application_deadline_V2_calculator(app),
                 academic_background.language.english_test_date
             ) > twoYearsInDays
         ) {
@@ -1488,9 +1516,11 @@ export const englishCertificatedExpiredBeforeTheseProgramDeadlines = (
     return student.applications?.filter(
         (app) =>
             isProgramDecided(app) &&
+            !isProgramSubmitted(app) &&
+            !isProgramWithdraw(app) &&
             isEnglishProgram(app) &&
             differenceInDays(
-                application_deadline_calculator(student, app),
+                application_deadline_V2_calculator(app),
                 student.academic_background.language.english_test_date
             ) > twoYearsInDays
     );
@@ -1717,13 +1747,13 @@ const prepApplicationTask = (student, application, thread) => {
         ...prepTask(student, thread),
         thread_id: thread.doc_thread_id?._id.toString(),
         program_id: application.programId?._id.toString(),
-        deadline: application_deadline_calculator(student, application),
+        deadline: application_deadline_V2_calculator(application),
         show: isProgramDecided(application) ? true : false,
         document_name: `${thread?.doc_thread_id?.file_type} - ${application?.programId?.school} - ${application?.programId?.degree} -${application?.programId?.program_name}`,
         lang: `${application?.programId?.lang}`,
         days_left:
             differenceInDays(
-                application_deadline_calculator(student, application),
+                application_deadline_V2_calculator(application),
                 new Date()
             ) || '-'
     };
@@ -1872,10 +1902,8 @@ export const programs_refactor = (students) => {
             student.applications.forEach((application) => {
                 const is_program_submitted = isProgramSubmitted(application);
                 const is_program_decided = isProgramDecided(application);
-                const deadline = application_deadline_calculator(
-                    student,
-                    application
-                );
+                const deadline =
+                    application_deadline_V2_calculator(application);
                 const days_left = differenceInDays(deadline, new Date()) || '-';
                 const base_docs = isProgramSubmitted(application)
                     ? '-'

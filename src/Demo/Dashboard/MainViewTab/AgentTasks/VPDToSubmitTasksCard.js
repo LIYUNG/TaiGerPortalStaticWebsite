@@ -17,7 +17,7 @@ import { useTranslation } from 'react-i18next';
 import {
     isUniAssistVPDNeeded,
     is_all_uni_assist_vpd_uploaded,
-    application_deadline_calculator,
+    application_deadline_V2_calculator,
     is_uni_assist_paid_and_docs_uploaded
 } from '../../../Utils/checking-functions';
 import DEMO from '../../../../store/constant';
@@ -63,8 +63,7 @@ const VPDToSubmitTasks = (props) => {
                                   )}
                                   <TableCell>
                                       <b>
-                                          {application_deadline_calculator(
-                                              props.student,
+                                          {application_deadline_V2_calculator(
                                               application
                                           )}
                                       </b>

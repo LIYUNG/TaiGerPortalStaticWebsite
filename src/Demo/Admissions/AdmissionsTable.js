@@ -42,9 +42,7 @@ const AdmissionsTable = ({ admissions }) => {
                         finalEnrolment: application.finalEnrolment ? 'O' : '',
                         admission_file_path:
                             application.admission_letter?.admission_file_path,
-                        application_year:
-                            application.application_preference
-                                ?.expected_application_date
+                        application_year: application.application_year
                     });
                 }
             } else if (application.closed === '-' && tag === '--') {
@@ -55,10 +53,7 @@ const AdmissionsTable = ({ admissions }) => {
                     name: `${application.firstname}, ${application.lastname}`,
                     editors: application.editors?.join(' '),
                     agents: application.agents?.join(' '),
-                    application_year:
-                        application.application_preference &&
-                        application.application_preference
-                            .expected_application_date
+                    application_year: application.application_year
                 });
             }
         }

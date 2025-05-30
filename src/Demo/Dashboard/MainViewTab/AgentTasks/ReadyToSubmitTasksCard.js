@@ -20,8 +20,7 @@ import {
     is_program_ml_rl_essay_ready,
     is_the_uni_assist_vpd_uploaded,
     is_program_closed,
-    application_deadline_calculator,
-    application_date_calculator
+    application_deadline_V2_calculator
 } from '../../../Utils/checking-functions';
 import DEMO from '../../../../store/constant';
 import { useAuth } from '../../../../components/AuthProvider';
@@ -58,8 +57,7 @@ const ReadyToSubmitTasks = (props) => {
                                 <Typography
                                     fontWeight={
                                         isInTheFuture(
-                                            application_date_calculator(
-                                                props.student,
+                                            application_deadline_V2_calculator(
                                                 application
                                             )
                                         )
@@ -68,8 +66,7 @@ const ReadyToSubmitTasks = (props) => {
                                     }
                                     variant="body2"
                                 >
-                                    {application_date_calculator(
-                                        props.student,
+                                    {application_deadline_V2_calculator(
                                         application
                                     )}
                                 </Typography>
@@ -78,8 +75,7 @@ const ReadyToSubmitTasks = (props) => {
                                 <Typography
                                     fontWeight={
                                         isInTheFuture(
-                                            application_deadline_calculator(
-                                                props.student,
+                                            application_deadline_V2_calculator(
                                                 application
                                             )
                                         )
@@ -88,8 +84,7 @@ const ReadyToSubmitTasks = (props) => {
                                     }
                                     variant="body2"
                                 >
-                                    {application_deadline_calculator(
-                                        props.student,
+                                    {application_deadline_V2_calculator(
                                         application
                                     )}
                                 </Typography>

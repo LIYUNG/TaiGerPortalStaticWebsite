@@ -31,7 +31,7 @@ import {
 import ManualFiles from './ManualFiles';
 import {
     LinkableNewlineText,
-    application_deadline_calculator
+    application_deadline_V2_calculator
 } from '../Utils/checking-functions';
 import { FILE_OK_SYMBOL, spinner_style2 } from '../../utils/contants';
 import ErrorPage from '../Utils/ErrorPage';
@@ -48,7 +48,7 @@ import DEMO from '../../store/constant';
 import Loading from '../../components/Loading/Loading';
 import i18next from 'i18next';
 
-const ApplicationAccordionSummary = ({ application, student }) => {
+const ApplicationAccordionSummary = ({ application }) => {
     return (
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <Grid container spacing={2}>
@@ -124,7 +124,7 @@ const ApplicationAccordionSummary = ({ application, student }) => {
                 <Grid item md={2} xs={2}>
                     <Typography>
                         Deadline:{' '}
-                        {application_deadline_calculator(student, application)}
+                        {application_deadline_V2_calculator(application)}
                     </Typography>
                 </Grid>
             </Grid>
@@ -659,7 +659,6 @@ const EditorDocsProgress = (props) => {
                         <Accordion defaultExpanded={false} disableGutters>
                             <ApplicationAccordionSummary
                                 application={application}
-                                student={editorDocsProgressState.student}
                             />
                             <AccordionDetails>
                                 <ManualFiles
