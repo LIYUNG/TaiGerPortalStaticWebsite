@@ -447,9 +447,6 @@ export const getProgram = (programId) =>
 export const getProgramV2 = (programId) =>
     getData(`/api/programs/${programId}`);
 
-export const deleteProgram = (programId) =>
-    request.delete(`/api/programs/${programId}`);
-
 export const deleteProgramV2 = ({ program_id }) =>
     deleteData(`/api/programs/${program_id}`);
 

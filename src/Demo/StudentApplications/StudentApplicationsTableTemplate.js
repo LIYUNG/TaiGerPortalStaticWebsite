@@ -80,7 +80,7 @@ const StudentApplicationsTableTemplate = (props) => {
         isLoaded: true,
         program_ids: [],
         student_id: null,
-        program_id: null,
+        application_id: null,
         success: false,
         application_status_changed: false,
         applying_program_count: props.student.applying_program_count,
@@ -114,12 +114,12 @@ const StudentApplicationsTableTemplate = (props) => {
         }));
     };
 
-    const handleDelete = (e, program_id, student_id) => {
+    const handleDelete = (e, application_id, student_id) => {
         e.preventDefault();
         setStudentApplicationsTableTemplateState((prevState) => ({
             ...prevState,
             student_id,
-            program_id,
+            application_id,
             modalDeleteApplication: true
         }));
     };
@@ -138,7 +138,7 @@ const StudentApplicationsTableTemplate = (props) => {
             isLoaded: false
         }));
         removeProgramFromStudent(
-            studentApplicationsTableTemplateState.program_id,
+            studentApplicationsTableTemplateState.application_id,
             studentApplicationsTableTemplateState.student_id
         ).then(
             (resp) => {
@@ -349,7 +349,7 @@ const StudentApplicationsTableTemplate = (props) => {
                                     onClick={(e) =>
                                         handleDelete(
                                             e,
-                                            application.programId._id,
+                                            application._id,
                                             studentApplicationsTableTemplateState
                                                 .student._id
                                         )
