@@ -145,21 +145,13 @@ const InterviewTraining = () => {
             accessorKey: 'status',
             filterVariant: 'multi-select',
             header: t('Status', { ns: 'common' }),
-            width: 100
+            size: 180
         },
         {
             accessorKey: 'surveySubmitted',
-            filterVariant: 'select',
-            filterSelectOptions: [
-                { value: true, label: t('Yes', { ns: 'common' }) },
-                { value: false, label: t('No', { ns: 'common' }) }
-            ],
-            filterFn: (row, id, filterValue) => {
-                // filterValue is boolean true/false
-                return row.getValue(id) === filterValue;
-            },
+            enableColumnFilter: false,
             header: t('Survey', { ns: 'common' }),
-            width: 50,
+            size: 110,
             Cell: ({ cell }) =>
                 cell.getValue() ? (
                     <CheckCircleIcon color="success" />
@@ -193,7 +185,7 @@ const InterviewTraining = () => {
         {
             accessorKey: 'trainer_name',
             header: t('Trainer', { ns: 'common' }),
-            size: 100
+            size: 150
         },
         {
             accessorKey: 'start',
@@ -203,7 +195,7 @@ const InterviewTraining = () => {
             align: 'left',
             headerAlign: 'left',
             filterFn: 'contains',
-            width: 250,
+            size: 280,
             Cell: (params) => {
                 const { row } = params;
                 return row.original.start;
@@ -215,7 +207,7 @@ const InterviewTraining = () => {
             align: 'left',
             headerAlign: 'left',
             filterFn: 'contains',
-            width: 100,
+            size: 220,
             Cell: (params) => {
                 const { row } = params;
                 return row.original.interview_date;
