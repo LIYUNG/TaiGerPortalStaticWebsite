@@ -241,7 +241,7 @@ const Questionnaire = () => {
                     )}
                 </Typography>
                 <Typography fontWeight="bold" sx={{ my: 1 }} variant="body2">
-                    {t('1. not agree    5. strongly aggree', {
+                    {t('1 = strongly disagree, 5 = strongly agree', {
                         ns: 'interviews'
                     })}
                 </Typography>
@@ -332,10 +332,9 @@ const Questionnaire = () => {
                 <FormControl component="fieldset" sx={{ width: '100%' }}>
                     <FormLabel component="legend">
                         {t(
-                            `Please provide the interview questions to {{brandName}}`,
+                            `Which questions were asked during your interview? Please write them down as precisely as possible.`,
                             {
-                                ns: 'interviews',
-                                brandName: appConfig.companyName
+                                ns: 'interviews'
                             }
                         )}
                     </FormLabel>
@@ -362,10 +361,9 @@ const Questionnaire = () => {
                 <FormControl component="fieldset" sx={{ width: '100%' }}>
                     <FormLabel component="legend">
                         {t(
-                            `Please provide the interview training feedback to {{brandName}}`,
+                            `Do you have any additional feedback or comments about the interview training?`,
                             {
-                                ns: 'interviews',
-                                brandName: appConfig.companyName
+                                ns: 'interviews'
                             }
                         )}
                     </FormLabel>
@@ -396,7 +394,7 @@ const Questionnaire = () => {
                 sx={{ mb: 1 }}
                 variant="outlined"
             >
-                {t('Save draft', { ns: 'interviews' })}
+                {t('Save and continue later', { ns: 'interviews' })}
             </Button>
             <Button
                 color="primary"
@@ -405,7 +403,7 @@ const Questionnaire = () => {
                 onClick={() => setIsModalOpen(true)}
                 variant="contained"
             >
-                {t('Submit', { ns: 'common' })}
+                {t('Submit feedback', { ns: 'common' })}
             </Button>
             <ConfirmationModal
                 closeText={t('Cancel', { ns: 'common' })}
