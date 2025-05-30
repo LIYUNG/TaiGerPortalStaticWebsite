@@ -19,6 +19,11 @@ import { appConfig } from '../../config';
 import { convertDate, showTimezoneOffset } from '../../utils/contants';
 import { InterviewsTable } from './InterviewsTable';
 
+import {
+    CheckCircle as CheckCircleIcon,
+    Error as ErrorIcon
+} from '@mui/icons-material';
+
 const InterviewTraining = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
@@ -141,6 +146,26 @@ const InterviewTraining = () => {
             filterVariant: 'multi-select',
             header: t('Status', { ns: 'common' }),
             width: 100
+        },
+        {
+            accessorKey: 'surveySubmitted',
+            filterVariant: 'select',
+            filterSelectOptions: [
+                { value: true, label: t('Yes', { ns: 'common' }) },
+                { value: false, label: t('No', { ns: 'common' }) }
+            ],
+            filterFn: (row, id, filterValue) => {
+                // filterValue is boolean true/false
+                return row.getValue(id) === filterValue;
+            },
+            header: t('Survey', { ns: 'common' }),
+            width: 50,
+            Cell: ({ cell }) =>
+                cell.getValue() ? (
+                    <CheckCircleIcon color="success" />
+                ) : (
+                    <ErrorIcon color="error" />
+                )
         },
         {
             accessorKey: 'firstname_lastname',
