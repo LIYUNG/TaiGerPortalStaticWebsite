@@ -151,7 +151,7 @@ const InterviewTraining = () => {
             accessorKey: 'surveySubmitted',
             filterVariant: 'select',
             filterSelectOptions: [
-                { value: true, label: t('Done', { ns: 'common' }) },
+                { value: true, label: t('Closed', { ns: 'common' }) },
                 { value: false, label: t('Pending', { ns: 'common' }) }
             ],
             filterFn: (row, id, filterValue) => {
