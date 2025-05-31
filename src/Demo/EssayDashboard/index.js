@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { is_TaiGer_role } from '@taiger-common/core';
 
 import ErrorPage from '../Utils/ErrorPage';
-import { getAllActiveEssays, putThreadFavorite } from '../../api';
+import { getAllActiveEssaysV2, putThreadFavorite } from '../../api';
 import { TabTitle } from '../Utils/TabTitle';
 import {
     file_category_const,
@@ -43,7 +43,7 @@ const EssayDashboard = () => {
     });
 
     useEffect(() => {
-        getAllActiveEssays().then(
+        getAllActiveEssaysV2().then(
             (resp) => {
                 const { data, success } = resp.data;
                 const { status } = resp;

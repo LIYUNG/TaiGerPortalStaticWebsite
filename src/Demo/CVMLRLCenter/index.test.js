@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import CVMLRLCenter from '.';
 import 'react-i18next';
-import { getCVMLRLOverview, getAllActiveEssays } from '../../api';
+import { getCVMLRLOverview, getAllActiveEssaysV2 } from '../../api';
 import { useAuth } from '../../components/AuthProvider/index';
 import { RouterProvider, createMemoryRouter } from 'react-router-dom';
 
@@ -43,7 +43,7 @@ describe('CVMLRLCenter', () => {
         getCVMLRLOverview.mockResolvedValue({
             data: mockSingleStudentCVMLRLFormatData
         });
-        getAllActiveEssays.mockResolvedValue({
+        getAllActiveEssaysV2.mockResolvedValue({
             data: { success: true, data: [] }
         });
         useAuth.mockReturnValue({
@@ -73,7 +73,7 @@ describe('CVMLRLCenter', () => {
         getCVMLRLOverview.mockResolvedValue({
             data: mockSingleStudentCVMLRLFormatData
         });
-        getAllActiveEssays.mockResolvedValue({
+        getAllActiveEssaysV2.mockResolvedValue({
             data: { success: true, data: [] }
         });
         useAuth.mockReturnValue({

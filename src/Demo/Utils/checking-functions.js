@@ -829,36 +829,6 @@ export const application_deadline_V2_calculator = (application) => {
     return formatApplicationDate(application_year, application_deadline);
 };
 
-export const application_deadline_calculator = (student, application) => {
-    if (isProgramWithdraw(application)) {
-        return 'WITHDRAW';
-    }
-    const { application_deadline, semester } = application?.programId || {};
-
-    if (!application_deadline) {
-        return 'No Data';
-    }
-    let application_year = getApplicationYear(student);
-    if (!application_deadline) {
-        return `${application_year}-<TBD>`;
-    }
-    if (application_deadline?.toLowerCase()?.includes('rolling')) {
-        // include Rolling
-        return `${application_year}-Rolling`;
-    }
-    let deadline_month = parseInt(
-        application.programId.application_deadline.split('-')[0]
-    );
-
-    application_year = adjustYearForSemester(
-        application_year,
-        deadline_month,
-        semester
-    );
-
-    return formatApplicationDate(application_year, application_deadline);
-};
-
 export const GetCVDeadline = (student) => {
     var today = new Date();
     let daysLeftMin = 3000;
@@ -1705,13 +1675,15 @@ const prepGeneralTask = (student, thread) => {
 };
 
 const prepEssayTask = (essay, user) => {
+    console.log(essay);
     return {
         ...prepEssayTaskThread(essay.student_id, essay),
         thread_id: essay._id.toString(),
         program_id: essay.program_id._id.toString(),
         lang: essay.program_id?.lang,
-        deadline: application_deadline_calculator(essay.student_id, {
-            programId: essay.program_id
+        deadline: application_deadline_V2_calculator({
+            programId: essay.program_id,
+            application_year: essay.application_id?.application_year
         }),
         show:
             AGENT_SUPPORT_DOCUMENTS_A.includes(essay.file_type) &&
@@ -1733,8 +1705,9 @@ const prepEssayTask = (essay, user) => {
         document_name: `${essay.file_type} - ${essay.program_id.school} - ${essay.program_id.degree} -${essay.program_id.program_name}`,
         days_left:
             differenceInDays(
-                application_deadline_calculator(essay.student_id, {
-                    programId: essay.program_id
+                application_deadline_V2_calculator({
+                    programId: essay.program_id,
+                    application_year: essay.application_id?.application_year
                 }),
                 new Date()
             ) || '-'

@@ -85,6 +85,29 @@ export const getApplicationTaskDeltas = () =>
 export const getApplicationStudent = (studentId) =>
     request.get(`/api/student-applications/${studentId}`);
 
+// TODO: thread creation attached to application problem. (thread creation is ok))
+export const createApplicationV2 = ({ studentId, program_ids }) =>
+    postData(`/api/applications/student/${studentId}`, {
+        program_id_set: program_ids
+    });
+
+// Tested manually OK.
+export const getApplicationStudentV2 = (studentId) =>
+    request.get(`/api/applications/student/${studentId}`);
+
+export const updateApplicationV2 = (
+    studentId,
+    applications,
+    applying_program_count
+) =>
+    request.put(`/api/applications/student/${studentId}`, {
+        applications,
+        applying_program_count
+    });
+// TODO: thread is empty!! application delete ok.
+export const deleteApplicationStudentV2 = (applicationId) =>
+    request.delete(`/api/applications/application/${applicationId}`);
+
 export const getStudentUniAssist = (studentId) =>
     request.get(`/api/uniassist/${studentId}`);
 
@@ -376,8 +399,8 @@ export const updateEssayWriter = (editor_id, documentsthreadId) =>
 // export const updateInterviewTrainer = (trainer_id, interview_id) =>
 //     request.post(`/api/interviews/${interview_id}/trainers`, trainer_id);
 
-export const getAllActiveEssays = () =>
-    request.get(`/api/document-threads/essays/all`);
+export const getAllActiveEssaysV2 = () =>
+    request.get(`/api/document-threads/essays/all/v2`);
 
 export const putThreadFavorite = (documentsthreadId) =>
     request.put(`/api/document-threads/${documentsthreadId}/favorite`);

@@ -12,7 +12,7 @@ import { is_TaiGer_role } from '@taiger-common/core';
 
 import CVMLRLOverview from '../CVMLRLCenter/CVMLRLOverview';
 import ErrorPage from '../Utils/ErrorPage';
-import { getAllActiveEssays, getEditor } from '../../api';
+import { getAllActiveEssaysV2, getEditor } from '../../api';
 import {
     AGENT_SUPPORT_DOCUMENTS_A,
     FILE_TYPE_E,
@@ -81,7 +81,7 @@ const EditorPage = () => {
     }, [user_id]);
 
     useEffect(() => {
-        getAllActiveEssays().then(
+        getAllActiveEssaysV2().then(
             (resp) => {
                 const { data, success } = resp.data;
                 const { status } = resp;

@@ -14,7 +14,7 @@ import { is_TaiGer_Editor, is_TaiGer_role } from '@taiger-common/core';
 import CVMLRLOverview from './CVMLRLOverview';
 import ErrorPage from '../Utils/ErrorPage';
 import {
-    getAllActiveEssays,
+    getAllActiveEssaysV2,
     getCVMLRLOverview,
     putThreadFavorite
 } from '../../api';
@@ -96,7 +96,7 @@ const CVMLRLCenter = () => {
         );
     }, []);
     useEffect(() => {
-        getAllActiveEssays().then(
+        getAllActiveEssaysV2().then(
             (resp) => {
                 const { data, success } = resp.data;
                 const { status } = resp;

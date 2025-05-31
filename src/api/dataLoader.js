@@ -3,9 +3,8 @@ import {
     getStudents,
     getArchivStudents,
     getStudentAndDocLinks,
-    getApplicationStudent,
+    // getApplicationStudent,
     getMyAcademicBackground,
-    getAllActiveEssays,
     getStudentUniAssist,
     getComplaintsTickets,
     getComplaintsTicket,
@@ -16,7 +15,9 @@ import {
     getProgramsAndCourseKeywordSets,
     getCommunicationThread,
     getProgram,
-    getAllOpenInterviews
+    getAllOpenInterviews,
+    getAllActiveEssaysV2,
+    getApplicationStudentV2
 } from '.';
 import { queryClient } from './client';
 import {
@@ -54,7 +55,7 @@ export async function getCourseLoader({ params }) {
 }
 
 export async function getAllActiveEssaysLoader() {
-    const response = await getAllActiveEssays();
+    const response = await getAllActiveEssaysV2();
     if (response.status >= 400) {
         throw json(
             { message: response.statusText },
@@ -168,7 +169,7 @@ export async function getStudentAndDocLinksLoader({ params }) {
 
 export async function getApplicationStudentLoader({ params }) {
     const student_id = params.student_id;
-    const response = await getApplicationStudent(student_id);
+    const response = await getApplicationStudentV2(student_id);
     if (response.status >= 400) {
         throw json(
             { message: response.statusText },
@@ -207,7 +208,7 @@ async function loadStudentAndEssaysAndInterview() {
     // Fetch data from both getAllActiveEssays and getStudents and getAllOpenInterviews
     const [essaysResponse, studentsResponse, interviewsResponse] =
         await Promise.all([
-            getAllActiveEssays(),
+            getAllActiveEssaysV2(),
             getStudents(),
             getAllOpenInterviews()
         ]);

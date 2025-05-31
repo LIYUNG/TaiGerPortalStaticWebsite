@@ -54,7 +54,10 @@ import {
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { useSnackBar } from '../../contexts/use-snack-bar';
-import { UpdateStudentApplications, removeProgramFromStudent } from '../../api';
+import {
+    UpdateStudentApplications,
+    deleteApplicationStudentV2
+} from '../../api';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '../../store/constant';
 import { appConfig } from '../../config';
@@ -137,9 +140,9 @@ const StudentApplicationsTableTemplate = (props) => {
             ...prevState,
             isLoaded: false
         }));
-        removeProgramFromStudent(
-            studentApplicationsTableTemplateState.application_id,
-            studentApplicationsTableTemplateState.student_id
+        deleteApplicationStudentV2(
+            studentApplicationsTableTemplateState.application_id
+            // studentApplicationsTableTemplateState.student_id
         ).then(
             (resp) => {
                 const { data, success } = resp.data;

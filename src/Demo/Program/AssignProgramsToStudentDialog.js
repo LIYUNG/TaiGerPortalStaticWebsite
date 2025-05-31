@@ -15,7 +15,7 @@ import {
 import { getStudentsQuery } from '../../api/query';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { assignProgramToStudentV2 } from '../../api';
+import { createApplicationV2 } from '../../api';
 import { useTranslation } from 'react-i18next';
 import { useSnackBar } from '../../contexts/use-snack-bar';
 
@@ -43,7 +43,7 @@ export const AssignProgramsToStudentDialog = ({
         isError: isMutateError,
         error: mutateError
     } = useMutation({
-        mutationFn: assignProgramToStudentV2,
+        mutationFn: createApplicationV2,
         onError: (error) => {
             setSeverity('error');
             setMessage(error.message || 'An error occurred. Please try again.');
