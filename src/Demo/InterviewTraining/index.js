@@ -149,9 +149,16 @@ const InterviewTraining = () => {
         },
         {
             accessorKey: 'surveySubmitted',
-            enableColumnFilter: false,
+            filterVariant: 'select',
+            filterSelectOptions: [
+                { value: true, label: t('Done', { ns: 'common' }) },
+                { value: false, label: t('Pending', { ns: 'common' }) }
+            ],
+            filterFn: (row, id, filterValue) => {
+                return row.getValue(id) === filterValue;
+            },
             header: t('Survey', { ns: 'common' }),
-            size: 110,
+            size: 150,
             Cell: ({ cell }) =>
                 cell.getValue() ? (
                     <CheckCircleIcon color="success" />
