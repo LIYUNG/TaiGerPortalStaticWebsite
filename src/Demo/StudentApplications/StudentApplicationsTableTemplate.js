@@ -26,6 +26,7 @@ import {
 
 import { Link as LinkDom } from 'react-router-dom';
 import DeleteIcon from '@mui/icons-material/Delete';
+import UndoIcon from '@mui/icons-material/Undo';
 import { useTranslation } from 'react-i18next';
 import {
     is_TaiGer_role,
@@ -85,6 +86,7 @@ const StudentApplicationsTableTemplate = (props) => {
         application_status_changed: false,
         applying_program_count: props.student.applying_program_count,
         modalDeleteApplication: false,
+        modalWithdrawApplication: false,
         showProgramCorrectnessReminderModal: true,
         res_status: 0,
         res_modal_status: 0,
@@ -112,6 +114,29 @@ const StudentApplicationsTableTemplate = (props) => {
             application_status_changed: true,
             applications: applications_temp
         }));
+    };
+
+    const handleWithdraw = (e, program_id, student_id) => {
+        e.preventDefault();
+        setStudentApplicationsTableTemplateState((prevState) => ({
+            ...prevState,
+            student_id,
+            program_id,
+            modalWithdrawApplication: true
+        }));
+    };
+
+    const onHideModalWithdrawApplication = () => {
+        setStudentApplicationsTableTemplateState((prevState) => ({
+            ...prevState,
+            modalWithdrawApplication: false
+        }));
+    };
+
+    const handleWithdrawConfirm = (e) => {
+        e.preventDefault();
+        console.log('WITHDRAW CONFIRM');
+        onHideModalWithdrawApplication();
     };
 
     const handleDelete = (e, program_id, student_id) => {
@@ -622,6 +647,21 @@ const StudentApplicationsTableTemplate = (props) => {
                                       : '-'}
                             </Typography>
                         </TableCell>
+                        <TableCell>
+                            {isProgramDecided(application) &&
+                                !isProgramSubmitted(application) && (
+                                    <UndoIcon
+                                        onClick={(e) =>
+                                            handleWithdraw(
+                                                e,
+                                                application.programId._id,
+                                                studentApplicationsTableTemplateState
+                                                    .student._id
+                                            )
+                                        }
+                                    />
+                                )}
+                        </TableCell>
                     </TableRow>
                 )
             );
@@ -906,6 +946,20 @@ const StudentApplicationsTableTemplate = (props) => {
                         onConfirm={handleDeleteConfirm}
                         open={
                             studentApplicationsTableTemplateState.modalDeleteApplication
+                        }
+                        title={t('Warning', { ns: 'common' })}
+                    />
+                    <ConfirmationModal
+                        closeText={t('No', { ns: 'common' })}
+                        confirmText={t('Yes', { ns: 'common' })}
+                        content="Are you sure you want to withdraw this application?"
+                        isLoading={
+                            !studentApplicationsTableTemplateState.isLoaded
+                        }
+                        onClose={onHideModalWithdrawApplication}
+                        onConfirm={handleWithdrawConfirm}
+                        open={
+                            studentApplicationsTableTemplateState.modalWithdrawApplication
                         }
                         title={t('Warning', { ns: 'common' })}
                     />
