@@ -19,6 +19,11 @@ import { appConfig } from '../../config';
 import { convertDate, showTimezoneOffset } from '../../utils/contants';
 import { InterviewsTable } from './InterviewsTable';
 
+import {
+    CheckCircle as CheckCircleIcon,
+    Error as ErrorIcon
+} from '@mui/icons-material';
+
 const InterviewTraining = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
@@ -140,7 +145,26 @@ const InterviewTraining = () => {
             accessorKey: 'status',
             filterVariant: 'multi-select',
             header: t('Status', { ns: 'common' }),
-            width: 100
+            size: 180
+        },
+        {
+            accessorKey: 'surveySubmitted',
+            filterVariant: 'select',
+            filterSelectOptions: [
+                { value: true, label: t('Closed', { ns: 'common' }) },
+                { value: false, label: t('Pending', { ns: 'common' }) }
+            ],
+            filterFn: (row, id, filterValue) => {
+                return row.getValue(id) === filterValue;
+            },
+            header: t('Survey', { ns: 'common' }),
+            size: 150,
+            Cell: ({ cell }) =>
+                cell.getValue() ? (
+                    <CheckCircleIcon color="success" />
+                ) : (
+                    <ErrorIcon color="error" />
+                )
         },
         {
             accessorKey: 'firstname_lastname',
@@ -168,7 +192,7 @@ const InterviewTraining = () => {
         {
             accessorKey: 'trainer_name',
             header: t('Trainer', { ns: 'common' }),
-            size: 100
+            size: 150
         },
         {
             accessorKey: 'start',
@@ -178,7 +202,7 @@ const InterviewTraining = () => {
             align: 'left',
             headerAlign: 'left',
             filterFn: 'contains',
-            width: 250,
+            size: 280,
             Cell: (params) => {
                 const { row } = params;
                 return row.original.start;
@@ -190,7 +214,7 @@ const InterviewTraining = () => {
             align: 'left',
             headerAlign: 'left',
             filterFn: 'contains',
-            width: 100,
+            size: 220,
             Cell: (params) => {
                 const { row } = params;
                 return row.original.interview_date;
