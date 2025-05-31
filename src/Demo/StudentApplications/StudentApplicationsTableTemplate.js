@@ -154,13 +154,23 @@ const StudentApplicationsTableTemplate = (props) => {
                             ns: 'common'
                         })
                     );
+                    const applications_temp = [
+                        ...studentApplicationsTableTemplateState.student
+                            .applications
+                    ];
+                    applications_temp.splice(
+                        applications_temp.findIndex(
+                            (app) => app._id === data._id
+                        ),
+                        1
+                    );
                     setOpenSnackbar(true);
                     setStudentApplicationsTableTemplateState((prevState) => ({
                         ...prevState,
                         isLoaded: true,
                         student: {
                             ...prevState.student,
-                            applications: data
+                            applications: applications_temp
                         },
                         success: success,
                         modalDeleteApplication: false,
