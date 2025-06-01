@@ -551,9 +551,13 @@ const StudentApplicationsTableTemplate = (props) => {
                             </TableCell>
                         ) : (
                             <TableCell>
-                                {isProgramWithdraw(application)
-                                    ? 'WITHDRAW'
-                                    : '-'}
+                                {isProgramWithdraw(application) ? (
+                                    <Typography color="error" fontWeight="bold">
+                                        WITHDRAW
+                                    </Typography>
+                                ) : (
+                                    '-'
+                                )}
                             </TableCell>
                         )}
                         {isProgramDecided(application) &&
