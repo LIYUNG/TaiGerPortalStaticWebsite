@@ -23,7 +23,7 @@ import {
     isAnyCVNotAssigned,
     is_any_base_documents_uploaded,
     is_any_programs_ready_to_submit,
-    is_any_vpd_missing,
+    is_any_vpd_missing_v2,
     open_tasks_v2,
     programs_refactor_v2,
     progressBarCounter
@@ -293,7 +293,9 @@ const AgentMainView = (props) => {
                                                         <Link
                                                             component={LinkDom}
                                                             to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                                                                application.student_id,
+                                                                application
+                                                                    .studentId
+                                                                    ._id,
                                                                 DEMO.PROFILE_HASH
                                                             )}`}
                                                             underline="hover"
@@ -345,12 +347,13 @@ const AgentMainView = (props) => {
                 {is_any_programs_ready_to_submit(myStudents) ? (
                     <Grid item md={6} sm={12}>
                         <ReadyToSubmitTasksCard
+                            applications={applications_arr}
                             students={myStudents}
-                            user={user}
                         />
                     </Grid>
                 ) : null}
-                {appConfig.vpdEnable && is_any_vpd_missing(myStudents) ? (
+                {appConfig.vpdEnable &&
+                is_any_vpd_missing_v2(applications_arr) ? (
                     <Grid item md={4} xs={12}>
                         <VPDToSubmitTasksCard
                             students={myStudents}

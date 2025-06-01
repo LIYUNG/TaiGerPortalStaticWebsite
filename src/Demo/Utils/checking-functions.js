@@ -1246,8 +1246,8 @@ export const isAnyCVNotAssigned = (students) => {
 
 export const is_program_ml_rl_essay_ready = (application) => {
     // check ML, RL, Essay
-    for (let i = 0; i < application.doc_modification_thread.length; i += 1) {
-        if (!application.doc_modification_thread[i].isFinalVersion) {
+    for (let i = 0; i < application.doc_modification_thread?.length; i += 1) {
+        if (!application.doc_modification_thread[i]?.isFinalVersion) {
             return false;
         }
     }
@@ -1301,6 +1301,37 @@ export const is_vpd_missing = (application) => {
             application.uni_assist.vpd_file_path === '')
     ) {
         return true;
+    }
+
+    return false;
+};
+
+export const is_any_vpd_missing_v2 = (applications) => {
+    for (let j = 0; j < applications.length; j += 1) {
+        if (
+            isProgramDecided(applications[j]) &&
+            applications[j].programId.uni_assist &&
+            applications[j].programId.uni_assist.includes('VPD')
+        ) {
+            if (!applications[j].uni_assist) {
+                return true;
+            }
+            if (
+                applications[j].uni_assist &&
+                applications[j].uni_assist.status ===
+                    DocumentStatusType.NotNeeded
+            ) {
+                continue;
+            }
+            if (
+                applications[j].uni_assist &&
+                (applications[j].uni_assist.status !==
+                    DocumentStatusType.Uploaded ||
+                    applications[j].uni_assist.vpd_file_path === '')
+            ) {
+                return true;
+            }
+        }
     }
 
     return false;
@@ -1365,15 +1396,15 @@ export const is_the_uni_assist_vpd_uploaded = (application) => {
             return false;
         }
         if (
-            application.uni_assist.status === DocumentStatusType.Uploaded ||
-            application.uni_assist.status === DocumentStatusType.NotNeeded
+            application?.uni_assist.status === DocumentStatusType.Uploaded ||
+            application?.uni_assist.status === DocumentStatusType.NotNeeded
         ) {
             return true;
         }
-        if (application.uni_assist.vpd_file_path === '') {
+        if (application?.uni_assist.vpd_file_path === '') {
             if (
-                application.uni_assist?.vpd_paid_confirmation_file_path &&
-                application.uni_assist?.vpd_paid_confirmation_file_path !== ''
+                application?.uni_assist?.vpd_paid_confirmation_file_path &&
+                application?.uni_assist?.vpd_paid_confirmation_file_path !== ''
             ) {
                 return true;
             } else {
@@ -1990,6 +2021,7 @@ export const programs_refactor_v2 = (applications) => {
             : 'Undecided';
 
         acc.push({
+            ...application,
             id: `${application.studentId._id.toString()}-${application.programId._id.toString()}`,
             target_year: `${application.application_year} ${
                 application.programId.semester
