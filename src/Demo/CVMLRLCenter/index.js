@@ -64,7 +64,7 @@ const CVMLRLCenter = () => {
                     setIndexState((prevState) => ({
                         ...prevState,
                         isLoaded: true,
-                        open_tasks_without_essays_arr: tasksData,
+                        open_tasks_arr: tasksData,
                         success: success,
                         res_status: status
                     }));
@@ -118,7 +118,7 @@ const CVMLRLCenter = () => {
     //     );
     // }, []);
 
-    const { res_status, isLoaded, open_tasks_without_essays_arr } = indexState;
+    const { res_status, isLoaded, open_tasks_arr } = indexState;
     TabTitle('CV ML RL Overview');
     if (!isLoaded) {
         return <Loading />;
@@ -140,8 +140,8 @@ const CVMLRLCenter = () => {
                   }
                 : row
         );
-        const updatedOpenTasksWithoutEssaysArr =
-            indexState.open_tasks_without_essays_arr?.map((row) =>
+        const updatedOpenTasksWithoutEssaysArr = indexState.open_tasks_arr?.map(
+            (row) =>
                 row.id === id
                     ? {
                           ...row,
@@ -156,11 +156,11 @@ const CVMLRLCenter = () => {
                                 : [user._id.toString()]
                       }
                     : row
-            );
+        );
         setIndexState((prevState) => ({
             ...prevState,
             essays: updatedEssays,
-            open_tasks_without_essays_arr: updatedOpenTasksWithoutEssaysArr
+            open_tasks_arr: updatedOpenTasksWithoutEssaysArr
         }));
         putThreadFavorite(id).then(
             (resp) => {
@@ -183,7 +183,6 @@ const CVMLRLCenter = () => {
         );
     };
 
-    const open_tasks_arr = [...open_tasks_without_essays_arr];
     const tasks_withMyEssay_arr = open_tasks_arr.filter((open_task) =>
         [...AGENT_SUPPORT_DOCUMENTS_A, FILE_TYPE_E.essay_required].includes(
             open_task.file_type
