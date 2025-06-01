@@ -393,7 +393,7 @@ export const getThreadsByStudent = (studentId) =>
 export const getCVMLRLOverview = () =>
     request.get(`/api/document-threads/overview`);
 
-export const getMyStudentsThreads = (userId) =>
+export const getMyStudentsThreads = ({ userId }) =>
     request.get(`/api/document-threads/overview/taiger-user/${userId}`);
 
 export const SetFileAsFinal = (documentsthreadId, studentId, program_id) =>

@@ -18,7 +18,8 @@ import {
     getMyCommunicationThreadV2,
     getMessagThread,
     getStudentsV3,
-    getMyStudentsApplications
+    getMyStudentsApplications,
+    getMyStudentsThreads
 } from '.';
 
 export const getMessagThreadQuery = (threadId) => ({
@@ -135,6 +136,12 @@ export const getStudentsV2Query = () => ({
 export const getMyStudentsApplicationsV2Query = ({ userId }) => ({
     queryKey: ['applications/taiger-user', userId],
     queryFn: () => getMyStudentsApplications({ userId }),
+    staleTime: 1000 * 60 * 5 // 5 minutes
+});
+
+export const getMyStudentsThreadsQuery = ({ userId }) => ({
+    queryKey: ['document-threads/overview/taiger-user', userId],
+    queryFn: () => getMyStudentsThreads({ userId }),
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
 

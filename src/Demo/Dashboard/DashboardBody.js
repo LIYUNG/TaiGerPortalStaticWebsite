@@ -45,7 +45,10 @@ import ExternalMainView from './ExternalDashboard/ExternalMainView';
 //     { icon: <ShareIcon />, name: 'Share' }
 // ];
 
-const DashboardBody = ({ studentAndEssaysAndInterview }) => {
+const DashboardBody = ({
+    studentAndEssaysAndInterview,
+    myStudentsApplications
+}) => {
     const { user } = useAuth();
     const {
         data: {
@@ -103,6 +106,7 @@ const DashboardBody = ({ studentAndEssaysAndInterview }) => {
                     auditLog={auditLog}
                     essayDocumentThreads={essayDocumentThreads}
                     interviews={interviews}
+                    myStudentsApplications={myStudentsApplications}
                     students={students}
                     submitUpdateAgentlist={submitUpdateAgentlist}
                     submitUpdateAttributeslist={submitUpdateAttributeslist}
@@ -111,6 +115,7 @@ const DashboardBody = ({ studentAndEssaysAndInterview }) => {
             ) : null}
             {is_TaiGer_Manager(user) ? (
                 <ManagerMainView
+                    myStudentsApplications={myStudentsApplications}
                     notification={notification}
                     onUpdateProfileFilefromstudent={
                         onUpdateProfileFilefromstudent
@@ -122,6 +127,7 @@ const DashboardBody = ({ studentAndEssaysAndInterview }) => {
             ) : null}
             {is_TaiGer_Agent(user) ? (
                 <AgentMainView
+                    myStudentsApplications={myStudentsApplications}
                     notification={notification}
                     onUpdateProfileFilefromstudent={
                         onUpdateProfileFilefromstudent
@@ -135,6 +141,7 @@ const DashboardBody = ({ studentAndEssaysAndInterview }) => {
                 <EditorMainView
                     essayDocumentThreads={essayDocumentThreads}
                     interviews={interviews}
+                    myStudentsApplications={myStudentsApplications}
                     students={students}
                     submitUpdateEditorlist={submitUpdateEditorlist}
                     updateStudentArchivStatus={updateStudentArchivStatus}
@@ -143,7 +150,7 @@ const DashboardBody = ({ studentAndEssaysAndInterview }) => {
             {is_TaiGer_External(user) ? (
                 <ExternalMainView
                     essayDocumentThreads={essayDocumentThreads}
-                    students={students}
+                    students={[]}
                     submitUpdateEditorlist={submitUpdateEditorlist}
                     updateStudentArchivStatus={updateStudentArchivStatus}
                 />

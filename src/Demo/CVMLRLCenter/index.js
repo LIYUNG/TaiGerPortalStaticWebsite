@@ -53,7 +53,7 @@ const CVMLRLCenter = () => {
     });
 
     useEffect(() => {
-        getMyStudentsThreads(user._id).then(
+        getMyStudentsThreads({ userId: user._id }).then(
             (resp) => {
                 const { data, success } = resp.data;
                 const { status } = resp;
@@ -86,37 +86,6 @@ const CVMLRLCenter = () => {
             }
         );
     }, []);
-    // useEffect(() => {
-    //     getAllActiveEssaysV2().then(
-    //         (resp) => {
-    //             const { data, success } = resp.data;
-    //             const { status } = resp;
-    //             if (success) {
-    //                 setIndexState((prevState) => ({
-    //                     ...prevState,
-    //                     isLoaded2: true,
-    //                     essays: open_essays_tasks(data, user),
-    //                     success: success,
-    //                     res_status: status
-    //                 }));
-    //             } else {
-    //                 setIndexState((prevState) => ({
-    //                     ...prevState,
-    //                     isLoaded2: true,
-    //                     res_status: status
-    //                 }));
-    //             }
-    //         },
-    //         (error) => {
-    //             setIndexState((prevState) => ({
-    //                 ...prevState,
-    //                 isLoaded2: true,
-    //                 error,
-    //                 res_status: 500
-    //             }));
-    //         }
-    //     );
-    // }, []);
 
     const { res_status, isLoaded, open_tasks_arr } = indexState;
     TabTitle('CV ML RL Overview');
