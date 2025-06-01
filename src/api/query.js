@@ -16,7 +16,9 @@ import {
     getCommunicationThreadV2,
     getPdfV2,
     getMyCommunicationThreadV2,
-    getMessagThread
+    getMessagThread,
+    getStudentsV3,
+    getMyStudentsApplications
 } from '.';
 
 export const getMessagThreadQuery = (threadId) => ({
@@ -121,6 +123,18 @@ export const getVerifyQuery = () => ({
 export const getStudentsQuery = () => ({
     queryKey: ['students'],
     queryFn: getStudentsV2,
+    staleTime: 1000 * 60 * 5 // 5 minutes
+});
+
+export const getStudentsV2Query = () => ({
+    queryKey: ['students/v2'],
+    queryFn: getStudentsV3,
+    staleTime: 1000 * 60 * 5 // 5 minutes
+});
+
+export const getMyStudentsApplicationsV2Query = ({ userId }) => ({
+    queryKey: ['applications/taiger-user', userId],
+    queryFn: () => getMyStudentsApplications({ userId }),
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
 

@@ -829,6 +829,39 @@ export const application_deadline_V2_calculator = (application) => {
     return formatApplicationDate(application_year, application_deadline);
 };
 
+export const GetCVDeadlineV2 = (applications) => {
+    var today = new Date();
+    let daysLeftMin = 3000;
+    let CVDeadline = '';
+    let daysLeftRollingMin = 0;
+    let CVDeadlineRolling = '';
+    let hasRolling = false;
+    applications.forEach((application) => {
+        if (isProgramDecided(application) && application.closed === '-') {
+            const applicationDeadline =
+                application_deadline_V2_calculator(application);
+            if (applicationDeadline?.toLowerCase()?.includes('rolling')) {
+                hasRolling = true;
+                daysLeftRollingMin = '-';
+                CVDeadlineRolling = applicationDeadline;
+            }
+            const daysLeft = differenceInDays(applicationDeadline, today);
+            if (daysLeft < daysLeftMin) {
+                daysLeftMin = daysLeft;
+                CVDeadline = applicationDeadline;
+            }
+        }
+    });
+    return daysLeftMin === 3000
+        ? hasRolling
+            ? {
+                  daysLeftMin: daysLeftRollingMin,
+                  CVDeadline: CVDeadlineRolling
+              }
+            : { daysLeftMin: '-', CVDeadline: '-' }
+        : { daysLeftMin, CVDeadline };
+};
+
 export const GetCVDeadline = (student) => {
     var today = new Date();
     let daysLeftMin = 3000;
@@ -1634,6 +1667,29 @@ const prepEssayTaskThread = (student, thread) => {
     };
 };
 
+const prepTaskV2 = (student, thread) => {
+    return {
+        ...prepTaskStudent(student),
+        id: thread._id.toString(),
+        latest_message_left_by_id: thread.latest_message_left_by_id,
+        flag_by_user_id: thread?.flag_by_user_id,
+        isFinalVersion: thread.isFinalVersion,
+        outsourced_user_id: thread?.outsourced_user_id,
+        file_type: thread?.file_type,
+        aged_days: differenceInDays(new Date(), thread?.updatedAt),
+        latest_reply: latestReplyInfo(thread),
+        updatedAt: convertDate(thread?.updatedAt),
+        number_input_from_student: getNumberOfFilesByStudent(
+            thread?.messages,
+            student._id.toString()
+        ),
+        number_input_from_editors: getNumberOfFilesByEditor(
+            thread?.messages,
+            student._id.toString()
+        )
+    };
+};
+
 const prepTask = (student, thread) => {
     return {
         ...prepTaskStudent(student),
@@ -1657,6 +1713,19 @@ const prepTask = (student, thread) => {
             thread.doc_thread_id?.messages,
             student._id.toString()
         )
+    };
+};
+
+const prepGeneralTaskV2 = (student, thread) => {
+    const { CVDeadline, daysLeftMin } = GetCVDeadlineV2([]);
+    return {
+        ...prepTaskV2(student, thread),
+        thread_id: thread._id?.toString(),
+        deadline: CVDeadline,
+        lang: '',
+        show: true,
+        document_name: `${thread.file_type}`,
+        days_left: daysLeftMin
     };
 };
 
@@ -1714,6 +1783,23 @@ const prepEssayTask = (essay, user) => {
     };
 };
 
+const prepApplicationTaskV2 = (student, application, program, thread) => {
+    return {
+        ...prepTaskV2(student, thread),
+        thread_id: thread?._id.toString(),
+        program_id: program?._id.toString(),
+        deadline: application_deadline_V2_calculator(application),
+        show: isProgramDecided(application) ? true : false,
+        document_name: `${thread.file_type} - ${program?.school} - ${program?.degree} -${program?.program_name}`,
+        lang: `${program?.lang}`,
+        days_left:
+            differenceInDays(
+                application_deadline_V2_calculator(application),
+                new Date()
+            ) || '-'
+    };
+};
+
 // student.applications -> application.doc_modification_thread
 const prepApplicationTask = (student, application, thread) => {
     return {
@@ -1730,6 +1816,27 @@ const prepApplicationTask = (student, application, thread) => {
                 new Date()
             ) || '-'
     };
+};
+
+export const open_tasks_v2 = (threads) => {
+    const tasks = [];
+    for (const thread of threads) {
+        if (thread.student_id.archiv !== true) {
+            if (!thread.application_id) {
+                tasks.push(prepGeneralTaskV2(thread.student_id, thread));
+            } else {
+                tasks.push(
+                    prepApplicationTaskV2(
+                        thread.student_id,
+                        thread.application_id,
+                        thread.program_id,
+                        thread
+                    )
+                );
+            }
+        }
+    }
+    return tasks;
 };
 
 export const open_tasks = (students) => {
@@ -1801,7 +1908,121 @@ export const open_tasks_with_editors = (students) => {
     }
     return tasks;
 };
+export const programs_refactor_v2 = (applications) => {
+    const applicationsNew = applications.reduce((acc, application) => {
+        let isMissingBaseDocs = false;
 
+        const object_init = Object.fromEntries(
+            Object.keys(ProfileNameType).map((key) => [
+                key,
+                DocumentStatusType.Missing
+            ])
+        );
+
+        if (application.studentId.profile) {
+            application.studentId.profile.forEach((doc) => {
+                object_init[doc.name] = doc.status;
+            });
+        }
+
+        isMissingBaseDocs = Object.keys(object_init).some(
+            (key) =>
+                object_init[key] !== DocumentStatusType.Accepted &&
+                object_init[key] !== DocumentStatusType.NotNeeded
+        );
+
+        const is_cv_done = isCVFinished(application.studentId);
+
+        const is_program_submitted = isProgramSubmitted(application);
+        const is_program_decided = isProgramDecided(application);
+        const deadline = application_deadline_V2_calculator(application);
+        const days_left = differenceInDays(deadline, new Date()) || '-';
+        const base_docs = isProgramSubmitted(application)
+            ? '-'
+            : isMissingBaseDocs
+              ? 'X'
+              : 'O';
+        const uniassist = is_program_submitted
+            ? '-'
+            : check_program_uni_assist_needed(application)
+              ? application.uni_assist &&
+                application.uni_assist.status === DocumentStatusType.Uploaded
+                  ? 'O'
+                  : 'X'
+              : 'Not Needed';
+        const cv = is_program_submitted ? '-' : is_cv_done ? 'O' : 'X';
+        const ml_rl = is_program_decided
+            ? is_program_submitted
+                ? '-'
+                : is_program_ml_rl_essay_finished(application)
+                  ? 'O'
+                  : 'X'
+            : 'X';
+        const ready = is_program_decided
+            ? is_program_submitted
+                ? '-'
+                : !isMissingBaseDocs &&
+                    (!check_program_uni_assist_needed(application) ||
+                        (check_program_uni_assist_needed(application) &&
+                            application.uni_assist &&
+                            application.uni_assist.status ===
+                                DocumentStatusType.Uploaded)) &&
+                    is_cv_done &&
+                    is_program_ml_rl_essay_finished(application)
+                  ? 'Ready!'
+                  : 'No'
+            : 'Undecided';
+
+        acc.push({
+            id: `${application.studentId._id.toString()}-${application.programId._id.toString()}`,
+            target_year: `${application.application_year} ${
+                application.programId.semester
+            }`,
+            school: application.programId.school,
+            application,
+            student: application.studentId,
+            firstname_lastname: `${application.studentId.firstname}, ${application.studentId.lastname}`,
+            program_name: application.programId.program_name,
+            program: `${application.programId.school} - ${application.programId.program_name} (${application.programId.degree})`,
+            editors: application.studentId.editors
+                ?.map((editor) => editor.firstname)
+                .join(', '),
+            agents: application.studentId.agents
+                ?.map((agent) => agent.firstname)
+                .join(', '),
+            semester: application.programId.semester,
+            degree: application.programId.degree,
+            toefl: application.programId.toefl,
+            ielts: application.programId.ielts,
+            testdaf: application.programId.testdaf,
+            whoupdated: application.programId.whoupdated,
+            updatedAt: application.programId.updatedAt,
+            program_id: application.programId._id.toString(),
+            application_deadline: deadline,
+            isPotentials: application.decided === '-',
+            decided: application.decided,
+            closed: application.closed,
+            admission: application.admission,
+            student_id: application.studentId._id.toString(),
+            deadline,
+            days_left,
+            base_docs,
+            uniassist,
+            cv,
+            ml_rl,
+            ready,
+            show: isProgramDecided(application) ? true : false,
+            status:
+                deadline === 'CLOSE'
+                    ? 100
+                    : progressBarCounter(application.studentId, application)
+        });
+
+        return acc;
+    }, []);
+
+    return applicationsNew;
+};
 export const programs_refactor = (students) => {
     const applications = students.reduce((acc, student) => {
         let isMissingBaseDocs = false;

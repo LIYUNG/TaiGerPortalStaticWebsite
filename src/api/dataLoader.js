@@ -41,6 +41,18 @@ export async function getStudentsLoader() {
     }
 }
 
+export async function getStudentsV2Loader() {
+    const response = await getStudents();
+    if (response.status >= 400) {
+        throw json(
+            { message: response.statusText },
+            { status: response.status }
+        );
+    } else {
+        return response;
+    }
+}
+
 export async function getAllStudentsV2Loader() {
     return queryClient.fetchQuery(getAllStudentsQuery());
 }

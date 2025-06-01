@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Link as LinkDom, useLocation } from 'react-router-dom';
 import { Tabs, Tab, Box, Typography, Link, Tooltip, Chip } from '@mui/material';
 import PropTypes from 'prop-types';
@@ -16,7 +16,6 @@ import {
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import Banner from '../../components/Banner/Banner';
 import { useAuth } from '../../components/AuthProvider';
-import Loading from '../../components/Loading/Loading';
 import { CustomTabPanel, a11yProps } from '../../components/Tabs';
 import { useTranslation } from 'react-i18next';
 import { MuiDataGrid } from '../../components/MuiDataGrid';
@@ -53,13 +52,6 @@ const CVMLRLOverview = (props) => {
         res_modal_status: 0
     });
 
-    useEffect(() => {
-        setCVMLRLOverviewState((prevState) => ({
-            ...prevState,
-            students: props.students
-        }));
-    }, [props.students]);
-
     const ConfirmError = () => {
         setCVMLRLOverviewState((prevState) => ({
             ...prevState,
@@ -68,12 +60,7 @@ const CVMLRLOverview = (props) => {
         }));
     };
 
-    const { res_modal_status, res_modal_message, isLoaded } =
-        cVMLRLOverviewState;
-
-    if (!isLoaded && !cVMLRLOverviewState.students) {
-        return <Loading />;
-    }
+    const { res_modal_status, res_modal_message } = cVMLRLOverviewState;
 
     const commonColumn = [
         {

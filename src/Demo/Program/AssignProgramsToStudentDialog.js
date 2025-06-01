@@ -12,7 +12,7 @@ import {
     ListItem,
     Typography
 } from '@mui/material';
-import { getStudentsQuery } from '../../api/query';
+import { getStudentsV2Query } from '../../api/query';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { createApplicationV2 } from '../../api';
@@ -32,7 +32,7 @@ export const AssignProgramsToStudentDialog = ({
         isError: isQueryError,
         error
     } = useQuery({
-        ...getStudentsQuery(),
+        ...getStudentsV2Query(),
         enabled: open // Only fetch data when the modal is open
     });
     let [studentId, setStudentId] = useState('');

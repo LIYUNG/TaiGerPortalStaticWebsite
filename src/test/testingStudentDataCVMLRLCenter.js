@@ -3,6 +3,124 @@ export const mockSingleStudentCVMLRLFormatData = {
     notification: {},
     data: [
         {
+            isFinalVersion: false,
+            student_id: '6366287a94358b085b0fccf7',
+            application_id: {
+                _id: '63c14388eab24336f471e21d',
+                decided: 'O',
+                application_year: '2023'
+            },
+            program_id: {
+                _id: '2532fde46751651538084485',
+                school: 'Technische Universität München (TUM)',
+                program_name: 'Management & Technology (MMT)',
+                degree: 'M. Sc.',
+                semester: 'WS',
+                lang: 'English',
+                application_deadline: '05-31'
+            },
+            latest_message_left_by_id: '639d192f7b10d10a9b4ac97c',
+            doc_thread_id: {
+                _id: '63c14388eab24336f471e21e',
+                file_type: 'ML',
+                isFinalVersion: false,
+                updatedAt: '2024-02-23T18:10:18.985Z',
+                messages: [
+                    {
+                        user_id: {
+                            _id: '6366287a94358b085b0fccf7',
+                            firstname: 'Testing-Student',
+                            lastname: 'Chen',
+                            role: 'Student'
+                        },
+                        file: [
+                            {
+                                name: 'Chen_Testing-Student_ETH_Zurich_Mechanical_Engineering_ML_v1.docx',
+                                path: '6366287a94358b085b0fccf7/63c14388eab24336f471e21e/Chen_Testing-Student_ETH_Zurich_Mechanical_Engineering_ML_v1.docx',
+                                _id: '63c5b3b32f294a90f28a85c1'
+                            }
+                        ]
+                    },
+                    {
+                        user_id: {
+                            _id: '639d192f7b10d10a9b4ac97c',
+                            firstname: 'Editor',
+                            lastname: 'Test',
+                            role: 'Editor'
+                        },
+                        file: [
+                            {
+                                name: 'Chen_Testing-Student_ETH_Zurich_Mechanical_Engineering_ML_v2.docx',
+                                path: '6366287a94358b085b0fccf7/63c14388eab24336f471e21e/Chen_Testing-Student_ETH_Zurich_Mechanical_Engineering_ML_v2.docx',
+                                _id: '63c5ca872f294a90f28a8903'
+                            }
+                        ]
+                    }
+                ]
+            },
+            updatedAt: '2024-02-23T18:10:18.985Z',
+            createdAt: '2023-01-13T11:42:00.822Z',
+            _id: '63c14388eab24336f471e21f'
+        },
+        {
+            isFinalVersion: true,
+            student_id: '6366287a94358b085b0fccf7',
+            application_id: {
+                _id: '63c14388eab24336f471e21d',
+                decided: 'O',
+                application_year: '2023'
+            },
+            program_id: {
+                _id: '2532fde46751651538084485',
+                school: 'Technische Universität München (TUM)',
+                program_name: 'Management & Technology (MMT)',
+                degree: 'M. Sc.',
+                semester: 'WS',
+                lang: 'English',
+                application_deadline: '05-31'
+            },
+            latest_message_left_by_id: '',
+            doc_thread_id: {
+                _id: '63c14388eab24336f471e221',
+                file_type: 'RL_A',
+                isFinalVersion: true,
+                updatedAt: '2024-01-26T23:49:42.159Z',
+                messages: []
+            },
+            updatedAt: '2024-01-26T23:49:42.056Z',
+            createdAt: '2023-01-13T11:42:00.978Z',
+            _id: '63c14388eab24336f471e222'
+        },
+        {
+            isFinalVersion: true,
+            student_id: '6366287a94358b085b0fccf7',
+            application_id: {
+                _id: '63d3006af71c364676532fae',
+                decided: 'O',
+                application_year: '2023'
+            },
+            program_id: {
+                _id: '2532fde46751651537910824',
+                school: 'Technische Universität München (TUM)',
+                program_name: 'Management & Technology (MMT)',
+                degree: 'M. Sc.',
+                semester: 'WS',
+                lang: 'English',
+                application_deadline: '05-31'
+            },
+            latest_message_left_by_id: '',
+            doc_thread_id: {
+                _id: '63d3006af71c364676532faf',
+                file_type: 'ML',
+                isFinalVersion: true,
+                updatedAt: '2024-02-22T21:54:39.437Z',
+                messages: []
+            },
+            updatedAt: '2024-02-22T21:54:39.413Z',
+            createdAt: '2023-01-26T22:36:26.188Z',
+            _id: '63d3006af71c364676532fb0'
+        },
+        {
             _id: '6366287a94358b085b0fccf7',
             firstname: 'Testing-Student',
             lastname: 'Chen',
@@ -39,6 +157,21 @@ export const mockSingleStudentCVMLRLFormatData = {
                     doc_modification_thread: [
                         {
                             isFinalVersion: false,
+                            student_id: '6366287a94358b085b0fccf7',
+                            application_id: {
+                                _id: '63c14388eab24336f471e21d',
+                                decided: 'O',
+                                application_year: '2023'
+                            },
+                            program_id: {
+                                _id: '2532fde46751651538084485',
+                                school: 'Technische Universität München (TUM)',
+                                program_name: 'Management & Technology (MMT)',
+                                degree: 'M. Sc.',
+                                semester: 'WS',
+                                lang: 'English',
+                                application_deadline: '05-31'
+                            },
                             latest_message_left_by_id:
                                 '639d192f7b10d10a9b4ac97c',
                             doc_thread_id: {
@@ -85,6 +218,21 @@ export const mockSingleStudentCVMLRLFormatData = {
                         },
                         {
                             isFinalVersion: true,
+                            student_id: '6366287a94358b085b0fccf7',
+                            application_id: {
+                                _id: '63c14388eab24336f471e21d',
+                                decided: 'O',
+                                application_year: '2023'
+                            },
+                            program_id: {
+                                _id: '2532fde46751651538084485',
+                                school: 'Technische Universität München (TUM)',
+                                program_name: 'Management & Technology (MMT)',
+                                degree: 'M. Sc.',
+                                semester: 'WS',
+                                lang: 'English',
+                                application_deadline: '05-31'
+                            },
                             latest_message_left_by_id: '',
                             doc_thread_id: {
                                 _id: '63c14388eab24336f471e221',
@@ -130,6 +278,21 @@ export const mockSingleStudentCVMLRLFormatData = {
                     doc_modification_thread: [
                         {
                             isFinalVersion: true,
+                            student_id: '6366287a94358b085b0fccf7',
+                            application_id: {
+                                _id: '63d3006af71c364676532fae',
+                                decided: 'O',
+                                application_year: '2023'
+                            },
+                            program_id: {
+                                _id: '2532fde46751651537910824',
+                                school: 'Technische Universität München (TUM)',
+                                program_name: 'Management & Technology (MMT)',
+                                degree: 'M. Sc.',
+                                semester: 'WS',
+                                lang: 'English',
+                                application_deadline: '05-31'
+                            },
                             latest_message_left_by_id: '',
                             doc_thread_id: {
                                 _id: '63d3006af71c364676532faf',
@@ -151,70 +314,6 @@ export const mockSingleStudentCVMLRLFormatData = {
                         application_portal_b: {
                             account: '',
                             password: ''
-                        }
-                    }
-                },
-                {
-                    programId: {
-                        _id: '2532fde46751651538064048',
-                        school: 'Technische Universität Berlin (TU Berlin)',
-                        program_name: 'Building Sustainability',
-                        degree: 'MBA',
-                        semester: 'WS',
-                        application_deadline: '04-30'
-                    },
-                    uni_assist: {
-                        status: 'notstarted',
-                        vpd_file_path: '',
-                        isPaid: false
-                    },
-                    reject_reason: '',
-                    decided: 'O',
-                    closed: 'X',
-                    admission: '-',
-                    _id: '649243cc5933ec1373c6445b',
-                    doc_modification_thread: [],
-                    portal_credentials: {
-                        application_portal_a: {
-                            account: 'nvv',
-                            password: 'nf'
-                        },
-                        application_portal_b: {
-                            account: '',
-                            password: ''
-                        }
-                    }
-                },
-                {
-                    programId: {
-                        _id: '2532fde46751651538078386',
-                        school: 'Technische Universität München (TUM)',
-                        program_name: 'Automotive Engineering',
-                        degree: 'M. Sc.',
-                        semester: 'SS',
-                        application_deadline: '12-31'
-                    },
-                    uni_assist: {
-                        status: 'missing',
-                        vpd_file_path: '',
-                        isPaid: false,
-                        updatedAt: '2024-01-28T22:06:09.511Z',
-                        vpd_paid_confirmation_file_path: ''
-                    },
-                    reject_reason: '',
-                    decided: 'O',
-                    closed: '-',
-                    admission: 'X',
-                    _id: '649243cc5933ec1373c6445c',
-                    doc_modification_thread: [],
-                    portal_credentials: {
-                        application_portal_a: {
-                            account: 't',
-                            password: 't'
-                        },
-                        application_portal_b: {
-                            account: 't',
-                            password: 't'
                         }
                     }
                 },
@@ -408,6 +507,7 @@ export const mockSingleStudentCVMLRLFormatData = {
             generaldocs_threads: [
                 {
                     isFinalVersion: false,
+                    student_id: '6366287a94358b085b0fccf7',
                     latest_message_left_by_id: '65997552b77f3c5bd128a397',
                     doc_thread_id: {
                         _id: '63cb22d99c7d2cf55536f539',

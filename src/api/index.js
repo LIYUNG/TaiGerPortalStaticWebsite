@@ -63,6 +63,11 @@ export const getStudents = () => request.get(`/api/students`);
 
 export const getStudentsV2 = () => getData(`/api/students`);
 
+export const getStudentsV3 = () => getData(`/api/students/v3`);
+
+export const getMyStudentsApplications = ({ userId }) =>
+    getData(`/api/applications/taiger-user/${userId}`);
+
 export const getAllStudents = () => request.get(`/api/students/all`);
 
 export const getAllStudentsV2 = () => getData(`/api/students/all`);
@@ -387,6 +392,9 @@ export const getThreadsByStudent = (studentId) =>
 
 export const getCVMLRLOverview = () =>
     request.get(`/api/document-threads/overview`);
+
+export const getMyStudentsThreads = (userId) =>
+    request.get(`/api/document-threads/overview/taiger-user/${userId}`);
 
 export const SetFileAsFinal = (documentsthreadId, studentId, program_id) =>
     request.put(`/api/document-threads/${documentsthreadId}/${studentId}`, {

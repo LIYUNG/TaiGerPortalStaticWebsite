@@ -13,17 +13,12 @@ import { is_TaiGer_Editor, is_TaiGer_role } from '@taiger-common/core';
 
 import CVMLRLOverview from './CVMLRLOverview';
 import ErrorPage from '../Utils/ErrorPage';
-import {
-    getAllActiveEssaysV2,
-    getCVMLRLOverview,
-    putThreadFavorite
-} from '../../api';
+import { getMyStudentsThreads, putThreadFavorite } from '../../api';
 import { TabTitle } from '../Utils/TabTitle';
 import {
     AGENT_SUPPORT_DOCUMENTS_A,
     FILE_TYPE_E,
-    open_essays_tasks,
-    open_tasks,
+    open_tasks_v2,
     toogleItemInArray
 } from '../Utils/checking-functions';
 import DEMO from '../../store/constant';
@@ -45,7 +40,6 @@ const CVMLRLCenter = () => {
         isLoaded2: false,
         data: null,
         success: false,
-        students: null,
         essays: null,
         doc_thread_id: '',
         student_id: '',
@@ -59,21 +53,18 @@ const CVMLRLCenter = () => {
     });
 
     useEffect(() => {
-        getCVMLRLOverview().then(
+        getMyStudentsThreads(user._id).then(
             (resp) => {
                 const { data, success } = resp.data;
                 const { status } = resp;
+                console.log('data', data);
+                const tasksData = open_tasks_v2(data);
+                console.log('tasksData', tasksData);
                 if (success) {
                     setIndexState((prevState) => ({
                         ...prevState,
                         isLoaded: true,
-                        students: data,
-                        open_tasks_without_essays_arr: open_tasks(data).filter(
-                            (open_task) =>
-                                ![FILE_TYPE_E.essay_required].includes(
-                                    open_task.file_type
-                                )
-                        ),
+                        open_tasks_without_essays_arr: tasksData,
                         success: success,
                         res_status: status
                     }));
@@ -95,47 +86,41 @@ const CVMLRLCenter = () => {
             }
         );
     }, []);
-    useEffect(() => {
-        getAllActiveEssaysV2().then(
-            (resp) => {
-                const { data, success } = resp.data;
-                const { status } = resp;
-                if (success) {
-                    setIndexState((prevState) => ({
-                        ...prevState,
-                        isLoaded2: true,
-                        essays: open_essays_tasks(data, user),
-                        success: success,
-                        res_status: status
-                    }));
-                } else {
-                    setIndexState((prevState) => ({
-                        ...prevState,
-                        isLoaded2: true,
-                        res_status: status
-                    }));
-                }
-            },
-            (error) => {
-                setIndexState((prevState) => ({
-                    ...prevState,
-                    isLoaded2: true,
-                    error,
-                    res_status: 500
-                }));
-            }
-        );
-    }, []);
+    // useEffect(() => {
+    //     getAllActiveEssaysV2().then(
+    //         (resp) => {
+    //             const { data, success } = resp.data;
+    //             const { status } = resp;
+    //             if (success) {
+    //                 setIndexState((prevState) => ({
+    //                     ...prevState,
+    //                     isLoaded2: true,
+    //                     essays: open_essays_tasks(data, user),
+    //                     success: success,
+    //                     res_status: status
+    //                 }));
+    //             } else {
+    //                 setIndexState((prevState) => ({
+    //                     ...prevState,
+    //                     isLoaded2: true,
+    //                     res_status: status
+    //                 }));
+    //             }
+    //         },
+    //         (error) => {
+    //             setIndexState((prevState) => ({
+    //                 ...prevState,
+    //                 isLoaded2: true,
+    //                 error,
+    //                 res_status: 500
+    //             }));
+    //         }
+    //     );
+    // }, []);
 
-    const {
-        res_status,
-        isLoaded,
-        isLoaded2,
-        essays,
-        open_tasks_without_essays_arr
-    } = indexState;
+    const { res_status, isLoaded, open_tasks_without_essays_arr } = indexState;
     TabTitle('CV ML RL Overview');
-    if ((!isLoaded && !indexState.students) || (!isLoaded2 && !essays)) {
+    if (!isLoaded) {
         return <Loading />;
     }
 
@@ -198,7 +183,7 @@ const CVMLRLCenter = () => {
         );
     };
 
-    const open_tasks_arr = [...essays, ...open_tasks_without_essays_arr];
+    const open_tasks_arr = [...open_tasks_without_essays_arr];
     const tasks_withMyEssay_arr = open_tasks_arr.filter((open_task) =>
         [...AGENT_SUPPORT_DOCUMENTS_A, FILE_TYPE_E.essay_required].includes(
             open_task.file_type
@@ -297,7 +282,6 @@ const CVMLRLCenter = () => {
                 isLoaded={indexState.isLoaded}
                 new_message_tasks={new_message_tasks}
                 pending_progress_tasks={pending_progress_tasks}
-                students={indexState.students}
                 success={indexState.success}
             />
         </Box>
