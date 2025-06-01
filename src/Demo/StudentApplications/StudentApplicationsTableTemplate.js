@@ -21,7 +21,8 @@ import {
     TableContainer,
     TableHead,
     TableRow,
-    Typography
+    Typography,
+    Tooltip
 } from '@mui/material';
 
 import { Link as LinkDom } from 'react-router-dom';
@@ -650,25 +651,29 @@ const StudentApplicationsTableTemplate = (props) => {
                             {isProgramDecided(application) &&
                                 !isProgramSubmitted(application) && // only show withdraw/undo button when the program is decided but not submitted
                                 (isProgramWithdraw(application) ? (
-                                    <RedoIcon
-                                        onClick={(e) =>
-                                            handleWithdraw(
-                                                e,
-                                                application_idx,
-                                                '-' // Not Withdrawn - Not yet
-                                            )
-                                        }
-                                    />
+                                    <Tooltip arrow title="Undo Withdraw">
+                                        <RedoIcon
+                                            onClick={(e) =>
+                                                handleWithdraw(
+                                                    e,
+                                                    application_idx,
+                                                    '-' // Not Withdrawn - Not yet
+                                                )
+                                            }
+                                        />
+                                    </Tooltip>
                                 ) : (
-                                    <UndoIcon
-                                        onClick={(e) =>
-                                            handleWithdraw(
-                                                e,
-                                                application_idx,
-                                                'X' // Withdrawn
-                                            )
-                                        }
-                                    />
+                                    <Tooltip arrow title="Withdraw">
+                                        <UndoIcon
+                                            onClick={(e) =>
+                                                handleWithdraw(
+                                                    e,
+                                                    application_idx,
+                                                    'X' // Withdrawn
+                                                )
+                                            }
+                                        />
+                                    </Tooltip>
                                 ))}
                         </TableCell>
                     </TableRow>
