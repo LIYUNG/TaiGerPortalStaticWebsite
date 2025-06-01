@@ -498,7 +498,8 @@ const StudentApplicationsTableTemplate = (props) => {
                                 </Select>
                             </FormControl>
                         </TableCell>
-                        {isProgramDecided(application) ? (
+                        {isProgramDecided(application) &&
+                        !isProgramWithdraw(application) ? (
                             <TableCell>
                                 {/* When all thread finished */}
                                 {isProgramSubmitted(application) ||
@@ -564,7 +565,11 @@ const StudentApplicationsTableTemplate = (props) => {
                                 )}
                             </TableCell>
                         ) : (
-                            <TableCell>-</TableCell>
+                            <TableCell>
+                                {isProgramWithdraw(application)
+                                    ? 'WITHDRAW'
+                                    : '-'}
+                            </TableCell>
                         )}
                         {isProgramDecided(application) &&
                         isProgramSubmitted(application) ? (
