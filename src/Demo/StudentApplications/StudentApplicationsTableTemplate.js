@@ -656,22 +656,22 @@ const StudentApplicationsTableTemplate = (props) => {
                             {isProgramDecided(application) &&
                                 !isProgramSubmitted(application) && // only show withdraw/undo button when the program is decided but not submitted
                                 (isProgramWithdraw(application) ? (
-                                    <UndoIcon
-                                        onClick={(e) =>
-                                            handleWithdraw(
-                                                e,
-                                                application_idx,
-                                                'X' // Withdrawn
-                                            )
-                                        }
-                                    />
-                                ) : (
                                     <RedoIcon
                                         onClick={(e) =>
                                             handleWithdraw(
                                                 e,
                                                 application_idx,
                                                 '-' // Not Withdrawn - Not yet
+                                            )
+                                        }
+                                    />
+                                ) : (
+                                    <UndoIcon
+                                        onClick={(e) =>
+                                            handleWithdraw(
+                                                e,
+                                                application_idx,
+                                                'X' // Withdrawn
                                             )
                                         }
                                     />
