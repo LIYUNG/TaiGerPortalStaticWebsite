@@ -136,28 +136,28 @@ const AgentMainView = (props) => {
 
     const refactored_threads = open_tasks_v2(myStudentsThreads.data.data);
 
-    const new_message_tasks = refactored_threads
-        .filter((open_task) =>
-            [...AGENT_SUPPORT_DOCUMENTS_A].includes(open_task.file_type)
-        )
-        .filter(
-            (open_task) =>
-                open_task.show &&
-                !open_task.isFinalVersion &&
-                is_new_message_status(user, open_task)
-        );
+    const refactored_agent_threads = refactored_threads.filter(
+        (open_task) =>
+            [...AGENT_SUPPORT_DOCUMENTS_A].includes(open_task.file_type) ||
+            open_task.outsourced_user_id?.some(
+                (outsourcedUser) =>
+                    outsourcedUser._id.toString() === user._id.toString()
+            )
+    );
 
-    const follow_up_task = refactored_threads
-        .filter((open_task) =>
-            [...AGENT_SUPPORT_DOCUMENTS_A].includes(open_task.file_type)
-        )
-        .filter(
-            (open_task) =>
-                open_task.show &&
-                !open_task.isFinalVersion &&
-                is_pending_status(user, open_task) &&
-                open_task.latest_message_left_by_id !== ''
-        );
+    const open_tasks_withMyEssay_arr = refactored_agent_threads.filter(
+        (open_task) => open_task.show && !open_task.isFinalVersion
+    );
+
+    const new_message_tasks = open_tasks_withMyEssay_arr.filter((open_task) =>
+        is_new_message_status(user, open_task)
+    );
+
+    const follow_up_task = open_tasks_withMyEssay_arr.filter(
+        (open_task) =>
+            is_pending_status(user, open_task) &&
+            open_task.latest_message_left_by_id !== '- None - '
+    );
 
     return (
         <Box sx={{ mb: 2 }}>
