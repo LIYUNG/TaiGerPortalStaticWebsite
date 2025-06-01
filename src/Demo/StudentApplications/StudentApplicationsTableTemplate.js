@@ -514,11 +514,6 @@ const StudentApplicationsTableTemplate = (props) => {
                                             <MenuItem value="-">
                                                 {t('Not Yet', { ns: 'common' })}
                                             </MenuItem>
-                                            {/* <MenuItem value="X">
-                                                {t('Withdraw', {
-                                                    ns: 'common'
-                                                })}
-                                            </MenuItem> */}
                                             <MenuItem value="O">
                                                 {t('Submitted', {
                                                     ns: 'common'
