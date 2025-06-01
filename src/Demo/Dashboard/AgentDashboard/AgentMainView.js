@@ -356,6 +356,7 @@ const AgentMainView = (props) => {
                 is_any_vpd_missing_v2(applications_arr) ? (
                     <Grid item md={4} xs={12}>
                         <VPDToSubmitTasksCard
+                            applications={applications_arr}
                             students={myStudents}
                             user={user}
                         />
