@@ -26,7 +26,7 @@ import {
 
 import { Link as LinkDom } from 'react-router-dom';
 import DeleteIcon from '@mui/icons-material/Delete';
-import UndoIcon from '@mui/icons-material/Undo';
+import { Undo as UndoIcon, Redo as RedoIcon } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import {
     is_TaiGer_role,
@@ -34,6 +34,7 @@ import {
     is_TaiGer_Admin,
     isProgramDecided,
     isProgramSubmitted,
+    isProgramWithdraw,
     isProgramAdmitted
 } from '@taiger-common/core';
 import { differenceInDays } from 'date-fns';
@@ -116,12 +117,16 @@ const StudentApplicationsTableTemplate = (props) => {
         }));
     };
 
-    const handleWithdraw = (e, program_id, student_id) => {
+    const handleWithdraw = (e, application_idx, programWithdraw = '-') => {
         e.preventDefault();
+        let applications_temp = [
+            ...studentApplicationsTableTemplateState.student.applications
+        ];
+        applications_temp[application_idx].closed = programWithdraw;
         setStudentApplicationsTableTemplateState((prevState) => ({
             ...prevState,
-            student_id,
-            program_id,
+            applications: applications_temp,
+            application_status_changed: true,
             modalWithdrawApplication: true
         }));
     };
@@ -522,11 +527,11 @@ const StudentApplicationsTableTemplate = (props) => {
                                             <MenuItem value="-">
                                                 {t('Not Yet', { ns: 'common' })}
                                             </MenuItem>
-                                            <MenuItem value="X">
+                                            {/* <MenuItem value="X">
                                                 {t('Withdraw', {
                                                     ns: 'common'
                                                 })}
-                                            </MenuItem>
+                                            </MenuItem> */}
                                             <MenuItem value="O">
                                                 {t('Submitted', {
                                                     ns: 'common'
@@ -649,18 +654,28 @@ const StudentApplicationsTableTemplate = (props) => {
                         </TableCell>
                         <TableCell>
                             {isProgramDecided(application) &&
-                                !isProgramSubmitted(application) && (
+                                !isProgramSubmitted(application) && // only show withdraw/undo button when the program is decided but not submitted
+                                (isProgramWithdraw(application) ? (
                                     <UndoIcon
                                         onClick={(e) =>
                                             handleWithdraw(
                                                 e,
-                                                application.programId._id,
-                                                studentApplicationsTableTemplateState
-                                                    .student._id
+                                                application_idx,
+                                                'X' // Withdrawn
                                             )
                                         }
                                     />
-                                )}
+                                ) : (
+                                    <RedoIcon
+                                        onClick={(e) =>
+                                            handleWithdraw(
+                                                e,
+                                                application_idx,
+                                                '-' // Not Withdrawn - Not yet
+                                            )
+                                        }
+                                    />
+                                ))}
                         </TableCell>
                     </TableRow>
                 )
