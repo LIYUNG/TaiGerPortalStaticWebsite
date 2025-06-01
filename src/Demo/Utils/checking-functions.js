@@ -803,7 +803,8 @@ export const application_deadline_V2_calculator = (application) => {
     if (isProgramWithdraw(application)) {
         return 'WITHDRAW';
     }
-    const { application_deadline, semester } = application?.programId || {};
+    const { application_deadline, semester } =
+        application?.programId || application?.program_id || {};
 
     if (!application_deadline) {
         return 'No Data';
@@ -1607,6 +1608,15 @@ export const getNumberOfFilesByEditor = (messages, student_id) => {
     return `${message_count}/${file_count}`;
 };
 
+export const latestReplyUserIdV2 = (thread) => {
+    const messages = thread?.messages;
+    if (!messages || messages?.length <= 0) {
+        return '- None - ';
+    }
+    const latestMessageUser = messages[messages?.length - 1]?.user_id;
+    return latestMessageUser?._id.toString();
+};
+
 export const latestReplyInfo = (thread) => {
     const messages = thread?.messages;
     if (!messages || messages?.length <= 0) {
@@ -1671,7 +1681,7 @@ const prepTaskV2 = (student, thread) => {
     return {
         ...prepTaskStudent(student),
         id: thread._id.toString(),
-        latest_message_left_by_id: thread.latest_message_left_by_id,
+        latest_message_left_by_id: latestReplyUserIdV2(thread),
         flag_by_user_id: thread?.flag_by_user_id,
         isFinalVersion: thread.isFinalVersion,
         outsourced_user_id: thread?.outsourced_user_id,
@@ -1788,13 +1798,19 @@ const prepApplicationTaskV2 = (student, application, program, thread) => {
         ...prepTaskV2(student, thread),
         thread_id: thread?._id.toString(),
         program_id: program?._id.toString(),
-        deadline: application_deadline_V2_calculator(application),
+        deadline: application_deadline_V2_calculator({
+            ...application,
+            programId: program
+        }),
         show: isProgramDecided(application) ? true : false,
         document_name: `${thread.file_type} - ${program?.school} - ${program?.degree} -${program?.program_name}`,
         lang: `${program?.lang}`,
         days_left:
             differenceInDays(
-                application_deadline_V2_calculator(application),
+                application_deadline_V2_calculator({
+                    ...application,
+                    programId: program
+                }),
                 new Date()
             ) || '-'
     };

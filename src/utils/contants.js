@@ -26,6 +26,7 @@ import { appConfig } from '../config';
 import DEMO from '../store/constant';
 import { is_TaiGer_Student } from '@taiger-common/core';
 import i18next from 'i18next';
+import { latestReplyUserIdV2 } from '../Demo/Utils/checking-functions';
 
 export const IS_DEV =
     !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
@@ -1519,15 +1520,18 @@ export const is_new_message_status = (user, thread) => {
     if (thread.isFinalVersion) {
         return false;
     }
-    if (
-        thread.latest_message_left_by_id === undefined ||
-        thread.latest_message_left_by_id === ''
-    ) {
-        if (!is_TaiGer_Student(user)) {
+    if (thread.latest_message_left_by_id === '- None - ') {
+        if (is_TaiGer_Student(user)) {
+            return true;
+        } else {
             return false;
         }
     }
-    if (user._id.toString() === thread.latest_message_left_by_id) {
+    if (thread.latest_message_left_by_id === user._id.toString()) {
+        console.log('latestReplyUserIdV2(thread)');
+        console.log(latestReplyUserIdV2(thread));
+        console.log('user._id.toString()');
+        console.log(user._id.toString());
         return false;
     } else {
         return true;

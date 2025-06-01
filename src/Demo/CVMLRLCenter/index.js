@@ -207,13 +207,13 @@ const CVMLRLCenter = () => {
     const followup_tasks = open_tasks_withMyEssay_arr.filter(
         (open_task) =>
             is_pending_status(user, open_task) &&
-            open_task.latest_message_left_by_id !== ''
+            open_task.latest_message_left_by_id !== '- None - '
     );
 
     const pending_progress_tasks = open_tasks_withMyEssay_arr.filter(
         (open_task) =>
             is_pending_status(user, open_task) &&
-            open_task.latest_message_left_by_id === ''
+            open_task.latest_message_left_by_id === '- None - '
     );
 
     const closed_tasks = tasks_withMyEssay_arr.filter(
