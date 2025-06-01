@@ -87,7 +87,6 @@ const StudentApplicationsTableTemplate = (props) => {
         application_status_changed: false,
         applying_program_count: props.student.applying_program_count,
         modalDeleteApplication: false,
-        modalWithdrawApplication: false,
         showProgramCorrectnessReminderModal: true,
         res_status: 0,
         res_modal_status: 0,
@@ -126,22 +125,8 @@ const StudentApplicationsTableTemplate = (props) => {
         setStudentApplicationsTableTemplateState((prevState) => ({
             ...prevState,
             applications: applications_temp,
-            application_status_changed: true,
-            modalWithdrawApplication: true
+            application_status_changed: true
         }));
-    };
-
-    const onHideModalWithdrawApplication = () => {
-        setStudentApplicationsTableTemplateState((prevState) => ({
-            ...prevState,
-            modalWithdrawApplication: false
-        }));
-    };
-
-    const handleWithdrawConfirm = (e) => {
-        e.preventDefault();
-        console.log('WITHDRAW CONFIRM');
-        onHideModalWithdrawApplication();
     };
 
     const handleDelete = (e, program_id, student_id) => {
@@ -966,20 +951,6 @@ const StudentApplicationsTableTemplate = (props) => {
                         onConfirm={handleDeleteConfirm}
                         open={
                             studentApplicationsTableTemplateState.modalDeleteApplication
-                        }
-                        title={t('Warning', { ns: 'common' })}
-                    />
-                    <ConfirmationModal
-                        closeText={t('No', { ns: 'common' })}
-                        confirmText={t('Yes', { ns: 'common' })}
-                        content="Are you sure you want to withdraw this application?"
-                        isLoading={
-                            !studentApplicationsTableTemplateState.isLoaded
-                        }
-                        onClose={onHideModalWithdrawApplication}
-                        onConfirm={handleWithdrawConfirm}
-                        open={
-                            studentApplicationsTableTemplateState.modalWithdrawApplication
                         }
                         title={t('Warning', { ns: 'common' })}
                     />
