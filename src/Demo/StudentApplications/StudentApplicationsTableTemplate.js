@@ -647,35 +647,38 @@ const StudentApplicationsTableTemplate = (props) => {
                                       : '-'}
                             </Typography>
                         </TableCell>
-                        <TableCell>
-                            {isProgramDecided(application) &&
-                                !isProgramSubmitted(application) && // only show withdraw/undo button when the program is decided but not submitted
-                                (isProgramWithdraw(application) ? (
-                                    <Tooltip arrow title="Undo Withdraw">
-                                        <RedoIcon
-                                            onClick={(e) =>
-                                                handleWithdraw(
-                                                    e,
-                                                    application_idx,
-                                                    '-' // Not Withdrawn - Not yet
-                                                )
-                                            }
-                                        />
-                                    </Tooltip>
-                                ) : (
-                                    <Tooltip arrow title="Withdraw">
-                                        <UndoIcon
-                                            onClick={(e) =>
-                                                handleWithdraw(
-                                                    e,
-                                                    application_idx,
-                                                    'X' // Withdrawn
-                                                )
-                                            }
-                                        />
-                                    </Tooltip>
-                                ))}
-                        </TableCell>
+                        {is_TaiGer_role(user) && (
+                            <TableCell>
+                                {isProgramDecided(application) &&
+                                    !isProgramSubmitted(application) &&
+                                    // only show withdraw/undo button when the program is decided but not submitted
+                                    (isProgramWithdraw(application) ? (
+                                        <Tooltip arrow title="Undo Withdraw">
+                                            <RedoIcon
+                                                onClick={(e) =>
+                                                    handleWithdraw(
+                                                        e,
+                                                        application_idx,
+                                                        '-' // Not Withdrawn - Not yet
+                                                    )
+                                                }
+                                            />
+                                        </Tooltip>
+                                    ) : (
+                                        <Tooltip arrow title="Withdraw">
+                                            <UndoIcon
+                                                onClick={(e) =>
+                                                    handleWithdraw(
+                                                        e,
+                                                        application_idx,
+                                                        'X' // Withdrawn
+                                                    )
+                                                }
+                                            />
+                                        </Tooltip>
+                                    ))}
+                            </TableCell>
+                        )}
                     </TableRow>
                 )
             );
