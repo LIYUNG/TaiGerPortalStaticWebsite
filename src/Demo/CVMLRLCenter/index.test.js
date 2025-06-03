@@ -2,11 +2,7 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import CVMLRLCenter from '.';
 import 'react-i18next';
-import {
-    getCVMLRLOverview,
-    getMyStudentsThreads,
-    getAllActiveEssaysV2
-} from '../../api';
+import { getMyStudentsThreads, getAllActiveEssaysV2 } from '../../api';
 import { useAuth } from '../../components/AuthProvider/index';
 import { RouterProvider, createMemoryRouter } from 'react-router-dom';
 
@@ -44,9 +40,6 @@ const routes = [
 describe('CVMLRLCenter', () => {
     window.ResizeObserver = ResizeObserver;
     test('Agent: cvmlrl center not crash', async () => {
-        getCVMLRLOverview.mockResolvedValue({
-            data: mockSingleStudentCVMLRLFormatData
-        });
         getMyStudentsThreads.mockResolvedValue({
             data: mockSingleStudentCVMLRLFormatData
         });
@@ -77,9 +70,6 @@ describe('CVMLRLCenter', () => {
     });
 
     test('Student: cvmlrl center not crash', async () => {
-        getCVMLRLOverview.mockResolvedValue({
-            data: mockSingleStudentCVMLRLFormatData
-        });
         getAllActiveEssaysV2.mockResolvedValue({
             data: { success: true, data: [] }
         });

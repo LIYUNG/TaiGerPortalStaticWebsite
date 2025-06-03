@@ -12,6 +12,7 @@ import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';
 import Loading from '../../components/Loading/Loading';
 import { useTranslation } from 'react-i18next';
+import { open_tasks_v2 } from '../Utils/checking-functions';
 
 const CVMLRLCenterAll = () => {
     const { user } = useAuth();
@@ -33,11 +34,12 @@ const CVMLRLCenterAll = () => {
             (resp) => {
                 const { data, success } = resp.data;
                 const { status } = resp;
+                const tasksData = open_tasks_v2(data);
                 if (success) {
                     setIndexAllState((prevState) => ({
                         ...prevState,
                         isLoaded: true,
-                        students: data,
+                        open_tasks_arr: tasksData,
                         success: success,
                         res_status: status
                     }));
@@ -64,7 +66,7 @@ const CVMLRLCenterAll = () => {
     }
     const { res_status, isLoaded } = indexAllState;
     TabTitle('CV ML RL Center');
-    if (!isLoaded && !indexAllState.students) {
+    if (!isLoaded && !indexAllState.open_tasks_arr) {
         return <Loading />;
     }
 
@@ -92,7 +94,7 @@ const CVMLRLCenterAll = () => {
             </Breadcrumbs>
             <CVMLRLDashboard
                 isLoaded={indexAllState.isLoaded}
-                students={indexAllState.students}
+                open_tasks_arr={indexAllState.open_tasks_arr}
                 success={indexAllState.success}
                 user={user}
             />

@@ -390,9 +390,6 @@ export const getMyStudentThreadMetrics = () =>
 export const getThreadsByStudent = (studentId) =>
     request.get(`/api/document-threads/student-threads/${studentId}`);
 
-export const getCVMLRLOverview = () =>
-    request.get(`/api/document-threads/overview`);
-
 export const getMyStudentsThreads = ({ userId }) =>
     request.get(`/api/document-threads/overview/taiger-user/${userId}`);
 

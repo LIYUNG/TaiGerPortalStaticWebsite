@@ -5,7 +5,6 @@ import {
     getProgramTicketsV2,
     getProgramV2,
     getStudentsAndDocLinks2,
-    getStudentsV2,
     getStatisticsV2,
     getAllActiveStudentsV2,
     getAllStudentsV2,
@@ -119,12 +118,6 @@ export const getVerifyQuery = () => ({
     queryKey: ['verify'],
     queryFn: verifyV2,
     staleTime: 1000 * 60 * 10 // 10 minutes
-});
-
-export const getStudentsQuery = () => ({
-    queryKey: ['students'],
-    queryFn: getStudentsV2,
-    staleTime: 1000 * 60 * 5 // 5 minutes
 });
 
 export const getStudentsV2Query = () => ({
