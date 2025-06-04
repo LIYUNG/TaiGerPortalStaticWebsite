@@ -15,7 +15,10 @@ import {
     Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { getAgents } from '../../../../api';
+import queryString from 'query-string';
+import { Role } from '@taiger-common/core';
+
+import { getUsers } from '../../../../api';
 
 const EditAgentsSubpage = (props) => {
     const { t } = useTranslation();
@@ -24,7 +27,7 @@ const EditAgentsSubpage = (props) => {
 
     useEffect(() => {
         // Initialize the state with checked checkboxes based on the student's agents
-        getAgents().then(
+        getUsers(queryString.stringify({ role: Role.Agent })).then(
             (resp) => {
                 // TODO: check success
                 const { data, success } = resp.data;

@@ -9,7 +9,7 @@ import {
 import DEMO from '../../../../store/constant';
 
 const AssignEssayWriterRow = (props) => {
-    const essayDocumentThreads = props.essayDocumentThreads.filter(
+    const essayDocumentThreads = props.essayDocumentThreads?.filter(
         (thread) => !thread.isFinalVersion
     );
     const number_of_threads_with_input =

@@ -41,7 +41,8 @@ export const getQueryPublicResults = (keywords) =>
 export const getQueryStudentResults = (keywords) =>
     request.get(`/api/communications?q=${keywords}`);
 // User APIs
-export const getUsers = () => request.get('/api/users');
+export const getUsers = (queryString) =>
+    request.get(`/api/users?${queryString}`);
 export const getUser = (user_id) => request.get(`/api/users/${user_id}`);
 export const addUser = (user_information) =>
     request.post('/api/users', user_information);
@@ -52,10 +53,6 @@ export const updateUser = (user) =>
     request.post(`/api/users/${user._id}`, user);
 
 export const changeUserRole = (id, role) => updateUser({ _id: id, role });
-
-export const getAgents = () => request.get('/api/agents');
-
-export const getEditors = () => request.get('/api/editors');
 
 export const getEssayWriters = () => request.get('/api/essay-writers');
 
@@ -381,8 +378,8 @@ export const getCheckDocumentPatternIsPassed = (thread_id, file_type) =>
         `/api/document-threads/pattern/check/${thread_id}/${file_type}`
     );
 
-export const getAllCVMLRLOverview = () =>
-    request.get(`/api/document-threads/overview/all`);
+export const getActiveThreads = (queryString) =>
+    request.get(`/api/document-threads/overview/all?${queryString}`);
 
 export const getMyStudentThreadMetrics = () =>
     request.get(`/api/document-threads/overview/my-student-metrics`);
@@ -400,12 +397,6 @@ export const SetFileAsFinal = (documentsthreadId, studentId, program_id) =>
 
 export const updateEssayWriter = (editor_id, documentsthreadId) =>
     request.post(`/api/document-threads/${documentsthreadId}/essay`, editor_id);
-
-// export const updateInterviewTrainer = (trainer_id, interview_id) =>
-//     request.post(`/api/interviews/${interview_id}/trainers`, trainer_id);
-
-export const getAllActiveEssaysV2 = () =>
-    request.get(`/api/document-threads/essays/all/v2`);
 
 export const putThreadFavorite = (documentsthreadId) =>
     request.put(`/api/document-threads/${documentsthreadId}/favorite`);

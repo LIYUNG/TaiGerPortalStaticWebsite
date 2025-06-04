@@ -1,5 +1,4 @@
-import React, { Suspense } from 'react';
-import { Await, useLoaderData } from 'react-router-dom';
+import React from 'react';
 import { TabTitle } from '../Utils/TabTitle';
 
 import DashboardBody from './DashboardBody';
@@ -11,7 +10,6 @@ import { useQuery } from '@tanstack/react-query';
 
 const Dashboard = () => {
     const { user } = useAuth();
-    const { studentAndEssaysAndInterview } = useLoaderData();
     const { data: myStudentsApplications, isLoading } = useQuery(
         getMyStudentsApplicationsV2Query({ userId: user._id })
     );
@@ -23,16 +21,7 @@ const Dashboard = () => {
 
     return (
         <Box data-testid="dashoboard_component">
-            <Suspense fallback={<Loading />}>
-                <Await resolve={studentAndEssaysAndInterview}>
-                    {(loadedData) => (
-                        <DashboardBody
-                            myStudentsApplications={myStudentsApplications}
-                            studentAndEssaysAndInterview={loadedData}
-                        />
-                    )}
-                </Await>
-            </Suspense>
+            <DashboardBody myStudentsApplications={myStudentsApplications} />
         </Box>
     );
 };

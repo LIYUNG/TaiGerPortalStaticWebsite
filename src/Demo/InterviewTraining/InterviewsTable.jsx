@@ -49,7 +49,6 @@ export const InterviewsTable = ({ isLoading, data, columns }) => {
     };
 
     const getTrainer = async () => {
-        // const { data } = await getEditors();
         const { data } = await getEssayWriters();
         const { data: editors_a } = data;
         setTrainers(editors_a);

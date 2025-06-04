@@ -39,32 +39,33 @@ import { useAuth } from '../../../components/AuthProvider';
 import NoProgramStudentTable from '../MainViewTab/AgentTasks/NoProgramStudentTable';
 import BaseDocumentCheckingTable from '../MainViewTab/AgentTasks/BaseDocumentCheckingTable';
 import ProgramSpecificDocumentCheckCard from '../MainViewTab/AgentTasks/ProgramSpecificDocumentCheckCard';
-import ModalMain from '../../Utils/ModalHandler/ModalMain';
-import useStudents from '../../../hooks/useStudents';
 import Banner from '../../../components/Banner/Banner';
 import {
     is_new_message_status,
     is_pending_status
 } from '../../../utils/contants';
 import { useQuery } from '@tanstack/react-query';
-import { getMyStudentsThreadsQuery } from '../../../api/query';
+import {
+    getMyStudentsThreadsQuery,
+    getMyStudentsApplicationsV2Query
+} from '../../../api/query';
 import Loading from '../../../components/Loading/Loading';
 
 const AgentMainView = (props) => {
     const { user } = useAuth();
     const { t } = useTranslation();
-    const { res_modal_status, res_modal_message, ConfirmError } = useStudents({
-        students: props.myStudentsApplications.data.students
-    });
+    const { data: myStudentsApplications, isLoading: isLoadingApplications } =
+        useQuery(getMyStudentsApplicationsV2Query({ userId: user._id }));
+
+    const { data: myStudentsThreads, isLoading: isLoadingThreads } = useQuery(
+        getMyStudentsThreadsQuery({ userId: user._id })
+    );
+
     const [agentMainViewState, setAgentMainViewState] = useState({
         error: '',
         notification: props.notification,
         collapsedRows: {}
     });
-
-    const { data: myStudentsThreads, isLoading } = useQuery(
-        getMyStudentsThreadsQuery({ userId: user._id })
-    );
 
     const removeAgentBanner = (e, notification_key, student_id) => {
         e.preventDefault();
@@ -115,12 +116,11 @@ const AgentMainView = (props) => {
         });
     };
 
-    if (isLoading) {
+    if (isLoadingApplications || isLoadingThreads) {
         return <Loading />;
     }
-
     const applications_arr = programs_refactor_v2(
-        props.myStudentsApplications.data.applications
+        myStudentsApplications.data.applications
     )
         .filter(
             (application) =>
@@ -132,9 +132,11 @@ const AgentMainView = (props) => {
             a.application_deadline > b.application_deadline ? 1 : -1
         );
 
-    const myStudents = props.myStudentsApplications.data.students;
+    const myStudents = myStudentsApplications.data.students;
 
-    const refactored_threads = open_tasks_v2(myStudentsThreads.data.data);
+    const refactored_threads = open_tasks_v2(
+        myStudentsThreads.data.data.threads
+    );
 
     const refactored_agent_threads = refactored_threads.filter(
         (open_task) =>
@@ -389,13 +391,6 @@ const AgentMainView = (props) => {
                     />
                 </Grid>
             </Grid>
-            {res_modal_status >= 400 ? (
-                <ModalMain
-                    ConfirmError={ConfirmError}
-                    res_modal_message={res_modal_message}
-                    res_modal_status={res_modal_status}
-                />
-            ) : null}
         </Box>
     );
 };

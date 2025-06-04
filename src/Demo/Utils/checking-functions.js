@@ -2445,10 +2445,10 @@ export const isDocumentsMissingAssign = (application) => {
 
 // Tested
 export const does_essay_have_writers = (essayDocumentThreads) => {
-    for (let i = 0; i < essayDocumentThreads.length; i += 1) {
+    for (let i = 0; i < essayDocumentThreads?.length; i += 1) {
         if (
             essayDocumentThreads[i].outsourced_user_id === undefined ||
-            essayDocumentThreads[i].outsourced_user_id.length === 0
+            essayDocumentThreads[i].outsourced_user_id?.length === 0
         ) {
             return false;
         }
@@ -2460,11 +2460,11 @@ export const number_of_threads_without_essay_writers_assigned_with_input = (
     essayDocumentThreads
 ) => {
     let count = 0;
-    for (let i = 0; i < essayDocumentThreads.length; i += 1) {
+    for (let i = 0; i < essayDocumentThreads?.length; i += 1) {
         if (
             (essayDocumentThreads[i].outsourced_user_id === undefined ||
-                essayDocumentThreads[i].outsourced_user_id.length === 0) &&
-            essayDocumentThreads[i].messages.length > 0
+                essayDocumentThreads[i].outsourced_user_id?.length === 0) &&
+            essayDocumentThreads[i].messages?.length > 0
         ) {
             count += 1;
         }
@@ -2600,16 +2600,16 @@ export const readXLSX = async (file, studentName) => {
 };
 
 export const does_interview_have_trainers = (interviews) => {
-    return interviews.every(
+    return interviews?.every(
         (interview) =>
             interview.trainer_id !== undefined &&
-            interview.trainer_id.length > 0
+            interview.trainer_id?.length > 0
     );
 };
 
 export const number_of_interviews_without_interview_trainers_assigned_with_input =
     (interviews) => {
-        return interviews.filter(
-            (interview) => interview.trainer_id.length === 0
+        return interviews?.filter(
+            (interview) => interview.trainer_id?.length === 0
         ).length;
     };

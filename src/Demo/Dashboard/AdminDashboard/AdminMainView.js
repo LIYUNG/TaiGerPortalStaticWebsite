@@ -14,26 +14,34 @@ import { useTranslation } from 'react-i18next';
 
 import AdminTasks from '../MainViewTab/AdminTasks/index';
 import useStudents from '../../../hooks/useStudents';
-import ModalMain from '../../Utils/ModalHandler/ModalMain';
 import ProgramReportCard from '../../Program/ProgramReportCard';
 import MiniAudit from '../../Audit/MiniAudit';
 import { StudentsTable } from '../../StudentDatabase/StudentsTable';
 import { student_transform } from '../../Utils/checking-functions';
-
+import { useQuery } from '@tanstack/react-query';
+import { getMyStudentsApplicationsV2Query } from '../../../api/query';
+import Loading from '../../../components/Loading/Loading';
+import { useAuth } from '../../../components/AuthProvider';
 const AdminMainView = (props) => {
+    const { user } = useAuth();
     const { t } = useTranslation();
+    const { data: myStudentsApplications, isLoading: isLoadingApplications } =
+        useQuery(getMyStudentsApplicationsV2Query({ userId: user._id }));
+
+    if (isLoadingApplications) {
+        return <Loading />;
+    }
+
     const {
-        res_modal_status,
-        res_modal_message,
-        ConfirmError,
         students: initStudents,
         submitUpdateAgentlist,
         submitUpdateEditorlist,
         submitUpdateAttributeslist,
         updateStudentArchivStatus
     } = useStudents({
-        students: props.students
+        students: myStudentsApplications.data.students
     });
+
     const students = initStudents
         ?.filter((student) => !student.archiv)
         .sort((a, b) =>
@@ -56,57 +64,48 @@ const AdminMainView = (props) => {
     );
 
     return (
-        <>
-            <Grid container spacing={2} sx={{ mt: 0 }}>
-                <Grid item md={4} xs={12}>
-                    <Card style={{ height: '40vh', overflow: 'auto' }}>
-                        <Typography variant="h6">
-                            <Alert severity="warning">
-                                Admin {t('To Do Tasks', { ns: 'common' })}:
-                            </Alert>
-                        </Typography>
-                        <Table size="small">
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>
-                                        {t('Tasks', { ns: 'common' })}
-                                    </TableCell>
-                                    <TableCell>
-                                        {t('Description', { ns: 'common' })}
-                                    </TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>{admin_tasks}</TableBody>
-                        </Table>
-                    </Card>
-                </Grid>
-                <Grid item md={4} xs={12}>
-                    <ProgramReportCard />
-                </Grid>
-                <Grid item md={4} xs={12}>
-                    <Card style={{ height: '40vh', overflow: 'auto' }}>
-                        <MiniAudit audit={props.auditLog || []} />
-                    </Card>
-                </Grid>
-                <Grid item xs={12}>
-                    <StudentsTable
-                        data={studentsTransformed}
-                        isLoading={false}
-                        submitUpdateAgentlist={submitUpdateAgentlist}
-                        submitUpdateAttributeslist={submitUpdateAttributeslist}
-                        submitUpdateEditorlist={submitUpdateEditorlist}
-                        updateStudentArchivStatus={updateStudentArchivStatus}
-                    />
-                </Grid>
+        <Grid container spacing={2} sx={{ mt: 0 }}>
+            <Grid item md={4} xs={12}>
+                <Card style={{ height: '40vh', overflow: 'auto' }}>
+                    <Typography variant="h6">
+                        <Alert severity="warning">
+                            Admin {t('To Do Tasks', { ns: 'common' })}:
+                        </Alert>
+                    </Typography>
+                    <Table size="small">
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>
+                                    {t('Tasks', { ns: 'common' })}
+                                </TableCell>
+                                <TableCell>
+                                    {t('Description', { ns: 'common' })}
+                                </TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>{admin_tasks}</TableBody>
+                    </Table>
+                </Card>
             </Grid>
-            {res_modal_status >= 400 ? (
-                <ModalMain
-                    ConfirmError={ConfirmError}
-                    res_modal_message={res_modal_message}
-                    res_modal_status={res_modal_status}
+            <Grid item md={4} xs={12}>
+                <ProgramReportCard />
+            </Grid>
+            <Grid item md={4} xs={12}>
+                <Card style={{ height: '40vh', overflow: 'auto' }}>
+                    <MiniAudit audit={props.auditLog || []} />
+                </Card>
+            </Grid>
+            <Grid item xs={12}>
+                <StudentsTable
+                    data={studentsTransformed}
+                    isLoading={false}
+                    submitUpdateAgentlist={submitUpdateAgentlist}
+                    submitUpdateAttributeslist={submitUpdateAttributeslist}
+                    submitUpdateEditorlist={submitUpdateEditorlist}
+                    updateStudentArchivStatus={updateStudentArchivStatus}
                 />
-            ) : null}
-        </>
+            </Grid>
+        </Grid>
     );
 };
 

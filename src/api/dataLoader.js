@@ -1,9 +1,9 @@
 import { defer, json } from 'react-router-dom';
+import queryString from 'query-string';
 import {
     getStudents,
     getArchivStudents,
     getStudentAndDocLinks,
-    // getApplicationStudent,
     getMyAcademicBackground,
     getStudentUniAssist,
     getComplaintsTickets,
@@ -16,8 +16,8 @@ import {
     getCommunicationThread,
     getProgram,
     getAllOpenInterviews,
-    getAllActiveEssaysV2,
-    getApplicationStudentV2
+    getApplicationStudentV2,
+    getActiveThreads
 } from '.';
 import { queryClient } from './client';
 import {
@@ -28,20 +28,9 @@ import {
     getCoursessQuery,
     getProgramRequirementsQuery
 } from './query';
+import { file_category_const } from '../Demo/Utils/checking-functions';
 
 export async function getStudentsLoader() {
-    const response = await getStudents();
-    if (response.status >= 400) {
-        throw json(
-            { message: response.statusText },
-            { status: response.status }
-        );
-    } else {
-        return response;
-    }
-}
-
-export async function getStudentsV2Loader() {
     const response = await getStudents();
     if (response.status >= 400) {
         throw json(
@@ -66,8 +55,12 @@ export async function getCourseLoader({ params }) {
     return queryClient.fetchQuery(getCoursessQuery(courseId));
 }
 
-export async function getAllActiveEssaysLoader() {
-    const response = await getAllActiveEssaysV2();
+export async function getActiveEssayThreadsLoader() {
+    const response = await getActiveThreads(
+        queryString.stringify({
+            file_type: file_category_const.essay_required
+        })
+    );
     if (response.status >= 400) {
         throw json(
             { message: response.statusText },
@@ -220,7 +213,11 @@ async function loadStudentAndEssaysAndInterview() {
     // Fetch data from both getAllActiveEssays and getStudents and getAllOpenInterviews
     const [essaysResponse, studentsResponse, interviewsResponse] =
         await Promise.all([
-            getAllActiveEssaysV2(),
+            getActiveThreads(
+                queryString.stringify({
+                    file_type: file_category_const.essay_required
+                })
+            ),
             getStudents(),
             getAllOpenInterviews()
         ]);

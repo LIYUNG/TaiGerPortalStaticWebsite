@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { Link as LinkDom, Navigate } from 'react-router-dom';
 import { Box, Breadcrumbs, Link, Typography } from '@mui/material';
 import { is_TaiGer_role } from '@taiger-common/core';
+import queryString from 'query-string';
 
 import CVMLRLDashboard from './CVMLRLDashboard';
 import ErrorPage from '../Utils/ErrorPage';
-import { getAllCVMLRLOverview } from '../../api';
+import { getActiveThreads } from '../../api';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '../../store/constant';
 import { useAuth } from '../../components/AuthProvider';
@@ -30,7 +31,7 @@ const CVMLRLCenterAll = () => {
     });
 
     useEffect(() => {
-        getAllCVMLRLOverview().then(
+        getActiveThreads(queryString.stringify({})).then(
             (resp) => {
                 const { data, success } = resp.data;
                 const { status } = resp;

@@ -41,10 +41,7 @@ const CVMLRLOverview = (props) => {
 
     const [cVMLRLOverviewState, setCVMLRLOverviewState] = useState({
         error: '',
-        isLoaded: props.isLoaded,
         data: null,
-        success: props.success,
-        students: props.students,
         student_id: '',
         status: '', //reject, accept... etc
         res_status: 0,
