@@ -84,9 +84,6 @@ export const getApplicationConflicts = () =>
 export const getApplicationTaskDeltas = () =>
     request.get(`/api/student-applications/deltas`);
 
-export const getApplicationStudent = (studentId) =>
-    request.get(`/api/student-applications/${studentId}`);
-
 // TODO: thread creation attached to application problem. (thread creation is ok))
 export const createApplicationV2 = ({ studentId, program_ids }) =>
     postData(`/api/applications/student/${studentId}`, {
@@ -109,9 +106,6 @@ export const updateApplicationV2 = (
 // TODO: thread is empty!! application delete ok.
 export const deleteApplicationStudentV2 = (applicationId) =>
     request.delete(`/api/applications/application/${applicationId}`);
-
-export const getStudentUniAssist = (studentId) =>
-    request.get(`/api/uniassist/${studentId}`);
 
 export const getStudentUniAssistV2 = ({ studentId }) =>
     getData(`/api/uniassist/${studentId}`);
@@ -142,11 +136,6 @@ export const updateAttributes = (attributesId, studentId) =>
 
 export const assignProgramToStudent = (studentId, program_ids) =>
     request.post(`/api/students/${studentId}/applications`, {
-        program_id_set: program_ids
-    });
-
-export const assignProgramToStudentV2 = ({ studentId, program_ids }) =>
-    postData(`/api/students/${studentId}/applications`, {
         program_id_set: program_ids
     });
 
@@ -190,22 +179,11 @@ export const uploadVPDforstudentV2 = ({
 }) =>
     postData(`/api/students/${studentId}/vpd/${program_id}/${fileType}`, data);
 
-export const deleteVPDFile = (studentId, program_id, fileType) =>
-    request.delete(`/api/students/${studentId}/vpd/${program_id}/${fileType}`);
-
 export const deleteVPDFileV2 = ({ studentId, program_id, fileType }) =>
     deleteData(`/api/students/${studentId}/vpd/${program_id}/${fileType}`);
 
-export const SetAsNotNeeded = (studentId, program_id) =>
-    request.put(`/api/students/${studentId}/vpd/${program_id}/VPD`);
-
 export const SetAsNotNeededV2 = ({ studentId, program_id }) =>
     putData(`/api/students/${studentId}/vpd/${program_id}/VPD`);
-
-// export const SetUniAssistPaid = (studentId, program_id, isPaid) =>
-//   request.post(`/api/students/${studentId}/vpd/${program_id}/payments`, {
-//     isPaid
-//   });
 
 export const SetUniAssistPaidV2 = ({ studentId, program_id, isPaid }) =>
     postData(`/api/students/${studentId}/vpd/${program_id}/payments`, {
@@ -711,8 +689,6 @@ export const getStatisticsV2 = () => getData('/api/teams/statistics');
 export const getResponseIntervalByStudent = (studentId) =>
     request.get(`/api/teams/response-interval/${studentId}`);
 
-export const getAgent = (agent_id) =>
-    request.get(`/api/teams/agents/${agent_id}`);
 export const getAgentProfile = (agent_id) =>
     request.get(`/api/agents/profile/${agent_id}`);
 export const getEditor = (editor_id) =>

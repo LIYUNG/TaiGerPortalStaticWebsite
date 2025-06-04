@@ -5,7 +5,6 @@ import {
     getArchivStudents,
     getStudentAndDocLinks,
     getMyAcademicBackground,
-    getStudentUniAssist,
     getComplaintsTickets,
     getComplaintsTicket,
     getDistinctSchools,
@@ -133,18 +132,6 @@ export function getAllComplaintTicketsLoader() {
 
 export async function AllActiveStudentsV2Loader() {
     return queryClient.fetchQuery(getAllActiveStudentsQuery());
-}
-
-export async function getStudentUniAssistLoader() {
-    const response = await getStudentUniAssist();
-    if (response.status >= 400) {
-        throw json(
-            { message: response.statusText },
-            { status: response.status }
-        );
-    } else {
-        return response;
-    }
 }
 
 export async function getArchivStudentsLoader() {
