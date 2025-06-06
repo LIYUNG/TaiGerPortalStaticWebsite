@@ -196,51 +196,6 @@ export async function getAllOpenInterviewsLoader() {
     }
 }
 
-async function loadStudentAndEssaysAndInterview() {
-    // Fetch data from both getAllActiveEssays and getStudents and getAllOpenInterviews
-    const [essaysResponse, studentsResponse, interviewsResponse] =
-        await Promise.all([
-            getActiveThreads(
-                queryString.stringify({
-                    file_type: file_category_const.essay_required
-                })
-            ),
-            getStudents(),
-            getAllOpenInterviews()
-        ]);
-
-    // Check if any response has a status code >= 400
-    if (
-        essaysResponse.status >= 400 ||
-        studentsResponse.status >= 400 ||
-        interviewsResponse.status >= 400
-    ) {
-        const error = {
-            message: 'Error fetching data',
-            status:
-                essaysResponse.status >= 400
-                    ? essaysResponse.status
-                    : studentsResponse.status >= 400
-                      ? studentsResponse.status
-                      : interviewsResponse.status
-        };
-        throw error;
-    }
-
-    // Return an object containing both essays and students data
-    return {
-        essays: await essaysResponse.data, // Assuming essaysResponse.data contains the essays data
-        data: await studentsResponse.data, // Assuming studentsResponse.data contains the students data
-        interviews: await interviewsResponse.data // Assuming interviewsResponse.data contains the interviews data
-    };
-}
-
-export function combinedLoader() {
-    return defer({
-        studentAndEssaysAndInterview: loadStudentAndEssaysAndInterview()
-    });
-}
-
 ///
 
 export async function DistinctSchoolsLoader() {

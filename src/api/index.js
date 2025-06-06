@@ -94,7 +94,8 @@ export const createApplicationV2 = ({ studentId, program_ids }) =>
 export const getApplicationStudentV2 = (studentId) =>
     request.get(`/api/applications/student/${studentId}`);
 
-export const updateApplicationV2 = (
+// TODO:
+export const updateStudentApplications = (
     studentId,
     applications,
     applying_program_count
@@ -103,6 +104,7 @@ export const updateApplicationV2 = (
         applications,
         applying_program_count
     });
+
 // TODO: thread is empty!! application delete ok.
 export const deleteApplicationStudentV2 = (applicationId) =>
     request.delete(`/api/applications/application/${applicationId}`);
@@ -134,16 +136,7 @@ export const updateEditors = (editorsId, studentId) =>
 export const updateAttributes = (attributesId, studentId) =>
     request.post(`/api/students/${studentId}/attributes`, attributesId);
 
-export const assignProgramToStudent = (studentId, program_ids) =>
-    request.post(`/api/students/${studentId}/applications`, {
-        program_id_set: program_ids
-    });
-
-export const getStudentApplications = (studentId) =>
-    request.get(`/api/students/${studentId}/applications`);
-
-export const removeProgramFromStudent = (programId, studentId) =>
-    request.delete(`/api/students/${studentId}/applications/${programId}`);
+// TODO: replace this.
 export const ToggleProgramStatus = (studentId, program_id) =>
     request.put(`/api/students/${studentId}/${program_id}`);
 
@@ -318,16 +311,6 @@ export const putProgramRequirement = (programRequirementId, payload) =>
 export const deleteProgramRequirement = (programRequirementId) =>
     request.delete(`/api/program-requirements/${programRequirementId}`);
 
-export const UpdateStudentApplications = (
-    studentId,
-    applications,
-    applying_program_count
-) =>
-    request.put(`/api/account/applications/${studentId}`, {
-        applications,
-        applying_program_count
-    });
-
 export const updateStudentApplicationResult = (
     studentId,
     programId,
@@ -446,9 +429,6 @@ export const getProgramV2 = (programId) =>
 
 export const deleteProgramV2 = ({ program_id }) =>
     deleteData(`/api/programs/${program_id}`);
-
-export const createProgram = (program) =>
-    request.post('/api/programs', program);
 
 export const createProgramV2 = ({ program }) =>
     postData('/api/programs', program);
@@ -841,7 +821,3 @@ export const submitMessageInTicketWithAttachment = (
     );
 export const deleteAMessageinTicket = (ticketId, message_id) =>
     request.delete(`/api/complaints/${ticketId}/${message_id}`);
-
-// Log:
-export const getUsersLog = () => request.get(`/api/userlogs`);
-export const getUserLog = (user_id) => request.get(`/api/userlogs/${user_id}`);

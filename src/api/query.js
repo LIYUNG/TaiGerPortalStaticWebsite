@@ -18,7 +18,9 @@ import {
     getMessagThread,
     getStudentsV3,
     getMyStudentsApplications,
-    getMyStudentsThreads
+    getMyStudentsThreads,
+    getApplicationStudentV2,
+    getStudentAndDocLinks
 } from '.';
 
 export const getMessagThreadQuery = (threadId) => ({
@@ -123,6 +125,18 @@ export const getVerifyQuery = () => ({
 export const getStudentsV2Query = () => ({
     queryKey: ['students/v2'],
     queryFn: getStudentsV3,
+    staleTime: 1000 * 60 * 5 // 5 minutes
+});
+
+export const getApplicationStudentV2Query = ({ studentId }) => ({
+    queryKey: ['applications/student', studentId],
+    queryFn: () => getApplicationStudentV2(studentId),
+    staleTime: 1000 * 60 * 5 // 5 minutes
+});
+
+export const getStudentAndDocLinksQuery = ({ studentId }) => ({
+    queryKey: ['students/doc-links', studentId],
+    queryFn: () => getStudentAndDocLinks(studentId),
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
 

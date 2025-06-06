@@ -55,7 +55,7 @@ import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { useSnackBar } from '../../contexts/use-snack-bar';
 import {
-    UpdateStudentApplications,
+    updateStudentApplications,
     deleteApplicationStudentV2
 } from '../../api';
 import { TabTitle } from '../Utils/TabTitle';
@@ -140,9 +140,9 @@ const StudentApplicationsTableTemplate = (props) => {
             ...prevState,
             isLoaded: false
         }));
+        // TODO: test render update.
         deleteApplicationStudentV2(
             studentApplicationsTableTemplateState.application_id
-            // studentApplicationsTableTemplateState.student_id
         ).then(
             (resp) => {
                 const { data, success } = resp.data;
@@ -214,7 +214,7 @@ const StudentApplicationsTableTemplate = (props) => {
             ...prevState,
             isLoaded: false
         }));
-        UpdateStudentApplications(
+        updateStudentApplications(
             student_id,
             applications_temp,
             applying_program_count

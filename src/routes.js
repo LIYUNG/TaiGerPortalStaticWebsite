@@ -5,8 +5,6 @@ import {
     getMyAcademicBackgroundLoader,
     getStudentAndDocLinksLoader,
     getStudentsLoader,
-    // getEssaysLoader,
-    combinedLoader,
     getAllStudentsV2Loader,
     getAllComplaintTicketsLoader,
     getComplaintTicketLoader,
@@ -751,7 +749,6 @@ const routes = [
     {
         path: '/',
         errorElement: <DefaultErrorPage />,
-        loader: combinedLoader,
         element: <DashboardDefault />
     }
 ];
