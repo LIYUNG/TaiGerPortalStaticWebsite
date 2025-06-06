@@ -365,9 +365,9 @@ export const putThreadFavorite = (documentsthreadId) =>
 // Portal Informations APIs
 export const getPortalCredentials = (student_id) =>
     request.get(`/api/portal-informations/${student_id}`);
-export const postPortalCredentials = (student_id, program_id, credentials) =>
+export const postPortalCredentials = (student_id, applicationId, credentials) =>
     request.post(
-        `/api/portal-informations/${student_id}/${program_id}`,
+        `/api/portal-informations/${student_id}/${applicationId}`,
         credentials
     );
 

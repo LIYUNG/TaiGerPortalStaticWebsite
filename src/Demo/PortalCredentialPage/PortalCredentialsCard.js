@@ -54,13 +54,12 @@ export default function PortalCredentialsCard(props) {
                     let isChanged_temp = {};
                     if (data.applications) {
                         for (const application of data.applications) {
-                            const programId =
-                                application.programId._id.toString();
-                            isUpdateLoaded_temp[programId] = true;
-                            isChanged_temp[programId] = false;
+                            const applicationId = application._id.toString();
+                            isUpdateLoaded_temp[applicationId] = true;
+                            isChanged_temp[applicationId] = false;
                             const portalCredentials =
                                 application.portal_credentials;
-                            credentials_temp[programId] = {
+                            credentials_temp[applicationId] = {
                                 account_portal_a: portalCredentials
                                     ? portalCredentials.application_portal_a
                                           .account
@@ -172,12 +171,12 @@ export default function PortalCredentialsCard(props) {
         }
     };
 
-    const onSubmit = (student_id, program_id, credentials) => {
+    const onSubmit = (student_id, application_id, credentials) => {
         setStatedata((state) => ({
             ...state,
-            isUpdateLoaded: { ...state.isUpdateLoaded, [program_id]: false }
+            isUpdateLoaded: { ...state.isUpdateLoaded, [application_id]: false }
         }));
-        postPortalCredentials(student_id, program_id, credentials).then(
+        postPortalCredentials(student_id, application_id, credentials).then(
             (resp) => {
                 const { success } = resp.data;
                 const { status } = resp;
@@ -192,10 +191,13 @@ export default function PortalCredentialsCard(props) {
                     setStatedata((state) => ({
                         ...state,
                         isLoaded: true,
-                        isChanged: { ...state.isChanged, [program_id]: false },
+                        isChanged: {
+                            ...state.isChanged,
+                            [application_id]: false
+                        },
                         isUpdateLoaded: {
                             ...state.isUpdateLoaded,
-                            [program_id]: true
+                            [application_id]: true
                         },
                         success: success,
                         isUpdating: false,
@@ -322,19 +324,19 @@ export default function PortalCredentialsCard(props) {
                                                     disabled={
                                                         !statedata
                                                             .isUpdateLoaded[
-                                                            application.programId._id.toString()
+                                                            application._id.toString()
                                                         ] ||
                                                         !statedata.isChanged[
-                                                            application.programId._id.toString()
+                                                            application._id.toString()
                                                         ]
                                                     }
                                                     onClick={() =>
                                                         onSubmit(
                                                             statedata.student._id.toString(),
-                                                            application.programId._id.toString(),
+                                                            application._id.toString(),
                                                             statedata
                                                                 .credentials[
-                                                                application.programId._id.toString()
+                                                                application._id.toString()
                                                             ]
                                                         )
                                                     }
@@ -342,7 +344,7 @@ export default function PortalCredentialsCard(props) {
                                                     variant="contained"
                                                 >
                                                     {!statedata.isUpdateLoaded[
-                                                        application.programId._id.toString()
+                                                        application._id.toString()
                                                     ]
                                                         ? t('Updating')
                                                         : t('Update', {
@@ -359,18 +361,18 @@ export default function PortalCredentialsCard(props) {
                                         {(application.programId
                                             .application_portal_a &&
                                             (!statedata.credentials[
-                                                application.programId._id.toString()
+                                                application._id.toString()
                                             ].account_portal_a ||
                                                 !statedata.credentials[
-                                                    application.programId._id.toString()
+                                                    application._id.toString()
                                                 ].password_portal_a)) ||
                                         (application.programId
                                             .application_portal_b &&
                                             (!statedata.credentials[
-                                                application.programId._id.toString()
+                                                application._id.toString()
                                             ].account_portal_b ||
                                                 !statedata.credentials[
-                                                    application.programId._id.toString()
+                                                    application._id.toString()
                                                 ].password_portal_b)) ? (
                                             <div>
                                                 <Banner
@@ -426,7 +428,7 @@ export default function PortalCredentialsCard(props) {
                                             >
                                                 <Grid item xs={3}>
                                                     <TextField
-                                                        id={`${application.programId._id.toString()}_application_portal_a_account`}
+                                                        id={`${application._id.toString()}_application_portal_a_account`}
                                                         onChange={(e) =>
                                                             onChange(e)
                                                         }
@@ -436,14 +438,14 @@ export default function PortalCredentialsCard(props) {
                                                         value={
                                                             statedata
                                                                 .credentials[
-                                                                application.programId._id.toString()
+                                                                application._id.toString()
                                                             ].account_portal_a
                                                         }
                                                     />
                                                 </Grid>
                                                 <Grid item xs={3}>
                                                     <TextField
-                                                        id={`${application.programId._id.toString()}_application_portal_a_password`}
+                                                        id={`${application._id.toString()}_application_portal_a_password`}
                                                         onChange={(e) =>
                                                             onChange(e)
                                                         }
@@ -453,7 +455,7 @@ export default function PortalCredentialsCard(props) {
                                                         value={
                                                             statedata
                                                                 .credentials[
-                                                                application.programId._id.toString()
+                                                                application._id.toString()
                                                             ].password_portal_a
                                                         }
                                                     />
@@ -490,10 +492,10 @@ export default function PortalCredentialsCard(props) {
                                                         defaultValue={
                                                             statedata
                                                                 .credentials[
-                                                                application.programId._id.toString()
+                                                                application._id.toString()
                                                             ].account_portal_b
                                                         }
-                                                        id={`${application.programId._id.toString()}_application_portal_b_account`}
+                                                        id={`${application._id.toString()}_application_portal_b_account`}
                                                         onChange={(e) =>
                                                             onChange(e)
                                                         }
@@ -507,10 +509,10 @@ export default function PortalCredentialsCard(props) {
                                                         defaultValue={
                                                             statedata
                                                                 .credentials[
-                                                                application.programId._id.toString()
+                                                                application._id.toString()
                                                             ].password_portal_b
                                                         }
-                                                        id={`${application.programId._id.toString()}_application_portal_b_password`}
+                                                        id={`${application._id.toString()}_application_portal_b_password`}
                                                         onChange={(e) =>
                                                             onChange(e)
                                                         }
