@@ -19,18 +19,14 @@ import MiniAudit from '../../Audit/MiniAudit';
 import { StudentsTable } from '../../StudentDatabase/StudentsTable';
 import { student_transform } from '../../Utils/checking-functions';
 import { useQuery } from '@tanstack/react-query';
-import { getMyStudentsApplicationsV2Query } from '../../../api/query';
+import { getActiveStudentsApplicationsV2Query } from '../../../api/query';
 import Loading from '../../../components/Loading/Loading';
-import { useAuth } from '../../../components/AuthProvider';
-const AdminMainView = (props) => {
-    const { user } = useAuth();
-    const { t } = useTranslation();
-    const { data: myStudentsApplications, isLoading: isLoadingApplications } =
-        useQuery(getMyStudentsApplicationsV2Query({ userId: user._id }));
 
-    if (isLoadingApplications) {
-        return <Loading />;
-    }
+const AdminMainView = (props) => {
+    const { t } = useTranslation();
+
+    const { data: allStudentsApplications, isLoading: isLoadingApplications } =
+        useQuery(getActiveStudentsApplicationsV2Query());
 
     const {
         students: initStudents,
@@ -39,8 +35,12 @@ const AdminMainView = (props) => {
         submitUpdateAttributeslist,
         updateStudentArchivStatus
     } = useStudents({
-        students: myStudentsApplications.data.students
+        students: allStudentsApplications?.data?.students || []
     });
+
+    if (isLoadingApplications) {
+        return <Loading />;
+    }
 
     const students = initStudents
         ?.filter((student) => !student.archiv)
