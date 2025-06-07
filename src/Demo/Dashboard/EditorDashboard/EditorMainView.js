@@ -13,19 +13,16 @@ import {
 } from '@mui/material';
 import { Link as LinkDom } from 'react-router-dom';
 
-// import TabProgramConflict from '../MainViewTab/ProgramConflict/TabProgramConflict';
-import StudentsAgentEditor from '../MainViewTab/StudentsAgentEditor/StudentsAgentEditor';
 import TasksDistributionBarChart from '../../../components/Charts/TasksDistributionBarChart';
 import {
     does_essay_have_writers,
     does_student_have_editors,
     frequencyDistribution,
-    open_tasks,
-    open_tasks_with_editors,
+    // open_tasks,
+    open_tasks_v2,
     does_interview_have_trainers
 } from '../../Utils/checking-functions';
 import {
-    academic_background_header,
     is_new_message_status,
     is_pending_status
 } from '../../../utils/contants';
@@ -35,37 +32,28 @@ import { useTranslation } from 'react-i18next';
 import AssignEssayWriterRow from '../MainViewTab/Common/AssignEssayWriterRow';
 import AssignEditorRow from '../MainViewTab/Common/AssignEditorRow';
 import AssignInterviewTrainerRow from '../MainViewTab/Common/AssignInterviewTrainerRow';
+import {
+    getMyStudentsApplicationsV2Query,
+    getMyStudentsThreadsQuery
+} from '../../../api/query';
+import { useQuery } from '@tanstack/react-query';
+import Loading from '../../../components/Loading/Loading';
 
 const EditorMainView = (props) => {
     const { user } = useAuth();
     const { t } = useTranslation();
-    const students_agent_editor = (
-        <>
-            {props.students
-                .sort((a, b) =>
-                    a.agents.length === 0 && a.agents.length < b.agents.length
-                        ? -2
-                        : a.editors.length < b.editors.length
-                          ? -1
-                          : 1
-                )
-                .map((student) => (
-                    <StudentsAgentEditor
-                        isDashboard={props.isDashboard}
-                        key={student._id}
-                        student={student}
-                        submitUpdateEditorlist={props.submitUpdateEditorlist}
-                        updateStudentArchivStatus={
-                            props.updateStudentArchivStatus
-                        }
-                        user={user}
-                    />
-                ))}
-        </>
-    );
-    // TODO: consider assigned essays!
+    const { data: myStudentsApplications, isLoading: isLoadingApplications } =
+        useQuery(getMyStudentsApplicationsV2Query({ userId: user._id }));
 
-    const open_tasks_arr = open_tasks_with_editors(props.students);
+    const { data: myStudentsThreads, isLoading: isLoadingThreads } = useQuery(
+        getMyStudentsThreadsQuery({ userId: user._id })
+    );
+
+    if (isLoadingApplications || isLoadingThreads) {
+        return <Loading />;
+    }
+
+    const open_tasks_arr = open_tasks_v2(myStudentsThreads.data.data.threads);
     const task_distribution = open_tasks_arr
         .filter(({ isFinalVersion }) => isFinalVersion !== true)
         .map(({ deadline, file_type, show, isPotentials }) => {
@@ -83,17 +71,21 @@ const EditorMainView = (props) => {
             potentials: open_distr[date].potentials
         });
     });
-    let header = Object.values(academic_background_header);
-    const myStudents = props.students.filter((student) =>
+
+    const myStudents = myStudentsApplications.data.students.filter((student) =>
         student.editors.some((editor) => editor._id === user._id.toString())
     );
-    const unreplied_task = open_tasks(myStudents).filter(
+    const unreplied_task = open_tasks_v2(
+        myStudentsThreads.data.data.threads
+    ).filter(
         (open_task) =>
             open_task.show &&
             !open_task.isFinalVersion &&
             is_new_message_status(user, open_task)
     );
-    const follow_up_task = open_tasks(myStudents).filter(
+    const follow_up_task = open_tasks_v2(
+        myStudentsThreads.data.data.threads
+    ).filter(
         (open_task) =>
             open_task.show &&
             !open_task.isFinalVersion &&
@@ -156,17 +148,7 @@ const EditorMainView = (props) => {
                             to={DEMO.STUDENT_APPLICATIONS_LINK}
                             underline="hover"
                         >
-                            <b>
-                                {
-                                    props.students.filter((student) =>
-                                        student.editors.some(
-                                            (editor) =>
-                                                editor._id ===
-                                                user._id.toString()
-                                        )
-                                    )?.length
-                                }
-                            </b>
+                            <b>{myStudents?.length}</b>
                         </Link>
                     </Typography>
                 </Card>
@@ -179,7 +161,7 @@ const EditorMainView = (props) => {
                     </Typography>
                 </Card>
             </Grid>
-            {!does_student_have_editors(props.students) ||
+            {!does_student_have_editors(myStudentsApplications.data.students) ||
             !does_essay_have_writers(props.essayDocumentThreads) ||
             !does_interview_have_trainers(props.interviews) ? (
                 <Grid item md={12} xs={12}>
@@ -199,7 +181,11 @@ const EditorMainView = (props) => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                <AssignEditorRow students={props.students} />
+                                <AssignEditorRow
+                                    students={
+                                        myStudentsApplications.data.students
+                                    }
+                                />
                                 <AssignEssayWriterRow
                                     essayDocumentThreads={
                                         props.essayDocumentThreads
@@ -244,25 +230,6 @@ const EditorMainView = (props) => {
                         />
                     </Box>
                 </Card>
-            </Grid>
-
-            {/* <Grid item xs={12} md={12}>
-          <TabProgramConflict students={props.students} />
-        </Grid> */}
-            <Grid item md={12} xs={12}>
-                <Table size="small">
-                    <TableHead>
-                        <TableRow>
-                            <TableCell />
-                            {header.map((name, index) => (
-                                <TableCell key={index}>
-                                    {t(name, { ns: 'common' })}
-                                </TableCell>
-                            ))}
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>{students_agent_editor}</TableBody>
-                </Table>
             </Grid>
         </Grid>
     );

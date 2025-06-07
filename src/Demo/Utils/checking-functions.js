@@ -1812,25 +1812,6 @@ export const open_tasks_v2 = (threads) => {
     return tasks;
 };
 
-export const open_tasks = (students) => {
-    const tasks = [];
-    for (const student of students) {
-        if (student.archiv !== true) {
-            for (const thread of student.generaldocs_threads) {
-                tasks.push(prepGeneralTask(student, thread));
-            }
-            for (const application of student.applications) {
-                for (const thread of application.doc_modification_thread) {
-                    tasks.push(
-                        prepApplicationTask(student, application, thread)
-                    );
-                }
-            }
-        }
-    }
-    return tasks;
-};
-
 export const open_tasks_with_editors = (students) => {
     const tasks = [];
     for (const student of students) {
