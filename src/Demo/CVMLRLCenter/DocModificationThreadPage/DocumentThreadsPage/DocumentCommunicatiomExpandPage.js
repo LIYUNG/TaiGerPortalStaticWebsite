@@ -392,8 +392,9 @@ const DocumentCommunicationExpandPage = () => {
 
     const { data: studentThreadsData, isLoading: studentThreadIsLoading } =
         useQuery(getThreadByStudentQuery(studentId));
-    const studentThreads = studentThreadsData?.data?.data || [];
-
+    const studentThreads = studentThreadsData?.data?.data?.threads || [];
+    console.log(studentThreadsData);
+    console.log(studentThreads);
     useEffect(() => {
         if (!threadId) {
             return;
@@ -436,7 +437,7 @@ const DocumentCommunicationExpandPage = () => {
     };
 
     const sortedThreads = studentThreads
-        ?.filter((thread) => thread?.student_id === studentId)
+        ?.filter((thread) => thread?.student_id?._id.toString() === studentId)
         ?.sort((a, b) => {
             const categoryA = getCategory(a.file_type);
             const categoryB = getCategory(b.file_type);
