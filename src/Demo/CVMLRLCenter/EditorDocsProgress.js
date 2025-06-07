@@ -40,9 +40,9 @@ import {
     deleteGenralFileThread,
     deleteProgramSpecificFileThread,
     SetFileAsFinal,
-    ToggleProgramStatus,
     initGeneralMessageThread,
-    initApplicationMessageThread
+    initApplicationMessageThread,
+    updateStudentApplication
 } from '../../api';
 import DEMO from '../../store/constant';
 import Loading from '../../components/Loading/Loading';
@@ -145,7 +145,6 @@ const EditorDocsProgress = (props) => {
         studentId: '',
         student_id: '',
         doc_thread_id: '',
-        applicationId: '',
         docName: '',
         isLoaded: false,
         requirements: '',
@@ -202,7 +201,7 @@ const EditorDocsProgress = (props) => {
             ...prevState,
             isLoaded: false //false to reload everything
         }));
-        if (editorDocsProgressState.program_id == null) {
+        if (editorDocsProgressState.application_id == null) {
             deleteGenralFileThread(
                 editorDocsProgressState.doc_thread_id,
                 editorDocsProgressState.student_id
@@ -262,7 +261,7 @@ const EditorDocsProgress = (props) => {
         } else {
             deleteProgramSpecificFileThread(
                 editorDocsProgressState.doc_thread_id,
-                editorDocsProgressState.program_id,
+                editorDocsProgressState.application_id,
                 editorDocsProgressState.student_id
             ).then(
                 (resp) => {
@@ -275,8 +274,8 @@ const EditorDocsProgress = (props) => {
                         let application_idx =
                             student_temp.applications.findIndex(
                                 (application) =>
-                                    application.programId._id.toString() ===
-                                    editorDocsProgressState.program_id
+                                    application._id.toString() ===
+                                    editorDocsProgressState.application_id
                             );
                         if (application_idx !== -1) {
                             let doc_thread_idx = student_temp.applications[
@@ -298,7 +297,7 @@ const EditorDocsProgress = (props) => {
                         setEditorDocsProgressState((prevState) => ({
                             ...prevState,
                             student_id: '',
-                            program_id: '',
+                            application_id: '',
                             doc_thread_id: '',
                             isLoaded: true,
                             student: student_temp,
@@ -332,7 +331,7 @@ const EditorDocsProgress = (props) => {
         }
     };
 
-    const ConfirmSetAsFinalFileHandler = () => {
+    const ConfirmSetThreadAsFinalFileHandler = () => {
         setEditorDocsProgressState((prevState) => ({
             ...prevState,
             isLoaded: false // false to reload everything
@@ -340,7 +339,7 @@ const EditorDocsProgress = (props) => {
         SetFileAsFinal(
             editorDocsProgressState.doc_thread_id,
             editorDocsProgressState.student_id,
-            editorDocsProgressState.program_id
+            editorDocsProgressState.application_id
         ).then(
             (resp) => {
                 const { data, success } = resp.data;
@@ -348,12 +347,12 @@ const EditorDocsProgress = (props) => {
                 if (success) {
                     let student_temp = { ...editorDocsProgressState.student };
                     let targetThread;
-                    if (editorDocsProgressState.program_id) {
+                    if (editorDocsProgressState.application_id) {
                         let application_idx =
                             student_temp.applications.findIndex(
                                 (application) =>
-                                    application.programId._id.toString() ===
-                                    editorDocsProgressState.program_id
+                                    application._id.toString() ===
+                                    editorDocsProgressState.application_id
                             );
 
                         let thread_idx = student_temp.applications[
@@ -383,7 +382,6 @@ const EditorDocsProgress = (props) => {
                     setEditorDocsProgressState((prevState) => ({
                         ...prevState,
                         studentId: '',
-                        applicationId: '',
                         docName: '',
                         isLoaded: true,
                         student: student_temp,
@@ -415,13 +413,13 @@ const EditorDocsProgress = (props) => {
 
     const handleProgramStatus = (
         student_id,
-        program_id,
+        application_id,
         isApplicationSubmitted
     ) => {
         setEditorDocsProgressState((prevState) => ({
             ...prevState,
             student_id,
-            program_id,
+            application_id,
             SetProgramStatusModel: true,
             isApplicationSubmitted
         }));
@@ -432,20 +430,33 @@ const EditorDocsProgress = (props) => {
             ...prevState,
             isLoaded: false // false to reload everything
         }));
-        ToggleProgramStatus(
+        updateStudentApplication(
             editorDocsProgressState.student_id,
-            editorDocsProgressState.program_id
+            editorDocsProgressState.application_id,
+            {
+                closed: editorDocsProgressState.isApplicationSubmitted
+                    ? '-'
+                    : 'O'
+            }
         ).then(
             (resp) => {
                 const { data, success } = resp.data;
                 const { status } = resp;
                 if (success) {
+                    const student_temp = { ...editorDocsProgressState.student };
+                    const application_idx = student_temp.applications.findIndex(
+                        (application) =>
+                            application._id.toString() ===
+                            editorDocsProgressState.application_id
+                    );
+                    student_temp.applications[application_idx].closed =
+                        data.closed;
+
                     setEditorDocsProgressState((prevState) => ({
                         ...prevState,
                         studentId: '',
-                        applicationId: '',
                         isLoaded: true,
-                        student: data,
+                        student: student_temp,
                         success: success,
                         SetProgramStatusModel: false,
                         res_modal_status: status
@@ -475,7 +486,7 @@ const EditorDocsProgress = (props) => {
     const handleAsFinalFile = (
         doc_thread_id,
         student_id,
-        program_id,
+        application_id,
         isFinal,
         docName
     ) => {
@@ -483,7 +494,7 @@ const EditorDocsProgress = (props) => {
             ...prevState,
             doc_thread_id,
             student_id,
-            program_id,
+            application_id,
             docName,
             isFinal,
             SetAsFinalFileModel: true
@@ -506,7 +517,7 @@ const EditorDocsProgress = (props) => {
         setEditorDocsProgressState((prevState) => ({
             ...prevState,
             doc_thread_id,
-            program_id: application ? application.programId._id : null,
+            application_id: application ? application._id : null,
             student_id: studentId,
             docName,
             deleteFileWarningModel: true
@@ -780,7 +791,7 @@ const EditorDocsProgress = (props) => {
         isFinalVersion={editorDocsProgressState.isFinal}
         onClose={closeSetAsFinalFileModelWindow}
         title={t('Warning', { ns: 'common' })}
-        onConfirm={(e) => ConfirmSetAsFinalFileHandler(e)}
+        onConfirm={(e) => ConfirmSetThreadAsFinalFileHandler(e)}
         student_name={editorDocsProgressState.student_name}
         docName={editorDocsProgressState.docName}
       /> */}
@@ -802,7 +813,7 @@ const EditorDocsProgress = (props) => {
                     <Button
                         color="primary"
                         disabled={!isLoaded}
-                        onClick={ConfirmSetAsFinalFileHandler}
+                        onClick={ConfirmSetThreadAsFinalFileHandler}
                         variant="contained"
                     >
                         {isLoaded ? (

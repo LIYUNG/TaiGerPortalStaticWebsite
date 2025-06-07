@@ -15,7 +15,6 @@ export const TopToolbar = ({
     onAgentClick,
     onEditorClick
 }) => {
-    console.log(table.getSelectedRowModel().rows);
     const selectedRows = table.getSelectedRowModel().rows;
 
     return (

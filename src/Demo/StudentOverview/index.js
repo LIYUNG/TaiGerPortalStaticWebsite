@@ -24,7 +24,7 @@ const StudentOverviewPage = () => {
         return <Loading />;
     }
     TabTitle(i18next.t('Students Overview', { ns: 'common' }));
-    console.log(data?.data);
+
     return (
         <Box data-testid="student_overview">
             <Breadcrumbs aria-label="breadcrumb">

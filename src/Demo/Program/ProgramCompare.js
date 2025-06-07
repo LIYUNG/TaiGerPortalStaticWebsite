@@ -215,7 +215,6 @@ const ProgramCompare = ({
         if (typeof submitCallBack === 'function') {
             submitCallBack();
         }
-        console.log('Changes submitted');
     };
 
     return (

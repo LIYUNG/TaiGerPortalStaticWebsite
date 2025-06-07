@@ -71,7 +71,6 @@ const ProgramChangeRequestPage = () => {
                 return [...prev].filter((change) => change._id !== requestId);
             });
             setChangeIndex(0);
-            console.log(`submitFn ${requestId}:  done!`);
         };
         return callbackFn;
     };

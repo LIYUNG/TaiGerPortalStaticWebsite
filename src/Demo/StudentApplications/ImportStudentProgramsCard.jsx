@@ -198,7 +198,7 @@ export const ImportStudentProgramsCard = (props) => {
         let importing_program_ids_existing = [
             ...importStudentProgramsCard.program_ids
         ];
-        console.log(importing_program_ids_existing);
+
         if (isActive) {
             importing_program_ids_existing =
                 importing_program_ids_existing.filter(

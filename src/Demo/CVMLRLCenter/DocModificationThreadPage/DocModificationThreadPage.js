@@ -890,7 +890,7 @@ const DocModificationThreadPage = ({
         }
 
         formData.append('message', message);
-        console.log(docModificationThreadPageState.thread);
+
         SubmitMessageWithAttachment(
             documentsthreadId,
             docModificationThreadPageState.thread.student_id._id,
@@ -991,13 +991,10 @@ const DocModificationThreadPage = ({
             ...prevState,
             isSubmissionLoaded: false // false to reload everything
         }));
-        const temp_program_id = docModificationThreadPageState.program_id
-            ? docModificationThreadPageState.program_id._id.toString()
-            : undefined;
+
         SetFileAsFinal(
             docModificationThreadPageState.doc_thread_id,
             docModificationThreadPageState.student_id,
-            temp_program_id,
             docModificationThreadPageState.application_id
         ).then(
             (resp) => {

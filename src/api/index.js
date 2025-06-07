@@ -146,10 +146,6 @@ export const updateEditors = (editorsId, studentId) =>
 export const updateAttributes = (attributesId, studentId) =>
     request.post(`/api/students/${studentId}/attributes`, attributesId);
 
-// TODO: replace this.
-export const ToggleProgramStatus = (studentId, program_id) =>
-    request.put(`/api/students/${studentId}/${program_id}`);
-
 export const downloadProfile = (category, studentId) =>
     request.get(`/api/students/${studentId}/files/${category}`, {
         responseType: 'blob'
@@ -337,11 +333,11 @@ export const deleteGenralFileThread = (documentsthreadId, studentId) =>
 
 export const deleteProgramSpecificFileThread = (
     documentsthreadId,
-    programId,
+    application_id,
     studentId
 ) =>
     request.delete(
-        `/api/document-threads/${documentsthreadId}/${programId}/${studentId}`
+        `/api/document-threads/${documentsthreadId}/${application_id}/${studentId}`
     );
 
 export const getCheckDocumentPatternIsPassed = (thread_id, file_type) =>
@@ -361,14 +357,8 @@ export const getThreadsByStudent = (studentId) =>
 export const getMyStudentsThreads = ({ userId }) =>
     request.get(`/api/document-threads/overview/taiger-user/${userId}`);
 
-export const SetFileAsFinal = (
-    documentsthreadId,
-    studentId,
-    program_id,
-    application_id
-) =>
+export const SetFileAsFinal = (documentsthreadId, studentId, application_id) =>
     request.put(`/api/document-threads/${documentsthreadId}/${studentId}`, {
-        program_id,
         application_id
     });
 

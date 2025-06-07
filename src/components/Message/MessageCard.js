@@ -31,9 +31,11 @@ import { stringAvatar, convertDate } from '../../utils/contants';
 import { useAuth } from '../AuthProvider';
 import Loading from '../Loading/Loading';
 import { IgnoreMessageThread } from '../../../src/api/index';
+import { useSnackBar } from '../../contexts/use-snack-bar';
 
 const MessageCard = (props) => {
     const { user } = useAuth();
+    const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
     const [messageState, setMessageState] = useState({
         editorState: null,
         ConvertedContent: '',
@@ -96,7 +98,6 @@ const MessageCard = (props) => {
     const handleCheckboxChange = async () => {
         const ignore_message = !messageState.ignore_message;
         setMessageState((prevState) => {
-            console.log('Previous ignored_message:', prevState.ignore_message);
             return {
                 ...prevState,
                 ignore_message: ignore_message
@@ -111,8 +112,14 @@ const MessageCard = (props) => {
             message.message,
             ignore_message
         );
-        if (resp) {
-            console.log('nice');
+        if (resp.data?.success) {
+            setSeverity('success');
+            setMessage('Message ignore status updated successfully');
+            setOpenSnackbar(true);
+        } else {
+            setSeverity('error');
+            setMessage('An error occurred. Please try again.');
+            setOpenSnackbar(true);
         }
     };
 

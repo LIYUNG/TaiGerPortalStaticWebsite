@@ -74,7 +74,6 @@ const StudentTasksResponsive = (props) => {
             )
         );
     }
-    console.log(props.student);
     unread_applications_docthread =
         props.student.applications?.length > 0
             ? props.student.applications

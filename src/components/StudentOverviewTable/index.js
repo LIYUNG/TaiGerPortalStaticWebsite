@@ -76,7 +76,6 @@ const tranform = (stds) => {
                 object_init[keys[i]] === DocumentStatusType.Accepted &&
                 object_init[keys[i]] !== DocumentStatusType.NotNeeded
             ) {
-                console.log(keys[i]);
                 total_accepted_base_docs_needed += 1;
             }
         }

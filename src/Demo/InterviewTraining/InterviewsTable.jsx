@@ -30,7 +30,6 @@ export const InterviewsTable = ({ isLoading, data, columns }) => {
 
     const updateTrainer = async () => {
         const temp_trainer_id_array = Array.from(trainerId);
-        console.log(temp_trainer_id_array);
         const resp = await updateInterview(
             table.getSelectedRowModel()?.rows[0].original._id.toString(),
             {
