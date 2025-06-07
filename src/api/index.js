@@ -109,6 +109,12 @@ export const updateStudentApplications = (
         applying_program_count
     });
 
+export const updateStudentApplication = (studentId, application_id, payload) =>
+    request.put(
+        `/api/applications/student/${studentId}/${application_id}`,
+        payload
+    );
+
 // TODO: thread is empty!! application delete ok.
 export const deleteApplicationStudentV2 = (applicationId) =>
     request.delete(`/api/applications/application/${applicationId}`);

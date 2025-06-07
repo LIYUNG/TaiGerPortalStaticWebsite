@@ -12,20 +12,24 @@ import {
     DialogTitle,
     FormControl,
     Grid,
+    IconButton,
     Link,
     MenuItem,
     Select,
+    Stack,
     Table,
     TableBody,
     TableCell,
     TableContainer,
     TableHead,
     TableRow,
+    TextField,
     Typography
 } from '@mui/material';
 
 import { Link as LinkDom } from 'react-router-dom';
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 import { useTranslation } from 'react-i18next';
 import {
     is_TaiGer_role,
@@ -49,6 +53,7 @@ import OverlayButton from '../../components/Overlay/OverlayButton';
 import Banner from '../../components/Banner/Banner';
 import {
     IS_SUBMITTED_STATE_OPTIONS,
+    APPLICATION_YEARS_FUTURE,
     programstatuslist
 } from '../../utils/contants';
 import ErrorPage from '../Utils/ErrorPage';
@@ -56,7 +61,8 @@ import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { useSnackBar } from '../../contexts/use-snack-bar';
 import {
     updateStudentApplications,
-    deleteApplicationStudentV2
+    deleteApplicationStudentV2,
+    updateStudentApplication
 } from '../../api';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '../../store/constant';
@@ -117,6 +123,15 @@ const StudentApplicationsTableTemplate = (props) => {
         }));
     };
 
+    const handleSingleChange = (e, application_id) => {
+        e.preventDefault();
+        setStudentApplicationsTableTemplateState((prevState) => ({
+            ...prevState,
+            application_id: application_id,
+            [e.target.name]: e.target.value
+        }));
+    };
+
     const handleDelete = (e, application_id, student_id) => {
         e.preventDefault();
         setStudentApplicationsTableTemplateState((prevState) => ({
@@ -125,6 +140,69 @@ const StudentApplicationsTableTemplate = (props) => {
             application_id,
             modalDeleteApplication: true
         }));
+    };
+
+    const handleEdit = (e, application_id, application_year, student_id) => {
+        e.preventDefault();
+        setStudentApplicationsTableTemplateState((prevState) => ({
+            ...prevState,
+            student_id,
+            application_id,
+            application_year,
+            modalEditApplication: true
+        }));
+    };
+    const onHideModalEditApplication = () => {
+        setStudentApplicationsTableTemplateState((prevState) => ({
+            ...prevState,
+            modalEditApplication: false
+        }));
+    };
+    const handleEditConfirm = (e) => {
+        e.preventDefault();
+        const payload = {
+            application_year:
+                studentApplicationsTableTemplateState.application_year
+        };
+        updateStudentApplication(
+            studentApplicationsTableTemplateState.student._id,
+            studentApplicationsTableTemplateState.application_id,
+            payload
+        ).then((resp) => {
+            const { success, data } = resp.data;
+            if (success) {
+                const applications_temp = [
+                    ...studentApplicationsTableTemplateState.student
+                        .applications
+                ];
+                applications_temp[
+                    applications_temp.findIndex(
+                        (app) =>
+                            app._id ===
+                            studentApplicationsTableTemplateState.application_id
+                    )
+                ].application_year = data.application_year;
+                setStudentApplicationsTableTemplateState((prevState) => ({
+                    ...prevState,
+                    isLoaded: true,
+                    success: success,
+                    modalEditApplication: false,
+                    student: {
+                        ...prevState.student,
+                        applications: applications_temp
+                    }
+                }));
+            } else {
+                const { message } = resp.data;
+                setStudentApplicationsTableTemplateState((prevState) => ({
+                    ...prevState,
+                    isLoaded: true,
+                    error: message,
+                    res_modal_status: 400,
+                    res_modal_message: message
+                }));
+            }
+        });
     };
 
     const onHideModalDeleteApplication = () => {
@@ -359,21 +437,37 @@ const StudentApplicationsTableTemplate = (props) => {
                     <TableRow key={application_idx}>
                         {!is_TaiGer_Student(user) ? (
                             <TableCell>
-                                <Button
-                                    color="primary"
-                                    onClick={(e) =>
-                                        handleDelete(
-                                            e,
-                                            application._id,
-                                            studentApplicationsTableTemplateState
-                                                .student._id
-                                        )
-                                    }
-                                    size="small"
-                                    variant="contained"
-                                >
-                                    <DeleteIcon fontSize="small" />
-                                </Button>
+                                <Stack direction="row" spacing={1}>
+                                    <IconButton
+                                        color="primary"
+                                        onClick={(e) =>
+                                            handleDelete(
+                                                e,
+                                                application._id,
+                                                studentApplicationsTableTemplateState
+                                                    .student._id
+                                            )
+                                        }
+                                        variant="contained"
+                                    >
+                                        <DeleteIcon />
+                                    </IconButton>
+                                    <IconButton
+                                        color="secondary"
+                                        onClick={(e) =>
+                                            handleEdit(
+                                                e,
+                                                application._id,
+                                                application.application_year,
+                                                studentApplicationsTableTemplateState
+                                                    .student._id
+                                            )
+                                        }
+                                        variant="contained"
+                                    >
+                                        <EditIcon />
+                                    </IconButton>
+                                </Stack>
                             </TableCell>
                         ) : null}
                         <TableCell>
@@ -921,6 +1015,52 @@ const StudentApplicationsTableTemplate = (props) => {
                             studentApplicationsTableTemplateState.modalDeleteApplication
                         }
                         title={t('Warning', { ns: 'common' })}
+                    />
+                    <ConfirmationModal
+                        closeText={t('No', { ns: 'common' })}
+                        confirmText={t('Yes', { ns: 'common' })}
+                        content={
+                            <Box>
+                                <TextField
+                                    fullWidth
+                                    label={t('Application Year')}
+                                    name="application_year"
+                                    onChange={(e) =>
+                                        handleSingleChange(
+                                            e,
+                                            studentApplicationsTableTemplateState.application_id
+                                        )
+                                    }
+                                    options={APPLICATION_YEARS_FUTURE().map(
+                                        (year) => year.value
+                                    )}
+                                    select
+                                    value={
+                                        studentApplicationsTableTemplateState.application_year
+                                    }
+                                >
+                                    {APPLICATION_YEARS_FUTURE().map(
+                                        (option) => (
+                                            <MenuItem
+                                                key={option.value}
+                                                value={option.value}
+                                            >
+                                                {option.label}
+                                            </MenuItem>
+                                        )
+                                    )}
+                                </TextField>
+                            </Box>
+                        }
+                        isLoading={
+                            !studentApplicationsTableTemplateState.isLoaded
+                        }
+                        onClose={onHideModalEditApplication}
+                        onConfirm={handleEditConfirm}
+                        open={
+                            studentApplicationsTableTemplateState.modalEditApplication
+                        }
+                        title={t('Edit Application Year', { ns: 'common' })}
                     />
                 </Box>
             </>
