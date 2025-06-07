@@ -145,7 +145,7 @@ const StudentApplicationsTableTemplate = (props) => {
             studentApplicationsTableTemplateState.application_id
         ).then(
             (resp) => {
-                const { data, success } = resp.data;
+                const { success } = resp.data;
                 const { status } = resp;
                 if (success) {
                     setSeverity('success');
@@ -160,7 +160,9 @@ const StudentApplicationsTableTemplate = (props) => {
                     ];
                     applications_temp.splice(
                         applications_temp.findIndex(
-                            (app) => app._id === data._id
+                            (app) =>
+                                app._id ===
+                                studentApplicationsTableTemplateState.application_id
                         ),
                         1
                     );
