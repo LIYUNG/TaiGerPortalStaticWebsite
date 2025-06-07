@@ -630,7 +630,6 @@ const routes = [
     {
         path: '/students-overview/all',
         errorElement: <DefaultErrorPage />,
-        loader: AllActiveStudentsV2Loader,
         element: <StudentOverviewPage />
     },
     {

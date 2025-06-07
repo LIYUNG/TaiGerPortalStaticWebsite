@@ -1217,7 +1217,7 @@ export const is_program_ml_rl_essay_finished = (application) => {
 export const is_cv_assigned = (student) => {
     // check CV
     return (
-        student.generaldocs_threads.findIndex(
+        student.generaldocs_threads?.findIndex(
             (thread) => thread.doc_thread_id.file_type === 'CV'
         ) >= 0
     );
@@ -2185,7 +2185,7 @@ export const programs_refactor = (students) => {
                     : 'Undecided';
 
                 acc.push({
-                    id: `${student._id.toString()}-${application.programId._id.toString()}`,
+                    id: `${student._id.toString()}-${application.programId?._id?.toString()}`,
                     target_year: `${
                         student.application_preference
                             ?.expected_application_date || '-'
@@ -2212,7 +2212,7 @@ export const programs_refactor = (students) => {
                     testdaf: application.programId.testdaf,
                     whoupdated: application.programId.whoupdated,
                     updatedAt: application.programId.updatedAt,
-                    program_id: application.programId._id.toString(),
+                    program_id: application.programId._id?.toString(),
                     application_deadline: deadline,
                     isPotentials: application.decided === '-',
                     decided: application.decided,

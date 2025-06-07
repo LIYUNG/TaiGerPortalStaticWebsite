@@ -176,10 +176,10 @@ const StudentOverviewTable = ({ students }) => {
                             (thread) =>
                                 isProgramDecided(application) &&
                                 thread.doc_thread_id?.isFinalVersion &&
-                                (thread.doc_thread_id?.file_type.includes(
+                                (thread.doc_thread_id?.file_type?.includes(
                                     'RL'
                                 ) ||
-                                    thread.doc_thread_id?.file_type.includes(
+                                    thread.doc_thread_id?.file_type?.includes(
                                         'Recommendation'
                                     ))
                         )
@@ -189,10 +189,10 @@ const StudentOverviewTable = ({ students }) => {
                         application.doc_modification_thread?.some(
                             (thread) =>
                                 isProgramDecided(application) &&
-                                (thread.doc_thread_id?.file_type.includes(
+                                (thread.doc_thread_id?.file_type?.includes(
                                     'RL'
                                 ) ||
-                                    thread.doc_thread_id?.file_type.includes(
+                                    thread.doc_thread_id?.file_type?.includes(
                                         'Recommendation'
                                     ))
                         )
@@ -204,7 +204,7 @@ const StudentOverviewTable = ({ students }) => {
                             (thread) =>
                                 isProgramDecided(application) &&
                                 thread.doc_thread_id?.isFinalVersion &&
-                                thread.doc_thread_id?.file_type.includes(
+                                thread.doc_thread_id?.file_type?.includes(
                                     'Essay'
                                 )
                         )
@@ -214,7 +214,7 @@ const StudentOverviewTable = ({ students }) => {
                         application.doc_modification_thread?.some(
                             (thread) =>
                                 isProgramDecided(application) &&
-                                thread.doc_thread_id?.file_type.includes(
+                                thread.doc_thread_id?.file_type?.includes(
                                     'Essay'
                                 )
                         )
@@ -334,10 +334,10 @@ const StudentOverviewTable = ({ students }) => {
                     return params.row.agents?.map((agent) => (
                         <Link
                             component={LinkDom}
-                            key={`${agent._id.toString()}`}
+                            key={`${agent._id?.toString()}`}
                             target="_blank"
                             title={agent.firstname}
-                            to={DEMO.TEAM_AGENT_LINK(agent._id.toString())}
+                            to={DEMO.TEAM_AGENT_LINK(agent._id?.toString())}
                             underline="hover"
                         >
                             {`${agent.firstname} `}
@@ -353,10 +353,10 @@ const StudentOverviewTable = ({ students }) => {
                     return params.row.editors?.map((editor) => (
                         <Link
                             component={LinkDom}
-                            key={`${editor._id.toString()}`}
+                            key={`${editor._id?.toString()}`}
                             target="_blank"
                             title={editor.firstname}
-                            to={DEMO.TEAM_EDITOR_LINK(editor._id.toString())}
+                            to={DEMO.TEAM_EDITOR_LINK(editor._id?.toString())}
                             underline="hover"
                         >
                             {`${editor.firstname} `}

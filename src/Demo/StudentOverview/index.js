@@ -11,16 +11,20 @@ import StudentOverviewTable from '../../components/StudentOverviewTable';
 import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';
 import { getAllActiveStudentsQuery } from '../../api/query';
+import Loading from '../../components/Loading/Loading';
 
 const StudentOverviewPage = () => {
     const { user } = useAuth();
-    const { data } = useQuery(getAllActiveStudentsQuery());
+    const { data, isLoading } = useQuery(getAllActiveStudentsQuery());
 
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
+    if (isLoading) {
+        return <Loading />;
+    }
     TabTitle(i18next.t('Students Overview', { ns: 'common' }));
-
+    console.log(data?.data);
     return (
         <Box data-testid="student_overview">
             <Breadcrumbs aria-label="breadcrumb">
