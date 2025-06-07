@@ -13,7 +13,11 @@ import { is_TaiGer_Editor, is_TaiGer_role } from '@taiger-common/core';
 
 import CVMLRLOverview from './CVMLRLOverview';
 import ErrorPage from '../Utils/ErrorPage';
-import { getMyStudentsThreads, putThreadFavorite } from '../../api';
+import {
+    getMyStudentsThreads,
+    getThreadsByStudent,
+    putThreadFavorite
+} from '../../api';
 import { TabTitle } from '../Utils/TabTitle';
 import {
     AGENT_SUPPORT_DOCUMENTS_A,
@@ -53,11 +57,14 @@ const CVMLRLCenter = () => {
     });
 
     useEffect(() => {
-        getMyStudentsThreads({ userId: user._id }).then(
+        const apiCall = is_TaiGer_role(user)
+            ? getMyStudentsThreads({ userId: user._id })
+            : getThreadsByStudent(user._id);
+        apiCall.then(
             (resp) => {
                 const { data, success } = resp.data;
                 const { status } = resp;
-                const tasksData = open_tasks_v2(data);
+                const tasksData = open_tasks_v2(data.threads);
                 if (success) {
                     setIndexState((prevState) => ({
                         ...prevState,

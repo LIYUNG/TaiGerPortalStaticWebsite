@@ -392,8 +392,7 @@ const DocumentCommunicationExpandPage = () => {
 
     const { data: studentThreadsData, isLoading: studentThreadIsLoading } =
         useQuery(getThreadByStudentQuery(studentId));
-    const { threads: studentThreads = [] } =
-        studentThreadsData?.data?.data || {};
+    const studentThreads = studentThreadsData?.data?.data || [];
 
     useEffect(() => {
         if (!threadId) {
