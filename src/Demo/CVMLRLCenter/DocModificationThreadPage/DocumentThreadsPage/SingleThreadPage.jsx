@@ -23,8 +23,8 @@ const SingleThreadPage = () => {
     if (isLoading) {
         return <Loading />;
     }
-    if (error) {
-        return <ErrorPage />;
+    if (error || !data.data.success) {
+        return <ErrorPage res_status={404} />;
     }
     const thread = data.data?.data;
     const agents = data.data?.agents;
