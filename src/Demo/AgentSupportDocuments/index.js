@@ -50,7 +50,7 @@ const AgentSupportDocuments = () => {
                 const { data, success } = resp.data;
                 const { status } = resp;
                 if (success) {
-                    const tasksData = open_tasks_v2(data);
+                    const tasksData = open_tasks_v2(data.threads);
                     setIndexState((prevState) => ({
                         ...prevState,
                         isLoaded: true,

@@ -71,6 +71,7 @@ export const getAllStudentsV2 = () => getData(`/api/students/all`);
 
 export const getAllActiveStudents = () =>
     request.get(`/api/students/all/active`);
+export const getMyActiveStudents = () => getData(`/api/students/my/active`);
 
 export const getAllActiveStudentsV2 = () => getData(`/api/students/all/active`);
 

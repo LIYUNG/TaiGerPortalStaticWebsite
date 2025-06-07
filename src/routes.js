@@ -607,7 +607,6 @@ const routes = [
     {
         path: '/students-overview',
         errorElement: <DefaultErrorPage />,
-        loader: getStudentsLoader,
         element: <MyStudentOverviewPage />
     },
     {

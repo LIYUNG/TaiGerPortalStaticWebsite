@@ -20,7 +20,8 @@ import {
     getMyStudentsApplications,
     getMyStudentsThreads,
     getApplicationStudentV2,
-    getStudentAndDocLinks
+    getStudentAndDocLinks,
+    getMyActiveStudents
 } from '.';
 
 export const getMessagThreadQuery = (threadId) => ({
@@ -60,6 +61,12 @@ export const getStatisticsQuery = () => ({
     queryKey: ['statistics'],
     queryFn: getStatisticsV2,
     staleTime: 1000 * 60 * 5 // 5 minutes
+});
+
+export const getMyActiveStudentsQuery = () => ({
+    queryKey: ['students/my/active'],
+    queryFn: () => getMyActiveStudents(),
+    staleTime: 1000 * 60 * 1 // 1 minutes
 });
 
 export const getAllActiveStudentsQuery = () => ({
