@@ -352,9 +352,15 @@ export const getThreadsByStudent = (studentId) =>
 export const getMyStudentsThreads = ({ userId }) =>
     request.get(`/api/document-threads/overview/taiger-user/${userId}`);
 
-export const SetFileAsFinal = (documentsthreadId, studentId, program_id) =>
+export const SetFileAsFinal = (
+    documentsthreadId,
+    studentId,
+    program_id,
+    application_id
+) =>
     request.put(`/api/document-threads/${documentsthreadId}/${studentId}`, {
-        program_id
+        program_id,
+        application_id
     });
 
 export const updateEssayWriter = (editor_id, documentsthreadId) =>
