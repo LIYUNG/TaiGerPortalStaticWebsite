@@ -10,8 +10,6 @@ import { convertDate, twoYearsInDays } from '../../utils/contants';
 import { pdfjs } from 'react-pdf';
 import {
     DocumentStatusType,
-    is_TaiGer_Agent,
-    is_TaiGer_Editor,
     isProgramAdmitted,
     isProgramDecided,
     isProgramSubmitted,
@@ -1631,7 +1629,7 @@ export const getNumberOfFilesByEditor = (messages, student_id) => {
     let file_count = 0;
     let message_count = 0;
     for (const message of messages) {
-        if (message.user_id?._id.toString() !== student_id) {
+        if (message.user_id?._id?.toString() !== student_id) {
             file_count += message.file?.length || 0;
             message_count += 1;
         }
@@ -1676,38 +1674,6 @@ export const prepTaskStudent = (student) => {
     };
 };
 
-// the messages[0] is already the latest message handled by backend query.
-const latestReplyUserId = (thread) => {
-    return thread.messages?.length > 0
-        ? thread.messages[0].user_id?._id.toString()
-        : '';
-};
-const prepEssayTaskThread = (student, thread) => {
-    return {
-        ...prepTaskStudent(student),
-        id: thread._id?.toString(),
-        latest_message_left_by_id: latestReplyUserId(thread),
-        isFinalVersion: thread.isFinalVersion,
-        outsourced_user_id: thread?.outsourced_user_id,
-        outsourced_user_name_joined: thread?.outsourced_user_id
-            ?.map((outsourcer) => outsourcer.firstname)
-            .join(' '),
-        flag_by_user_id: thread?.flag_by_user_id,
-        file_type: thread.file_type,
-        aged_days: differenceInDays(new Date(), thread.updatedAt),
-        latest_reply: latestReplyInfo(thread),
-        updatedAt: convertDate(thread.updatedAt),
-        number_input_from_student: getNumberOfFilesByStudent(
-            thread.messages,
-            student._id.toString()
-        ),
-        number_input_from_editors: getNumberOfFilesByEditor(
-            thread.messages,
-            student._id.toString()
-        )
-    };
-};
-
 const prepTaskV2 = (student, thread) => {
     return {
         ...prepTaskStudent(student),
@@ -1734,7 +1700,7 @@ const prepTaskV2 = (student, thread) => {
 const prepTask = (student, thread) => {
     return {
         ...prepTaskStudent(student),
-        id: thread.doc_thread_id?._id.toString(),
+        id: thread.doc_thread_id?._id?.toString(),
         latest_message_left_by_id: thread.latest_message_left_by_id,
         flag_by_user_id: thread.doc_thread_id?.flag_by_user_id,
         isFinalVersion: thread.isFinalVersion,
@@ -1784,46 +1750,6 @@ const prepGeneralTask = (student, thread) => {
     };
 };
 
-const prepEssayTask = (essay, user) => {
-    console.log(essay);
-    return {
-        ...prepEssayTaskThread(essay.student_id, essay),
-        thread_id: essay._id.toString(),
-        program_id: essay.program_id._id.toString(),
-        lang: essay.program_id?.lang,
-        deadline: application_deadline_V2_calculator({
-            programId: essay.program_id,
-            application_year: essay.application_id?.application_year
-        }),
-        show:
-            AGENT_SUPPORT_DOCUMENTS_A.includes(essay.file_type) &&
-            is_TaiGer_Editor(user)
-                ? essay.outsourced_user_id?.some(
-                      (outsourcer) =>
-                          outsourcer._id.toString() === user._id.toString()
-                  ) || false
-                : is_TaiGer_Agent(user)
-                  ? essay.student_id?.agents.some(
-                        (agent) => agent._id.toString() === user._id.toString()
-                    ) ||
-                    essay.outsourced_user_id?.some(
-                        (outsourcer) =>
-                            outsourcer._id.toString() === user._id.toString()
-                    ) ||
-                    false
-                  : true,
-        document_name: `${essay.file_type} - ${essay.program_id.school} - ${essay.program_id.degree} -${essay.program_id.program_name}`,
-        days_left:
-            differenceInDays(
-                application_deadline_V2_calculator({
-                    programId: essay.program_id,
-                    application_year: essay.application_id?.application_year
-                }),
-                new Date()
-            ) || '-'
-    };
-};
-
 const prepApplicationTaskV2 = (student, application, program, thread) => {
     return {
         ...prepTaskV2(student, thread),
@@ -1851,7 +1777,7 @@ const prepApplicationTaskV2 = (student, application, program, thread) => {
 const prepApplicationTask = (student, application, thread) => {
     return {
         ...prepTask(student, thread),
-        thread_id: thread.doc_thread_id?._id.toString(),
+        thread_id: thread.doc_thread_id?._id?.toString(),
         program_id: application.programId?._id.toString(),
         deadline: application_deadline_V2_calculator(application),
         show: isProgramDecided(application) ? true : false,
@@ -1901,17 +1827,6 @@ export const open_tasks = (students) => {
                 }
             }
         }
-    }
-    return tasks;
-};
-
-export const open_essays_tasks = (essays, user) => {
-    const tasks = [];
-    if (!essays) {
-        return [];
-    }
-    for (const essay of essays) {
-        tasks.push(prepEssayTask(essay, user));
     }
     return tasks;
 };
