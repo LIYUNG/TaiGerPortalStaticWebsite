@@ -65,6 +65,9 @@ export const getStudentsV3 = () => getData(`/api/students/v3`);
 export const getMyStudentsApplications = ({ userId }) =>
     getData(`/api/applications/taiger-user/${userId}`);
 
+export const getActiveStudentsApplications = () =>
+    getData(`/api/applications/all/active/applications`);
+
 export const getAllStudents = () => request.get(`/api/students/all`);
 
 export const getAllStudentsV2 = () => getData(`/api/students/all`);

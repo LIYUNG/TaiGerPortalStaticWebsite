@@ -601,7 +601,6 @@ const routes = [
     {
         path: '/all-students-applications',
         errorElement: <DefaultErrorPage />,
-        loader: AllActiveStudentsV2Loader,
         element: <AllApplicantsOverview />
     },
     {

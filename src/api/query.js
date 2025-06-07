@@ -21,7 +21,8 @@ import {
     getMyStudentsThreads,
     getApplicationStudentV2,
     getStudentAndDocLinks,
-    getMyActiveStudents
+    getMyActiveStudents,
+    getActiveStudentsApplications
 } from '.';
 
 export const getMessagThreadQuery = (threadId) => ({
@@ -144,6 +145,12 @@ export const getApplicationStudentV2Query = ({ studentId }) => ({
 export const getStudentAndDocLinksQuery = ({ studentId }) => ({
     queryKey: ['students/doc-links', studentId],
     queryFn: () => getStudentAndDocLinks(studentId),
+    staleTime: 1000 * 60 * 5 // 5 minutes
+});
+
+export const getActiveStudentsApplicationsV2Query = () => ({
+    queryKey: ['applications/all/active/applications'],
+    queryFn: () => getActiveStudentsApplications(),
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
 
