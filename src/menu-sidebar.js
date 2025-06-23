@@ -307,7 +307,37 @@ taiger_teams_items = [
     }
 ];
 
+// if (appConfig.CRMEnable) {
+//     application_overview.push({
+//         id: 'crm_overview',
+//         title: 'CRM Overview',
+//         type: 'item',
+//         url: '/crm-overview',
+//         icon: <DrawIcon />,
+//         target: false,
+//         breadcrumbs: false
+//     });
+// }
+
 export const MenuSidebar = [
+    {
+        id: 'CRM',
+        title: 'CRM',
+        type: 'item',
+        url: '/crm',
+        icon: <SupportAgentIcon />,
+        children: [
+            {
+                id: 'crm_overview',
+                title: 'CRM Overview',
+                type: 'item',
+                url: '/CRM',
+                icon: <DrawIcon />,
+                target: false,
+                breadcrumbs: false
+            }
+        ]
+    },
     {
         id: 'dashboard',
         title: 'Dashboard',
