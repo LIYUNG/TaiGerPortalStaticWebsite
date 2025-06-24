@@ -1,4 +1,3 @@
-// import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Box, Breadcrumbs, Link, Typography } from '@mui/material';
 import i18next from 'i18next';
@@ -15,7 +14,6 @@ import { is_TaiGer_role } from '@taiger-common/core';
 
 const CRMDashboard = () => {
     const { user } = useAuth();
-    // const [expandedIdx, setExpandedIdx] = useState(null);
 
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
@@ -34,7 +32,7 @@ const CRMDashboard = () => {
                     {appConfig.companyName}
                 </Link>
                 <Typography color="text.primary">
-                    {i18next.t('All Students', { ns: 'common' })}
+                    {i18next.t('CRM', { ns: 'common' })}
                 </Typography>
             </Breadcrumbs>
             <Box sx={{ mt: 2 }}>
