@@ -37,6 +37,15 @@ const TranscriptCard = ({ transcript }) => {
                     <strong>Speakers:</strong>{' '}
                     {speakers?.map((s) => s.name).join(', ')}
                 </Typography>
+                <Typography gutterBottom sx={{ mt: 1 }} variant="body2">
+                    <strong>Action Items:</strong>
+                </Typography>
+                <Typography
+                    component="pre"
+                    sx={{ background: '#f5f5f5', p: 1, borderRadius: 1, mb: 0 }}
+                >
+                    {summary?.action_items || 'N/A'}
+                </Typography>
             </CardContent>
             <Collapse in={expanded} timeout="auto" unmountOnExit>
                 <CardContent>
@@ -56,15 +65,6 @@ const TranscriptCard = ({ transcript }) => {
                         sx={{ background: '#f5f5f5', p: 1, borderRadius: 1 }}
                     >
                         {summary?.bullet_gist || 'N/A'}
-                    </Typography>
-                    <Typography gutterBottom variant="body2">
-                        <strong>Action Items:</strong>
-                    </Typography>
-                    <Typography
-                        component="pre"
-                        sx={{ background: '#f5f5f5', p: 1, borderRadius: 1 }}
-                    >
-                        {summary?.action_items || 'N/A'}
                     </Typography>
                     <Link
                         href={transcript_url}

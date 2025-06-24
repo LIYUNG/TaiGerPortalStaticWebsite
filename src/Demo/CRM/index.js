@@ -45,11 +45,9 @@ const CRMDashboard = () => {
                     {i18next.t('Transcript Summaries', { ns: 'common' })}
                 </Typography>
                 <Box>
-                    {firefiliesTranscript.data.transcripts
-                        .filter((t) => t && t.title)
-                        .map((t, idx) => (
-                            <TranscriptCard key={t.id || idx} transcript={t} />
-                        ))}
+                    {firefiliesTranscript.data.transcripts.map((t, idx) => (
+                        <TranscriptCard key={t.id || idx} transcript={t} />
+                    ))}
                 </Box>
             </Box>
         </Box>
