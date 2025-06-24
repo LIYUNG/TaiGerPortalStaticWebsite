@@ -45,7 +45,7 @@ const TranscriptCard = ({ transcript }) => {
                 </Typography>
                 <Typography
                     component="pre"
-                    sx={{ background: '#f5f5f5', p: 1, borderRadius: 1, mb: 0 }}
+                    sx={{ p: 1, borderRadius: 1, mb: 0 }}
                 >
                     {(() => {
                         const text = summary?.action_items;
@@ -76,10 +76,7 @@ const TranscriptCard = ({ transcript }) => {
                     <Typography gutterBottom variant="body2">
                         <strong>Bullet Summary:</strong>
                     </Typography>
-                    <Typography
-                        component="pre"
-                        sx={{ background: '#f5f5f5', p: 1, borderRadius: 1 }}
-                    >
+                    <Typography component="pre" sx={{ p: 1, borderRadius: 1 }}>
                         {summary?.bullet_gist || 'N/A'}
                     </Typography>
                     <Typography gutterBottom variant="subtitle1">
