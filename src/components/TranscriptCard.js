@@ -44,7 +44,10 @@ const TranscriptCard = ({ transcript }) => {
                     component="pre"
                     sx={{ background: '#f5f5f5', p: 1, borderRadius: 1, mb: 0 }}
                 >
-                    {summary?.action_items || 'N/A'}
+                    {(summary?.action_items || 'N/A').replace(
+                        /^\s*\n+|\n+\s*$/g,
+                        ''
+                    )}
                 </Typography>
             </CardContent>
             <Collapse in={expanded} timeout="auto" unmountOnExit>
