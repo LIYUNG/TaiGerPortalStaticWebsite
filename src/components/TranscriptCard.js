@@ -24,11 +24,6 @@ const TranscriptCard = ({ transcript }) => {
             }}
         >
             <CardHeader
-                action={
-                    <IconButton onClick={() => setExpanded(!expanded)}>
-                        {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                    </IconButton>
-                }
                 subheader={dayjs(dateString).format('YYYY-MM-DD HH:mm')}
                 title={title}
             />
@@ -44,22 +39,32 @@ const TranscriptCard = ({ transcript }) => {
                     component="pre"
                     sx={{ background: '#f5f5f5', p: 1, borderRadius: 1, mb: 0 }}
                 >
-                    {(summary?.action_items || 'N/A').replace(
-                        /^\s*\n+|\n+\s*$/g,
-                        ''
-                    )}
+                    {(() => {
+                        const text = summary?.action_items;
+                        if (!text) return 'N/A';
+                        let trimmed = text;
+                        while (trimmed.startsWith('\n'))
+                            trimmed = trimmed.slice(1);
+                        while (trimmed.endsWith('\n'))
+                            trimmed = trimmed.slice(0, -1);
+                        return trimmed;
+                    })()}
                 </Typography>
+                {/* Centered collapse button */}
+                <div
+                    style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        marginTop: 0
+                    }}
+                >
+                    <IconButton onClick={() => setExpanded(!expanded)}>
+                        {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                    </IconButton>
+                </div>
             </CardContent>
             <Collapse in={expanded} timeout="auto" unmountOnExit>
                 <CardContent>
-                    <Typography gutterBottom variant="subtitle1">
-                        <strong>Summary:</strong>{' '}
-                        {summary?.gist || 'No summary available.'}
-                    </Typography>
-                    <Typography gutterBottom variant="body2">
-                        <strong>Keywords:</strong>{' '}
-                        {summary?.keywords?.join(', ') || 'N/A'}
-                    </Typography>
                     <Typography gutterBottom variant="body2">
                         <strong>Bullet Summary:</strong>
                     </Typography>
@@ -68,6 +73,10 @@ const TranscriptCard = ({ transcript }) => {
                         sx={{ background: '#f5f5f5', p: 1, borderRadius: 1 }}
                     >
                         {summary?.bullet_gist || 'N/A'}
+                    </Typography>
+                    <Typography gutterBottom variant="subtitle1">
+                        <strong>Summary:</strong>{' '}
+                        {summary?.short_summary || 'No summary available.'}
                     </Typography>
                     <Link
                         href={transcript_url}
