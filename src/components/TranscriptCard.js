@@ -32,6 +32,14 @@ const TranscriptCard = ({ transcript }) => {
                     <strong>Speakers:</strong>{' '}
                     {speakers?.map((s) => s.name).join(', ')}
                 </Typography>
+                <Typography
+                    color="text.secondary"
+                    sx={{ mt: 0.5 }}
+                    variant="body2"
+                >
+                    <strong>Participants:</strong>{' '}
+                    {(transcript.participants || []).join(', ') || 'N/A'}
+                </Typography>
                 <Typography gutterBottom sx={{ mt: 1 }} variant="body2">
                     <strong>Action Items:</strong>
                 </Typography>
@@ -55,7 +63,7 @@ const TranscriptCard = ({ transcript }) => {
                     style={{
                         display: 'flex',
                         justifyContent: 'center',
-                        marginTop: 0
+                        marginTop: 8
                     }}
                 >
                     <IconButton onClick={() => setExpanded(!expanded)}>
