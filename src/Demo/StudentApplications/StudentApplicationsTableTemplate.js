@@ -21,11 +21,13 @@ import {
     TableContainer,
     TableHead,
     TableRow,
-    Typography
+    Typography,
+    Tooltip
 } from '@mui/material';
 
 import { Link as LinkDom } from 'react-router-dom';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { Undo as UndoIcon, Redo as RedoIcon } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import {
     is_TaiGer_role,
@@ -33,6 +35,7 @@ import {
     is_TaiGer_Admin,
     isProgramDecided,
     isProgramSubmitted,
+    isProgramWithdraw,
     isProgramAdmitted
 } from '@taiger-common/core';
 import { differenceInDays } from 'date-fns';
@@ -111,6 +114,19 @@ const StudentApplicationsTableTemplate = (props) => {
             ...prevState,
             application_status_changed: true,
             applications: applications_temp
+        }));
+    };
+
+    const handleWithdraw = (e, application_idx, programWithdraw = '-') => {
+        e.preventDefault();
+        let applications_temp = [
+            ...studentApplicationsTableTemplateState.student.applications
+        ];
+        applications_temp[application_idx].closed = programWithdraw;
+        setStudentApplicationsTableTemplateState((prevState) => ({
+            ...prevState,
+            applications: applications_temp,
+            application_status_changed: true
         }));
     };
 
@@ -468,7 +484,8 @@ const StudentApplicationsTableTemplate = (props) => {
                                 </Select>
                             </FormControl>
                         </TableCell>
-                        {isProgramDecided(application) ? (
+                        {isProgramDecided(application) &&
+                        !isProgramWithdraw(application) ? (
                             <TableCell>
                                 {/* When all thread finished */}
                                 {isProgramSubmitted(application) ||
@@ -496,11 +513,6 @@ const StudentApplicationsTableTemplate = (props) => {
                                         >
                                             <MenuItem value="-">
                                                 {t('Not Yet', { ns: 'common' })}
-                                            </MenuItem>
-                                            <MenuItem value="X">
-                                                {t('Withdraw', {
-                                                    ns: 'common'
-                                                })}
                                             </MenuItem>
                                             <MenuItem value="O">
                                                 {t('Submitted', {
@@ -534,7 +546,15 @@ const StudentApplicationsTableTemplate = (props) => {
                                 )}
                             </TableCell>
                         ) : (
-                            <TableCell>-</TableCell>
+                            <TableCell>
+                                {isProgramWithdraw(application) ? (
+                                    <Typography color="error" fontWeight="bold">
+                                        WITHDRAW
+                                    </Typography>
+                                ) : (
+                                    '-'
+                                )}
+                            </TableCell>
                         )}
                         {isProgramDecided(application) &&
                         isProgramSubmitted(application) ? (
@@ -622,6 +642,38 @@ const StudentApplicationsTableTemplate = (props) => {
                                       : '-'}
                             </Typography>
                         </TableCell>
+                        {is_TaiGer_role(user) && (
+                            <TableCell>
+                                {isProgramDecided(application) &&
+                                    !isProgramSubmitted(application) &&
+                                    // only show withdraw/undo button when the program is decided but not submitted
+                                    (isProgramWithdraw(application) ? (
+                                        <Tooltip arrow title="Undo Withdraw">
+                                            <RedoIcon
+                                                onClick={(e) =>
+                                                    handleWithdraw(
+                                                        e,
+                                                        application_idx,
+                                                        '-' // Not Withdrawn - Not yet
+                                                    )
+                                                }
+                                            />
+                                        </Tooltip>
+                                    ) : (
+                                        <Tooltip arrow title="Withdraw">
+                                            <UndoIcon
+                                                onClick={(e) =>
+                                                    handleWithdraw(
+                                                        e,
+                                                        application_idx,
+                                                        'X' // Withdrawn
+                                                    )
+                                                }
+                                            />
+                                        </Tooltip>
+                                    ))}
+                            </TableCell>
+                        )}
                     </TableRow>
                 )
             );
