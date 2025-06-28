@@ -9,10 +9,13 @@ import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import Link from '@mui/material/Link';
+import Button from '@mui/material/Button';
+import Grid from '@mui/material/Grid';
 
 const TranscriptCard = ({ transcript }) => {
     const [expanded, setExpanded] = useState(false);
-    const { title, dateString, speakers, summary, transcript_url } = transcript;
+    const { title, dateString, speakers, summary, transcript_url, userId } =
+        transcript;
 
     return (
         <Card
@@ -23,10 +26,68 @@ const TranscriptCard = ({ transcript }) => {
                 boxShadow: 3
             }}
         >
-            <CardHeader
-                subheader={dayjs(dateString).format('YYYY-MM-DD HH:mm')}
-                title={title}
-            />
+            <Grid
+                alignItems="center"
+                container
+                spacing={2}
+                sx={{ p: 2, pb: 0 }}
+            >
+                <Grid item xs>
+                    <CardHeader
+                        subheader={dayjs(dateString).format('YYYY-MM-DD HH:mm')}
+                        sx={{ p: 0 }}
+                        title={title}
+                    />
+                </Grid>
+                <Grid item>
+                    {userId ? (
+                        <Typography color="primary" variant="body2">
+                            👤 {userId}
+                        </Typography>
+                    ) : (
+                        <Grid container spacing={1}>
+                            <Grid item>
+                                <Button
+                                    onClick={() => {
+                                        // TODO: Implement assign to existing user logic
+                                        alert(
+                                            'Assign to Existing User clicked'
+                                        );
+                                    }}
+                                    size="small"
+                                    variant="contained"
+                                >
+                                    Assign to User
+                                </Button>
+                            </Grid>
+                            <Grid item>
+                                <Button
+                                    onClick={() => {
+                                        // TODO: Implement create new user logic
+                                        alert('Create New User clicked');
+                                    }}
+                                    size="small"
+                                    variant="outlined"
+                                >
+                                    Create User
+                                </Button>
+                            </Grid>
+                            <Grid item>
+                                <Button
+                                    onClick={() => {
+                                        // TODO: Implement Archive logic
+                                        alert('Archive clicked');
+                                    }}
+                                    size="small"
+                                    variant="outlined"
+                                >
+                                    Archive
+                                </Button>
+                            </Grid>
+                        </Grid>
+                    )}
+                </Grid>
+            </Grid>
             <CardContent sx={{ pt: 0 }}>
                 <Typography color="text.secondary" variant="body2">
                     <strong>Speakers:</strong>{' '}
@@ -58,18 +119,13 @@ const TranscriptCard = ({ transcript }) => {
                         return trimmed;
                     })()}
                 </Typography>
-                {/* Centered collapse button */}
-                <div
-                    style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        marginTop: 8
-                    }}
-                >
-                    <IconButton onClick={() => setExpanded(!expanded)}>
-                        {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                    </IconButton>
-                </div>
+                <Grid container justifyContent="center" sx={{ mt: 1 }}>
+                    <Grid item>
+                        <IconButton onClick={() => setExpanded(!expanded)}>
+                            {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                        </IconButton>
+                    </Grid>
+                </Grid>
             </CardContent>
             <Collapse in={expanded} timeout="auto" unmountOnExit>
                 <CardContent>

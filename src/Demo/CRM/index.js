@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom';
-import { Box, Breadcrumbs, Link, Typography } from '@mui/material';
+import { Box, Breadcrumbs, Link, Typography, Button } from '@mui/material';
 import i18next from 'i18next';
 
 import { TabTitle } from '../Utils/TabTitle';
@@ -42,7 +42,20 @@ const CRMDashboard = () => {
                 <Typography sx={{ mb: 2 }} variant="body1">
                     {i18next.t('Transcript Summaries', { ns: 'common' })}
                 </Typography>
+                <Box sx={{ mb: 2 }}>
+                    <Button
+                        onClick={() =>
+                            alert(
+                                'Fetch transcripts feature is not implemented yet.'
+                            )
+                        }
+                        variant="outlined"
+                    >
+                        Fetch Latest Transcripts
+                    </Button>
+                </Box>
                 <Box>
+                    <></>
                     {firefiliesTranscript.data.transcripts
                         .filter((t) => {
                             const { meeting_info } = t;
