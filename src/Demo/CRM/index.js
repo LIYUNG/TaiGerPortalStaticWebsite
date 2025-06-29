@@ -7,8 +7,6 @@ import DEMO from '../../store/constant';
 import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';
 
-// import firefilies-transcript.json file as dummy data
-// import firefiliesTranscript from './fireflies-transcript.json';
 import TranscriptCard from '../../components/TranscriptCard';
 import { is_TaiGer_role } from '@taiger-common/core';
 import { useEffect, useState } from 'react';
@@ -32,8 +30,6 @@ const CRMDashboard = () => {
                 console.error('Failed to fetch transcripts:', error);
             });
     }, []);
-
-    console.log('Transcripts:', transcripts);
 
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
