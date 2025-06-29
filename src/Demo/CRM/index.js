@@ -7,7 +7,7 @@ import DEMO from '../../store/constant';
 import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';
 
-import TranscriptCard from '../../components/TranscriptCard';
+import TranscriptCard from './TranscriptCard';
 import { is_TaiGer_role } from '@taiger-common/core';
 import { useEffect, useState } from 'react';
 
