@@ -8,12 +8,32 @@ import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';
 
 // import firefilies-transcript.json file as dummy data
-import firefiliesTranscript from './fireflies-transcript.json';
+// import firefiliesTranscript from './fireflies-transcript.json';
 import TranscriptCard from '../../components/TranscriptCard';
 import { is_TaiGer_role } from '@taiger-common/core';
+import { useEffect, useState } from 'react';
+
+import { request } from '../../api/request';
 
 const CRMDashboard = () => {
     const { user } = useAuth();
+
+    // Temporory workaround to fetch transcripts
+    // TODO: implement actual/proper API call to fetch transcripts with UseQuery
+    const [transcripts, setTranscripts] = useState([]);
+
+    useEffect(() => {
+        request
+            .get('/api/CRM/transcripts')
+            .then((data) => {
+                setTranscripts(data?.data?.data || []);
+            })
+            .catch((error) => {
+                console.error('Failed to fetch transcripts:', error);
+            });
+    }, []);
+
+    console.log('Transcripts:', transcripts);
 
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
@@ -56,7 +76,7 @@ const CRMDashboard = () => {
                 </Box>
                 <Box>
                     <></>
-                    {firefiliesTranscript.data.transcripts
+                    {transcripts
                         .filter((t) => {
                             const { meeting_info } = t;
                             const {
