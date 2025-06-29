@@ -22,7 +22,7 @@ const CRMDashboard = () => {
 
     useEffect(() => {
         request
-            .get('/api/CRM/transcripts')
+            .get('/api/CRM/meeting-summaries')
             .then((data) => {
                 setTranscripts(data?.data?.data || []);
             })
