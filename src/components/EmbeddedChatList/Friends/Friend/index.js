@@ -2,17 +2,21 @@ import React from 'react';
 import { Link as LinkDom, useParams } from 'react-router-dom';
 import {
     Avatar,
+    Chip,
     IconButton,
     ListItem,
     ListItemButton,
     ListItemIcon,
     ListItemSecondaryAction,
     ListItemText,
+    Tooltip,
     Typography,
     useTheme
 } from '@mui/material';
 
 import {
+    ATTRIBUTES,
+    COLORS,
     convertDateUXFriendly,
     stringAvatar
 } from '../../../../utils/contants';
@@ -57,6 +61,27 @@ const Friend = (props) => {
             props.data?.latestCommunication?.student_id &&
         props.data?.latestCommunication?.ignore_message !== true;
 
+    const Chips = () => {
+        return props.data?.attributes?.map(
+            (attribute) =>
+                [1, 3, 9, 10, 11].includes(attribute.value) && (
+                    <Tooltip
+                        key={attribute._id}
+                        title={`${attribute.name}: ${
+                            ATTRIBUTES[attribute.value - 1].definition
+                        }`}
+                    >
+                        <Chip
+                            color={COLORS[attribute.value]}
+                            data-testid={`chip-${attribute.name}`}
+                            label={attribute.name[0]}
+                            size="small"
+                        />
+                    </Tooltip>
+                )
+        );
+    };
+
     return (
         <ListItem
             disablePadding
@@ -99,6 +124,7 @@ const Friend = (props) => {
                     <ListItemText
                         primary={
                             <Typography style={{ fontWeight: 'bold' }}>
+                                <Chips />
                                 {truncateText(
                                     `${
                                         props.data.lastname_chinese
