@@ -1,21 +1,39 @@
 import React, { useState } from 'react';
 import dayjs from 'dayjs';
-import Card from '@mui/material/Card';
-import CardHeader from '@mui/material/CardHeader';
-import CardContent from '@mui/material/CardContent';
-import Collapse from '@mui/material/Collapse';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import Link from '@mui/material/Link';
-import Button from '@mui/material/Button';
-import Grid from '@mui/material/Grid';
+import {
+    Card,
+    Chip,
+    CardHeader,
+    CardContent,
+    Collapse,
+    IconButton,
+    Typography,
+    Link,
+    Button,
+    Grid
+} from '@mui/material';
+import {
+    ExpandMore as ExpandMoreIcon,
+    ExpandLess as ExpandLessIcon,
+    Person as PersonIcon,
+    PersonAdd as PersonAddIcon,
+    Archive as ArchiveIcon,
+    Mic as MicIcon,
+    Group as GroupIcon,
+    CalendarToday as CalendarTodayIcon
+} from '@mui/icons-material';
 
 const TranscriptCard = ({ transcript }) => {
     const [expanded, setExpanded] = useState(false);
-    const { title, dateString, speakers, summary, transcript_url, userId } =
-        transcript;
+    const {
+        title,
+        dateString,
+        speakers,
+        summary,
+        transcript_url,
+        userId,
+        participants = []
+    } = transcript;
 
     return (
         <Card
@@ -26,87 +44,190 @@ const TranscriptCard = ({ transcript }) => {
                 boxShadow: 3
             }}
         >
-            <Grid
-                alignItems="center"
-                container
-                spacing={2}
-                sx={{ p: 2, pb: 0 }}
-            >
-                <Grid item xs>
-                    <CardHeader
-                        subheader={dayjs(dateString).format('YYYY-MM-DD HH:mm')}
-                        sx={{ p: 0 }}
-                        title={title}
-                    />
-                </Grid>
-                <Grid item>
-                    {userId ? (
-                        <Typography color="primary" variant="body2">
-                            👤 {userId}
-                        </Typography>
-                    ) : (
-                        <Grid container spacing={1}>
-                            <Grid item>
-                                <Button
-                                    onClick={() => {
-                                        // TODO: Implement assign to existing user logic
-                                        alert(
-                                            'Assign to Existing User clicked'
-                                        );
-                                    }}
-                                    size="small"
-                                    variant="contained"
-                                >
-                                    Assign to User
-                                </Button>
-                            </Grid>
-                            <Grid item>
-                                <Button
-                                    onClick={() => {
-                                        // TODO: Implement create new user logic
-                                        alert('Create New User clicked');
-                                    }}
-                                    size="small"
-                                    variant="outlined"
-                                >
-                                    Create User
-                                </Button>
-                            </Grid>
-                            <Grid item>
-                                <Button
-                                    onClick={() => {
-                                        // TODO: Implement Archive logic
-                                        alert('Archive clicked');
-                                    }}
-                                    size="small"
-                                    variant="outlined"
-                                >
-                                    Archive
-                                </Button>
+            <CardHeader
+                sx={{ pb: 0 }}
+                title={
+                    <Grid
+                        alignItems="flex-start"
+                        container
+                        justifyContent="space-between"
+                    >
+                        <Grid item sm={8} xs={12}>
+                            <Typography variant="h6">{title}</Typography>
+                            <Grid
+                                alignItems="center"
+                                container
+                                spacing={1}
+                                sx={{ mt: 0.5 }}
+                            >
+                                <Grid item>
+                                    <CalendarTodayIcon
+                                        fontSize="small"
+                                        sx={{
+                                            color: 'text.secondary',
+                                            mr: 0.5
+                                        }}
+                                    />
+                                </Grid>
+                                <Grid item>
+                                    <Typography
+                                        color="text.secondary"
+                                        variant="body2"
+                                    >
+                                        {dayjs(dateString).format(
+                                            'YYYY-MM-DD HH:mm'
+                                        )}
+                                    </Typography>
+                                </Grid>
                             </Grid>
                         </Grid>
-                    )}
+                        <Grid item sm="auto" xs={12}>
+                            <Grid
+                                alignItems="center"
+                                container
+                                justifyContent={{
+                                    xs: 'flex-start',
+                                    sm: 'flex-end'
+                                }}
+                                spacing={1}
+                            >
+                                {userId ? (
+                                    <Grid item>
+                                        <Chip
+                                            color="success"
+                                            icon={
+                                                <PersonIcon
+                                                    sx={{
+                                                        color: 'success.main'
+                                                    }}
+                                                />
+                                            }
+                                            label={userId}
+                                            size="small"
+                                        />
+                                    </Grid>
+                                ) : (
+                                    <>
+                                        <Grid item>
+                                            <Button
+                                                onClick={() =>
+                                                    alert(
+                                                        'Assign to Existing User clicked'
+                                                    )
+                                                }
+                                                size="small"
+                                                startIcon={<PersonIcon />}
+                                                variant="outlined"
+                                            >
+                                                Assign to User
+                                            </Button>
+                                        </Grid>
+                                        <Grid item>
+                                            <Button
+                                                onClick={() =>
+                                                    alert(
+                                                        'Create New User clicked'
+                                                    )
+                                                }
+                                                size="small"
+                                                startIcon={<PersonAddIcon />}
+                                                variant="outlined"
+                                            >
+                                                Create User
+                                            </Button>
+                                        </Grid>
+                                        <Grid item>
+                                            <Button
+                                                onClick={() =>
+                                                    alert('Archive clicked')
+                                                }
+                                                size="small"
+                                                startIcon={<ArchiveIcon />}
+                                                variant="outlined"
+                                            >
+                                                Archive
+                                            </Button>
+                                        </Grid>
+                                    </>
+                                )}
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                }
+            />
+            <CardContent sx={{ pt: 1 }}>
+                <Grid alignItems="center" container spacing={1} sx={{ mb: 1 }}>
+                    <Grid item>
+                        <MicIcon
+                            fontSize="small"
+                            sx={{ color: 'text.secondary' }}
+                        />
+                    </Grid>
+                    <Grid item>
+                        <Typography color="text.secondary" variant="body2">
+                            <strong>Speakers:</strong>
+                        </Typography>
+                    </Grid>
+                    <Grid item>
+                        <Grid container spacing={0.5}>
+                            {speakers?.map((s, idx) => (
+                                <Grid item key={idx}>
+                                    <Chip
+                                        label={s.name || s}
+                                        size="small"
+                                        variant="outlined"
+                                    />
+                                </Grid>
+                            ))}
+                        </Grid>
+                    </Grid>
                 </Grid>
-            </Grid>
-            <CardContent sx={{ pt: 0 }}>
-                <Typography color="text.secondary" variant="body2">
-                    <strong>Speakers:</strong>{' '}
-                    {speakers?.map((s) => s.name).join(', ')}
-                </Typography>
-                <Typography
-                    color="text.secondary"
-                    sx={{ mt: 0.5 }}
-                    variant="body2"
-                >
-                    <strong>Participants:</strong>{' '}
-                    {(transcript.participants || []).join(', ') || 'N/A'}
-                </Typography>
+                {participants.length > 0 && (
+                    <Grid
+                        alignItems="center"
+                        container
+                        spacing={1}
+                        sx={{ mb: 1 }}
+                    >
+                        <Grid item>
+                            <GroupIcon
+                                fontSize="small"
+                                sx={{ color: 'text.secondary' }}
+                            />
+                        </Grid>
+                        <Grid item>
+                            <Typography color="text.secondary" variant="body2">
+                                <strong>Participants:</strong>
+                            </Typography>
+                        </Grid>
+                        <Grid item>
+                            <Grid container spacing={0.5}>
+                                {participants.map((p, idx) => (
+                                    <Grid item key={idx}>
+                                        <Chip
+                                            label={p}
+                                            size="small"
+                                            variant="outlined"
+                                        />
+                                    </Grid>
+                                ))}
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                )}
                 <Typography gutterBottom sx={{ mt: 1 }} variant="body2">
                     <strong>Action Items:</strong>
                 </Typography>
                 <Typography
                     component="pre"
-                    sx={{ p: 1, borderRadius: 1, mb: 0 }}
+                    sx={{
+                        p: 1,
+                        borderRadius: 1,
+                        mb: 0,
+                        backgroundColor: 'blue.50',
+                        fontFamily: 'inherit',
+                        whiteSpace: 'pre-wrap'
+                    }}
                 >
                     {(() => {
                         const text = summary?.action_items;
@@ -132,9 +253,25 @@ const TranscriptCard = ({ transcript }) => {
                     <Typography gutterBottom variant="body2">
                         <strong>Bullet Summary:</strong>
                     </Typography>
-                    <Typography component="pre" sx={{ p: 1, borderRadius: 1 }}>
-                        {summary?.bullet_gist || 'N/A'}
-                    </Typography>
+                    <ul
+                        style={{
+                            paddingLeft: 20,
+                            marginTop: 4,
+                            marginBottom: 12
+                        }}
+                    >
+                        {(summary?.bullet_gist || [])
+                            .split('\n')
+                            .filter(Boolean)
+                            .map((point, idx) => (
+                                <li
+                                    key={idx}
+                                    style={{ fontSize: 14, color: '#555' }}
+                                >
+                                    {point}
+                                </li>
+                            ))}
+                    </ul>
                     <Typography gutterBottom variant="subtitle1">
                         <strong>Summary:</strong>{' '}
                         {summary?.short_summary || 'No summary available.'}
