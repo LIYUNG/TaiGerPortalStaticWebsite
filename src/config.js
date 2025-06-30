@@ -12,6 +12,7 @@ export const appConfig = {
     logoSmallNoText: '/assets/logo-new/Taiger_LT_C',
     LogoPath: '',
     // Application level comfiguration
+    CRMEnable: true,
     vpdEnable: true,
     interviewEnable: true,
     meetingEnable: true,
