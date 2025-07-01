@@ -319,12 +319,13 @@ export const deleteProgramRequirement = (programRequirementId) =>
 
 export const updateStudentApplicationResult = (
     studentId,
+    applicationId,
     programId,
     result,
     data
 ) =>
     request.post(
-        `/api/account/applications/result/${studentId}/${programId}/${result}`,
+        `/api/account/applications/result/${studentId}/${applicationId}/${programId}/${result}`,
         data
     );
 

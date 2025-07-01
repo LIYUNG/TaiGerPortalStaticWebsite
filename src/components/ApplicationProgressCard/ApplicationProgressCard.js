@@ -170,6 +170,7 @@ export default function ApplicationProgressCard(props) {
         }
         updateStudentApplicationResult(
             props.student._id.toString(),
+            application._id.toString(),
             application.programId._id.toString(),
             result,
             formData
