@@ -678,8 +678,6 @@ export const getResponseIntervalByStudent = (studentId) =>
 
 export const getAgentProfile = (agent_id) =>
     request.get(`/api/agents/profile/${agent_id}`);
-export const getEditor = (editor_id) =>
-    request.get(`/api/teams/editors/${editor_id}`);
 export const getExpense = (taiger_user_id) =>
     request.get(`/api/expenses/users/${taiger_user_id}`);
 export const updateUserPermission = (taiger_user_id, permissions) =>

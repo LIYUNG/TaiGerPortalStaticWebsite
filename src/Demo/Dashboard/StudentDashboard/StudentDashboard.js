@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link as LinkDom } from 'react-router-dom';
+import { Link as LinkDom, useParams } from 'react-router-dom';
 import LaunchIcon from '@mui/icons-material/Launch';
 import EventIcon from '@mui/icons-material/Event';
 import {
@@ -20,7 +20,7 @@ import {
     Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { isProgramDecided } from '@taiger-common/core';
+import { is_TaiGer_Student, isProgramDecided } from '@taiger-common/core';
 
 import RespondedThreads from '../MainViewTab/RespondedThreads/RespondedThreads';
 import StudentTasksResponsive from '../MainViewTab/StudentTasks/StudentTasksResponsive';
@@ -55,9 +55,10 @@ const StudentDashboard = (props) => {
         data: [],
         res_status: 0
     });
-
+    const { studentId: stdIdParam } = useParams();
+    const studentId = is_TaiGer_Student(user) ? user._id : stdIdParam;
     const { data: data, isLoading: isLoadingApplications } = useQuery(
-        getApplicationStudentV2Query({ studentId: user._id })
+        getApplicationStudentV2Query({ studentId })
     );
 
     const removeBanner = (e, notification_key) => {
