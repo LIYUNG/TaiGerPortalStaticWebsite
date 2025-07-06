@@ -1484,7 +1484,7 @@ const DocModificationThreadPage = ({
                                             fontWeight="bold"
                                             variant="subtitle1"
                                         >
-                                            {`${t.student_id.firstname} ${t.student_id.lastname}`}
+                                            {`${t.student_id?.firstname} ${t.student_id?.lastname}`}
                                         </Typography>
                                         <Typography
                                             color="text.secondary"

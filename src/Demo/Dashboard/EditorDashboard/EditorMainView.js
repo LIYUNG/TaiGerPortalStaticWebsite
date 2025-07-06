@@ -90,9 +90,9 @@ const EditorMainView = (props) => {
             open_task.show &&
             !open_task.isFinalVersion &&
             is_pending_status(user, open_task) &&
-            open_task.latest_message_left_by_id !== ''
+            open_task.latest_message_left_by_id !== '- None - '
     );
-
+    console.log(follow_up_task);
     return (
         <Grid container spacing={2}>
             <Grid item md={3} xs={6}>
