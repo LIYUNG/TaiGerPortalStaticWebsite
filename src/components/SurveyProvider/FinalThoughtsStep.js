@@ -17,28 +17,6 @@ const FinalThoughtsStep = ({ values, onChange, disabled }) => (
         </Typography>
         <Divider sx={{ mb: 3 }} />
 
-        <Box sx={{ mb: 3 }}>
-            <Typography sx={{ mb: 1 }} variant="subtitle2">
-                What could we improve about our interview process?
-            </Typography>
-            <textarea
-                disabled={disabled}
-                name="improvements"
-                onChange={onChange}
-                placeholder="Please share any suggestions for improvement..."
-                rows={3}
-                style={{
-                    width: '100%',
-                    padding: '12px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '6px',
-                    fontSize: '14px',
-                    resize: 'vertical'
-                }}
-                value={values.improvements || ''}
-            />
-        </Box>
-
         <Box>
             <Typography sx={{ mb: 1 }} variant="subtitle2">
                 Do you have any additional feedback or comments about the
@@ -46,19 +24,22 @@ const FinalThoughtsStep = ({ values, onChange, disabled }) => (
             </Typography>
             <textarea
                 disabled={disabled}
-                name="additionalComments"
+                name="interviewFeedback"
                 onChange={onChange}
                 placeholder="Please share any additional feedback about the interview training..."
-                rows={3}
+                rows={12}
                 style={{
                     width: '100%',
-                    padding: '12px',
+                    padding: '16px',
                     border: '1px solid #d1d5db',
-                    borderRadius: '6px',
+                    borderRadius: '8px',
                     fontSize: '14px',
-                    resize: 'vertical'
+                    resize: 'vertical',
+                    minHeight: '300px',
+                    fontFamily: 'inherit',
+                    lineHeight: '1.5'
                 }}
-                value={values.additionalComments || ''}
+                value={values.interviewFeedback || ''}
             />
         </Box>
     </Box>

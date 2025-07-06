@@ -39,10 +39,8 @@ const InterviewSurveyForm = () => {
         informationClarity: '',
         trainerFriendliness: '',
         questionsAnswered: '',
-        preparationHelp: '',
-        overallExperience: '',
-        improvements: '',
-        additionalComments: ''
+        interviewQuestions: '',
+        interviewFeedback: ''
     });
     const [validationErrors, setValidationErrors] = React.useState([]);
     const [interview, setInterview] = React.useState({});
@@ -117,10 +115,8 @@ const InterviewSurveyForm = () => {
                     questionsAnswered:
                         questionsAnsweredReverseMap[result.questionsAnswered] ||
                         '',
-                    preparationHelp: data?.interviewQuestions || '',
-                    overallExperience: data?.interviewFeedback || '',
-                    improvements: result.improvements || '',
-                    additionalComments: result.additionalComments || '',
+                    interviewQuestions: data?.interviewQuestions || '',
+                    interviewFeedback: data?.interviewFeedback || '',
                     isFinal: data?.isFinal || false
                 };
 
@@ -141,10 +137,7 @@ const InterviewSurveyForm = () => {
         const { name, value } = event.target;
         console.log('handleChange called:', { name, value, event });
         if (
-            (name === 'preparationHelp' ||
-                name === 'overallExperience' ||
-                name === 'improvements' ||
-                name === 'additionalComments') &&
+            (name === 'interviewQuestions' || name === 'interviewFeedback') &&
             value.length > 2000
         ) {
             return;
@@ -190,8 +183,8 @@ const InterviewSurveyForm = () => {
                             questionsAnsweredMap[values.questionsAnswered] || 0
                     }
                 ],
-                interviewQuestions: values.preparationHelp,
-                interviewFeedback: values.overallExperience
+                interviewQuestions: values.interviewQuestions,
+                interviewFeedback: values.interviewFeedback
             });
             console.log('Survey response submitted:', response.data);
         } catch (error) {
@@ -234,8 +227,8 @@ const InterviewSurveyForm = () => {
                     }
                 ],
                 isFinal: true,
-                interviewQuestions: values.preparationHelp,
-                interviewFeedback: values.overallExperience
+                interviewQuestions: values.interviewQuestions,
+                interviewFeedback: values.interviewFeedback
             });
             setIsLoading(false);
             setIsModalOpen(false);
@@ -277,11 +270,8 @@ const InterviewSurveyForm = () => {
         if (!values.questionsAnswered) {
             errors.push('Questions answered selection is required');
         }
-        if (!values.preparationHelp) {
+        if (!values.interviewQuestions) {
             errors.push('Interview questions are required');
-        }
-        if (!values.overallExperience) {
-            errors.push('Program aspects feedback is required');
         }
         return errors;
     };
@@ -297,7 +287,7 @@ const InterviewSurveyForm = () => {
                     values.questionsAnswered
                 );
             case 1:
-                return values.preparationHelp && values.overallExperience;
+                return values.interviewQuestions;
             case 2:
                 return true;
             default:
