@@ -101,17 +101,27 @@ const InterviewSurveyForm = () => {
                     result
                 );
 
+                // Map questionsAnswered numeric values back to strings
+                const questionsAnsweredReverseMap = {
+                    1: 'yes',
+                    2: 'mostly',
+                    3: 'some',
+                    4: 'no'
+                };
+
                 // Map the old field names to new field names
                 const mappedValues = {
                     interviewRating: result.q1 || '',
                     informationClarity: result.q2 || '',
                     trainerFriendliness: result.q3 || '',
-                    questionsAnswered: result.questionsAnswered || '',
+                    questionsAnswered:
+                        questionsAnsweredReverseMap[result.questionsAnswered] ||
+                        '',
                     preparationHelp: data?.interviewQuestions || '',
                     overallExperience: data?.interviewFeedback || '',
                     improvements: result.improvements || '',
                     additionalComments: result.additionalComments || '',
-                    isFinal: true
+                    isFinal: data?.isFinal || false
                 };
 
                 console.log('mappedValues:', mappedValues);
@@ -149,6 +159,15 @@ const InterviewSurveyForm = () => {
     const handleSaveDraft = async () => {
         try {
             setIsChanged(false);
+
+            // Map questionsAnswered string values to numbers
+            const questionsAnsweredMap = {
+                yes: 1,
+                mostly: 2,
+                some: 3,
+                no: 4
+            };
+
             const response = await updateInterviewSurvey(interview_id, {
                 student_id: interview.student_id?._id?.toString(),
                 interview_id: interview_id,
@@ -167,7 +186,8 @@ const InterviewSurveyForm = () => {
                     },
                     {
                         questionId: 'questionsAnswered',
-                        answer: Number(values.questionsAnswered)
+                        answer:
+                            questionsAnsweredMap[values.questionsAnswered] || 0
                     }
                 ],
                 interviewQuestions: values.preparationHelp,
@@ -182,6 +202,15 @@ const InterviewSurveyForm = () => {
     const handleSubmit = async () => {
         try {
             setIsLoading(true);
+
+            // Map questionsAnswered string values to numbers
+            const questionsAnsweredMap = {
+                yes: 1,
+                mostly: 2,
+                some: 3,
+                no: 4
+            };
+
             const response = await updateInterviewSurvey(interview_id, {
                 student_id: interview.student_id?._id?.toString(),
                 interview_id: interview_id,
@@ -200,7 +229,8 @@ const InterviewSurveyForm = () => {
                     },
                     {
                         questionId: 'questionsAnswered',
-                        answer: Number(values.questionsAnswered)
+                        answer:
+                            questionsAnsweredMap[values.questionsAnswered] || 0
                     }
                 ],
                 isFinal: true,
