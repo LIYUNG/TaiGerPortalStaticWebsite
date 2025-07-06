@@ -34,7 +34,7 @@ const CreateComplaintTicket = React.lazy(
     () => import('./Demo/CustomerSupport/CreateTicket')
 );
 const Questionnaire = React.lazy(
-    () => import('./Demo/InterviewTraining/Questionnaire')
+    () => import('./Demo/InterviewTraining/InterviewSurveyForm')
 );
 const AddInterview = React.lazy(
     () => import('./Demo/InterviewTraining/AddInterview')
