@@ -64,7 +64,7 @@ const Friend = (props) => {
     const Chips = () => {
         return props.data?.attributes?.map(
             (attribute) =>
-                [1, 3, 9, 10, 11].includes(attribute.value) && (
+                [1, 3, 8, 9, 10, 11].includes(attribute.value) && (
                     <Tooltip
                         key={attribute._id}
                         title={`${attribute.name}: ${
