@@ -29,6 +29,15 @@ const CRMDashboard = () => {
             .catch((error) => {
                 console.error('Failed to fetch transcripts:', error);
             });
+
+        request
+            .get('/api/crm/leads')
+            .then((data) => {
+                console.log('CRM Leads:', data?.data?.data || []);
+            })
+            .catch((error) => {
+                console.error('Failed to fetch leads:', error);
+            });
     }, []);
 
     if (!is_TaiGer_role(user)) {
@@ -71,23 +80,9 @@ const CRMDashboard = () => {
                     </Button>
                 </Box>
                 <Box>
-                    {transcripts
-                        ?.filter((t) => {
-                            const { meetingInfo } = t;
-                            const {
-                                fred_joined,
-                                silent_meeting,
-                                summary_status
-                            } = meetingInfo || {};
-                            return (
-                                fred_joined &&
-                                !silent_meeting &&
-                                summary_status !== 'skipped'
-                            );
-                        })
-                        .map((t, idx) => (
-                            <TranscriptCard key={t.id || idx} transcript={t} />
-                        ))}
+                    {transcripts.map((t, idx) => (
+                        <TranscriptCard key={t.id || idx} transcript={t} />
+                    ))}
                 </Box>
             </Box>
         </Box>
