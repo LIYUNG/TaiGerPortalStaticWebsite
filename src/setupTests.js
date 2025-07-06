@@ -3,3 +3,12 @@
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom';
+
+// Mock export-to-csv module for testing
+/* eslint-disable no-undef */
+jest.mock('export-to-csv', () => ({
+    mkConfig: jest.fn(() => ({})),
+    generateCsv: jest.fn(() => jest.fn(() => 'mock-csv-data')),
+    download: jest.fn(() => jest.fn(() => {}))
+}));
+/* eslint-enable no-undef */
