@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, Divider } from '@mui/material';
+import { Box, Typography, Divider, TextField } from '@mui/material';
 
 const FinalThoughtsStep = ({ values, onChange, disabled }) => (
     <Box>
@@ -22,8 +22,9 @@ const FinalThoughtsStep = ({ values, onChange, disabled }) => (
                 Do you have any additional feedback or comments about the
                 interview training?
             </Typography>
-            <textarea
+            <TextField
                 disabled={disabled}
+                multiline
                 name="interviewFeedback"
                 onChange={onChange}
                 placeholder="Please share any additional feedback about the interview training..."

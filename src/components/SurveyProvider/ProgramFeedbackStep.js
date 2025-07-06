@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, Divider } from '@mui/material';
+import { Box, Typography, Divider, TextField } from '@mui/material';
 
 const ProgramFeedbackStep = ({ values, onChange, disabled }) => (
     <Box>
@@ -23,8 +23,9 @@ const ProgramFeedbackStep = ({ values, onChange, disabled }) => (
                 them down as precisely as possible.{' '}
                 <span style={{ color: '#ef4444' }}>*</span>
             </Typography>
-            <textarea
+            <TextField
                 disabled={disabled}
+                multiline
                 name="interviewQuestions"
                 onChange={onChange}
                 placeholder="Please write down the questions that were asked during your interview..."
