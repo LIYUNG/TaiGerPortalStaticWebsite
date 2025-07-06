@@ -17,7 +17,7 @@ const ProgramFeedbackStep = ({ values, onChange, disabled }) => (
         </Typography>
         <Divider sx={{ mb: 3 }} />
 
-        <Box sx={{ mb: 3 }}>
+        <Box>
             <Typography sx={{ mb: 1 }} variant="subtitle2">
                 Which questions were asked during your interview? Please write
                 them down as precisely as possible.{' '}
@@ -25,42 +25,22 @@ const ProgramFeedbackStep = ({ values, onChange, disabled }) => (
             </Typography>
             <textarea
                 disabled={disabled}
-                name="preparationHelp"
+                name="interviewQuestions"
                 onChange={onChange}
                 placeholder="Please write down the questions that were asked during your interview..."
-                rows={3}
+                rows={12}
                 style={{
                     width: '100%',
-                    padding: '12px',
+                    padding: '16px',
                     border: '1px solid #d1d5db',
-                    borderRadius: '6px',
+                    borderRadius: '8px',
                     fontSize: '14px',
-                    resize: 'vertical'
+                    resize: 'vertical',
+                    minHeight: '300px',
+                    fontFamily: 'inherit',
+                    lineHeight: '1.5'
                 }}
-                value={values.preparationHelp || ''}
-            />
-        </Box>
-
-        <Box>
-            <Typography sx={{ mb: 1 }} variant="subtitle2">
-                What aspects of the program were explained well during the
-                interview? <span style={{ color: '#ef4444' }}>*</span>
-            </Typography>
-            <textarea
-                disabled={disabled}
-                name="overallExperience"
-                onChange={onChange}
-                placeholder="Please share your thoughts..."
-                rows={3}
-                style={{
-                    width: '100%',
-                    padding: '12px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '6px',
-                    fontSize: '14px',
-                    resize: 'vertical'
-                }}
-                value={values.overallExperience || ''}
+                value={values.interviewQuestions || ''}
             />
         </Box>
     </Box>
