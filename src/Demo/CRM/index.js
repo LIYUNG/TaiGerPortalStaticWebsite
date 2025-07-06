@@ -71,15 +71,14 @@ const CRMDashboard = () => {
                     </Button>
                 </Box>
                 <Box>
-                    <></>
                     {transcripts
-                        .filter((t) => {
-                            const { meeting_info } = t;
+                        ?.filter((t) => {
+                            const { meetingInfo } = t;
                             const {
                                 fred_joined,
                                 silent_meeting,
                                 summary_status
-                            } = meeting_info || {};
+                            } = meetingInfo || {};
                             return (
                                 fred_joined &&
                                 !silent_meeting &&
