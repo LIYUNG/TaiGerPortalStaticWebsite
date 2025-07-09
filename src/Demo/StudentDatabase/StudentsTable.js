@@ -236,6 +236,10 @@ export const StudentsTable = ({
             header: t('Application Year', { ns: 'common' }),
             size: 80
         }),
+        columnHelper.accessor('target_degree', {
+            header: t('Target Degree', { ns: 'common' }),
+            size: 80
+        }),
         columnHelper.accessor('application_semester', {
             header: t('Application Year', { ns: 'common' }),
             size: 80
