@@ -37,7 +37,8 @@ const ExcludeMenu = {
         'tools-widgets',
         'teams_overview',
         'internal-document-database',
-        'internal-docs'
+        'internal-docs',
+        'CRM'
     ],
     External: [
         'my-students',
@@ -52,7 +53,8 @@ const ExcludeMenu = {
         'download',
         'customer-center-student',
         'docs',
-        'internal-docs'
+        'internal-docs',
+        'CRM'
     ],
     Student: [
         'my-students',
@@ -62,7 +64,8 @@ const ExcludeMenu = {
         'tools-widgets',
         'teams_overview',
         'internal-document-database',
-        'internal-docs'
+        'internal-docs',
+        'CRM'
     ],
     Agent: [
         'contact_us',
