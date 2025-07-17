@@ -334,16 +334,6 @@ const CVMLRLOverview = (props) => {
                 />
             </CustomTabPanel>
             <CustomTabPanel index={1} value={tabTag}>
-                <Banner
-                    ReadOnlyMode={true}
-                    bg="primary"
-                    link_name=""
-                    notification_key={undefined}
-                    path="/"
-                    removeBanner={null}
-                    text="Follow up"
-                    title="info"
-                />
                 <MuiDataGrid
                     columnVisibilityModel={{
                         number_input_from_editors: false,

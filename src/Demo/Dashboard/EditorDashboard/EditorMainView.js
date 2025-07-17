@@ -20,7 +20,9 @@ import {
     frequencyDistribution,
     // open_tasks,
     open_tasks_v2,
-    does_interview_have_trainers
+    does_interview_have_trainers,
+    AGENT_SUPPORT_DOCUMENTS_A,
+    FILE_TYPE_E
 } from '../../Utils/checking-functions';
 import {
     is_new_message_status,
@@ -53,8 +55,25 @@ const EditorMainView = (props) => {
         return <Loading />;
     }
 
-    const open_tasks_arr = open_tasks_v2(myStudentsThreads.data.data.threads);
-    const task_distribution = open_tasks_arr
+    const refactored_threads = open_tasks_v2(
+        myStudentsThreads.data.data.threads
+    );
+
+    const tasks_withMyEssay_arr = refactored_threads.filter((open_task) =>
+        [...AGENT_SUPPORT_DOCUMENTS_A, FILE_TYPE_E.essay_required].includes(
+            open_task.file_type
+        )
+            ? open_task.outsourced_user_id?.some(
+                  (outsourcedUser) => outsourcedUser._id.toString() === user._id
+              )
+            : true
+    );
+
+    const open_tasks_withMyEssay_arr = tasks_withMyEssay_arr.filter(
+        (open_task) => open_task.show && !open_task.isFinalVersion
+    );
+
+    const task_distribution = open_tasks_withMyEssay_arr
         .filter(({ isFinalVersion }) => isFinalVersion !== true)
         .map(({ deadline, file_type, show, isPotentials }) => {
             return { deadline, file_type, show, isPotentials };
@@ -75,20 +94,13 @@ const EditorMainView = (props) => {
     const myStudents = myStudentsApplications.data.students.filter((student) =>
         student.editors.some((editor) => editor._id === user._id.toString())
     );
-    const unreplied_task = open_tasks_v2(
-        myStudentsThreads.data.data.threads
-    ).filter(
-        (open_task) =>
-            open_task.show &&
-            !open_task.isFinalVersion &&
-            is_new_message_status(user, open_task)
+
+    const unreplied_task = open_tasks_withMyEssay_arr?.filter((open_task) =>
+        is_new_message_status(user, open_task)
     );
-    const follow_up_task = open_tasks_v2(
-        myStudentsThreads.data.data.threads
-    ).filter(
+
+    const follow_up_task = open_tasks_withMyEssay_arr?.filter(
         (open_task) =>
-            open_task.show &&
-            !open_task.isFinalVersion &&
             is_pending_status(user, open_task) &&
             open_task.latest_message_left_by_id !== '- None - '
     );
@@ -103,7 +115,7 @@ const EditorMainView = (props) => {
                     <Typography variant="h6">
                         <Link
                             component={LinkDom}
-                            to={DEMO.CV_ML_RL_CENTER_LINK}
+                            to={DEMO.CV_ML_RL_CENTER_LINK_TAB('to-do')}
                             underline="hover"
                         >
                             <b>
@@ -122,7 +134,7 @@ const EditorMainView = (props) => {
                     <Typography variant="h6">
                         <Link
                             component={LinkDom}
-                            to={DEMO.CV_ML_RL_CENTER_LINK}
+                            to={DEMO.CV_ML_RL_CENTER_LINK_TAB('follow-up')}
                             underline="hover"
                         >
                             <b>

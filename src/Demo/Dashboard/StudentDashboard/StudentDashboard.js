@@ -262,7 +262,7 @@ const StudentDashboard = (props) => {
                                         ml: 1
                                     }}
                                     target="_blank"
-                                    to={DEMO.CV_ML_RL_CENTER_LINK}
+                                    to={DEMO.CV_ML_RL_CENTER_LINK_TAB('to-do')}
                                     underline="hover"
                                 >
                                     {t('CV/ML/RL Center', { ns: 'common' })}
@@ -300,7 +300,9 @@ const StudentDashboard = (props) => {
                                         ml: 1
                                     }}
                                     target="_blank"
-                                    to={DEMO.CV_ML_RL_CENTER_LINK}
+                                    to={DEMO.CV_ML_RL_CENTER_LINK_TAB(
+                                        'follow-up'
+                                    )}
                                     underline="hover"
                                 >
                                     {t('CV/ML/RL Center', { ns: 'common' })}
