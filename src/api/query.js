@@ -70,6 +70,12 @@ export const getMyActiveStudentsQuery = () => ({
     staleTime: 1000 * 60 * 1 // 1 minutes
 });
 
+export const getStudentsV3Query = (queryString) => ({
+    queryKey: ['students/v3', queryString],
+    queryFn: () => getStudentsV3(queryString),
+    staleTime: 1000 * 60 * 5 // 5 minutes
+});
+
 export const getAllActiveStudentsQuery = () => ({
     queryKey: ['students/all/active'],
     queryFn: () => getAllActiveStudentsV2(),

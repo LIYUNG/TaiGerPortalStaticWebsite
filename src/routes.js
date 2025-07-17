@@ -251,13 +251,13 @@ const routes = [
             {
                 path: 'agents',
                 errorElement: <DefaultErrorPage />,
-                loader: getStudentsLoader,
+                // loader: getAllStudentsV2Loader,
                 element: <AgentsAssignment />
             },
             {
                 path: 'editors',
                 errorElement: <DefaultErrorPage />,
-                loader: getStudentsLoader,
+                // loader: getAllStudentsV2Loader,
                 element: <EditorsAssignment />
             },
             {

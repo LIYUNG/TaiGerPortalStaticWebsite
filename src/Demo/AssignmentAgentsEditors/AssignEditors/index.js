@@ -1,19 +1,23 @@
 import React from 'react';
-import { Navigate, useLoaderData } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { Box } from '@mui/material';
 import { is_TaiGer_role } from '@taiger-common/core';
+import queryString from 'query-string';
 
 import AssignEditorsPage from './AssignEditorsPage';
 import ModalMain from '../../Utils/ModalHandler/ModalMain';
 import { useAuth } from '../../../components/AuthProvider';
 import useStudents from '../../../hooks/useStudents';
 import DEMO from '../../../store/constant';
+import { useQuery } from '@tanstack/react-query';
+import { getStudentsV3Query } from '../../../api/query';
 
 const AssignEditors = () => {
     const { user } = useAuth();
-    const {
-        data: { data: fetchedStudents }
-    } = useLoaderData();
+    const { data: { data: fetchedAllStudents } = { data: [] } } = useQuery(
+        getStudentsV3Query(queryString.stringify({ editors: [] }))
+    );
+
     const {
         students,
         res_modal_message,
@@ -21,7 +25,7 @@ const AssignEditors = () => {
         submitUpdateEditorlist,
         ConfirmError
     } = useStudents({
-        students: fetchedStudents
+        students: fetchedAllStudents
     });
 
     if (!is_TaiGer_role(user)) {

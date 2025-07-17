@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate, useLoaderData } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { Box } from '@mui/material';
 import { is_TaiGer_role } from '@taiger-common/core';
 
@@ -8,12 +8,15 @@ import ModalMain from '../../Utils/ModalHandler/ModalMain';
 import DEMO from '../../../store/constant';
 import { useAuth } from '../../../components/AuthProvider';
 import useStudents from '../../../hooks/useStudents';
+import { useQuery } from '@tanstack/react-query';
+import { getStudentsV3Query } from '../../../api/query';
+import queryString from 'query-string';
 
 const AssignAgents = () => {
     const { user } = useAuth();
-    const {
-        data: { data: fetchedStudents }
-    } = useLoaderData();
+    const { data: { data: fetchedAllStudents } = { data: [] } } = useQuery(
+        getStudentsV3Query(queryString.stringify({ agents: [] }))
+    );
 
     const {
         students,
@@ -22,7 +25,7 @@ const AssignAgents = () => {
         submitUpdateAgentlist,
         ConfirmError
     } = useStudents({
-        students: fetchedStudents
+        students: fetchedAllStudents
     });
 
     if (!is_TaiGer_role(user)) {
