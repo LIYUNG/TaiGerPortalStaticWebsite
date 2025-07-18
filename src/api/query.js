@@ -24,7 +24,8 @@ import {
     getActiveStudentsApplications,
     getInterviews,
     getAuditLog,
-    getTasksOverview
+    getTasksOverview,
+    getIsManager
 } from '.';
 
 export const getMessagThreadQuery = (threadId) => ({
@@ -69,6 +70,12 @@ export const getStatisticsQuery = () => ({
 export const getTasksOverviewQuery = () => ({
     queryKey: ['tasks-overview'],
     queryFn: getTasksOverview,
+    staleTime: 1000 * 60 * 5 // 5 minutes
+});
+
+export const getIsManagerQuery = ({ userId }) => ({
+    queryKey: ['is-manager', userId],
+    queryFn: getIsManager,
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
 

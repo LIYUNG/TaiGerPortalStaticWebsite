@@ -34,7 +34,8 @@ import AssignInterviewTrainerRow from '../MainViewTab/Common/AssignInterviewTrai
 import {
     getMyStudentsApplicationsV2Query,
     getMyStudentsThreadsQuery,
-    getTasksOverviewQuery
+    getTasksOverviewQuery,
+    getIsManagerQuery
 } from '../../../api/query';
 import Loading from '../../../components/Loading/Loading';
 
@@ -49,6 +50,10 @@ const EditorMainView = () => {
     );
 
     const { data: tasksOverview } = useQuery(getTasksOverviewQuery());
+
+    const { data: dataIsManager } = useQuery(
+        getIsManagerQuery({ userId: user._id })
+    );
 
     if (isLoadingApplications || isLoadingThreads) {
         return <Loading />;
@@ -170,36 +175,38 @@ const EditorMainView = () => {
                     </Typography>
                 </Card>
             </Grid>
-            <Grid item md={12} xs={12}>
-                <Card sx={{ p: 2 }}>
-                    <Typography fontWeight="bold">
-                        {t('To Do Tasks', { ns: 'common' })}{' '}
-                    </Typography>
-                    <Table size="small">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>
-                                    {t('Tasks', { ns: 'common' })}
-                                </TableCell>
-                                <TableCell>
-                                    {t('Description', { ns: 'common' })}
-                                </TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            <AssignEditorRow
-                                tasksOverview={tasksOverview?.data || {}}
-                            />
-                            <AssignEssayWriterRow
-                                tasksOverview={tasksOverview?.data || {}}
-                            />
-                            <AssignInterviewTrainerRow
-                                tasksOverview={tasksOverview?.data || {}}
-                            />
-                        </TableBody>
-                    </Table>
-                </Card>
-            </Grid>
+            {dataIsManager?.data?.isManager ? (
+                <Grid item md={12} xs={12}>
+                    <Card sx={{ p: 2 }}>
+                        <Typography fontWeight="bold">
+                            {t('To Do Tasks', { ns: 'common' })}{' '}
+                        </Typography>
+                        <Table size="small">
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>
+                                        {t('Tasks', { ns: 'common' })}
+                                    </TableCell>
+                                    <TableCell>
+                                        {t('Description', { ns: 'common' })}
+                                    </TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                <AssignEditorRow
+                                    tasksOverview={tasksOverview?.data || {}}
+                                />
+                                <AssignEssayWriterRow
+                                    tasksOverview={tasksOverview?.data || {}}
+                                />
+                                <AssignInterviewTrainerRow
+                                    tasksOverview={tasksOverview?.data || {}}
+                                />
+                            </TableBody>
+                        </Table>
+                    </Card>
+                </Grid>
+            ) : null}
             <Grid item md={12} xs={12}>
                 <Card sx={{ p: 2 }}>
                     <Box>
