@@ -22,7 +22,7 @@ import { student_transform } from '../../Utils/checking-functions';
 import { useQuery } from '@tanstack/react-query';
 import {
     getActiveStudentsApplicationsV2Query,
-    // getAuditLogQuery,
+    getAuditLogQuery,
     getInterviewsQuery
 } from '../../../api/query';
 import Loading from '../../../components/Loading/Loading';
@@ -41,8 +41,15 @@ const AdminMainView = (props) => {
             })
         )
     );
-    // const { data: auditLog } = useQuery(getAuditLogQuery());
-    // console.log(auditLog);
+    const { data: auditLog } = useQuery(
+        getAuditLogQuery(
+            queryString.stringify({
+                page: 1,
+                limit: 20
+            })
+        )
+    );
+    console.log(auditLog?.data);
     const {
         students: initStudents,
         submitUpdateAgentlist,
@@ -107,7 +114,7 @@ const AdminMainView = (props) => {
             </Grid>
             <Grid item md={4} xs={12}>
                 <Card style={{ height: '40vh', overflow: 'auto' }}>
-                    <MiniAudit audit={props.auditLog || []} />
+                    <MiniAudit audit={auditLog?.data || []} />
                 </Card>
             </Grid>
             <Grid item xs={12}>

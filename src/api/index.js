@@ -31,6 +31,10 @@ export const resendActivation = ({ email }) =>
 export const verify = () => request.get('/auth/verify');
 export const verifyV2 = () => getData('/auth/verify');
 
+// Audit Log APIs
+export const getAuditLog = (queryString) =>
+    getData(`/api/audit?${queryString}`);
+
 // Search API
 export const getQueryStudentsResults = (keywords) =>
     request.get(`/api/search/students?q=${keywords}`);
