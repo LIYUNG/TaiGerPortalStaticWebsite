@@ -15,7 +15,7 @@ import queryString from 'query-string';
 const AssignAgents = () => {
     const { user } = useAuth();
     const { data: { data: fetchedAllStudents } = { data: [] } } = useQuery(
-        getStudentsV3Query(queryString.stringify({ agents: [] }))
+        getStudentsV3Query(queryString.stringify({ agents: [], archiv: false }))
     );
 
     const {

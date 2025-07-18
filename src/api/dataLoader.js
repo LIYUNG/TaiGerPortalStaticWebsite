@@ -22,7 +22,6 @@ import { queryClient } from './client';
 import {
     getAllActiveStudentsQuery,
     getAllCoursessQuery,
-    getAllStudentsQuery,
     getCommunicationQuery,
     getCoursessQuery,
     getProgramRequirementsQuery
@@ -39,10 +38,6 @@ export async function getStudentsLoader() {
     } else {
         return response;
     }
-}
-
-export async function getAllStudentsV2Loader() {
-    return queryClient.fetchQuery(getAllStudentsQuery());
 }
 
 export async function getAllCoursesLoader() {

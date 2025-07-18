@@ -12,11 +12,13 @@ import {
     ListItem,
     Typography
 } from '@mui/material';
-import { getStudentsV2Query } from '../../api/query';
-import { useMutation, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { createApplicationV2 } from '../../api';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import queryString from 'query-string';
+
+import { createApplicationV2 } from '../../api';
+import { getStudentsV3Query } from '../../api/query';
 import { useSnackBar } from '../../contexts/use-snack-bar';
 
 export const AssignProgramsToStudentDialog = ({
@@ -32,7 +34,7 @@ export const AssignProgramsToStudentDialog = ({
         isError: isQueryError,
         error
     } = useQuery({
-        ...getStudentsV2Query(),
+        ...getStudentsV3Query(queryString.stringify({ archiv: false })),
         enabled: open // Only fetch data when the modal is open
     });
     let [studentId, setStudentId] = useState('');

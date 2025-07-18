@@ -5,7 +5,6 @@ import {
     getMyAcademicBackgroundLoader,
     getStudentAndDocLinksLoader,
     getStudentsLoader,
-    getAllStudentsV2Loader,
     getAllComplaintTicketsLoader,
     getComplaintTicketLoader,
     getDistinctSchoolsLoader,
@@ -251,13 +250,11 @@ const routes = [
             {
                 path: 'agents',
                 errorElement: <DefaultErrorPage />,
-                // loader: getAllStudentsV2Loader,
                 element: <AgentsAssignment />
             },
             {
                 path: 'editors',
                 errorElement: <DefaultErrorPage />,
-                // loader: getAllStudentsV2Loader,
                 element: <EditorsAssignment />
             },
             {
@@ -440,7 +437,6 @@ const routes = [
             {
                 path: '',
                 errorElement: <DefaultErrorPage />,
-                loader: getAllStudentsV2Loader,
                 element: <StudentDatabase />
             },
             {

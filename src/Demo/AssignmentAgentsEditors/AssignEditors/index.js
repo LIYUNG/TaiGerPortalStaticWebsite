@@ -15,7 +15,9 @@ import { getStudentsV3Query } from '../../../api/query';
 const AssignEditors = () => {
     const { user } = useAuth();
     const { data: { data: fetchedAllStudents } = { data: [] } } = useQuery(
-        getStudentsV3Query(queryString.stringify({ editors: [] }))
+        getStudentsV3Query(
+            queryString.stringify({ editors: [], archiv: false })
+        )
     );
 
     const {
