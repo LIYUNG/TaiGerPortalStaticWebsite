@@ -938,15 +938,6 @@ export const getStudentEditorStatus = (students) => {
     };
 };
 
-// For backward compatibility
-export const does_student_have_editors = (students) => {
-    return getStudentEditorStatus(students).allHaveEditors;
-};
-
-export const number_of_students_without_editors = (students) => {
-    return getStudentEditorStatus(students).countWithoutEditors;
-};
-
 export const check_applications_to_decided = (student) => {
     if (!student.applications || student.applications.length === 0) {
         return true;
@@ -2339,35 +2330,6 @@ export const isDocumentsMissingAssign = (application) => {
     return getMissingDocs(application).length > 0;
 };
 
-// Tested
-export const does_essay_have_writers = (essayDocumentThreads) => {
-    for (let i = 0; i < essayDocumentThreads?.length; i += 1) {
-        if (
-            essayDocumentThreads[i].outsourced_user_id === undefined ||
-            essayDocumentThreads[i].outsourced_user_id?.length === 0
-        ) {
-            return false;
-        }
-    }
-    return true;
-};
-
-export const number_of_threads_without_essay_writers_assigned_with_input = (
-    essayDocumentThreads
-) => {
-    let count = 0;
-    for (let i = 0; i < essayDocumentThreads?.length; i += 1) {
-        if (
-            (essayDocumentThreads[i].outsourced_user_id === undefined ||
-                essayDocumentThreads[i].outsourced_user_id?.length === 0) &&
-            essayDocumentThreads[i].messages?.length > 0
-        ) {
-            count += 1;
-        }
-    }
-    return count;
-};
-
 export const extractTextFromDocx = async (arrayBuffer) => {
     const zip = await JSZip.loadAsync(arrayBuffer);
     const documentXml = await zip.file('word/document.xml')?.async('string');
@@ -2494,18 +2456,3 @@ export const readXLSX = async (file, studentName) => {
     });
     return result;
 };
-
-export const does_interview_have_trainers = (interviews) => {
-    return interviews?.every(
-        (interview) =>
-            interview.trainer_id !== undefined &&
-            interview.trainer_id?.length > 0
-    );
-};
-
-export const number_of_interviews_without_interview_trainers_assigned_with_input =
-    (interviews) => {
-        return interviews?.filter(
-            (interview) => interview.trainer_id?.length === 0
-        ).length;
-    };

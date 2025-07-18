@@ -23,7 +23,8 @@ import {
     getMyActiveStudents,
     getActiveStudentsApplications,
     getInterviews,
-    getAuditLog
+    getAuditLog,
+    getTasksOverview
 } from '.';
 
 export const getMessagThreadQuery = (threadId) => ({
@@ -62,6 +63,12 @@ export const getProgramTicketsQuery = ({ type, status }) => ({
 export const getStatisticsQuery = () => ({
     queryKey: ['statistics'],
     queryFn: getStatisticsV2,
+    staleTime: 1000 * 60 * 5 // 5 minutes
+});
+
+export const getTasksOverviewQuery = () => ({
+    queryKey: ['tasks-overview'],
+    queryFn: getTasksOverview,
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
 

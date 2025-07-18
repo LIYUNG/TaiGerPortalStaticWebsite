@@ -12,17 +12,12 @@ import {
     Typography
 } from '@mui/material';
 import { Link as LinkDom } from 'react-router-dom';
-import queryString from 'query-string';
 import { useQuery } from '@tanstack/react-query';
 
 import TasksDistributionBarChart from '../../../components/Charts/TasksDistributionBarChart';
 import {
-    does_essay_have_writers,
-    does_student_have_editors,
     frequencyDistribution,
-    // open_tasks,
     open_tasks_v2,
-    does_interview_have_trainers,
     AGENT_SUPPORT_DOCUMENTS_A,
     FILE_TYPE_E
 } from '../../Utils/checking-functions';
@@ -39,11 +34,11 @@ import AssignInterviewTrainerRow from '../MainViewTab/Common/AssignInterviewTrai
 import {
     getMyStudentsApplicationsV2Query,
     getMyStudentsThreadsQuery,
-    getInterviewsQuery
+    getTasksOverviewQuery
 } from '../../../api/query';
 import Loading from '../../../components/Loading/Loading';
 
-const EditorMainView = (props) => {
+const EditorMainView = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const { data: myStudentsApplications, isLoading: isLoadingApplications } =
@@ -53,14 +48,7 @@ const EditorMainView = (props) => {
         getMyStudentsThreadsQuery({ userId: user._id })
     );
 
-    const { data: interviews } = useQuery(
-        getInterviewsQuery(
-            queryString.stringify({
-                no_trainer: true,
-                isClosed: false
-            })
-        )
-    );
+    const { data: tasksOverview } = useQuery(getTasksOverviewQuery());
 
     if (isLoadingApplications || isLoadingThreads) {
         return <Loading />;
@@ -102,9 +90,7 @@ const EditorMainView = (props) => {
         });
     });
 
-    const myStudents = myStudentsApplications.data.students.filter((student) =>
-        student.editors.some((editor) => editor._id === user._id.toString())
-    );
+    const myStudents = myStudentsApplications.data.students;
 
     const unreplied_task = open_tasks_withMyEssay_arr?.filter((open_task) =>
         is_new_message_status(user, open_task)
@@ -184,44 +170,36 @@ const EditorMainView = (props) => {
                     </Typography>
                 </Card>
             </Grid>
-            {!does_student_have_editors(myStudentsApplications.data.students) ||
-            !does_essay_have_writers(props.essayDocumentThreads) ||
-            !does_interview_have_trainers(interviews?.data || []) ? (
-                <Grid item md={12} xs={12}>
-                    <Card sx={{ p: 2 }}>
-                        <Typography fontWeight="bold">
-                            {t('To Do Tasks', { ns: 'common' })}{' '}
-                        </Typography>
-                        <Table size="small">
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>
-                                        {t('Tasks', { ns: 'common' })}
-                                    </TableCell>
-                                    <TableCell>
-                                        {t('Description', { ns: 'common' })}
-                                    </TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                <AssignEditorRow
-                                    students={
-                                        myStudentsApplications.data.students
-                                    }
-                                />
-                                <AssignEssayWriterRow
-                                    essayDocumentThreads={
-                                        props.essayDocumentThreads
-                                    }
-                                />
-                                <AssignInterviewTrainerRow
-                                    interviews={interviews?.data || []}
-                                />
-                            </TableBody>
-                        </Table>
-                    </Card>
-                </Grid>
-            ) : null}
+            <Grid item md={12} xs={12}>
+                <Card sx={{ p: 2 }}>
+                    <Typography fontWeight="bold">
+                        {t('To Do Tasks', { ns: 'common' })}{' '}
+                    </Typography>
+                    <Table size="small">
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>
+                                    {t('Tasks', { ns: 'common' })}
+                                </TableCell>
+                                <TableCell>
+                                    {t('Description', { ns: 'common' })}
+                                </TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            <AssignEditorRow
+                                tasksOverview={tasksOverview?.data || {}}
+                            />
+                            <AssignEssayWriterRow
+                                tasksOverview={tasksOverview?.data || {}}
+                            />
+                            <AssignInterviewTrainerRow
+                                tasksOverview={tasksOverview?.data || {}}
+                            />
+                        </TableBody>
+                    </Table>
+                </Card>
+            </Grid>
             <Grid item md={12} xs={12}>
                 <Card sx={{ p: 2 }}>
                     <Box>

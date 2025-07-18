@@ -23,7 +23,8 @@ import { useQuery } from '@tanstack/react-query';
 import {
     getActiveStudentsApplicationsV2Query,
     getAuditLogQuery,
-    getInterviewsQuery
+    getInterviewsQuery,
+    getTasksOverviewQuery
 } from '../../../api/query';
 import Loading from '../../../components/Loading/Loading';
 
@@ -41,6 +42,9 @@ const AdminMainView = (props) => {
             })
         )
     );
+
+    const { data: tasksOverview } = useQuery(getTasksOverviewQuery());
+
     const { data: auditLog } = useQuery(
         getAuditLogQuery(
             queryString.stringify({
@@ -78,6 +82,7 @@ const AdminMainView = (props) => {
             essayDocumentThreads={props.essayDocumentThreads}
             interviews={interviews?.data || []}
             students={students}
+            tasksOverview={tasksOverview?.data || {}}
         />
     );
 
