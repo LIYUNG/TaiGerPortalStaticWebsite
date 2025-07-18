@@ -21,7 +21,9 @@ import {
     getApplicationStudentV2,
     getStudentAndDocLinks,
     getMyActiveStudents,
-    getActiveStudentsApplications
+    getActiveStudentsApplications,
+    getInterviews
+    // getAuditLog
 } from '.';
 
 export const getMessagThreadQuery = (threadId) => ({
@@ -170,3 +172,15 @@ export const getAdmissionsQuery = () => ({
     queryFn: getAdmissions,
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
+
+export const getInterviewsQuery = (queryString) => ({
+    queryKey: ['interviews', queryString],
+    queryFn: () => getInterviews(queryString),
+    staleTime: 1000 * 60 * 5 // 5 minutes
+});
+
+// export const getAuditLogQuery = (queryString) => ({
+//     queryKey: ['audit-log', queryString],
+//     queryFn: () => getAuditLog(queryString),
+//     staleTime: 1000 * 60 * 5 // 5 minutes
+// });

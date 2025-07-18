@@ -11,6 +11,7 @@ import {
     Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import queryString from 'query-string';
 
 import AdminTasks from '../MainViewTab/AdminTasks/index';
 import useStudents from '../../../hooks/useStudents';
@@ -19,7 +20,11 @@ import MiniAudit from '../../Audit/MiniAudit';
 import { StudentsTable } from '../../StudentDatabase/StudentsTable';
 import { student_transform } from '../../Utils/checking-functions';
 import { useQuery } from '@tanstack/react-query';
-import { getActiveStudentsApplicationsV2Query } from '../../../api/query';
+import {
+    getActiveStudentsApplicationsV2Query,
+    // getAuditLogQuery,
+    getInterviewsQuery
+} from '../../../api/query';
 import Loading from '../../../components/Loading/Loading';
 
 const AdminMainView = (props) => {
@@ -28,6 +33,16 @@ const AdminMainView = (props) => {
     const { data: allStudentsApplications, isLoading: isLoadingApplications } =
         useQuery(getActiveStudentsApplicationsV2Query());
 
+    const { data: interviews } = useQuery(
+        getInterviewsQuery(
+            queryString.stringify({
+                no_trainer: true,
+                isClosed: false
+            })
+        )
+    );
+    // const { data: auditLog } = useQuery(getAuditLogQuery());
+    // console.log(auditLog);
     const {
         students: initStudents,
         submitUpdateAgentlist,
@@ -54,7 +69,7 @@ const AdminMainView = (props) => {
     const admin_tasks = (
         <AdminTasks
             essayDocumentThreads={props.essayDocumentThreads}
-            interviews={props.interviews}
+            interviews={interviews?.data || []}
             students={students}
         />
     );

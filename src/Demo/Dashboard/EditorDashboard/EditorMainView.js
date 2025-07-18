@@ -12,6 +12,8 @@ import {
     Typography
 } from '@mui/material';
 import { Link as LinkDom } from 'react-router-dom';
+import queryString from 'query-string';
+import { useQuery } from '@tanstack/react-query';
 
 import TasksDistributionBarChart from '../../../components/Charts/TasksDistributionBarChart';
 import {
@@ -36,9 +38,9 @@ import AssignEditorRow from '../MainViewTab/Common/AssignEditorRow';
 import AssignInterviewTrainerRow from '../MainViewTab/Common/AssignInterviewTrainerRow';
 import {
     getMyStudentsApplicationsV2Query,
-    getMyStudentsThreadsQuery
+    getMyStudentsThreadsQuery,
+    getInterviewsQuery
 } from '../../../api/query';
-import { useQuery } from '@tanstack/react-query';
 import Loading from '../../../components/Loading/Loading';
 
 const EditorMainView = (props) => {
@@ -49,6 +51,15 @@ const EditorMainView = (props) => {
 
     const { data: myStudentsThreads, isLoading: isLoadingThreads } = useQuery(
         getMyStudentsThreadsQuery({ userId: user._id })
+    );
+
+    const { data: interviews } = useQuery(
+        getInterviewsQuery(
+            queryString.stringify({
+                no_trainer: true,
+                isClosed: false
+            })
+        )
     );
 
     if (isLoadingApplications || isLoadingThreads) {
@@ -175,7 +186,7 @@ const EditorMainView = (props) => {
             </Grid>
             {!does_student_have_editors(myStudentsApplications.data.students) ||
             !does_essay_have_writers(props.essayDocumentThreads) ||
-            !does_interview_have_trainers(props.interviews) ? (
+            !does_interview_have_trainers(interviews?.data || []) ? (
                 <Grid item md={12} xs={12}>
                     <Card sx={{ p: 2 }}>
                         <Typography fontWeight="bold">
@@ -204,7 +215,7 @@ const EditorMainView = (props) => {
                                     }
                                 />
                                 <AssignInterviewTrainerRow
-                                    interviews={props.interviews}
+                                    interviews={interviews?.data || []}
                                 />
                             </TableBody>
                         </Table>

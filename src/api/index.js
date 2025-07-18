@@ -765,6 +765,8 @@ export const cvmlrlAi = (
 
 //Interview:
 export const getAllInterviews = () => request.get('/api/interviews');
+export const getInterviews = (queryString) =>
+    getData(`/api/interviews?${queryString}`);
 export const getAllOpenInterviews = () => request.get('/api/interviews/open');
 export const getInterview = (interview_id) =>
     request.get(`/api/interviews/${interview_id}`);
@@ -784,6 +786,7 @@ export const addInterviewTrainingDateTime = (interview_id, payload) =>
     request.post(`/api/interviews/time/${interview_id}`, payload);
 export const SetInterviewAsFinal = (interview_id) =>
     request.post(`/api/interviews/status/${interview_id}`);
+
 export const getInterviewsByProgramId = (program_id) =>
     request.get(`/api/interviews/interview/${program_id}`);
 export const getInterviewsByStudentId = (student_id) =>
