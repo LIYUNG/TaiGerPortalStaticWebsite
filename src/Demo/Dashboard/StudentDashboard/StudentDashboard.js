@@ -115,7 +115,6 @@ const StudentDashboard = (props) => {
                     </Typography>
                 </Card>
             ) : null}
-            <Alert severity="info">{t('announcement', { ns: 'common' })}</Alert>
             <Grid container spacing={1} sx={{ mt: 0 }}>
                 {student.notification &&
                 !student.notification.isRead_survey_not_complete &&

@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+    Alert,
     Box,
     Breadcrumbs,
     Link,
@@ -98,6 +99,10 @@ const DashboardBody = ({ studentAndEssaysAndInterview }) => {
                     {t('Dashboard', { ns: 'common' })}
                 </Typography>
             </Breadcrumbs>
+            <Alert severity="error" variant="filled">
+                {t('announcement', { ns: 'common' })}
+            </Alert>
+
             {is_TaiGer_Admin(user) ? (
                 <AdminMainView
                     auditLog={auditLog}

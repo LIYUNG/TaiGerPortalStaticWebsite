@@ -391,6 +391,7 @@
     "open/offer/reject": "未送出/錄取/拒絕",
     "required-document-notice": "無論是申請大學部或是碩士班，高中文件、學測或統測成績單為必要文件。德國學校通常列為必要文件，此文件會因為您的背景況狀有所變動。請先填好個人檔案。",
     "student-count": "學生數量",
+    "system-announcement": "我們將於2025-07-20 00:00 - 06:00 (台北時間)進行系統維護，請注意系統在此期間可能無法使用。",
     "tenant-accounting": "{{tenant}} 會計",
     "tenant-admissions": "{{tenant}} 榜單",
     "tenant-dashboard": "{{tenant}} 總攬",
