@@ -8,7 +8,8 @@ import {
     Box,
     Typography,
     Grid,
-    TextField
+    TextField,
+    Alert
     // Alert
 } from '@mui/material';
 
@@ -108,6 +109,9 @@ export default function SignIn() {
           System is recently updated, in case any issue, please email
           taiger.leoc@gmail.com
         </Alert> */}
+                <Alert severity="error" variant="filled">
+                    {t('system-announcement', { ns: 'common' })}
+                </Alert>
                 <Typography component="h1" sx={{ mt: 1 }} variant="h5">
                     {t('Sign in', { ns: 'auth' })}
                 </Typography>

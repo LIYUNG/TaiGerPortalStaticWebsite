@@ -100,7 +100,7 @@ const DashboardBody = ({ studentAndEssaysAndInterview }) => {
                 </Typography>
             </Breadcrumbs>
             <Alert severity="error" variant="filled">
-                {t('announcement', { ns: 'common' })}
+                {t('system-announcement', { ns: 'common' })}
             </Alert>
 
             {is_TaiGer_Admin(user) ? (
