@@ -71,7 +71,6 @@ const CRMDashboard = () => {
                     </Button>
                 </Box>
                 <Box>
-                    <></>
                     {transcripts
                         .filter((t) => {
                             const { meeting_info } = t;
