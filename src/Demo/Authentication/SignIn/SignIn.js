@@ -109,7 +109,7 @@ export default function SignIn() {
           System is recently updated, in case any issue, please email
           taiger.leoc@gmail.com
         </Alert> */}
-                <Alert severity="error" variant="filled">
+                <Alert severity="success" variant="filled">
                     {t('system-announcement', { ns: 'common' })}
                 </Alert>
                 <Typography component="h1" sx={{ mt: 1 }} variant="h5">

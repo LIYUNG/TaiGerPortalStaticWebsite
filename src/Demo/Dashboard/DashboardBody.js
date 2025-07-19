@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Breadcrumbs, Link, Typography } from '@mui/material';
+import { Alert, Box, Breadcrumbs, Link, Typography } from '@mui/material';
 import { Link as LinkDom } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -46,6 +46,9 @@ const DashboardBody = () => {
                     {t('Dashboard', { ns: 'common' })}
                 </Typography>
             </Breadcrumbs>
+            <Alert severity="success" variant="filled">
+                {t('system-announcement', { ns: 'common' })}
+            </Alert>
             {is_TaiGer_Admin(user) ? <AdminMainView /> : null}
             {is_TaiGer_Manager(user) ? <ManagerMainView /> : null}
             {is_TaiGer_Agent(user) ? <AgentMainView /> : null}
