@@ -9,6 +9,7 @@ import {
     Typography
 } from '@mui/material';
 import { is_TaiGer_role } from '@taiger-common/core';
+import queryString from 'query-string';
 
 import CVMLRLOverview from '../CVMLRLCenter/CVMLRLOverview';
 import {
@@ -37,7 +38,12 @@ const EditorPage = () => {
     const { user } = useAuth();
 
     const { data: myStudentsThreads, isLoading: isLoadingThreads } = useQuery(
-        getMyStudentsThreadsQuery({ userId: user_id })
+        getMyStudentsThreadsQuery({
+            userId: user_id,
+            queryString: queryString.stringify({
+                isFinalVersion: 'false'
+            })
+        })
     );
 
     if (!is_TaiGer_role(user)) {
@@ -49,12 +55,10 @@ const EditorPage = () => {
     }
 
     TabTitle(
-        `Editor: ${myStudentsThreads.data.data.user.firstname}, ${myStudentsThreads.data.data.user.lastname}`
+        `Editor: ${myStudentsThreads.data.user.firstname}, ${myStudentsThreads.data.user.lastname}`
     );
 
-    const refactored_threads = open_tasks_v2(
-        myStudentsThreads.data.data.threads
-    );
+    const refactored_threads = open_tasks_v2(myStudentsThreads.data.threads);
 
     const tasks_withMyEssay_arr = refactored_threads.filter((open_task) =>
         [...AGENT_SUPPORT_DOCUMENTS_A, FILE_TYPE_E.essay_required].includes(
@@ -132,16 +136,16 @@ const EditorPage = () => {
                     {appConfig.companyName} Team
                 </Link>
                 <Typography color="text.primary">
-                    {myStudentsThreads.data.data.user.firstname}{' '}
-                    {myStudentsThreads.data.data.user.lastname}
-                    {` (${myStudentsThreads.data.data.threads?.length})`}
+                    {myStudentsThreads.data.user.firstname}{' '}
+                    {myStudentsThreads.data.user.lastname}
+                    {` (${myStudentsThreads.data.threads?.length})`}
                 </Typography>
             </Breadcrumbs>
             <Box>
                 <Card sx={{ p: 2 }}>
                     <Typography variant="h6">
-                        {myStudentsThreads.data.data.user.firstname}{' '}
-                        {myStudentsThreads.data.data.user.lastname} Open Tasks
+                        {myStudentsThreads.data.user.firstname}{' '}
+                        {myStudentsThreads.data.user.lastname} Open Tasks
                         Distribution
                     </Typography>
                     <Typography>
@@ -180,7 +184,7 @@ const EditorPage = () => {
                 <Link
                     component={LinkDom}
                     to={`${DEMO.TEAM_EDITOR_ARCHIV_LINK(
-                        myStudentsThreads.data.data.user._id.toString()
+                        myStudentsThreads.data.user._id.toString()
                     )}`}
                 >
                     <Button color="primary" variant="contained">

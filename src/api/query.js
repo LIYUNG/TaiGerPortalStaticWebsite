@@ -169,9 +169,9 @@ export const getMyStudentsApplicationsV2Query = ({ userId, queryString }) => ({
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
 
-export const getMyStudentsThreadsQuery = ({ userId }) => ({
-    queryKey: ['document-threads/overview/taiger-user', userId],
-    queryFn: () => getMyStudentsThreads({ userId }),
+export const getMyStudentsThreadsQuery = ({ userId, queryString }) => ({
+    queryKey: ['document-threads/overview/taiger-user', userId, queryString],
+    queryFn: () => getMyStudentsThreads({ userId, queryString }),
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
 

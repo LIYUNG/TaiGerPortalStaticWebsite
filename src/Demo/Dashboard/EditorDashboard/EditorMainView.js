@@ -54,7 +54,12 @@ const EditorMainView = () => {
         );
 
     const { data: myStudentsThreads, isLoading: isLoadingThreads } = useQuery(
-        getMyStudentsThreadsQuery({ userId: user._id })
+        getMyStudentsThreadsQuery({
+            userId: user._id,
+            queryString: queryString.stringify({
+                isFinalVersion: 'false'
+            })
+        })
     );
 
     const { data: tasksOverview } = useQuery(getTasksOverviewQuery());
@@ -67,9 +72,7 @@ const EditorMainView = () => {
         return <Loading />;
     }
 
-    const refactored_threads = open_tasks_v2(
-        myStudentsThreads.data.data.threads
-    );
+    const refactored_threads = open_tasks_v2(myStudentsThreads.data.threads);
 
     const tasks_withMyEssay_arr = refactored_threads.filter((open_task) =>
         [...AGENT_SUPPORT_DOCUMENTS_A, FILE_TYPE_E.essay_required].includes(

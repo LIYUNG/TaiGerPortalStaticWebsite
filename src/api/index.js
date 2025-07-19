@@ -358,8 +358,10 @@ export const getMyStudentThreadMetrics = () =>
 export const getThreadsByStudent = (studentId) =>
     request.get(`/api/document-threads/student-threads/${studentId}`);
 
-export const getMyStudentsThreads = ({ userId }) =>
-    request.get(`/api/document-threads/overview/taiger-user/${userId}`);
+export const getMyStudentsThreads = ({ userId, queryString }) =>
+    getData(
+        `/api/document-threads/overview/taiger-user/${userId}?${queryString}`
+    );
 
 export const SetFileAsFinal = (documentsthreadId, studentId, application_id) =>
     request.put(`/api/document-threads/${documentsthreadId}/${studentId}`, {

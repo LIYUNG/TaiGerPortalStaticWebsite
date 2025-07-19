@@ -66,7 +66,12 @@ const AgentMainView = (props) => {
         );
 
     const { data: myStudentsThreads, isLoading: isLoadingThreads } = useQuery(
-        getMyStudentsThreadsQuery({ userId: user._id })
+        getMyStudentsThreadsQuery({
+            userId: user._id,
+            queryString: queryString.stringify({
+                isFinalVersion: 'false'
+            })
+        })
     );
 
     const [agentMainViewState, setAgentMainViewState] = useState({
@@ -142,9 +147,7 @@ const AgentMainView = (props) => {
 
     const myStudents = myStudentsApplications.data.students;
 
-    const refactored_threads = open_tasks_v2(
-        myStudentsThreads.data.data.threads
-    );
+    const refactored_threads = open_tasks_v2(myStudentsThreads.data.threads);
 
     const refactored_agent_threads = refactored_threads.filter(
         (open_task) =>
