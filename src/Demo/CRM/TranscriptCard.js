@@ -13,14 +13,14 @@ import {
     Grid
 } from '@mui/material';
 import {
+    Archive as ArchiveIcon,
+    CalendarToday as CalendarTodayIcon,
     ExpandMore as ExpandMoreIcon,
     ExpandLess as ExpandLessIcon,
-    Person as PersonIcon,
-    PersonAdd as PersonAddIcon,
-    Archive as ArchiveIcon,
-    Mic as MicIcon,
     Group as GroupIcon,
-    CalendarToday as CalendarTodayIcon
+    Mic as MicIcon,
+    Person as PersonIcon,
+    PersonAdd as PersonAddIcon
 } from '@mui/icons-material';
 
 const TranscriptCard = ({ transcript }) => {
@@ -31,7 +31,8 @@ const TranscriptCard = ({ transcript }) => {
         speakers,
         summary,
         transcript_url,
-        userId,
+        leadId,
+        leadFullName,
         participants = []
     } = transcript;
 
@@ -53,7 +54,35 @@ const TranscriptCard = ({ transcript }) => {
                         justifyContent="space-between"
                     >
                         <Grid item sm={8} xs={12}>
-                            <Typography variant="h6">{title}</Typography>
+                            <Grid
+                                alignItems="center"
+                                container
+                                spacing={1}
+                                sx={{ mt: 0.5 }}
+                            >
+                                {leadId && (
+                                    <Grid item>
+                                        <Chip
+                                            color="success"
+                                            icon={
+                                                <PersonIcon
+                                                    sx={{
+                                                        color: 'success.main'
+                                                    }}
+                                                />
+                                            }
+                                            label={leadFullName}
+                                            size="small"
+                                        />
+                                    </Grid>
+                                )}
+                                <Grid item>
+                                    <Typography variant="h6">
+                                        {title}
+                                    </Typography>
+                                </Grid>
+                            </Grid>
+
                             <Grid
                                 alignItems="center"
                                 container
@@ -91,65 +120,48 @@ const TranscriptCard = ({ transcript }) => {
                                 }}
                                 spacing={1}
                             >
-                                {userId ? (
-                                    <Grid item>
-                                        <Chip
-                                            color="success"
-                                            icon={
-                                                <PersonIcon
-                                                    sx={{
-                                                        color: 'success.main'
-                                                    }}
-                                                />
-                                            }
-                                            label={userId}
-                                            size="small"
-                                        />
-                                    </Grid>
-                                ) : (
+                                {!leadId && (
                                     <>
                                         <Grid item>
                                             <Button
                                                 onClick={() =>
                                                     alert(
-                                                        'Assign to Existing User clicked'
+                                                        'Assign to Existing Lead clicked'
                                                     )
                                                 }
                                                 size="small"
                                                 startIcon={<PersonIcon />}
                                                 variant="outlined"
                                             >
-                                                Assign to User
+                                                Assign to Lead
                                             </Button>
                                         </Grid>
                                         <Grid item>
                                             <Button
                                                 onClick={() =>
                                                     alert(
-                                                        'Create New User clicked'
+                                                        'Create New Lead clicked'
                                                     )
                                                 }
                                                 size="small"
                                                 startIcon={<PersonAddIcon />}
                                                 variant="outlined"
                                             >
-                                                Create User
-                                            </Button>
-                                        </Grid>
-                                        <Grid item>
-                                            <Button
-                                                onClick={() =>
-                                                    alert('Archive clicked')
-                                                }
-                                                size="small"
-                                                startIcon={<ArchiveIcon />}
-                                                variant="outlined"
-                                            >
-                                                Archive
+                                                Create Lead
                                             </Button>
                                         </Grid>
                                     </>
                                 )}
+                                <Grid item>
+                                    <Button
+                                        onClick={() => alert('Archive clicked')}
+                                        size="small"
+                                        startIcon={<ArchiveIcon />}
+                                        variant="outlined"
+                                    >
+                                        Archive
+                                    </Button>
+                                </Grid>
                             </Grid>
                         </Grid>
                     </Grid>
