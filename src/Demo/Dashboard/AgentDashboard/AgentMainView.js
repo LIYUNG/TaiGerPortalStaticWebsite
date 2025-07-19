@@ -15,6 +15,7 @@ import {
     Box
 } from '@mui/material';
 import { isProgramDecided } from '@taiger-common/core';
+import queryString from 'query-string';
 
 import { updateAgentBanner } from '../../../api';
 import { appConfig } from '../../../config';
@@ -55,7 +56,14 @@ const AgentMainView = (props) => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const { data: myStudentsApplications, isLoading: isLoadingApplications } =
-        useQuery(getMyStudentsApplicationsV2Query({ userId: user._id }));
+        useQuery(
+            getMyStudentsApplicationsV2Query({
+                userId: user._id,
+                queryString: queryString.stringify({
+                    decided: 'O'
+                })
+            })
+        );
 
     const { data: myStudentsThreads, isLoading: isLoadingThreads } = useQuery(
         getMyStudentsThreadsQuery({ userId: user._id })

@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import { Link as LinkDom } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import queryString from 'query-string';
 
 import TasksDistributionBarChart from '../../../components/Charts/TasksDistributionBarChart';
 import {
@@ -43,7 +44,14 @@ const EditorMainView = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const { data: myStudentsApplications, isLoading: isLoadingApplications } =
-        useQuery(getMyStudentsApplicationsV2Query({ userId: user._id }));
+        useQuery(
+            getMyStudentsApplicationsV2Query({
+                userId: user._id,
+                queryString: queryString.stringify({
+                    decided: 'O'
+                })
+            })
+        );
 
     const { data: myStudentsThreads, isLoading: isLoadingThreads } = useQuery(
         getMyStudentsThreadsQuery({ userId: user._id })

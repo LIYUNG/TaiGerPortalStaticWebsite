@@ -67,8 +67,8 @@ export const getStudentsV2 = () => getData(`/api/students`);
 export const getStudentsV3 = (queryString) =>
     getData(`/api/students/v3?${queryString}`);
 
-export const getMyStudentsApplications = ({ userId }) =>
-    getData(`/api/applications/taiger-user/${userId}`);
+export const getMyStudentsApplications = ({ userId, queryString }) =>
+    getData(`/api/applications/taiger-user/${userId}?${queryString}`);
 
 export const getActiveStudentsApplications = () =>
     getData(`/api/applications/all/active/applications`);

@@ -4,6 +4,7 @@ import { Navigate } from 'react-router-dom';
 import { is_TaiGer_Student, is_TaiGer_role } from '@taiger-common/core';
 import i18next from 'i18next';
 import { useQuery } from '@tanstack/react-query';
+import queryString from 'query-string';
 
 import ApplicationOverviewTabs from './ApplicationOverviewTabs';
 import { TabTitle } from '../Utils/TabTitle';
@@ -18,7 +19,12 @@ const ApplicantsOverview = () => {
     const { user } = useAuth();
 
     const { data: myStudentsApplications, isLoading } = useQuery(
-        getMyStudentsApplicationsV2Query({ userId: user._id })
+        getMyStudentsApplicationsV2Query({
+            userId: user._id,
+            queryString: queryString.stringify({
+                decided: 'O'
+            })
+        })
     );
 
     if (is_TaiGer_Student(user)) {

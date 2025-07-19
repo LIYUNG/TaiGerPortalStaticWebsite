@@ -163,9 +163,9 @@ export const getActiveStudentsApplicationsV2Query = () => ({
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
 
-export const getMyStudentsApplicationsV2Query = ({ userId }) => ({
-    queryKey: ['applications/taiger-user', userId],
-    queryFn: () => getMyStudentsApplications({ userId }),
+export const getMyStudentsApplicationsV2Query = ({ userId, queryString }) => ({
+    queryKey: ['applications/taiger-user', userId, queryString],
+    queryFn: () => getMyStudentsApplications({ userId, queryString }),
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
 

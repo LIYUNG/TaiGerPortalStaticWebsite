@@ -3,6 +3,7 @@ import { Navigate, Link as LinkDom, useParams } from 'react-router-dom';
 import { Box, Breadcrumbs, Button, Link, Typography } from '@mui/material';
 import { is_TaiGer_role } from '@taiger-common/core';
 import { useQuery } from '@tanstack/react-query';
+import queryString from 'query-string';
 
 import ApplicationOverviewTabs from '../ApplicantsOverview/ApplicationOverviewTabs';
 
@@ -18,7 +19,12 @@ const AgentPage = () => {
     const { user } = useAuth();
 
     const { data: myStudentsApplications, isLoading } = useQuery(
-        getMyStudentsApplicationsV2Query({ userId: user_id })
+        getMyStudentsApplicationsV2Query({
+            userId: user_id,
+            queryString: queryString.stringify({
+                decided: 'O'
+            })
+        })
     );
 
     if (isLoading) {
