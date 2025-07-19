@@ -73,12 +73,12 @@ const CRMDashboard = () => {
                 <Box>
                     {transcripts
                         ?.filter((t) => {
-                            const { meetingInfo } = t;
+                            const { meeting_info } = t;
                             const {
                                 fred_joined,
                                 silent_meeting,
                                 summary_status
-                            } = meetingInfo || {};
+                            } = meeting_info || {};
                             return (
                                 fred_joined &&
                                 !silent_meeting &&
