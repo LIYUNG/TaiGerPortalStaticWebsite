@@ -31,6 +31,10 @@ export const resendActivation = ({ email }) =>
 export const verify = () => request.get('/auth/verify');
 export const verifyV2 = () => getData('/auth/verify');
 
+// Audit Log APIs
+export const getAuditLog = (queryString) =>
+    getData(`/api/audit?${queryString}`);
+
 // Search API
 export const getQueryStudentsResults = (keywords) =>
     request.get(`/api/search/students?q=${keywords}`);
@@ -41,7 +45,8 @@ export const getQueryPublicResults = (keywords) =>
 export const getQueryStudentResults = (keywords) =>
     request.get(`/api/communications?q=${keywords}`);
 // User APIs
-export const getUsers = () => request.get('/api/users');
+export const getUsers = (queryString) =>
+    request.get(`/api/users?${queryString}`);
 export const getUser = (user_id) => request.get(`/api/users/${user_id}`);
 export const addUser = (user_information) =>
     request.post('/api/users', user_information);
@@ -53,22 +58,26 @@ export const updateUser = (user) =>
 
 export const changeUserRole = (id, role) => updateUser({ _id: id, role });
 
-export const getAgents = () => request.get('/api/agents');
-
-export const getEditors = () => request.get('/api/editors');
-
 export const getEssayWriters = () => request.get('/api/essay-writers');
 
 export const getStudents = () => request.get(`/api/students`);
 
 export const getStudentsV2 = () => getData(`/api/students`);
 
-export const getAllStudents = () => request.get(`/api/students/all`);
+export const getStudentsV3 = (queryString) =>
+    getData(`/api/students/v3?${queryString}`);
 
-export const getAllStudentsV2 = () => getData(`/api/students/all`);
+export const getMyStudentsApplications = ({ userId }) =>
+    getData(`/api/applications/taiger-user/${userId}`);
+
+export const getActiveStudentsApplications = () =>
+    getData(`/api/applications/all/active/applications`);
+
+export const getAllStudents = () => request.get(`/api/students/all`);
 
 export const getAllActiveStudents = () =>
     request.get(`/api/students/all/active`);
+export const getMyActiveStudents = () => getData(`/api/students/my/active`);
 
 export const getAllActiveStudentsV2 = () => getData(`/api/students/all/active`);
 
@@ -82,11 +91,36 @@ export const getApplicationConflicts = () =>
 export const getApplicationTaskDeltas = () =>
     request.get(`/api/student-applications/deltas`);
 
-export const getApplicationStudent = (studentId) =>
-    request.get(`/api/student-applications/${studentId}`);
+// TODO: thread creation attached to application problem. (thread creation is ok))
+export const createApplicationV2 = ({ studentId, program_ids }) =>
+    postData(`/api/applications/student/${studentId}`, {
+        program_id_set: program_ids
+    });
 
-export const getStudentUniAssist = (studentId) =>
-    request.get(`/api/uniassist/${studentId}`);
+// Tested manually OK.
+export const getApplicationStudentV2 = (studentId) =>
+    request.get(`/api/applications/student/${studentId}`);
+
+// TODO:
+export const updateStudentApplications = (
+    studentId,
+    applications,
+    applying_program_count
+) =>
+    request.put(`/api/applications/student/${studentId}`, {
+        applications,
+        applying_program_count
+    });
+
+export const updateStudentApplication = (studentId, application_id, payload) =>
+    request.put(
+        `/api/applications/student/${studentId}/${application_id}`,
+        payload
+    );
+
+// TODO: thread is empty!! application delete ok.
+export const deleteApplicationStudentV2 = (applicationId) =>
+    request.delete(`/api/applications/application/${applicationId}`);
 
 export const getStudentUniAssistV2 = ({ studentId }) =>
     getData(`/api/uniassist/${studentId}`);
@@ -114,24 +148,6 @@ export const updateEditors = (editorsId, studentId) =>
 
 export const updateAttributes = (attributesId, studentId) =>
     request.post(`/api/students/${studentId}/attributes`, attributesId);
-
-export const assignProgramToStudent = (studentId, program_ids) =>
-    request.post(`/api/students/${studentId}/applications`, {
-        program_id_set: program_ids
-    });
-
-export const assignProgramToStudentV2 = ({ studentId, program_ids }) =>
-    postData(`/api/students/${studentId}/applications`, {
-        program_id_set: program_ids
-    });
-
-export const getStudentApplications = (studentId) =>
-    request.get(`/api/students/${studentId}/applications`);
-
-export const removeProgramFromStudent = (programId, studentId) =>
-    request.delete(`/api/students/${studentId}/applications/${programId}`);
-export const ToggleProgramStatus = (studentId, program_id) =>
-    request.put(`/api/students/${studentId}/${program_id}`);
 
 export const downloadProfile = (category, studentId) =>
     request.get(`/api/students/${studentId}/files/${category}`, {
@@ -165,22 +181,11 @@ export const uploadVPDforstudentV2 = ({
 }) =>
     postData(`/api/students/${studentId}/vpd/${program_id}/${fileType}`, data);
 
-export const deleteVPDFile = (studentId, program_id, fileType) =>
-    request.delete(`/api/students/${studentId}/vpd/${program_id}/${fileType}`);
-
 export const deleteVPDFileV2 = ({ studentId, program_id, fileType }) =>
     deleteData(`/api/students/${studentId}/vpd/${program_id}/${fileType}`);
 
-export const SetAsNotNeeded = (studentId, program_id) =>
-    request.put(`/api/students/${studentId}/vpd/${program_id}/VPD`);
-
 export const SetAsNotNeededV2 = ({ studentId, program_id }) =>
     putData(`/api/students/${studentId}/vpd/${program_id}/VPD`);
-
-// export const SetUniAssistPaid = (studentId, program_id, isPaid) =>
-//   request.post(`/api/students/${studentId}/vpd/${program_id}/payments`, {
-//     isPaid
-//   });
 
 export const SetUniAssistPaidV2 = ({ studentId, program_id, isPaid }) =>
     postData(`/api/students/${studentId}/vpd/${program_id}/payments`, {
@@ -315,24 +320,15 @@ export const putProgramRequirement = (programRequirementId, payload) =>
 export const deleteProgramRequirement = (programRequirementId) =>
     request.delete(`/api/program-requirements/${programRequirementId}`);
 
-export const UpdateStudentApplications = (
-    studentId,
-    applications,
-    applying_program_count
-) =>
-    request.put(`/api/account/applications/${studentId}`, {
-        applications,
-        applying_program_count
-    });
-
 export const updateStudentApplicationResult = (
     studentId,
+    applicationId,
     programId,
     result,
     data
 ) =>
     request.post(
-        `/api/account/applications/result/${studentId}/${programId}/${result}`,
+        `/api/account/applications/result/${studentId}/${applicationId}/${programId}/${result}`,
         data
     );
 
@@ -341,11 +337,11 @@ export const deleteGenralFileThread = (documentsthreadId, studentId) =>
 
 export const deleteProgramSpecificFileThread = (
     documentsthreadId,
-    programId,
+    application_id,
     studentId
 ) =>
     request.delete(
-        `/api/document-threads/${documentsthreadId}/${programId}/${studentId}`
+        `/api/document-threads/${documentsthreadId}/${application_id}/${studentId}`
     );
 
 export const getCheckDocumentPatternIsPassed = (thread_id, file_type) =>
@@ -353,8 +349,8 @@ export const getCheckDocumentPatternIsPassed = (thread_id, file_type) =>
         `/api/document-threads/pattern/check/${thread_id}/${file_type}`
     );
 
-export const getAllCVMLRLOverview = () =>
-    request.get(`/api/document-threads/overview/all`);
+export const getActiveThreads = (queryString) =>
+    request.get(`/api/document-threads/overview/all?${queryString}`);
 
 export const getMyStudentThreadMetrics = () =>
     request.get(`/api/document-threads/overview/my-student-metrics`);
@@ -362,22 +358,16 @@ export const getMyStudentThreadMetrics = () =>
 export const getThreadsByStudent = (studentId) =>
     request.get(`/api/document-threads/student-threads/${studentId}`);
 
-export const getCVMLRLOverview = () =>
-    request.get(`/api/document-threads/overview`);
+export const getMyStudentsThreads = ({ userId }) =>
+    request.get(`/api/document-threads/overview/taiger-user/${userId}`);
 
-export const SetFileAsFinal = (documentsthreadId, studentId, program_id) =>
+export const SetFileAsFinal = (documentsthreadId, studentId, application_id) =>
     request.put(`/api/document-threads/${documentsthreadId}/${studentId}`, {
-        program_id
+        application_id
     });
 
 export const updateEssayWriter = (editor_id, documentsthreadId) =>
     request.post(`/api/document-threads/${documentsthreadId}/essay`, editor_id);
-
-// export const updateInterviewTrainer = (trainer_id, interview_id) =>
-//     request.post(`/api/interviews/${interview_id}/trainers`, trainer_id);
-
-export const getAllActiveEssays = () =>
-    request.get(`/api/document-threads/essays/all`);
 
 export const putThreadFavorite = (documentsthreadId) =>
     request.put(`/api/document-threads/${documentsthreadId}/favorite`);
@@ -385,9 +375,9 @@ export const putThreadFavorite = (documentsthreadId) =>
 // Portal Informations APIs
 export const getPortalCredentials = (student_id) =>
     request.get(`/api/portal-informations/${student_id}`);
-export const postPortalCredentials = (student_id, program_id, credentials) =>
+export const postPortalCredentials = (student_id, applicationId, credentials) =>
     request.post(
-        `/api/portal-informations/${student_id}/${program_id}`,
+        `/api/portal-informations/${student_id}/${applicationId}`,
         credentials
     );
 
@@ -447,14 +437,8 @@ export const getProgram = (programId) =>
 export const getProgramV2 = (programId) =>
     getData(`/api/programs/${programId}`);
 
-export const deleteProgram = (programId) =>
-    request.delete(`/api/programs/${programId}`);
-
 export const deleteProgramV2 = ({ program_id }) =>
     deleteData(`/api/programs/${program_id}`);
-
-export const createProgram = (program) =>
-    request.post('/api/programs', program);
 
 export const createProgramV2 = ({ program }) =>
     postData('/api/programs', program);
@@ -692,15 +676,13 @@ export const updateOfficehours = (user_id, officehours, timezone) =>
 // Teams
 export const getTeamMembers = () => request.get('/api/teams');
 export const getStatisticsV2 = () => getData('/api/teams/statistics');
+export const getTasksOverview = () => getData('/api/teams/tasks-overview');
+export const getIsManager = () => getData('/api/teams/is-manager');
 export const getResponseIntervalByStudent = (studentId) =>
     request.get(`/api/teams/response-interval/${studentId}`);
 
-export const getAgent = (agent_id) =>
-    request.get(`/api/teams/agents/${agent_id}`);
 export const getAgentProfile = (agent_id) =>
     request.get(`/api/agents/profile/${agent_id}`);
-export const getEditor = (editor_id) =>
-    request.get(`/api/teams/editors/${editor_id}`);
 export const getExpense = (taiger_user_id) =>
     request.get(`/api/expenses/users/${taiger_user_id}`);
 export const updateUserPermission = (taiger_user_id, permissions) =>
@@ -789,6 +771,8 @@ export const cvmlrlAi = (
 
 //Interview:
 export const getAllInterviews = () => request.get('/api/interviews');
+export const getInterviews = (queryString) =>
+    getData(`/api/interviews?${queryString}`);
 export const getAllOpenInterviews = () => request.get('/api/interviews/open');
 export const getInterview = (interview_id) =>
     request.get(`/api/interviews/${interview_id}`);
@@ -808,6 +792,7 @@ export const addInterviewTrainingDateTime = (interview_id, payload) =>
     request.post(`/api/interviews/time/${interview_id}`, payload);
 export const SetInterviewAsFinal = (interview_id) =>
     request.post(`/api/interviews/status/${interview_id}`);
+
 export const getInterviewsByProgramId = (program_id) =>
     request.get(`/api/interviews/interview/${program_id}`);
 export const getInterviewsByStudentId = (student_id) =>
@@ -849,7 +834,3 @@ export const submitMessageInTicketWithAttachment = (
     );
 export const deleteAMessageinTicket = (ticketId, message_id) =>
     request.delete(`/api/complaints/${ticketId}/${message_id}`);
-
-// Log:
-export const getUsersLog = () => request.get(`/api/userlogs`);
-export const getUserLog = (user_id) => request.get(`/api/userlogs/${user_id}`);

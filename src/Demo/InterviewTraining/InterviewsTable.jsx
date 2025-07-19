@@ -30,7 +30,6 @@ export const InterviewsTable = ({ isLoading, data, columns }) => {
 
     const updateTrainer = async () => {
         const temp_trainer_id_array = Array.from(trainerId);
-        console.log(temp_trainer_id_array);
         const resp = await updateInterview(
             table.getSelectedRowModel()?.rows[0].original._id.toString(),
             {
@@ -49,7 +48,6 @@ export const InterviewsTable = ({ isLoading, data, columns }) => {
     };
 
     const getTrainer = async () => {
-        // const { data } = await getEditors();
         const { data } = await getEssayWriters();
         const { data: editors_a } = data;
         setTrainers(editors_a);

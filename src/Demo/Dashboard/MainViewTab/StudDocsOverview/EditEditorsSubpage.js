@@ -14,8 +14,10 @@ import {
     Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import queryString from 'query-string';
+import { Role } from '@taiger-common/core';
 
-import { getEditors } from '../../../../api';
+import { getUsers } from '../../../../api';
 
 const EditEditorsSubpage = (props) => {
     const [checkboxState, setCheckboxState] = useState({});
@@ -23,10 +25,8 @@ const EditEditorsSubpage = (props) => {
     const { t } = useTranslation();
 
     useEffect(() => {
-        // Initialize the state with checked checkboxes based on the student's editors
-        getEditors().then(
+        getUsers(queryString.stringify({ role: Role.Editor })).then(
             (resp) => {
-                // TODO: check success
                 const { data, success } = resp.data;
                 if (success) {
                     const editors = data; //get all editors

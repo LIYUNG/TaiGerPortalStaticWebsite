@@ -2,6 +2,8 @@ import React from 'react';
 import { Navigate, Link as LinkDom } from 'react-router-dom';
 import { Box, Breadcrumbs, Link, Typography } from '@mui/material';
 import { is_TaiGer_role } from '@taiger-common/core';
+import queryString from 'query-string';
+import { useQuery } from '@tanstack/react-query';
 
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '../../store/constant';
@@ -10,17 +12,15 @@ import { appConfig } from '../../config';
 import useStudents from '../../hooks/useStudents';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
-import { getAllStudentsQuery } from '../../api/query';
+import { getStudentsV3Query } from '../../api/query';
 import { StudentsTable } from './StudentsTable';
 import { student_transform } from '../Utils/checking-functions';
 
 const StudentDatabase = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
-    const {
-        data: { data: fetchedAllStudents }
-    } = useQuery(getAllStudentsQuery());
+    const { data: { data: fetchedAllStudents } = { data: [] }, isLoading } =
+        useQuery(getStudentsV3Query(queryString.stringify()));
 
     const {
         res_modal_status,
@@ -63,7 +63,7 @@ const StudentDatabase = () => {
             </Breadcrumbs>
             <StudentsTable
                 data={studentsTransformed}
-                isLoading={false}
+                isLoading={isLoading}
                 submitUpdateAgentlist={submitUpdateAgentlist}
                 submitUpdateAttributeslist={submitUpdateAttributeslist}
                 submitUpdateEditorlist={submitUpdateEditorlist}

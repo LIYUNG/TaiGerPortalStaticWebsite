@@ -18,7 +18,6 @@ import {
     check_languages_filled,
     check_academic_background_filled,
     getMissingDocs,
-    does_essay_have_writers,
     is_program_ml_rl_essay_finished,
     num_uni_assist_vpd_needed,
     num_uni_assist_vpd_uploaded,
@@ -960,37 +959,6 @@ describe('num_uni_assist_vpd_uploaded', () => {
         };
         const result = num_uni_assist_vpd_uploaded(student);
         expect(result).toBe(2); // Three applications have uploaded VPD documents
-    });
-});
-
-describe('does_essay_have_writers', () => {
-    // Test case 1: Empty array
-    it('returns true for an empty array', () => {
-        const essayDocumentThreads = [];
-        const result = does_essay_have_writers(essayDocumentThreads);
-        expect(result).toBe(true);
-    });
-
-    // Test case 2: Threads missing writers
-    it('returns false if at least one thread is missing writers', () => {
-        const essayDocumentThreads = [
-            { outsourced_user_id: 'user1' },
-            { outsourced_user_id: [] },
-            { outsourced_user_id: 'user3' }
-        ];
-        const result = does_essay_have_writers(essayDocumentThreads);
-        expect(result).toBe(false);
-    });
-
-    // Test case 3: All threads have writers
-    it('returns true if all threads have writers', () => {
-        const essayDocumentThreads = [
-            { outsourced_user_id: ['user1'] },
-            { outsourced_user_id: ['user2'] },
-            { outsourced_user_id: ['user3'] }
-        ];
-        const result = does_essay_have_writers(essayDocumentThreads);
-        expect(result).toBe(true);
     });
 });
 

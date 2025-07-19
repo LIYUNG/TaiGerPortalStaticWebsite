@@ -23,9 +23,9 @@ import {
     isAnyCVNotAssigned,
     is_any_base_documents_uploaded,
     is_any_programs_ready_to_submit,
-    is_any_vpd_missing,
-    open_tasks,
-    programs_refactor,
+    is_any_vpd_missing_v2,
+    open_tasks_v2,
+    programs_refactor_v2,
     progressBarCounter
 } from '../../Utils/checking-functions';
 import DEMO from '../../../store/constant';
@@ -39,32 +39,33 @@ import { useAuth } from '../../../components/AuthProvider';
 import NoProgramStudentTable from '../MainViewTab/AgentTasks/NoProgramStudentTable';
 import BaseDocumentCheckingTable from '../MainViewTab/AgentTasks/BaseDocumentCheckingTable';
 import ProgramSpecificDocumentCheckCard from '../MainViewTab/AgentTasks/ProgramSpecificDocumentCheckCard';
-import ModalMain from '../../Utils/ModalHandler/ModalMain';
-import useStudents from '../../../hooks/useStudents';
 import Banner from '../../../components/Banner/Banner';
 import {
     is_new_message_status,
     is_pending_status
 } from '../../../utils/contants';
+import { useQuery } from '@tanstack/react-query';
+import {
+    getMyStudentsThreadsQuery,
+    getMyStudentsApplicationsV2Query
+} from '../../../api/query';
+import Loading from '../../../components/Loading/Loading';
 
 const AgentMainView = (props) => {
     const { user } = useAuth();
     const { t } = useTranslation();
-    const {
-        res_modal_status,
-        res_modal_message,
-        ConfirmError,
-        students: initStudents
-    } = useStudents({
-        students: props.students
-    });
+    const { data: myStudentsApplications, isLoading: isLoadingApplications } =
+        useQuery(getMyStudentsApplicationsV2Query({ userId: user._id }));
+
+    const { data: myStudentsThreads, isLoading: isLoadingThreads } = useQuery(
+        getMyStudentsThreadsQuery({ userId: user._id })
+    );
+
     const [agentMainViewState, setAgentMainViewState] = useState({
         error: '',
         notification: props.notification,
         collapsedRows: {}
     });
-
-    const students = initStudents?.filter((student) => !student.archiv);
 
     const removeAgentBanner = (e, notification_key, student_id) => {
         e.preventDefault();
@@ -115,7 +116,12 @@ const AgentMainView = (props) => {
         });
     };
 
-    const applications_arr = programs_refactor(students)
+    if (isLoadingApplications || isLoadingThreads) {
+        return <Loading />;
+    }
+    const applications_arr = programs_refactor_v2(
+        myStudentsApplications.data.applications
+    )
         .filter(
             (application) =>
                 isProgramDecided(application) &&
@@ -126,32 +132,34 @@ const AgentMainView = (props) => {
             a.application_deadline > b.application_deadline ? 1 : -1
         );
 
-    const myStudents = students.filter((student) =>
-        student.agents.some((agent) => agent._id === user._id.toString())
+    const myStudents = myStudentsApplications.data.students;
+
+    const refactored_threads = open_tasks_v2(
+        myStudentsThreads.data.data.threads
     );
 
-    const new_message_tasks = open_tasks(myStudents)
-        .filter((open_task) =>
-            [...AGENT_SUPPORT_DOCUMENTS_A].includes(open_task.file_type)
-        )
-        .filter(
-            (open_task) =>
-                open_task.show &&
-                !open_task.isFinalVersion &&
-                is_new_message_status(user, open_task)
-        );
+    const refactored_agent_threads = refactored_threads.filter(
+        (open_task) =>
+            [...AGENT_SUPPORT_DOCUMENTS_A].includes(open_task.file_type) ||
+            open_task.outsourced_user_id?.some(
+                (outsourcedUser) =>
+                    outsourcedUser._id.toString() === user._id.toString()
+            )
+    );
 
-    const follow_up_task = open_tasks(myStudents)
-        .filter((open_task) =>
-            [...AGENT_SUPPORT_DOCUMENTS_A].includes(open_task.file_type)
-        )
-        .filter(
-            (open_task) =>
-                open_task.show &&
-                !open_task.isFinalVersion &&
-                is_pending_status(user, open_task) &&
-                open_task.latest_message_left_by_id !== ''
-        );
+    const open_tasks_withMyEssay_arr = refactored_agent_threads.filter(
+        (open_task) => open_task.show && !open_task.isFinalVersion
+    );
+
+    const new_message_tasks = open_tasks_withMyEssay_arr.filter((open_task) =>
+        is_new_message_status(user, open_task)
+    );
+
+    const follow_up_task = open_tasks_withMyEssay_arr.filter(
+        (open_task) =>
+            is_pending_status(user, open_task) &&
+            open_task.latest_message_left_by_id !== '- None - '
+    );
 
     return (
         <Box sx={{ mb: 2 }}>
@@ -243,7 +251,7 @@ const AgentMainView = (props) => {
                                 to={DEMO.STUDENT_APPLICATIONS_LINK}
                                 underline="hover"
                             >
-                                <b>{students?.length || 0}</b>
+                                <b>{myStudents?.length || 0}</b>
                             </Link>
                         </Typography>
                     </Card>
@@ -287,7 +295,9 @@ const AgentMainView = (props) => {
                                                         <Link
                                                             component={LinkDom}
                                                             to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                                                                application.student_id,
+                                                                application
+                                                                    .studentId
+                                                                    ._id,
                                                                 DEMO.PROFILE_HASH
                                                             )}`}
                                                             underline="hover"
@@ -339,14 +349,19 @@ const AgentMainView = (props) => {
                 {is_any_programs_ready_to_submit(myStudents) ? (
                     <Grid item md={6} sm={12}>
                         <ReadyToSubmitTasksCard
-                            students={students}
-                            user={user}
+                            applications={applications_arr}
+                            students={myStudents}
                         />
                     </Grid>
                 ) : null}
-                {appConfig.vpdEnable && is_any_vpd_missing(myStudents) ? (
+                {appConfig.vpdEnable &&
+                is_any_vpd_missing_v2(applications_arr) ? (
                     <Grid item md={4} xs={12}>
-                        <VPDToSubmitTasksCard students={students} user={user} />
+                        <VPDToSubmitTasksCard
+                            applications={applications_arr}
+                            students={myStudents}
+                            user={user}
+                        />
                     </Grid>
                 ) : null}
                 <Grid item md={4} sm={6} xs={12}>
@@ -354,32 +369,28 @@ const AgentMainView = (props) => {
                 </Grid>
                 {is_any_base_documents_uploaded(myStudents) ? (
                     <Grid item md={4} sm={6} xs={12}>
-                        <BaseDocumentCheckingTable students={students} />
+                        <BaseDocumentCheckingTable students={myStudents} />
                     </Grid>
                 ) : null}
                 {isAnyCVNotAssigned(myStudents) ? (
                     <Grid item md={4} sm={6} xs={12}>
-                        <CVAssignTasksCard students={students} user={user} />
+                        <CVAssignTasksCard students={myStudents} user={user} />
                     </Grid>
                 ) : null}
-                <NoProgramStudentTable students={students} />
+                <NoProgramStudentTable students={myStudents} />
                 <Grid item md={4} sm={6} xs={12}>
-                    <ProgramSpecificDocumentCheckCard students={students} />
+                    <ProgramSpecificDocumentCheckCard
+                        refactored_threads={refactored_threads}
+                        students={myStudents}
+                    />
                 </Grid>
                 <Grid item md={4} sm={6} xs={12}>
                     <NoEnoughDecidedProgramsTasksCard
-                        students={students}
+                        students={myStudents}
                         user={user}
                     />
                 </Grid>
             </Grid>
-            {res_modal_status >= 400 ? (
-                <ModalMain
-                    ConfirmError={ConfirmError}
-                    res_modal_message={res_modal_message}
-                    res_modal_status={res_modal_status}
-                />
-            ) : null}
         </Box>
     );
 };

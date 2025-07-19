@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
     Tabs,
     Tab,
@@ -18,7 +18,6 @@ import { is_TaiGer_role } from '@taiger-common/core';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import Banner from '../../components/Banner/Banner';
 import { useAuth } from '../../components/AuthProvider';
-import Loading from '../../components/Loading/Loading';
 import { CustomTabPanel, a11yProps } from '../../components/Tabs';
 import { useTranslation } from 'react-i18next';
 import { MuiDataGrid } from '../../components/MuiDataGrid';
@@ -39,7 +38,6 @@ const EssayOverview = (props) => {
         isLoaded: props.isLoaded,
         data: null,
         success: props.success,
-        students: props.students,
         doc_thread_id: '',
         student_id: '',
         program_id: '',
@@ -55,13 +53,6 @@ const EssayOverview = (props) => {
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
-
-    useEffect(() => {
-        setCVMLRLOverviewState((prevState) => ({
-            ...prevState,
-            students: props.students
-        }));
-    }, [props.students]);
 
     const ConfirmError = () => {
         setCVMLRLOverviewState((prevState) => ({
@@ -270,12 +261,7 @@ const EssayOverview = (props) => {
         ];
     }, [t, props, user]);
 
-    const { res_modal_status, res_modal_message, isLoaded } =
-        cVMLRLOverviewState;
-
-    if (!isLoaded && !cVMLRLOverviewState.students) {
-        return <Loading />;
-    }
+    const { res_modal_status, res_modal_message } = cVMLRLOverviewState;
 
     return (
         <>

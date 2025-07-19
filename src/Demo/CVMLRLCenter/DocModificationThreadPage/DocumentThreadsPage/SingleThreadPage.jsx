@@ -23,8 +23,8 @@ const SingleThreadPage = () => {
     if (isLoading) {
         return <Loading />;
     }
-    if (error) {
-        return <ErrorPage />;
+    if (error || !data.data.success) {
+        return <ErrorPage res_status={404} />;
     }
     const thread = data.data?.data;
     const agents = data.data?.agents;
@@ -33,7 +33,7 @@ const SingleThreadPage = () => {
     const deadline = data.data?.deadline;
     const threadAuditLog = data.data?.threadAuditLog;
     const similarThreads = data.data?.similarThreads;
-    console.log(thread);
+
     const student_name = `${thread.student_id.firstname} ${thread.student_id.lastname}`;
     // const student_name_zh = `${thread.student_id.lastname_chinese}${thread.student_id.firstname_chinese}`;
     let docName;

@@ -7,14 +7,18 @@ import ApplicationOverviewTabs from './ApplicationOverviewTabs';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '../../store/constant';
 import { appConfig } from '../../config';
-import { getAllActiveStudentsQuery } from '../../api/query';
+import { getActiveStudentsApplicationsV2Query } from '../../api/query';
 import { BreadcrumbsNavigation } from '../../components/BreadcrumbsNavigation/BreadcrumbsNavigation';
+import Loading from '../../components/Loading/Loading';
 
 const AllApplicantsOverview = () => {
-    const { data } = useQuery(getAllActiveStudentsQuery());
-
+    const { data: allStudentsApplications, isLoading } = useQuery(
+        getActiveStudentsApplicationsV2Query()
+    );
     TabTitle(i18next.t('All Applications Overview'));
-
+    if (isLoading) {
+        return <Loading />;
+    }
     return (
         <Box>
             <BreadcrumbsNavigation
@@ -31,7 +35,10 @@ const AllApplicantsOverview = () => {
                     }
                 ]}
             />
-            <ApplicationOverviewTabs students={data.data} />
+            <ApplicationOverviewTabs
+                applications={allStudentsApplications.data.applications}
+                students={allStudentsApplications.data.students}
+            />
         </Box>
     );
 };

@@ -22,9 +22,11 @@ import {
 } from '../../utils/contants';
 import { updateSchoolAttributes } from '../../api';
 import SearchableMultiSelect from '../../components/Input/searchableMuliselect';
+import { useSnackBar } from '../../contexts/use-snack-bar';
 
 const EditCard = (props) => {
     const [attributes, setAttributes] = useState(props.data);
+    const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
     const handleChange = async (e, school) => {
         e.preventDefault();
         setAttributes({
@@ -69,7 +71,12 @@ const EditCard = (props) => {
         const resp = await updateSchoolAttributes(attributes);
         const { success } = resp.data;
         if (!success) {
-            console.log('warning');
+            setSeverity('error');
+            setMessage(
+                resp.data?.message || 'An error occurred. Please try again.'
+            );
+            setOpenSnackbar(true);
+            return;
         }
     };
 

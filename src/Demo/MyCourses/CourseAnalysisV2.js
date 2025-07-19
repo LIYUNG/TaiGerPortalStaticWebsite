@@ -1453,7 +1453,6 @@ export const GeneralCourseAnalysisComponent = ({
             .slice(0, 20)
             .map(([course, count]) => ({ course, count }));
     }, [missingCoursesRanking]);
-    console.log(topMissingCourses);
 
     const numPrograms = useMemo(
         () =>

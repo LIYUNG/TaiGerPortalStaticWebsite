@@ -19,11 +19,13 @@ import {
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import { Link as LinkDom } from 'react-router-dom';
+import i18next from 'i18next';
+
 import { deleteKeywordSet, putKeywordSet } from '../../../api';
 import ExampleWithLocalizationProvider from '../../../components/MaterialReactTable';
 import { col_keywords } from '../../../utils/contants';
 import DEMO from '../../../store/constant';
-import i18next from 'i18next';
+import { useSnackBar } from '../../../contexts/use-snack-bar';
 
 const EditCard = (props) => {
     const [selectedCategory, setSelectedCategory] = useState(props.data);
@@ -34,6 +36,7 @@ const EditCard = (props) => {
     const [antiKeywordsEN, setAntiKeywordsEN] = useState('');
     const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
+    const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
 
     const handleAddCourseKeyword = (lang, keyword) => {
         if (selectedCategory.keywords[lang]?.includes(keywordsZH)) {
@@ -160,7 +163,12 @@ const EditCard = (props) => {
         );
         const { success } = resp.data;
         if (!success) {
-            console.log('warning');
+            setSeverity('error');
+            setMessage(
+                resp.data?.message || 'An error occurred. Please try again.'
+            );
+            setOpenSnackbar(true);
+            return;
         }
     };
 
@@ -563,6 +571,7 @@ const CourseKeywordsOverview = ({ courseKeywordSets }) => {
     const [drawerOpen, setDrawerOpen] = useState(false);
     const theme = useTheme();
     const isSmallScreen = useMediaQuery(theme.breakpoints.down('md'));
+    const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
 
     const handleDrawerClose = () => {
         setDrawerOpen(false);
@@ -589,7 +598,11 @@ const CourseKeywordsOverview = ({ courseKeywordSets }) => {
         );
         const resp = await deleteKeywordSet(itemToBeDeleted._id);
         if (!resp.success) {
-            console.log('failed');
+            setSeverity('error');
+            setMessage(
+                resp.data?.message || 'An error occurred. Please try again.'
+            );
+            setOpenSnackbar(true);
         }
         setIsDeleteDialogOpen(false);
         setItemToBeDeleted({});

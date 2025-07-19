@@ -3,13 +3,14 @@ import { Box, Breadcrumbs, Link, Typography } from '@mui/material';
 import { Navigate, Link as LinkDom } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { is_TaiGer_role } from '@taiger-common/core';
+import queryString from 'query-string';
 
 import ErrorPage from '../Utils/ErrorPage';
-import { getAllActiveEssays, putThreadFavorite } from '../../api';
+import { getActiveThreads, putThreadFavorite } from '../../api';
 import { TabTitle } from '../Utils/TabTitle';
 import {
     file_category_const,
-    open_essays_tasks,
+    open_tasks_v2,
     toogleItemInArray
 } from '../Utils/checking-functions';
 import DEMO from '../../store/constant';
@@ -32,7 +33,6 @@ const EssayDashboard = () => {
         data: null,
         success: false,
         students: null,
-        doc_thread_id: '',
         SetAsFinalFileModel: false,
         open_tasks_arr: null,
         isFinalVersion: false,
@@ -43,21 +43,22 @@ const EssayDashboard = () => {
     });
 
     useEffect(() => {
-        getAllActiveEssays().then(
+        getActiveThreads(
+            queryString.stringify({
+                file_type: file_category_const.essay_required
+            })
+        ).then(
             (resp) => {
                 const { data, success } = resp.data;
                 const { status } = resp;
+                const tasksData = open_tasks_v2(data);
+
                 if (success) {
                     setEssayDashboardState({
                         ...essayDashboardState,
                         isLoaded: true,
                         students: data,
-                        open_tasks_arr: open_essays_tasks(data).filter(
-                            (open_task) =>
-                                [file_category_const.essay_required].includes(
-                                    open_task.file_type
-                                )
-                        ),
+                        open_tasks_arr: tasksData,
                         success: success,
                         res_status: status
                     });
@@ -123,7 +124,7 @@ const EssayDashboard = () => {
     }
     const { res_status, isLoaded, open_tasks_arr } = essayDashboardState;
     TabTitle('Essay Dashboard');
-    if (!isLoaded && (!essayDashboardState.students || !open_tasks_arr)) {
+    if (!isLoaded && !open_tasks_arr) {
         return <Loading />;
     }
 
@@ -197,7 +198,6 @@ const EssayDashboard = () => {
                 new_message_tasks={new_message_tasks}
                 no_essay_writer_tasks={no_essay_writer_tasks}
                 pending_progress_tasks={pending_progress_tasks}
-                students={essayDashboardState.students}
                 success={essayDashboardState.success}
             />
         </Box>

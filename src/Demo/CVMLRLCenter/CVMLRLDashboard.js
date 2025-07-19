@@ -4,15 +4,9 @@ import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import { c1_mrt } from '../../utils/contants';
-import {
-    // open_tasks,
-    open_tasks_with_editors
-} from '../Utils/checking-functions';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
-
 import Banner from '../../components/Banner/Banner';
 import { CustomTabPanel, a11yProps } from '../../components/Tabs';
-import Loading from '../../components/Loading/Loading';
 import ExampleWithLocalizationProvider from '../../components/MaterialReactTable';
 
 CustomTabPanel.propTypes = {
@@ -29,11 +23,8 @@ const CVMLRLDashboard = (props) => {
         isLoaded: props.isLoaded,
         data: null,
         success: props.success,
-        students: props.students,
-        doc_thread_id: '',
-        student_id: '',
-        program_id: '',
         SetAsFinalFileModel: false,
+        open_tasks_arr: props.open_tasks_arr,
         isFinalVersion: false,
         status: '', //reject, accept... etc
         res_status: 0,
@@ -54,17 +45,9 @@ const CVMLRLDashboard = (props) => {
         }));
     };
 
-    const { res_modal_status, res_modal_message, isLoaded } =
-        cVMLRLDashboardState;
+    const { res_modal_status, res_modal_message } = cVMLRLDashboardState;
 
-    if (!isLoaded && !cVMLRLDashboardState.students) {
-        return <Loading />;
-    }
-
-    const open_tasks_arr = open_tasks_with_editors(
-        cVMLRLDashboardState.students
-    );
-    // const open_tasks_arr2 = open_tasks(cVMLRLDashboardState.students);
+    const open_tasks_arr = props.open_tasks_arr;
 
     const cvmlrl_active_tasks = open_tasks_arr.filter(
         (open_task) =>

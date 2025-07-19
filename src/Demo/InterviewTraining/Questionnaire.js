@@ -29,6 +29,7 @@ import DEMO from '../../store/constant';
 import { useAuth } from '../../components/AuthProvider';
 import { TopBar } from '../../components/TopBar/TopBar';
 import { ConfirmationModal } from '../../components/Modal/ConfirmationModal';
+import { useSnackBar } from '../../contexts/use-snack-bar';
 const Questionnaire = () => {
     const { interview_id } = useParams();
     const { t } = useTranslation();
@@ -36,6 +37,7 @@ const Questionnaire = () => {
     const [isLoading, setIsLoading] = React.useState(false);
     const [isChanged, setIsChanged] = React.useState(false);
     const [isModalOpen, setIsModalOpen] = React.useState(false);
+    const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
     const [values, setValues] = React.useState({
         q1: '',
         q2: '',
@@ -138,9 +140,15 @@ const Questionnaire = () => {
                 interviewQuestions: values.interviewQuestions,
                 interviewFeedback: values.interviewFeedback
             });
-            console.log('Survey response submitted:', response.data);
+            if (response.data.success) {
+                setSeverity('success');
+                setMessage('Draft saved successfully');
+                setOpenSnackbar(true);
+            }
         } catch (error) {
-            console.error('Error submitting survey response:', error);
+            setSeverity('error');
+            setMessage('An error occurred. Please try again.');
+            setOpenSnackbar(true);
         }
     };
 
@@ -177,9 +185,15 @@ const Questionnaire = () => {
                 ...prevState,
                 isFinal: true
             }));
-            console.log('Survey response submitted:', response.data);
+            if (response.data?.success) {
+                setSeverity('success');
+                setMessage('Survey submitted successfully');
+                setOpenSnackbar(true);
+            }
         } catch (error) {
-            console.error('Error submitting survey response:', error);
+            setSeverity('error');
+            setMessage(error || 'An error occurred. Please try again.');
+            setOpenSnackbar(true);
         }
     };
 

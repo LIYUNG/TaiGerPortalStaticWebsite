@@ -58,11 +58,10 @@ const AdminTasks = (props) => {
                     </TableCell>
                 </TableRow>
             ) : null}
-            <AssignEditorRow students={props.students} />
-            <AssignEssayWriterRow
-                essayDocumentThreads={props.essayDocumentThreads}
-            />
-            <AssignInterviewTrainerRow interviews={props.interviews} />
+            <AssignEditorRow tasksOverview={props.tasksOverview} />
+            <AssignEssayWriterRow tasksOverview={props.tasksOverview} />
+            <AssignInterviewTrainerRow tasksOverview={props.tasksOverview} />
+
             {/* assign number of application according to contract */}
             {missing_number_of_applications_students}
         </>

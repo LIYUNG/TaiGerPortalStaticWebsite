@@ -31,7 +31,9 @@ const DEMO = {
     CUSTOMER_CENTER_TICKET_DETAIL_PAGE_LINK: (ticket_id) => {
         return `/customer-center/tickets/${ticket_id}`;
     },
-    CV_ML_RL_CENTER_LINK: '/cv-ml-rl-center',
+    CV_ML_RL_CENTER_LINK_TAB: (tab) => {
+        return `/cv-ml-rl-center#${tab}`;
+    },
     CV_ML_RL_DOCS_LINK: '/docs/cv-ml-rl',
     CV_ML_RL_DASHBOARD_LINK: '/dashboard/cv-ml-rl',
     DASHBOARD_LINK: '/dashboard/default',

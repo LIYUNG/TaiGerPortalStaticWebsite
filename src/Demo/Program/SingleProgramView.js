@@ -783,10 +783,9 @@ const SingleProgramView = (props) => {
                                                 {props.students
                                                     ?.filter((student) =>
                                                         isApplicationOpen(
-                                                            student.application
+                                                            student
                                                         )
                                                     )
-
                                                     .map((student, i) => (
                                                         <TableRow key={i}>
                                                             <TableCell>
@@ -891,10 +890,9 @@ const SingleProgramView = (props) => {
                                                     ?.filter(
                                                         (student) =>
                                                             !isApplicationOpen(
-                                                                student.application
+                                                                student
                                                             )
                                                     )
-
                                                     .map((student, i) => (
                                                         <TableRow key={i}>
                                                             <TableCell>
@@ -916,20 +914,16 @@ const SingleProgramView = (props) => {
                                                                 </Link>
                                                             </TableCell>
                                                             <TableCell>
-                                                                {student.application_preference
-                                                                    ? student
-                                                                          .application_preference
-                                                                          .expected_application_date
+                                                                {student.application_year
+                                                                    ? student.application_year
                                                                     : '-'}
                                                             </TableCell>
                                                             <TableCell>
                                                                 {isProgramWithdraw(
-                                                                    student.application
+                                                                    student
                                                                 )
                                                                     ? 'WITHDREW'
-                                                                    : student
-                                                                          .application
-                                                                          .admission}
+                                                                    : student.admission}
                                                             </TableCell>
                                                         </TableRow>
                                                     ))}

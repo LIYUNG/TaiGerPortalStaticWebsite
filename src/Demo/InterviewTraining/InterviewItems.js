@@ -129,7 +129,6 @@ const InterviewItems = (props) => {
     };
 
     const getEditor = async () => {
-        // const { data } = await getEditors();
         const { data } = await getEssayWriters();
         const { data: editors_a } = data;
         setEditors(editors_a);

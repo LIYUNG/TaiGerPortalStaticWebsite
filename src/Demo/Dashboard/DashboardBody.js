@@ -1,13 +1,5 @@
 import React from 'react';
-import {
-    Alert,
-    Box,
-    Breadcrumbs,
-    Link,
-    // SpeedDial,
-    // SpeedDialAction,
-    Typography
-} from '@mui/material';
+import { Box, Breadcrumbs, Link, Typography } from '@mui/material';
 import { Link as LinkDom } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -26,66 +18,21 @@ import EditorMainView from './EditorDashboard/EditorMainView';
 import ManagerMainView from './ManagerDashboard/ManagerMainView';
 import StudentDashboard from './StudentDashboard/StudentDashboard';
 import GuestDashboard from './GuestDashboard/GuestDashboard';
-import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { TabTitle } from '../Utils/TabTitle';
 import { useAuth } from '../../components/AuthProvider';
 import DEMO from '../../store/constant';
 import { appConfig } from '../../config';
-import useStudents from '../../hooks/useStudents';
-// import SpeedDialIcon from '@mui/material/SpeedDialIcon';
-// import FileCopyIcon from '@mui/icons-material/FileCopyOutlined';
-// import SaveIcon from '@mui/icons-material/Save';
-// import PrintIcon from '@mui/icons-material/Print';
-// import ShareIcon from '@mui/icons-material/Share';
+
 import ExternalMainView from './ExternalDashboard/ExternalMainView';
 
-// const actions = [
-//     { icon: <FileCopyIcon />, name: 'Copy' },
-//     { icon: <SaveIcon />, name: 'Save' },
-//     { icon: <PrintIcon />, name: 'Print' },
-//     { icon: <ShareIcon />, name: 'Share' }
-// ];
-
-const DashboardBody = ({ studentAndEssaysAndInterview }) => {
+const DashboardBody = () => {
     const { user } = useAuth();
-    const {
-        data: {
-            data: fetchedStudents,
-            isCoursesFilled,
-            notification,
-            auditLog
-        },
-        essays: { data: essayDocumentThreads },
-        interviews: { data: interviews }
-    } = studentAndEssaysAndInterview;
     const { t } = useTranslation();
-    const {
-        students,
-        res_modal_message,
-        res_modal_status,
-        submitUpdateAgentlist,
-        submitUpdateEditorlist,
-        submitUpdateAttributeslist,
-        updateStudentArchivStatus,
-        onUpdateProfileFilefromstudent,
-        ConfirmError
-    } = useStudents({
-        students: fetchedStudents,
-        isCoursesFilled,
-        notification
-    });
 
     TabTitle('Home Page');
 
     return (
         <Box>
-            {res_modal_status >= 400 ? (
-                <ModalMain
-                    ConfirmError={ConfirmError}
-                    res_modal_message={res_modal_message}
-                    res_modal_status={res_modal_status}
-                />
-            ) : null}
             <Breadcrumbs aria-label="breadcrumb">
                 <Link
                     color="inherit"
@@ -99,85 +46,15 @@ const DashboardBody = ({ studentAndEssaysAndInterview }) => {
                     {t('Dashboard', { ns: 'common' })}
                 </Typography>
             </Breadcrumbs>
-            <Alert severity="error" variant="filled">
-                {t('system-announcement', { ns: 'common' })}
-            </Alert>
-
-            {is_TaiGer_Admin(user) ? (
-                <AdminMainView
-                    auditLog={auditLog}
-                    essayDocumentThreads={essayDocumentThreads}
-                    interviews={interviews}
-                    students={students}
-                    submitUpdateAgentlist={submitUpdateAgentlist}
-                    submitUpdateAttributeslist={submitUpdateAttributeslist}
-                    submitUpdateEditorlist={submitUpdateEditorlist}
-                />
-            ) : null}
-            {is_TaiGer_Manager(user) ? (
-                <ManagerMainView
-                    notification={notification}
-                    onUpdateProfileFilefromstudent={
-                        onUpdateProfileFilefromstudent
-                    }
-                    students={students}
-                    submitUpdateAgentlist={submitUpdateAgentlist}
-                    updateStudentArchivStatus={updateStudentArchivStatus}
-                />
-            ) : null}
-            {is_TaiGer_Agent(user) ? (
-                <AgentMainView
-                    notification={notification}
-                    onUpdateProfileFilefromstudent={
-                        onUpdateProfileFilefromstudent
-                    }
-                    students={students}
-                    submitUpdateAgentlist={submitUpdateAgentlist}
-                    submitUpdateAttributeslist={submitUpdateAttributeslist}
-                />
-            ) : null}
-            {is_TaiGer_Editor(user) ? (
-                <EditorMainView
-                    essayDocumentThreads={essayDocumentThreads}
-                    interviews={interviews}
-                    students={students}
-                    submitUpdateEditorlist={submitUpdateEditorlist}
-                    updateStudentArchivStatus={updateStudentArchivStatus}
-                />
-            ) : null}
+            {is_TaiGer_Admin(user) ? <AdminMainView /> : null}
+            {is_TaiGer_Manager(user) ? <ManagerMainView /> : null}
+            {is_TaiGer_Agent(user) ? <AgentMainView /> : null}
+            {is_TaiGer_Editor(user) ? <EditorMainView /> : null}
             {is_TaiGer_External(user) ? (
-                <ExternalMainView
-                    essayDocumentThreads={essayDocumentThreads}
-                    students={students}
-                    submitUpdateEditorlist={submitUpdateEditorlist}
-                    updateStudentArchivStatus={updateStudentArchivStatus}
-                />
+                <ExternalMainView students={[]} />
             ) : null}
-            {is_TaiGer_Student(user) ? (
-                <StudentDashboard
-                    isCoursesFilled={isCoursesFilled}
-                    student={students[0]}
-                />
-            ) : null}
-            {is_TaiGer_Guest(user) ? (
-                <GuestDashboard students={students} />
-            ) : null}
-            {/* {false ? (
-                <Box sx={{ position: 'fixed', bottom: 16, right: 16 }}>
-                    <SpeedDial
-                        ariaLabel="SpeedDial basic example"
-                        icon={<SpeedDialIcon />}
-                    >
-                        {actions.map((action) => (
-                            <SpeedDialAction
-                                icon={action.icon}
-                                key={action.name}
-                                tooltipTitle={action.name}
-                            />
-                        ))}
-                    </SpeedDial>
-                </Box>
-            ) : null} */}
+            {is_TaiGer_Student(user) ? <StudentDashboard /> : null}
+            {is_TaiGer_Guest(user) ? <GuestDashboard /> : null}
         </Box>
     );
 };

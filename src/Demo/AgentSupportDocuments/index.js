@@ -6,11 +6,11 @@ import { useTranslation } from 'react-i18next';
 
 import CVMLRLOverview from '../CVMLRLCenter/CVMLRLOverview';
 import ErrorPage from '../Utils/ErrorPage';
-import { getCVMLRLOverview, putThreadFavorite } from '../../api';
+import { getMyStudentsThreads, putThreadFavorite } from '../../api';
 import { TabTitle } from '../Utils/TabTitle';
 import {
     AGENT_SUPPORT_DOCUMENTS_A,
-    open_tasks,
+    open_tasks_v2,
     toogleItemInArray
 } from '../Utils/checking-functions';
 import DEMO from '../../store/constant';
@@ -45,20 +45,18 @@ const AgentSupportDocuments = () => {
     });
 
     useEffect(() => {
-        getCVMLRLOverview().then(
+        getMyStudentsThreads({ userId: user._id }).then(
             (resp) => {
                 const { data, success } = resp.data;
                 const { status } = resp;
                 if (success) {
+                    const tasksData = open_tasks_v2(data.threads);
                     setIndexState((prevState) => ({
                         ...prevState,
                         isLoaded: true,
                         students: data,
-                        open_tasks_arr: open_tasks(data).filter((open_task) =>
-                            [...AGENT_SUPPORT_DOCUMENTS_A].includes(
-                                open_task.file_type
-                            )
-                        ),
+                        open_tasks_arr: tasksData,
+
                         success: success,
                         res_status: status
                     }));
@@ -131,35 +129,40 @@ const AgentSupportDocuments = () => {
         return <ErrorPage res_status={res_status} />;
     }
 
-    const new_message_tasks = open_tasks_arr.filter(
+    const tasks_withMyEssay_arr = open_tasks_arr.filter(
         (open_task) =>
-            open_task.show &&
-            !open_task.isFinalVersion &&
-            is_new_message_status(user, open_task)
+            [...AGENT_SUPPORT_DOCUMENTS_A].includes(open_task.file_type) ||
+            open_task.outsourced_user_id?.some(
+                (outsourcedUser) =>
+                    outsourcedUser._id.toString() === user._id.toString()
+            )
     );
 
-    const fav_message_tasks = open_tasks_arr.filter(
-        (open_task) =>
-            open_task.show && is_my_fav_message_status(user, open_task)
+    const open_tasks_withMyEssay_arr = tasks_withMyEssay_arr.filter(
+        (open_task) => open_task.show && !open_task.isFinalVersion
     );
 
-    const followup_tasks = open_tasks_arr.filter(
+    const new_message_tasks = open_tasks_withMyEssay_arr.filter((open_task) =>
+        is_new_message_status(user, open_task)
+    );
+
+    const fav_message_tasks = open_tasks_withMyEssay_arr.filter((open_task) =>
+        is_my_fav_message_status(user, open_task)
+    );
+
+    const followup_tasks = open_tasks_withMyEssay_arr.filter(
         (open_task) =>
-            open_task.show &&
-            !open_task.isFinalVersion &&
             is_pending_status(user, open_task) &&
-            open_task.latest_message_left_by_id !== ''
+            open_task.latest_message_left_by_id !== '- None - '
     );
 
-    const pending_progress_tasks = open_tasks_arr.filter(
+    const pending_progress_tasks = open_tasks_withMyEssay_arr.filter(
         (open_task) =>
-            open_task.show &&
-            !open_task.isFinalVersion &&
             is_pending_status(user, open_task) &&
-            open_task.latest_message_left_by_id === ''
+            open_task.latest_message_left_by_id === '- None - '
     );
 
-    const closed_tasks = open_tasks_arr.filter(
+    const closed_tasks = tasks_withMyEssay_arr.filter(
         (open_task) => open_task.show && open_task.isFinalVersion
     );
 

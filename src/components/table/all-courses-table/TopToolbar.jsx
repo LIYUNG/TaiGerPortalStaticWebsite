@@ -10,7 +10,6 @@ import i18next from 'i18next';
 import DEMO from '../../../store/constant';
 
 export const TopToolbar = ({ table, toolbarStyle, onDeleteClick }) => {
-    console.log(table.getSelectedRowModel().rows);
     const selectedRows = table.getSelectedRowModel().rows;
     const selectedRow = table.getSelectedRowModel().rows[0]?.original;
 

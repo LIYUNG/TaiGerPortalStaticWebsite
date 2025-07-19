@@ -12,6 +12,7 @@ import {
 import PropTypes from 'prop-types';
 import AddIcon from '@mui/icons-material/Add';
 import { useTranslation } from 'react-i18next';
+import queryString from 'query-string';
 
 import UsersList from './UsersList';
 import AddUserModal from './AddUserModal';
@@ -58,7 +59,7 @@ const UsersTable = () => {
         setValue(newValue);
     };
     useEffect(() => {
-        getUsers().then(
+        getUsers(queryString.stringify({})).then(
             (resp) => {
                 const { data, success } = resp.data;
                 const { status } = resp;

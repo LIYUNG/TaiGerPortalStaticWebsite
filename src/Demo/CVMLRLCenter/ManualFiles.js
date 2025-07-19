@@ -208,7 +208,7 @@ const ManualFiles = (props) => {
                                 onClick={() =>
                                     props.handleProgramStatus(
                                         props.student._id.toString(),
-                                        props.application.programId._id.toString(),
+                                        props.application._id.toString(),
                                         is_program_closed(props.application)
                                     )
                                 }

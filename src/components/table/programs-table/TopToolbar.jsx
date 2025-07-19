@@ -40,7 +40,6 @@ export const TopToolbar = ({ table, toolbarStyle, onAssignClick }) => {
     const handleSubjectGroupChange = (event, newValue) => {
         const selectedCodes = newValue.map((item) => item.code);
         table.setColumnFilters((prev) => {
-            console.log(prev);
             const existingTagsFilter = prev.find(
                 (f) => f.id === 'programSubjects'
             );
@@ -58,7 +57,6 @@ export const TopToolbar = ({ table, toolbarStyle, onAssignClick }) => {
     const handleTagChange = (event, newValue) => {
         const selectedCodes = newValue.map((item) => item.code);
         table.setColumnFilters((prev) => {
-            console.log(prev);
             const existingTagsFilter = prev.find((f) => f.id === 'tags');
             if (existingTagsFilter) {
                 return prev.map((f) =>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link as LinkDom } from 'react-router-dom';
+import { Link as LinkDom, useParams } from 'react-router-dom';
 import LaunchIcon from '@mui/icons-material/Launch';
 import EventIcon from '@mui/icons-material/Event';
 import {
@@ -20,7 +20,7 @@ import {
     Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { isProgramDecided } from '@taiger-common/core';
+import { is_TaiGer_Student, isProgramDecided } from '@taiger-common/core';
 
 import RespondedThreads from '../MainViewTab/RespondedThreads/RespondedThreads';
 import StudentTasksResponsive from '../MainViewTab/StudentTasks/StudentTasksResponsive';
@@ -40,8 +40,13 @@ import ApplicationProgressCard from '../../../components/ApplicationProgressCard
 import { appConfig } from '../../../config';
 import ProgramLanguageNotMatchedBanner from '../../../components/Banner/ProgramLanguageNotMatchedBanner';
 import EnglishCertificateExpiredBeforeDeadlineBanner from '../../../components/Banner/EnglishCertificateExpiredBeforeDeadlineBanner';
+import { useQuery } from '@tanstack/react-query';
+import { getApplicationStudentV2Query } from '../../../api/query';
+import { useAuth } from '../../../components/AuthProvider';
+import Loading from '../../../components/Loading/Loading';
 
 const StudentDashboard = (props) => {
+    const { user } = useAuth();
     const { t } = useTranslation();
     const [studentDashboardState, setStudentDashboardState] = useState({
         error: '',
@@ -50,10 +55,15 @@ const StudentDashboard = (props) => {
         data: [],
         res_status: 0
     });
+    const { studentId: stdIdParam } = useParams();
+    const studentId = is_TaiGer_Student(user) ? user._id : stdIdParam;
+    const { data: data, isLoading: isLoadingApplications } = useQuery(
+        getApplicationStudentV2Query({ studentId })
+    );
 
     const removeBanner = (e, notification_key) => {
         e.preventDefault();
-        const temp_student = studentDashboardState.student;
+        const temp_student = data.data.data;
         temp_student.notification[`${notification_key}`] = true;
         setStudentDashboardState({ student: temp_student });
         updateBanner(notification_key).then(
@@ -83,6 +93,10 @@ const StudentDashboard = (props) => {
         );
     };
 
+    if (isLoadingApplications) {
+        return <Loading />;
+    }
+
     const { res_status } = studentDashboardState;
 
     if (res_status >= 400) {
@@ -90,21 +104,18 @@ const StudentDashboard = (props) => {
     }
 
     const hasUpcomingAppointment = false;
-    const read_thread = (
-        <RespondedThreads student={studentDashboardState.student} />
-    );
+    const read_thread = <RespondedThreads student={data.data.data} />;
 
     const student_tasks = (
         <StudentTasksResponsive
             isCoursesFilled={props.isCoursesFilled}
-            student={studentDashboardState.student}
+            student={data.data.data}
         />
     );
-    const student = studentDashboardState.student;
 
     return (
         <>
-            {student.archiv ? (
+            {data.archiv ? (
                 <Card sx={{ p: 2 }}>
                     <Typography color="red" variant="h5">
                         Status: <b>Close</b> - Your {appConfig.companyName}{' '}
@@ -116,10 +127,10 @@ const StudentDashboard = (props) => {
                 </Card>
             ) : null}
             <Grid container spacing={1} sx={{ mt: 0 }}>
-                {student.notification &&
-                !student.notification.isRead_survey_not_complete &&
+                {data.data.data.notification &&
+                !data.data.data.notification.isRead_survey_not_complete &&
                 !check_academic_background_filled(
-                    student.academic_background
+                    data.data.data.academic_background
                 ) ? (
                     <Grid item xs={12}>
                         <Alert
@@ -159,10 +170,10 @@ const StudentDashboard = (props) => {
                     </Grid>
                 ) : null}
 
-                {student.notification &&
-                !student.notification.isRead_uni_assist_task_assigned &&
+                {data.data.data.notification &&
+                !data.data.data.notification.isRead_uni_assist_task_assigned &&
                 appConfig.vpdEnable &&
-                !is_all_uni_assist_vpd_uploaded(student) ? (
+                !is_all_uni_assist_vpd_uploaded(data.data.data) ? (
                     <Grid item xs={12}>
                         <Alert
                             onClose={(e) =>
@@ -201,8 +212,8 @@ const StudentDashboard = (props) => {
                     </Grid>
                 ) : null}
                 {/* new agents assigned banner */}
-                {student.notification &&
-                !student.notification.isRead_new_agent_assigned ? (
+                {data.data.data.notification &&
+                !data.data.data.notification.isRead_new_agent_assigned ? (
                     <Grid item xs={12}>
                         <Alert
                             onClose={(e) =>
@@ -215,8 +226,8 @@ const StudentDashboard = (props) => {
                     </Grid>
                 ) : null}
                 {/* new editors assigned banner */}
-                {student.notification &&
-                !student.notification.isRead_new_editor_assigned ? (
+                {data.data.data.notification &&
+                !data.data.data.notification.isRead_new_editor_assigned ? (
                     <Grid item xs={12}>
                         <Alert
                             onClose={(e) =>
@@ -229,8 +240,8 @@ const StudentDashboard = (props) => {
                     </Grid>
                 ) : null}
                 {/* new CV ML RL Essay message */}
-                {student.notification &&
-                !student.notification.isRead_new_cvmlrl_messsage ? (
+                {data.data.data.notification &&
+                !data.data.data.notification.isRead_new_cvmlrl_messsage ? (
                     <Grid item xs={12}>
                         <Alert
                             onClose={(e) =>
@@ -250,7 +261,7 @@ const StudentDashboard = (props) => {
                                         ml: 1
                                     }}
                                     target="_blank"
-                                    to={DEMO.CV_ML_RL_CENTER_LINK}
+                                    to={DEMO.CV_ML_RL_CENTER_LINK_TAB('to-do')}
                                     underline="hover"
                                 >
                                     {t('CV/ML/RL Center', { ns: 'common' })}
@@ -264,8 +275,8 @@ const StudentDashboard = (props) => {
                     </Grid>
                 ) : null}
                 {/* TODO: check function : new cv ml rl tasks are asigned to you */}
-                {student.notification &&
-                !student.notification.isRead_new_cvmlrl_tasks_created ? (
+                {data.data.data.notification &&
+                !data.data.data.notification.isRead_new_cvmlrl_tasks_created ? (
                     <Grid item xs={12}>
                         <Alert
                             onClose={(e) =>
@@ -288,7 +299,9 @@ const StudentDashboard = (props) => {
                                         ml: 1
                                     }}
                                     target="_blank"
-                                    to={DEMO.CV_ML_RL_CENTER_LINK}
+                                    to={DEMO.CV_ML_RL_CENTER_LINK_TAB(
+                                        'follow-up'
+                                    )}
                                     underline="hover"
                                 >
                                     {t('CV/ML/RL Center', { ns: 'common' })}
@@ -301,9 +314,9 @@ const StudentDashboard = (props) => {
                         </Alert>
                     </Grid>
                 ) : null}
-                {student.notification &&
-                !student.notification.isRead_new_programs_assigned &&
-                !check_applications_to_decided(student) ? (
+                {data.data.data.notification &&
+                !data.data.data.notification.isRead_new_programs_assigned &&
+                !check_applications_to_decided(data.data.data) ? (
                     <Grid item xs={12}>
                         <Alert
                             onClose={(e) =>
@@ -338,9 +351,9 @@ const StudentDashboard = (props) => {
                         </Alert>
                     </Grid>
                 ) : null}
-                {student.notification &&
-                !student.notification.isRead_base_documents_missing &&
-                are_base_documents_missing(student) ? (
+                {data.data.data.notification &&
+                !data.data.data.notification.isRead_base_documents_missing &&
+                are_base_documents_missing(data.data.data) ? (
                     <Grid item xs={12}>
                         <Alert
                             onClose={(e) =>
@@ -373,9 +386,9 @@ const StudentDashboard = (props) => {
                         </Alert>
                     </Grid>
                 ) : null}
-                {student.notification &&
-                !student.notification.isRead_base_documents_rejected &&
-                isBaseDocumentsRejected(student) ? (
+                {data.data.data.notification &&
+                !data.data.data.notification.isRead_base_documents_rejected &&
+                isBaseDocumentsRejected(data.data.data) ? (
                     <Grid item xs={12}>
                         <Alert
                             onClose={(e) =>
@@ -412,7 +425,9 @@ const StudentDashboard = (props) => {
                     </Grid>
                 ) : null}
                 <Grid item md={12} xs={12}>
-                    {needGraduatedApplicantsButStudentNotGraduated(student) ? (
+                    {needGraduatedApplicantsButStudentNotGraduated(
+                        data.data.data
+                    ) ? (
                         <Card sx={{ border: '4px solid red' }}>
                             <Alert severity="warning">
                                 {t(
@@ -424,7 +439,7 @@ const StudentDashboard = (props) => {
                                 &nbsp;:&nbsp;
                             </Alert>
                             {needGraduatedApplicantsPrograms(
-                                student.applications
+                                data.data.data.applications
                             )?.map((app) => (
                                 <ListItem key={app.programId._id.toString()}>
                                     <Link
@@ -445,10 +460,10 @@ const StudentDashboard = (props) => {
                     ) : null}
                 </Grid>
                 <Grid item md={12} xs={12}>
-                    <ProgramLanguageNotMatchedBanner student={student} />
+                    <ProgramLanguageNotMatchedBanner student={data.data.data} />
                 </Grid>
                 <EnglishCertificateExpiredBeforeDeadlineBanner
-                    student={student}
+                    student={data.data.data}
                 />
                 <Grid item md={8} xs={12}>
                     <Card style={{ border: '4px solid red' }}>
@@ -511,13 +526,13 @@ const StudentDashboard = (props) => {
                                                 )}
                                             </Grid>
                                             <Grid item xs={12}>
-                                                {student?.agents?.length !==
-                                                0 ? (
+                                                {data.data.data?.agents
+                                                    ?.length !== 0 ? (
                                                     <Link
                                                         color="inherit"
                                                         component={LinkDom}
                                                         to={`${DEMO.EVENT_STUDENT_STUDENTID_LINK(
-                                                            student._id.toString()
+                                                            data.data.data?._id?.toString()
                                                         )}`}
                                                         underline="hover"
                                                     >
@@ -591,13 +606,13 @@ const StudentDashboard = (props) => {
                 </Grid>
             </Grid>
             <Grid container spacing={2} sx={{ mt: 0 }}>
-                {student.applications
+                {data.data.data.applications
                     ?.filter((app) => isProgramDecided(app))
                     .map((application, idx) => (
                         <Grid item key={idx} lg={3} md={4} sm={6} xs={12}>
                             <ApplicationProgressCard
                                 application={application}
-                                student={student}
+                                student={data.data.data}
                             />
                         </Grid>
                     ))}

@@ -232,7 +232,7 @@ const SingleInterview = () => {
 
         // formData.append('files', singleInterviewState.file);
         formData.append('message', message);
-        console.log(singleInterviewState.interview);
+
         SubmitMessageWithAttachment(
             singleInterviewState.interview?.thread_id?._id.toString(),
             singleInterviewState.interview?.student_id?._id.toString(),
@@ -322,8 +322,7 @@ const SingleInterview = () => {
         window.location.hash = THREAD_REVERSED_TABS[newValue];
     };
 
-    const handleAsFinalFile = (interview_id) => {
-        console.log(interview_id);
+    const handleAsFinalFile = () => {
         setSingleInterviewState((prevState) => ({
             ...prevState,
             SetAsFinalFileModel: true
@@ -565,11 +564,7 @@ const SingleInterview = () => {
                                         <Button
                                             color="success"
                                             fullWidth
-                                            onClick={() =>
-                                                handleAsFinalFile(
-                                                    interview?._id?.toString()
-                                                )
-                                            }
+                                            onClick={() => handleAsFinalFile()}
                                             sx={{ mt: 2 }}
                                             variant="contained"
                                         >
@@ -583,11 +578,7 @@ const SingleInterview = () => {
                                         <Button
                                             color="secondary"
                                             fullWidth
-                                            onClick={() =>
-                                                handleAsFinalFile(
-                                                    interview?._id?.toString()
-                                                )
-                                            }
+                                            onClick={() => handleAsFinalFile()}
                                             sx={{ mt: 2 }}
                                             variant="outlined"
                                         >

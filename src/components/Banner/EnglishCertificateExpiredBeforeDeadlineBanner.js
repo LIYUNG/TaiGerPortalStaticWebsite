@@ -7,7 +7,7 @@ import i18next from 'i18next';
 import {
     isEnglishCertificateExpiredBeforeDeadline,
     englishCertificatedExpiredBeforeTheseProgramDeadlines,
-    application_deadline_calculator
+    application_deadline_V2_calculator
 } from '../../Demo/Utils/checking-functions';
 import DEMO from '../../store/constant';
 
@@ -41,7 +41,7 @@ const EnglishCertificateExpiredBeforeDeadlineBanner = ({ student }) => {
                                 {app.programId.degree} {app.programId.semester}{' '}
                                 - <strong>{app.programId.lang}</strong>
                                 {' , Deadline: '}
-                                {application_deadline_calculator(student, app)}
+                                {application_deadline_V2_calculator(app)}
                                 {', English Certificate test date: '}
                                 {dayjs(
                                     student.academic_background.language

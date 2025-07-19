@@ -11,29 +11,63 @@ import {
     Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import queryString from 'query-string';
 
 import AdminTasks from '../MainViewTab/AdminTasks/index';
 import useStudents from '../../../hooks/useStudents';
-import ModalMain from '../../Utils/ModalHandler/ModalMain';
 import ProgramReportCard from '../../Program/ProgramReportCard';
 import MiniAudit from '../../Audit/MiniAudit';
 import { StudentsTable } from '../../StudentDatabase/StudentsTable';
 import { student_transform } from '../../Utils/checking-functions';
+import { useQuery } from '@tanstack/react-query';
+import {
+    getActiveStudentsApplicationsV2Query,
+    getAuditLogQuery,
+    getInterviewsQuery,
+    getTasksOverviewQuery
+} from '../../../api/query';
+import Loading from '../../../components/Loading/Loading';
 
 const AdminMainView = (props) => {
     const { t } = useTranslation();
+
+    const { data: allStudentsApplications, isLoading: isLoadingApplications } =
+        useQuery(getActiveStudentsApplicationsV2Query());
+
+    const { data: interviews } = useQuery(
+        getInterviewsQuery(
+            queryString.stringify({
+                no_trainer: true,
+                isClosed: false
+            })
+        )
+    );
+
+    const { data: tasksOverview } = useQuery(getTasksOverviewQuery());
+
+    const { data: auditLog } = useQuery(
+        getAuditLogQuery(
+            queryString.stringify({
+                page: 1,
+                limit: 20
+            })
+        )
+    );
+    console.log(auditLog?.data);
     const {
-        res_modal_status,
-        res_modal_message,
-        ConfirmError,
         students: initStudents,
         submitUpdateAgentlist,
         submitUpdateEditorlist,
         submitUpdateAttributeslist,
         updateStudentArchivStatus
     } = useStudents({
-        students: props.students
+        students: allStudentsApplications?.data?.students || []
     });
+
+    if (isLoadingApplications) {
+        return <Loading />;
+    }
+
     const students = initStudents
         ?.filter((student) => !student.archiv)
         .sort((a, b) =>
@@ -46,8 +80,9 @@ const AdminMainView = (props) => {
     const admin_tasks = (
         <AdminTasks
             essayDocumentThreads={props.essayDocumentThreads}
-            interviews={props.interviews}
+            interviews={interviews?.data || []}
             students={students}
+            tasksOverview={tasksOverview?.data || {}}
         />
     );
 
@@ -56,57 +91,48 @@ const AdminMainView = (props) => {
     );
 
     return (
-        <>
-            <Grid container spacing={2} sx={{ mt: 0 }}>
-                <Grid item md={4} xs={12}>
-                    <Card style={{ height: '40vh', overflow: 'auto' }}>
-                        <Typography variant="h6">
-                            <Alert severity="warning">
-                                Admin {t('To Do Tasks', { ns: 'common' })}:
-                            </Alert>
-                        </Typography>
-                        <Table size="small">
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>
-                                        {t('Tasks', { ns: 'common' })}
-                                    </TableCell>
-                                    <TableCell>
-                                        {t('Description', { ns: 'common' })}
-                                    </TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>{admin_tasks}</TableBody>
-                        </Table>
-                    </Card>
-                </Grid>
-                <Grid item md={4} xs={12}>
-                    <ProgramReportCard />
-                </Grid>
-                <Grid item md={4} xs={12}>
-                    <Card style={{ height: '40vh', overflow: 'auto' }}>
-                        <MiniAudit audit={props.auditLog || []} />
-                    </Card>
-                </Grid>
-                <Grid item xs={12}>
-                    <StudentsTable
-                        data={studentsTransformed}
-                        isLoading={false}
-                        submitUpdateAgentlist={submitUpdateAgentlist}
-                        submitUpdateAttributeslist={submitUpdateAttributeslist}
-                        submitUpdateEditorlist={submitUpdateEditorlist}
-                        updateStudentArchivStatus={updateStudentArchivStatus}
-                    />
-                </Grid>
+        <Grid container spacing={2} sx={{ mt: 0 }}>
+            <Grid item md={4} xs={12}>
+                <Card style={{ height: '40vh', overflow: 'auto' }}>
+                    <Typography variant="h6">
+                        <Alert severity="warning">
+                            Admin {t('To Do Tasks', { ns: 'common' })}:
+                        </Alert>
+                    </Typography>
+                    <Table size="small">
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>
+                                    {t('Tasks', { ns: 'common' })}
+                                </TableCell>
+                                <TableCell>
+                                    {t('Description', { ns: 'common' })}
+                                </TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>{admin_tasks}</TableBody>
+                    </Table>
+                </Card>
             </Grid>
-            {res_modal_status >= 400 ? (
-                <ModalMain
-                    ConfirmError={ConfirmError}
-                    res_modal_message={res_modal_message}
-                    res_modal_status={res_modal_status}
+            <Grid item md={4} xs={12}>
+                <ProgramReportCard />
+            </Grid>
+            <Grid item md={4} xs={12}>
+                <Card style={{ height: '40vh', overflow: 'auto' }}>
+                    <MiniAudit audit={auditLog?.data || []} />
+                </Card>
+            </Grid>
+            <Grid item xs={12}>
+                <StudentsTable
+                    data={studentsTransformed}
+                    isLoading={false}
+                    submitUpdateAgentlist={submitUpdateAgentlist}
+                    submitUpdateAttributeslist={submitUpdateAttributeslist}
+                    submitUpdateEditorlist={submitUpdateEditorlist}
+                    updateStudentArchivStatus={updateStudentArchivStatus}
                 />
-            ) : null}
-        </>
+            </Grid>
+        </Grid>
     );
 };
 
