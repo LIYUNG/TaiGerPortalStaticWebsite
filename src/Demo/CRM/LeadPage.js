@@ -92,10 +92,6 @@ const LeadPage = () => {
                 <MaterialReactTable
                     columns={columns}
                     data={leads}
-                    enableColumnFilters
-                    enableGlobalFilter
-                    enablePagination
-                    enableRowSelection
                     enableSorting
                     state={{ isLoading }}
                 />
