@@ -1,6 +1,7 @@
 import { Navigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Box, Breadcrumbs, Link, Typography } from '@mui/material';
+import { MaterialReactTable } from 'material-react-table';
 import i18next from 'i18next';
 
 import { TabTitle } from '../Utils/TabTitle';
@@ -16,9 +17,8 @@ const LeadPage = () => {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
-    // Temporory workaround to fetch transcripts
-    // TODO: implement actual/proper API call to fetch transcripts with UseQuery
     const [leads, setLeads] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         request
@@ -28,8 +28,39 @@ const LeadPage = () => {
             })
             .catch((error) => {
                 console.error('Failed to fetch leads:', error);
+            })
+            .finally(() => {
+                setIsLoading(false);
             });
     }, []);
+
+    const columns = [
+        {
+            accessorKey: 'fullName',
+            header: 'Full Name',
+            size: 200
+        },
+        {
+            accessorKey: 'gender',
+            header: 'Gender',
+            size: 100
+        },
+        {
+            accessorKey: 'email',
+            header: 'Email',
+            size: 250
+        },
+        {
+            accessorKey: 'lineId',
+            header: 'Line ID',
+            size: 150
+        },
+        {
+            accessorKey: 'source',
+            header: 'Source',
+            size: 150
+        }
+    ];
 
     TabTitle(i18next.t('Leads', { ns: 'common' }));
 
@@ -56,7 +87,19 @@ const LeadPage = () => {
                     {i18next.t('Leads', { ns: 'common' })}
                 </Typography>
             </Breadcrumbs>
-            <>{JSON.stringify(leads)}</>
+
+            <Box sx={{ mt: 2 }}>
+                <MaterialReactTable
+                    columns={columns}
+                    data={leads}
+                    enableColumnFilters
+                    enableGlobalFilter
+                    enablePagination
+                    enableRowSelection
+                    enableSorting
+                    state={{ isLoading }}
+                />
+            </Box>
         </Box>
     );
 };
