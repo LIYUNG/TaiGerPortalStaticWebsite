@@ -24,8 +24,11 @@ export const student_transform = (students) =>
     students?.map((student) => ({
         ...student,
         name: `${student.firstname} ${student.lastname} | ${student.firstname_chinese} ${student.lastname_chinese}`,
+        name_zh: `${student.lastname_chinese}${student.firstname_chinese}`,
+        name_en: `${student.firstname} ${student.lastname}`,
         application_year:
             student.application_preference?.expected_application_date,
+        target_degree: student.application_preference?.target_degree,
         application_semester:
             student.application_preference?.expected_application_semester,
         attended_university:

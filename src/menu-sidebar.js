@@ -307,7 +307,7 @@ taiger_teams_items = [
     }
 ];
 
-export const MenuSidebar = [
+const MenuSidebar = [
     {
         id: 'dashboard',
         title: 'Dashboard',
@@ -525,3 +525,26 @@ export const MenuSidebar = [
         icon: <SupportAgentIcon />
     }
 ];
+
+if (appConfig.CRMEnable) {
+    MenuSidebar.push({
+        id: 'CRM',
+        title: 'CRM',
+        type: 'item',
+        url: '/crm',
+        icon: <SupportAgentIcon />,
+        children: [
+            {
+                id: 'crm_overview',
+                title: 'CRM Overview',
+                type: 'item',
+                url: '/CRM',
+                icon: <DrawIcon />,
+                target: false,
+                breadcrumbs: false
+            }
+        ]
+    });
+}
+
+export { MenuSidebar };

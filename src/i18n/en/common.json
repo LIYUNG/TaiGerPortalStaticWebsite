@@ -391,6 +391,7 @@
     "open/offer/reject": "open/offer/reject",
     "required-document-notice": "Whether applying for undergraduate or master's programs, high school documents and entrance exam scores are required. These requirements may vary based on your background. Please complete your profile first.",
     "student-count": "Student Count",
+    "system-announcement": "We will maintain at 00:00 - 06:00 on 2025-07-20 (Taipei time) for system maintenance. Please be aware that the system may be unavailable during this time.",
     "tenant-accounting": "{{tenant}} Accounting",
     "tenant-admissions": "{{tenant}} Admissions",
     "tenant-dashboard": "{{tenant}} Dashboard",

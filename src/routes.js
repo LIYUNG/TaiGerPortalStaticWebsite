@@ -31,7 +31,7 @@ const CreateComplaintTicket = React.lazy(
     () => import('./Demo/CustomerSupport/CreateTicket')
 );
 const Questionnaire = React.lazy(
-    () => import('./Demo/InterviewTraining/Questionnaire')
+    () => import('./Demo/InterviewTraining/InterviewSurveyForm')
 );
 const AddInterview = React.lazy(
     () => import('./Demo/InterviewTraining/AddInterview')
@@ -126,6 +126,9 @@ const MyStudentOverviewPage = React.lazy(
 const StudentOverviewPage = React.lazy(
     () => import('./Demo/StudentOverview/index')
 );
+
+const CRMDashboard = React.lazy(() => import('./Demo/CRM/index'));
+
 const InternalDashboard = React.lazy(
     () => import('./Demo/TaiGerOrg/InternalDashboard/index')
 );
@@ -778,6 +781,15 @@ if (appConfig.interviewEnable) {
         exact: true,
         name: 'SingleInterview',
         Component: SingleInterview
+    });
+}
+
+if (appConfig.CRMEnable) {
+    routes.push({
+        path: '/crm',
+        exact: true,
+        name: 'CRM Dashboard',
+        Component: CRMDashboard
     });
 }
 

@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import {
     MaterialReactTable,
-    useMaterialReactTable
+    useMaterialReactTable,
+    createMRTColumnHelper
 } from 'material-react-table';
 import { getTableConfig, useTableStyles } from '../../components/table';
 import { useTranslation } from 'react-i18next';
@@ -18,6 +19,7 @@ import {
     Checkbox,
     CircularProgress
 } from '@mui/material';
+import { mkConfig, generateCsv, download } from 'export-to-csv';
 
 import DEMO from '../../store/constant';
 import { TopToolbar } from '../../components/table/students-table/TopToolbar';
@@ -25,6 +27,8 @@ import EditAgentsSubpage from '../Dashboard/MainViewTab/StudDocsOverview/EditAge
 import EditEditorsSubpage from '../Dashboard/MainViewTab/StudDocsOverview/EditEditorsSubpage';
 import EditAttributesSubpage from '../Dashboard/MainViewTab/StudDocsOverview/EditAttributesSubpage';
 import { is_User_Archived } from '../Utils/checking-functions';
+
+const columnHelper = createMRTColumnHelper();
 
 export const StudentsTable = ({
     isLoading,
@@ -140,12 +144,11 @@ export const StudentsTable = ({
     };
 
     const columns = [
-        {
-            accessorKey: 'name',
+        columnHelper.accessor('name_zh', {
             header: t('Name', { ns: 'common' }),
             //   filterVariant: 'autocomplete',
             filterFn: 'contains',
-            size: 250,
+            size: 80,
             Cell: (params) => {
                 const linkUrl = `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
                     params.row.original._id,
@@ -158,37 +161,56 @@ export const StudentsTable = ({
                         to={linkUrl}
                         underline="hover"
                     >
-                        {params.row.original.name}
+                        {params.row.original.name_zh}
                     </Link>
                 );
             }
-        },
-        {
-            accessorKey: 'archiv',
+        }),
+        columnHelper.accessor('name_en', {
+            header: t('Name', { ns: 'common' }),
+            //   filterVariant: 'autocomplete',
+            filterFn: 'contains',
+            size: 150,
+            Cell: (params) => {
+                const linkUrl = `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
+                    params.row.original._id,
+                    DEMO.PROFILE_HASH
+                )}`;
+                return (
+                    <Link
+                        component={LinkDom}
+                        target="_blank"
+                        to={linkUrl}
+                        underline="hover"
+                    >
+                        {params.row.original.name_en}
+                    </Link>
+                );
+            }
+        }),
+
+        columnHelper.accessor('archiv', {
             header: t('Archiv', { ns: 'common' }),
             size: 90,
             Cell: (params) => {
                 return params.row.original.archiv ? 'true' : 'false';
             }
-        },
-        {
-            accessorKey: 'agentNames',
+        }),
+        columnHelper.accessor('agentNames', {
             header: t('Agents', { ns: 'common' }),
             size: 90,
             Cell: (params) => {
                 return params.row.original.agentNames;
             }
-        },
-        {
-            accessorKey: 'editorNames',
+        }),
+        columnHelper.accessor('editorNames', {
             header: t('Editors', { ns: 'common' }),
             size: 90,
             Cell: (params) => {
                 return params.row.original.editorNames;
             }
-        },
-        {
-            accessorKey: 'attributesString',
+        }),
+        columnHelper.accessor('attributesString', {
             header: t('Attributes', { ns: 'common' }),
             Cell: (params) => {
                 return params.row.original.attributes?.map((attribute) => (
@@ -201,28 +223,45 @@ export const StudentsTable = ({
                 ));
             },
             size: 100
-        },
-        {
-            accessorKey: 'attended_university',
+        }),
+        columnHelper.accessor('attended_university', {
             header: t('University', { ns: 'common' }),
             size: 150
-        },
-        {
-            accessorKey: 'attended_university_program',
+        }),
+        columnHelper.accessor('attended_university_program', {
             header: t('Program', { ns: 'common' }),
             size: 150
-        },
-        {
-            accessorKey: 'application_year',
+        }),
+        columnHelper.accessor('application_year', {
             header: t('Application Year', { ns: 'common' }),
             size: 80
-        },
-        {
-            accessorKey: 'application_semester',
+        }),
+        columnHelper.accessor('target_degree', {
+            header: t('Target Degree', { ns: 'common' }),
+            size: 80
+        }),
+        columnHelper.accessor('application_semester', {
             header: t('Application Year', { ns: 'common' }),
             size: 80
-        }
+        })
     ];
+
+    const handleExportRows = (rows) => {
+        console.log(columns);
+        const csvConfig = mkConfig({
+            fieldSeparator: ',',
+            decimalSeparator: '.',
+            useKeysAsHeaders: true
+        });
+
+        const rowData = rows.map((row) => {
+            return {
+                ...columns.map((column) => row.original[column.accessorKey])
+            };
+        });
+        const csv = generateCsv(csvConfig)(rowData);
+        download(csvConfig)(csv);
+    };
 
     const table = useMaterialReactTable({
         ...tableConfig,
@@ -237,6 +276,7 @@ export const StudentsTable = ({
             onArchiveClick={setArchivModalOpen}
             onAttributesClick={startEditingAttributes}
             onEditorClick={startEditingEditor}
+            onExportClick={handleExportRows}
             table={table}
             toolbarStyle={customTableStyles.toolbarStyle}
         />
