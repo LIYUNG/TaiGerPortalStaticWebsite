@@ -131,7 +131,11 @@ const StudentOverviewPage = React.lazy(
 );
 
 const CRMDashboard = React.lazy(() => import('./Demo/CRM/index'));
+const CRMLeadDashboard = React.lazy(() => import('./Demo/CRM/LeadDashboard'));
 const CRMLeadPage = React.lazy(() => import('./Demo/CRM/LeadPage'));
+const CRMTranscriptDashboard = React.lazy(
+    () => import('./Demo/CRM/TranscriptDashboard')
+);
 const CRMTranscriptPage = React.lazy(() => import('./Demo/CRM/TranscriptPage'));
 
 const InternalDashboard = React.lazy(
@@ -808,10 +812,22 @@ if (appConfig.CRMEnable) {
         path: '/crm/leads',
         exact: true,
         name: 'CRM Leads',
+        Component: CRMLeadDashboard
+    });
+    routes.push({
+        path: '/crm/leads/:leadId',
+        exact: true,
+        name: 'CRM Leads',
         Component: CRMLeadPage
     });
     routes.push({
         path: '/crm/meetings',
+        exact: true,
+        name: 'CRM Meetings',
+        Component: CRMTranscriptDashboard
+    });
+    routes.push({
+        path: '/crm/meetings/:meetingId',
         exact: true,
         name: 'CRM Meetings',
         Component: CRMTranscriptPage
