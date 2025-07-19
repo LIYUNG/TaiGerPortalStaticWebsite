@@ -19,6 +19,8 @@ module.exports = {
         '^.+\\.[tj]sx?$': 'babel-jest'
     },
     transformIgnorePatterns: [
-        '/node_modules/(?!@mui/x-charts|@mui/material|@babel/runtime|d3-(color|format|interpolate|scale|shape|time|time-format|path|array)|internmap)'
-    ]
+        '/node_modules/(?!@mui/x-charts|@mui/material|@babel/runtime|d3-(color|format|interpolate|scale|shape|time|time-format|path|array)|internmap|query-string|export-to-csv)'
+    ],
+    // Setup files to run before tests
+    setupFilesAfterEnv: ['<rootDir>/src/setupTests.js']
 };
