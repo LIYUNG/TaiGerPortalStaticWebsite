@@ -56,6 +56,11 @@ const LeadDashboard = () => {
             accessorKey: 'source',
             header: 'Source',
             size: 150
+        },
+        {
+            accessorKey: 'createdAt',
+            header: 'Submitted At',
+            size: 200
         }
     ];
 
