@@ -1210,7 +1210,7 @@ export const is_cv_assigned = (student) => {
     // check CV
     return (
         student.generaldocs_threads?.findIndex(
-            (thread) => thread.doc_thread_id.file_type === 'CV'
+            (thread) => thread.doc_thread_id?.file_type === 'CV'
         ) >= 0
     );
 };
@@ -1218,7 +1218,7 @@ export const is_cv_assigned = (student) => {
 // Tested
 export const isCVFinished = (student) => {
     const cv_thread = student?.generaldocs_threads?.find(
-        (thread) => thread.doc_thread_id.file_type === 'CV'
+        (thread) => thread.doc_thread_id?.file_type === 'CV'
     );
     return !!(cv_thread && cv_thread.isFinalVersion);
 };
@@ -1592,7 +1592,7 @@ export const check_generaldocs = (student) => {
     }
     if (
         student.generaldocs_threads.findIndex(
-            (thread) => thread.doc_thread_id.file_type === 'CV'
+            (thread) => thread.doc_thread_id?.file_type === 'CV'
         ) === -1
     ) {
         return true;
