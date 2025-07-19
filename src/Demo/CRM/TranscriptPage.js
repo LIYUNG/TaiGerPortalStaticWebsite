@@ -15,6 +15,9 @@ import { request } from '../../api/request';
 
 const TranscriptPage = () => {
     const { user } = useAuth();
+    if (!is_TaiGer_role(user)) {
+        return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
+    }
 
     // Temporory workaround to fetch transcripts
     // TODO: implement actual/proper API call to fetch transcripts with UseQuery
@@ -29,20 +32,8 @@ const TranscriptPage = () => {
             .catch((error) => {
                 console.error('Failed to fetch transcripts:', error);
             });
-
-        request
-            .get('/api/crm/leads')
-            .then((data) => {
-                console.log('CRM Leads:', data?.data?.data || []);
-            })
-            .catch((error) => {
-                console.error('Failed to fetch leads:', error);
-            });
     }, []);
 
-    if (!is_TaiGer_role(user)) {
-        return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
-    }
     TabTitle(i18next.t('CRM Overview', { ns: 'common' }));
 
     return (
