@@ -47,7 +47,7 @@ const AgentSupportDocuments = () => {
     useEffect(() => {
         getMyStudentsThreads({ userId: user._id }).then(
             (resp) => {
-                const { data, success } = resp.data;
+                const { data, success } = resp;
                 const { status } = resp;
                 if (success) {
                     const tasksData = open_tasks_v2(data.threads);

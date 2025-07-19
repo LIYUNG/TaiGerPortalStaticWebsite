@@ -356,7 +356,7 @@ export const getMyStudentThreadMetrics = () =>
     request.get(`/api/document-threads/overview/my-student-metrics`);
 
 export const getThreadsByStudent = (studentId) =>
-    request.get(`/api/document-threads/student-threads/${studentId}`);
+    getData(`/api/document-threads/student-threads/${studentId}`);
 
 export const getMyStudentsThreads = ({ userId, queryString }) =>
     getData(

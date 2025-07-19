@@ -62,7 +62,7 @@ const CVMLRLCenter = () => {
             : getThreadsByStudent(user._id);
         apiCall.then(
             (resp) => {
-                const { data, success } = resp.data;
+                const { data, success } = resp;
                 const { status } = resp;
                 const tasksData = open_tasks_v2(data.threads);
                 if (success) {
