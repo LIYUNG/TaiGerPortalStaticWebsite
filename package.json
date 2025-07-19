@@ -83,7 +83,7 @@
         "format": "prettier --write --cache src/** --ignore-path .prettierignore",
         "prettier": "prettier --write --cache src/** --ignore-path .prettierignore",
         "translations-scan": "i18next-scanner --config i18next-scanner.config.engine.js",
-        "test": "react-scripts test",
+        "test": "react-scripts test --coverage --watchAll",
         "test:ci": "react-scripts test --ci --watchAll=false",
         "eject": "react-scripts eject",
         "prebuild": "rm -rf build",
