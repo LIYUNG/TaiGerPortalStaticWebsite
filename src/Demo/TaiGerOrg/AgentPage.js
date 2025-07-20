@@ -11,12 +11,24 @@ import DEMO from '../../store/constant';
 import { appConfig } from '../../config';
 import { useAuth } from '../../components/AuthProvider';
 import Loading from '../../components/Loading/Loading';
-import { getMyStudentsApplicationsV2Query } from '../../api/query';
+import {
+    getMyStudentsApplicationsV2Query,
+    getStudentsV3Query
+} from '../../api/query';
 
 // TODO TEST_CASE
 const AgentPage = () => {
     const { user_id } = useParams();
     const { user } = useAuth();
+
+    const {
+        data: { data: fetchedMyStudents } = { data: [] },
+        isLoading: isLoadingMyStudents
+    } = useQuery(
+        getStudentsV3Query(
+            queryString.stringify({ agents: user_id, archiv: false })
+        )
+    );
 
     const { data: myStudentsApplications, isLoading } = useQuery(
         getMyStudentsApplicationsV2Query({
@@ -27,7 +39,7 @@ const AgentPage = () => {
         })
     );
 
-    if (isLoading) {
+    if (isLoading || isLoadingMyStudents) {
         return <Loading />;
     }
 
@@ -57,12 +69,12 @@ const AgentPage = () => {
                 <Typography color="text.primary">
                     {myStudentsApplications.data?.user?.firstname}{' '}
                     {myStudentsApplications.data?.user?.lastname}
-                    {` (${myStudentsApplications.data.students.length})`}
+                    {` (${fetchedMyStudents.length})`}
                 </Typography>
             </Breadcrumbs>
             <ApplicationOverviewTabs
                 applications={myStudentsApplications.data.applications}
-                students={myStudentsApplications.data.students}
+                students={fetchedMyStudents}
             />
             <Link
                 component={LinkDom}

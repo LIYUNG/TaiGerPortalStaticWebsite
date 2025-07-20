@@ -48,7 +48,8 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import {
     getMyStudentsThreadsQuery,
-    getMyStudentsApplicationsV2Query
+    getMyStudentsApplicationsV2Query,
+    getStudentsV3Query
 } from '../../../api/query';
 import Loading from '../../../components/Loading/Loading';
 
@@ -64,6 +65,15 @@ const AgentMainView = (props) => {
                 })
             })
         );
+
+    const {
+        data: { data: fetchedMyStudents } = { data: [] },
+        isLoading: isLoadingMyStudents
+    } = useQuery(
+        getStudentsV3Query(
+            queryString.stringify({ agents: user._id, archiv: false })
+        )
+    );
 
     const { data: myStudentsThreads, isLoading: isLoadingThreads } = useQuery(
         getMyStudentsThreadsQuery({
@@ -129,7 +139,7 @@ const AgentMainView = (props) => {
         });
     };
 
-    if (isLoadingApplications || isLoadingThreads) {
+    if (isLoadingApplications || isLoadingThreads || isLoadingMyStudents) {
         return <Loading />;
     }
     const applications_arr = programs_refactor_v2(
@@ -145,7 +155,7 @@ const AgentMainView = (props) => {
             a.application_deadline > b.application_deadline ? 1 : -1
         );
 
-    const myStudents = myStudentsApplications.data.students;
+    const myStudents = fetchedMyStudents;
 
     const refactored_threads = open_tasks_v2(myStudentsThreads.data.threads);
 

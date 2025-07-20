@@ -1,7 +1,11 @@
 import React from 'react';
 import { Box } from '@mui/material';
 import { Navigate } from 'react-router-dom';
-import { is_TaiGer_Student, is_TaiGer_role } from '@taiger-common/core';
+import {
+    is_TaiGer_Editor,
+    is_TaiGer_Student,
+    is_TaiGer_role
+} from '@taiger-common/core';
 import i18next from 'i18next';
 import { useQuery } from '@tanstack/react-query';
 import queryString from 'query-string';
@@ -13,10 +17,23 @@ import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';
 import { BreadcrumbsNavigation } from '../../components/BreadcrumbsNavigation/BreadcrumbsNavigation';
 import Loading from '../../components/Loading/Loading';
-import { getMyStudentsApplicationsV2Query } from '../../api/query';
+import {
+    getMyStudentsApplicationsV2Query,
+    getStudentsV3Query
+} from '../../api/query';
 
 const ApplicantsOverview = () => {
     const { user } = useAuth();
+
+    const role = is_TaiGer_Editor(user) ? 'editors' : 'agents';
+    const {
+        data: { data: fetchedMyStudents } = { data: [] },
+        isLoading: isLoadingMyStudents
+    } = useQuery(
+        getStudentsV3Query(
+            queryString.stringify({ [role]: user._id, archiv: false })
+        )
+    );
 
     const { data: myStudentsApplications, isLoading } = useQuery(
         getMyStudentsApplicationsV2Query({
@@ -35,7 +52,7 @@ const ApplicantsOverview = () => {
         );
     }
 
-    if (isLoading) {
+    if (isLoading || isLoadingMyStudents) {
         return <Loading />;
     }
 
@@ -63,7 +80,7 @@ const ApplicantsOverview = () => {
             />
             <ApplicationOverviewTabs
                 applications={myStudentsApplications.data.applications}
-                students={myStudentsApplications.data.students}
+                students={fetchedMyStudents}
             />
         </Box>
     );

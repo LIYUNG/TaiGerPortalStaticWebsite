@@ -33,26 +33,25 @@ import AssignEssayWriterRow from '../MainViewTab/Common/AssignEssayWriterRow';
 import AssignEditorRow from '../MainViewTab/Common/AssignEditorRow';
 import AssignInterviewTrainerRow from '../MainViewTab/Common/AssignInterviewTrainerRow';
 import {
-    getMyStudentsApplicationsV2Query,
     getMyStudentsThreadsQuery,
     getTasksOverviewQuery,
-    getIsManagerQuery
+    getIsManagerQuery,
+    getStudentsV3Query
 } from '../../../api/query';
 import Loading from '../../../components/Loading/Loading';
 
 const EditorMainView = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
-    const { data: myStudentsApplications, isLoading: isLoadingApplications } =
-        useQuery(
-            getMyStudentsApplicationsV2Query({
-                userId: user._id,
-                queryString: queryString.stringify({
-                    decided: 'O'
-                })
-            })
-        );
 
+    const {
+        data: { data: fetchedMyStudents } = { data: [] },
+        isLoading: isLoadingMyStudents
+    } = useQuery(
+        getStudentsV3Query(
+            queryString.stringify({ editors: user._id, archiv: false })
+        )
+    );
     const { data: myStudentsThreads, isLoading: isLoadingThreads } = useQuery(
         getMyStudentsThreadsQuery({
             userId: user._id,
@@ -68,7 +67,7 @@ const EditorMainView = () => {
         getIsManagerQuery({ userId: user._id })
     );
 
-    if (isLoadingApplications || isLoadingThreads) {
+    if (isLoadingThreads || isLoadingMyStudents) {
         return <Loading />;
     }
 
@@ -106,7 +105,7 @@ const EditorMainView = () => {
         });
     });
 
-    const myStudents = myStudentsApplications.data.students;
+    const myStudents = fetchedMyStudents;
 
     const unreplied_task = open_tasks_withMyEssay_arr?.filter((open_task) =>
         is_new_message_status(user, open_task)
