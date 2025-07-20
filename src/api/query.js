@@ -121,7 +121,7 @@ export const getPDFQuery = (apiPath) => ({
 });
 
 export const getProgramRequirementsQuery = () => ({
-    queryKey: ['students/all'],
+    queryKey: ['program-requirements/all'],
     queryFn: () => getProgramRequirementsV2(),
     staleTime: 1000 * 60 * 5 // 5 minutes
 });

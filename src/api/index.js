@@ -73,14 +73,10 @@ export const getMyStudentsApplications = ({ userId, queryString }) =>
 export const getActiveStudentsApplications = () =>
     getData(`/api/applications/all/active/applications`);
 
-export const getAllStudents = () => request.get(`/api/students/all`);
-
 export const getActiveStudents = (queryString) =>
     getData(`/api/students/active?${queryString}`);
 
 export const getAdmissions = () => getData(`/api/admissions`);
-
-export const getExpenses = () => request.get(`/api/expenses`);
 
 export const getApplicationConflicts = () =>
     request.get(`/api/student-applications/conflicts`);
@@ -543,17 +539,6 @@ export const deleteAMessageInCommunicationThreadV2 = ({
 }) =>
     deleteData(`/api/communications/${student_id}/${communication_messageId}`);
 
-export const IgnoreMessage = (
-    student_id,
-    communication_messageId,
-    message,
-    ignoreMessageState
-) =>
-    request.put(
-        `/api/communications/${student_id}/${communication_messageId}/${ignoreMessageState}/ignore`,
-        message
-    );
-
 export const IgnoreMessageV2 = ({
     student_id,
     communication_messageId,
@@ -614,12 +599,6 @@ export const initApplicationMessageThread = (
     request.post(
         `/api/document-threads/init/application/${studentId}/${applicationId}/${document_catgory}`
     );
-
-export const getVisaArticle = () => getArticle('visa');
-
-export const getUniassistArticle = () => getArticle('uniassist');
-
-export const getCertificationArticle = () => getArticle('certification');
 
 // remove Banner/notification
 export const updateBanner = (notification_key) =>
@@ -687,8 +666,6 @@ export const getExpense = (taiger_user_id) =>
     request.get(`/api/expenses/users/${taiger_user_id}`);
 export const updateUserPermission = (taiger_user_id, permissions) =>
     request.post(`/api/permissions/${taiger_user_id}`, permissions);
-export const updateUserAttribute = (user_id, payload) =>
-    request.post(`/api/users/${user_id}`, payload);
 
 //Personal Data:
 export const updatePersonalData = (user_id, personaldata) =>
@@ -790,8 +767,6 @@ export const createInterview = (program_id, student_id, payload) =>
     request.post(`/api/interviews/create/${program_id}/${student_id}`, payload);
 export const addInterviewTrainingDateTime = (interview_id, payload) =>
     request.post(`/api/interviews/time/${interview_id}`, payload);
-export const SetInterviewAsFinal = (interview_id) =>
-    request.post(`/api/interviews/status/${interview_id}`);
 
 export const getInterviewsByProgramId = (program_id) =>
     request.get(`/api/interviews/interview/${program_id}`);

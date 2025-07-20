@@ -13,6 +13,7 @@ const tenantId =
 const request = axios.create({
     baseURL: BASE_URL,
     headers: {
+        'Accept-Encoding': 'gzip, deflate, br',
         'Content-Type': 'application/json',
         tenantId: tenantId
     },
