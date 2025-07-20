@@ -75,11 +75,8 @@ export const getActiveStudentsApplications = () =>
 
 export const getAllStudents = () => request.get(`/api/students/all`);
 
-export const getAllActiveStudents = () =>
-    request.get(`/api/students/all/active`);
-export const getMyActiveStudents = () => getData(`/api/students/my/active`);
-
-export const getAllActiveStudentsV2 = () => getData(`/api/students/all/active`);
+export const getActiveStudents = (queryString) =>
+    getData(`/api/students/active?${queryString}`);
 
 export const getAdmissions = () => getData(`/api/admissions`);
 

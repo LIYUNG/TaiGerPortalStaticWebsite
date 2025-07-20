@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link as LinkDom } from 'react-router-dom';
-import { is_TaiGer_role } from '@taiger-common/core';
+import { is_TaiGer_Editor, is_TaiGer_role } from '@taiger-common/core';
+import queryString from 'query-string';
 
 import { TabTitle } from '../Utils/TabTitle';
 import { Navigate } from 'react-router-dom';
@@ -11,13 +12,18 @@ import { Box, Breadcrumbs, Link, Typography } from '@mui/material';
 import { appConfig } from '../../config';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { getMyActiveStudentsQuery } from '../../api/query';
+import { getActiveStudentsQuery } from '../../api/query';
 import Loading from '../../components/Loading/Loading';
 
 const MyStudentsOverview = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
-    const { data, isLoading } = useQuery(getMyActiveStudentsQuery());
+    const role = is_TaiGer_Editor(user) ? 'editors' : 'agents';
+    const { data, isLoading } = useQuery(
+        getActiveStudentsQuery(
+            queryString.stringify({ [role]: user._id, archiv: false })
+        )
+    );
 
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;

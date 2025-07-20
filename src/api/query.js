@@ -6,7 +6,6 @@ import {
     getProgramV2,
     getStudentsAndDocLinks2,
     getStatisticsV2,
-    getAllActiveStudentsV2,
     getStudentUniAssistV2,
     getProgramRequirementsV2,
     getAllCourses,
@@ -20,7 +19,7 @@ import {
     getMyStudentsThreads,
     getApplicationStudentV2,
     getStudentAndDocLinks,
-    getMyActiveStudents,
+    getActiveStudents,
     getActiveStudentsApplications,
     getInterviews,
     getAuditLog,
@@ -79,9 +78,9 @@ export const getIsManagerQuery = ({ userId }) => ({
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
 
-export const getMyActiveStudentsQuery = () => ({
-    queryKey: ['students/my/active'],
-    queryFn: () => getMyActiveStudents(),
+export const getActiveStudentsQuery = (queryString) => ({
+    queryKey: ['students/active', queryString],
+    queryFn: () => getActiveStudents(queryString),
     staleTime: 1000 * 60 * 1 // 1 minutes
 });
 
@@ -89,12 +88,6 @@ export const getStudentsV3Query = (queryString) => ({
     queryKey: ['students/v3', queryString],
     queryFn: () => getStudentsV3(queryString),
     staleTime: 1000 * 60 * 5 // 5 minutes
-});
-
-export const getAllActiveStudentsQuery = () => ({
-    queryKey: ['students/all/active'],
-    queryFn: () => getAllActiveStudentsV2(),
-    staleTime: 1000 * 60 * 1 // 1 minutes
 });
 
 export const getAllCoursessQuery = () => ({

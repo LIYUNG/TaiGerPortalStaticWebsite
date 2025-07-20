@@ -20,7 +20,6 @@ import {
 } from '.';
 import { queryClient } from './client';
 import {
-    getAllActiveStudentsQuery,
     getAllCoursessQuery,
     getCommunicationQuery,
     getCoursessQuery,
@@ -124,10 +123,6 @@ export function getAllComplaintTicketsLoader() {
 }
 
 //
-
-export async function AllActiveStudentsV2Loader() {
-    return queryClient.fetchQuery(getAllActiveStudentsQuery());
-}
 
 export async function getArchivStudentsLoader() {
     const response = await getArchivStudents();

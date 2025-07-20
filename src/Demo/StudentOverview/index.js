@@ -4,18 +4,21 @@ import { Box, Breadcrumbs, Link, Typography } from '@mui/material';
 import { is_TaiGer_role } from '@taiger-common/core';
 import { useQuery } from '@tanstack/react-query';
 import i18next from 'i18next';
+import queryString from 'query-string';
 
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '../../store/constant';
 import StudentOverviewTable from '../../components/StudentOverviewTable';
 import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';
-import { getAllActiveStudentsQuery } from '../../api/query';
+import { getActiveStudentsQuery } from '../../api/query';
 import Loading from '../../components/Loading/Loading';
 
 const StudentOverviewPage = () => {
     const { user } = useAuth();
-    const { data, isLoading } = useQuery(getAllActiveStudentsQuery());
+    const { data, isLoading } = useQuery(
+        getActiveStudentsQuery(queryString.stringify({ archiv: false }))
+    );
 
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;

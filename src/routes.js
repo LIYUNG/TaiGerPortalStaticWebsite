@@ -14,7 +14,6 @@ import {
     getProgramRequirementLoader,
     getCommunicationThreadLoader,
     getProgramLoader,
-    AllActiveStudentsV2Loader,
     getProgramRequirementsV2Loader,
     getAllCoursesLoader,
     getCourseLoader,
@@ -529,7 +528,6 @@ const routes = [
     {
         path: '/all-base-documents',
         errorElement: <DefaultErrorPage />,
-        loader: AllActiveStudentsV2Loader,
         element: <AllBaseDocuments />
     },
     {
