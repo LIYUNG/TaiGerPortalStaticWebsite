@@ -1,5 +1,7 @@
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import i18next from 'i18next';
+import { MaterialReactTable } from 'material-react-table';
 import {
     Box,
     Breadcrumbs,
@@ -20,14 +22,13 @@ import {
     TrendingUp as TrendingUpIcon,
     Person as PersonIcon
 } from '@mui/icons-material';
-import { MaterialReactTable } from 'material-react-table';
-import i18next from 'i18next';
 
+import { is_TaiGer_role } from '@taiger-common/core';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '../../store/constant';
 import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';
-import { is_TaiGer_role } from '@taiger-common/core';
+
 import { request } from '../../api/request';
 
 const LeadDashboard = () => {

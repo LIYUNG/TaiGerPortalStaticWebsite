@@ -1,4 +1,7 @@
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Navigate, Link as LinkDom } from 'react-router-dom';
+import i18next from 'i18next';
+import { MaterialReactTable } from 'material-react-table';
 import {
     Box,
     Breadcrumbs,
@@ -14,29 +17,26 @@ import {
     IconButton,
     Tooltip
 } from '@mui/material';
-import { MaterialReactTable } from 'material-react-table';
-import PersonIcon from '@mui/icons-material/Person';
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import ArchiveIcon from '@mui/icons-material/Archive';
-import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import GroupIcon from '@mui/icons-material/Group';
-import i18next from 'i18next';
+import {
+    Person as PersonIcon,
+    PersonAdd as PersonAddIcon,
+    Archive as ArchiveIcon,
+    MeetingRoom as MeetingRoomIcon,
+    CalendarToday as CalendarTodayIcon,
+    TrendingUp as TrendingUpIcon,
+    Group as GroupIcon
+} from '@mui/icons-material';
 
+import { is_TaiGer_role } from '@taiger-common/core';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '../../store/constant';
 import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';
 
-import { is_TaiGer_role } from '@taiger-common/core';
-import { useEffect, useState } from 'react';
-
 import { request } from '../../api/request';
 
 const TranscriptDashboard = () => {
     const { user } = useAuth();
-    const navigate = useNavigate();
 
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
@@ -80,15 +80,14 @@ const TranscriptDashboard = () => {
                             <PersonIcon fontSize="small" />
                         </Avatar>
                         <Link
-                            onClick={() =>
-                                navigate(`/crm/leads/${row.original.leadId}`)
-                            }
+                            component={LinkDom}
                             sx={{
                                 cursor: 'pointer',
                                 fontWeight: 500,
                                 color: 'primary.main',
                                 '&:hover': { color: 'primary.dark' }
                             }}
+                            to={`/crm/leads/${row.original.leadId}`}
                             underline="hover"
                         >
                             {row.original.leadFullName || ''}
@@ -118,15 +117,14 @@ const TranscriptDashboard = () => {
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <MeetingRoomIcon color="action" fontSize="small" />
                     <Link
-                        onClick={() =>
-                            navigate(`/crm/meetings/${row.original.id}`)
-                        }
+                        component={LinkDom}
                         sx={{
                             cursor: 'pointer',
                             fontWeight: 500,
                             color: 'text.primary',
                             '&:hover': { color: 'primary.main' }
                         }}
+                        to={`/crm/meetings/${row.original.id}`}
                         underline="hover"
                     >
                         {row.original.title || 'Untitled Meeting'}
