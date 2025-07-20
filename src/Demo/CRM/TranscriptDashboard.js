@@ -228,7 +228,7 @@ const TranscriptDashboard = () => {
     ];
 
     return (
-        <Box data-testid="student_overview">
+        <Box>
             <Box sx={{ mb: 3 }}>
                 <Breadcrumbs aria-label="breadcrumb">
                     <Link

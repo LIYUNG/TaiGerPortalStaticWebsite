@@ -153,7 +153,7 @@ const LeadDashboard = () => {
     TabTitle(i18next.t('Leads', { ns: 'common' }));
 
     return (
-        <Box data-testid="student_overview">
+        <Box>
             {/* Header */}
             <Box sx={{ mb: 3 }}>
                 <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 1.5 }}>
