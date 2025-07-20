@@ -35,7 +35,7 @@ import { appConfig } from '../../config';
 
 import { request } from '../../api/request';
 
-const TranscriptDashboard = () => {
+const MeetingPage = () => {
     const { user } = useAuth();
 
     if (!is_TaiGer_role(user)) {
@@ -468,4 +468,4 @@ const TranscriptDashboard = () => {
     );
 };
 
-export default TranscriptDashboard;
+export default MeetingPage;

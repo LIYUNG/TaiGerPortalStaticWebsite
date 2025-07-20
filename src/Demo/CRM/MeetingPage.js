@@ -27,7 +27,7 @@ import DEMO from '../../store/constant';
 import { appConfig } from '../../config';
 import { request } from '../../api/request';
 
-const TranscriptPage = () => {
+const MeetingPage = () => {
     const { meetingId } = useParams();
     const [meeting, setMeeting] = useState([]);
 
@@ -358,4 +358,4 @@ const TranscriptPage = () => {
     );
 };
 
-export default TranscriptPage;
+export default MeetingPage;
