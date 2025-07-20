@@ -5,12 +5,24 @@ import {
     Link,
     Typography,
     Button,
-    Stack
+    Stack,
+    Card,
+    CardContent,
+    Chip,
+    Avatar,
+    Paper,
+    Divider,
+    IconButton,
+    Tooltip
 } from '@mui/material';
 import { MaterialReactTable } from 'material-react-table';
 import PersonIcon from '@mui/icons-material/Person';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import ArchiveIcon from '@mui/icons-material/Archive';
+import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import GroupIcon from '@mui/icons-material/Group';
 import i18next from 'i18next';
 
 import { TabTitle } from '../Utils/TabTitle';
@@ -31,8 +43,6 @@ const TranscriptDashboard = () => {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
-    // Temporory workaround to fetch transcripts
-    // TODO: implement actual/proper API call to fetch transcripts with UseQuery
     const [transcripts, setTranscripts] = useState([]);
 
     useEffect(() => {
@@ -48,6 +58,11 @@ const TranscriptDashboard = () => {
 
     TabTitle(i18next.t('CRM Overview', { ns: 'common' }));
 
+    // Calculate stats
+    const totalMeetings = transcripts.length;
+    const meetingsWithLeads = transcripts.filter((t) => t.leadId).length;
+    const meetingsWithoutLeads = totalMeetings - meetingsWithLeads;
+
     const columns = [
         {
             accessorKey: 'leadFullName',
@@ -55,42 +70,106 @@ const TranscriptDashboard = () => {
             size: 150,
             Cell: ({ row }) =>
                 row.original.leadId ? (
-                    <Link
-                        onClick={() =>
-                            navigate(`/crm/leads/${row.original.leadId}`)
-                        }
-                        sx={{ cursor: 'pointer' }}
-                        underline="hover"
-                    >
-                        {row.original.leadFullName || ''}
-                    </Link>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Avatar
+                            sx={{
+                                width: 32,
+                                height: 32,
+                                bgcolor: 'primary.main'
+                            }}
+                        >
+                            <PersonIcon fontSize="small" />
+                        </Avatar>
+                        <Link
+                            onClick={() =>
+                                navigate(`/crm/leads/${row.original.leadId}`)
+                            }
+                            sx={{
+                                cursor: 'pointer',
+                                fontWeight: 500,
+                                color: 'primary.main',
+                                '&:hover': { color: 'primary.dark' }
+                            }}
+                            underline="hover"
+                        >
+                            {row.original.leadFullName || ''}
+                        </Link>
+                    </Box>
                 ) : (
-                    <Typography color="text.secondary">
-                        No Lead Assigned
-                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Avatar
+                            sx={{ width: 32, height: 32, bgcolor: 'grey.300' }}
+                        >
+                            <PersonIcon fontSize="small" />
+                        </Avatar>
+                        <Chip
+                            color="warning"
+                            label="No Lead Assigned"
+                            size="small"
+                            variant="outlined"
+                        />
+                    </Box>
                 )
         },
         {
             accessorKey: 'title',
-            header: 'Title',
-            size: 200,
+            header: 'Meeting Title',
+            size: 250,
             Cell: ({ row }) => (
-                <Link
-                    onClick={() => navigate(`/crm/meetings/${row.original.id}`)}
-                    sx={{ cursor: 'pointer' }}
-                    underline="hover"
-                >
-                    {row.original.title || ''}
-                </Link>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <MeetingRoomIcon color="action" fontSize="small" />
+                    <Link
+                        onClick={() =>
+                            navigate(`/crm/meetings/${row.original.id}`)
+                        }
+                        sx={{
+                            cursor: 'pointer',
+                            fontWeight: 500,
+                            color: 'text.primary',
+                            '&:hover': { color: 'primary.main' }
+                        }}
+                        underline="hover"
+                    >
+                        {row.original.title || 'Untitled Meeting'}
+                    </Link>
+                </Box>
             )
         },
         {
             accessorKey: 'date',
-            header: 'Date',
+            header: 'Date & Time',
             size: 200,
             Cell: ({ cell }) => {
                 const date = new Date(cell.getValue());
-                return date.toLocaleString();
+                const isRecent =
+                    Date.now() - date.getTime() < 7 * 24 * 60 * 60 * 1000;
+                return (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <CalendarTodayIcon color="action" fontSize="small" />
+                        <Box>
+                            <Typography fontWeight={500} variant="body2">
+                                {date.toLocaleDateString()}
+                            </Typography>
+                            <Typography
+                                color="text.secondary"
+                                variant="caption"
+                            >
+                                {date.toLocaleTimeString([], {
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                })}
+                            </Typography>
+                            {isRecent && (
+                                <Chip
+                                    color="success"
+                                    label="Recent"
+                                    size="small"
+                                    sx={{ ml: 1, height: 16 }}
+                                />
+                            )}
+                        </Box>
+                    </Box>
+                );
             }
         },
         {
@@ -104,36 +183,47 @@ const TranscriptDashboard = () => {
                     <Stack direction="row" spacing={1}>
                         {!leadId && (
                             <>
-                                <Button
-                                    onClick={() =>
-                                        alert('Assign to Existing Lead clicked')
-                                    }
-                                    size="small"
-                                    startIcon={<PersonIcon />}
-                                    variant="outlined"
-                                >
-                                    Assign to Lead
-                                </Button>
-                                <Button
-                                    onClick={() =>
-                                        alert('Create New Lead clicked')
-                                    }
-                                    size="small"
-                                    startIcon={<PersonAddIcon />}
-                                    variant="outlined"
-                                >
-                                    Create Lead
-                                </Button>
+                                <Tooltip title="Assign to existing lead">
+                                    <Button
+                                        color="primary"
+                                        onClick={() =>
+                                            alert(
+                                                'Assign to Existing Lead clicked'
+                                            )
+                                        }
+                                        size="small"
+                                        startIcon={<PersonIcon />}
+                                        sx={{ borderRadius: 2 }}
+                                        variant="outlined"
+                                    >
+                                        Assign
+                                    </Button>
+                                </Tooltip>
+                                <Tooltip title="Create new lead">
+                                    <Button
+                                        color="success"
+                                        onClick={() =>
+                                            alert('Create New Lead clicked')
+                                        }
+                                        size="small"
+                                        startIcon={<PersonAddIcon />}
+                                        sx={{ borderRadius: 2 }}
+                                        variant="outlined"
+                                    >
+                                        Create
+                                    </Button>
+                                </Tooltip>
                             </>
                         )}
-                        <Button
-                            onClick={() => alert('Archive clicked')}
-                            size="small"
-                            startIcon={<ArchiveIcon />}
-                            variant="outlined"
-                        >
-                            Archive
-                        </Button>
+                        <Tooltip title="Archive meeting">
+                            <IconButton
+                                color="warning"
+                                onClick={() => alert('Archive clicked')}
+                                size="small"
+                            >
+                                <ArchiveIcon />
+                            </IconButton>
+                        </Tooltip>
                     </Stack>
                 );
             }
@@ -141,45 +231,250 @@ const TranscriptDashboard = () => {
     ];
 
     return (
-        <Box data-testid="student_overview">
-            <Breadcrumbs aria-label="breadcrumb">
-                <Link
-                    color="inherit"
-                    component="a"
-                    href={`${DEMO.DASHBOARD_LINK}`}
-                    underline="hover"
-                >
-                    {appConfig.companyName}
-                </Link>
-                <Link
-                    color="inherit"
-                    component="a"
-                    href={`${DEMO.DASHBOARD_LINK}`}
-                    underline="hover"
-                >
-                    {i18next.t('CRM', { ns: 'common' })}
-                </Link>
-                <Typography color="text.primary">
-                    {i18next.t('Meetings', { ns: 'common' })}
-                </Typography>
-            </Breadcrumbs>
-            <Box sx={{ mt: 2 }}>
-                <Typography gutterBottom variant="h4">
-                    {i18next.t('CRM Overview', { ns: 'common' })}
-                </Typography>
-                <Typography sx={{ mb: 2 }} variant="body1">
-                    {i18next.t('Transcript Summaries', { ns: 'common' })}
-                </Typography>
-                <MaterialReactTable
-                    columns={columns}
-                    data={transcripts}
-                    initialState={{
-                        density: 'compact',
-                        pagination: { pageSize: 10 }
+        <Box data-testid="student_overview" sx={{ p: 3 }}>
+            {/* Enhanced Breadcrumbs */}
+            <Paper
+                elevation={0}
+                sx={{ p: 2, mb: 3, bgcolor: 'grey.50', borderRadius: 2 }}
+            >
+                <Breadcrumbs aria-label="breadcrumb">
+                    <Link
+                        color="inherit"
+                        component="a"
+                        href={`${DEMO.DASHBOARD_LINK}`}
+                        sx={{ fontWeight: 500 }}
+                        underline="hover"
+                    >
+                        {appConfig.companyName}
+                    </Link>
+                    <Link
+                        color="inherit"
+                        component="a"
+                        href={`${DEMO.DASHBOARD_LINK}`}
+                        sx={{ fontWeight: 500 }}
+                        underline="hover"
+                    >
+                        {i18next.t('CRM', { ns: 'common' })}
+                    </Link>
+                    <Typography color="primary" fontWeight={600}>
+                        {i18next.t('Meetings', { ns: 'common' })}
+                    </Typography>
+                </Breadcrumbs>
+            </Paper>
+
+            {/* Header Section */}
+            <Box sx={{ mb: 4 }}>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 2,
+                        mb: 2
                     }}
-                    positionToolbarAlertBanner="bottom"
-                />
+                >
+                    <MeetingRoomIcon color="primary" sx={{ fontSize: 40 }} />
+                    <Box>
+                        <Typography
+                            color="primary.main"
+                            fontWeight={700}
+                            variant="h3"
+                        >
+                            {i18next.t('CRM Overview', { ns: 'common' })}
+                        </Typography>
+                        <Typography
+                            color="text.secondary"
+                            fontWeight={400}
+                            variant="h6"
+                        >
+                            {i18next.t('Transcript Summaries', {
+                                ns: 'common'
+                            })}
+                        </Typography>
+                    </Box>
+                </Box>
             </Box>
+
+            {/* Stats Cards */}
+            <Box
+                sx={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                    gap: 2,
+                    mb: 4
+                }}
+            >
+                <Card
+                    elevation={2}
+                    sx={{ borderRadius: 3, overflow: 'hidden' }}
+                >
+                    <CardContent sx={{ p: 3 }}>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between'
+                            }}
+                        >
+                            <Box>
+                                <Typography
+                                    color="text.secondary"
+                                    fontWeight={600}
+                                    variant="subtitle2"
+                                >
+                                    Total Meetings
+                                </Typography>
+                                <Typography
+                                    color="primary.main"
+                                    fontWeight={700}
+                                    variant="h4"
+                                >
+                                    {totalMeetings}
+                                </Typography>
+                            </Box>
+                            <Avatar
+                                sx={{
+                                    bgcolor: 'primary.main',
+                                    width: 56,
+                                    height: 56
+                                }}
+                            >
+                                <MeetingRoomIcon />
+                            </Avatar>
+                        </Box>
+                    </CardContent>
+                </Card>
+
+                <Card
+                    elevation={2}
+                    sx={{ borderRadius: 3, overflow: 'hidden' }}
+                >
+                    <CardContent sx={{ p: 3 }}>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between'
+                            }}
+                        >
+                            <Box>
+                                <Typography
+                                    color="text.secondary"
+                                    fontWeight={600}
+                                    variant="subtitle2"
+                                >
+                                    With Leads
+                                </Typography>
+                                <Typography
+                                    color="success.main"
+                                    fontWeight={700}
+                                    variant="h4"
+                                >
+                                    {meetingsWithLeads}
+                                </Typography>
+                            </Box>
+                            <Avatar
+                                sx={{
+                                    bgcolor: 'success.main',
+                                    width: 56,
+                                    height: 56
+                                }}
+                            >
+                                <GroupIcon />
+                            </Avatar>
+                        </Box>
+                    </CardContent>
+                </Card>
+
+                <Card
+                    elevation={2}
+                    sx={{ borderRadius: 3, overflow: 'hidden' }}
+                >
+                    <CardContent sx={{ p: 3 }}>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between'
+                            }}
+                        >
+                            <Box>
+                                <Typography
+                                    color="text.secondary"
+                                    fontWeight={600}
+                                    variant="subtitle2"
+                                >
+                                    Unassigned
+                                </Typography>
+                                <Typography
+                                    color="warning.main"
+                                    fontWeight={700}
+                                    variant="h4"
+                                >
+                                    {meetingsWithoutLeads}
+                                </Typography>
+                            </Box>
+                            <Avatar
+                                sx={{
+                                    bgcolor: 'warning.main',
+                                    width: 56,
+                                    height: 56
+                                }}
+                            >
+                                <TrendingUpIcon />
+                            </Avatar>
+                        </Box>
+                    </CardContent>
+                </Card>
+            </Box>
+
+            {/* Table Section */}
+            <Card elevation={3} sx={{ borderRadius: 3, overflow: 'hidden' }}>
+                <CardContent sx={{ p: 0 }}>
+                    <Box sx={{ p: 3, bgcolor: 'grey.50' }}>
+                        <Typography
+                            color="text.primary"
+                            fontWeight={600}
+                            variant="h6"
+                        >
+                            Meeting Transcripts
+                        </Typography>
+                        <Typography color="text.secondary" variant="body2">
+                            Manage and review all meeting summaries and
+                            transcripts
+                        </Typography>
+                    </Box>
+                    <Divider />
+                    <MaterialReactTable
+                        columns={columns}
+                        data={transcripts}
+                        initialState={{
+                            density: 'comfortable',
+                            pagination: { pageSize: 10 }
+                        }}
+                        muiTablePaperProps={{
+                            elevation: 0,
+                            sx: { borderRadius: 0 }
+                        }}
+                        muiTableProps={{
+                            sx: {
+                                '& .MuiTableHead-root': {
+                                    '& .MuiTableCell-head': {
+                                        backgroundColor: 'grey.100',
+                                        fontWeight: 600,
+                                        color: 'text.primary'
+                                    }
+                                },
+                                '& .MuiTableBody-root': {
+                                    '& .MuiTableRow-root:hover': {
+                                        backgroundColor: 'action.hover'
+                                    }
+                                }
+                            }
+                        }}
+                        positionToolbarAlertBanner="bottom"
+                    />
+                </CardContent>
+            </Card>
         </Box>
     );
 };
