@@ -58,10 +58,13 @@ const LeadDashboard = () => {
 
     // Calculate stats
     const totalLeads = leads.length;
-    const todayLeads = leads.filter((lead) => {
-        const today = new Date().toDateString();
-        const leadDate = new Date(lead.createdAt).toDateString();
-        return today === leadDate;
+    const pastSevenDaysLeads = leads.filter((lead) => {
+        const today = new Date();
+        const sevenDaysAgo = new Date(
+            today.getTime() - 7 * 24 * 60 * 60 * 1000
+        );
+        const leadDate = new Date(lead.createdAt);
+        return leadDate >= sevenDaysAgo && leadDate <= today;
     }).length;
 
     const getSourceColor = (source) => {
@@ -262,14 +265,14 @@ const LeadDashboard = () => {
                                         fontWeight="bold"
                                         variant="h4"
                                     >
-                                        {todayLeads}
+                                        {pastSevenDaysLeads}
                                     </Typography>
                                     <Typography
                                         color="text.secondary"
                                         fontWeight="medium"
                                         variant="body1"
                                     >
-                                        Today&apos;s Leads
+                                        Past 7 Days Leads
                                     </Typography>
                                 </Box>
                                 <Box
