@@ -1,6 +1,16 @@
 import { Navigate } from 'react-router-dom';
-import { Box, Breadcrumbs, Link, Typography } from '@mui/material';
+import {
+    Box,
+    Breadcrumbs,
+    Link,
+    Typography,
+    Button,
+    Stack
+} from '@mui/material';
 import { MaterialReactTable } from 'material-react-table';
+import PersonIcon from '@mui/icons-material/Person';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import ArchiveIcon from '@mui/icons-material/Archive';
 import i18next from 'i18next';
 
 import { TabTitle } from '../Utils/TabTitle';
@@ -55,6 +65,51 @@ const TranscriptDashboard = () => {
             Cell: ({ cell }) => {
                 const date = new Date(cell.getValue());
                 return date.toLocaleString();
+            }
+        },
+        {
+            accessorKey: 'actions',
+            header: 'Actions',
+            size: 300,
+            enableSorting: false,
+            Cell: ({ row }) => {
+                const leadId = row.original.leadId;
+                return (
+                    <Stack direction="row" spacing={1}>
+                        {!leadId && (
+                            <>
+                                <Button
+                                    onClick={() =>
+                                        alert('Assign to Existing Lead clicked')
+                                    }
+                                    size="small"
+                                    startIcon={<PersonIcon />}
+                                    variant="outlined"
+                                >
+                                    Assign to Lead
+                                </Button>
+                                <Button
+                                    onClick={() =>
+                                        alert('Create New Lead clicked')
+                                    }
+                                    size="small"
+                                    startIcon={<PersonAddIcon />}
+                                    variant="outlined"
+                                >
+                                    Create Lead
+                                </Button>
+                            </>
+                        )}
+                        <Button
+                            onClick={() => alert('Archive clicked')}
+                            size="small"
+                            startIcon={<ArchiveIcon />}
+                            variant="outlined"
+                        >
+                            Archive
+                        </Button>
+                    </Stack>
+                );
             }
         }
     ];
