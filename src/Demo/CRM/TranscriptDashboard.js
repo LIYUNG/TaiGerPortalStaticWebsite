@@ -1,4 +1,4 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import {
     Box,
     Breadcrumbs,
@@ -25,6 +25,8 @@ import { request } from '../../api/request';
 
 const TranscriptDashboard = () => {
     const { user } = useAuth();
+    const navigate = useNavigate();
+
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
@@ -51,12 +53,36 @@ const TranscriptDashboard = () => {
             accessorKey: 'leadFullName',
             header: 'Lead',
             size: 150,
-            Cell: ({ row }) => row.original.leadFullName || ''
+            Cell: ({ row }) =>
+                row.original.leadId ? (
+                    <Link
+                        onClick={() =>
+                            navigate(`/crm/leads/${row.original.leadId}`)
+                        }
+                        sx={{ cursor: 'pointer' }}
+                        underline="hover"
+                    >
+                        {row.original.leadFullName || ''}
+                    </Link>
+                ) : (
+                    <Typography color="text.secondary">
+                        No Lead Assigned
+                    </Typography>
+                )
         },
         {
             accessorKey: 'title',
             header: 'Title',
-            size: 200
+            size: 200,
+            Cell: ({ row }) => (
+                <Link
+                    onClick={() => navigate(`/crm/meetings/${row.original.id}`)}
+                    sx={{ cursor: 'pointer' }}
+                    underline="hover"
+                >
+                    {row.original.title || ''}
+                </Link>
+            )
         },
         {
             accessorKey: 'date',
