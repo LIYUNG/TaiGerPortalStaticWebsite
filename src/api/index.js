@@ -165,7 +165,8 @@ export const uploadforstudentV2 = ({ category, studentId, formData }) =>
 export const getStudentAndDocLinks = (studentId) =>
     request.get(`/api/students/doc-links/${studentId}`);
 
-export const getStudentsAndDocLinks2 = () => getData(`/api/students/doc-links`);
+export const getStudentsAndDocLinks2 = (queryString) =>
+    getData(`/api/students/doc-links?${queryString}`);
 
 export const updateDocumentationHelperLink = (link, key, category) =>
     request.post(`/api/students/doc-links`, { link, key, category });

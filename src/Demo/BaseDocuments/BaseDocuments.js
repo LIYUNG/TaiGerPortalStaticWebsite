@@ -2,7 +2,8 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link as LinkDom } from 'react-router-dom';
 import { Box, Breadcrumbs, Card, Link, Typography } from '@mui/material';
-import { is_TaiGer_role } from '@taiger-common/core';
+import { is_TaiGer_Editor, is_TaiGer_role } from '@taiger-common/core';
+import queryString from 'query-string';
 
 import BaseDocumentStudentView from './BaseDocumentStudentView';
 import { TabTitle } from '../Utils/TabTitle';
@@ -17,8 +18,11 @@ import { getStudentsAndDocLinks2Query } from '../../api/query';
 const BaseDocuments = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
+    const role = is_TaiGer_Editor(user) ? 'editors' : 'agents';
     const { data, isLoading, isError, error } = useQuery(
-        getStudentsAndDocLinks2Query()
+        getStudentsAndDocLinks2Query(
+            queryString.stringify({ [role]: user._id, archiv: false })
+        )
     );
 
     TabTitle('Base Documents');

@@ -175,9 +175,9 @@ export const getMyStudentsThreadsQuery = ({ userId, queryString }) => ({
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
 
-export const getStudentsAndDocLinks2Query = () => ({
-    queryKey: ['students/doc-links'],
-    queryFn: getStudentsAndDocLinks2,
+export const getStudentsAndDocLinks2Query = (queryString) => ({
+    queryKey: ['students/doc-links', queryString],
+    queryFn: () => getStudentsAndDocLinks2(queryString),
     staleTime: 1000 * 60 * 1 // 1 minutes
 });
 
