@@ -1,5 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import { Box, Breadcrumbs, Link, Typography } from '@mui/material';
+import { MaterialReactTable } from 'material-react-table';
 import i18next from 'i18next';
 
 import { TabTitle } from '../Utils/TabTitle';
@@ -7,7 +8,6 @@ import DEMO from '../../store/constant';
 import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';
 
-import TranscriptCard from './TranscriptCard';
 import { is_TaiGer_role } from '@taiger-common/core';
 import { useEffect, useState } from 'react';
 
@@ -35,6 +35,29 @@ const TranscriptDashboard = () => {
     }, []);
 
     TabTitle(i18next.t('CRM Overview', { ns: 'common' }));
+
+    const columns = [
+        {
+            accessorKey: 'leadFullName',
+            header: 'Lead',
+            size: 150,
+            Cell: ({ row }) => row.original.leadFullName || ''
+        },
+        {
+            accessorKey: 'title',
+            header: 'Title',
+            size: 200
+        },
+        {
+            accessorKey: 'date',
+            header: 'Date',
+            size: 200,
+            Cell: ({ cell }) => {
+                const date = new Date(cell.getValue());
+                return date.toLocaleString();
+            }
+        }
+    ];
 
     return (
         <Box data-testid="student_overview">
@@ -66,11 +89,15 @@ const TranscriptDashboard = () => {
                 <Typography sx={{ mb: 2 }} variant="body1">
                     {i18next.t('Transcript Summaries', { ns: 'common' })}
                 </Typography>
-                <Box>
-                    {transcripts.map((t, idx) => (
-                        <TranscriptCard key={t.id || idx} transcript={t} />
-                    ))}
-                </Box>
+                <MaterialReactTable
+                    columns={columns}
+                    data={transcripts}
+                    initialState={{
+                        density: 'compact',
+                        pagination: { pageSize: 10 }
+                    }}
+                    positionToolbarAlertBanner="bottom"
+                />
             </Box>
         </Box>
     );
