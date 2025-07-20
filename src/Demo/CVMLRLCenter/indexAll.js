@@ -2,16 +2,18 @@ import React, { useEffect, useState } from 'react';
 import { Link as LinkDom, Navigate } from 'react-router-dom';
 import { Box, Breadcrumbs, Link, Typography } from '@mui/material';
 import { is_TaiGer_role } from '@taiger-common/core';
+import queryString from 'query-string';
 
 import CVMLRLDashboard from './CVMLRLDashboard';
 import ErrorPage from '../Utils/ErrorPage';
-import { getAllCVMLRLOverview } from '../../api';
+import { getActiveThreads } from '../../api';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '../../store/constant';
 import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';
 import Loading from '../../components/Loading/Loading';
 import { useTranslation } from 'react-i18next';
+import { open_tasks_v2 } from '../Utils/checking-functions';
 
 const CVMLRLCenterAll = () => {
     const { user } = useAuth();
@@ -29,15 +31,16 @@ const CVMLRLCenterAll = () => {
     });
 
     useEffect(() => {
-        getAllCVMLRLOverview().then(
+        getActiveThreads(queryString.stringify({})).then(
             (resp) => {
                 const { data, success } = resp.data;
                 const { status } = resp;
+                const tasksData = open_tasks_v2(data);
                 if (success) {
                     setIndexAllState((prevState) => ({
                         ...prevState,
                         isLoaded: true,
-                        students: data,
+                        open_tasks_arr: tasksData,
                         success: success,
                         res_status: status
                     }));
@@ -64,7 +67,7 @@ const CVMLRLCenterAll = () => {
     }
     const { res_status, isLoaded } = indexAllState;
     TabTitle('CV ML RL Center');
-    if (!isLoaded && !indexAllState.students) {
+    if (!isLoaded && !indexAllState.open_tasks_arr) {
         return <Loading />;
     }
 
@@ -92,7 +95,7 @@ const CVMLRLCenterAll = () => {
             </Breadcrumbs>
             <CVMLRLDashboard
                 isLoaded={indexAllState.isLoaded}
-                students={indexAllState.students}
+                open_tasks_arr={indexAllState.open_tasks_arr}
                 success={indexAllState.success}
                 user={user}
             />

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Navigate, Link as LinkDom, useParams } from 'react-router-dom';
 import {
     Box,
@@ -9,16 +9,14 @@ import {
     Typography
 } from '@mui/material';
 import { is_TaiGer_role } from '@taiger-common/core';
+import queryString from 'query-string';
 
 import CVMLRLOverview from '../CVMLRLCenter/CVMLRLOverview';
-import ErrorPage from '../Utils/ErrorPage';
-import { getAllActiveEssays, getEditor } from '../../api';
 import {
     AGENT_SUPPORT_DOCUMENTS_A,
     FILE_TYPE_E,
     frequencyDistribution,
-    open_essays_tasks,
-    open_tasks_with_editors
+    open_tasks_v2
 } from '../Utils/checking-functions';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '../../store/constant';
@@ -31,118 +29,38 @@ import {
     is_new_message_status,
     is_pending_status
 } from '../../utils/contants';
+import { useQuery } from '@tanstack/react-query';
+import { getMyStudentsThreadsQuery } from '../../api/query';
 
 // TODO TEST_CASE
 const EditorPage = () => {
     const { user_id } = useParams();
     const { user } = useAuth();
-    const [editorPageState, setEditorPageState] = useState({
-        error: '',
-        role: '',
-        isLoaded: false,
-        isLoaded2: false,
-        data: null,
-        success: false,
-        editor: null,
-        students: null,
-        res_status: 0
-    });
-    useEffect(() => {
-        getEditor(user_id).then(
-            (resp) => {
-                const { data, success } = resp.data;
-                const { status } = resp;
-                if (success) {
-                    setEditorPageState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        editor: data.editor,
-                        students: data.students,
-                        success: success,
-                        res_status: status
-                    }));
-                } else {
-                    setEditorPageState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        res_status: status
-                    }));
-                }
-            },
-            (error) => {
-                setEditorPageState((prevState) => ({
-                    ...prevState,
-                    isLoaded: true,
-                    error,
-                    res_status: 500
-                }));
-            }
-        );
-    }, [user_id]);
 
-    useEffect(() => {
-        getAllActiveEssays().then(
-            (resp) => {
-                const { data, success } = resp.data;
-                const { status } = resp;
-                if (success) {
-                    setEditorPageState((prevState) => ({
-                        ...prevState,
-                        isLoaded2: true,
-                        essays: data,
-                        success: success,
-                        res_status: status
-                    }));
-                } else {
-                    setEditorPageState((prevState) => ({
-                        ...prevState,
-                        isLoaded2: true,
-                        res_status: status
-                    }));
-                }
-            },
-            (error) => {
-                setEditorPageState((prevState) => ({
-                    ...prevState,
-                    isLoaded2: true,
-                    error,
-                    res_status: 500
-                }));
-            }
-        );
-    }, []);
+    const { data: myStudentsThreads, isLoading: isLoadingThreads } = useQuery(
+        getMyStudentsThreadsQuery({
+            userId: user_id,
+            queryString: queryString.stringify({
+                isFinalVersion: 'false'
+            })
+        })
+    );
 
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
-    const { res_status, isLoaded, isLoaded2, essays } = editorPageState;
 
-    if (
-        (!isLoaded && !editorPageState.editor && !editorPageState.students) ||
-        (!isLoaded2 && !essays)
-    ) {
+    if (isLoadingThreads) {
         return <Loading />;
     }
 
-    if (res_status >= 400) {
-        return <ErrorPage res_status={res_status} />;
-    }
     TabTitle(
-        `Editor: ${editorPageState.editor.firstname}, ${editorPageState.editor.lastname}`
+        `Editor: ${myStudentsThreads.data.user.firstname}, ${myStudentsThreads.data.user.lastname}`
     );
 
-    const open_essays_tasks_arr = open_essays_tasks(essays, user);
-    const open_tasks_without_essays_arr = open_tasks_with_editors(
-        editorPageState.students
-    ).filter(
-        (open_task) =>
-            ![FILE_TYPE_E.essay_required].includes(open_task.file_type)
-    );
-    const open_tasks_arr = [
-        ...open_essays_tasks_arr,
-        ...open_tasks_without_essays_arr
-    ];
-    const tasks_withMyEssay_arr = open_tasks_arr.filter((open_task) =>
+    const refactored_threads = open_tasks_v2(myStudentsThreads.data.threads);
+
+    const tasks_withMyEssay_arr = refactored_threads.filter((open_task) =>
         [...AGENT_SUPPORT_DOCUMENTS_A, FILE_TYPE_E.essay_required].includes(
             open_task.file_type
         )
@@ -185,13 +103,13 @@ const EditorPage = () => {
     const followup_tasks = open_tasks_withMyEssay_arr?.filter(
         (open_task) =>
             is_pending_status(user, open_task) &&
-            open_task.latest_message_left_by_id !== ''
+            open_task.latest_message_left_by_id !== '- None - '
     );
 
     const pending_progress_tasks = open_tasks_withMyEssay_arr?.filter(
         (open_task) =>
             is_pending_status(user, open_task) &&
-            open_task.latest_message_left_by_id === ''
+            open_task.latest_message_left_by_id === '- None - '
     );
 
     const closed_tasks = tasks_withMyEssay_arr.filter(
@@ -218,16 +136,16 @@ const EditorPage = () => {
                     {appConfig.companyName} Team
                 </Link>
                 <Typography color="text.primary">
-                    {editorPageState.editor.firstname}{' '}
-                    {editorPageState.editor.lastname}
-                    {` (${editorPageState.students.length})`}
+                    {myStudentsThreads.data.user.firstname}{' '}
+                    {myStudentsThreads.data.user.lastname}
+                    {` (${myStudentsThreads.data.threads?.length})`}
                 </Typography>
             </Breadcrumbs>
             <Box>
                 <Card sx={{ p: 2 }}>
                     <Typography variant="h6">
-                        {editorPageState.editor.firstname}{' '}
-                        {editorPageState.editor.lastname} Open Tasks
+                        {myStudentsThreads.data.user.firstname}{' '}
+                        {myStudentsThreads.data.user.lastname} Open Tasks
                         Distribution
                     </Typography>
                     <Typography>
@@ -259,18 +177,14 @@ const EditorPage = () => {
                 closed_tasks={closed_tasks}
                 fav_message_tasks={fav_message_tasks}
                 followup_tasks={followup_tasks}
-                isLoaded={editorPageState.isLoaded}
                 new_message_tasks={new_message_tasks}
                 pending_progress_tasks={pending_progress_tasks}
-                students={editorPageState.students}
-                success={editorPageState.success}
-                user={editorPageState.editor}
             />
             <Box>
                 <Link
                     component={LinkDom}
                     to={`${DEMO.TEAM_EDITOR_ARCHIV_LINK(
-                        editorPageState.editor._id.toString()
+                        myStudentsThreads.data.user._id.toString()
                     )}`}
                 >
                     <Button color="primary" variant="contained">

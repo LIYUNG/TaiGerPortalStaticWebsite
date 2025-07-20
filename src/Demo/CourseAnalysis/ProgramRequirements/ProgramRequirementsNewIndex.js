@@ -15,7 +15,7 @@ const ProgramRequirementsNewIndex = () => {
     TabTitle('Program Requirement Creation');
 
     return (
-        <Box data-testid="dashoboard_component">
+        <Box data-testid="program_requirements_new_component">
             <Breadcrumbs aria-label="breadcrumb">
                 <Link
                     color="inherit"

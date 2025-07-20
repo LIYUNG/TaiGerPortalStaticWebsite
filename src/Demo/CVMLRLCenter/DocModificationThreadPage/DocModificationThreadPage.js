@@ -5,8 +5,9 @@ import ArticleIcon from '@mui/icons-material/Article'; // Using Article icon for
 // import jsPDF from 'jspdf';
 import DownloadIcon from '@mui/icons-material/Download';
 import LaunchIcon from '@mui/icons-material/Launch';
-import { green, grey } from '@mui/material/colors';
+import { green, grey, red } from '@mui/material/colors';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import HelpIcon from '@mui/icons-material/Help';
 import StarBorderRoundedIcon from '@mui/icons-material/StarBorderRounded';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
@@ -889,7 +890,7 @@ const DocModificationThreadPage = ({
         }
 
         formData.append('message', message);
-        console.log(docModificationThreadPageState.thread);
+
         SubmitMessageWithAttachment(
             documentsthreadId,
             docModificationThreadPageState.thread.student_id._id,
@@ -966,12 +967,20 @@ const DocModificationThreadPage = ({
     //     doc.save('document.pdf');
     // }
 
-    const handleAsFinalFile = (doc_thread_id, student_id, program_id) => {
+    const handleAsFinalFile = (
+        doc_thread_id,
+        student_id,
+        program_id,
+        isFinalVersion,
+        application_id
+    ) => {
         setDocModificationThreadPageState((prevState) => ({
             ...prevState,
             doc_thread_id,
             student_id,
             program_id,
+            application_id,
+            isFinalVersion,
             SetAsFinalFileModel: true
         }));
     };
@@ -982,13 +991,11 @@ const DocModificationThreadPage = ({
             ...prevState,
             isSubmissionLoaded: false // false to reload everything
         }));
-        const temp_program_id = docModificationThreadPageState.program_id
-            ? docModificationThreadPageState.program_id._id.toString()
-            : undefined;
+
         SetFileAsFinal(
             docModificationThreadPageState.doc_thread_id,
             docModificationThreadPageState.student_id,
-            temp_program_id
+            docModificationThreadPageState.application_id
         ).then(
             (resp) => {
                 const { data, success } = resp.data;
@@ -1406,7 +1413,8 @@ const DocModificationThreadPage = ({
                                     thread._id,
                                     thread.student_id._id,
                                     thread.program_id,
-                                    thread.isFinalVersion
+                                    thread.isFinalVersion,
+                                    thread.application_id
                                 )
                             }
                             sx={{ mt: 2 }}
@@ -1427,7 +1435,8 @@ const DocModificationThreadPage = ({
                                     thread._id,
                                     thread.student_id._id,
                                     thread.program_id,
-                                    thread.isFinalVersion
+                                    thread.isFinalVersion,
+                                    thread.application_id
                                 )
                             }
                             sx={{ mt: 2 }}
@@ -1475,18 +1484,29 @@ const DocModificationThreadPage = ({
                                             fontWeight="bold"
                                             variant="subtitle1"
                                         >
-                                            {`${t.student_id.firstname} ${t.student_id.lastname}`}
+                                            {`${t.student_id?.firstname} ${t.student_id?.lastname}`}
                                         </Typography>
                                         <Typography
                                             color="text.secondary"
                                             variant="body2"
                                         >
-                                            {`${t.student_id.application_preference?.expected_application_date}
+                                            {`${t.application_id?.application_year}
                                           ${'-'}
                                           ${t.file_type}
                                         `}
                                         </Typography>
                                     </Box>
+                                    {t.application_id?.admission === 'O' ? (
+                                        <CheckCircleIcon
+                                            sx={{ color: green[500] }}
+                                            title="Admitted"
+                                        />
+                                    ) : (
+                                        <CancelOutlinedIcon
+                                            sx={{ color: red[500] }}
+                                            title="Rejected"
+                                        />
+                                    )}
                                 </Link>
                             ))}
                         </Stack>

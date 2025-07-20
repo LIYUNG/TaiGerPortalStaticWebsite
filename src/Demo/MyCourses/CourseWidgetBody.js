@@ -235,7 +235,7 @@ export default function CourseWidgetBody({ programRequirements }) {
             program_name: `${row.programId[0].school} ${row.programId[0].program_name} ${row.programId[0].degree}`,
             lang: `${row.programId[0].lang}`,
             degree: `${row.programId[0].degree}`,
-            attributes: `${row.attributes.join('-')}`,
+            attributes: `${row.attributes?.join('-')}`,
             country: `${row.programId[0].country}`,
             updatedAt: convertDateUXFriendly(row.updatedAt),
             id: row._id // Map MongoDB _id to id property

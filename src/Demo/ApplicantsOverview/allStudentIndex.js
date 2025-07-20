@@ -2,19 +2,40 @@ import React from 'react';
 import { Box } from '@mui/material';
 import i18next from 'i18next';
 import { useQuery } from '@tanstack/react-query';
+import queryString from 'query-string';
 
 import ApplicationOverviewTabs from './ApplicationOverviewTabs';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '../../store/constant';
 import { appConfig } from '../../config';
-import { getAllActiveStudentsQuery } from '../../api/query';
+import {
+    getActiveStudentsApplicationsV2Query,
+    getStudentsV3Query
+} from '../../api/query';
 import { BreadcrumbsNavigation } from '../../components/BreadcrumbsNavigation/BreadcrumbsNavigation';
+import Loading from '../../components/Loading/Loading';
 
 const AllApplicantsOverview = () => {
-    const { data } = useQuery(getAllActiveStudentsQuery());
+    const {
+        data: { data: activeStudents } = { data: [] },
+        isLoading: isLoadingActiveStudents
+    } = useQuery(
+        getStudentsV3Query(
+            queryString.stringify({
+                archiv: false
+            })
+        )
+    );
+
+    const {
+        data: { data: activeStudentsApplications } = { data: [] },
+        isLoading
+    } = useQuery(getActiveStudentsApplicationsV2Query());
 
     TabTitle(i18next.t('All Applications Overview'));
-
+    if (isLoading || isLoadingActiveStudents) {
+        return <Loading />;
+    }
     return (
         <Box>
             <BreadcrumbsNavigation
@@ -31,7 +52,10 @@ const AllApplicantsOverview = () => {
                     }
                 ]}
             />
-            <ApplicationOverviewTabs students={data.data} />
+            <ApplicationOverviewTabs
+                applications={activeStudentsApplications}
+                students={activeStudents}
+            />
         </Box>
     );
 };

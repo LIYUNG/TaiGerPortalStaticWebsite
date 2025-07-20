@@ -5,10 +5,6 @@ import {
     getMyAcademicBackgroundLoader,
     getStudentAndDocLinksLoader,
     getStudentsLoader,
-    // getEssaysLoader,
-    combinedLoader,
-    getAllActiveEssaysLoader,
-    getAllStudentsV2Loader,
     getAllComplaintTicketsLoader,
     getComplaintTicketLoader,
     getDistinctSchoolsLoader,
@@ -18,11 +14,11 @@ import {
     getProgramRequirementLoader,
     getCommunicationThreadLoader,
     getProgramLoader,
-    AllActiveStudentsV2Loader,
     getProgramRequirementsV2Loader,
     getAllCoursesLoader,
     getCourseLoader,
-    getAllOpenInterviewsLoader
+    getAllOpenInterviewsLoader,
+    getActiveEssayThreadsLoader
 } from './api/dataLoader';
 import DefaultErrorPage from './Demo/Utils/DefaultErrorPage';
 import StudentApplicationsAssignPage from './Demo/StudentApplications/assignPage';
@@ -34,7 +30,7 @@ const CreateComplaintTicket = React.lazy(
     () => import('./Demo/CustomerSupport/CreateTicket')
 );
 const Questionnaire = React.lazy(
-    () => import('./Demo/InterviewTraining/Questionnaire')
+    () => import('./Demo/InterviewTraining/InterviewSurveyForm')
 );
 const AddInterview = React.lazy(
     () => import('./Demo/InterviewTraining/AddInterview')
@@ -262,19 +258,17 @@ const routes = [
             {
                 path: 'agents',
                 errorElement: <DefaultErrorPage />,
-                loader: getStudentsLoader,
                 element: <AgentsAssignment />
             },
             {
                 path: 'editors',
                 errorElement: <DefaultErrorPage />,
-                loader: getStudentsLoader,
                 element: <EditorsAssignment />
             },
             {
                 path: 'essay-writers',
                 errorElement: <DefaultErrorPage />,
-                loader: getAllActiveEssaysLoader,
+                loader: getActiveEssayThreadsLoader,
                 element: <EssayWritersAssignment />
             },
             {
@@ -288,7 +282,6 @@ const routes = [
     {
         path: '/dashboard/default',
         errorElement: <DefaultErrorPage />,
-        loader: combinedLoader,
         element: <DashboardDefault />
     },
     {
@@ -452,7 +445,6 @@ const routes = [
             {
                 path: '',
                 errorElement: <DefaultErrorPage />,
-                loader: getAllStudentsV2Loader,
                 element: <StudentDatabase />
             },
             {
@@ -542,7 +534,6 @@ const routes = [
     {
         path: '/all-base-documents',
         errorElement: <DefaultErrorPage />,
-        loader: AllActiveStudentsV2Loader,
         element: <AllBaseDocuments />
     },
     {
@@ -613,13 +604,11 @@ const routes = [
     {
         path: '/all-students-applications',
         errorElement: <DefaultErrorPage />,
-        loader: AllActiveStudentsV2Loader,
         element: <AllApplicantsOverview />
     },
     {
         path: '/students-overview',
         errorElement: <DefaultErrorPage />,
-        loader: getStudentsLoader,
         element: <MyStudentOverviewPage />
     },
     {
@@ -642,7 +631,6 @@ const routes = [
     {
         path: '/students-overview/all',
         errorElement: <DefaultErrorPage />,
-        loader: AllActiveStudentsV2Loader,
         element: <StudentOverviewPage />
     },
     {
@@ -761,7 +749,6 @@ const routes = [
     {
         path: '/',
         errorElement: <DefaultErrorPage />,
-        loader: combinedLoader,
         element: <DashboardDefault />
     }
 ];

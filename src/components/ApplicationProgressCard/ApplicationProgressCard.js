@@ -39,7 +39,7 @@ import ApplicationProgressCardBody from './ApplicationProgressCardBody';
 import { updateStudentApplicationResult } from '../../api';
 import DEMO from '../../store/constant';
 import {
-    application_deadline_calculator,
+    application_deadline_V2_calculator,
     progressBarCounter
 } from '../../Demo/Utils/checking-functions';
 import { BASE_URL } from '../../api/request';
@@ -170,6 +170,7 @@ export default function ApplicationProgressCard(props) {
         }
         updateStudentApplicationResult(
             props.student._id.toString(),
+            application._id.toString(),
             application.programId._id.toString(),
             result,
             formData
@@ -248,16 +249,13 @@ export default function ApplicationProgressCard(props) {
                                     </>
                                 ) : null}
                             </>
-                        ) : application_deadline_calculator(
-                              props.student,
-                              application
-                          ) === 'WITHDRAW' ? (
+                        ) : application_deadline_V2_calculator(application) ===
+                          'WITHDRAW' ? (
                             <>
                                 <IconButton title="Withdraw">
                                     <BlockIcon fontSize="small" />
                                 </IconButton>
-                                {application_deadline_calculator(
-                                    props.student,
+                                {application_deadline_V2_calculator(
                                     application
                                 )}
                             </>
@@ -266,8 +264,7 @@ export default function ApplicationProgressCard(props) {
                                 <IconButton title="Pending">
                                     <HourglassEmptyIcon fontSize="small" />
                                 </IconButton>
-                                {application_deadline_calculator(
-                                    props.student,
+                                {application_deadline_V2_calculator(
                                     application
                                 )}
                             </>

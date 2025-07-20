@@ -14,16 +14,15 @@ import { is_TaiGer_Editor, is_TaiGer_role } from '@taiger-common/core';
 import CVMLRLOverview from './CVMLRLOverview';
 import ErrorPage from '../Utils/ErrorPage';
 import {
-    getAllActiveEssays,
-    getCVMLRLOverview,
+    getMyStudentsThreads,
+    getThreadsByStudent,
     putThreadFavorite
 } from '../../api';
 import { TabTitle } from '../Utils/TabTitle';
 import {
     AGENT_SUPPORT_DOCUMENTS_A,
     FILE_TYPE_E,
-    open_essays_tasks,
-    open_tasks,
+    open_tasks_v2,
     toogleItemInArray
 } from '../Utils/checking-functions';
 import DEMO from '../../store/constant';
@@ -45,7 +44,6 @@ const CVMLRLCenter = () => {
         isLoaded2: false,
         data: null,
         success: false,
-        students: null,
         essays: null,
         doc_thread_id: '',
         student_id: '',
@@ -59,21 +57,19 @@ const CVMLRLCenter = () => {
     });
 
     useEffect(() => {
-        getCVMLRLOverview().then(
+        const apiCall = is_TaiGer_role(user)
+            ? getMyStudentsThreads({ userId: user._id })
+            : getThreadsByStudent(user._id);
+        apiCall.then(
             (resp) => {
-                const { data, success } = resp.data;
+                const { data, success } = resp;
                 const { status } = resp;
+                const tasksData = open_tasks_v2(data.threads);
                 if (success) {
                     setIndexState((prevState) => ({
                         ...prevState,
                         isLoaded: true,
-                        students: data,
-                        open_tasks_without_essays_arr: open_tasks(data).filter(
-                            (open_task) =>
-                                ![FILE_TYPE_E.essay_required].includes(
-                                    open_task.file_type
-                                )
-                        ),
+                        open_tasks_arr: tasksData,
                         success: success,
                         res_status: status
                     }));
@@ -95,47 +91,10 @@ const CVMLRLCenter = () => {
             }
         );
     }, []);
-    useEffect(() => {
-        getAllActiveEssays().then(
-            (resp) => {
-                const { data, success } = resp.data;
-                const { status } = resp;
-                if (success) {
-                    setIndexState((prevState) => ({
-                        ...prevState,
-                        isLoaded2: true,
-                        essays: open_essays_tasks(data, user),
-                        success: success,
-                        res_status: status
-                    }));
-                } else {
-                    setIndexState((prevState) => ({
-                        ...prevState,
-                        isLoaded2: true,
-                        res_status: status
-                    }));
-                }
-            },
-            (error) => {
-                setIndexState((prevState) => ({
-                    ...prevState,
-                    isLoaded2: true,
-                    error,
-                    res_status: 500
-                }));
-            }
-        );
-    }, []);
 
-    const {
-        res_status,
-        isLoaded,
-        isLoaded2,
-        essays,
-        open_tasks_without_essays_arr
-    } = indexState;
+    const { res_status, isLoaded, open_tasks_arr } = indexState;
     TabTitle('CV ML RL Overview');
-    if ((!isLoaded && !indexState.students) || (!isLoaded2 && !essays)) {
+    if (!isLoaded) {
         return <Loading />;
     }
 
@@ -155,8 +114,8 @@ const CVMLRLCenter = () => {
                   }
                 : row
         );
-        const updatedOpenTasksWithoutEssaysArr =
-            indexState.open_tasks_without_essays_arr?.map((row) =>
+        const updatedOpenTasksWithoutEssaysArr = indexState.open_tasks_arr?.map(
+            (row) =>
                 row.id === id
                     ? {
                           ...row,
@@ -171,11 +130,11 @@ const CVMLRLCenter = () => {
                                 : [user._id.toString()]
                       }
                     : row
-            );
+        );
         setIndexState((prevState) => ({
             ...prevState,
             essays: updatedEssays,
-            open_tasks_without_essays_arr: updatedOpenTasksWithoutEssaysArr
+            open_tasks_arr: updatedOpenTasksWithoutEssaysArr
         }));
         putThreadFavorite(id).then(
             (resp) => {
@@ -198,7 +157,6 @@ const CVMLRLCenter = () => {
         );
     };
 
-    const open_tasks_arr = [...essays, ...open_tasks_without_essays_arr];
     const tasks_withMyEssay_arr = open_tasks_arr.filter((open_task) =>
         [...AGENT_SUPPORT_DOCUMENTS_A, FILE_TYPE_E.essay_required].includes(
             open_task.file_type
@@ -223,13 +181,13 @@ const CVMLRLCenter = () => {
     const followup_tasks = open_tasks_withMyEssay_arr.filter(
         (open_task) =>
             is_pending_status(user, open_task) &&
-            open_task.latest_message_left_by_id !== ''
+            open_task.latest_message_left_by_id !== '- None - '
     );
 
     const pending_progress_tasks = open_tasks_withMyEssay_arr.filter(
         (open_task) =>
             is_pending_status(user, open_task) &&
-            open_task.latest_message_left_by_id === ''
+            open_task.latest_message_left_by_id === '- None - '
     );
 
     const closed_tasks = tasks_withMyEssay_arr.filter(
@@ -297,7 +255,6 @@ const CVMLRLCenter = () => {
                 isLoaded={indexState.isLoaded}
                 new_message_tasks={new_message_tasks}
                 pending_progress_tasks={pending_progress_tasks}
-                students={indexState.students}
                 success={indexState.success}
             />
         </Box>

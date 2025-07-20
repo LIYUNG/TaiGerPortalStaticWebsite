@@ -15,7 +15,7 @@ import {
     DECISION_STATUS_E,
     SUBMISSION_STATUS_E
 } from '../../../../utils/contants';
-import { application_deadline_calculator } from '../../../Utils/checking-functions';
+import { application_deadline_V2_calculator } from '../../../Utils/checking-functions';
 import DEMO from '../../../../store/constant';
 
 function ApplicationProgress(props) {
@@ -217,8 +217,7 @@ function ApplicationProgress(props) {
                                 }
                                 fontWeight="bold"
                             >
-                                {application_deadline_calculator(
-                                    props.student,
+                                {application_deadline_V2_calculator(
                                     application
                                 )}
                             </Typography>
@@ -236,10 +235,7 @@ function ApplicationProgress(props) {
                             }
                             fontWeight="bold"
                         >
-                            {application_deadline_calculator(
-                                props.student,
-                                application
-                            )}
+                            {application_deadline_V2_calculator(application)}
                         </Typography>
                     </TableCell>
                 )}
@@ -274,10 +270,7 @@ function ApplicationProgress(props) {
                         ? '-'
                         : application.programId.application_deadline
                           ? differenceInDays(
-                                application_deadline_calculator(
-                                    props.student,
-                                    application
-                                ),
+                                application_deadline_V2_calculator(application),
                                 today
                             )
                           : '-'}

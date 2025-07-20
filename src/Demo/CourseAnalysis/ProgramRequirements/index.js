@@ -16,7 +16,7 @@ const ProgramRequirements = () => {
     TabTitle('Program Requirement Edit');
 
     return (
-        <Box data-testid="dashoboard_component">
+        <Box data-testid="program_requirements_component">
             <Breadcrumbs aria-label="breadcrumb">
                 <Link
                     color="inherit"

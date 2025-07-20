@@ -19,7 +19,8 @@ import {
 
 import {
     frequencyDistribution,
-    programs_refactor,
+    // programs_refactor,
+    programs_refactor_v2,
     student_transform
 } from '../Utils/checking-functions';
 import ApplicationProgressCardBody from '../../components/ApplicationProgressCard/ApplicationProgressCardBody';
@@ -41,7 +42,7 @@ CustomTabPanel.propTypes = {
     value: PropTypes.number.isRequired
 };
 
-const ApplicationOverviewTabs = ({ students: stds }) => {
+const ApplicationOverviewTabs = ({ students: stds, applications }) => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const [value, setValue] = useState(0);
@@ -64,10 +65,8 @@ const ApplicationOverviewTabs = ({ students: stds }) => {
         setValue(newValue);
     };
     const open_applications_arr = useMemo(() => {
-        return programs_refactor(
-            students?.filter((student) => !student.archiv)
-        );
-    }, [students]);
+        return programs_refactor_v2(applications);
+    }, [applications]);
 
     const handleFilterChange = (event, column) => {
         const { value } = event.target;

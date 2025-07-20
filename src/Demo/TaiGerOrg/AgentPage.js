@@ -1,82 +1,51 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Navigate, Link as LinkDom, useParams } from 'react-router-dom';
 import { Box, Breadcrumbs, Button, Link, Typography } from '@mui/material';
 import { is_TaiGer_role } from '@taiger-common/core';
+import { useQuery } from '@tanstack/react-query';
+import queryString from 'query-string';
 
 import ApplicationOverviewTabs from '../ApplicantsOverview/ApplicationOverviewTabs';
-import ErrorPage from '../Utils/ErrorPage';
-import { getAgent } from '../../api';
-import { TabTitle } from '../Utils/TabTitle';
+
 import DEMO from '../../store/constant';
 import { appConfig } from '../../config';
 import { useAuth } from '../../components/AuthProvider';
 import Loading from '../../components/Loading/Loading';
+import {
+    getMyStudentsApplicationsV2Query,
+    getStudentsV3Query
+} from '../../api/query';
 
 // TODO TEST_CASE
 const AgentPage = () => {
     const { user_id } = useParams();
     const { user } = useAuth();
-    const [agentPageState, setAgentPageState] = useState({
-        error: '',
-        role: '',
-        isLoaded: false,
-        data: null,
-        success: false,
-        students: null,
-        agent: null,
-        res_status: 0
-    });
 
-    useEffect(() => {
-        getAgent(user_id).then(
-            (resp) => {
-                const { data, success } = resp.data;
-                const { status } = resp;
-                if (success) {
-                    setAgentPageState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        students: data.students,
-                        agent: data.agent,
-                        success: success,
-                        res_status: status
-                    }));
-                } else {
-                    setAgentPageState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        res_status: status
-                    }));
-                }
-            },
-            (error) => {
-                setAgentPageState((prevState) => ({
-                    ...prevState,
-                    isLoaded: true,
-                    error,
-                    res_status: 500
-                }));
-            }
-        );
-    }, [user_id]);
+    const {
+        data: { data: fetchedMyStudents } = { data: [] },
+        isLoading: isLoadingMyStudents
+    } = useQuery(
+        getStudentsV3Query(
+            queryString.stringify({ agents: user_id, archiv: false })
+        )
+    );
+
+    const { data: myStudentsApplications, isLoading } = useQuery(
+        getMyStudentsApplicationsV2Query({
+            userId: user_id,
+            queryString: queryString.stringify({
+                decided: 'O'
+            })
+        })
+    );
+
+    if (isLoading || isLoadingMyStudents) {
+        return <Loading />;
+    }
 
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
-
-    const { res_status, isLoaded } = agentPageState;
-
-    if (!isLoaded && !agentPageState.students && !agentPageState.agent) {
-        return <Loading />;
-    }
-
-    if (res_status >= 400) {
-        return <ErrorPage res_status={res_status} />;
-    }
-
-    TabTitle(
-        `Agent: ${agentPageState.agent.firstname}, ${agentPageState.agent.lastname}`
-    );
 
     return (
         <Box>
@@ -98,16 +67,19 @@ const AgentPage = () => {
                     {appConfig.companyName} Team
                 </Link>
                 <Typography color="text.primary">
-                    {agentPageState.agent.firstname}{' '}
-                    {agentPageState.agent.lastname}
-                    {` (${agentPageState.students.length})`}
+                    {myStudentsApplications.data?.user?.firstname}{' '}
+                    {myStudentsApplications.data?.user?.lastname}
+                    {` (${fetchedMyStudents.length})`}
                 </Typography>
             </Breadcrumbs>
-            <ApplicationOverviewTabs students={agentPageState.students} />
+            <ApplicationOverviewTabs
+                applications={myStudentsApplications.data.applications}
+                students={fetchedMyStudents}
+            />
             <Link
                 component={LinkDom}
                 to={`${DEMO.TEAM_AGENT_ARCHIV_LINK(
-                    agentPageState.agent._id.toString()
+                    myStudentsApplications.data?.user?._id.toString()
                 )}`}
             >
                 <Button color="primary" variant="contained">

@@ -31,7 +31,6 @@ const EditableFileThread = (props) => {
         props.handleAsFinalFile(
             props.thread.doc_thread_id._id,
             props.student._id,
-            props.program_id,
             isFinal,
             documenName
         );

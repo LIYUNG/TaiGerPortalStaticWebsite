@@ -1,12 +1,10 @@
 import { defer, json } from 'react-router-dom';
+import queryString from 'query-string';
 import {
     getStudents,
     getArchivStudents,
     getStudentAndDocLinks,
-    getApplicationStudent,
     getMyAcademicBackground,
-    getAllActiveEssays,
-    getStudentUniAssist,
     getComplaintsTickets,
     getComplaintsTicket,
     getDistinctSchools,
@@ -16,17 +14,18 @@ import {
     getProgramsAndCourseKeywordSets,
     getCommunicationThread,
     getProgram,
-    getAllOpenInterviews
+    getAllOpenInterviews,
+    getApplicationStudentV2,
+    getActiveThreads
 } from '.';
 import { queryClient } from './client';
 import {
-    getAllActiveStudentsQuery,
     getAllCoursessQuery,
-    getAllStudentsQuery,
     getCommunicationQuery,
     getCoursessQuery,
     getProgramRequirementsQuery
 } from './query';
+import { file_category_const } from '../Demo/Utils/checking-functions';
 
 export async function getStudentsLoader() {
     const response = await getStudents();
@@ -40,10 +39,6 @@ export async function getStudentsLoader() {
     }
 }
 
-export async function getAllStudentsV2Loader() {
-    return queryClient.fetchQuery(getAllStudentsQuery());
-}
-
 export async function getAllCoursesLoader() {
     return queryClient.fetchQuery(getAllCoursessQuery());
 }
@@ -53,8 +48,12 @@ export async function getCourseLoader({ params }) {
     return queryClient.fetchQuery(getCoursessQuery(courseId));
 }
 
-export async function getAllActiveEssaysLoader() {
-    const response = await getAllActiveEssays();
+export async function getActiveEssayThreadsLoader() {
+    const response = await getActiveThreads(
+        queryString.stringify({
+            file_type: file_category_const.essay_required
+        })
+    );
     if (response.status >= 400) {
         throw json(
             { message: response.statusText },
@@ -125,22 +124,6 @@ export function getAllComplaintTicketsLoader() {
 
 //
 
-export async function AllActiveStudentsV2Loader() {
-    return queryClient.fetchQuery(getAllActiveStudentsQuery());
-}
-
-export async function getStudentUniAssistLoader() {
-    const response = await getStudentUniAssist();
-    if (response.status >= 400) {
-        throw json(
-            { message: response.statusText },
-            { status: response.status }
-        );
-    } else {
-        return response;
-    }
-}
-
 export async function getArchivStudentsLoader() {
     const response = await getArchivStudents();
     if (response.status >= 400) {
@@ -168,7 +151,7 @@ export async function getStudentAndDocLinksLoader({ params }) {
 
 export async function getApplicationStudentLoader({ params }) {
     const student_id = params.student_id;
-    const response = await getApplicationStudent(student_id);
+    const response = await getApplicationStudentV2(student_id);
     if (response.status >= 400) {
         throw json(
             { message: response.statusText },
@@ -201,47 +184,6 @@ export async function getAllOpenInterviewsLoader() {
     } else {
         return response;
     }
-}
-
-async function loadStudentAndEssaysAndInterview() {
-    // Fetch data from both getAllActiveEssays and getStudents and getAllOpenInterviews
-    const [essaysResponse, studentsResponse, interviewsResponse] =
-        await Promise.all([
-            getAllActiveEssays(),
-            getStudents(),
-            getAllOpenInterviews()
-        ]);
-
-    // Check if any response has a status code >= 400
-    if (
-        essaysResponse.status >= 400 ||
-        studentsResponse.status >= 400 ||
-        interviewsResponse.status >= 400
-    ) {
-        const error = {
-            message: 'Error fetching data',
-            status:
-                essaysResponse.status >= 400
-                    ? essaysResponse.status
-                    : studentsResponse.status >= 400
-                      ? studentsResponse.status
-                      : interviewsResponse.status
-        };
-        throw error;
-    }
-
-    // Return an object containing both essays and students data
-    return {
-        essays: await essaysResponse.data, // Assuming essaysResponse.data contains the essays data
-        data: await studentsResponse.data, // Assuming studentsResponse.data contains the students data
-        interviews: await interviewsResponse.data // Assuming interviewsResponse.data contains the interviews data
-    };
-}
-
-export function combinedLoader() {
-    return defer({
-        studentAndEssaysAndInterview: loadStudentAndEssaysAndInterview()
-    });
 }
 
 ///

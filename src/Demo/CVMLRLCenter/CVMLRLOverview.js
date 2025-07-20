@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Link as LinkDom, useLocation } from 'react-router-dom';
 import { Tabs, Tab, Box, Typography, Link, Tooltip, Chip } from '@mui/material';
 import PropTypes from 'prop-types';
@@ -16,7 +16,6 @@ import {
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import Banner from '../../components/Banner/Banner';
 import { useAuth } from '../../components/AuthProvider';
-import Loading from '../../components/Loading/Loading';
 import { CustomTabPanel, a11yProps } from '../../components/Tabs';
 import { useTranslation } from 'react-i18next';
 import { MuiDataGrid } from '../../components/MuiDataGrid';
@@ -42,23 +41,13 @@ const CVMLRLOverview = (props) => {
 
     const [cVMLRLOverviewState, setCVMLRLOverviewState] = useState({
         error: '',
-        isLoaded: props.isLoaded,
         data: null,
-        success: props.success,
-        students: props.students,
         student_id: '',
         status: '', //reject, accept... etc
         res_status: 0,
         res_modal_message: '',
         res_modal_status: 0
     });
-
-    useEffect(() => {
-        setCVMLRLOverviewState((prevState) => ({
-            ...prevState,
-            students: props.students
-        }));
-    }, [props.students]);
 
     const ConfirmError = () => {
         setCVMLRLOverviewState((prevState) => ({
@@ -68,12 +57,7 @@ const CVMLRLOverview = (props) => {
         }));
     };
 
-    const { res_modal_status, res_modal_message, isLoaded } =
-        cVMLRLOverviewState;
-
-    if (!isLoaded && !cVMLRLOverviewState.students) {
-        return <Loading />;
-    }
+    const { res_modal_status, res_modal_message } = cVMLRLOverviewState;
 
     const commonColumn = [
         {
@@ -350,16 +334,6 @@ const CVMLRLOverview = (props) => {
                 />
             </CustomTabPanel>
             <CustomTabPanel index={1} value={tabTag}>
-                <Banner
-                    ReadOnlyMode={true}
-                    bg="primary"
-                    link_name=""
-                    notification_key={undefined}
-                    path="/"
-                    removeBanner={null}
-                    text="Follow up"
-                    title="info"
-                />
                 <MuiDataGrid
                     columnVisibilityModel={{
                         number_input_from_editors: false,

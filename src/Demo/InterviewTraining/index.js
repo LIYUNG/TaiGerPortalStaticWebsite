@@ -284,7 +284,6 @@ const InterviewTraining = () => {
 
     const rows = isLoaded && transform(interviewslist);
 
-    console.log(rows);
     return (
         <Box>
             {res_modal_status >= 400 ? (

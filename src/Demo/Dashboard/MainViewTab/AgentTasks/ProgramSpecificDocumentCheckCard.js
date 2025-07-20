@@ -5,17 +5,14 @@ import { Card, Alert, Typography, Link } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 
 import { useAuth } from '../../../../components/AuthProvider';
-import {
-    AGENT_SUPPORT_DOCUMENTS_A,
-    open_tasks
-} from '../../../Utils/checking-functions';
+import { AGENT_SUPPORT_DOCUMENTS_A } from '../../../Utils/checking-functions';
 import DEMO from '../../../../store/constant';
 
 const ProgramSpecificDocumentCheckCard = (props) => {
     const { user } = useAuth();
     const { t } = useTranslation();
 
-    const no_programs_student_tasks = open_tasks(props.students)
+    const no_programs_student_tasks = props.refactored_threads
         .filter((student) =>
             student.agents?.some((agent) => agent._id === user._id?.toString())
         )

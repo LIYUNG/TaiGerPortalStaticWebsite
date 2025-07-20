@@ -16,79 +16,62 @@ import { useTranslation } from 'react-i18next';
 
 import {
     isUniAssistVPDNeeded,
-    is_all_uni_assist_vpd_uploaded,
-    application_deadline_calculator,
+    application_deadline_V2_calculator,
     is_uni_assist_paid_and_docs_uploaded
 } from '../../../Utils/checking-functions';
 import DEMO from '../../../../store/constant';
-import { useAuth } from '../../../../components/AuthProvider';
 
-const VPDToSubmitTasks = (props) => {
+const VPDToSubmitTasks = ({ application }) => {
     const { t } = useTranslation();
     return (
         <>
             {/* check uni-assist */}
-            {!is_all_uni_assist_vpd_uploaded(props.student)
-                ? props.student.applications.map(
-                      (application, i) =>
-                          isUniAssistVPDNeeded(application) && (
-                              <TableRow key={i}>
-                                  <TableCell>
-                                      <Link
-                                          component={LinkDom}
-                                          to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                                              props.student._id.toString(),
-                                              DEMO.UNIASSIST_HASH
-                                          )}`}
-                                      >
-                                          {props.student.firstname}{' '}
-                                          {props.student.lastname}
-                                      </Link>
-                                  </TableCell>
-                                  {is_uni_assist_paid_and_docs_uploaded(
-                                      application
-                                  ) ? (
-                                      <TableCell className="text-warning">
-                                          {t('Paid', { ns: 'common' })},{' '}
-                                          {t('Waiting VPD result', {
-                                              ns: 'common'
-                                          })}
-                                      </TableCell>
-                                  ) : (
-                                      <TableCell>
-                                          <Typography color="text.secondary">
-                                              {t('Not paid', { ns: 'common' })}
-                                          </Typography>
-                                      </TableCell>
-                                  )}
-                                  <TableCell>
-                                      <b>
-                                          {application_deadline_calculator(
-                                              props.student,
-                                              application
-                                          )}
-                                      </b>
-                                  </TableCell>
-                                  <TableCell>
-                                      {application.programId.school}{' '}
-                                      {application.programId.program_name}
-                                  </TableCell>
-                              </TableRow>
-                          )
-                  )
-                : null}
+            {isUniAssistVPDNeeded(application) && (
+                <TableRow>
+                    <TableCell>
+                        <Link
+                            component={LinkDom}
+                            to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
+                                application.studentId._id.toString(),
+                                DEMO.UNIASSIST_HASH
+                            )}`}
+                        >
+                            {application.studentId.firstname}{' '}
+                            {application.studentId.lastname}
+                        </Link>
+                    </TableCell>
+                    {is_uni_assist_paid_and_docs_uploaded(application) ? (
+                        <TableCell className="text-warning">
+                            {t('Paid', { ns: 'common' })},{' '}
+                            {t('Waiting VPD result', {
+                                ns: 'common'
+                            })}
+                        </TableCell>
+                    ) : (
+                        <TableCell>
+                            <Typography color="text.secondary">
+                                {t('Not paid', { ns: 'common' })}
+                            </Typography>
+                        </TableCell>
+                    )}
+                    <TableCell>
+                        <b>{application_deadline_V2_calculator(application)}</b>
+                    </TableCell>
+                    <TableCell>
+                        {application.programId.school}{' '}
+                        {application.programId.program_name}
+                    </TableCell>
+                </TableRow>
+            )}
         </>
     );
 };
 
-const VPDToSubmitTasksCard = (props) => {
-    const { user } = useAuth();
+const VPDToSubmitTasksCard = ({ applications }) => {
     const { t } = useTranslation();
-    const vpd_to_submit_tasks = props.students
-        .filter((student) =>
-            student.agents.some((agent) => agent._id === user._id.toString())
-        )
-        .map((student, i) => <VPDToSubmitTasks key={i} student={student} />);
+    const vpd_to_submit_tasks = applications.map((application, i) => (
+        <VPDToSubmitTasks application={application} key={i} />
+    ));
     return (
         <Card sx={{ mb: 2 }}>
             <Alert severity="error">

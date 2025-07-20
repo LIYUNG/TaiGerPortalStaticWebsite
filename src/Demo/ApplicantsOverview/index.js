@@ -1,8 +1,14 @@
 import React from 'react';
 import { Box } from '@mui/material';
-import { Navigate, useLoaderData } from 'react-router-dom';
-import { is_TaiGer_Student, is_TaiGer_role } from '@taiger-common/core';
+import { Navigate } from 'react-router-dom';
+import {
+    is_TaiGer_Editor,
+    is_TaiGer_Student,
+    is_TaiGer_role
+} from '@taiger-common/core';
 import i18next from 'i18next';
+import { useQuery } from '@tanstack/react-query';
+import queryString from 'query-string';
 
 import ApplicationOverviewTabs from './ApplicationOverviewTabs';
 import { TabTitle } from '../Utils/TabTitle';
@@ -10,12 +16,33 @@ import DEMO from '../../store/constant';
 import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';
 import { BreadcrumbsNavigation } from '../../components/BreadcrumbsNavigation/BreadcrumbsNavigation';
+import Loading from '../../components/Loading/Loading';
+import {
+    getMyStudentsApplicationsV2Query,
+    getStudentsV3Query
+} from '../../api/query';
 
 const ApplicantsOverview = () => {
     const { user } = useAuth();
+
+    const role = is_TaiGer_Editor(user) ? 'editors' : 'agents';
     const {
-        data: { data: fetchedStudents }
-    } = useLoaderData();
+        data: { data: fetchedMyStudents } = { data: [] },
+        isLoading: isLoadingMyStudents
+    } = useQuery(
+        getStudentsV3Query(
+            queryString.stringify({ [role]: user._id, archiv: false })
+        )
+    );
+
+    const { data: myStudentsApplications, isLoading } = useQuery(
+        getMyStudentsApplicationsV2Query({
+            userId: user._id,
+            queryString: queryString.stringify({
+                decided: 'O'
+            })
+        })
+    );
 
     if (is_TaiGer_Student(user)) {
         return (
@@ -24,17 +51,15 @@ const ApplicantsOverview = () => {
             />
         );
     }
+
+    if (isLoading || isLoadingMyStudents) {
+        return <Loading />;
+    }
+
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
-    const myStudents = fetchedStudents.filter(
-        (student) =>
-            student.editors.some(
-                (editor) => editor._id === user._id.toString()
-            ) ||
-            student.agents.some((agent) => agent._id === user._id.toString())
-    );
     TabTitle(
         i18next.t('Applications Overview', {
             ns: 'common'
@@ -53,7 +78,10 @@ const ApplicantsOverview = () => {
                     }
                 ]}
             />
-            <ApplicationOverviewTabs students={myStudents} />
+            <ApplicationOverviewTabs
+                applications={myStudentsApplications.data.applications}
+                students={fetchedMyStudents}
+            />
         </Box>
     );
 };

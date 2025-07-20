@@ -91,7 +91,7 @@ const ManualFiles = (props) => {
                                         props.student.generaldocs_threads.findIndex(
                                             (thread) =>
                                                 thread.doc_thread_id
-                                                    .file_type === 'CV'
+                                                    ?.file_type === 'CV'
                                         ) === -1 ? (
                                             <li>
                                                 <b>{t('CV')}</b>
@@ -208,7 +208,7 @@ const ManualFiles = (props) => {
                                 onClick={() =>
                                     props.handleProgramStatus(
                                         props.student._id.toString(),
-                                        props.application.programId._id.toString(),
+                                        props.application._id.toString(),
                                         is_program_closed(props.application)
                                     )
                                 }

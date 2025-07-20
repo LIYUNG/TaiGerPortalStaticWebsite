@@ -23,9 +23,9 @@ import { useTranslation } from 'react-i18next';
 import EmailIcon from '@mui/icons-material/Email';
 import { highlightText } from '../Utils/checking-functions';
 import {
-    assignProgramToStudent,
+    createApplicationV2,
     getQueryStudentsResults,
-    getStudentApplications
+    getApplicationStudentV2
 } from '../../api';
 
 export const ImportStudentProgramsCard = (props) => {
@@ -85,7 +85,7 @@ export const ImportStudentProgramsCard = (props) => {
             isImportingStudentPrograms: true
         }));
         // Call api:
-        getStudentApplications(result._id.toString()).then(
+        getApplicationStudentV2(result._id.toString()).then(
             (res) => {
                 const { data, success } = res.data;
                 const { status } = res;
@@ -93,12 +93,12 @@ export const ImportStudentProgramsCard = (props) => {
                     setImportStudentProgramsCardState((prevState) => ({
                         ...prevState,
                         isImportingStudentPrograms: false,
-                        importedStudentPrograms: data,
+                        importedStudentPrograms: data.applications,
                         selectedStudentName: `${result.firstname} ${result.lastname} ${
                             result.firstname_chinese || ''
                         } ${result.lastname_chinese || ''}`,
-                        program_ids: data?.map((program) =>
-                            program.programId._id.toString()
+                        program_ids: data.applications?.map((app) =>
+                            app.programId._id.toString()
                         ),
                         res_modal_status: status
                     }));
@@ -198,7 +198,7 @@ export const ImportStudentProgramsCard = (props) => {
         let importing_program_ids_existing = [
             ...importStudentProgramsCard.program_ids
         ];
-        console.log(importing_program_ids_existing);
+
         if (isActive) {
             importing_program_ids_existing =
                 importing_program_ids_existing.filter(
@@ -217,23 +217,25 @@ export const ImportStudentProgramsCard = (props) => {
         }
     };
 
+    // TODO: test from end update
     const handleImportProgramsConfirm = () => {
         const program_ids = importStudentProgramsCard.program_ids;
         setImportStudentProgramsCardState((prevState) => ({
             ...prevState,
             isButtonDisable: true
         }));
-        assignProgramToStudent(
-            importStudentProgramsCard.student._id.toString(),
+        createApplicationV2({
+            studentId: importStudentProgramsCard.student._id.toString(),
             program_ids
-        ).then(
+        }).then(
             (res) => {
-                const { success } = res.data;
+                const { success, data } = res.data;
                 const { status } = res;
                 if (success) {
                     setImportStudentProgramsCardState((prevState) => ({
                         ...prevState,
                         isButtonDisable: false,
+                        importedStudentPrograms: data,
                         importedStudentModalOpen: false,
                         modalShowAssignSuccessWindow: true,
                         success,

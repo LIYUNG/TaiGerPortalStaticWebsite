@@ -6,6 +6,7 @@ import {
 import i18next from 'i18next';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import ArchiveIcon from '@mui/icons-material/Archive';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 
 export const TopToolbar = ({
     table,
@@ -13,9 +14,9 @@ export const TopToolbar = ({
     onArchiveClick,
     onAttributesClick,
     onAgentClick,
-    onEditorClick
+    onEditorClick,
+    onExportClick
 }) => {
-    console.log(table.getSelectedRowModel().rows);
     const selectedRows = table.getSelectedRowModel().rows;
 
     return (
@@ -25,6 +26,17 @@ export const TopToolbar = ({
                 <MRTToggleFiltersButton sx={{ height: '40px' }} table={table} />
             </Box>
             <Stack direction="row" justifyContent="flex-end" spacing={1}>
+                <Button
+                    disabled={table.getRowModel().rows.length === 0}
+                    //export all rows as seen on the screen (respects pagination, sorting, filtering, etc.)
+                    onClick={() =>
+                        onExportClick(table.getPrePaginationRowModel().rows)
+                    }
+                    startIcon={<FileDownloadIcon />}
+                    variant="contained"
+                >
+                    Export CSV
+                </Button>
                 <Button
                     color="error"
                     disabled={selectedRows?.length !== 1}

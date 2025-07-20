@@ -12,20 +12,26 @@ import {
     DialogTitle,
     FormControl,
     Grid,
+    IconButton,
     Link,
     MenuItem,
     Select,
+    Stack,
     Table,
     TableBody,
     TableCell,
     TableContainer,
     TableHead,
     TableRow,
-    Typography
+    TextField,
+    Typography,
+    Tooltip
 } from '@mui/material';
 
 import { Link as LinkDom } from 'react-router-dom';
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import { Undo as UndoIcon, Redo as RedoIcon } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import {
     is_TaiGer_role,
@@ -33,6 +39,7 @@ import {
     is_TaiGer_Admin,
     isProgramDecided,
     isProgramSubmitted,
+    isProgramWithdraw,
     isProgramAdmitted
 } from '@taiger-common/core';
 import { differenceInDays } from 'date-fns';
@@ -43,18 +50,23 @@ import {
     is_program_ml_rl_essay_ready,
     is_the_uni_assist_vpd_uploaded,
     isCVFinished,
-    application_deadline_calculator
+    application_deadline_V2_calculator
 } from '../Utils/checking-functions';
 import OverlayButton from '../../components/Overlay/OverlayButton';
 import Banner from '../../components/Banner/Banner';
 import {
     IS_SUBMITTED_STATE_OPTIONS,
+    APPLICATION_YEARS_FUTURE,
     programstatuslist
 } from '../../utils/contants';
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { useSnackBar } from '../../contexts/use-snack-bar';
-import { UpdateStudentApplications, removeProgramFromStudent } from '../../api';
+import {
+    updateStudentApplications,
+    deleteApplicationStudentV2,
+    updateStudentApplication
+} from '../../api';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '../../store/constant';
 import { appConfig } from '../../config';
@@ -80,7 +92,7 @@ const StudentApplicationsTableTemplate = (props) => {
         isLoaded: true,
         program_ids: [],
         student_id: null,
-        program_id: null,
+        application_id: null,
         success: false,
         application_status_changed: false,
         applying_program_count: props.student.applying_program_count,
@@ -114,14 +126,99 @@ const StudentApplicationsTableTemplate = (props) => {
         }));
     };
 
-    const handleDelete = (e, program_id, student_id) => {
+    const handleSingleChange = (e, application_id) => {
+        e.preventDefault();
+        setStudentApplicationsTableTemplateState((prevState) => ({
+            ...prevState,
+            application_id: application_id,
+            [e.target.name]: e.target.value
+        }));
+    };
+
+    const handleWithdraw = (e, application_idx, programWithdraw = '-') => {
+        e.preventDefault();
+        let applications_temp = [
+            ...studentApplicationsTableTemplateState.student.applications
+        ];
+        applications_temp[application_idx].closed = programWithdraw;
+        setStudentApplicationsTableTemplateState((prevState) => ({
+            ...prevState,
+            applications: applications_temp,
+            application_status_changed: true
+        }));
+    };
+
+    const handleDelete = (e, application_id, student_id) => {
         e.preventDefault();
         setStudentApplicationsTableTemplateState((prevState) => ({
             ...prevState,
             student_id,
-            program_id,
+            application_id,
             modalDeleteApplication: true
         }));
+    };
+
+    const handleEdit = (e, application_id, application_year, student_id) => {
+        e.preventDefault();
+        setStudentApplicationsTableTemplateState((prevState) => ({
+            ...prevState,
+            student_id,
+            application_id,
+            application_year,
+            modalEditApplication: true
+        }));
+    };
+    const onHideModalEditApplication = () => {
+        setStudentApplicationsTableTemplateState((prevState) => ({
+            ...prevState,
+            modalEditApplication: false
+        }));
+    };
+    const handleEditConfirm = (e) => {
+        e.preventDefault();
+        const payload = {
+            application_year:
+                studentApplicationsTableTemplateState.application_year
+        };
+        updateStudentApplication(
+            studentApplicationsTableTemplateState.student._id,
+            studentApplicationsTableTemplateState.application_id,
+            payload
+        ).then((resp) => {
+            const { success, data } = resp.data;
+            if (success) {
+                const applications_temp = [
+                    ...studentApplicationsTableTemplateState.student
+                        .applications
+                ];
+                applications_temp[
+                    applications_temp.findIndex(
+                        (app) =>
+                            app._id ===
+                            studentApplicationsTableTemplateState.application_id
+                    )
+                ].application_year = data.application_year;
+                setStudentApplicationsTableTemplateState((prevState) => ({
+                    ...prevState,
+                    isLoaded: true,
+                    success: success,
+                    modalEditApplication: false,
+                    student: {
+                        ...prevState.student,
+                        applications: applications_temp
+                    }
+                }));
+            } else {
+                const { message } = resp.data;
+                setStudentApplicationsTableTemplateState((prevState) => ({
+                    ...prevState,
+                    isLoaded: true,
+                    error: message,
+                    res_modal_status: 400,
+                    res_modal_message: message
+                }));
+            }
+        });
     };
 
     const onHideModalDeleteApplication = () => {
@@ -137,12 +234,12 @@ const StudentApplicationsTableTemplate = (props) => {
             ...prevState,
             isLoaded: false
         }));
-        removeProgramFromStudent(
-            studentApplicationsTableTemplateState.program_id,
-            studentApplicationsTableTemplateState.student_id
+        // TODO: test render update.
+        deleteApplicationStudentV2(
+            studentApplicationsTableTemplateState.application_id
         ).then(
             (resp) => {
-                const { data, success } = resp.data;
+                const { success } = resp.data;
                 const { status } = resp;
                 if (success) {
                     setSeverity('success');
@@ -151,13 +248,25 @@ const StudentApplicationsTableTemplate = (props) => {
                             ns: 'common'
                         })
                     );
+                    const applications_temp = [
+                        ...studentApplicationsTableTemplateState.student
+                            .applications
+                    ];
+                    applications_temp.splice(
+                        applications_temp.findIndex(
+                            (app) =>
+                                app._id ===
+                                studentApplicationsTableTemplateState.application_id
+                        ),
+                        1
+                    );
                     setOpenSnackbar(true);
                     setStudentApplicationsTableTemplateState((prevState) => ({
                         ...prevState,
                         isLoaded: true,
                         student: {
                             ...prevState.student,
-                            applications: data
+                            applications: applications_temp
                         },
                         success: success,
                         modalDeleteApplication: false,
@@ -201,7 +310,7 @@ const StudentApplicationsTableTemplate = (props) => {
             ...prevState,
             isLoaded: false
         }));
-        UpdateStudentApplications(
+        updateStudentApplications(
             student_id,
             applications_temp,
             applying_program_count
@@ -344,21 +453,37 @@ const StudentApplicationsTableTemplate = (props) => {
                     <TableRow key={application_idx}>
                         {!is_TaiGer_Student(user) ? (
                             <TableCell>
-                                <Button
-                                    color="primary"
-                                    onClick={(e) =>
-                                        handleDelete(
-                                            e,
-                                            application.programId._id,
-                                            studentApplicationsTableTemplateState
-                                                .student._id
-                                        )
-                                    }
-                                    size="small"
-                                    variant="contained"
-                                >
-                                    <DeleteIcon fontSize="small" />
-                                </Button>
+                                <Stack direction="row" spacing={1}>
+                                    <IconButton
+                                        color="primary"
+                                        onClick={(e) =>
+                                            handleDelete(
+                                                e,
+                                                application._id,
+                                                studentApplicationsTableTemplateState
+                                                    .student._id
+                                            )
+                                        }
+                                        variant="contained"
+                                    >
+                                        <DeleteIcon />
+                                    </IconButton>
+                                    <IconButton
+                                        color="secondary"
+                                        onClick={(e) =>
+                                            handleEdit(
+                                                e,
+                                                application._id,
+                                                application.application_year,
+                                                studentApplicationsTableTemplateState
+                                                    .student._id
+                                            )
+                                        }
+                                        variant="contained"
+                                    >
+                                        <EditIcon />
+                                    </IconButton>
+                                </Stack>
                             </TableCell>
                         ) : null}
                         <TableCell>
@@ -438,8 +563,7 @@ const StudentApplicationsTableTemplate = (props) => {
                                 </Typography>
                             ) : (
                                 <Typography>
-                                    {application_deadline_calculator(
-                                        props.student,
+                                    {application_deadline_V2_calculator(
                                         application
                                     )}
                                 </Typography>
@@ -468,7 +592,8 @@ const StudentApplicationsTableTemplate = (props) => {
                                 </Select>
                             </FormControl>
                         </TableCell>
-                        {isProgramDecided(application) ? (
+                        {isProgramDecided(application) &&
+                        !isProgramWithdraw(application) ? (
                             <TableCell>
                                 {/* When all thread finished */}
                                 {isProgramSubmitted(application) ||
@@ -496,11 +621,6 @@ const StudentApplicationsTableTemplate = (props) => {
                                         >
                                             <MenuItem value="-">
                                                 {t('Not Yet', { ns: 'common' })}
-                                            </MenuItem>
-                                            <MenuItem value="X">
-                                                {t('Withdraw', {
-                                                    ns: 'common'
-                                                })}
                                             </MenuItem>
                                             <MenuItem value="O">
                                                 {t('Submitted', {
@@ -534,7 +654,15 @@ const StudentApplicationsTableTemplate = (props) => {
                                 )}
                             </TableCell>
                         ) : (
-                            <TableCell>-</TableCell>
+                            <TableCell>
+                                {isProgramWithdraw(application) ? (
+                                    <Typography color="error" fontWeight="bold">
+                                        WITHDRAW
+                                    </Typography>
+                                ) : (
+                                    '-'
+                                )}
+                            </TableCell>
                         )}
                         {isProgramDecided(application) &&
                         isProgramSubmitted(application) ? (
@@ -613,8 +741,7 @@ const StudentApplicationsTableTemplate = (props) => {
                                     ? '-'
                                     : application.programId.application_deadline
                                       ? differenceInDays(
-                                            application_deadline_calculator(
-                                                props.student,
+                                            application_deadline_V2_calculator(
                                                 application
                                             ),
                                             today
@@ -622,6 +749,38 @@ const StudentApplicationsTableTemplate = (props) => {
                                       : '-'}
                             </Typography>
                         </TableCell>
+                        {is_TaiGer_role(user) && (
+                            <TableCell>
+                                {isProgramDecided(application) &&
+                                    !isProgramSubmitted(application) &&
+                                    // only show withdraw/undo button when the program is decided but not submitted
+                                    (isProgramWithdraw(application) ? (
+                                        <Tooltip arrow title="Undo Withdraw">
+                                            <RedoIcon
+                                                onClick={(e) =>
+                                                    handleWithdraw(
+                                                        e,
+                                                        application_idx,
+                                                        '-' // Not Withdrawn - Not yet
+                                                    )
+                                                }
+                                            />
+                                        </Tooltip>
+                                    ) : (
+                                        <Tooltip arrow title="Withdraw">
+                                            <UndoIcon
+                                                onClick={(e) =>
+                                                    handleWithdraw(
+                                                        e,
+                                                        application_idx,
+                                                        'X' // Withdrawn
+                                                    )
+                                                }
+                                            />
+                                        </Tooltip>
+                                    ))}
+                            </TableCell>
+                        )}
                     </TableRow>
                 )
             );
@@ -908,6 +1067,52 @@ const StudentApplicationsTableTemplate = (props) => {
                             studentApplicationsTableTemplateState.modalDeleteApplication
                         }
                         title={t('Warning', { ns: 'common' })}
+                    />
+                    <ConfirmationModal
+                        closeText={t('No', { ns: 'common' })}
+                        confirmText={t('Yes', { ns: 'common' })}
+                        content={
+                            <Box>
+                                <TextField
+                                    fullWidth
+                                    label={t('Application Year')}
+                                    name="application_year"
+                                    onChange={(e) =>
+                                        handleSingleChange(
+                                            e,
+                                            studentApplicationsTableTemplateState.application_id
+                                        )
+                                    }
+                                    options={APPLICATION_YEARS_FUTURE().map(
+                                        (year) => year.value
+                                    )}
+                                    select
+                                    value={
+                                        studentApplicationsTableTemplateState.application_year
+                                    }
+                                >
+                                    {APPLICATION_YEARS_FUTURE().map(
+                                        (option) => (
+                                            <MenuItem
+                                                key={option.value}
+                                                value={option.value}
+                                            >
+                                                {option.label}
+                                            </MenuItem>
+                                        )
+                                    )}
+                                </TextField>
+                            </Box>
+                        }
+                        isLoading={
+                            !studentApplicationsTableTemplateState.isLoaded
+                        }
+                        onClose={onHideModalEditApplication}
+                        onConfirm={handleEditConfirm}
+                        open={
+                            studentApplicationsTableTemplateState.modalEditApplication
+                        }
+                        title={t('Edit Application Year', { ns: 'common' })}
                     />
                 </Box>
             </>

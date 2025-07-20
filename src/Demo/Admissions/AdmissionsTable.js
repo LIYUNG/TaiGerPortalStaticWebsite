@@ -35,30 +35,40 @@ const AdmissionsTable = ({ admissions }) => {
                     result.push({
                         ...application,
                         id: `${application._id}${application.programId}`,
-                        student_id: application._id,
-                        name: `${application.firstname}, ${application.lastname}`,
-                        editors: application.editors?.join(' '),
-                        agents: application.agents?.join(' '),
+                        programId: application.programId?._id,
+                        firstname: application.studentId?.firstname,
+                        lastname: application.studentId?.lastname,
+                        firstname_chinese:
+                            application.studentId?.firstname_chinese,
+                        lastname_chinese:
+                            application.studentId?.lastname_chinese,
+                        student_id: application.studentId?._id,
+                        agents: application.studentId?.agents
+                            ?.map((agent) => agent.firstname)
+                            .join(' '),
+                        editors: application.studentId?.editors
+                            ?.map((editor) => editor.firstname)
+                            .join(' '),
+                        school: application.programId?.school,
+                        program_name: application.programId?.program_name,
+                        semester: application.programId?.semester,
+                        degree: application.programId?.degree,
+                        name: `${application.studentId?.firstname}, ${application.studentId?.lastname}`,
                         finalEnrolment: application.finalEnrolment ? 'O' : '',
                         admission_file_path:
                             application.admission_letter?.admission_file_path,
-                        application_year:
-                            application.application_preference
-                                ?.expected_application_date
+                        application_year: application.application_year
                     });
                 }
             } else if (application.closed === '-' && tag === '--') {
                 result.push({
                     ...application,
                     id: `${application._id}${application.programId}`,
-                    student_id: application._id,
-                    name: `${application.firstname}, ${application.lastname}`,
-                    editors: application.editors?.join(' '),
-                    agents: application.agents?.join(' '),
-                    application_year:
-                        application.application_preference &&
-                        application.application_preference
-                            .expected_application_date
+                    student_id: application.studentId?._id,
+                    name: `${application.studentId?.firstname}, ${application.studentId?.lastname}`,
+                    editors: application.studentId?.editors?.join(' '),
+                    agents: application.studentId?.agents?.join(' '),
+                    application_year: application.application_year
                 });
             }
         }
@@ -120,29 +130,6 @@ const AdmissionsTable = ({ admissions }) => {
         {
             field: 'name',
             headerName: t('Name', { ns: 'common' }),
-            align: 'left',
-            headerAlign: 'left',
-            width: 150,
-            renderCell: (params) => {
-                const linkUrl = `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                    params.row.student_id,
-                    DEMO.PROFILE_HASH
-                )}`;
-                return (
-                    <Link
-                        component={LinkDom}
-                        target="_blank"
-                        to={linkUrl}
-                        underline="hover"
-                    >
-                        {params.value}
-                    </Link>
-                );
-            }
-        },
-        {
-            field: 'email',
-            headerName: t('Email', { ns: 'common' }),
             align: 'left',
             headerAlign: 'left',
             width: 150,
