@@ -21,7 +21,7 @@ import { StudentsTable } from '../../StudentDatabase/StudentsTable';
 import { student_transform } from '../../Utils/checking-functions';
 import { useQuery } from '@tanstack/react-query';
 import {
-    getActiveStudentsApplicationsV2Query,
+    getStudentsV3Query,
     getAuditLogQuery,
     getInterviewsQuery,
     getTasksOverviewQuery
@@ -31,8 +31,16 @@ import Loading from '../../../components/Loading/Loading';
 const AdminMainView = (props) => {
     const { t } = useTranslation();
 
-    const { data: allStudentsApplications, isLoading: isLoadingApplications } =
-        useQuery(getActiveStudentsApplicationsV2Query());
+    const {
+        data: { data: allStudentsApplications } = { data: [] },
+        isLoading
+    } = useQuery(
+        getStudentsV3Query(
+            queryString.stringify({
+                archiv: false
+            })
+        )
+    );
 
     const { data: interviews } = useQuery(
         getInterviewsQuery(
@@ -53,7 +61,7 @@ const AdminMainView = (props) => {
             })
         )
     );
-    console.log(auditLog?.data);
+
     const {
         students: initStudents,
         submitUpdateAgentlist,
@@ -61,10 +69,10 @@ const AdminMainView = (props) => {
         submitUpdateAttributeslist,
         updateStudentArchivStatus
     } = useStudents({
-        students: allStudentsApplications?.data?.students || []
+        students: allStudentsApplications || []
     });
 
-    if (isLoadingApplications) {
+    if (isLoading) {
         return <Loading />;
     }
 

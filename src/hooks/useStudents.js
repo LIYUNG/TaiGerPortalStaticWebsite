@@ -23,7 +23,7 @@ function useStudents(props) {
             ...prevState,
             students: props.students
         }));
-    }, [props.students]);
+    }, [props.students?.length]);
 
     const submitUpdateAgentlist = (e, updateAgentList, student_id) => {
         e.preventDefault();
