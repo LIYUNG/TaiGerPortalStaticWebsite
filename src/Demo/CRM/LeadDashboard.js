@@ -188,8 +188,6 @@ const LeadDashboard = () => {
                 <Grid item md={6} sm={6} xs={12}>
                     <Card
                         sx={{
-                            background:
-                                'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
                             border: '1px solid #e2e8f0',
                             boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
                             transition: 'all 0.3s ease',
@@ -243,8 +241,6 @@ const LeadDashboard = () => {
                 <Grid item md={6} sm={6} xs={12}>
                     <Card
                         sx={{
-                            background:
-                                'linear-gradient(135deg, #fefcfb 0%, #fef2f2 100%)',
                             border: '1px solid #fecaca',
                             boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
                             transition: 'all 0.3s ease',

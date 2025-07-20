@@ -95,9 +95,7 @@ const TranscriptDashboard = () => {
                     </Box>
                 ) : (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Avatar
-                            sx={{ width: 32, height: 32, bgcolor: 'grey.300' }}
-                        >
+                        <Avatar sx={{ width: 32, height: 32 }}>
                             <PersonIcon fontSize="small" />
                         </Avatar>
                         <Chip
@@ -422,7 +420,7 @@ const TranscriptDashboard = () => {
             {/* Table Section */}
             <Card elevation={3} sx={{ borderRadius: 3, overflow: 'hidden' }}>
                 <CardContent sx={{ p: 0 }}>
-                    <Box sx={{ p: 3, bgcolor: 'grey.50' }}>
+                    <Box sx={{ p: 3 }}>
                         <Typography
                             color="text.primary"
                             fontWeight={600}
@@ -451,7 +449,6 @@ const TranscriptDashboard = () => {
                             sx: {
                                 '& .MuiTableHead-root': {
                                     '& .MuiTableCell-head': {
-                                        backgroundColor: 'grey.100',
                                         fontWeight: 600,
                                         color: 'text.primary'
                                     }
