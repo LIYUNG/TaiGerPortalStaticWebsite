@@ -152,10 +152,10 @@ const LeadDashboard = () => {
     TabTitle(i18next.t('Leads', { ns: 'common' }));
 
     return (
-        <Box data-testid="student_overview" sx={{ p: 3 }}>
+        <Box data-testid="student_overview">
             {/* Header */}
-            <Box sx={{ mb: 4 }}>
-                <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2 }}>
+            <Box sx={{ mb: 3 }}>
+                <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 1.5 }}>
                     <Link
                         color="inherit"
                         component="a"
@@ -177,16 +177,8 @@ const LeadDashboard = () => {
                     </Typography>
                 </Breadcrumbs>
 
-                <Typography
-                    color="primary"
-                    fontWeight="bold"
-                    gutterBottom
-                    variant="h4"
-                >
+                <Typography color="primary" fontWeight="bold" variant="h5">
                     Lead Management Dashboard
-                </Typography>
-                <Typography color="text.secondary" variant="body1">
-                    Track and manage your leads efficiently
                 </Typography>
             </Box>
 

@@ -10,7 +10,6 @@ import {
     CardContent,
     Chip,
     Avatar,
-    Paper,
     Divider,
     IconButton,
     Tooltip
@@ -231,12 +230,8 @@ const TranscriptDashboard = () => {
     ];
 
     return (
-        <Box data-testid="student_overview" sx={{ p: 3 }}>
-            {/* Enhanced Breadcrumbs */}
-            <Paper
-                elevation={0}
-                sx={{ p: 2, mb: 3, bgcolor: 'grey.50', borderRadius: 2 }}
-            >
+        <Box data-testid="student_overview">
+            <Box sx={{ mb: 3 }}>
                 <Breadcrumbs aria-label="breadcrumb">
                     <Link
                         color="inherit"
@@ -260,31 +255,30 @@ const TranscriptDashboard = () => {
                         {i18next.t('Meetings', { ns: 'common' })}
                     </Typography>
                 </Breadcrumbs>
-            </Paper>
+            </Box>
 
             {/* Header Section */}
-            <Box sx={{ mb: 4 }}>
+            <Box sx={{ mb: 3 }}>
                 <Box
                     sx={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: 2,
-                        mb: 2
+                        gap: 2
                     }}
                 >
-                    <MeetingRoomIcon color="primary" sx={{ fontSize: 40 }} />
+                    <MeetingRoomIcon color="primary" sx={{ fontSize: 32 }} />
                     <Box>
                         <Typography
                             color="primary.main"
                             fontWeight={700}
-                            variant="h3"
+                            variant="h5"
                         >
                             {i18next.t('CRM Overview', { ns: 'common' })}
                         </Typography>
                         <Typography
                             color="text.secondary"
                             fontWeight={400}
-                            variant="h6"
+                            variant="body2"
                         >
                             {i18next.t('Transcript Summaries', {
                                 ns: 'common'
