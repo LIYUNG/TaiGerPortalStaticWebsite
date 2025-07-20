@@ -46,7 +46,7 @@ const TranscriptDashboard = () => {
 
     useEffect(() => {
         request
-            .get('/api/crm/meeting-summaries')
+            .get('/api/crm/meetings')
             .then((data) => {
                 setTranscripts(data?.data?.data || []);
             })
