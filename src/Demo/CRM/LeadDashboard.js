@@ -16,11 +16,13 @@ import {
 } from '@mui/material';
 import {
     People as PeopleIcon,
-    Email as EmailIcon,
     Source as SourceIcon,
     Schedule as ScheduleIcon,
     TrendingUp as TrendingUpIcon,
-    Person as PersonIcon
+    Person as PersonIcon,
+    FiberManualRecord as StatusIcon,
+    School as SchoolIcon,
+    Timeline as DirectionIcon
 } from '@mui/icons-material';
 
 import { is_TaiGer_role } from '@taiger-common/core';
@@ -78,6 +80,17 @@ const LeadDashboard = () => {
         return colors[source] || 'default';
     };
 
+    const getStatusColor = (status) => {
+        const colors = {
+            new: 'info',
+            contacted: 'warning',
+            qualified: 'success',
+            converted: 'primary',
+            lost: 'error'
+        };
+        return colors[status] || 'default';
+    };
+
     const columns = [
         {
             accessorKey: 'fullName',
@@ -97,35 +110,6 @@ const LeadDashboard = () => {
             )
         },
         {
-            accessorKey: 'email',
-            header: 'Email',
-            size: 250,
-            Cell: ({ cell }) => (
-                <Stack alignItems="center" direction="row" spacing={1}>
-                    <EmailIcon color="action" fontSize="small" />
-                    <Typography variant="body2">{cell.getValue()}</Typography>
-                </Stack>
-            )
-        },
-        {
-            accessorKey: 'lineId',
-            header: 'Line ID',
-            size: 150,
-            Cell: ({ cell }) =>
-                cell.getValue() ? (
-                    <Chip
-                        color="info"
-                        label={cell.getValue()}
-                        size="small"
-                        variant="outlined"
-                    />
-                ) : (
-                    <Typography color="text.secondary" variant="body2">
-                        -
-                    </Typography>
-                )
-        },
-        {
             accessorKey: 'source',
             header: 'Source',
             size: 150,
@@ -139,9 +123,67 @@ const LeadDashboard = () => {
             )
         },
         {
+            accessorKey: 'status',
+            header: 'Status',
+            size: 120,
+            Cell: ({ cell }) => (
+                <Chip
+                    color={getStatusColor(cell.getValue())}
+                    icon={<StatusIcon fontSize="small" />}
+                    label={cell.getValue()}
+                    size="small"
+                    variant="outlined"
+                />
+            )
+        },
+        {
+            accessorKey: 'intendedProgramLevel',
+            header: 'Program Level',
+            size: 150,
+            Cell: ({ cell }) => (
+                <Stack alignItems="center" direction="row" spacing={1}>
+                    <SchoolIcon color="action" fontSize="small" />
+                    <Typography variant="body2">{cell.getValue()}</Typography>
+                </Stack>
+            )
+        },
+        {
+            accessorKey: 'intendedDirection',
+            header: 'Intended Direction',
+            size: 250,
+            Cell: ({ cell }) => (
+                <Stack alignItems="center" direction="row" spacing={1}>
+                    <DirectionIcon color="action" fontSize="small" />
+                    <Typography
+                        sx={{
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            maxWidth: '200px'
+                        }}
+                        title={cell.getValue()}
+                        variant="body2"
+                    >
+                        {cell.getValue()}
+                    </Typography>
+                </Stack>
+            )
+        },
+        {
+            accessorKey: 'intendedStartTime',
+            header: 'Start Time',
+            size: 150,
+            Cell: ({ cell }) => (
+                <Stack alignItems="center" direction="row" spacing={1}>
+                    <ScheduleIcon color="action" fontSize="small" />
+                    <Typography variant="body2">{cell.getValue()}</Typography>
+                </Stack>
+            )
+        },
+        {
             accessorKey: 'createdAt',
             header: 'Submitted At',
-            size: 200,
+            size: 150,
             Cell: ({ cell }) => (
                 <Stack alignItems="center" direction="row" spacing={1}>
                     <ScheduleIcon color="action" fontSize="small" />
