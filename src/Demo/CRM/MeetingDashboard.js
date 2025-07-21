@@ -220,7 +220,7 @@ const MeetingPage = () => {
 
     return (
         <Box>
-            <Breadcrumbs aria-label="breadcrumb">
+            <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 1 }}>
                 <Link
                     color="inherit"
                     component="a"
@@ -247,7 +247,7 @@ const MeetingPage = () => {
             {/* Table Section */}
             <Card elevation={3} sx={{ borderRadius: 3, overflow: 'hidden' }}>
                 <CardContent sx={{ p: 0 }}>
-                    <Box sx={{ p: 3 }}>
+                    <Box sx={{ p: 2.5 }}>
                         <Typography
                             color="text.primary"
                             fontWeight={600}
