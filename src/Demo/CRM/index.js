@@ -1,7 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
-    Box,
     Breadcrumbs,
     Link,
     Typography,
@@ -20,7 +19,7 @@ import { is_TaiGer_role } from '@taiger-common/core';
 import { getCRMStatsQuery } from '../../api/query';
 
 const CRMDashboard = () => {
-    TabTitle(i18next.t('CRM Overview', { ns: 'common' }));
+    TabTitle(i18next.t('CRM Dashboard', { ns: 'common' }));
     const { user } = useAuth();
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
@@ -35,85 +34,71 @@ const CRMDashboard = () => {
 
     return (
         <>
-            <Box data-testid="student_overview">
-                <Breadcrumbs aria-label="breadcrumb">
-                    <Link
-                        color="inherit"
-                        component="a"
-                        href={`${DEMO.DASHBOARD_LINK}`}
-                        underline="hover"
-                    >
-                        {appConfig.companyName}
-                    </Link>
-                    <Typography color="text.primary">
-                        {i18next.t('CRM Dashboard', { ns: 'common' })}
-                    </Typography>
-                </Breadcrumbs>
-            </Box>
-            <Box sx={{ mt: 3 }}>
-                <Typography gutterBottom variant="h4">
+            <Breadcrumbs aria-label="breadcrumb">
+                <Link
+                    color="inherit"
+                    component="a"
+                    href={`${DEMO.DASHBOARD_LINK}`}
+                    underline="hover"
+                >
+                    {appConfig.companyName}
+                </Link>
+                <Typography color="text.primary">
                     {i18next.t('CRM Dashboard', { ns: 'common' })}
                 </Typography>
+            </Breadcrumbs>
 
-                <Grid container spacing={3} sx={{ mt: 2 }}>
-                    <Grid item md={3} sm={6} xs={12}>
-                        <Card>
-                            <CardContent>
-                                <Typography color="textSecondary" gutterBottom>
-                                    {i18next.t('Meetings', { ns: 'common' })}
-                                </Typography>
-                                <Typography component="div" variant="h4">
-                                    {stats.totalMeetingCount || 0}
-                                    <Typography
-                                        component="span"
-                                        sx={{ color: 'success.main', ml: 1 }}
-                                        variant="body2"
-                                    >
-                                        (+{stats.recentMeetingCount || 0})
-                                    </Typography>
-                                </Typography>
+            <Grid container spacing={3} sx={{ mt: 0.5 }}>
+                <Grid item md={3} sm={6} xs={12}>
+                    <Card>
+                        <CardContent>
+                            <Typography color="textSecondary" gutterBottom>
+                                {i18next.t('Meetings', { ns: 'common' })}
+                            </Typography>
+                            <Typography component="div" variant="h4">
+                                {stats.totalMeetingCount || 0}
                                 <Typography
-                                    color="textSecondary"
+                                    component="span"
+                                    sx={{ color: 'success.main', ml: 1 }}
                                     variant="body2"
                                 >
-                                    {i18next.t(
-                                        'Total meetings (+last 7 days)',
-                                        { ns: 'common' }
-                                    )}
+                                    (+{stats.recentMeetingCount || 0})
                                 </Typography>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-
-                    <Grid item md={3} sm={6} xs={12}>
-                        <Card>
-                            <CardContent>
-                                <Typography color="textSecondary" gutterBottom>
-                                    {i18next.t('Leads', { ns: 'common' })}
-                                </Typography>
-                                <Typography component="div" variant="h4">
-                                    {stats.totalLeadCount || 0}
-                                    <Typography
-                                        component="span"
-                                        sx={{ color: 'success.main', ml: 1 }}
-                                        variant="body2"
-                                    >
-                                        (+{stats.recentLeadCount || 0})
-                                    </Typography>
-                                </Typography>
-                                <Typography
-                                    color="textSecondary"
-                                    variant="body2"
-                                >
-                                    {i18next.t('Total leads (+last 7 days)', {
-                                        ns: 'common'
-                                    })}
-                                </Typography>
-                            </CardContent>
-                        </Card>
-                    </Grid>
+                            </Typography>
+                            <Typography color="textSecondary" variant="body2">
+                                {i18next.t('Total meetings (+last 7 days)', {
+                                    ns: 'common'
+                                })}
+                            </Typography>
+                        </CardContent>
+                    </Card>
                 </Grid>
-            </Box>
+
+                <Grid item md={3} sm={6} xs={12}>
+                    <Card>
+                        <CardContent>
+                            <Typography color="textSecondary" gutterBottom>
+                                {i18next.t('Leads', { ns: 'common' })}
+                            </Typography>
+                            <Typography component="div" variant="h4">
+                                {stats.totalLeadCount || 0}
+                                <Typography
+                                    component="span"
+                                    sx={{ color: 'success.main', ml: 1 }}
+                                    variant="body2"
+                                >
+                                    (+{stats.recentLeadCount || 0})
+                                </Typography>
+                            </Typography>
+                            <Typography color="textSecondary" variant="body2">
+                                {i18next.t('Total leads (+last 7 days)', {
+                                    ns: 'common'
+                                })}
+                            </Typography>
+                        </CardContent>
+                    </Card>
+                </Grid>
+            </Grid>
         </>
     );
 };
