@@ -1,7 +1,8 @@
 import { Navigate, useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import i18next from 'i18next';
 import { MaterialReactTable } from 'material-react-table';
+
 import {
     Box,
     Breadcrumbs,
@@ -29,7 +30,7 @@ import DEMO from '../../store/constant';
 import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';
 
-import { request } from '../../api/request';
+import { getCRMLeadsQuery } from '../../api/query';
 
 const LeadDashboard = () => {
     const { user } = useAuth();
@@ -39,22 +40,8 @@ const LeadDashboard = () => {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
-    const [leads, setLeads] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        request
-            .get('/api/crm/leads')
-            .then((data) => {
-                setLeads(data?.data?.data || []);
-            })
-            .catch((error) => {
-                console.error('Failed to fetch leads:', error);
-            })
-            .finally(() => {
-                setIsLoading(false);
-            });
-    }, []);
+    const { data, isLoading } = useQuery(getCRMLeadsQuery());
+    const leads = data?.data?.data || [];
 
     const getSourceColor = (source) => {
         const colors = {

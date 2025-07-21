@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import React, { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 import {
     Box,
@@ -23,24 +23,15 @@ import {
 } from '@mui/icons-material';
 
 import DEMO from '../../store/constant';
+import Loading from '../../components/Loading/Loading';
 // import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';
-import { request } from '../../api/request';
+import { getCRMMeetingQuery } from '../../api/query';
 
 const MeetingPage = () => {
     const { meetingId } = useParams();
-    const [meeting, setMeeting] = useState([]);
-
-    useEffect(() => {
-        request
-            .get('/api/crm/meetings/' + meetingId)
-            .then((data) => {
-                setMeeting(data?.data?.data || []);
-            })
-            .catch((error) => {
-                console.error('Failed to fetch leads:', error);
-            });
-    }, []);
+    const { data, isLoading } = useQuery(getCRMMeetingQuery(meetingId));
+    const meeting = data?.data?.data || [];
 
     const formatDuration = (minutes) => {
         const hours = Math.floor(minutes / 60);
@@ -57,6 +48,10 @@ const MeetingPage = () => {
             minute: '2-digit'
         });
     };
+
+    if (isLoading) {
+        return <Loading />;
+    }
 
     return (
         <Box>

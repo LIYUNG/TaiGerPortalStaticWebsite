@@ -24,7 +24,11 @@ import {
     getInterviews,
     getAuditLog,
     getTasksOverview,
-    getIsManager
+    getIsManager,
+    getCRMLeads,
+    getCRMLead,
+    getCRMMeetings,
+    getCRMMeeting
 } from '.';
 
 export const getMessagThreadQuery = (threadId) => ({
@@ -189,5 +193,29 @@ export const getInterviewsQuery = (queryString) => ({
 export const getAuditLogQuery = (queryString) => ({
     queryKey: ['audit-log', queryString],
     queryFn: () => getAuditLog(queryString),
+    staleTime: 1000 * 60 * 5 // 5 minutes
+});
+
+export const getCRMLeadsQuery = () => ({
+    queryKey: ['crm/leads'],
+    queryFn: getCRMLeads,
+    staleTime: 1000 * 60 * 15 // 15 minutes
+});
+
+export const getCRMLeadQuery = (leadId) => ({
+    queryKey: ['crm/leads', leadId],
+    queryFn: () => getCRMLead(leadId),
+    staleTime: 1000 * 60 * 5 // 5 minutes
+});
+
+export const getCRMMeetingsQuery = () => ({
+    queryKey: ['crm/meetings'],
+    queryFn: getCRMMeetings,
+    staleTime: 1000 * 60 * 15 // 15 minutes
+});
+
+export const getCRMMeetingQuery = (meetingId) => ({
+    queryKey: ['crm/meetings', meetingId],
+    queryFn: () => getCRMMeeting(meetingId),
     staleTime: 1000 * 60 * 5 // 5 minutes
 });

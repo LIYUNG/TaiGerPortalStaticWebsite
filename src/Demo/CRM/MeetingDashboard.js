@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
 import { Navigate, Link as LinkDom } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import i18next from 'i18next';
 import { MaterialReactTable } from 'material-react-table';
 import {
@@ -29,7 +29,7 @@ import DEMO from '../../store/constant';
 import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';
 
-import { request } from '../../api/request';
+import { getCRMMeetingsQuery } from '../../api/query';
 
 const MeetingPage = () => {
     const { user } = useAuth();
@@ -38,18 +38,8 @@ const MeetingPage = () => {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
-    const [transcripts, setTranscripts] = useState([]);
-
-    useEffect(() => {
-        request
-            .get('/api/crm/meetings')
-            .then((data) => {
-                setTranscripts(data?.data?.data || []);
-            })
-            .catch((error) => {
-                console.error('Failed to fetch transcripts:', error);
-            });
-    }, []);
+    const { data, isLoading } = useQuery(getCRMMeetingsQuery());
+    const meetings = data?.data?.data || [];
 
     TabTitle('Meetings');
 
@@ -262,11 +252,12 @@ const MeetingPage = () => {
                     <Divider />
                     <MaterialReactTable
                         columns={columns}
-                        data={transcripts}
+                        data={meetings}
                         initialState={{
                             density: 'comfortable',
                             pagination: { pageSize: 10 }
                         }}
+                        isLoading={isLoading}
                         muiTablePaperProps={{
                             elevation: 0,
                             sx: { borderRadius: 0 }

@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import React, { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import {
     Box,
     Breadcrumbs,
@@ -13,24 +13,20 @@ import {
 } from '@mui/material';
 
 import DEMO from '../../store/constant';
+import Loading from '../../components/Loading/Loading';
 // import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';
-import { request } from '../../api/request';
+import { getCRMLeadQuery } from '../../api/query';
 
 const LeadPage = () => {
     const { leadId } = useParams();
-    const [lead, setLead] = useState([]);
 
-    useEffect(() => {
-        request
-            .get('/api/crm/leads/' + leadId)
-            .then((data) => {
-                setLead(data?.data?.data || []);
-            })
-            .catch((error) => {
-                console.error('Failed to fetch leads:', error);
-            });
-    }, []);
+    const { data, isLoading } = useQuery(getCRMLeadQuery(leadId));
+    const lead = data?.data?.data || [];
+
+    if (isLoading) {
+        return <Loading />;
+    }
 
     return (
         <Box>

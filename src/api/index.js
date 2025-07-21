@@ -834,3 +834,10 @@ export const submitMessageInTicketWithAttachment = (
     );
 export const deleteAMessageinTicket = (ticketId, message_id) =>
     request.delete(`/api/complaints/${ticketId}/${message_id}`);
+
+// CRM
+export const getCRMLeads = () => request.get(`/api/crm/leads`);
+export const getCRMLead = (leadId) => request.get(`/api/crm/leads/${leadId}`);
+export const getCRMMeetings = () => request.get(`/api/crm/meetings`);
+export const getCRMMeeting = (meetingId) =>
+    request.get(`/api/crm/meetings/${meetingId}`);
