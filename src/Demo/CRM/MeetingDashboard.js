@@ -20,9 +20,7 @@ import {
 import {
     Person as PersonIcon,
     PersonAdd as PersonAddIcon,
-    Archive as ArchiveIcon,
-    MeetingRoom as MeetingRoomIcon,
-    CalendarToday as CalendarTodayIcon
+    Archive as ArchiveIcon
 } from '@mui/icons-material';
 
 import { is_TaiGer_role } from '@taiger-common/core';
@@ -60,102 +58,103 @@ const MeetingPage = () => {
             accessorKey: 'leadFullName',
             header: 'Lead',
             size: 150,
-            Cell: ({ row }) =>
-                row.original.leadId ? (
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Avatar
-                            sx={{
-                                width: 32,
-                                height: 32,
-                                bgcolor: 'primary.main'
-                            }}
-                        >
-                            <PersonIcon fontSize="small" />
-                        </Avatar>
-                        <Link
-                            component={LinkDom}
-                            sx={{
-                                cursor: 'pointer',
-                                fontWeight: 500,
-                                color: 'primary.main',
-                                '&:hover': { color: 'primary.dark' }
-                            }}
-                            to={`/crm/leads/${row.original.leadId}`}
-                            underline="hover"
-                        >
-                            {row.original.leadFullName || ''}
-                        </Link>
-                    </Box>
+            Cell: ({ row }) => {
+                const { leadId, leadFullName } = row.original;
+                return leadId ? (
+                    <Link
+                        component={LinkDom}
+                        sx={{
+                            cursor: 'pointer',
+                            fontWeight: 500,
+                            color: 'primary.main',
+                            '&:hover': { color: 'primary.dark' }
+                        }}
+                        to={`/crm/leads/${leadId}`}
+                        underline="hover"
+                    >
+                        <Stack alignItems="center" direction="row" spacing={1}>
+                            <Avatar
+                                sx={{
+                                    width: 32,
+                                    height: 32,
+                                    bgcolor: 'primary.main'
+                                }}
+                            >
+                                <PersonIcon fontSize="small" />
+                            </Avatar>
+                            <Typography>{leadFullName || 'N/A'}</Typography>
+                        </Stack>
+                    </Link>
                 ) : (
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Avatar sx={{ width: 32, height: 32 }}>
-                            <PersonIcon fontSize="small" />
-                        </Avatar>
-                        <Chip
-                            color="warning"
-                            label="No Lead Assigned"
-                            size="small"
-                            variant="outlined"
-                        />
-                    </Box>
-                )
+                    <Chip
+                        color="warning"
+                        label="No Lead Assigned"
+                        size="small"
+                        variant="outlined"
+                    />
+                );
+            }
         },
         {
             accessorKey: 'title',
             header: 'Meeting Title',
             size: 250,
             Cell: ({ row }) => (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <MeetingRoomIcon color="action" fontSize="small" />
-                    <Link
-                        component={LinkDom}
-                        sx={{
-                            cursor: 'pointer',
-                            fontWeight: 500,
-                            color: 'text.primary',
-                            '&:hover': { color: 'primary.main' }
-                        }}
-                        to={`/crm/meetings/${row.original.id}`}
-                        underline="hover"
-                    >
-                        {row.original.title || 'Untitled Meeting'}
-                    </Link>
-                </Box>
+                <Link
+                    component={LinkDom}
+                    sx={{
+                        cursor: 'pointer',
+                        fontWeight: 500,
+                        color: 'text.primary',
+                        '&:hover': { color: 'primary.main' }
+                    }}
+                    to={`/crm/meetings/${row.original.id}`}
+                    underline="hover"
+                >
+                    {row.original.title || 'Untitled Meeting'}
+                </Link>
             )
         },
         {
+            accessorKey: 'summary.gist',
+            header: 'Summary',
+            size: 300,
+            Cell: ({ row }) => {
+                const gist = row.original.summary?.gist;
+                return (
+                    <Typography
+                        color="text.secondary"
+                        sx={{
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis'
+                        }}
+                        variant="body2"
+                    >
+                        {gist || 'No summary available'}
+                    </Typography>
+                );
+            }
+        },
+        {
             accessorKey: 'date',
-            header: 'Date & Time',
+            header: 'Datetime',
             size: 200,
             Cell: ({ cell }) => {
                 const date = new Date(cell.getValue());
-                const isRecent =
-                    Date.now() - date.getTime() < 7 * 24 * 60 * 60 * 1000;
                 return (
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <CalendarTodayIcon color="action" fontSize="small" />
-                        <Box>
-                            <Typography fontWeight={500} variant="body2">
-                                {date.toLocaleDateString()}
-                            </Typography>
-                            <Typography
-                                color="text.secondary"
-                                variant="caption"
-                            >
-                                {date.toLocaleTimeString([], {
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                })}
-                            </Typography>
-                            {isRecent && (
-                                <Chip
-                                    color="success"
-                                    label="Recent"
-                                    size="small"
-                                    sx={{ ml: 1, height: 16 }}
-                                />
-                            )}
-                        </Box>
+                    <Box>
+                        <Typography fontWeight={500} variant="body2">
+                            {date.toLocaleDateString()}
+                        </Typography>
+                        <Typography color="text.secondary" variant="caption">
+                            {date.toLocaleTimeString([], {
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            })}
+                        </Typography>
                     </Box>
                 );
             }
@@ -166,7 +165,7 @@ const MeetingPage = () => {
             size: 300,
             enableSorting: false,
             Cell: ({ row }) => {
-                const leadId = row.original.leadId;
+                const { leadId } = row.original;
                 return (
                     <Stack direction="row" spacing={1}>
                         {!leadId && (
