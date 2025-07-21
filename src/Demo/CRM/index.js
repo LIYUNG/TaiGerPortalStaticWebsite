@@ -8,6 +8,7 @@ import {
     Card,
     CardContent
 } from '@mui/material';
+import { BarChart } from '@mui/x-charts/BarChart';
 import i18next from 'i18next';
 
 import { TabTitle } from '../Utils/TabTitle';
@@ -31,6 +32,31 @@ const CRMDashboard = () => {
     if (isLoading) {
         return <Loading />;
     }
+
+    // Process chart data - data is already grouped by calendar week
+    const processWeeklyData = (countByWeek) => {
+        if (!countByWeek || !Array.isArray(countByWeek))
+            return { labels: [], data: [] };
+
+        // Sort by week in chronological order
+        const sortedData = countByWeek.sort((a, b) => {
+            const [yearA, weekA] = a.week.split('-');
+            const [yearB, weekB] = b.week.split('-');
+
+            if (yearA !== yearB) {
+                return parseInt(yearA) - parseInt(yearB);
+            }
+            return parseInt(weekA) - parseInt(weekB);
+        });
+
+        return {
+            labels: sortedData.map((item) => item.week),
+            data: sortedData.map((item) => item.count)
+        };
+    };
+
+    const leadsWeeklyData = processWeeklyData(stats.leadsCountByDate);
+    const meetingsWeeklyData = processWeeklyData(stats.meetingCountByDate);
 
     return (
         <>
@@ -95,6 +121,101 @@ const CRMDashboard = () => {
                                     ns: 'common'
                                 })}
                             </Typography>
+                        </CardContent>
+                    </Card>
+                </Grid>
+            </Grid>
+            <Grid container spacing={3} sx={{ mt: 2 }}>
+                <Grid item xs={12}>
+                    <Card>
+                        <CardContent>
+                            <Typography gutterBottom variant="h6">
+                                {i18next.t('Leads Count by Calendar Week', {
+                                    ns: 'common'
+                                })}
+                            </Typography>
+                            {leadsWeeklyData.labels.length > 0 ? (
+                                <BarChart
+                                    height={300}
+                                    series={[
+                                        {
+                                            data: leadsWeeklyData.data,
+                                            label: i18next.t('Leads', {
+                                                ns: 'common'
+                                            })
+                                        }
+                                    ]}
+                                    xAxis={[
+                                        {
+                                            data: leadsWeeklyData.labels,
+                                            scaleType: 'band'
+                                        }
+                                    ]}
+                                    yAxis={[
+                                        {
+                                            label: i18next.t('Count', {
+                                                ns: 'common'
+                                            })
+                                        }
+                                    ]}
+                                />
+                            ) : (
+                                <Typography
+                                    color="textSecondary"
+                                    variant="body2"
+                                >
+                                    {i18next.t('No data available', {
+                                        ns: 'common'
+                                    })}
+                                </Typography>
+                            )}
+                        </CardContent>
+                    </Card>
+                </Grid>
+
+                <Grid item xs={12}>
+                    <Card>
+                        <CardContent>
+                            <Typography gutterBottom variant="h6">
+                                {i18next.t('Meeting Count by Calendar Week', {
+                                    ns: 'common'
+                                })}
+                            </Typography>
+                            {meetingsWeeklyData.labels.length > 0 ? (
+                                <BarChart
+                                    height={300}
+                                    series={[
+                                        {
+                                            data: meetingsWeeklyData.data,
+                                            label: i18next.t('Meetings', {
+                                                ns: 'common'
+                                            })
+                                        }
+                                    ]}
+                                    xAxis={[
+                                        {
+                                            data: meetingsWeeklyData.labels,
+                                            scaleType: 'band'
+                                        }
+                                    ]}
+                                    yAxis={[
+                                        {
+                                            label: i18next.t('Count', {
+                                                ns: 'common'
+                                            })
+                                        }
+                                    ]}
+                                />
+                            ) : (
+                                <Typography
+                                    color="textSecondary"
+                                    variant="body2"
+                                >
+                                    {i18next.t('No data available', {
+                                        ns: 'common'
+                                    })}
+                                </Typography>
+                            )}
                         </CardContent>
                     </Card>
                 </Grid>
