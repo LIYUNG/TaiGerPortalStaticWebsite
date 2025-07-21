@@ -239,7 +239,7 @@ const MeetingPage = () => {
                 >
                     {i18next.t('CRM', { ns: 'common' })}
                 </Link>
-                <Typography color="primary" fontWeight={600}>
+                <Typography>
                     {i18next.t('Meetings', { ns: 'common' })}
                 </Typography>
             </Breadcrumbs>

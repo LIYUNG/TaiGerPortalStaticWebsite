@@ -9,16 +9,14 @@ import {
     Typography,
     Card,
     CardContent,
-    Grid,
     Chip,
+    Divider,
     Avatar,
     Stack
 } from '@mui/material';
 import {
-    People as PeopleIcon,
     Source as SourceIcon,
     Schedule as ScheduleIcon,
-    TrendingUp as TrendingUpIcon,
     Person as PersonIcon,
     FiberManualRecord as StatusIcon,
     School as SchoolIcon,
@@ -57,17 +55,6 @@ const LeadDashboard = () => {
                 setIsLoading(false);
             });
     }, []);
-
-    // Calculate stats
-    const totalLeads = leads.length;
-    const pastSevenDaysLeads = leads.filter((lead) => {
-        const today = new Date();
-        const sevenDaysAgo = new Date(
-            today.getTime() - 7 * 24 * 60 * 60 * 1000
-        );
-        const leadDate = new Date(lead.createdAt);
-        return leadDate >= sevenDaysAgo && leadDate <= today;
-    }).length;
 
     const getSourceColor = (source) => {
         const colors = {
@@ -199,150 +186,43 @@ const LeadDashboard = () => {
 
     return (
         <Box>
-            {/* Header */}
-            <Box sx={{ mb: 3 }}>
-                <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 1.5 }}>
-                    <Link
-                        color="inherit"
-                        component="a"
-                        href={`${DEMO.DASHBOARD_LINK}`}
-                        underline="hover"
-                    >
-                        {appConfig.companyName}
-                    </Link>
-                    <Link
-                        color="inherit"
-                        component="a"
-                        href={`${DEMO.DASHBOARD_LINK}`}
-                        underline="hover"
-                    >
-                        {i18next.t('CRM', { ns: 'common' })}
-                    </Link>
-                    <Typography color="text.primary">
-                        {i18next.t('Leads', { ns: 'common' })}
-                    </Typography>
-                </Breadcrumbs>
-
-                <Typography color="primary" fontWeight="bold" variant="h5">
-                    Lead Management Dashboard
-                </Typography>
-            </Box>
-
-            {/* Stats Cards */}
-            <Grid container spacing={3} sx={{ mb: 4 }}>
-                <Grid item md={6} sm={6} xs={12}>
-                    <Card
-                        sx={{
-                            border: '1px solid #e2e8f0',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                            transition: 'all 0.3s ease',
-                            '&:hover': {
-                                transform: 'translateY(-2px)',
-                                boxShadow: '0 4px 16px rgba(0,0,0,0.12)'
-                            }
-                        }}
-                    >
-                        <CardContent>
-                            <Stack
-                                alignItems="center"
-                                direction="row"
-                                justifyContent="space-between"
-                            >
-                                <Box>
-                                    <Typography
-                                        color="primary.main"
-                                        fontWeight="bold"
-                                        variant="h4"
-                                    >
-                                        {totalLeads}
-                                    </Typography>
-                                    <Typography
-                                        color="text.secondary"
-                                        fontWeight="medium"
-                                        variant="body1"
-                                    >
-                                        Total Leads
-                                    </Typography>
-                                </Box>
-                                <Box
-                                    sx={{
-                                        bgcolor: 'primary.main',
-                                        borderRadius: '50%',
-                                        p: 2,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center'
-                                    }}
-                                >
-                                    <PeopleIcon
-                                        sx={{ fontSize: 32, color: 'white' }}
-                                    />
-                                </Box>
-                            </Stack>
-                        </CardContent>
-                    </Card>
-                </Grid>
-
-                <Grid item md={6} sm={6} xs={12}>
-                    <Card
-                        sx={{
-                            border: '1px solid #fecaca',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                            transition: 'all 0.3s ease',
-                            '&:hover': {
-                                transform: 'translateY(-2px)',
-                                boxShadow: '0 4px 16px rgba(0,0,0,0.12)'
-                            }
-                        }}
-                    >
-                        <CardContent>
-                            <Stack
-                                alignItems="center"
-                                direction="row"
-                                justifyContent="space-between"
-                            >
-                                <Box>
-                                    <Typography
-                                        color="error.main"
-                                        fontWeight="bold"
-                                        variant="h4"
-                                    >
-                                        {pastSevenDaysLeads}
-                                    </Typography>
-                                    <Typography
-                                        color="text.secondary"
-                                        fontWeight="medium"
-                                        variant="body1"
-                                    >
-                                        Past 7 Days Leads
-                                    </Typography>
-                                </Box>
-                                <Box
-                                    sx={{
-                                        bgcolor: 'error.main',
-                                        borderRadius: '50%',
-                                        p: 2,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center'
-                                    }}
-                                >
-                                    <TrendingUpIcon
-                                        sx={{ fontSize: 32, color: 'white' }}
-                                    />
-                                </Box>
-                            </Stack>
-                        </CardContent>
-                    </Card>
-                </Grid>
-            </Grid>
+            <Breadcrumbs aria-label="breadcrumb">
+                <Link
+                    color="inherit"
+                    component="a"
+                    href={`${DEMO.DASHBOARD_LINK}`}
+                    underline="hover"
+                >
+                    {appConfig.companyName}
+                </Link>
+                <Link
+                    color="inherit"
+                    component="a"
+                    href={`${DEMO.DASHBOARD_LINK}`}
+                    underline="hover"
+                >
+                    {i18next.t('CRM', { ns: 'common' })}
+                </Link>
+                <Typography>{i18next.t('Leads', { ns: 'common' })}</Typography>
+            </Breadcrumbs>
 
             {/* Main Table */}
-            <Card sx={{ boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }}>
-                <CardContent>
-                    <Typography gutterBottom sx={{ mb: 2 }} variant="h6">
-                        Lead Details
-                    </Typography>
+            <Card elevation={3} sx={{ borderRadius: 3, overflow: 'hidden' }}>
+                <CardContent sx={{ p: 0 }}>
+                    <Box sx={{ p: 2 }}>
+                        <Typography
+                            color="text.primary"
+                            fontWeight={600}
+                            variant="h6"
+                        >
+                            Lead Details
+                        </Typography>
+                        <Typography color="text.secondary" variant="body2">
+                            Leads submitted by users through the google survey.
+                        </Typography>
+                    </Box>
+                    <Divider />
+                    <Typography gutterBottom variant="h6" />
                     <MaterialReactTable
                         columns={columns}
                         data={leads}
