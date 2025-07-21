@@ -22,9 +22,7 @@ import {
     PersonAdd as PersonAddIcon,
     Archive as ArchiveIcon,
     MeetingRoom as MeetingRoomIcon,
-    CalendarToday as CalendarTodayIcon,
-    TrendingUp as TrendingUpIcon,
-    Group as GroupIcon
+    CalendarToday as CalendarTodayIcon
 } from '@mui/icons-material';
 
 import { is_TaiGer_role } from '@taiger-common/core';
@@ -55,12 +53,7 @@ const MeetingPage = () => {
             });
     }, []);
 
-    TabTitle(i18next.t('CRM Overview', { ns: 'common' }));
-
-    // Calculate stats
-    const totalMeetings = transcripts.length;
-    const meetingsWithLeads = transcripts.filter((t) => t.leadId).length;
-    const meetingsWithoutLeads = totalMeetings - meetingsWithLeads;
+    TabTitle('Meetings');
 
     const columns = [
         {
@@ -227,195 +220,29 @@ const MeetingPage = () => {
 
     return (
         <Box>
-            <Box sx={{ mb: 3 }}>
-                <Breadcrumbs aria-label="breadcrumb">
-                    <Link
-                        color="inherit"
-                        component="a"
-                        href={`${DEMO.DASHBOARD_LINK}`}
-                        sx={{ fontWeight: 500 }}
-                        underline="hover"
-                    >
-                        {appConfig.companyName}
-                    </Link>
-                    <Link
-                        color="inherit"
-                        component="a"
-                        href={`${DEMO.DASHBOARD_LINK}`}
-                        sx={{ fontWeight: 500 }}
-                        underline="hover"
-                    >
-                        {i18next.t('CRM', { ns: 'common' })}
-                    </Link>
-                    <Typography color="primary" fontWeight={600}>
-                        {i18next.t('Meetings', { ns: 'common' })}
-                    </Typography>
-                </Breadcrumbs>
-            </Box>
-
-            {/* Header Section */}
-            <Box sx={{ mb: 3 }}>
-                <Box
-                    sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 2
-                    }}
+            <Breadcrumbs aria-label="breadcrumb">
+                <Link
+                    color="inherit"
+                    component="a"
+                    href={`${DEMO.DASHBOARD_LINK}`}
+                    sx={{ fontWeight: 500 }}
+                    underline="hover"
                 >
-                    <MeetingRoomIcon color="primary" sx={{ fontSize: 32 }} />
-                    <Box>
-                        <Typography
-                            color="primary.main"
-                            fontWeight={700}
-                            variant="h5"
-                        >
-                            {i18next.t('CRM Overview', { ns: 'common' })}
-                        </Typography>
-                        <Typography
-                            color="text.secondary"
-                            fontWeight={400}
-                            variant="body2"
-                        >
-                            {i18next.t('Transcript Summaries', {
-                                ns: 'common'
-                            })}
-                        </Typography>
-                    </Box>
-                </Box>
-            </Box>
-
-            {/* Stats Cards */}
-            <Box
-                sx={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-                    gap: 2,
-                    mb: 4
-                }}
-            >
-                <Card
-                    elevation={2}
-                    sx={{ borderRadius: 3, overflow: 'hidden' }}
+                    {appConfig.companyName}
+                </Link>
+                <Link
+                    color="inherit"
+                    component="a"
+                    href={`${DEMO.DASHBOARD_LINK}`}
+                    sx={{ fontWeight: 500 }}
+                    underline="hover"
                 >
-                    <CardContent sx={{ p: 3 }}>
-                        <Box
-                            sx={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between'
-                            }}
-                        >
-                            <Box>
-                                <Typography
-                                    color="text.secondary"
-                                    fontWeight={600}
-                                    variant="subtitle2"
-                                >
-                                    Total Meetings
-                                </Typography>
-                                <Typography
-                                    color="primary.main"
-                                    fontWeight={700}
-                                    variant="h4"
-                                >
-                                    {totalMeetings}
-                                </Typography>
-                            </Box>
-                            <Avatar
-                                sx={{
-                                    bgcolor: 'primary.main',
-                                    width: 56,
-                                    height: 56
-                                }}
-                            >
-                                <MeetingRoomIcon />
-                            </Avatar>
-                        </Box>
-                    </CardContent>
-                </Card>
-
-                <Card
-                    elevation={2}
-                    sx={{ borderRadius: 3, overflow: 'hidden' }}
-                >
-                    <CardContent sx={{ p: 3 }}>
-                        <Box
-                            sx={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between'
-                            }}
-                        >
-                            <Box>
-                                <Typography
-                                    color="text.secondary"
-                                    fontWeight={600}
-                                    variant="subtitle2"
-                                >
-                                    With Leads
-                                </Typography>
-                                <Typography
-                                    color="success.main"
-                                    fontWeight={700}
-                                    variant="h4"
-                                >
-                                    {meetingsWithLeads}
-                                </Typography>
-                            </Box>
-                            <Avatar
-                                sx={{
-                                    bgcolor: 'success.main',
-                                    width: 56,
-                                    height: 56
-                                }}
-                            >
-                                <GroupIcon />
-                            </Avatar>
-                        </Box>
-                    </CardContent>
-                </Card>
-
-                <Card
-                    elevation={2}
-                    sx={{ borderRadius: 3, overflow: 'hidden' }}
-                >
-                    <CardContent sx={{ p: 3 }}>
-                        <Box
-                            sx={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between'
-                            }}
-                        >
-                            <Box>
-                                <Typography
-                                    color="text.secondary"
-                                    fontWeight={600}
-                                    variant="subtitle2"
-                                >
-                                    Unassigned
-                                </Typography>
-                                <Typography
-                                    color="warning.main"
-                                    fontWeight={700}
-                                    variant="h4"
-                                >
-                                    {meetingsWithoutLeads}
-                                </Typography>
-                            </Box>
-                            <Avatar
-                                sx={{
-                                    bgcolor: 'warning.main',
-                                    width: 56,
-                                    height: 56
-                                }}
-                            >
-                                <TrendingUpIcon />
-                            </Avatar>
-                        </Box>
-                    </CardContent>
-                </Card>
-            </Box>
+                    {i18next.t('CRM', { ns: 'common' })}
+                </Link>
+                <Typography color="primary" fontWeight={600}>
+                    {i18next.t('Meetings', { ns: 'common' })}
+                </Typography>
+            </Breadcrumbs>
 
             {/* Table Section */}
             <Card elevation={3} sx={{ borderRadius: 3, overflow: 'hidden' }}>
