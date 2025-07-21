@@ -32,17 +32,16 @@ import { appConfig } from '../../config';
 import { getCRMMeetingsQuery } from '../../api/query';
 
 const MeetingPage = () => {
-    const { user } = useAuth();
+    TabTitle('CRM - Meetings');
     const navigate = useNavigate();
 
+    const { user } = useAuth();
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
     const { data, isLoading } = useQuery(getCRMMeetingsQuery());
     const meetings = data?.data?.data || [];
-
-    TabTitle('Meetings');
 
     const columns = [
         {

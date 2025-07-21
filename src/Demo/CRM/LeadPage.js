@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useParams, Navigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
     Box,
@@ -13,13 +13,21 @@ import {
 } from '@mui/material';
 
 import DEMO from '../../store/constant';
+import { TabTitle } from '../Utils/TabTitle';
 import Loading from '../../components/Loading/Loading';
-// import { useAuth } from '../../components/AuthProvider';
+import { useAuth } from '../../components/AuthProvider';
+import { is_TaiGer_role } from '@taiger-common/core';
 import { appConfig } from '../../config';
 import { getCRMLeadQuery } from '../../api/query';
 
 const LeadPage = () => {
+    TabTitle('CRM - Lead Details');
     const { leadId } = useParams();
+
+    const { user } = useAuth();
+    if (!is_TaiGer_role(user)) {
+        return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
+    }
 
     const { data, isLoading } = useQuery(getCRMLeadQuery(leadId));
     const lead = data?.data?.data || [];

@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useParams, Navigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 
 import {
@@ -23,13 +23,22 @@ import {
 } from '@mui/icons-material';
 
 import DEMO from '../../store/constant';
+import { TabTitle } from '../Utils/TabTitle';
 import Loading from '../../components/Loading/Loading';
-// import { useAuth } from '../../components/AuthProvider';
+import { useAuth } from '../../components/AuthProvider';
+import { is_TaiGer_role } from '@taiger-common/core';
 import { appConfig } from '../../config';
 import { getCRMMeetingQuery } from '../../api/query';
 
 const MeetingPage = () => {
+    TabTitle('CRM - Meeting Details');
     const { meetingId } = useParams();
+
+    const { user } = useAuth();
+    if (!is_TaiGer_role(user)) {
+        return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
+    }
+
     const { data, isLoading } = useQuery(getCRMMeetingQuery(meetingId));
     const meeting = data?.data?.data || [];
 

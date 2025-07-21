@@ -33,9 +33,10 @@ import { appConfig } from '../../config';
 import { getCRMLeadsQuery } from '../../api/query';
 
 const LeadDashboard = () => {
-    const { user } = useAuth();
+    TabTitle('CRM - Leads');
     const navigate = useNavigate();
 
+    const { user } = useAuth();
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
@@ -168,8 +169,6 @@ const LeadDashboard = () => {
             )
         }
     ];
-
-    TabTitle(i18next.t('Leads', { ns: 'common' }));
 
     return (
         <Box>
