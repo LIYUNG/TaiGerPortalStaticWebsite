@@ -113,7 +113,7 @@ const LeadDashboard = () => {
         },
         {
             accessorKey: 'intendedProgramLevel',
-            header: 'Program Level',
+            header: 'Intended Degree',
             size: 150,
             Cell: ({ cell }) => (
                 <Stack alignItems="center" direction="row" spacing={1}>

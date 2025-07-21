@@ -163,11 +163,13 @@ const MeetingPage = () => {
                                 <Tooltip title="Assign to existing lead">
                                     <Button
                                         color="primary"
-                                        onClick={() =>
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
                                             alert(
-                                                'Assign to Existing Lead clicked'
-                                            )
-                                        }
+                                                'Assign to Existing Lead clicked (Not yet implemented)'
+                                            );
+                                        }}
                                         size="small"
                                         startIcon={<PersonIcon />}
                                         sx={{ borderRadius: 2 }}
@@ -179,9 +181,13 @@ const MeetingPage = () => {
                                 <Tooltip title="Create new lead">
                                     <Button
                                         color="success"
-                                        onClick={() =>
-                                            alert('Create New Lead clicked')
-                                        }
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            alert(
+                                                'Create New Lead clicked (Not yet implemented)'
+                                            );
+                                        }}
                                         size="small"
                                         startIcon={<PersonAddIcon />}
                                         sx={{ borderRadius: 2 }}
@@ -195,7 +201,13 @@ const MeetingPage = () => {
                         <Tooltip title="Archive meeting">
                             <IconButton
                                 color="warning"
-                                onClick={() => alert('Archive clicked')}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    alert(
+                                        'Archive clicked (Not yet implemented)'
+                                    );
+                                }}
                                 size="small"
                             >
                                 <ArchiveIcon />
