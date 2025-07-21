@@ -80,8 +80,8 @@ export async function CommunicationThreadLoader({ params }) {
 }
 
 export function getCommunicationThreadLoader({ params }) {
-    const student_id = params.student_id;
-    return queryClient.fetchQuery(getCommunicationQuery(student_id));
+    const studentId = params.studentId;
+    return queryClient.fetchQuery(getCommunicationQuery(studentId));
     //  return defer({ data: CommunicationThreadLoader({ params }) });
 }
 

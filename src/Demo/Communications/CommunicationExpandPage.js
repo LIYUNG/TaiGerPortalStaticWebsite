@@ -262,11 +262,11 @@ const TopBar = ({
 };
 
 const CommunicationExpandPage = () => {
-    const { student_id } = useParams();
+    const { studentId } = useParams();
     const { user } = useAuth();
     const theme = useTheme();
     const ismobile = useMediaQuery(theme.breakpoints.down('md'));
-    const { data, isLoading } = useQuery(getCommunicationQuery(student_id));
+    const { data, isLoading } = useQuery(getCommunicationQuery(studentId));
     const student = data?.student;
     const thread = data?.data;
     const APP_BAR_HEIGHT = 64;
@@ -322,7 +322,7 @@ const CommunicationExpandPage = () => {
             document.body.removeChild(link);
             window.URL.revokeObjectURL(url);
         };
-        const resp = await WidgetExportMessagePDF(student_id);
+        const resp = await WidgetExportMessagePDF(studentId);
         const blob = resp.data;
         downloadBlob(blob, 'exported_file.pdf');
         setIsExportingMessageDisabled(false);
@@ -386,7 +386,7 @@ const CommunicationExpandPage = () => {
                             maxWidth: '300px' // Responsive width
                         }}
                     >
-                        <EmbeddedChatList student_id={student_id} />
+                        <EmbeddedChatList student_id={studentId} />
                     </Box>
                 </Grid>
                 <Grid item md xs={12}>
@@ -427,10 +427,10 @@ const CommunicationExpandPage = () => {
                                 isLoading={isLoading}
                                 ismobile={ismobile}
                                 student={student}
-                                student_id={student_id}
+                                student_id={studentId}
                                 student_name_english={student_name_english}
                             />
-                            {student_id ? (
+                            {studentId ? (
                                 isLoading ? (
                                     <Loading />
                                 ) : (
@@ -444,14 +444,14 @@ const CommunicationExpandPage = () => {
                                         <CommunicationExpandPageMessagesComponent
                                             data={thread}
                                             student={student}
-                                            student_id={student_id}
+                                            student_id={studentId}
                                         />
                                     </Box>
                                 )
                             ) : null}
                         </Drawer>
                     ) : null}
-                    {!ismobile && student_id ? (
+                    {!ismobile && studentId ? (
                         isLoading ? (
                             <ChildLoading />
                         ) : (
@@ -480,7 +480,7 @@ const CommunicationExpandPage = () => {
                                     isLoading={isLoading}
                                     ismobile={ismobile}
                                     student={student}
-                                    student_id={student_id}
+                                    student_id={studentId}
                                     student_name_english={student_name_english}
                                 />
                                 <Box
@@ -494,13 +494,13 @@ const CommunicationExpandPage = () => {
                                     <CommunicationExpandPageMessagesComponent
                                         data={thread}
                                         student={student}
-                                        student_id={student_id}
+                                        student_id={studentId}
                                     />
                                 </Box>
                             </Box>
                         )
                     ) : null}
-                    {!student_id ? <Typography>Empty</Typography> : null}
+                    {!studentId ? <Typography>Empty</Typography> : null}
                     {ismobile ? (
                         <Box
                             onClick={(e) => handleDrawerOpen(e)}
@@ -510,7 +510,7 @@ const CommunicationExpandPage = () => {
                                 overflow: 'auto' // Prevent parent scroll
                             }}
                         >
-                            <EmbeddedChatList student_id={student_id} />
+                            <EmbeddedChatList student_id={studentId} />
                         </Box>
                     ) : null}
                 </Grid>
@@ -522,7 +522,7 @@ const CommunicationExpandPage = () => {
                             handleStudentDetailModalClose
                         }
                         open={isStudentDetailModalOpen}
-                        student_id={student_id}
+                        student_id={studentId}
                     />
                 </Box>
             </Grid>

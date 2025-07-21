@@ -859,13 +859,13 @@ if (appConfig.meetingEnable) {
 
 if (appConfig.messengerEnable) {
     routes.push({
-        path: '/communications/std/:student_id',
+        path: '/communications/std/:studentId',
         errorElement: <DefaultErrorPage />,
         loader: getCommunicationThreadLoader,
         element: <CommunicationSinglePage />
     });
     routes.push({
-        path: '/communications/t/:student_id',
+        path: '/communications/t/:studentId',
         exact: true,
         name: 'All Chat',
         Component: CommunicationExpandPage
