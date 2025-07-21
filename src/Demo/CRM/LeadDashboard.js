@@ -212,9 +212,6 @@ const LeadDashboard = () => {
                     <MaterialReactTable
                         columns={columns}
                         data={leads}
-                        enableColumnFilterChangeMode
-                        enablePagination
-                        enableSorting
                         initialState={{
                             pagination: { pageSize: 10 }
                         }}
@@ -223,27 +220,9 @@ const LeadDashboard = () => {
                                 navigate(`/crm/leads/${row.original.id}`);
                             },
                             sx: {
-                                cursor: 'pointer',
-                                transition: 'all 0.2s ease',
-                                '&:hover': {
-                                    backgroundColor: 'rgba(25, 118, 210, 0.08)',
-                                    transform: 'translateY(-1px)',
-                                    boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
-                                }
+                                cursor: 'pointer'
                             }
                         })}
-                        muiTableHeadCellProps={{
-                            sx: {
-                                backgroundColor: 'rgba(25, 118, 210, 0.04)',
-                                fontWeight: 'bold'
-                            }
-                        }}
-                        muiTablePaperProps={{
-                            elevation: 0,
-                            sx: {
-                                border: 'none'
-                            }
-                        }}
                         state={{ isLoading }}
                     />
                 </CardContent>

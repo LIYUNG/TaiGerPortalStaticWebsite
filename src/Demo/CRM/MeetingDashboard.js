@@ -1,4 +1,4 @@
-import { Navigate, Link as LinkDom } from 'react-router-dom';
+import { Navigate, useNavigate, Link as LinkDom } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import i18next from 'i18next';
 import { MaterialReactTable } from 'material-react-table';
@@ -33,6 +33,7 @@ import { getCRMMeetingsQuery } from '../../api/query';
 
 const MeetingPage = () => {
     const { user } = useAuth();
+    const navigate = useNavigate();
 
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
@@ -254,30 +255,17 @@ const MeetingPage = () => {
                         columns={columns}
                         data={meetings}
                         initialState={{
-                            density: 'comfortable',
                             pagination: { pageSize: 10 }
                         }}
                         isLoading={isLoading}
-                        muiTablePaperProps={{
-                            elevation: 0,
-                            sx: { borderRadius: 0 }
-                        }}
-                        muiTableProps={{
+                        muiTableBodyRowProps={({ row }) => ({
+                            onClick: () => {
+                                navigate(`/crm/meetings/${row.original.id}`);
+                            },
                             sx: {
-                                '& .MuiTableHead-root': {
-                                    '& .MuiTableCell-head': {
-                                        fontWeight: 600,
-                                        color: 'text.primary'
-                                    }
-                                },
-                                '& .MuiTableBody-root': {
-                                    '& .MuiTableRow-root:hover': {
-                                        backgroundColor: 'action.hover'
-                                    }
-                                }
+                                cursor: 'pointer'
                             }
-                        }}
-                        positionToolbarAlertBanner="bottom"
+                        })}
                     />
                 </CardContent>
             </Card>
