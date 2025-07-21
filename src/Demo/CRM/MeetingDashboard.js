@@ -257,7 +257,6 @@ const MeetingPage = () => {
                         initialState={{
                             pagination: { pageSize: 10 }
                         }}
-                        isLoading={isLoading}
                         muiTableBodyRowProps={({ row }) => ({
                             onClick: () => {
                                 navigate(`/crm/meetings/${row.original.id}`);
@@ -266,6 +265,7 @@ const MeetingPage = () => {
                                 cursor: 'pointer'
                             }
                         })}
+                        state={{ isLoading }}
                     />
                 </CardContent>
             </Card>

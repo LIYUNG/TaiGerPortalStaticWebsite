@@ -200,29 +200,29 @@ export const getAuditLogQuery = (queryString) => ({
 export const getCRMStatsQuery = () => ({
     queryKey: ['crm/stats'],
     queryFn: () => getCRMStats(),
-    staleTime: 1000 * 60 * 5 // 15 minutes
+    gcTime: 1000 * 60 * 5 // 15 minutes
 });
 
 export const getCRMLeadsQuery = () => ({
     queryKey: ['crm/leads'],
     queryFn: getCRMLeads,
-    staleTime: 1000 * 60 * 15 // 15 minutes
+    gcTime: 1000 * 60 * 15 // 15 minutes
 });
 
 export const getCRMLeadQuery = (leadId) => ({
-    queryKey: ['crm/leads', leadId],
+    queryKey: ['crm/lead', leadId],
     queryFn: () => getCRMLead(leadId),
-    staleTime: 1000 * 60 * 5 // 5 minutes
+    gcTime: 1000 * 60 * 5 // 5 minutes
 });
 
 export const getCRMMeetingsQuery = () => ({
     queryKey: ['crm/meetings'],
     queryFn: getCRMMeetings,
-    staleTime: 1000 * 60 * 15 // 15 minutes
+    gcTime: 1000 * 60 * 15 // 15 minutes
 });
 
 export const getCRMMeetingQuery = (meetingId) => ({
-    queryKey: ['crm/meetings', meetingId],
+    queryKey: ['crm/meeting', meetingId],
     queryFn: () => getCRMMeeting(meetingId),
-    staleTime: 1000 * 60 * 5 // 5 minutes
+    gcTime: 1000 * 60 * 5 // 5 minutes
 });
