@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import {
     Box,
     Breadcrumbs,
@@ -13,31 +13,25 @@ import i18next from 'i18next';
 
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '../../store/constant';
+import Loading from '../../components/Loading/Loading';
 import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';
 import { is_TaiGer_role } from '@taiger-common/core';
-import { request } from '../../api/request';
+import { getCRMStatsQuery } from '../../api/query';
 
 const CRMDashboard = () => {
+    TabTitle(i18next.t('CRM Overview', { ns: 'common' }));
     const { user } = useAuth();
-    const [stats, setStats] = useState({});
-
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
-    useEffect(() => {
-        request
-            .get('/api/crm/stats')
-            .then((data) => {
-                setStats(data?.data?.data || {});
-            })
-            .catch((error) => {
-                console.error('Failed to fetch stats:', error);
-            });
-    }, []);
+    const { data, isLoading } = useQuery(getCRMStatsQuery());
+    const stats = data?.data?.data || {};
 
-    TabTitle(i18next.t('CRM Overview', { ns: 'common' }));
+    if (isLoading) {
+        return <Loading />;
+    }
 
     return (
         <>
