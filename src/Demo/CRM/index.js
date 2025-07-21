@@ -1,43 +1,39 @@
 import { Navigate } from 'react-router-dom';
-import { Box, Breadcrumbs, Link, Typography, Button } from '@mui/material';
+import { useQuery } from '@tanstack/react-query';
+import {
+    Breadcrumbs,
+    Link,
+    Typography,
+    Grid,
+    Card,
+    CardContent
+} from '@mui/material';
 import i18next from 'i18next';
 
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '../../store/constant';
+import Loading from '../../components/Loading/Loading';
 import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';
-
-import TranscriptCard from './TranscriptCard';
 import { is_TaiGer_role } from '@taiger-common/core';
-import { useEffect, useState } from 'react';
-
-import { request } from '../../api/request';
+import { getCRMStatsQuery } from '../../api/query';
 
 const CRMDashboard = () => {
+    TabTitle(i18next.t('CRM Dashboard', { ns: 'common' }));
     const { user } = useAuth();
-
-    // Temporory workaround to fetch transcripts
-    // TODO: implement actual/proper API call to fetch transcripts with UseQuery
-    const [transcripts, setTranscripts] = useState([]);
-
-    useEffect(() => {
-        request
-            .get('/api/crm/meeting-summaries')
-            .then((data) => {
-                setTranscripts(data?.data?.data || []);
-            })
-            .catch((error) => {
-                console.error('Failed to fetch transcripts:', error);
-            });
-    }, []);
-
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
-    TabTitle(i18next.t('CRM Overview', { ns: 'common' }));
+
+    const { data, isLoading } = useQuery(getCRMStatsQuery());
+    const stats = data?.data?.data || {};
+
+    if (isLoading) {
+        return <Loading />;
+    }
 
     return (
-        <Box data-testid="student_overview">
+        <>
             <Breadcrumbs aria-label="breadcrumb">
                 <Link
                     color="inherit"
@@ -48,49 +44,62 @@ const CRMDashboard = () => {
                     {appConfig.companyName}
                 </Link>
                 <Typography color="text.primary">
-                    {i18next.t('CRM', { ns: 'common' })}
+                    {i18next.t('CRM Dashboard', { ns: 'common' })}
                 </Typography>
             </Breadcrumbs>
-            <Box sx={{ mt: 2 }}>
-                <Typography gutterBottom variant="h4">
-                    {i18next.t('CRM Overview', { ns: 'common' })}
-                </Typography>
-                <Typography sx={{ mb: 2 }} variant="body1">
-                    {i18next.t('Transcript Summaries', { ns: 'common' })}
-                </Typography>
-                <Box sx={{ mb: 2 }}>
-                    <Button
-                        onClick={() =>
-                            alert(
-                                'Fetch transcripts feature is not implemented yet.'
-                            )
-                        }
-                        variant="outlined"
-                    >
-                        Fetch Latest Transcripts
-                    </Button>
-                </Box>
-                <Box>
-                    {transcripts
-                        .filter((t) => {
-                            const { meeting_info } = t;
-                            const {
-                                fred_joined,
-                                silent_meeting,
-                                summary_status
-                            } = meeting_info || {};
-                            return (
-                                fred_joined &&
-                                !silent_meeting &&
-                                summary_status !== 'skipped'
-                            );
-                        })
-                        .map((t, idx) => (
-                            <TranscriptCard key={t.id || idx} transcript={t} />
-                        ))}
-                </Box>
-            </Box>
-        </Box>
+
+            <Grid container spacing={3} sx={{ mt: 0.5 }}>
+                <Grid item md={3} sm={6} xs={12}>
+                    <Card>
+                        <CardContent>
+                            <Typography color="textSecondary" gutterBottom>
+                                {i18next.t('Meetings', { ns: 'common' })}
+                            </Typography>
+                            <Typography component="div" variant="h4">
+                                {stats.totalMeetingCount || 0}
+                                <Typography
+                                    component="span"
+                                    sx={{ color: 'success.main', ml: 1 }}
+                                    variant="body2"
+                                >
+                                    (+{stats.recentMeetingCount || 0})
+                                </Typography>
+                            </Typography>
+                            <Typography color="textSecondary" variant="body2">
+                                {i18next.t('Total meetings (+last 7 days)', {
+                                    ns: 'common'
+                                })}
+                            </Typography>
+                        </CardContent>
+                    </Card>
+                </Grid>
+
+                <Grid item md={3} sm={6} xs={12}>
+                    <Card>
+                        <CardContent>
+                            <Typography color="textSecondary" gutterBottom>
+                                {i18next.t('Leads', { ns: 'common' })}
+                            </Typography>
+                            <Typography component="div" variant="h4">
+                                {stats.totalLeadCount || 0}
+                                <Typography
+                                    component="span"
+                                    sx={{ color: 'success.main', ml: 1 }}
+                                    variant="body2"
+                                >
+                                    (+{stats.recentLeadCount || 0})
+                                </Typography>
+                            </Typography>
+                            <Typography color="textSecondary" variant="body2">
+                                {i18next.t('Total leads (+last 7 days)', {
+                                    ns: 'common'
+                                })}
+                            </Typography>
+                        </CardContent>
+                    </Card>
+                </Grid>
+            </Grid>
+        </>
     );
 };
 

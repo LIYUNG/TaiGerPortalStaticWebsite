@@ -127,6 +127,12 @@ const StudentOverviewPage = React.lazy(
 );
 
 const CRMDashboard = React.lazy(() => import('./Demo/CRM/index'));
+const CRMLeadDashboard = React.lazy(() => import('./Demo/CRM/LeadDashboard'));
+const CRMLeadPage = React.lazy(() => import('./Demo/CRM/LeadPage'));
+const CRMMeetingDashboard = React.lazy(
+    () => import('./Demo/CRM/MeetingDashboard')
+);
+const CRMMeetingPage = React.lazy(() => import('./Demo/CRM/MeetingPage'));
 
 const InternalDashboard = React.lazy(
     () => import('./Demo/TaiGerOrg/InternalDashboard/index')
@@ -788,6 +794,30 @@ if (appConfig.CRMEnable) {
         exact: true,
         name: 'CRM Dashboard',
         Component: CRMDashboard
+    });
+    routes.push({
+        path: '/crm/leads',
+        exact: true,
+        name: 'CRM Leads',
+        Component: CRMLeadDashboard
+    });
+    routes.push({
+        path: '/crm/leads/:leadId',
+        exact: true,
+        name: 'CRM Leads',
+        Component: CRMLeadPage
+    });
+    routes.push({
+        path: '/crm/meetings',
+        exact: true,
+        name: 'CRM Meetings',
+        Component: CRMMeetingDashboard
+    });
+    routes.push({
+        path: '/crm/meetings/:meetingId',
+        exact: true,
+        name: 'CRM Meetings',
+        Component: CRMMeetingPage
     });
 }
 

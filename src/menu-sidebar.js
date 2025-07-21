@@ -538,7 +538,25 @@ if (appConfig.CRMEnable) {
                 id: 'crm_overview',
                 title: 'CRM Overview',
                 type: 'item',
-                url: '/CRM',
+                url: '/crm',
+                icon: <DrawIcon />,
+                target: false,
+                breadcrumbs: false
+            },
+            {
+                id: 'crm_leads',
+                title: 'Leads',
+                type: 'item',
+                url: '/crm/leads',
+                icon: <DrawIcon />,
+                target: false,
+                breadcrumbs: false
+            },
+            {
+                id: 'crm_meetings',
+                title: 'Meetings',
+                type: 'item',
+                url: '/crm/meetings',
                 icon: <DrawIcon />,
                 target: false,
                 breadcrumbs: false
