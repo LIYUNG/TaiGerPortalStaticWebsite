@@ -74,7 +74,7 @@ const CRMDashboard = () => {
                 </Typography>
             </Breadcrumbs>
 
-            <Grid container spacing={3} sx={{ mt: 0.5 }}>
+            <Grid container spacing={1} sx={{ mt: 1 }}>
                 <Grid item md={3} sm={6} xs={12}>
                     <Card>
                         <CardContent>
@@ -125,7 +125,7 @@ const CRMDashboard = () => {
                     </Card>
                 </Grid>
             </Grid>
-            <Grid container spacing={3} sx={{ mt: 2 }}>
+            <Grid container spacing={1} sx={{ mt: 1 }}>
                 <Grid item xs={12}>
                     <Card>
                         <CardContent>
@@ -136,7 +136,7 @@ const CRMDashboard = () => {
                             </Typography>
                             {leadsWeeklyData.labels.length > 0 ? (
                                 <BarChart
-                                    height={300}
+                                    height={250}
                                     series={[
                                         {
                                             data: leadsWeeklyData.data,
@@ -145,8 +145,14 @@ const CRMDashboard = () => {
                                             })
                                         }
                                     ]}
+                                    slotProps={{
+                                        legend: { hidden: true }
+                                    }}
                                     xAxis={[
                                         {
+                                            label: i18next.t('Calendar Week', {
+                                                ns: 'common'
+                                            }),
                                             data: leadsWeeklyData.labels,
                                             scaleType: 'band'
                                         }
@@ -183,7 +189,7 @@ const CRMDashboard = () => {
                             </Typography>
                             {meetingsWeeklyData.labels.length > 0 ? (
                                 <BarChart
-                                    height={300}
+                                    height={250}
                                     series={[
                                         {
                                             data: meetingsWeeklyData.data,
@@ -192,8 +198,14 @@ const CRMDashboard = () => {
                                             })
                                         }
                                     ]}
+                                    slotProps={{
+                                        legend: { hidden: true }
+                                    }}
                                     xAxis={[
                                         {
+                                            label: i18next.t('Calendar Week', {
+                                                ns: 'common'
+                                            }),
                                             data: meetingsWeeklyData.labels,
                                             scaleType: 'band'
                                         }
