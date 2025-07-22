@@ -265,9 +265,6 @@ const MeetingPage = () => {
                     <MaterialReactTable
                         columns={columns}
                         data={meetings}
-                        initialState={{
-                            pagination: { pageSize: 10 }
-                        }}
                         muiTableBodyRowProps={({ row }) => ({
                             onClick: () => {
                                 navigate(`/crm/meetings/${row.original.id}`);

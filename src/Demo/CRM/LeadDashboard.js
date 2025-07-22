@@ -211,9 +211,6 @@ const LeadDashboard = () => {
                     <MaterialReactTable
                         columns={columns}
                         data={leads}
-                        initialState={{
-                            pagination: { pageSize: 10 }
-                        }}
                         muiTableBodyRowProps={({ row }) => ({
                             onClick: () => {
                                 navigate(`/crm/leads/${row.original.id}`);
