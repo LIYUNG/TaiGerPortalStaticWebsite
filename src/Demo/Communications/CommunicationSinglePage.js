@@ -1,5 +1,5 @@
-import React, { Suspense } from 'react';
-import { Await, useParams } from 'react-router-dom';
+import React from 'react';
+import { useParams } from 'react-router-dom';
 import { Box } from '@mui/material';
 
 import Loading from '../../components/Loading/Loading';
@@ -8,18 +8,16 @@ import { getCommunicationQuery } from '../../api/query';
 import { useQuery } from '@tanstack/react-query';
 
 const CommunicationSinglePage = () => {
-    const { student_id } = useParams();
-    const { data } = useQuery(getCommunicationQuery(student_id));
+    const { studentId } = useParams();
+    const { data, isLoading } = useQuery(getCommunicationQuery(studentId));
+
+    if (isLoading) {
+        return <Loading />;
+    }
 
     return (
         <Box data-testid="communication_student_page">
-            <Suspense fallback={<Loading />}>
-                <Await resolve={data}>
-                    {(loadedData) => (
-                        <CommunicationSinglePageBody loadedData={loadedData} />
-                    )}
-                </Await>
-            </Suspense>
+            <CommunicationSinglePageBody loadedData={data} />
         </Box>
     );
 };
