@@ -38,16 +38,9 @@ const CRMDashboard = () => {
         if (!countByWeek || !Array.isArray(countByWeek))
             return { labels: [], data: [] };
 
-        // Sort by week in chronological order
-        const sortedData = countByWeek.sort((a, b) => {
-            const [yearA, weekA] = a.week.split('-');
-            const [yearB, weekB] = b.week.split('-');
-
-            if (yearA !== yearB) {
-                return parseInt(yearA) - parseInt(yearB);
-            }
-            return parseInt(weekA) - parseInt(weekB);
-        });
+        const sortedData = countByWeek.sort((a, b) =>
+            a.week.localeCompare(b.week)
+        );
 
         return {
             labels: sortedData.map((item) => item.week),
@@ -55,7 +48,7 @@ const CRMDashboard = () => {
         };
     };
 
-    const leadsWeeklyData = processWeeklyData(stats.leadsCountByDate);
+    // const leadsWeeklyData = processWeeklyData(stats.leadsCountByDate);
     const meetingsWeeklyData = processWeeklyData(stats.meetingCountByDate);
 
     return (
@@ -75,31 +68,6 @@ const CRMDashboard = () => {
             </Breadcrumbs>
 
             <Grid container spacing={1} sx={{ mt: 1 }}>
-                <Grid item md={3} sm={6} xs={12}>
-                    <Card>
-                        <CardContent>
-                            <Typography color="textSecondary" gutterBottom>
-                                {i18next.t('Meetings', { ns: 'common' })}
-                            </Typography>
-                            <Typography component="div" variant="h4">
-                                {stats.totalMeetingCount || 0}
-                                <Typography
-                                    component="span"
-                                    sx={{ color: 'success.main', ml: 1 }}
-                                    variant="body2"
-                                >
-                                    (+{stats.recentMeetingCount || 0})
-                                </Typography>
-                            </Typography>
-                            <Typography color="textSecondary" variant="body2">
-                                {i18next.t('Total meetings (+last 7 days)', {
-                                    ns: 'common'
-                                })}
-                            </Typography>
-                        </CardContent>
-                    </Card>
-                </Grid>
-
                 <Grid item md={3} sm={6} xs={12}>
                     <Card>
                         <CardContent>
@@ -124,6 +92,54 @@ const CRMDashboard = () => {
                         </CardContent>
                     </Card>
                 </Grid>
+                <Grid item md={3} sm={6} xs={12}>
+                    <Card>
+                        <CardContent>
+                            <Typography color="textSecondary" gutterBottom>
+                                {i18next.t('Closed Leads', { ns: 'common' })}
+                            </Typography>
+                            <Typography component="div" variant="h4">
+                                {stats.closedLeadCount || 0}
+                                {/* <Typography
+                                    component="span"
+                                    sx={{ color: 'success.main', ml: 1 }}
+                                    variant="body2"
+                                >
+                                    (+{stats.recentLeadCount || 0})
+                                </Typography> */}
+                            </Typography>
+                            <Typography color="textSecondary" variant="body2">
+                                {i18next.t('Total Closed', {
+                                    ns: 'common'
+                                })}
+                            </Typography>
+                        </CardContent>
+                    </Card>
+                </Grid>
+                <Grid item md={3} sm={6} xs={12}>
+                    <Card>
+                        <CardContent>
+                            <Typography color="textSecondary" gutterBottom>
+                                {i18next.t('Meetings', { ns: 'common' })}
+                            </Typography>
+                            <Typography component="div" variant="h4">
+                                {stats.totalMeetingCount || 0}
+                                <Typography
+                                    component="span"
+                                    sx={{ color: 'success.main', ml: 1 }}
+                                    variant="body2"
+                                >
+                                    (+{stats.recentMeetingCount || 0})
+                                </Typography>
+                            </Typography>
+                            <Typography color="textSecondary" variant="body2">
+                                {i18next.t('Total meetings (+last 7 days)', {
+                                    ns: 'common'
+                                })}
+                            </Typography>
+                        </CardContent>
+                    </Card>
+                </Grid>
             </Grid>
             <Grid container spacing={1} sx={{ mt: 1 }}>
                 <Grid item xs={12}>
@@ -134,15 +150,21 @@ const CRMDashboard = () => {
                                     ns: 'common'
                                 })}
                             </Typography>
-                            {leadsWeeklyData.labels.length > 0 ? (
+                            {stats.leadsCountByDate.length > 0 ? (
                                 <BarChart
                                     height={250}
                                     series={[
                                         {
-                                            data: leadsWeeklyData.data,
-                                            label: i18next.t('Leads', {
-                                                ns: 'common'
-                                            })
+                                            data: stats.leadsCountByDate.map(
+                                                (item) => item.count
+                                            ),
+                                            label: 'New Leads'
+                                        },
+                                        {
+                                            data: stats.leadsCountByDate.map(
+                                                (item) => item.closedCount
+                                            ),
+                                            label: 'Closed Leads'
                                         }
                                     ]}
                                     slotProps={{
@@ -150,18 +172,17 @@ const CRMDashboard = () => {
                                     }}
                                     xAxis={[
                                         {
-                                            label: i18next.t('Calendar Week', {
-                                                ns: 'common'
-                                            }),
-                                            data: leadsWeeklyData.labels,
-                                            scaleType: 'band'
+                                            label: 'Calendar Week',
+                                            data: stats.leadsCountByDate.map(
+                                                (item) => item.week
+                                            ),
+                                            scaleType: 'band',
+                                            barGapRatio: -1
                                         }
                                     ]}
                                     yAxis={[
                                         {
-                                            label: i18next.t('Count', {
-                                                ns: 'common'
-                                            })
+                                            label: 'Count'
                                         }
                                     ]}
                                 />
