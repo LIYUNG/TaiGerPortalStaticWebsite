@@ -57,7 +57,7 @@ const LeadDashboard = () => {
 
     const getStatusColor = (status) => {
         const colors = {
-            new: 'info',
+            open: 'info',
             contacted: 'warning',
             qualified: 'success',
             converted: 'primary',
