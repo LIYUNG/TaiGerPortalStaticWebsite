@@ -2,6 +2,7 @@ import { Navigate, useNavigate, Link as LinkDom } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import i18next from 'i18next';
 import { MaterialReactTable } from 'material-react-table';
+import { useState } from 'react';
 import {
     Box,
     Breadcrumbs,
@@ -15,12 +16,15 @@ import {
     Avatar,
     Divider,
     IconButton,
-    Tooltip
+    Tooltip,
+    Menu,
+    MenuItem,
+    ListItemText
 } from '@mui/material';
 import {
     Person as PersonIcon,
-    PersonAdd as PersonAddIcon,
-    Archive as ArchiveIcon
+    Archive as ArchiveIcon,
+    ArrowDropDown as ArrowDropDownIcon
 } from '@mui/icons-material';
 
 import { is_TaiGer_role } from '@taiger-common/core';
@@ -29,13 +33,15 @@ import DEMO from '../../store/constant';
 import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';
 
-import { getCRMMeetingsQuery } from '../../api/query';
+import { getCRMMeetingsQuery, getCRMLeadsQuery } from '../../api/query';
 import { updateCRMMeeting } from '../../api';
 
 const MeetingPage = () => {
     TabTitle('CRM - Meetings');
     const navigate = useNavigate();
     const queryClient = useQueryClient();
+    const [assignMenuAnchor, setAssignMenuAnchor] = useState(null);
+    const [selectedMeetingId, setSelectedMeetingId] = useState(null);
 
     const { user } = useAuth();
     if (!is_TaiGer_role(user)) {
@@ -43,18 +49,41 @@ const MeetingPage = () => {
     }
 
     const { data, isLoading } = useQuery(getCRMMeetingsQuery());
+    const { data: leadsData } = useQuery(getCRMLeadsQuery());
 
     const handleMeetingUpdate = async (meetingId, payload) => {
         try {
             await updateCRMMeeting(meetingId, payload);
             queryClient.invalidateQueries({ queryKey: ['crm/meetings'] });
         } catch (error) {
-            console.error('Failed to archive meeting:', error);
+            console.error('Failed to update meeting:', error);
         }
     };
 
+    const handleAssignClick = (event, meetingId) => {
+        event.stopPropagation();
+        event.preventDefault();
+        setAssignMenuAnchor(event.currentTarget);
+        setSelectedMeetingId(meetingId);
+    };
+
+    const handleLeadSelect = async (leadId) => {
+        if (selectedMeetingId && leadId) {
+            await handleMeetingUpdate(selectedMeetingId, { leadId });
+        }
+        setAssignMenuAnchor(null);
+        setSelectedMeetingId(null);
+    };
+
+    const handleMenuClose = () => {
+        setAssignMenuAnchor(null);
+        setSelectedMeetingId(null);
+    };
+
     // Filter out archived meetings for display
-    const meetings = data?.data?.data || [];
+    const meetings =
+        data?.data?.data?.filter((meeting) => !meeting.isArchived) || [];
+    const leads = leadsData?.data?.data || [];
 
     const columns = [
         {
@@ -172,17 +201,16 @@ const MeetingPage = () => {
                 return (
                     <Stack direction="row" spacing={1}>
                         {!leadId && (
-                            <>
-                                <Tooltip title="Assign to existing lead">
+                            <Tooltip title="Assign to existing lead">
                                     <Button
                                         color="primary"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            e.preventDefault();
-                                            alert(
-                                                'Assign to Existing Lead clicked (Not yet implemented)'
-                                            );
-                                        }}
+                                        endIcon={<ArrowDropDownIcon />}
+                                        onClick={(e) =>
+                                            handleAssignClick(
+                                                e,
+                                                row.original.id
+                                            )
+                                        }
                                         size="small"
                                         startIcon={<PersonIcon />}
                                         sx={{ borderRadius: 2 }}
@@ -191,25 +219,6 @@ const MeetingPage = () => {
                                         Assign
                                     </Button>
                                 </Tooltip>
-                                <Tooltip title="Create new lead">
-                                    <Button
-                                        color="success"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            e.preventDefault();
-                                            alert(
-                                                'Create New Lead clicked (Not yet implemented)'
-                                            );
-                                        }}
-                                        size="small"
-                                        startIcon={<PersonAddIcon />}
-                                        sx={{ borderRadius: 2 }}
-                                        variant="outlined"
-                                    >
-                                        Create
-                                    </Button>
-                                </Tooltip>
-                            </>
                         )}
                         <Tooltip title="Archive meeting">
                             <IconButton
@@ -257,6 +266,48 @@ const MeetingPage = () => {
                     {i18next.t('Meetings', { ns: 'common' })}
                 </Typography>
             </Breadcrumbs>
+
+            {/* Lead Assignment Menu */}
+            <Menu
+                PaperProps={{
+                    sx: { maxHeight: 300, minWidth: 250 }
+                }}
+                anchorEl={assignMenuAnchor}
+                onClose={handleMenuClose}
+                open={Boolean(assignMenuAnchor)}
+            >
+                {leads.length > 0 ? (
+                    leads.map((lead) => (
+                        <MenuItem
+                            key={lead.id}
+                            onClick={() => handleLeadSelect(lead.id)}
+                        >
+                            <Stack
+                                alignItems="center"
+                                direction="row"
+                                spacing={1}
+                            >
+                                <Avatar
+                                    sx={{
+                                        width: 24,
+                                        height: 24,
+                                        bgcolor: 'primary.main'
+                                    }}
+                                >
+                                    <PersonIcon fontSize="small" />
+                                </Avatar>
+                                <ListItemText
+                                    primary={lead.fullName || 'Unnamed Lead'}
+                                />
+                            </Stack>
+                        </MenuItem>
+                    ))
+                ) : (
+                    <MenuItem disabled>
+                        <ListItemText primary="No leads available" />
+                    </MenuItem>
+                )}
+            </Menu>
 
             {/* Table Section */}
             <Card elevation={3} sx={{ borderRadius: 3, overflow: 'hidden' }}>
