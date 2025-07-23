@@ -1,5 +1,5 @@
 import { Navigate, useNavigate, Link as LinkDom } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import i18next from 'i18next';
 import { MaterialReactTable } from 'material-react-table';
 import {
@@ -30,10 +30,12 @@ import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';
 
 import { getCRMMeetingsQuery } from '../../api/query';
+import { updateCRMMeeting } from '../../api';
 
 const MeetingPage = () => {
     TabTitle('CRM - Meetings');
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
     const { user } = useAuth();
     if (!is_TaiGer_role(user)) {
@@ -41,6 +43,17 @@ const MeetingPage = () => {
     }
 
     const { data, isLoading } = useQuery(getCRMMeetingsQuery());
+
+    const handleMeetingUpdate = async (meetingId, payload) => {
+        try {
+            await updateCRMMeeting(meetingId, payload);
+            queryClient.invalidateQueries({ queryKey: ['crm/meetings'] });
+        } catch (error) {
+            console.error('Failed to archive meeting:', error);
+        }
+    };
+
+    // Filter out archived meetings for display
     const meetings = data?.data?.data || [];
 
     const columns = [
@@ -201,12 +214,12 @@ const MeetingPage = () => {
                         <Tooltip title="Archive meeting">
                             <IconButton
                                 color="warning"
-                                onClick={(e) => {
+                                onClick={async (e) => {
                                     e.stopPropagation();
                                     e.preventDefault();
-                                    alert(
-                                        'Archive clicked (Not yet implemented)'
-                                    );
+                                    await handleMeetingUpdate(row.original.id, {
+                                        isArchived: true
+                                    });
                                 }}
                                 size="small"
                             >
