@@ -74,7 +74,7 @@ const LeadPage = () => {
                 <Grid container spacing={3}>
                     {/* Personal Information */}
                     <Grid item md={6} xs={12}>
-                        <Card>
+                        <Card sx={{ height: '100%' }}>
                             <CardContent>
                                 <Typography
                                     color="primary"
@@ -94,7 +94,7 @@ const LeadPage = () => {
                                         fontWeight="medium"
                                         variant="body1"
                                     >
-                                        {lead.fullName}
+                                        {lead.fullName || 'N/A'}
                                     </Typography>
                                 </Box>
                                 <Box sx={{ mb: 2 }}>
@@ -105,7 +105,7 @@ const LeadPage = () => {
                                         Gender
                                     </Typography>
                                     <Typography variant="body1">
-                                        {lead.gender}
+                                        {lead.gender || 'N/A'}
                                     </Typography>
                                 </Box>
                                 <Box sx={{ mb: 2 }}>
@@ -116,7 +116,7 @@ const LeadPage = () => {
                                         Role
                                     </Typography>
                                     <Typography variant="body1">
-                                        {lead.applicantRole}
+                                        {lead.applicantRole || 'N/A'}
                                     </Typography>
                                 </Box>
                                 <Box sx={{ mb: 2 }}>
@@ -132,7 +132,7 @@ const LeadPage = () => {
                                                 ? 'primary'
                                                 : 'default'
                                         }
-                                        label={lead.status}
+                                        label={lead.status || 'Unknown'}
                                         size="small"
                                     />
                                 </Box>
@@ -142,7 +142,7 @@ const LeadPage = () => {
 
                     {/* Contact Information */}
                     <Grid item md={6} xs={12}>
-                        <Card>
+                        <Card sx={{ height: '100%' }}>
                             <CardContent>
                                 <Typography
                                     color="primary"
@@ -159,7 +159,7 @@ const LeadPage = () => {
                                         Email
                                     </Typography>
                                     <Typography variant="body1">
-                                        {lead.email}
+                                        {lead.email || 'N/A'}
                                     </Typography>
                                 </Box>
                                 <Box sx={{ mb: 2 }}>
@@ -170,7 +170,7 @@ const LeadPage = () => {
                                         Phone
                                     </Typography>
                                     <Typography variant="body1">
-                                        {lead.phone}
+                                        {lead.phone || 'N/A'}
                                     </Typography>
                                 </Box>
                                 <Box sx={{ mb: 2 }}>
@@ -181,22 +181,20 @@ const LeadPage = () => {
                                         Preferred Contact
                                     </Typography>
                                     <Typography variant="body1">
-                                        {lead.preferredContact}
+                                        {lead.preferredContact || 'N/A'}
                                     </Typography>
                                 </Box>
-                                {lead.lineId && (
-                                    <Box sx={{ mb: 2 }}>
-                                        <Typography
-                                            color="text.secondary"
-                                            variant="body2"
-                                        >
-                                            LINE ID
-                                        </Typography>
-                                        <Typography variant="body1">
-                                            {lead.lineId}
-                                        </Typography>
-                                    </Box>
-                                )}
+                                <Box sx={{ mb: 2 }}>
+                                    <Typography
+                                        color="text.secondary"
+                                        variant="body2"
+                                    >
+                                        LINE ID
+                                    </Typography>
+                                    <Typography variant="body1">
+                                        {lead.lineId || 'N/A'}
+                                    </Typography>
+                                </Box>
                                 <Box sx={{ mb: 2 }}>
                                     <Typography
                                         color="text.secondary"
@@ -205,7 +203,7 @@ const LeadPage = () => {
                                         Source
                                     </Typography>
                                     <Typography variant="body1">
-                                        {lead.source}
+                                        {lead.source || 'N/A'}
                                     </Typography>
                                 </Box>
                             </CardContent>
@@ -214,7 +212,7 @@ const LeadPage = () => {
 
                     {/* Educational Background */}
                     <Grid item xs={12}>
-                        <Card>
+                        <Card sx={{ height: '100%' }}>
                             <CardContent>
                                 <Typography
                                     color="primary"
@@ -232,13 +230,13 @@ const LeadPage = () => {
                                             High School
                                         </Typography>
                                         <Typography variant="body2">
-                                            {lead.highschoolName}
+                                            {lead.highschoolName || 'N/A'}
                                         </Typography>
                                         <Typography
                                             color="text.secondary"
                                             variant="body2"
                                         >
-                                            GPA: {lead.highschoolGPA}
+                                            GPA: {lead.highschoolGPA || 'N/A'}
                                         </Typography>
                                     </Grid>
                                     <Grid item md={4} xs={12}>
@@ -249,16 +247,16 @@ const LeadPage = () => {
                                             Bachelor&apos;s Degree
                                         </Typography>
                                         <Typography variant="body2">
-                                            {lead.bachelorSchool}
+                                            {lead.bachelorSchool || 'N/A'}
                                         </Typography>
                                         <Typography variant="body2">
-                                            {lead.bachelorProgramName}
+                                            {lead.bachelorProgramName || 'N/A'}
                                         </Typography>
                                         <Typography
                                             color="text.secondary"
                                             variant="body2"
                                         >
-                                            GPA: {lead.bachelorGPA}
+                                            GPA: {lead.bachelorGPA || 'N/A'}
                                         </Typography>
                                     </Grid>
                                     <Grid item md={4} xs={12}>
@@ -269,16 +267,16 @@ const LeadPage = () => {
                                             Master&apos;s Degree
                                         </Typography>
                                         <Typography variant="body2">
-                                            {lead.masterSchool}
+                                            {lead.masterSchool || 'N/A'}
                                         </Typography>
                                         <Typography variant="body2">
-                                            {lead.masterProgramName}
+                                            {lead.masterProgramName || 'N/A'}
                                         </Typography>
                                         <Typography
                                             color="text.secondary"
                                             variant="body2"
                                         >
-                                            GPA: {lead.masterGPA}
+                                            GPA: {lead.masterGPA || 'N/A'}
                                         </Typography>
                                     </Grid>
                                 </Grid>
@@ -294,7 +292,7 @@ const LeadPage = () => {
                                         fontWeight="medium"
                                         variant="body1"
                                     >
-                                        {lead.highestEducation}
+                                        {lead.highestEducation || 'N/A'}
                                     </Typography>
                                 </Box>
                             </CardContent>
@@ -303,7 +301,7 @@ const LeadPage = () => {
 
                     {/* Intended Programs */}
                     <Grid item md={6} xs={12}>
-                        <Card>
+                        <Card sx={{ height: '100%' }}>
                             <CardContent>
                                 <Typography
                                     color="primary"
@@ -320,7 +318,7 @@ const LeadPage = () => {
                                         Target Universities
                                     </Typography>
                                     <Typography variant="body1">
-                                        {lead.intendedPrograms}
+                                        {lead.intendedPrograms || 'N/A'}
                                     </Typography>
                                 </Box>
                                 <Box sx={{ mb: 2 }}>
@@ -331,7 +329,7 @@ const LeadPage = () => {
                                         Direction
                                     </Typography>
                                     <Typography variant="body1">
-                                        {lead.intendedDirection}
+                                        {lead.intendedDirection || 'N/A'}
                                     </Typography>
                                 </Box>
                                 <Box sx={{ mb: 2 }}>
@@ -342,7 +340,7 @@ const LeadPage = () => {
                                         Program Level
                                     </Typography>
                                     <Typography variant="body1">
-                                        {lead.intendedProgramLevel}
+                                        {lead.intendedProgramLevel || 'N/A'}
                                     </Typography>
                                 </Box>
                                 <Box sx={{ mb: 2 }}>
@@ -353,7 +351,7 @@ const LeadPage = () => {
                                         Start Time
                                     </Typography>
                                     <Typography variant="body1">
-                                        {lead.intendedStartTime}
+                                        {lead.intendedStartTime || 'N/A'}
                                     </Typography>
                                 </Box>
                             </CardContent>
@@ -362,7 +360,7 @@ const LeadPage = () => {
 
                     {/* Language Skills */}
                     <Grid item md={6} xs={12}>
-                        <Card>
+                        <Card sx={{ height: '100%' }}>
                             <CardContent>
                                 <Typography
                                     color="primary"
@@ -379,7 +377,7 @@ const LeadPage = () => {
                                         English Level
                                     </Typography>
                                     <Typography variant="body1">
-                                        {lead.englishLevel}
+                                        {lead.englishLevel || 'N/A'}
                                     </Typography>
                                 </Box>
                                 <Box sx={{ mb: 2 }}>
@@ -399,7 +397,7 @@ const LeadPage = () => {
 
                     {/* Work Experience */}
                     <Grid item xs={12}>
-                        <Card>
+                        <Card sx={{ height: '100%' }}>
                             <CardContent>
                                 <Typography
                                     color="primary"
@@ -412,7 +410,8 @@ const LeadPage = () => {
                                     sx={{ whiteSpace: 'pre-line' }}
                                     variant="body1"
                                 >
-                                    {lead.workExperience}
+                                    {lead.workExperience ||
+                                        'No work experience provided'}
                                 </Typography>
                             </CardContent>
                         </Card>
@@ -420,7 +419,7 @@ const LeadPage = () => {
 
                     {/* Additional Information */}
                     <Grid item xs={12}>
-                        <Card>
+                        <Card sx={{ height: '100%' }}>
                             <CardContent>
                                 <Typography
                                     color="primary"
@@ -429,32 +428,28 @@ const LeadPage = () => {
                                 >
                                     Additional Information
                                 </Typography>
-                                {lead.additionalInfo && (
-                                    <Box sx={{ mb: 2 }}>
-                                        <Typography
-                                            fontWeight="bold"
-                                            variant="subtitle2"
-                                        >
-                                            Additional Info
-                                        </Typography>
-                                        <Typography variant="body1">
-                                            {lead.additionalInfo}
-                                        </Typography>
-                                    </Box>
-                                )}
-                                {lead.reasonsToStudyAbroad && (
-                                    <Box sx={{ mb: 2 }}>
-                                        <Typography
-                                            fontWeight="bold"
-                                            variant="subtitle2"
-                                        >
-                                            Reasons to Study Abroad
-                                        </Typography>
-                                        <Typography variant="body1">
-                                            {lead.reasonsToStudyAbroad}
-                                        </Typography>
-                                    </Box>
-                                )}
+                                <Box sx={{ mb: 2 }}>
+                                    <Typography
+                                        fontWeight="bold"
+                                        variant="subtitle2"
+                                    >
+                                        Additional Info
+                                    </Typography>
+                                    <Typography variant="body1">
+                                        {lead.additionalInfo || 'N/A'}
+                                    </Typography>
+                                </Box>
+                                <Box sx={{ mb: 2 }}>
+                                    <Typography
+                                        fontWeight="bold"
+                                        variant="subtitle2"
+                                    >
+                                        Reasons to Study Abroad
+                                    </Typography>
+                                    <Typography variant="body1">
+                                        {lead.reasonsToStudyAbroad || 'N/A'}
+                                    </Typography>
+                                </Box>
                                 <Box
                                     sx={{
                                         mt: 2,
@@ -468,18 +463,22 @@ const LeadPage = () => {
                                         variant="body2"
                                     >
                                         Created:{' '}
-                                        {new Date(
-                                            lead.createdAt
-                                        ).toLocaleDateString()}
+                                        {lead.createdAt
+                                            ? new Date(
+                                                  lead.createdAt
+                                              ).toLocaleDateString()
+                                            : 'N/A'}
                                     </Typography>
                                     <Typography
                                         color="text.secondary"
                                         variant="body2"
                                     >
                                         Updated:{' '}
-                                        {new Date(
-                                            lead.updatedAt
-                                        ).toLocaleDateString()}
+                                        {lead.updatedAt
+                                            ? new Date(
+                                                  lead.updatedAt
+                                              ).toLocaleDateString()
+                                            : 'N/A'}
                                     </Typography>
                                 </Box>
                             </CardContent>
