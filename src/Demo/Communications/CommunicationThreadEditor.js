@@ -32,7 +32,7 @@ import { appConfig } from '../../config';
 
 const CommunicationThreadEditor = (props) => {
     const { t } = useTranslation();
-    const { student_id } = useParams();
+    const { studentId } = useParams();
 
     const { user } = useAuth();
     let [statedata, setStatedata] = useState({
@@ -61,7 +61,7 @@ const CommunicationThreadEditor = (props) => {
             ...prevState,
             isGenerating: true
         }));
-        const response = await TaiGerChatAssistant('abc', student_id);
+        const response = await TaiGerChatAssistant('abc', studentId);
         // Handle the streaming data
         const reader = response.body
             .pipeThrough(new TextDecoderStream())
