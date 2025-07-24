@@ -14,7 +14,6 @@ import {
     CardContent,
     Chip,
     Avatar,
-    Divider,
     IconButton,
     Tooltip,
     Popover,
@@ -23,12 +22,15 @@ import {
     ListItem,
     ListItemButton,
     ListItemText,
-    ListItemAvatar
+    ListItemAvatar,
+    Tabs,
+    Tab
 } from '@mui/material';
 import {
     Person as PersonIcon,
     Archive as ArchiveIcon,
-    ArrowDropDown as ArrowDropDownIcon
+    ArrowDropDown as ArrowDropDownIcon,
+    Unarchive as UnarchiveIcon
 } from '@mui/icons-material';
 
 import { is_TaiGer_role } from '@taiger-common/core';
@@ -47,6 +49,7 @@ const MeetingPage = () => {
     const [assignMenuAnchor, setAssignMenuAnchor] = useState(null);
     const [selectedMeetingId, setSelectedMeetingId] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [activeTab, setActiveTab] = useState(0);
 
     const { user } = useAuth();
     if (!is_TaiGer_role(user)) {
@@ -88,10 +91,20 @@ const MeetingPage = () => {
         setSearchTerm('');
     };
 
-    // Filter out archived meetings for display
-    const meetings =
-        data?.data?.data?.filter((meeting) => !meeting.isArchived) || [];
+    const handleTabChange = (event, newValue) => {
+        setActiveTab(newValue);
+    };
+
+    // Separate meetings into active and archived
+    const allMeetings = data?.data?.data || [];
+    const activeMeetings = allMeetings.filter((meeting) => !meeting.isArchived);
+    const archivedMeetings = allMeetings.filter(
+        (meeting) => meeting.isArchived
+    );
     const leads = leadsData?.data?.data || [];
+
+    // Select current meetings based on active tab
+    const currentMeetings = activeTab === 0 ? activeMeetings : archivedMeetings;
 
     // Filter leads based on search term
     const filteredLeads = leads.filter(
@@ -102,7 +115,7 @@ const MeetingPage = () => {
             (lead.email || '').toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const columns = [
+    const getColumns = (isArchived = false) => [
         {
             accessorKey: 'leadFullName',
             header: 'Lead',
@@ -217,7 +230,7 @@ const MeetingPage = () => {
                 const { leadId } = row.original;
                 return (
                     <Stack direction="row" spacing={1}>
-                        {!leadId && (
+                        {!leadId && !isArchived && (
                             <Tooltip title="Assign to existing lead">
                                 <Button
                                     color="primary"
@@ -234,19 +247,29 @@ const MeetingPage = () => {
                                 </Button>
                             </Tooltip>
                         )}
-                        <Tooltip title="Archive meeting">
+                        <Tooltip
+                            title={
+                                isArchived
+                                    ? 'Unarchive meeting'
+                                    : 'Archive meeting'
+                            }
+                        >
                             <IconButton
-                                color="warning"
+                                color={isArchived ? 'success' : 'warning'}
                                 onClick={async (e) => {
                                     e.stopPropagation();
                                     e.preventDefault();
                                     await handleMeetingUpdate(row.original.id, {
-                                        isArchived: true
+                                        isArchived: !isArchived
                                     });
                                 }}
                                 size="small"
                             >
-                                <ArchiveIcon />
+                                {isArchived ? (
+                                    <UnarchiveIcon />
+                                ) : (
+                                    <ArchiveIcon />
+                                )}
                             </IconButton>
                         </Tooltip>
                     </Stack>
@@ -371,7 +394,7 @@ const MeetingPage = () => {
                 </Box>
             </Popover>
 
-            {/* Table Section */}
+            {/* Table Section with Tabs */}
             <Card elevation={3} sx={{ borderRadius: 3, overflow: 'hidden' }}>
                 <CardContent sx={{ p: 0 }}>
                     <Box sx={{ p: 2.5 }}>
@@ -387,10 +410,28 @@ const MeetingPage = () => {
                             transcripts
                         </Typography>
                     </Box>
-                    <Divider />
+
+                    {/* Tabs */}
+                    <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                        <Tabs
+                            value={activeTab}
+                            onChange={handleTabChange}
+                            sx={{ px: 2.5 }}
+                        >
+                            <Tab
+                                label={`Active Meetings (${activeMeetings.length})`}
+                                sx={{ textTransform: 'none', fontWeight: 500 }}
+                            />
+                            <Tab
+                                label={`Archived Meetings (${archivedMeetings.length})`}
+                                sx={{ textTransform: 'none', fontWeight: 500 }}
+                            />
+                        </Tabs>
+                    </Box>
+
                     <MaterialReactTable
-                        columns={columns}
-                        data={meetings}
+                        columns={getColumns(activeTab === 1)}
+                        data={currentMeetings}
                         muiTableBodyRowProps={({ row }) => ({
                             onClick: () => {
                                 navigate(`/crm/meetings/${row.original.id}`);
