@@ -30,7 +30,8 @@ import {
     Person as PersonIcon,
     Archive as ArchiveIcon,
     ArrowDropDown as ArrowDropDownIcon,
-    Unarchive as UnarchiveIcon
+    Unarchive as UnarchiveIcon,
+    PersonRemove as PersonRemoveIcon
 } from '@mui/icons-material';
 
 import { is_TaiGer_role } from '@taiger-common/core';
@@ -50,6 +51,10 @@ const MeetingPage = () => {
     const [selectedMeetingId, setSelectedMeetingId] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [activeTab, setActiveTab] = useState(0);
+    const [pagination, setPagination] = useState({
+        pageIndex: 0,
+        pageSize: 10
+    });
 
     const { user } = useAuth();
     if (!is_TaiGer_role(user)) {
@@ -62,7 +67,11 @@ const MeetingPage = () => {
     const handleMeetingUpdate = async (meetingId, payload) => {
         try {
             await updateCRMMeeting(meetingId, payload);
-            queryClient.invalidateQueries({ queryKey: ['crm/meetings'] });
+            // Use refetchQueries instead of invalidateQueries to avoid infinite loops
+            await queryClient.refetchQueries({
+                queryKey: ['crm/meetings'],
+                exact: true
+            });
         } catch (error) {
             console.error('Failed to update meeting:', error);
         }
@@ -71,13 +80,22 @@ const MeetingPage = () => {
     const handleAssignClick = (event, meetingId) => {
         event.stopPropagation();
         event.preventDefault();
-        setAssignMenuAnchor(event.currentTarget);
+
+        // Store the current button position
+        const buttonRect = event.currentTarget.getBoundingClientRect();
+        const virtualAnchor = {
+            getBoundingClientRect: () => buttonRect,
+            nodeType: 1
+        };
+
+        setAssignMenuAnchor(virtualAnchor);
         setSelectedMeetingId(meetingId);
         setSearchTerm(''); // Reset search when opening
     };
 
     const handleLeadSelect = async (leadId) => {
-        if (selectedMeetingId && leadId) {
+        if (selectedMeetingId) {
+            // Handle both assignment (leadId is a string/number) and removal (leadId is null)
             await handleMeetingUpdate(selectedMeetingId, { leadId });
         }
         setAssignMenuAnchor(null);
@@ -230,8 +248,14 @@ const MeetingPage = () => {
                 const { leadId } = row.original;
                 return (
                     <Stack direction="row" spacing={1}>
-                        {!leadId && !isArchived && (
-                            <Tooltip title="Assign to existing lead">
+                        {!isArchived && (
+                            <Tooltip
+                                title={
+                                    leadId
+                                        ? 'Change or remove lead assignment'
+                                        : 'Assign to existing lead'
+                                }
+                            >
                                 <Button
                                     color="primary"
                                     endIcon={<ArrowDropDownIcon />}
@@ -306,11 +330,13 @@ const MeetingPage = () => {
 
             {/* Lead Assignment Popover with Search */}
             <Popover
-                PaperProps={{
-                    sx: {
-                        minWidth: 320,
-                        maxWidth: 400,
-                        maxHeight: 400
+                slotProps={{
+                    paper: {
+                        sx: {
+                            minWidth: 320,
+                            maxWidth: 400,
+                            maxHeight: 400
+                        }
                     }
                 }}
                 anchorEl={assignMenuAnchor}
@@ -324,6 +350,9 @@ const MeetingPage = () => {
                     vertical: 'top',
                     horizontal: 'left'
                 }}
+                disableAutoFocus
+                disableEnforceFocus
+                disableRestoreFocus
             >
                 <Box sx={{ p: 2 }}>
                     <Typography sx={{ mb: 2 }} variant="h6">
@@ -343,6 +372,53 @@ const MeetingPage = () => {
 
                     {/* Filtered Leads List */}
                     <List sx={{ maxHeight: 250, overflow: 'auto', p: 0 }}>
+                        {/* Remove Assignment Option - Only show if meeting has a lead assigned */}
+                        {(() => {
+                            const currentMeeting = allMeetings.find(
+                                (m) => m.id === selectedMeetingId
+                            );
+                            return currentMeeting?.leadId ? (
+                                <>
+                                    <ListItem disablePadding>
+                                        <ListItemButton
+                                            onClick={() =>
+                                                handleLeadSelect(null)
+                                            }
+                                            sx={{
+                                                borderRadius: 1,
+                                                backgroundColor: 'error.50',
+                                                '&:hover': {
+                                                    backgroundColor: 'error.100'
+                                                }
+                                            }}
+                                        >
+                                            <ListItemAvatar>
+                                                <Avatar
+                                                    sx={{
+                                                        width: 32,
+                                                        height: 32,
+                                                        bgcolor: 'error.main'
+                                                    }}
+                                                >
+                                                    <PersonRemoveIcon fontSize="small" />
+                                                </Avatar>
+                                            </ListItemAvatar>
+                                            <ListItemText
+                                                primary="Remove Assignment"
+                                                primaryTypographyProps={{
+                                                    fontWeight: 500,
+                                                    color: 'error.main'
+                                                }}
+                                                secondary="Unassign lead from this meeting"
+                                            />
+                                        </ListItemButton>
+                                    </ListItem>
+                                    {/* Divider - Only show if remove option is visible */}
+                                    <Box sx={{ height: 8 }} />
+                                </>
+                            ) : null;
+                        })()}
+
                         {filteredLeads.length > 0 ? (
                             filteredLeads.map((lead) => (
                                 <ListItem disablePadding key={lead.id}>
@@ -432,6 +508,9 @@ const MeetingPage = () => {
                     <MaterialReactTable
                         columns={getColumns(activeTab === 1)}
                         data={currentMeetings}
+                        enableRowSelection={false}
+                        enableGlobalFilter={false}
+                        enableColumnFilters={false}
                         muiTableBodyRowProps={({ row }) => ({
                             onClick: () => {
                                 navigate(`/crm/meetings/${row.original.id}`);
@@ -440,7 +519,13 @@ const MeetingPage = () => {
                                 cursor: 'pointer'
                             }
                         })}
-                        state={{ isLoading }}
+                        state={{
+                            isLoading,
+                            pagination
+                        }}
+                        onPaginationChange={setPagination}
+                        // Add this to prevent automatic state resets
+                        autoResetPageIndex={false}
                     />
                 </CardContent>
             </Card>
