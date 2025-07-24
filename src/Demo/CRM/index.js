@@ -5,6 +5,7 @@ import {
     Link,
     Typography,
     Grid,
+    Box,
     Card,
     CardContent
 } from '@mui/material';
@@ -67,81 +68,89 @@ const CRMDashboard = () => {
                 </Typography>
             </Breadcrumbs>
 
-            <Grid container spacing={1} sx={{ mt: 1 }}>
+            <Grid container spacing={1} sx={{ mt: 0.5 }}>
                 <Grid item md={3} sm={6} xs={12}>
-                    <Card>
-                        <CardContent>
-                            <Typography color="textSecondary" gutterBottom>
-                                {i18next.t('Leads', { ns: 'common' })}
+                    <Box
+                        sx={{
+                            p: 1.5,
+                            backgroundColor: 'background.paper',
+                            borderRadius: 1,
+                            boxShadow: 1
+                        }}
+                    >
+                        <Typography color="textSecondary" variant="body2">
+                            {i18next.t('Leads', { ns: 'common' })}
+                        </Typography>
+                        <Typography component="div" variant="h5">
+                            {stats.totalLeadCount || 0}
+                            <Typography
+                                component="span"
+                                sx={{ color: 'success.main', ml: 1 }}
+                                variant="body2"
+                            >
+                                (+{stats.recentLeadCount || 0})
                             </Typography>
-                            <Typography component="div" variant="h4">
-                                {stats.totalLeadCount || 0}
-                                <Typography
-                                    component="span"
-                                    sx={{ color: 'success.main', ml: 1 }}
-                                    variant="body2"
-                                >
-                                    (+{stats.recentLeadCount || 0})
-                                </Typography>
-                            </Typography>
-                            <Typography color="textSecondary" variant="body2">
-                                {i18next.t('Total leads (+last 7 days)', {
-                                    ns: 'common'
-                                })}
-                            </Typography>
-                        </CardContent>
-                    </Card>
+                        </Typography>
+                        <Typography color="textSecondary" variant="caption">
+                            {i18next.t('Total leads (+last 7 days)', {
+                                ns: 'common'
+                            })}
+                        </Typography>
+                    </Box>
                 </Grid>
                 <Grid item md={3} sm={6} xs={12}>
-                    <Card>
-                        <CardContent>
-                            <Typography color="textSecondary" gutterBottom>
-                                {i18next.t('Closed Leads', { ns: 'common' })}
-                            </Typography>
-                            <Typography component="div" variant="h4">
-                                {stats.closedLeadCount || 0}
-                                {/* <Typography
-                                    component="span"
-                                    sx={{ color: 'success.main', ml: 1 }}
-                                    variant="body2"
-                                >
-                                    (+{stats.recentLeadCount || 0})
-                                </Typography> */}
-                            </Typography>
-                            <Typography color="textSecondary" variant="body2">
-                                {i18next.t('Total Closed', {
-                                    ns: 'common'
-                                })}
-                            </Typography>
-                        </CardContent>
-                    </Card>
+                    <Box
+                        sx={{
+                            p: 1.5,
+                            backgroundColor: 'background.paper',
+                            borderRadius: 1,
+                            boxShadow: 1
+                        }}
+                    >
+                        <Typography color="textSecondary" variant="body2">
+                            {i18next.t('Converted Leads', { ns: 'common' })}
+                        </Typography>
+                        <Typography component="div" variant="h5">
+                            {stats.convertedLeadCount || 0}
+                        </Typography>
+                        <Typography color="textSecondary" variant="caption">
+                            {i18next.t('Total Converted', {
+                                ns: 'common'
+                            })}
+                        </Typography>
+                    </Box>
                 </Grid>
                 <Grid item md={3} sm={6} xs={12}>
-                    <Card>
-                        <CardContent>
-                            <Typography color="textSecondary" gutterBottom>
-                                {i18next.t('Meetings', { ns: 'common' })}
+                    <Box
+                        sx={{
+                            p: 1.5,
+                            backgroundColor: 'background.paper',
+                            borderRadius: 1,
+                            boxShadow: 1
+                        }}
+                    >
+                        <Typography color="textSecondary" variant="body2">
+                            {i18next.t('Meetings', { ns: 'common' })}
+                        </Typography>
+                        <Typography component="div" variant="h5">
+                            {stats.totalMeetingCount || 0}
+                            <Typography
+                                component="span"
+                                sx={{ color: 'success.main', ml: 1 }}
+                                variant="body2"
+                            >
+                                (+{stats.recentMeetingCount || 0})
                             </Typography>
-                            <Typography component="div" variant="h4">
-                                {stats.totalMeetingCount || 0}
-                                <Typography
-                                    component="span"
-                                    sx={{ color: 'success.main', ml: 1 }}
-                                    variant="body2"
-                                >
-                                    (+{stats.recentMeetingCount || 0})
-                                </Typography>
-                            </Typography>
-                            <Typography color="textSecondary" variant="body2">
-                                {i18next.t('Total meetings (+last 7 days)', {
-                                    ns: 'common'
-                                })}
-                            </Typography>
-                        </CardContent>
-                    </Card>
+                        </Typography>
+                        <Typography color="textSecondary" variant="caption">
+                            {i18next.t('Total meetings (+last 7 days)', {
+                                ns: 'common'
+                            })}
+                        </Typography>
+                    </Box>
                 </Grid>
             </Grid>
-            <Grid container spacing={1} sx={{ mt: 1 }}>
+            <Grid container spacing={1} sx={{ mt: 0.5 }}>
                 <Grid item xs={12}>
                     <Card>
                         <CardContent>
@@ -162,9 +171,9 @@ const CRMDashboard = () => {
                                         },
                                         {
                                             data: stats.leadsCountByDate.map(
-                                                (item) => item.closedCount
+                                                (item) => item.convertedCount
                                             ),
-                                            label: 'Closed Leads'
+                                            label: 'Converted Leads'
                                         }
                                     ]}
                                     slotProps={{
