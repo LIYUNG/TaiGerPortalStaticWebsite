@@ -31,7 +31,9 @@ import {
     Archive as ArchiveIcon,
     ArrowDropDown as ArrowDropDownIcon,
     Unarchive as UnarchiveIcon,
-    PersonRemove as PersonRemoveIcon
+    PersonRemove as PersonRemoveIcon,
+    PersonAdd as PersonAddIcon,
+    SwapHoriz as SwapHorizIcon
 } from '@mui/icons-material';
 
 import { is_TaiGer_role } from '@taiger-common/core';
@@ -248,29 +250,6 @@ const MeetingPage = () => {
                 const { leadId } = row.original;
                 return (
                     <Stack direction="row" spacing={1}>
-                        {!isArchived && (
-                            <Tooltip
-                                title={
-                                    leadId
-                                        ? 'Change or remove lead assignment'
-                                        : 'Assign to existing lead'
-                                }
-                            >
-                                <Button
-                                    color="primary"
-                                    endIcon={<ArrowDropDownIcon />}
-                                    onClick={(e) =>
-                                        handleAssignClick(e, row.original.id)
-                                    }
-                                    size="small"
-                                    startIcon={<PersonIcon />}
-                                    sx={{ borderRadius: 2 }}
-                                    variant="outlined"
-                                >
-                                    Assign
-                                </Button>
-                            </Tooltip>
-                        )}
                         <Tooltip
                             title={
                                 isArchived
@@ -296,6 +275,34 @@ const MeetingPage = () => {
                                 )}
                             </IconButton>
                         </Tooltip>
+                        {!isArchived && (
+                            <Tooltip
+                                title={
+                                    leadId
+                                        ? 'Change or remove lead assignment'
+                                        : 'Assign to existing lead'
+                                }
+                            >
+                                <Button
+                                    variant={leadId ? 'outlined' : 'contained'}
+                                    endIcon={<ArrowDropDownIcon />}
+                                    onClick={(e) =>
+                                        handleAssignClick(e, row.original.id)
+                                    }
+                                    size="small"
+                                    startIcon={
+                                        leadId ? (
+                                            <SwapHorizIcon />
+                                        ) : (
+                                            <PersonAddIcon />
+                                        )
+                                    }
+                                    sx={{ borderRadius: 2 }}
+                                >
+                                    {leadId ? 'Change' : 'Assign'}
+                                </Button>
+                            </Tooltip>
+                        )}
                     </Stack>
                 );
             }
