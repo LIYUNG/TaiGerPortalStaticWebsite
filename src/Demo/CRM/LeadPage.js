@@ -126,15 +126,33 @@ const LeadPage = () => {
                                     >
                                         Status
                                     </Typography>
-                                    <Chip
-                                        color={
-                                            lead.status === 'new'
-                                                ? 'primary'
-                                                : 'default'
-                                        }
-                                        label={lead.status || 'Unknown'}
-                                        size="small"
-                                    />
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 1
+                                        }}
+                                    >
+                                        <Chip
+                                            color={
+                                                lead.status === 'new'
+                                                    ? 'primary'
+                                                    : 'default'
+                                            }
+                                            label={lead.status || 'Unknown'}
+                                            size="small"
+                                        />
+                                        {lead.userId && (
+                                            <Link
+                                                component="a"
+                                                href={`/student-database/${lead.userId}`}
+                                                underline="hover"
+                                                variant="body2"
+                                            >
+                                                View Student Profile
+                                            </Link>
+                                        )}
+                                    </Box>
                                 </Box>
                             </CardContent>
                         </Card>
