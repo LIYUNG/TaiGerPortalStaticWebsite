@@ -17,9 +17,13 @@ import {
     Divider,
     IconButton,
     Tooltip,
-    Menu,
-    MenuItem,
-    ListItemText
+    Popover,
+    TextField,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemText,
+    ListItemAvatar
 } from '@mui/material';
 import {
     Person as PersonIcon,
@@ -42,6 +46,7 @@ const MeetingPage = () => {
     const queryClient = useQueryClient();
     const [assignMenuAnchor, setAssignMenuAnchor] = useState(null);
     const [selectedMeetingId, setSelectedMeetingId] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const { user } = useAuth();
     if (!is_TaiGer_role(user)) {
@@ -65,6 +70,7 @@ const MeetingPage = () => {
         event.preventDefault();
         setAssignMenuAnchor(event.currentTarget);
         setSelectedMeetingId(meetingId);
+        setSearchTerm(''); // Reset search when opening
     };
 
     const handleLeadSelect = async (leadId) => {
@@ -73,17 +79,28 @@ const MeetingPage = () => {
         }
         setAssignMenuAnchor(null);
         setSelectedMeetingId(null);
+        setSearchTerm('');
     };
 
     const handleMenuClose = () => {
         setAssignMenuAnchor(null);
         setSelectedMeetingId(null);
+        setSearchTerm('');
     };
 
     // Filter out archived meetings for display
     const meetings =
         data?.data?.data?.filter((meeting) => !meeting.isArchived) || [];
     const leads = leadsData?.data?.data || [];
+
+    // Filter leads based on search term
+    const filteredLeads = leads.filter(
+        (lead) =>
+            (lead.fullName || '')
+                .toLowerCase()
+                .includes(searchTerm.toLowerCase()) ||
+            (lead.email || '').toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     const columns = [
         {
@@ -202,23 +219,20 @@ const MeetingPage = () => {
                     <Stack direction="row" spacing={1}>
                         {!leadId && (
                             <Tooltip title="Assign to existing lead">
-                                    <Button
-                                        color="primary"
-                                        endIcon={<ArrowDropDownIcon />}
-                                        onClick={(e) =>
-                                            handleAssignClick(
-                                                e,
-                                                row.original.id
-                                            )
-                                        }
-                                        size="small"
-                                        startIcon={<PersonIcon />}
-                                        sx={{ borderRadius: 2 }}
-                                        variant="outlined"
-                                    >
-                                        Assign
-                                    </Button>
-                                </Tooltip>
+                                <Button
+                                    color="primary"
+                                    endIcon={<ArrowDropDownIcon />}
+                                    onClick={(e) =>
+                                        handleAssignClick(e, row.original.id)
+                                    }
+                                    size="small"
+                                    startIcon={<PersonIcon />}
+                                    sx={{ borderRadius: 2 }}
+                                    variant="outlined"
+                                >
+                                    Assign
+                                </Button>
+                            </Tooltip>
                         )}
                         <Tooltip title="Archive meeting">
                             <IconButton
@@ -267,47 +281,95 @@ const MeetingPage = () => {
                 </Typography>
             </Breadcrumbs>
 
-            {/* Lead Assignment Menu */}
-            <Menu
+            {/* Lead Assignment Popover with Search */}
+            <Popover
                 PaperProps={{
-                    sx: { maxHeight: 300, minWidth: 250 }
+                    sx: {
+                        minWidth: 320,
+                        maxWidth: 400,
+                        maxHeight: 400
+                    }
                 }}
                 anchorEl={assignMenuAnchor}
+                anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'left'
+                }}
                 onClose={handleMenuClose}
                 open={Boolean(assignMenuAnchor)}
+                transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'left'
+                }}
             >
-                {leads.length > 0 ? (
-                    leads.map((lead) => (
-                        <MenuItem
-                            key={lead.id}
-                            onClick={() => handleLeadSelect(lead.id)}
-                        >
-                            <Stack
-                                alignItems="center"
-                                direction="row"
-                                spacing={1}
-                            >
-                                <Avatar
-                                    sx={{
-                                        width: 24,
-                                        height: 24,
-                                        bgcolor: 'primary.main'
-                                    }}
-                                >
-                                    <PersonIcon fontSize="small" />
-                                </Avatar>
+                <Box sx={{ p: 2 }}>
+                    <Typography sx={{ mb: 2 }} variant="h6">
+                        Assign Lead to Meeting
+                    </Typography>
+
+                    {/* Search Input */}
+                    <TextField
+                        autoFocus
+                        fullWidth
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder="Search leads by name or email..."
+                        size="small"
+                        sx={{ mb: 1 }}
+                        value={searchTerm}
+                    />
+
+                    {/* Filtered Leads List */}
+                    <List sx={{ maxHeight: 250, overflow: 'auto', p: 0 }}>
+                        {filteredLeads.length > 0 ? (
+                            filteredLeads.map((lead) => (
+                                <ListItem disablePadding key={lead.id}>
+                                    <ListItemButton
+                                        onClick={() =>
+                                            handleLeadSelect(lead.id)
+                                        }
+                                        sx={{ borderRadius: 1 }}
+                                    >
+                                        <ListItemAvatar>
+                                            <Avatar
+                                                sx={{
+                                                    width: 32,
+                                                    height: 32,
+                                                    bgcolor: 'primary.main'
+                                                }}
+                                            >
+                                                <PersonIcon fontSize="small" />
+                                            </Avatar>
+                                        </ListItemAvatar>
+                                        <ListItemText
+                                            primary={
+                                                lead.fullName || 'Unnamed Lead'
+                                            }
+                                            primaryTypographyProps={{
+                                                fontWeight: 500
+                                            }}
+                                            secondary={lead.email || ''}
+                                        />
+                                    </ListItemButton>
+                                </ListItem>
+                            ))
+                        ) : (
+                            <ListItem>
                                 <ListItemText
-                                    primary={lead.fullName || 'Unnamed Lead'}
+                                    primary={
+                                        searchTerm
+                                            ? 'No leads found'
+                                            : 'No leads available'
+                                    }
+                                    sx={{
+                                        textAlign: 'center',
+                                        color: 'text.secondary'
+                                    }}
                                 />
-                            </Stack>
-                        </MenuItem>
-                    ))
-                ) : (
-                    <MenuItem disabled>
-                        <ListItemText primary="No leads available" />
-                    </MenuItem>
-                )}
-            </Menu>
+                            </ListItem>
+                        )}
+                    </List>
+                </Box>
+            </Popover>
 
             {/* Table Section */}
             <Card elevation={3} sx={{ borderRadius: 3, overflow: 'hidden' }}>
