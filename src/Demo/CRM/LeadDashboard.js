@@ -48,10 +48,16 @@ const LeadDashboard = () => {
     const allLeads = data?.data?.data || [];
 
     // Split leads based on status
-    const openLeads = allLeads.filter((lead) => lead.status == 'open');
+    const openLeads = allLeads.filter(
+        (lead) => lead.status == 'open' && lead.meetingCount === 0
+    );
+    const contactedLeads = allLeads.filter(
+        (lead) => lead.status === 'open' && lead.meetingCount !== 0
+    );
     const convertedLeads = allLeads.filter(
         (lead) => lead.status === 'converted'
     );
+    const closedLeads = allLeads.filter((lead) => lead.status === 'closed');
 
     const getSourceColor = (source) => {
         const colors = {
@@ -185,17 +191,48 @@ const LeadDashboard = () => {
     };
 
     const getCurrentLeads = () => {
-        return tabValue === 0 ? openLeads : convertedLeads;
+        switch (tabValue) {
+            case 0:
+                return openLeads;
+            case 1:
+                return contactedLeads;
+            case 2:
+                return convertedLeads;
+            case 3:
+                return closedLeads;
+            default:
+                return openLeads;
+        }
     };
 
     const getTabTitle = () => {
-        return tabValue === 0 ? 'Open Leads' : 'Converted Leads';
+        switch (tabValue) {
+            case 0:
+                return 'Open Leads';
+            case 1:
+                return 'Contacted Leads';
+            case 2:
+                return 'Converted Leads';
+            case 3:
+                return 'Closed Leads';
+            default:
+                return 'Open Leads';
+        }
     };
 
     const getTabDescription = () => {
-        return tabValue === 0
-            ? 'Open leads submitted by users through the google survey.'
-            : 'Leads that have been Converted or completed.';
+        switch (tabValue) {
+            case 0:
+                return 'Open leads submitted by users through the google survey.';
+            case 1:
+                return 'Contacted leads with scheduled meetings.';
+            case 2:
+                return 'Leads that have been Converted or completed.';
+            case 3:
+                return 'Leads that have been closed.';
+            default:
+                return 'Open leads submitted by users through the google survey.';
+        }
     };
 
     return (
@@ -244,7 +281,15 @@ const LeadDashboard = () => {
                                 sx={{ textTransform: 'none' }}
                             />
                             <Tab
+                                label={`Contacted Leads (${contactedLeads.length})`}
+                                sx={{ textTransform: 'none' }}
+                            />
+                            <Tab
                                 label={`Converted Leads (${convertedLeads.length})`}
+                                sx={{ textTransform: 'none' }}
+                            />
+                            <Tab
+                                label={`Closed Leads (${closedLeads.length})`}
                                 sx={{ textTransform: 'none' }}
                             />
                         </Tabs>
