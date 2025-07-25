@@ -72,108 +72,104 @@ const LeadPage = () => {
             </Box>
 
             {/* Meetings */}
-            {lead &&
-                Object.keys(lead).length > 0 &&
-                lead.meetings &&
-                lead.meetings.length > 0 && (
-                    <Box sx={{ mb: 4 }}>
-                        <Box
-                            sx={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                gap: 1.5
-                            }}
-                        >
-                            {lead.meetings.map((meeting) => (
+            {lead?.meetings && lead.meetings.length > 0 && (
+                <Box sx={{ mb: 4 }}>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 1.5
+                        }}
+                    >
+                        {lead.meetings.map((meeting) => (
+                            <Box
+                                key={meeting.id}
+                                sx={{
+                                    p: 2,
+                                    borderLeft: '4px solid',
+                                    borderLeftColor: 'primary.main',
+                                    backgroundColor: 'grey.50',
+                                    borderRadius: '0 4px 4px 0',
+                                    '&:hover': {
+                                        backgroundColor: 'grey.100',
+                                        transition: 'background-color 0.2s ease'
+                                    },
+                                    position: 'relative'
+                                }}
+                            >
                                 <Box
-                                    key={meeting.id}
                                     sx={{
-                                        p: 2,
-                                        borderLeft: '4px solid',
-                                        borderLeftColor: 'primary.main',
-                                        backgroundColor: 'grey.50',
-                                        borderRadius: '0 4px 4px 0',
-                                        '&:hover': {
-                                            backgroundColor: 'grey.100',
-                                            transition:
-                                                'background-color 0.2s ease'
-                                        },
-                                        position: 'relative'
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 1.5
                                     }}
                                 >
-                                    <Box
+                                    <EventIcon
+                                        color="primary"
+                                        sx={{
+                                            fontSize: '1.1rem',
+                                            flexShrink: 0
+                                        }}
+                                    />
+                                    <Typography
                                         sx={{
                                             display: 'flex',
+                                            flexWrap: 'wrap',
+                                            gap: 2,
                                             alignItems: 'center',
-                                            gap: 1.5
+                                            lineHeight: 1.6,
+                                            flex: 1
                                         }}
+                                        variant="body1"
                                     >
-                                        <EventIcon
-                                            color="primary"
+                                        <Box
+                                            component="span"
                                             sx={{
-                                                fontSize: '1.1rem',
-                                                flexShrink: 0
+                                                fontWeight: 'bold',
+                                                color: 'text.primary'
                                             }}
-                                        />
-                                        <Typography
-                                            sx={{
-                                                display: 'flex',
-                                                flexWrap: 'wrap',
-                                                gap: 2,
-                                                alignItems: 'center',
-                                                lineHeight: 1.6,
-                                                flex: 1
-                                            }}
-                                            variant="body1"
                                         >
-                                            <Box
-                                                component="span"
+                                            <Link
+                                                component="a"
+                                                href={`/crm/meetings/${meeting.id}`}
                                                 sx={{
-                                                    fontWeight: 'bold',
-                                                    color: 'text.primary'
+                                                    color: 'inherit',
+                                                    fontWeight: 'inherit'
                                                 }}
+                                                underline="hover"
                                             >
-                                                <Link
-                                                    component="a"
-                                                    href={`/crm/meetings/${meeting.id}`}
-                                                    sx={{
-                                                        color: 'inherit',
-                                                        fontWeight: 'inherit'
-                                                    }}
-                                                    underline="hover"
-                                                >
-                                                    {meeting.title}
-                                                </Link>
-                                            </Box>
-                                            <Box
-                                                component="span"
-                                                sx={{
-                                                    color: 'text.secondary',
-                                                    fontSize: '0.9rem'
-                                                }}
-                                            >
-                                                {new Date(
-                                                    meeting.date
-                                                ).toLocaleDateString()}
-                                            </Box>
-                                            <Box
-                                                component="span"
-                                                sx={{
-                                                    flex: 1,
-                                                    minWidth: '300px',
-                                                    color: 'text.primary'
-                                                }}
-                                            >
-                                                {meeting.summary?.gist ||
-                                                    'No summary available'}
-                                            </Box>
-                                        </Typography>
-                                    </Box>
+                                                {meeting.title}
+                                            </Link>
+                                        </Box>
+                                        <Box
+                                            component="span"
+                                            sx={{
+                                                color: 'text.secondary',
+                                                fontSize: '0.9rem'
+                                            }}
+                                        >
+                                            {new Date(
+                                                meeting.date
+                                            ).toLocaleDateString()}
+                                        </Box>
+                                        <Box
+                                            component="span"
+                                            sx={{
+                                                flex: 1,
+                                                minWidth: '300px',
+                                                color: 'text.primary'
+                                            }}
+                                        >
+                                            {meeting.summary?.gist ||
+                                                'No summary available'}
+                                        </Box>
+                                    </Typography>
                                 </Box>
-                            ))}
-                        </Box>
+                            </Box>
+                        ))}
                     </Box>
-                )}
+                </Box>
+            )}
 
             {lead && Object.keys(lead).length > 0 ? (
                 <Grid container spacing={3}>
