@@ -1,16 +1,8 @@
 import { useParams, Navigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import {
-    Box,
-    Breadcrumbs,
-    Link,
-    Typography,
-    Card,
-    CardContent,
-    Grid,
-    Chip,
-    Divider
-} from '@mui/material';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState, useMemo } from 'react';
+import { useForm } from '@tanstack/react-form';
+import { Box, Breadcrumbs, Link, Typography, Grid } from '@mui/material';
 import { Event as EventIcon } from '@mui/icons-material';
 
 import DEMO from '../../store/constant';
@@ -20,10 +12,16 @@ import { useAuth } from '../../components/AuthProvider';
 import { is_TaiGer_role } from '@taiger-common/core';
 import { appConfig } from '../../config';
 import { getCRMLeadQuery } from '../../api/query';
+import EditableCard from './components/EditableCard';
+import { GenericCardContent } from './components/GenericCard';
+import { cardConfigurations } from './components/CardConfigurations';
+
+const { request } = require('../../api/request');
 
 const LeadPage = () => {
     TabTitle('CRM - Lead Details');
     const { leadId } = useParams();
+    const queryClient = useQueryClient();
 
     const { user } = useAuth();
     if (!is_TaiGer_role(user)) {
@@ -31,7 +29,184 @@ const LeadPage = () => {
     }
 
     const { data, isLoading } = useQuery(getCRMLeadQuery(leadId));
-    const lead = data?.data?.data || [];
+    const lead = data?.data?.data || {};
+
+    // Generate edit states dynamically from card configurations
+    const initialEditStates = cardConfigurations.reduce((acc, config) => {
+        acc[config.id] = false;
+        return acc;
+    }, {});
+
+    const [editStates, setEditStates] = useState(initialEditStates);
+    const [formData, setFormData] = useState({});
+
+    // Initialize form data when lead loads
+    useMemo(() => {
+        if (lead && Object.keys(lead).length > 0) {
+            setFormData(lead);
+        }
+    }, [lead]);
+
+    // Create form with TanStack Form for change tracking
+    const form = useForm({
+        defaultValues: formData,
+        onSubmit: async ({ value }) => {
+            // Get only the changed fields by comparing with original lead data
+            const changedFields = getChangedFields(lead, value);
+            if (Object.keys(changedFields).length === 0) {
+                console.log('No changes detected');
+                return;
+            }
+
+            console.log('Submitting only changed fields:', changedFields);
+            return updateLeadMutation.mutateAsync(changedFields);
+        }
+    });
+
+    // Helper function to get only changed fields with deep comparison
+    const getChangedFields = (original, current) => {
+        const changes = {};
+        Object.keys(current).forEach((key) => {
+            // Skip system fields that shouldn't be sent to API
+            if (['createdAt', 'updatedAt', 'meetings', 'id'].includes(key)) {
+                return;
+            }
+
+            // Compare values, treating undefined/null/empty string as equivalent for form fields
+            const originalValue = original[key] || '';
+            const currentValue = current[key] || '';
+
+            if (originalValue !== currentValue) {
+                changes[key] = current[key];
+            }
+        });
+        return changes;
+    };
+
+    // Update form values when lead data changes
+    useMemo(() => {
+        if (lead && Object.keys(lead).length > 0) {
+            setFormData(lead);
+            form.reset(lead);
+        }
+    }, [lead, form]);
+
+    // Update lead mutation - now only sends changed fields
+    const updateLeadMutation = useMutation({
+        mutationFn: async (changedData) => {
+            // Only send the changed fields to the API
+            console.log('Sending to API:', changedData);
+            const response = await request.put(
+                `/api/crm/leads/${leadId}`,
+                changedData
+            );
+            return response.data || response;
+        },
+        onSuccess: (updatedLead) => {
+            // Update the query cache with the merged data
+            queryClient.setQueryData(['crm-lead', leadId], (oldData) => {
+                if (oldData) {
+                    return {
+                        ...oldData,
+                        data: {
+                            ...oldData.data,
+                            data: { ...oldData.data.data, ...updatedLead }
+                        }
+                    };
+                }
+                return oldData;
+            });
+
+            // Also invalidate to refetch from server as backup
+            queryClient.invalidateQueries(['crm-lead', leadId]);
+        }
+    });
+
+    const handleEdit = (cardType) => {
+        setEditStates((prev) => ({
+            ...prev,
+            [cardType]: true
+        }));
+        // Ensure form has the latest lead values when starting edit
+        if (lead && Object.keys(lead).length > 0) {
+            setFormData(lead);
+            form.reset(lead);
+        }
+    };
+
+    const handleCancel = (cardType) => {
+        setEditStates((prev) => ({
+            ...prev,
+            [cardType]: false
+        }));
+        // Reset form to original lead values on cancel
+        setFormData(lead);
+        form.reset(lead);
+    };
+
+    const handleSave = async (cardType) => {
+        try {
+            // Get the changed fields before submitting
+            const changedFields = getChangedFields(lead, formData);
+            console.log('Changed fields to submit:', changedFields);
+
+            if (Object.keys(changedFields).length === 0) {
+                console.log('No changes detected, exiting edit mode');
+                setEditStates((prev) => ({
+                    ...prev,
+                    [cardType]: false
+                }));
+                return;
+            }
+
+            // Submit the changes
+            await updateLeadMutation.mutateAsync(changedFields);
+            // Exit edit mode only after successful save
+            setEditStates((prev) => ({
+                ...prev,
+                [cardType]: false
+            }));
+        } catch (error) {
+            console.error('Failed to save lead data:', error);
+            alert('Failed to save changes. Please try again.');
+        }
+    };
+
+    const handleFieldChange = (field, value) => {
+        // Update both form data state and TanStack form
+        setFormData((prev) => ({
+            ...prev,
+            [field]: value
+        }));
+
+        // Update TanStack form as well for consistency
+        form.setFieldValue(field, value);
+    };
+
+    // Helper to check if a specific card has unsaved changes
+    const hasUnsavedChanges = (cardId) => {
+        const changedFields = getChangedFields(lead, formData);
+        // Get fields for this specific card from the configuration
+        const cardConfig = cardConfigurations.find(
+            (config) => config.id === cardId
+        );
+        if (!cardConfig) return false;
+
+        const cardFields = cardConfig.fields
+            ? cardConfig.fields.map((field) => field.key)
+            : [];
+        const cardSectionFields = cardConfig.sections
+            ? cardConfig.sections.flatMap((section) =>
+                  section.fields.map((field) => field.key)
+              )
+            : [];
+
+        const allCardFields = [...cardFields, ...cardSectionFields];
+
+        return allCardFields.some((field) =>
+            Object.prototype.hasOwnProperty.call(changedFields, field)
+        );
+    };
 
     if (isLoading) {
         return <Loading />;
@@ -173,436 +348,37 @@ const LeadPage = () => {
 
             {lead && Object.keys(lead).length > 0 ? (
                 <Grid container spacing={3}>
-                    {/* Personal Information */}
-                    <Grid item md={6} xs={12}>
-                        <Card sx={{ height: '100%' }}>
-                            <CardContent>
-                                <Typography
-                                    color="primary"
-                                    gutterBottom
-                                    variant="h6"
-                                >
-                                    Personal Information
-                                </Typography>
-                                <Box sx={{ mb: 2 }}>
-                                    <Typography
-                                        color="text.secondary"
-                                        variant="body2"
-                                    >
-                                        Full Name
-                                    </Typography>
-                                    <Typography
-                                        fontWeight="medium"
-                                        variant="body1"
-                                    >
-                                        {lead.fullName || 'N/A'}
-                                    </Typography>
-                                </Box>
-                                <Box sx={{ mb: 2 }}>
-                                    <Typography
-                                        color="text.secondary"
-                                        variant="body2"
-                                    >
-                                        Gender
-                                    </Typography>
-                                    <Typography variant="body1">
-                                        {lead.gender || 'N/A'}
-                                    </Typography>
-                                </Box>
-                                <Box sx={{ mb: 2 }}>
-                                    <Typography
-                                        color="text.secondary"
-                                        variant="body2"
-                                    >
-                                        Role
-                                    </Typography>
-                                    <Typography variant="body1">
-                                        {lead.applicantRole || 'N/A'}
-                                    </Typography>
-                                </Box>
-                                <Box sx={{ mb: 2 }}>
-                                    <Typography
-                                        color="text.secondary"
-                                        variant="body2"
-                                    >
-                                        Status
-                                    </Typography>
-                                    <Box
-                                        sx={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: 1
-                                        }}
-                                    >
-                                        <Chip
-                                            color={
-                                                lead.status === 'new'
-                                                    ? 'primary'
-                                                    : 'default'
-                                            }
-                                            label={lead.status || 'Unknown'}
-                                            size="small"
-                                        />
-                                        {lead.userId && (
-                                            <Link
-                                                component="a"
-                                                href={`/student-database/${lead.userId}`}
-                                                underline="hover"
-                                                variant="body2"
-                                            >
-                                                View Student Profile
-                                            </Link>
-                                        )}
-                                    </Box>
-                                </Box>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-
-                    {/* Contact Information */}
-                    <Grid item md={6} xs={12}>
-                        <Card sx={{ height: '100%' }}>
-                            <CardContent>
-                                <Typography
-                                    color="primary"
-                                    gutterBottom
-                                    variant="h6"
-                                >
-                                    Contact Information
-                                </Typography>
-                                <Box sx={{ mb: 2 }}>
-                                    <Typography
-                                        color="text.secondary"
-                                        variant="body2"
-                                    >
-                                        Email
-                                    </Typography>
-                                    <Typography variant="body1">
-                                        {lead.email || 'N/A'}
-                                    </Typography>
-                                </Box>
-                                <Box sx={{ mb: 2 }}>
-                                    <Typography
-                                        color="text.secondary"
-                                        variant="body2"
-                                    >
-                                        Phone
-                                    </Typography>
-                                    <Typography variant="body1">
-                                        {lead.phone || 'N/A'}
-                                    </Typography>
-                                </Box>
-                                <Box sx={{ mb: 2 }}>
-                                    <Typography
-                                        color="text.secondary"
-                                        variant="body2"
-                                    >
-                                        Preferred Contact
-                                    </Typography>
-                                    <Typography variant="body1">
-                                        {lead.preferredContact || 'N/A'}
-                                    </Typography>
-                                </Box>
-                                <Box sx={{ mb: 2 }}>
-                                    <Typography
-                                        color="text.secondary"
-                                        variant="body2"
-                                    >
-                                        LINE ID
-                                    </Typography>
-                                    <Typography variant="body1">
-                                        {lead.lineId || 'N/A'}
-                                    </Typography>
-                                </Box>
-                                <Box sx={{ mb: 2 }}>
-                                    <Typography
-                                        color="text.secondary"
-                                        variant="body2"
-                                    >
-                                        Source
-                                    </Typography>
-                                    <Typography variant="body1">
-                                        {lead.source || 'N/A'}
-                                    </Typography>
-                                </Box>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-
-                    {/* Educational Background */}
-                    <Grid item xs={12}>
-                        <Card sx={{ height: '100%' }}>
-                            <CardContent>
-                                <Typography
-                                    color="primary"
-                                    gutterBottom
-                                    variant="h6"
-                                >
-                                    Educational Background
-                                </Typography>
-                                <Grid container spacing={2}>
-                                    <Grid item md={4} xs={12}>
-                                        <Typography
-                                            fontWeight="bold"
-                                            variant="subtitle2"
-                                        >
-                                            High School
-                                        </Typography>
-                                        <Typography variant="body2">
-                                            {lead.highschoolName || 'N/A'}
-                                        </Typography>
-                                        <Typography
-                                            color="text.secondary"
-                                            variant="body2"
-                                        >
-                                            GPA: {lead.highschoolGPA || 'N/A'}
-                                        </Typography>
-                                    </Grid>
-                                    <Grid item md={4} xs={12}>
-                                        <Typography
-                                            fontWeight="bold"
-                                            variant="subtitle2"
-                                        >
-                                            Bachelor&apos;s Degree
-                                        </Typography>
-                                        <Typography variant="body2">
-                                            {lead.bachelorSchool || 'N/A'}
-                                        </Typography>
-                                        <Typography variant="body2">
-                                            {lead.bachelorProgramName || 'N/A'}
-                                        </Typography>
-                                        <Typography
-                                            color="text.secondary"
-                                            variant="body2"
-                                        >
-                                            GPA: {lead.bachelorGPA || 'N/A'}
-                                        </Typography>
-                                    </Grid>
-                                    <Grid item md={4} xs={12}>
-                                        <Typography
-                                            fontWeight="bold"
-                                            variant="subtitle2"
-                                        >
-                                            Master&apos;s Degree
-                                        </Typography>
-                                        <Typography variant="body2">
-                                            {lead.masterSchool || 'N/A'}
-                                        </Typography>
-                                        <Typography variant="body2">
-                                            {lead.masterProgramName || 'N/A'}
-                                        </Typography>
-                                        <Typography
-                                            color="text.secondary"
-                                            variant="body2"
-                                        >
-                                            GPA: {lead.masterGPA || 'N/A'}
-                                        </Typography>
-                                    </Grid>
-                                </Grid>
-                                <Divider sx={{ my: 2 }} />
-                                <Box>
-                                    <Typography
-                                        color="text.secondary"
-                                        variant="body2"
-                                    >
-                                        Highest Education
-                                    </Typography>
-                                    <Typography
-                                        fontWeight="medium"
-                                        variant="body1"
-                                    >
-                                        {lead.highestEducation || 'N/A'}
-                                    </Typography>
-                                </Box>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-
-                    {/* Intended Programs */}
-                    <Grid item md={6} xs={12}>
-                        <Card sx={{ height: '100%' }}>
-                            <CardContent>
-                                <Typography
-                                    color="primary"
-                                    gutterBottom
-                                    variant="h6"
-                                >
-                                    Intended Programs
-                                </Typography>
-                                <Box sx={{ mb: 2 }}>
-                                    <Typography
-                                        color="text.secondary"
-                                        variant="body2"
-                                    >
-                                        Target Universities
-                                    </Typography>
-                                    <Typography variant="body1">
-                                        {lead.intendedPrograms || 'N/A'}
-                                    </Typography>
-                                </Box>
-                                <Box sx={{ mb: 2 }}>
-                                    <Typography
-                                        color="text.secondary"
-                                        variant="body2"
-                                    >
-                                        Direction
-                                    </Typography>
-                                    <Typography variant="body1">
-                                        {lead.intendedDirection || 'N/A'}
-                                    </Typography>
-                                </Box>
-                                <Box sx={{ mb: 2 }}>
-                                    <Typography
-                                        color="text.secondary"
-                                        variant="body2"
-                                    >
-                                        Program Level
-                                    </Typography>
-                                    <Typography variant="body1">
-                                        {lead.intendedProgramLevel || 'N/A'}
-                                    </Typography>
-                                </Box>
-                                <Box sx={{ mb: 2 }}>
-                                    <Typography
-                                        color="text.secondary"
-                                        variant="body2"
-                                    >
-                                        Start Time
-                                    </Typography>
-                                    <Typography variant="body1">
-                                        {lead.intendedStartTime || 'N/A'}
-                                    </Typography>
-                                </Box>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-
-                    {/* Language Skills */}
-                    <Grid item md={6} xs={12}>
-                        <Card sx={{ height: '100%' }}>
-                            <CardContent>
-                                <Typography
-                                    color="primary"
-                                    gutterBottom
-                                    variant="h6"
-                                >
-                                    Language Skills
-                                </Typography>
-                                <Box sx={{ mb: 2 }}>
-                                    <Typography
-                                        color="text.secondary"
-                                        variant="body2"
-                                    >
-                                        English Level
-                                    </Typography>
-                                    <Typography variant="body1">
-                                        {lead.englishLevel || 'N/A'}
-                                    </Typography>
-                                </Box>
-                                <Box sx={{ mb: 2 }}>
-                                    <Typography
-                                        color="text.secondary"
-                                        variant="body2"
-                                    >
-                                        German Level
-                                    </Typography>
-                                    <Typography variant="body1">
-                                        {lead.germanLevel || 'N/A'}
-                                    </Typography>
-                                </Box>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-
-                    {/* Work Experience */}
-                    <Grid item xs={12}>
-                        <Card sx={{ height: '100%' }}>
-                            <CardContent>
-                                <Typography
-                                    color="primary"
-                                    gutterBottom
-                                    variant="h6"
-                                >
-                                    Work Experience
-                                </Typography>
-                                <Typography
-                                    sx={{ whiteSpace: 'pre-line' }}
-                                    variant="body1"
-                                >
-                                    {lead.workExperience ||
-                                        'No work experience provided'}
-                                </Typography>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-
-                    {/* Additional Information */}
-                    <Grid item xs={12}>
-                        <Card sx={{ height: '100%' }}>
-                            <CardContent>
-                                <Typography
-                                    color="primary"
-                                    gutterBottom
-                                    variant="h6"
-                                >
-                                    Additional Information
-                                </Typography>
-                                <Box sx={{ mb: 2 }}>
-                                    <Typography
-                                        fontWeight="bold"
-                                        variant="subtitle2"
-                                    >
-                                        Additional Info
-                                    </Typography>
-                                    <Typography variant="body1">
-                                        {lead.additionalInfo || 'N/A'}
-                                    </Typography>
-                                </Box>
-                                <Box sx={{ mb: 2 }}>
-                                    <Typography
-                                        fontWeight="bold"
-                                        variant="subtitle2"
-                                    >
-                                        Reasons to Study Abroad
-                                    </Typography>
-                                    <Typography variant="body1">
-                                        {lead.reasonsToStudyAbroad || 'N/A'}
-                                    </Typography>
-                                </Box>
-                                <Box
-                                    sx={{
-                                        mt: 2,
-                                        display: 'flex',
-                                        gap: 1,
-                                        flexWrap: 'wrap'
-                                    }}
-                                >
-                                    <Typography
-                                        color="text.secondary"
-                                        variant="body2"
-                                    >
-                                        Created:{' '}
-                                        {lead.createdAt
-                                            ? new Date(
-                                                  lead.createdAt
-                                              ).toLocaleDateString()
-                                            : 'N/A'}
-                                    </Typography>
-                                    <Typography
-                                        color="text.secondary"
-                                        variant="body2"
-                                    >
-                                        Updated:{' '}
-                                        {lead.updatedAt
-                                            ? new Date(
-                                                  lead.updatedAt
-                                              ).toLocaleDateString()
-                                            : 'N/A'}
-                                    </Typography>
-                                </Box>
-                            </CardContent>
-                        </Card>
-                    </Grid>
+                    {cardConfigurations.map((config) => (
+                        <Grid item key={config.id} {...config.gridSize}>
+                            <EditableCard
+                                editContent={
+                                    <GenericCardContent
+                                        config={config}
+                                        formData={formData}
+                                        isEditing={true}
+                                        lead={lead}
+                                        onFieldChange={handleFieldChange}
+                                    />
+                                }
+                                hasUnsavedChanges={hasUnsavedChanges(config.id)}
+                                isEditing={editStates[config.id]}
+                                isLoading={updateLeadMutation.isPending}
+                                onCancel={() => handleCancel(config.id)}
+                                onEdit={() => handleEdit(config.id)}
+                                onSave={() => handleSave(config.id)}
+                                title={config.title}
+                                viewContent={
+                                    <GenericCardContent
+                                        config={config}
+                                        formData={formData}
+                                        isEditing={false}
+                                        lead={lead}
+                                        onFieldChange={handleFieldChange}
+                                    />
+                                }
+                            />
+                        </Grid>
+                    ))}
                 </Grid>
             ) : (
                 <Typography color="text.secondary" variant="body1">
