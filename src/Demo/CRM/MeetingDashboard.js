@@ -117,7 +117,9 @@ const MeetingPage = () => {
 
     // Separate meetings into active and archived
     const allMeetings = data?.data?.data || [];
-    const assignedMeetings = allMeetings.filter((meeting) => !meeting.isArchived);
+    const nonArchivedMeetings = allMeetings.filter(
+        (meeting) => !meeting.isArchived
+    );
     const archivedMeetings = allMeetings.filter(
         (meeting) => meeting.isArchived
     );
@@ -129,7 +131,7 @@ const MeetingPage = () => {
     // Select current meetings based on active tab
     const currentMeetings =
         activeTab === 0
-            ? assignedMeetings
+            ? nonArchivedMeetings
             : activeTab === 1
               ? unassignedMeetings
               : archivedMeetings;
@@ -511,7 +513,7 @@ const MeetingPage = () => {
                             value={activeTab}
                         >
                             <Tab
-                                label={`Assigned Meetings (${assignedMeetings.length})`}
+                                label={`All Meetings (${nonArchivedMeetings.length})`}
                                 sx={{ textTransform: 'none', fontWeight: 500 }}
                             />
                             <Tab
