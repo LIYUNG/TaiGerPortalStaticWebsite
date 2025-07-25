@@ -347,7 +347,7 @@ const LeadPage = () => {
             )}
 
             {lead && Object.keys(lead).length > 0 ? (
-                <Grid container spacing={3}>
+                <Grid container spacing={3} sx={{ pb: 5 }}>
                     {cardConfigurations.map((config) => (
                         <Grid item key={config.id} {...config.gridSize}>
                             <EditableCard

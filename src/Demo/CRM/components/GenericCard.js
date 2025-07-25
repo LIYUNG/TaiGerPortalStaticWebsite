@@ -92,44 +92,68 @@ export const GenericCardContent = ({
         return (
             <>
                 {config.layout === 'grid' ? (
-                    <Grid container spacing={2}>
-                        {config.sections.map((section, sectionIndex) => (
-                            <Grid
-                                item
-                                key={sectionIndex}
-                                md={section.gridSize || 4}
-                                xs={12}
-                            >
-                                {section.title && (
-                                    <Typography
-                                        fontWeight="bold"
-                                        variant="subtitle2"
-                                    >
-                                        {section.title}
-                                    </Typography>
-                                )}
-                                {section.fields.map((field, fieldIndex) => (
-                                    <Box
-                                        key={fieldIndex}
-                                        sx={{
-                                            mb: field.type === 'title' ? 1 : 2
-                                        }}
-                                    >
-                                        {field.type !== 'custom' &&
-                                            field.type !== 'chip' && (
-                                                <Typography
-                                                    color="text.secondary"
-                                                    variant="body2"
-                                                >
-                                                    {field.label}
-                                                </Typography>
-                                            )}
-                                        <ViewField field={field} lead={lead} />
-                                    </Box>
-                                ))}
-                            </Grid>
-                        ))}
-                    </Grid>
+                    <>
+                        <Grid container spacing={2}>
+                            {config.sections.map((section, sectionIndex) => (
+                                <Grid
+                                    item
+                                    key={sectionIndex}
+                                    md={section.gridSize || 4}
+                                    xs={12}
+                                >
+                                    {section.title && (
+                                        <Typography
+                                            fontWeight="bold"
+                                            variant="subtitle2"
+                                        >
+                                            {section.title}
+                                        </Typography>
+                                    )}
+                                    {section.fields.map((field, fieldIndex) => (
+                                        <Box
+                                            key={fieldIndex}
+                                            sx={{
+                                                mb:
+                                                    field.type === 'title'
+                                                        ? 1
+                                                        : 2
+                                            }}
+                                        >
+                                            {field.type !== 'custom' &&
+                                                field.type !== 'chip' && (
+                                                    <Typography
+                                                        color="text.secondary"
+                                                        variant="body2"
+                                                    >
+                                                        {field.label}
+                                                    </Typography>
+                                                )}
+                                            <ViewField
+                                                field={field}
+                                                lead={lead}
+                                            />
+                                        </Box>
+                                    ))}
+                                </Grid>
+                            ))}
+                        </Grid>
+                        {/* Render additional fields if they exist */}
+                        {config.fields &&
+                            config.fields.map((field, index) => (
+                                <Box key={`additional-${index}`} sx={{ mb: 2 }}>
+                                    {field.type !== 'custom' &&
+                                        field.type !== 'chip' && (
+                                            <Typography
+                                                color="text.secondary"
+                                                variant="body2"
+                                            >
+                                                {field.label}
+                                            </Typography>
+                                        )}
+                                    <ViewField field={field} lead={lead} />
+                                </Box>
+                            ))}
+                    </>
                 ) : (
                     config.fields.map((field, index) => (
                         <Box key={index} sx={{ mb: 2 }}>
@@ -155,34 +179,46 @@ export const GenericCardContent = ({
     return (
         <>
             {config.layout === 'grid' ? (
-                <Grid container spacing={2}>
-                    {config.sections.map((section, sectionIndex) => (
-                        <Grid
-                            item
-                            key={sectionIndex}
-                            md={section.gridSize || 4}
-                            xs={12}
-                        >
-                            {section.title && (
-                                <Typography
-                                    fontWeight="bold"
-                                    sx={{ mb: 1 }}
-                                    variant="subtitle2"
-                                >
-                                    {section.title}
-                                </Typography>
-                            )}
-                            {section.fields.map((field, fieldIndex) => (
-                                <EditField
-                                    key={fieldIndex}
-                                    field={field}
-                                    formData={formData}
-                                    onFieldChange={onFieldChange}
-                                />
-                            ))}
-                        </Grid>
-                    ))}
-                </Grid>
+                <>
+                    <Grid container spacing={2}>
+                        {config.sections.map((section, sectionIndex) => (
+                            <Grid
+                                item
+                                key={sectionIndex}
+                                md={section.gridSize || 4}
+                                xs={12}
+                            >
+                                {section.title && (
+                                    <Typography
+                                        fontWeight="bold"
+                                        sx={{ mb: 1 }}
+                                        variant="subtitle2"
+                                    >
+                                        {section.title}
+                                    </Typography>
+                                )}
+                                {section.fields.map((field, fieldIndex) => (
+                                    <EditField
+                                        key={fieldIndex}
+                                        field={field}
+                                        formData={formData}
+                                        onFieldChange={onFieldChange}
+                                    />
+                                ))}
+                            </Grid>
+                        ))}
+                    </Grid>
+                    {/* Render additional fields if they exist */}
+                    {config.fields &&
+                        config.fields.map((field, index) => (
+                            <EditField
+                                key={`additional-${index}`}
+                                field={field}
+                                formData={formData}
+                                onFieldChange={onFieldChange}
+                            />
+                        ))}
+                </>
             ) : (
                 config.fields.map((field, index) => (
                     <EditField

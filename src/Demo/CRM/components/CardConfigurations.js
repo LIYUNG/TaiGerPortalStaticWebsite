@@ -1,13 +1,5 @@
 import React from 'react';
-import {
-    Box,
-    Typography,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
-    Link
-} from '@mui/material';
+import { Box, Typography, Link } from '@mui/material';
 
 // Card configurations for each section
 export const cardConfigurations = [
@@ -158,34 +150,13 @@ export const cardConfigurations = [
                 ]
             }
         ],
-        divider: true,
-        editAdditionalContent: (formData, onFieldChange) => (
-            <FormControl fullWidth>
-                <InputLabel>Highest Education</InputLabel>
-                <Select
-                    label="Highest Education"
-                    onChange={(e) =>
-                        onFieldChange('highestEducation', e.target.value)
-                    }
-                    value={formData.highestEducation || ''}
-                >
-                    <MenuItem value="High School">High School</MenuItem>
-                    <MenuItem value="Bachelor">Bachelor</MenuItem>
-                    <MenuItem value="Master">Master</MenuItem>
-                    <MenuItem value="PhD">PhD</MenuItem>
-                </Select>
-            </FormControl>
-        ),
-        additionalContent: (lead) => (
-            <Box>
-                <Typography color="text.secondary" variant="body2">
-                    Highest Education
-                </Typography>
-                <Typography fontWeight="medium" variant="body1">
-                    {lead.highestEducation || 'N/A'}
-                </Typography>
-            </Box>
-        )
+        fields: [
+            {
+                key: 'highestEducation',
+                label: 'Highest Education',
+                type: 'text'
+            }
+        ]
     },
     {
         id: 'programs',
