@@ -145,6 +145,7 @@ const MeetingPage = () => {
                 return leadId ? (
                     <Link
                         component={LinkDom}
+                        onClick={(e) => e.stopPropagation()}
                         sx={{
                             cursor: 'pointer',
                             fontWeight: 500,
