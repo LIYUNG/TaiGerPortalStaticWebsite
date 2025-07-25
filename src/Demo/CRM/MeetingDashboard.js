@@ -284,7 +284,6 @@ const MeetingPage = () => {
                                 }
                             >
                                 <Button
-                                    variant={leadId ? 'outlined' : 'contained'}
                                     endIcon={<ArrowDropDownIcon />}
                                     onClick={(e) =>
                                         handleAssignClick(e, row.original.id)
@@ -298,6 +297,7 @@ const MeetingPage = () => {
                                         )
                                     }
                                     sx={{ borderRadius: 2 }}
+                                    variant={leadId ? 'outlined' : 'contained'}
                                 >
                                     {leadId ? 'Change' : 'Assign'}
                                 </Button>
@@ -337,6 +337,16 @@ const MeetingPage = () => {
 
             {/* Lead Assignment Popover with Search */}
             <Popover
+                anchorEl={assignMenuAnchor}
+                anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'left'
+                }}
+                disableAutoFocus
+                disableEnforceFocus
+                disableRestoreFocus
+                onClose={handleMenuClose}
+                open={Boolean(assignMenuAnchor)}
                 slotProps={{
                     paper: {
                         sx: {
@@ -346,20 +356,10 @@ const MeetingPage = () => {
                         }
                     }
                 }}
-                anchorEl={assignMenuAnchor}
-                anchorOrigin={{
-                    vertical: 'bottom',
-                    horizontal: 'left'
-                }}
-                onClose={handleMenuClose}
-                open={Boolean(assignMenuAnchor)}
                 transformOrigin={{
                     vertical: 'top',
                     horizontal: 'left'
                 }}
-                disableAutoFocus
-                disableEnforceFocus
-                disableRestoreFocus
             >
                 <Box sx={{ p: 2 }}>
                     <Typography sx={{ mb: 2 }} variant="h6">
@@ -497,9 +497,9 @@ const MeetingPage = () => {
                     {/* Tabs */}
                     <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                         <Tabs
-                            value={activeTab}
                             onChange={handleTabChange}
                             sx={{ px: 2.5 }}
+                            value={activeTab}
                         >
                             <Tab
                                 label={`Active Meetings (${activeMeetings.length})`}
@@ -513,11 +513,12 @@ const MeetingPage = () => {
                     </Box>
 
                     <MaterialReactTable
+                        autoResetPageIndex={false}
                         columns={getColumns(activeTab === 1)}
                         data={currentMeetings}
-                        enableRowSelection={false}
-                        enableGlobalFilter={false}
                         enableColumnFilters={false}
+                        enableGlobalFilter={false}
+                        enableRowSelection={false}
                         muiTableBodyRowProps={({ row }) => ({
                             onClick: () => {
                                 navigate(`/crm/meetings/${row.original.id}`);
@@ -526,13 +527,12 @@ const MeetingPage = () => {
                                 cursor: 'pointer'
                             }
                         })}
+                        onPaginationChange={setPagination}
                         state={{
                             isLoading,
                             pagination
                         }}
-                        onPaginationChange={setPagination}
                         // Add this to prevent automatic state resets
-                        autoResetPageIndex={false}
                     />
                 </CardContent>
             </Card>

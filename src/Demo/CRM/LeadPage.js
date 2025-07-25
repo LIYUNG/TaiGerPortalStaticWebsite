@@ -116,7 +116,6 @@ const LeadPage = () => {
                                             }}
                                         />
                                         <Typography
-                                            variant="body1"
                                             sx={{
                                                 display: 'flex',
                                                 flexWrap: 'wrap',
@@ -125,6 +124,7 @@ const LeadPage = () => {
                                                 lineHeight: 1.6,
                                                 flex: 1
                                             }}
+                                            variant="body1"
                                         >
                                             <Box
                                                 component="span"
@@ -136,11 +136,11 @@ const LeadPage = () => {
                                                 <Link
                                                     component="a"
                                                     href={`/crm/meetings/${meeting.id}`}
-                                                    underline="hover"
                                                     sx={{
                                                         color: 'inherit',
                                                         fontWeight: 'inherit'
                                                     }}
+                                                    underline="hover"
                                                 >
                                                     {meeting.title}
                                                 </Link>
