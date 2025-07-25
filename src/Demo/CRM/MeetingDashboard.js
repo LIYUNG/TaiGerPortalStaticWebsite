@@ -117,14 +117,22 @@ const MeetingPage = () => {
 
     // Separate meetings into active and archived
     const allMeetings = data?.data?.data || [];
-    const activeMeetings = allMeetings.filter((meeting) => !meeting.isArchived);
+    const assignedMeetings = allMeetings.filter((meeting) => !meeting.isArchived);
     const archivedMeetings = allMeetings.filter(
         (meeting) => meeting.isArchived
+    );
+    const unassignedMeetings = allMeetings.filter(
+        (meeting) => !meeting.isArchived && !meeting.leadId
     );
     const leads = leadsData?.data?.data || [];
 
     // Select current meetings based on active tab
-    const currentMeetings = activeTab === 0 ? activeMeetings : archivedMeetings;
+    const currentMeetings =
+        activeTab === 0
+            ? assignedMeetings
+            : activeTab === 1
+              ? unassignedMeetings
+              : archivedMeetings;
 
     // Filter leads based on search term
     const filteredLeads = leads.filter(
@@ -503,7 +511,11 @@ const MeetingPage = () => {
                             value={activeTab}
                         >
                             <Tab
-                                label={`Active Meetings (${activeMeetings.length})`}
+                                label={`Assigned Meetings (${assignedMeetings.length})`}
+                                sx={{ textTransform: 'none', fontWeight: 500 }}
+                            />
+                            <Tab
+                                label={`Unassigned Meetings (${unassignedMeetings.length})`}
                                 sx={{ textTransform: 'none', fontWeight: 500 }}
                             />
                             <Tab
@@ -515,7 +527,7 @@ const MeetingPage = () => {
 
                     <MaterialReactTable
                         autoResetPageIndex={false}
-                        columns={getColumns(activeTab === 1)}
+                        columns={getColumns(activeTab === 2)}
                         data={currentMeetings}
                         enableColumnFilters={false}
                         enableGlobalFilter={false}
