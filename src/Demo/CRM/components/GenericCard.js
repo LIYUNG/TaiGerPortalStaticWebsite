@@ -34,7 +34,7 @@ const ViewField = ({ field, lead }) => {
     }
 
     return (
-        <Typography variant="body1" sx={field.sx}>
+        <Typography sx={field.sx} variant="body1">
             {value || field.defaultValue || 'N/A'}
         </Typography>
     );
@@ -199,9 +199,9 @@ export const GenericCardContent = ({
                                 )}
                                 {section.fields.map((field, fieldIndex) => (
                                     <EditField
-                                        key={fieldIndex}
                                         field={field}
                                         formData={formData}
+                                        key={fieldIndex}
                                         onFieldChange={onFieldChange}
                                     />
                                 ))}
@@ -212,9 +212,9 @@ export const GenericCardContent = ({
                     {config.fields &&
                         config.fields.map((field, index) => (
                             <EditField
-                                key={`additional-${index}`}
                                 field={field}
                                 formData={formData}
+                                key={`additional-${index}`}
                                 onFieldChange={onFieldChange}
                             />
                         ))}
@@ -222,9 +222,9 @@ export const GenericCardContent = ({
             ) : (
                 config.fields.map((field, index) => (
                     <EditField
-                        key={index}
                         field={field}
                         formData={formData}
+                        key={index}
                         onFieldChange={onFieldChange}
                     />
                 ))
