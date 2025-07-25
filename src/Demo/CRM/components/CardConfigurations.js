@@ -44,7 +44,7 @@ export const cardConfigurations = [
                     type: 'select',
                     options: [
                         { value: 'open', label: 'Open' },
-                        { value: 'contacted', label: 'Contacted' },
+                        { value: 'closed', label: 'Closed' },
                         { value: 'qualified', label: 'Qualified' },
                         { value: 'converted', label: 'Converted' }
                     ]
