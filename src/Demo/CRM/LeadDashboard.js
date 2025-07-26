@@ -2,6 +2,7 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import i18next from 'i18next';
 import { MaterialReactTable } from 'material-react-table';
+import { useState } from 'react';
 
 import {
     Box,
@@ -11,9 +12,10 @@ import {
     Card,
     CardContent,
     Chip,
-    Divider,
     Avatar,
-    Stack
+    Stack,
+    Tabs,
+    Tab
 } from '@mui/material';
 import {
     Source as SourceIcon,
@@ -35,6 +37,7 @@ import { getCRMLeadsQuery } from '../../api/query';
 const LeadDashboard = () => {
     TabTitle('CRM - Leads');
     const navigate = useNavigate();
+    const [tabValue, setTabValue] = useState(0);
 
     const { user } = useAuth();
     if (!is_TaiGer_role(user)) {
@@ -42,7 +45,19 @@ const LeadDashboard = () => {
     }
 
     const { data, isLoading } = useQuery(getCRMLeadsQuery());
-    const leads = data?.data?.data || [];
+    const allLeads = data?.data?.data || [];
+
+    // Split leads based on status
+    const openLeads = allLeads.filter(
+        (lead) => lead.status === 'open' && lead.meetingCount === 0
+    );
+    const contactedLeads = allLeads.filter(
+        (lead) => lead.status === 'open' && lead.meetingCount !== 0
+    );
+    const convertedLeads = allLeads.filter(
+        (lead) => lead.status === 'converted'
+    );
+    const closedLeads = allLeads.filter((lead) => lead.status === 'closed');
 
     const getSourceColor = (source) => {
         const colors = {
@@ -57,11 +72,12 @@ const LeadDashboard = () => {
 
     const getStatusColor = (status) => {
         const colors = {
-            new: 'info',
+            open: 'info',
             contacted: 'warning',
             qualified: 'success',
             converted: 'primary',
-            lost: 'error'
+            lost: 'error',
+            closed: 'default'
         };
         return colors[status] || 'default';
     };
@@ -79,6 +95,53 @@ const LeadDashboard = () => {
                         <PersonIcon fontSize="small" />
                     </Avatar>
                     <Typography fontWeight="medium" variant="body2">
+                        {cell.getValue()}
+                    </Typography>
+                </Stack>
+            )
+        },
+        {
+            accessorKey: 'intendedStartTime',
+            header: 'Start Time',
+            size: 150,
+            Cell: ({ cell }) => (
+                <Stack alignItems="center" direction="row" spacing={1}>
+                    <ScheduleIcon color="action" fontSize="small" />
+                    <Typography variant="body2">{cell.getValue()}</Typography>
+                </Stack>
+            )
+        },
+        {
+            accessorKey: 'intendedProgramLevel',
+            header: 'Intended Degree',
+            size: 150,
+            Cell: ({ cell }) => (
+                <Stack alignItems="center" direction="row" spacing={1}>
+                    <SchoolIcon color="action" fontSize="small" />
+                    <Typography variant="body2">{cell.getValue()}</Typography>
+                </Stack>
+            )
+        },
+        {
+            accessorKey: 'intendedDirection',
+            header: 'Intended Direction',
+            size: 350,
+            minSize: 200,
+            maxSize: 400,
+            Cell: ({ cell }) => (
+                <Stack alignItems="center" direction="row" spacing={1}>
+                    <DirectionIcon color="action" fontSize="small" />
+                    <Typography
+                        sx={{
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis'
+                        }}
+                        title={cell.getValue()}
+                        variant="body2"
+                    >
                         {cell.getValue()}
                     </Typography>
                 </Stack>
@@ -112,50 +175,6 @@ const LeadDashboard = () => {
             )
         },
         {
-            accessorKey: 'intendedProgramLevel',
-            header: 'Intended Degree',
-            size: 150,
-            Cell: ({ cell }) => (
-                <Stack alignItems="center" direction="row" spacing={1}>
-                    <SchoolIcon color="action" fontSize="small" />
-                    <Typography variant="body2">{cell.getValue()}</Typography>
-                </Stack>
-            )
-        },
-        {
-            accessorKey: 'intendedDirection',
-            header: 'Intended Direction',
-            size: 250,
-            Cell: ({ cell }) => (
-                <Stack alignItems="center" direction="row" spacing={1}>
-                    <DirectionIcon color="action" fontSize="small" />
-                    <Typography
-                        sx={{
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                            maxWidth: '200px'
-                        }}
-                        title={cell.getValue()}
-                        variant="body2"
-                    >
-                        {cell.getValue()}
-                    </Typography>
-                </Stack>
-            )
-        },
-        {
-            accessorKey: 'intendedStartTime',
-            header: 'Start Time',
-            size: 150,
-            Cell: ({ cell }) => (
-                <Stack alignItems="center" direction="row" spacing={1}>
-                    <ScheduleIcon color="action" fontSize="small" />
-                    <Typography variant="body2">{cell.getValue()}</Typography>
-                </Stack>
-            )
-        },
-        {
             accessorKey: 'createdAt',
             header: 'Submitted At',
             size: 150,
@@ -169,6 +188,55 @@ const LeadDashboard = () => {
             )
         }
     ];
+
+    const handleTabChange = (event, newValue) => {
+        setTabValue(newValue);
+    };
+
+    const getCurrentLeads = () => {
+        switch (tabValue) {
+            case 0:
+                return openLeads;
+            case 1:
+                return contactedLeads;
+            case 2:
+                return convertedLeads;
+            case 3:
+                return closedLeads;
+            default:
+                return openLeads;
+        }
+    };
+
+    const getTabTitle = () => {
+        switch (tabValue) {
+            case 0:
+                return 'Open Leads';
+            case 1:
+                return 'Contacted Leads';
+            case 2:
+                return 'Converted Leads';
+            case 3:
+                return 'Closed Leads';
+            default:
+                return 'Open Leads';
+        }
+    };
+
+    const getTabDescription = () => {
+        switch (tabValue) {
+            case 0:
+                return 'Open leads submitted by users through the google survey.';
+            case 1:
+                return 'Contacted leads with scheduled meetings.';
+            case 2:
+                return 'Leads that have been Converted or completed.';
+            case 3:
+                return 'Leads that have been closed.';
+            default:
+                return 'Open leads submitted by users through the google survey.';
+        }
+    };
 
     return (
         <Box>
@@ -201,19 +269,38 @@ const LeadDashboard = () => {
                             fontWeight={600}
                             variant="h6"
                         >
-                            Lead Details
+                            {getTabTitle()}
                         </Typography>
                         <Typography color="text.secondary" variant="body2">
-                            Leads submitted by users through the google survey.
+                            {getTabDescription()}
                         </Typography>
                     </Box>
-                    <Divider />
+
+                    {/* Tabs */}
+                    <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                        <Tabs onChange={handleTabChange} value={tabValue}>
+                            <Tab
+                                label={`Open Leads (${openLeads.length})`}
+                                sx={{ textTransform: 'none' }}
+                            />
+                            <Tab
+                                label={`Contacted Leads (${contactedLeads.length})`}
+                                sx={{ textTransform: 'none' }}
+                            />
+                            <Tab
+                                label={`Converted Leads (${convertedLeads.length})`}
+                                sx={{ textTransform: 'none' }}
+                            />
+                            <Tab
+                                label={`Closed Leads (${closedLeads.length})`}
+                                sx={{ textTransform: 'none' }}
+                            />
+                        </Tabs>
+                    </Box>
+
                     <MaterialReactTable
                         columns={columns}
-                        data={leads}
-                        initialState={{
-                            pagination: { pageSize: 10 }
-                        }}
+                        data={getCurrentLeads()}
                         muiTableBodyRowProps={({ row }) => ({
                             onClick: () => {
                                 navigate(`/crm/leads/${row.original.id}`);
