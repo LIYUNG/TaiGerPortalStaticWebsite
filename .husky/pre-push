@@ -1,0 +1,4 @@
+echo "Running tests"
+npm run-script test:ci
+
+echo "Pre-Push checks completed successfully!"

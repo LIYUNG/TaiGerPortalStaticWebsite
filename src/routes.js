@@ -12,7 +12,6 @@ import {
     getProgramRequirementsLoader,
     getProgramsAndCourseKeywordSetsLoader,
     getProgramRequirementLoader,
-    getCommunicationThreadLoader,
     getProgramLoader,
     getProgramRequirementsV2Loader,
     getAllCoursesLoader,
@@ -861,7 +860,6 @@ if (appConfig.messengerEnable) {
     routes.push({
         path: '/communications/std/:studentId',
         errorElement: <DefaultErrorPage />,
-        loader: getCommunicationThreadLoader,
         element: <CommunicationSinglePage />
     });
     routes.push({
