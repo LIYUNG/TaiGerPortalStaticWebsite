@@ -449,10 +449,10 @@ const LeadPage = () => {
 
             {/* Create User Modal */}
             <CreateUserFromLeadModal
-                open={showCreateUserModal}
-                onClose={handleCloseCreateUserModal}
                 lead={selectedLead}
+                onClose={handleCloseCreateUserModal}
                 onSuccess={handleUserCreated}
+                open={showCreateUserModal}
             />
         </Box>
     );

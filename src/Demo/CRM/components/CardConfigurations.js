@@ -55,10 +55,10 @@ export const getCardConfigurations = (onCreateUser) => [
                                 </Link>
                             ) : showCreateUserButton ? (
                                 <Button
-                                    size="small"
-                                    variant="outlined"
-                                    startIcon={<PersonAddIcon />}
                                     onClick={() => onCreateUser(lead)}
+                                    size="small"
+                                    startIcon={<PersonAddIcon />}
+                                    variant="outlined"
                                 >
                                     Create User Account
                                 </Button>

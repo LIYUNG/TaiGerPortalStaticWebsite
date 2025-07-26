@@ -101,7 +101,7 @@ const CreateUserFromLeadModal = ({ open, onClose, lead, onSuccess }) => {
     };
 
     return (
-        <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+        <Dialog fullWidth maxWidth="sm" onClose={handleClose} open={open}>
             <DialogTitle>{t('Create User Account from Lead')}</DialogTitle>
 
             <form
@@ -130,21 +130,21 @@ const CreateUserFromLeadModal = ({ open, onClose, lead, onSuccess }) => {
                         >
                             {(field) => (
                                 <TextField
-                                    fullWidth
-                                    required
-                                    label={t('First Name (English)')}
-                                    name={field.name}
-                                    value={field.state.value}
-                                    onChange={(e) =>
-                                        field.handleChange(e.target.value)
-                                    }
-                                    onBlur={field.handleBlur}
-                                    placeholder="John"
                                     disabled={loading}
                                     error={!!field.state.meta.errors.length}
+                                    fullWidth
                                     helperText={field.state.meta.errors.join(
                                         ', '
                                     )}
+                                    label={t('First Name (English)')}
+                                    name={field.name}
+                                    onBlur={field.handleBlur}
+                                    onChange={(e) =>
+                                        field.handleChange(e.target.value)
+                                    }
+                                    placeholder="John"
+                                    required
+                                    value={field.state.value}
                                 />
                             )}
                         </form.Field>
@@ -157,21 +157,21 @@ const CreateUserFromLeadModal = ({ open, onClose, lead, onSuccess }) => {
                         >
                             {(field) => (
                                 <TextField
-                                    fullWidth
-                                    required
-                                    label={t('Last Name (English)')}
-                                    name={field.name}
-                                    value={field.state.value}
-                                    onChange={(e) =>
-                                        field.handleChange(e.target.value)
-                                    }
-                                    onBlur={field.handleBlur}
-                                    placeholder="Doe"
                                     disabled={loading}
                                     error={!!field.state.meta.errors.length}
+                                    fullWidth
                                     helperText={field.state.meta.errors.join(
                                         ', '
                                     )}
+                                    label={t('Last Name (English)')}
+                                    name={field.name}
+                                    onBlur={field.handleBlur}
+                                    onChange={(e) =>
+                                        field.handleChange(e.target.value)
+                                    }
+                                    placeholder="Doe"
+                                    required
+                                    value={field.state.value}
                                 />
                             )}
                         </form.Field>
@@ -181,32 +181,32 @@ const CreateUserFromLeadModal = ({ open, onClose, lead, onSuccess }) => {
                         <form.Field name="firstname_chinese">
                             {(field) => (
                                 <TextField
+                                    disabled={loading}
                                     fullWidth
                                     label={t('名 (中文)')}
                                     name={field.name}
-                                    value={field.state.value}
+                                    onBlur={field.handleBlur}
                                     onChange={(e) =>
                                         field.handleChange(e.target.value)
                                     }
-                                    onBlur={field.handleBlur}
                                     placeholder="小明"
-                                    disabled={loading}
+                                    value={field.state.value}
                                 />
                             )}
                         </form.Field>
                         <form.Field name="lastname_chinese">
                             {(field) => (
                                 <TextField
+                                    disabled={loading}
                                     fullWidth
                                     label={t('姓 (中文)')}
                                     name={field.name}
-                                    value={field.state.value}
+                                    onBlur={field.handleBlur}
                                     onChange={(e) =>
                                         field.handleChange(e.target.value)
                                     }
-                                    onBlur={field.handleBlur}
                                     placeholder="陳"
-                                    disabled={loading}
+                                    value={field.state.value}
                                 />
                             )}
                         </form.Field>
@@ -225,21 +225,21 @@ const CreateUserFromLeadModal = ({ open, onClose, lead, onSuccess }) => {
                     >
                         {(field) => (
                             <TextField
+                                disabled={loading}
+                                error={!!field.state.meta.errors.length}
                                 fullWidth
-                                required
-                                type="email"
+                                helperText={field.state.meta.errors.join(', ')}
                                 label={t('Email Address')}
                                 name={field.name}
-                                value={field.state.value}
+                                onBlur={field.handleBlur}
                                 onChange={(e) =>
                                     field.handleChange(e.target.value)
                                 }
-                                onBlur={field.handleBlur}
                                 placeholder="john.doe@example.com"
-                                disabled={loading}
+                                required
                                 sx={{ mb: 2 }}
-                                error={!!field.state.meta.errors.length}
-                                helperText={field.state.meta.errors.join(', ')}
+                                type="email"
+                                value={field.state.value}
                             />
                         )}
                     </form.Field>
@@ -251,15 +251,15 @@ const CreateUserFromLeadModal = ({ open, onClose, lead, onSuccess }) => {
                                     {t('Application Count')}
                                 </InputLabel>
                                 <Select
+                                    disabled={loading}
+                                    label={t('Application Count')}
                                     labelId="application-count-label"
                                     name={field.name}
-                                    value={field.state.value}
+                                    onBlur={field.handleBlur}
                                     onChange={(e) =>
                                         field.handleChange(e.target.value)
                                     }
-                                    onBlur={field.handleBlur}
-                                    label={t('Application Count')}
-                                    disabled={loading}
+                                    value={field.state.value}
                                 >
                                     {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(
                                         (num) => (
@@ -279,9 +279,9 @@ const CreateUserFromLeadModal = ({ open, onClose, lead, onSuccess }) => {
 
                 <DialogActions>
                     <Button
-                        onClick={handleClose}
-                        disabled={loading}
                         color="secondary"
+                        disabled={loading}
+                        onClick={handleClose}
                     >
                         {t('Cancel', { ns: 'common' })}
                     </Button>
@@ -294,14 +294,14 @@ const CreateUserFromLeadModal = ({ open, onClose, lead, onSuccess }) => {
                     >
                         {([firstname, lastname, email]) => (
                             <Button
-                                type="submit"
-                                variant="contained"
                                 disabled={
                                     !firstname || !lastname || !email || loading
                                 }
                                 startIcon={
                                     loading && <CircularProgress size={20} />
                                 }
+                                type="submit"
+                                variant="contained"
                             >
                                 {loading
                                     ? t('Creating...')
