@@ -149,7 +149,7 @@ const MeetingPage = () => {
         {
             accessorKey: 'date',
             header: 'Datetime',
-            size: 100,
+            size: 80,
             Cell: ({ cell }) => {
                 const date = new Date(cell.getValue());
                 return (
@@ -191,6 +191,9 @@ const MeetingPage = () => {
             accessorKey: 'summary.gist',
             header: 'Summary',
             size: 350,
+            minSize: 200,
+            maxSize: 400,
+            grow: true,
             Cell: ({ row }) => {
                 const gist = row.original.summary?.gist;
                 return (

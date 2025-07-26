@@ -125,16 +125,19 @@ const LeadDashboard = () => {
         {
             accessorKey: 'intendedDirection',
             header: 'Intended Direction',
-            size: 250,
+            size: 350,
+            minSize: 200,
+            maxSize: 400,
             Cell: ({ cell }) => (
                 <Stack alignItems="center" direction="row" spacing={1}>
                     <DirectionIcon color="action" fontSize="small" />
                     <Typography
                         sx={{
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
                             overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                            maxWidth: '200px'
+                            textOverflow: 'ellipsis'
                         }}
                         title={cell.getValue()}
                         variant="body2"
