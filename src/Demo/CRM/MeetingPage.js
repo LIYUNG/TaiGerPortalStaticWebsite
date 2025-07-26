@@ -576,46 +576,6 @@ const MeetingPage = () => {
                                     </CardContent>
                                 </Card>
                             )}
-
-                        {/* Meeting Info */}
-                        {meeting.meetingInfo && (
-                            <Card>
-                                <CardContent>
-                                    <Typography gutterBottom variant="h6">
-                                        Meeting Status
-                                    </Typography>
-                                    <Box
-                                        sx={{
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            gap: 1
-                                        }}
-                                    >
-                                        <Chip
-                                            color={
-                                                meeting.meetingInfo
-                                                    .summary_status ===
-                                                'processed'
-                                                    ? 'success'
-                                                    : 'default'
-                                            }
-                                            label={
-                                                meeting.meetingInfo
-                                                    .summary_status || 'Unknown'
-                                            }
-                                            size="small"
-                                        />
-                                        {meeting.isArchived && (
-                                            <Chip
-                                                color="warning"
-                                                label="Archived"
-                                                size="small"
-                                            />
-                                        )}
-                                    </Box>
-                                </CardContent>
-                            </Card>
-                        )}
                     </Grid>
                 </Grid>
             ) : (
