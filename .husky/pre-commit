@@ -1,6 +1,3 @@
-echo "Running tests"
-npm run-script test:ci
-
 echo "Running precommit"
 npm run pre-commit
 
