@@ -1,5 +1,8 @@
 import React from 'react';
-import { Box, Typography, Link } from '@mui/material';
+import { Box, Typography, Link, Button } from '@mui/material';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+
+// import { addUser } from '../../../api/index';
 
 // Card configurations for each section
 export const cardConfigurations = [
@@ -28,17 +31,49 @@ export const cardConfigurations = [
                 label: 'Status',
                 type: 'chip',
                 color: (value) => (value === 'new' ? 'primary' : 'default'),
-                additionalContent: (lead) =>
-                    lead.userId ? (
-                        <Link
-                            component="a"
-                            href={`/student-database/${lead.userId}`}
-                            underline="hover"
-                            variant="body2"
+                additionalContent: (lead) => {
+                    const showCreateUserButton =
+                        !lead.userId &&
+                        lead.status !== 'closed' &&
+                        lead.status !== 'converted';
+
+                    return (
+                        <Box
+                            sx={{
+                                mt: 1,
+                                display: 'flex',
+                                gap: 1,
+                                alignItems: 'center'
+                            }}
                         >
-                            View Student Profile
-                        </Link>
-                    ) : null,
+                            {lead.userId ? (
+                                <Link
+                                    component="a"
+                                    href={`/student-database/${lead.userId}`}
+                                    underline="hover"
+                                    variant="body2"
+                                >
+                                    View Student Profile
+                                </Link>
+                            ) : showCreateUserButton ? (
+                                <Button
+                                    size="small"
+                                    variant="outlined"
+                                    startIcon={<PersonAddIcon />}
+                                    onClick={() => {
+                                        // Handle create user action
+                                        console.log(
+                                            'Create user for lead:',
+                                            lead.id
+                                        );
+                                    }}
+                                >
+                                    Create User Account
+                                </Button>
+                            ) : null}
+                        </Box>
+                    );
+                },
                 // For edit mode, render as select
                 editField: {
                     type: 'select',
@@ -246,22 +281,6 @@ export const cardConfigurations = [
                 multiline: true,
                 rows: 3
             }
-        ],
-        additionalContent: (lead) => (
-            <Box sx={{ mt: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                <Typography color="text.secondary" variant="body2">
-                    Created:{' '}
-                    {lead.createdAt
-                        ? new Date(lead.createdAt).toLocaleDateString()
-                        : 'N/A'}
-                </Typography>
-                <Typography color="text.secondary" variant="body2">
-                    Updated:{' '}
-                    {lead.updatedAt
-                        ? new Date(lead.updatedAt).toLocaleDateString()
-                        : 'N/A'}
-                </Typography>
-            </Box>
-        )
+        ]
     }
 ];
