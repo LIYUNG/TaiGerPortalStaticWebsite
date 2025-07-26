@@ -49,7 +49,6 @@ const CRMDashboard = () => {
         };
     };
 
-    // const leadsWeeklyData = processWeeklyData(stats.leadsCountByDate);
     const meetingsWeeklyData = processWeeklyData(stats.meetingCountByDate);
 
     return (

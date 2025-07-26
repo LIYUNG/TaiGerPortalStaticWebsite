@@ -69,8 +69,8 @@ const MeetingPage = () => {
     const handleMeetingUpdate = async (meetingId, payload) => {
         try {
             await updateCRMMeeting(meetingId, payload);
-            // Use refetchQueries instead of invalidateQueries to avoid infinite loops
-            await queryClient.refetchQueries({
+            // Use invalidateQueries with proper query key matching to safely refresh data
+            await queryClient.invalidateQueries({
                 queryKey: ['crm/meetings'],
                 exact: true
             });

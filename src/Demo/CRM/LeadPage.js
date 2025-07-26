@@ -17,7 +17,7 @@ import { GenericCardContent } from './components/GenericCard';
 import { getCardConfigurations } from './components/CardConfigurations';
 import CreateUserFromLeadModal from './components/CreateUserFromLeadModal';
 
-const { request } = require('../../api/request');
+import { request } from '../../api/request';
 
 const LeadPage = () => {
     const { leadId } = useParams();

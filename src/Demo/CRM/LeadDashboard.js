@@ -49,7 +49,7 @@ const LeadDashboard = () => {
 
     // Split leads based on status
     const openLeads = allLeads.filter(
-        (lead) => lead.status == 'open' && lead.meetingCount === 0
+        (lead) => lead.status === 'open' && lead.meetingCount === 0
     );
     const contactedLeads = allLeads.filter(
         (lead) => lead.status === 'open' && lead.meetingCount !== 0
