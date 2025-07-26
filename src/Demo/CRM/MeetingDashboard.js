@@ -149,7 +149,7 @@ const MeetingPage = () => {
         {
             accessorKey: 'date',
             header: 'Datetime',
-            size: 50,
+            size: 100,
             Cell: ({ cell }) => {
                 const date = new Date(cell.getValue());
                 return (
@@ -190,7 +190,7 @@ const MeetingPage = () => {
         {
             accessorKey: 'summary.gist',
             header: 'Summary',
-            size: 300,
+            size: 350,
             Cell: ({ row }) => {
                 const gist = row.original.summary?.gist;
                 return (
@@ -549,7 +549,6 @@ const MeetingPage = () => {
                             isLoading,
                             pagination
                         }}
-                        // Add this to prevent automatic state resets
                     />
                 </CardContent>
             </Card>

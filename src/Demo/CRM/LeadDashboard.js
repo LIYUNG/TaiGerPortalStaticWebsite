@@ -101,30 +101,14 @@ const LeadDashboard = () => {
             )
         },
         {
-            accessorKey: 'source',
-            header: 'Source',
+            accessorKey: 'intendedStartTime',
+            header: 'Start Time',
             size: 150,
             Cell: ({ cell }) => (
-                <Chip
-                    color={getSourceColor(cell.getValue())}
-                    icon={<SourceIcon fontSize="small" />}
-                    label={cell.getValue()}
-                    size="small"
-                />
-            )
-        },
-        {
-            accessorKey: 'status',
-            header: 'Status',
-            size: 120,
-            Cell: ({ cell }) => (
-                <Chip
-                    color={getStatusColor(cell.getValue())}
-                    icon={<StatusIcon fontSize="small" />}
-                    label={cell.getValue()}
-                    size="small"
-                    variant="outlined"
-                />
+                <Stack alignItems="center" direction="row" spacing={1}>
+                    <ScheduleIcon color="action" fontSize="small" />
+                    <Typography variant="body2">{cell.getValue()}</Typography>
+                </Stack>
             )
         },
         {
@@ -161,14 +145,30 @@ const LeadDashboard = () => {
             )
         },
         {
-            accessorKey: 'intendedStartTime',
-            header: 'Start Time',
+            accessorKey: 'source',
+            header: 'Source',
             size: 150,
             Cell: ({ cell }) => (
-                <Stack alignItems="center" direction="row" spacing={1}>
-                    <ScheduleIcon color="action" fontSize="small" />
-                    <Typography variant="body2">{cell.getValue()}</Typography>
-                </Stack>
+                <Chip
+                    color={getSourceColor(cell.getValue())}
+                    icon={<SourceIcon fontSize="small" />}
+                    label={cell.getValue()}
+                    size="small"
+                />
+            )
+        },
+        {
+            accessorKey: 'status',
+            header: 'Status',
+            size: 120,
+            Cell: ({ cell }) => (
+                <Chip
+                    color={getStatusColor(cell.getValue())}
+                    icon={<StatusIcon fontSize="small" />}
+                    label={cell.getValue()}
+                    size="small"
+                    variant="outlined"
+                />
             )
         },
         {
