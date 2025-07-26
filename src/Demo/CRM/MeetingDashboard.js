@@ -147,44 +147,23 @@ const MeetingPage = () => {
 
     const getColumns = (isArchived = false) => [
         {
-            accessorKey: 'leadFullName',
-            header: 'Lead',
-            size: 150,
-            Cell: ({ row }) => {
-                const { leadId, leadFullName } = row.original;
-                return leadId ? (
-                    <Link
-                        component={LinkDom}
-                        onClick={(e) => e.stopPropagation()}
-                        sx={{
-                            cursor: 'pointer',
-                            fontWeight: 500,
-                            color: 'primary.main',
-                            '&:hover': { color: 'primary.dark' }
-                        }}
-                        to={`/crm/leads/${leadId}`}
-                        underline="hover"
-                    >
-                        <Stack alignItems="center" direction="row" spacing={1}>
-                            <Avatar
-                                sx={{
-                                    width: 32,
-                                    height: 32,
-                                    bgcolor: 'primary.main'
-                                }}
-                            >
-                                <PersonIcon fontSize="small" />
-                            </Avatar>
-                            <Typography>{leadFullName || 'N/A'}</Typography>
-                        </Stack>
-                    </Link>
-                ) : (
-                    <Chip
-                        color="warning"
-                        label="No Lead Assigned"
-                        size="small"
-                        variant="outlined"
-                    />
+            accessorKey: 'date',
+            header: 'Datetime',
+            size: 50,
+            Cell: ({ cell }) => {
+                const date = new Date(cell.getValue());
+                return (
+                    <Box>
+                        <Typography fontWeight={500} variant="body2">
+                            {date.toLocaleDateString()}
+                        </Typography>
+                        <Typography color="text.secondary" variant="caption">
+                            {date.toLocaleTimeString([], {
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            })}
+                        </Typography>
+                    </Box>
                 );
             }
         },
@@ -231,32 +210,55 @@ const MeetingPage = () => {
                 );
             }
         },
+
         {
-            accessorKey: 'date',
-            header: 'Datetime',
-            size: 200,
-            Cell: ({ cell }) => {
-                const date = new Date(cell.getValue());
-                return (
-                    <Box>
-                        <Typography fontWeight={500} variant="body2">
-                            {date.toLocaleDateString()}
-                        </Typography>
-                        <Typography color="text.secondary" variant="caption">
-                            {date.toLocaleTimeString([], {
-                                hour: '2-digit',
-                                minute: '2-digit'
-                            })}
-                        </Typography>
-                    </Box>
+            accessorKey: 'leadFullName',
+            header: 'Lead',
+            size: 150,
+            Cell: ({ row }) => {
+                const { leadId, leadFullName } = row.original;
+                return leadId ? (
+                    <Link
+                        component={LinkDom}
+                        onClick={(e) => e.stopPropagation()}
+                        sx={{
+                            cursor: 'pointer',
+                            fontWeight: 500,
+                            color: 'primary.main',
+                            '&:hover': { color: 'primary.dark' }
+                        }}
+                        to={`/crm/leads/${leadId}`}
+                        underline="hover"
+                    >
+                        <Stack alignItems="center" direction="row" spacing={1}>
+                            <Avatar
+                                sx={{
+                                    width: 32,
+                                    height: 32,
+                                    bgcolor: 'primary.main'
+                                }}
+                            >
+                                <PersonIcon fontSize="small" />
+                            </Avatar>
+                            <Typography>{leadFullName || 'N/A'}</Typography>
+                        </Stack>
+                    </Link>
+                ) : (
+                    <Chip
+                        color="warning"
+                        label="No Lead Assigned"
+                        size="small"
+                        variant="outlined"
+                    />
                 );
             }
         },
         {
             accessorKey: 'actions',
-            header: 'Actions',
+            header: '',
             size: 300,
             enableSorting: false,
+            enableColumnActions: false,
             Cell: ({ row }) => {
                 const { leadId } = row.original;
                 return (
