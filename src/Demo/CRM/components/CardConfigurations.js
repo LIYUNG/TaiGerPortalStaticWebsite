@@ -2,10 +2,8 @@ import React from 'react';
 import { Box, Typography, Link, Button } from '@mui/material';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 
-// import { addUser } from '../../../api/index';
-
 // Card configurations for each section
-export const cardConfigurations = [
+export const getCardConfigurations = (onCreateUser) => [
     {
         id: 'personal',
         title: 'Personal Information',
@@ -60,13 +58,7 @@ export const cardConfigurations = [
                                     size="small"
                                     variant="outlined"
                                     startIcon={<PersonAddIcon />}
-                                    onClick={() => {
-                                        // Handle create user action
-                                        console.log(
-                                            'Create user for lead:',
-                                            lead.id
-                                        );
-                                    }}
+                                    onClick={() => onCreateUser(lead)}
                                 >
                                     Create User Account
                                 </Button>
@@ -284,3 +276,8 @@ export const cardConfigurations = [
         ]
     }
 ];
+
+// Backward compatibility - provide default configurations without handlers
+export const cardConfigurations = getCardConfigurations(() => {
+    console.log('Create user handler not provided');
+});

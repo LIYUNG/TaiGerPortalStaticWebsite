@@ -14,7 +14,8 @@ import { appConfig } from '../../config';
 import { getCRMLeadQuery } from '../../api/query';
 import EditableCard from './components/EditableCard';
 import { GenericCardContent } from './components/GenericCard';
-import { cardConfigurations } from './components/CardConfigurations';
+import { getCardConfigurations } from './components/CardConfigurations';
+import CreateUserFromLeadModal from './components/CreateUserFromLeadModal';
 
 const { request } = require('../../api/request');
 
@@ -30,6 +31,31 @@ const LeadPage = () => {
     const { data, isLoading } = useQuery(getCRMLeadQuery(leadId));
     const lead = data?.data?.data || {};
     TabTitle(`Lead ${lead ? `- ${lead.fullName}` : ''}`);
+
+    // Modal state for creating user from lead
+    const [showCreateUserModal, setShowCreateUserModal] = useState(false);
+    const [selectedLead, setSelectedLead] = useState(null);
+
+    // Handle create user modal
+    const handleCreateUser = (leadData) => {
+        setSelectedLead(leadData);
+        setShowCreateUserModal(true);
+    };
+
+    const handleCloseCreateUserModal = () => {
+        setShowCreateUserModal(false);
+        setSelectedLead(null);
+    };
+
+    const handleUserCreated = (userData) => {
+        // You can add logic here to update the lead with the created user's ID
+        const newUserId = userData?.newUser;
+        console.log('User created successfully:', newUserId);
+        queryClient.invalidateQueries(['crm/lead', leadId]);
+    };
+
+    // Get card configurations with the create user handler
+    const cardConfigurations = getCardConfigurations(handleCreateUser);
 
     // Generate edit states dynamically from card configurations
     const initialEditStates = cardConfigurations.reduce((acc, config) => {
@@ -104,7 +130,7 @@ const LeadPage = () => {
         },
         onSuccess: (updatedLead) => {
             // Update the query cache with the merged data
-            queryClient.setQueryData(['crm-lead', leadId], (oldData) => {
+            queryClient.setQueryData(['crm/lead', leadId], (oldData) => {
                 if (oldData) {
                     return {
                         ...oldData,
@@ -385,6 +411,14 @@ const LeadPage = () => {
                     Loading lead information...
                 </Typography>
             )}
+
+            {/* Create User Modal */}
+            <CreateUserFromLeadModal
+                open={showCreateUserModal}
+                onClose={handleCloseCreateUserModal}
+                lead={selectedLead}
+                onSuccess={handleUserCreated}
+            />
         </Box>
     );
 };
