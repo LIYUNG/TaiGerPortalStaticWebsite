@@ -92,17 +92,12 @@ const CreateUserFromLeadModal = ({ open, onClose, lead, onSuccess }) => {
     }, [lead, open, form]);
 
     const handleClose = () => {
-        form.reset({
-            firstname: '',
-            lastname: '',
-            firstname_chinese: '',
-            lastname_chinese: '',
-            email: '',
-            applying_program_count: '1'
-        });
         setError('');
         setLoading(false);
-        onClose();
+        // Delay onClose until after the dialog is closed to avoid aria-hidden focus issues
+        setTimeout(() => {
+            onClose();
+        }, 0);
     };
 
     return (
