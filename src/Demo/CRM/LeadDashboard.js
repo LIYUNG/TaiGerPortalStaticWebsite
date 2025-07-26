@@ -275,7 +275,7 @@ const LeadDashboard = () => {
 
                     {/* Tabs */}
                     <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                        <Tabs value={tabValue} onChange={handleTabChange}>
+                        <Tabs onChange={handleTabChange} value={tabValue}>
                             <Tab
                                 label={`Open Leads (${openLeads.length})`}
                                 sx={{ textTransform: 'none' }}

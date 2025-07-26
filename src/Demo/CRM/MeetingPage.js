@@ -1,4 +1,4 @@
-import { useParams, Navigate } from 'react-router-dom';
+import { useParams, Navigate, Link as LinkDom } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
@@ -511,6 +511,64 @@ const MeetingPage = () => {
 
                     {/* Participants & Speakers */}
                     <Grid item md={4} xs={12}>
+                        {/* Lead Details */}
+                        {meeting.leadId && (
+                            <Card sx={{ mb: 3 }}>
+                                <CardContent>
+                                    <Typography gutterBottom variant="h6">
+                                        Assigned Lead
+                                    </Typography>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            mb: 2
+                                        }}
+                                    >
+                                        <Link
+                                            component={LinkDom}
+                                            onClick={(e) => e.stopPropagation()}
+                                            sx={{
+                                                cursor: 'pointer',
+                                                fontWeight: 500,
+                                                color: 'primary.main',
+                                                '&:hover': {
+                                                    color: 'primary.dark'
+                                                }
+                                            }}
+                                            to={`/crm/leads/${meeting.leadId}`}
+                                            underline="hover"
+                                        >
+                                            <Stack
+                                                alignItems="center"
+                                                direction="row"
+                                                spacing={1}
+                                            >
+                                                <Person
+                                                    sx={{
+                                                        mr: 1,
+                                                        color: 'primary.main'
+                                                    }}
+                                                />
+                                                <Typography variant="body1">
+                                                    {meeting.leadFullName ||
+                                                        'Lead Name'}
+                                                </Typography>
+                                            </Stack>
+                                        </Link>
+                                    </Box>
+                                    {meeting.leadEmail && (
+                                        <Typography
+                                            color="text.secondary"
+                                            variant="body2"
+                                        >
+                                            {meeting.leadEmail}
+                                        </Typography>
+                                    )}
+                                </CardContent>
+                            </Card>
+                        )}
+
                         {/* Speakers */}
                         {meeting.speakers && meeting.speakers.length > 0 && (
                             <Card sx={{ mb: 3 }}>
