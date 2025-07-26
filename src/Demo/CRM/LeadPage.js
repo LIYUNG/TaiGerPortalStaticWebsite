@@ -47,10 +47,45 @@ const LeadPage = () => {
         setSelectedLead(null);
     };
 
-    const handleUserCreated = (userData) => {
-        // You can add logic here to update the lead with the created user's ID
+    const handleUserCreated = async (userData) => {
+        // Extract the new user ID from the response
         const newUserId = userData?.newUser;
         console.log('User created successfully:', newUserId);
+
+        if (newUserId) {
+            try {
+                // Update the lead with the new user ID and convert status
+                const updateData = {
+                    userId: newUserId,
+                    status: 'converted'
+                };
+
+                console.log('Updating lead with:', updateData);
+
+                // Use the existing mutation to update the lead
+                await updateLeadMutation.mutateAsync(updateData);
+
+                console.log(
+                    'Lead successfully updated with user ID and converted status'
+                );
+
+                // Optionally show a success message
+                // You can add a toast notification here if you have one set up
+            } catch (error) {
+                console.error(
+                    'Failed to update lead after user creation:',
+                    error
+                );
+                // Handle the error - you might want to show an error message to the user
+                alert(
+                    'User was created successfully, but failed to update the lead. Please refresh the page.'
+                );
+            }
+        } else {
+            console.error('No user ID received from user creation response');
+        }
+
+        // Invalidate queries to refetch the latest data
         queryClient.invalidateQueries(['crm/lead', leadId]);
     };
 
