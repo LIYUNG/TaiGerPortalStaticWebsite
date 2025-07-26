@@ -47,7 +47,6 @@ import { getCRMMeetingQuery, getCRMLeadsQuery } from '../../api/query';
 import { updateCRMMeeting } from '../../api';
 
 const MeetingPage = () => {
-    TabTitle('CRM - Meeting Details');
     const { meetingId } = useParams();
     const queryClient = useQueryClient();
     const [assignMenuAnchor, setAssignMenuAnchor] = useState(null);
@@ -62,6 +61,8 @@ const MeetingPage = () => {
     const { data: leadsData } = useQuery(getCRMLeadsQuery());
     const meeting = data?.data?.data || {};
     const leads = leadsData?.data?.data || [];
+
+    TabTitle(`Meeting ${meeting ? `- ${meeting.title}` : ''}`);
 
     const handleMeetingUpdate = async (payload) => {
         try {

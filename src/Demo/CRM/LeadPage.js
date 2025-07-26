@@ -19,7 +19,6 @@ import { cardConfigurations } from './components/CardConfigurations';
 const { request } = require('../../api/request');
 
 const LeadPage = () => {
-    TabTitle('CRM - Lead Details');
     const { leadId } = useParams();
     const queryClient = useQueryClient();
 
@@ -30,6 +29,7 @@ const LeadPage = () => {
 
     const { data, isLoading } = useQuery(getCRMLeadQuery(leadId));
     const lead = data?.data?.data || {};
+    TabTitle(`Lead ${lead ? `- ${lead.fullName}` : ''}`);
 
     // Generate edit states dynamically from card configurations
     const initialEditStates = cardConfigurations.reduce((acc, config) => {
