@@ -7,13 +7,17 @@ import {
     Typography,
     Alert,
     CircularProgress,
-    Button
+    Button,
+    useTheme
 } from '@mui/material';
 import { useAuth } from '../../../components/AuthProvider';
 import DEMO from '../../../store/constant';
+import AuthWrapper from '../../../components/AuthWrapper';
+import { t } from 'i18next';
 
 export default function GoogleOAuthCallback() {
     const [searchParams] = useSearchParams();
+    const theme = useTheme();
     const codeValue = searchParams.get('code');
     const navigate = useNavigate();
     const { login } = useAuth();
@@ -55,15 +59,18 @@ export default function GoogleOAuthCallback() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     minHeight: '100vh',
-                    gap: 2
+                    gap: 2,
+                    backgroundColor: theme.palette.background.default
                 }}
             >
                 <CircularProgress size={60} />
                 <Typography color="text.secondary" variant="h6">
-                    Verifying your Google account...
+                    {t('Verifying your Google account...')}
                 </Typography>
                 <Typography color="text.secondary" variant="body2">
-                    Please wait while we complete the authentication process.
+                    {t(
+                        'Please wait while we complete the authentication process.'
+                    )}
                 </Typography>
             </Box>
         );
@@ -72,34 +79,26 @@ export default function GoogleOAuthCallback() {
     // Show error state
     if (isError) {
         return (
-            <Box
-                sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    minHeight: '100vh',
-                    gap: 2,
-                    p: 3
-                }}
-            >
-                <Alert severity="error" sx={{ maxWidth: 400 }}>
+            <AuthWrapper>
+                <Alert severity="error">
                     <Typography gutterBottom variant="h6">
-                        Authentication Failed
+                        {t('Authentication Failed')}
                     </Typography>
                     <Typography variant="body2">
                         {error?.message ||
-                            'An error occurred during Google authentication. Please try again.'}
+                            t(
+                                'An error occurred during Google authentication. Please try again.'
+                            )}
                     </Typography>
                 </Alert>
                 <Button
                     onClick={() => navigate('/login')}
-                    sx={{ mt: 2 }}
+                    sx={{ my: 2 }}
                     variant="contained"
                 >
-                    Return to Login
+                    {t('Return to Login')}
                 </Button>
-            </Box>
+            </AuthWrapper>
         );
     }
 
@@ -118,10 +117,10 @@ export default function GoogleOAuthCallback() {
             >
                 <CircularProgress size={60} />
                 <Typography color="success.main" variant="h6">
-                    Authentication Successful!
+                    {t('Authentication Successful!')}
                 </Typography>
                 <Typography color="text.secondary" variant="body2">
-                    Redirecting to dashboard...
+                    {t('Redirecting to dashboard...')}
                 </Typography>
             </Box>
         );
@@ -139,7 +138,9 @@ export default function GoogleOAuthCallback() {
                 gap: 2
             }}
         >
-            <Typography variant="h6">Processing authentication...</Typography>
+            <Typography variant="h6">
+                {t('Processing authentication...')}
+            </Typography>
         </Box>
     );
 }
