@@ -7,17 +7,18 @@ import {
     Link,
     Box,
     Typography,
-    Grid,
     TextField,
-    Alert
-    // Alert
+    Alert,
+    Divider
 } from '@mui/material';
+import HomeIcon from '@mui/icons-material/Home';
 
 import { login as Login } from '../../../api/index';
 import Reactivation from '../Activation/Reactivation';
 import { useAuth } from '../../../components/AuthProvider';
 import AuthWrapper from '../../../components/AuthWrapper';
 import DEMO from '../../../store/constant';
+import { GoogleLoginButton } from '../../../components/Buttons/GoolgeSignInButton';
 
 export default function SignIn() {
     const { login } = useAuth();
@@ -105,10 +106,6 @@ export default function SignIn() {
     } else {
         return (
             <AuthWrapper>
-                {/* <Alert variant="filled" severity="warning" sx={{ mt: 1 }}>
-          System is recently updated, in case any issue, please email
-          taiger.leoc@gmail.com
-        </Alert> */}
                 <Alert severity="success" variant="filled">
                     {t('system-announcement', { ns: 'common' })}
                 </Alert>
@@ -158,29 +155,27 @@ export default function SignIn() {
                         )}
                     </Button>
                 </form>
-                <Grid container spacing={2} sx={{ my: 1 }}>
-                    <Grid item sx={{ textAlign: 'center' }} xs={12}>
-                        <Typography>
-                            {t('Forgot Password', { ns: 'common' })}?{' '}
-                            <Link
-                                component={NavLink}
-                                to={DEMO.FORGOT_PASSWORD_LINK}
-                            >
-                                {t('Reset Login Password')}
-                            </Link>
-                        </Typography>
-                    </Grid>
-                    <Grid item sx={{ textAlign: 'center' }} xs={12}>
-                        <Typography>
-                            <Link
-                                component={NavLink}
-                                to={DEMO.LANDING_PAGE_LINK}
-                            >
-                                {t('Home')}
-                            </Link>
-                        </Typography>
-                    </Grid>
-                </Grid>
+                <Typography sx={{ my: 1 }} variant="body2">
+                    {t('Forgot Password', { ns: 'common' })}?{' '}
+                    <Link component={NavLink} to={DEMO.FORGOT_PASSWORD_LINK}>
+                        {t('Reset Login Password')}
+                    </Link>
+                </Typography>
+                <Divider sx={{ mb: 1 }}>or</Divider>
+                <GoogleLoginButton />
+                <Box
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        gap: 1
+                    }}
+                >
+                    <HomeIcon sx={{ my: 1 }} />
+                    <Link component={NavLink} to={DEMO.LANDING_PAGE_LINK}>
+                        {t('Home')}
+                    </Link>
+                </Box>
             </AuthWrapper>
         );
     }

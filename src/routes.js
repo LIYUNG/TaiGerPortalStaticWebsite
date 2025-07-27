@@ -414,7 +414,6 @@ const routes = [
             {
                 path: '',
                 errorElement: <DefaultErrorPage />,
-                loader: getStudentsLoader,
                 element: <ApplicationsOverview />
             },
             {

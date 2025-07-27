@@ -15,7 +15,7 @@ import { AssignProgramsToStudentDialog } from './AssignProgramsToStudentDialog';
 import { COUNTRIES_ARRAY_OPTIONS } from '../../utils/contants';
 import { PROGRAM_SUBJECTS } from '@taiger-common/core';
 
-export const ProgramsTable = ({ isLoading, data }) => {
+export const ProgramsTable = ({ isLoading, data, student }) => {
     const customTableStyles = useTableStyles();
     const { t } = useTranslation();
     const tableConfig = getTableConfig(customTableStyles, isLoading);
@@ -215,6 +215,7 @@ export const ProgramsTable = ({ isLoading, data }) => {
                             semester
                         })
                     )}
+                student={student}
             />
         </>
     );

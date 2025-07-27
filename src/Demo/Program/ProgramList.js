@@ -12,7 +12,7 @@ import { appConfig } from '../../config';
 import { getProgramsQuery } from '../../api/query';
 import { ProgramsTable } from './ProgramsTable';
 
-const ProgramList = () => {
+const ProgramList = (props) => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const { data, isLoading, isError, error } = useQuery(getProgramsQuery());
@@ -43,7 +43,11 @@ const ProgramList = () => {
                     {t('Program List', { ns: 'common' })}
                 </Typography>
             </Breadcrumbs>
-            <ProgramsTable data={programs} isLoading={isLoading} />
+            <ProgramsTable
+                data={programs}
+                isLoading={isLoading}
+                student={props.student}
+            />
         </Box>
     );
 };
