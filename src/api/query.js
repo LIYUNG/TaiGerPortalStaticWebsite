@@ -29,7 +29,9 @@ import {
     getCRMLeads,
     getCRMLead,
     getCRMMeetings,
-    getCRMMeeting
+    getCRMMeeting,
+    getInterviewsByStudentId,
+    getInterviewsByProgramId
 } from '.';
 
 export const getMessagThreadQuery = (threadId) => ({
@@ -111,6 +113,18 @@ export const getCommunicationQuery = (studentId) => ({
     queryKey: ['communications', studentId],
     queryFn: () => getCommunicationThreadV2({ studentId }),
     staleTime: 1000 * 50 // 50 seconds
+});
+
+export const getInterviewsByStudentIdQuery = (studentId) => ({
+    queryKey: ['interviews/student', studentId],
+    queryFn: () => getInterviewsByStudentId(studentId),
+    staleTime: 1000 * 60 * 5 // 5 minutes
+});
+
+export const getInterviewsByProgramIdQuery = (programId) => ({
+    queryKey: ['interviews/program', programId],
+    queryFn: () => getInterviewsByProgramId(programId),
+    staleTime: 1000 * 60 * 5 // 5 minutes
 });
 
 export const getMyCommunicationQuery = () => ({

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
     ExpandLess as ExpandLessIcon,
     ExpandMore as ExpandMoreIcon
@@ -7,66 +7,35 @@ import { is_TaiGer_role } from '@taiger-common/core';
 import { Box, Collapse, Link, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { Link as LinkDom } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 
 import DEMO from '../../store/constant';
 import { convertDate } from '../../utils/contants';
-import { getInterviewsByProgramId, getInterviewsByStudentId } from '../../api';
 import { useAuth } from '../../components/AuthProvider';
+import {
+    getInterviewsByProgramIdQuery,
+    getInterviewsByStudentIdQuery
+} from '../../api/query';
+import ChildLoading from '../../components/Loading/ChildLoading';
 
 export const InterviewFeedback = ({ interview }) => {
     const { t } = useTranslation();
     const { user } = useAuth();
-    const [studentInterviews, setStudentInterviews] = useState([]);
+    const { data: studentInterviews, isLoading: isStudentInterviewsLoading } =
+        useQuery(getInterviewsByStudentIdQuery(interview.student_id._id));
+    const { data: programInterviews, isLoading: isProgramInterviewsLoading } =
+        useQuery(getInterviewsByProgramIdQuery(interview.program_id._id));
     const [isStudentInterviewsOpen, setIsStudentInterviewsOpen] =
         useState(false);
-    const [programInterviews, setProgramInterviews] = useState([]);
-
-    useEffect(() => {
-        const fetchStudentInterviews = async () => {
-            if (isStudentInterviewsOpen && interview.student_id._id) {
-                try {
-                    const response = await getInterviewsByStudentId(
-                        interview.student_id._id
-                    );
-                    if (response.data.success) {
-                        setStudentInterviews(response.data.data);
-                    }
-                } catch (error) {
-                    console.error('Error fetching student interviews:', error);
-                }
-            }
-        };
-
-        fetchStudentInterviews();
-    }, [isStudentInterviewsOpen, interview.student_id]);
 
     const [
         isPreviousInterviewQuestionnaireOpen,
         setPreviousInterviewQuestionnaireOpen
     ] = useState(false);
 
-    useEffect(() => {
-        const fetchProgramInterviews = async () => {
-            if (
-                isPreviousInterviewQuestionnaireOpen &&
-                interview.program_id._id
-            ) {
-                try {
-                    const response = await getInterviewsByProgramId(
-                        interview.program_id._id
-                    );
-                    if (response.data.success) {
-                        setProgramInterviews(response.data.data);
-                    }
-                } catch (error) {
-                    console.error('Error fetching program interviews:', error);
-                }
-            }
-        };
-
-        fetchProgramInterviews();
-    }, [isPreviousInterviewQuestionnaireOpen, interview.program_id]);
-
+    if (isStudentInterviewsLoading || isProgramInterviewsLoading) {
+        return <ChildLoading />;
+    }
     return (
         <div>
             {is_TaiGer_role(user) && (
@@ -101,7 +70,7 @@ export const InterviewFeedback = ({ interview }) => {
                         <Collapse in={isPreviousInterviewQuestionnaireOpen}>
                             <Box>
                                 <Box pl={2}>
-                                    {programInterviews?.map(
+                                    {programInterviews?.data?.map(
                                         (programInterview) =>
                                             programInterview.isClosed ===
                                                 true &&
@@ -128,7 +97,7 @@ export const InterviewFeedback = ({ interview }) => {
                                         variant="body2"
                                     >
                                         {t('Total interview records:')}{' '}
-                                        {programInterviews?.filter(
+                                        {programInterviews?.data?.filter(
                                             (interview) =>
                                                 interview.isClosed === true &&
                                                 interview._id !== interview._id
@@ -169,7 +138,7 @@ export const InterviewFeedback = ({ interview }) => {
                         <Collapse in={isStudentInterviewsOpen}>
                             <Box>
                                 <Box pl={2}>
-                                    {studentInterviews?.map(
+                                    {studentInterviews?.data?.map(
                                         (studentInterview) =>
                                             studentInterview.isClosed ===
                                                 true &&
@@ -196,7 +165,7 @@ export const InterviewFeedback = ({ interview }) => {
                                         variant="body2"
                                     >
                                         {t('Total interview records:')}{' '}
-                                        {studentInterviews?.filter(
+                                        {studentInterviews?.data?.filter(
                                             (interview) =>
                                                 interview.isClosed === true &&
                                                 interview._id !== interview._id
