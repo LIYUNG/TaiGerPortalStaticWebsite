@@ -68,14 +68,42 @@ const MeetingPage = () => {
 
     const handleMeetingUpdate = async (meetingId, payload) => {
         try {
+            // Optimistic update - immediately update the cache
+            queryClient.setQueryData(['crm/meetings'], (oldData) => {
+                if (!oldData?.data?.data) return oldData;
+
+                return {
+                    ...oldData,
+                    data: {
+                        ...oldData.data,
+                        data: oldData.data.data.map((meeting) =>
+                            meeting.id === meetingId
+                                ? { ...meeting, ...payload }
+                                : meeting
+                        )
+                    }
+                };
+            });
+
+            // Make the API call
             await updateCRMMeeting(meetingId, payload);
-            // Use invalidateQueries with proper query key matching to safely refresh data
+
+            // Refresh data from server to ensure consistency
             await queryClient.invalidateQueries({
                 queryKey: ['crm/meetings'],
                 exact: true
             });
         } catch (error) {
             console.error('Failed to update meeting:', error);
+
+            // Revert optimistic update on error
+            await queryClient.invalidateQueries({
+                queryKey: ['crm/meetings'],
+                exact: true
+            });
+
+            // You might want to show an error message to the user here
+            // Example: setError('Failed to update meeting. Please try again.');
         }
     };
 
@@ -97,12 +125,59 @@ const MeetingPage = () => {
 
     const handleLeadSelect = async (leadId) => {
         if (selectedMeetingId) {
-            // Handle both assignment (leadId is a string/number) and removal (leadId is null)
-            await handleMeetingUpdate(selectedMeetingId, { leadId });
+            // Optimistic update for lead assignment
+            queryClient.setQueryData(['crm/meetings'], (oldData) => {
+                if (!oldData?.data?.data) return oldData;
+
+                const leadName = leadId
+                    ? leads.find((lead) => lead.id === leadId)?.fullName
+                    : null;
+
+                return {
+                    ...oldData,
+                    data: {
+                        ...oldData.data,
+                        data: oldData.data.data.map((meeting) =>
+                            meeting.id === selectedMeetingId
+                                ? {
+                                      ...meeting,
+                                      leadId: leadId,
+                                      leadFullName: leadName
+                                  }
+                                : meeting
+                        )
+                    }
+                };
+            });
+
+            // Close popover immediately for better UX
+            setAssignMenuAnchor(null);
+            setSelectedMeetingId(null);
+            setSearchTerm('');
+
+            try {
+                await updateCRMMeeting(selectedMeetingId, { leadId });
+
+                // Refresh to ensure consistency
+                await queryClient.invalidateQueries({
+                    queryKey: ['crm/meetings'],
+                    exact: true
+                });
+            } catch (error) {
+                console.error('Failed to assign lead:', error);
+
+                // Revert on error
+                await queryClient.invalidateQueries({
+                    queryKey: ['crm/meetings'],
+                    exact: true
+                });
+            }
+        } else {
+            // Original close logic if no meeting selected
+            setAssignMenuAnchor(null);
+            setSelectedMeetingId(null);
+            setSearchTerm('');
         }
-        setAssignMenuAnchor(null);
-        setSelectedMeetingId(null);
-        setSearchTerm('');
     };
 
     const handleMenuClose = () => {
