@@ -10,7 +10,10 @@ import {
     FormControlLabel,
     List,
     ListItem,
-    Typography
+    Typography,
+    Switch,
+    FormControl,
+    FormGroup
 } from '@mui/material';
 import { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -32,6 +35,8 @@ export const AssignProgramsToStudentDialog = ({
 }) => {
     const { user } = useAuth();
     const { t } = useTranslation();
+    const [showMyStudentsOnly, setShowMyStudentsOnly] = useState(true);
+
     const baseFilter = { archiv: false };
     const roleFilter = is_TaiGer_Editor(user)
         ? { ...baseFilter, editors: user._id }
@@ -39,15 +44,24 @@ export const AssignProgramsToStudentDialog = ({
           ? { ...baseFilter, agents: user._id }
           : baseFilter;
 
+    // Determine which filter to use based on toggle state
+    const currentFilter = showMyStudentsOnly ? roleFilter : baseFilter;
+
     const {
         data,
         isLoading,
         isError: isQueryError,
         error
     } = useQuery({
-        ...getStudentsV3Query(queryString.stringify(roleFilter)),
+        ...getStudentsV3Query(queryString.stringify(currentFilter)),
         enabled: open // Only fetch data when the modal is open
     });
+
+    // Refetch data when filter changes
+    const handleFilterToggle = (event) => {
+        setShowMyStudentsOnly(event.target.checked);
+    };
+
     let [studentId, setStudentId] = useState('');
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
     const {
@@ -103,6 +117,33 @@ export const AssignProgramsToStudentDialog = ({
                     )
                 )}
                 ---
+                {/* Filter Toggle Section */}
+                <Box sx={{ mb: 2, mt: 2 }}>
+                    <FormControl component="fieldset">
+                        <FormGroup>
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={showMyStudentsOnly}
+                                        color="primary"
+                                        onChange={handleFilterToggle}
+                                    />
+                                }
+                                label={
+                                    <Typography variant="body2">
+                                        {showMyStudentsOnly
+                                            ? t('Show My Students Only', {
+                                                  ns: 'common'
+                                              })
+                                            : t('Show All Students', {
+                                                  ns: 'common'
+                                              })}
+                                    </Typography>
+                                }
+                            />
+                        </FormGroup>
+                    </FormControl>
+                </Box>
                 {isLoading ? <CircularProgress /> : null}
                 {isQueryError ? (
                     <Typography color="error">
