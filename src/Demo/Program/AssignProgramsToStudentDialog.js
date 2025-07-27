@@ -20,21 +20,32 @@ import queryString from 'query-string';
 import { createApplicationV2 } from '../../api';
 import { getStudentsV3Query } from '../../api/query';
 import { useSnackBar } from '../../contexts/use-snack-bar';
+import { useAuth } from '../../components/AuthProvider';
+import { is_TaiGer_Editor, is_TaiGer_Agent } from '@taiger-common/core';
 
 export const AssignProgramsToStudentDialog = ({
     open,
     onClose,
     programs,
-    handleOnSuccess
+    handleOnSuccess,
+    student
 }) => {
+    const { user } = useAuth();
     const { t } = useTranslation();
+    const baseFilter = { archiv: false };
+    const roleFilter = is_TaiGer_Editor(user)
+        ? { ...baseFilter, editors: user._id }
+        : is_TaiGer_Agent(user)
+          ? { ...baseFilter, agents: user._id }
+          : baseFilter;
+
     const {
         data,
         isLoading,
         isError: isQueryError,
         error
     } = useQuery({
-        ...getStudentsV3Query(queryString.stringify({ archiv: false })),
+        ...getStudentsV3Query(queryString.stringify(roleFilter)),
         enabled: open // Only fetch data when the modal is open
     });
     let [studentId, setStudentId] = useState('');
@@ -72,7 +83,7 @@ export const AssignProgramsToStudentDialog = ({
 
     let students;
     if (data) {
-        students = data?.data;
+        students = student ? [student] : data?.data;
     }
 
     return (
