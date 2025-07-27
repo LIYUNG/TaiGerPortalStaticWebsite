@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import DownloadIcon from '@mui/icons-material/Download';
 import {
     Badge,
     Box,
@@ -13,15 +12,11 @@ import {
     DialogContent,
     DialogContentText,
     DialogTitle,
-    FormControl,
     FormControlLabel,
     Grid,
-    InputLabel,
     Link,
     List,
     ListItem,
-    MenuItem,
-    Select,
     Tab,
     TableContainer,
     Tabs,
@@ -34,7 +29,7 @@ import { useTranslation } from 'react-i18next';
 // import 'react-datasheet-grid/dist/style.css';
 import './react-datasheet-customize.css';
 
-import { convertDate, study_group } from '../../utils/contants';
+import { convertDate } from '../../utils/contants';
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import {
@@ -45,8 +40,8 @@ import {
 
 import {
     getMycourses,
-    analyzedFileDownload_test,
-    transcriptanalyser_test,
+    // analyzedFileDownload_test,
+    // transcriptanalyser_test,
     putMycourses,
     transcriptanalyser_testV2
 } from '../../api';
@@ -184,23 +179,6 @@ export default function MyCourses() {
         }));
     };
 
-    const handleChange_study_group = (e) => {
-        e.preventDefault();
-        const { value } = e.target;
-        setStatedata((prevState) => ({
-            ...prevState,
-            study_group: value
-        }));
-    };
-
-    const handleChange_analysis_language = (e) => {
-        e.preventDefault();
-        const { value } = e.target;
-        setStatedata((prevState) => ({
-            ...prevState,
-            analysis_language: value
-        }));
-    };
     const handleLockTable = (e) => {
         e.preventDefault();
         const table_data_string_locked_temp =
@@ -304,58 +282,6 @@ export default function MyCourses() {
         }));
     };
 
-    const onAnalyse = () => {
-        if (statedata.study_group === '') {
-            alert('Please select study group');
-            return;
-        }
-        setStatedata((prevState) => ({
-            ...prevState,
-            isAnalysing: true
-        }));
-        transcriptanalyser_test(
-            statedata.student._id.toString(),
-            statedata.study_group,
-            statedata.analysis_language
-        ).then(
-            (resp) => {
-                const { data, success } = resp.data;
-                const { status } = resp;
-                if (success) {
-                    setStatedata((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        analysis: data,
-                        analysisSuccessModalWindowOpen: true,
-                        success: success,
-                        isAnalysing: false,
-                        res_modal_status: status
-                    }));
-                } else {
-                    setStatedata((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        isAnalysing: false,
-                        res_modal_status: status,
-                        res_modal_message:
-                            'Make sure that you updated your courses and select the right target group and language!'
-                    }));
-                }
-            },
-            (error) => {
-                setStatedata((prevState) => ({
-                    ...prevState,
-                    isLoaded: true,
-                    isAnalysing: false,
-                    error,
-                    res_modal_status: 500,
-                    res_modal_message:
-                        'Make sure that you updated your courses and select the right target group and language!'
-                }));
-            }
-        );
-    };
-
     const onAnalyseV2 = async (requirementIds, lang, factor) => {
         try {
             const response = await transcriptanalyser_testV2({
@@ -392,76 +318,76 @@ export default function MyCourses() {
         }
     };
 
-    const onDownload = () => {
-        setStatedata((prevState) => ({
-            ...prevState,
-            isDownloading: true
-        }));
-        analyzedFileDownload_test(statedata.student._id.toString()).then(
-            (resp) => {
-                // TODO: timeout? success?
-                const { status } = resp;
-                if (status < 300) {
-                    const actualFileName = decodeURIComponent(
-                        resp.headers['content-disposition'].split('"')[1]
-                    ); //  檔名中文亂碼 solved
-                    const { data: blob } = resp;
-                    if (blob.size === 0) return;
+    // const onDownload = () => {
+    //     setStatedata((prevState) => ({
+    //         ...prevState,
+    //         isDownloading: true
+    //     }));
+    //     analyzedFileDownload_test(statedata.student._id.toString()).then(
+    //         (resp) => {
+    //             // TODO: timeout? success?
+    //             const { status } = resp;
+    //             if (status < 300) {
+    //                 const actualFileName = decodeURIComponent(
+    //                     resp.headers['content-disposition'].split('"')[1]
+    //                 ); //  檔名中文亂碼 solved
+    //                 const { data: blob } = resp;
+    //                 if (blob.size === 0) return;
 
-                    var filetype = actualFileName.split('.'); //split file name
-                    filetype = filetype.pop(); //get the file type
+    //                 var filetype = actualFileName.split('.'); //split file name
+    //                 filetype = filetype.pop(); //get the file type
 
-                    if (filetype === 'pdf') {
-                        const url = window.URL.createObjectURL(
-                            new Blob([blob], { type: 'application/pdf' })
-                        );
+    //                 if (filetype === 'pdf') {
+    //                     const url = window.URL.createObjectURL(
+    //                         new Blob([blob], { type: 'application/pdf' })
+    //                     );
 
-                        //Open the URL on new Window
-                        window.open(url); //TODO: having a reasonable file name, pdf viewer
-                    } else {
-                        //if not pdf, download instead.
+    //                     //Open the URL on new Window
+    //                     window.open(url); //TODO: having a reasonable file name, pdf viewer
+    //                 } else {
+    //                     //if not pdf, download instead.
 
-                        const url = window.URL.createObjectURL(
-                            new Blob([blob])
-                        );
+    //                     const url = window.URL.createObjectURL(
+    //                         new Blob([blob])
+    //                     );
 
-                        const link = document.createElement('a');
-                        link.href = url;
-                        link.setAttribute('download', actualFileName);
-                        // Append to html link element page
-                        document.body.appendChild(link);
-                        // Start download
-                        link.click();
-                        // Clean up and remove the link
-                        link.parentNode.removeChild(link);
-                        setStatedata((state) => ({
-                            ...state,
-                            isDownloading: false
-                        }));
-                    }
-                } else {
-                    const { statusText } = resp;
-                    setStatedata((state) => ({
-                        ...state,
-                        isLoaded: true,
-                        res_modal_status: status,
-                        res_modal_message: statusText,
-                        isDownloading: false
-                    }));
-                }
-            },
-            (error) => {
-                setStatedata((prevState) => ({
-                    ...prevState,
-                    isLoaded: true,
-                    error,
-                    res_modal_status: 500,
-                    res_modal_message: '',
-                    isDownloading: false
-                }));
-            }
-        );
-    };
+    //                     const link = document.createElement('a');
+    //                     link.href = url;
+    //                     link.setAttribute('download', actualFileName);
+    //                     // Append to html link element page
+    //                     document.body.appendChild(link);
+    //                     // Start download
+    //                     link.click();
+    //                     // Clean up and remove the link
+    //                     link.parentNode.removeChild(link);
+    //                     setStatedata((state) => ({
+    //                         ...state,
+    //                         isDownloading: false
+    //                     }));
+    //                 }
+    //             } else {
+    //                 const { statusText } = resp;
+    //                 setStatedata((state) => ({
+    //                     ...state,
+    //                     isLoaded: true,
+    //                     res_modal_status: status,
+    //                     res_modal_message: statusText,
+    //                     isDownloading: false
+    //                 }));
+    //             }
+    //         },
+    //         (error) => {
+    //             setStatedata((prevState) => ({
+    //                 ...prevState,
+    //                 isLoaded: true,
+    //                 error,
+    //                 res_modal_status: 500,
+    //                 res_modal_message: '',
+    //                 isDownloading: false
+    //             }));
+    //         }
+    //     );
+    // };
 
     const closeModal = () => {
         setStatedata((prevState) => ({
@@ -741,124 +667,52 @@ export default function MyCourses() {
                                 value={value}
                                 variant="scrollable"
                             >
-                                <Tab label="Default" {...a11yProps(value, 0)} />
+                                {/* <Tab label="Default" {...a11yProps(value, 0)} /> */}
                                 <Tab
                                     label={
                                         <Badge badgeContent="V2" color="error">
                                             New Analyzer
                                         </Badge>
                                     }
-                                    {...a11yProps(value, 1)}
+                                    {...a11yProps(value, 0)}
                                 />
                             </Tabs>
                         </Box>
                         <CustomTabPanel index={0} value={value}>
-                            <Grid container spacing={2}>
-                                <Grid item xs={12}>
-                                    <Typography variant="h6">
-                                        {t('Courses Analysis', {
-                                            ns: 'courses'
-                                        })}
-                                    </Typography>
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <FormControl fullWidth>
-                                        <InputLabel id="select-target-group">
-                                            {t('Select Target Group', {
-                                                ns: 'courses'
-                                            })}
-                                        </InputLabel>
-                                        <Select
-                                            id="study_group"
-                                            label={t('Select Target Group', {
-                                                ns: 'courses'
-                                            })}
-                                            labelId="select-label"
-                                            onChange={handleChange_study_group}
-                                            value={statedata.study_group}
-                                        >
-                                            <MenuItem value="">
-                                                Select Study Group
-                                            </MenuItem>
-                                            {study_group.map((cat, i) => (
-                                                <MenuItem
-                                                    key={i}
-                                                    value={cat.key}
-                                                >
-                                                    {cat.value}
-                                                </MenuItem>
-                                            ))}
-                                        </Select>
-                                    </FormControl>
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <FormControl
-                                        fullWidth
-                                        sx={{ marginBottom: 1 }}
-                                    >
-                                        <InputLabel id="select-language">
-                                            {t('Select language', {
-                                                ns: 'courses'
-                                            })}
-                                        </InputLabel>
-                                        <Select
-                                            id="analysis_language"
-                                            label={t('Select language', {
-                                                ns: 'courses'
-                                            })}
-                                            labelId="demo-simple-select-label"
-                                            onChange={
-                                                handleChange_analysis_language
-                                            }
-                                            value={statedata.analysis_language}
-                                        >
-                                            <MenuItem value="">
-                                                Select Study Group
-                                            </MenuItem>
-                                            <MenuItem value="zh">中文</MenuItem>
-                                            <MenuItem value="en">
-                                                English (Beta Version)
-                                            </MenuItem>
-                                        </Select>
-                                    </FormControl>
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <Button
-                                        color="primary"
-                                        disabled={
-                                            statedata.isAnalysing ||
-                                            statedata.study_group === '' ||
-                                            statedata.analysis_language === ''
-                                        }
-                                        endIcon={
-                                            statedata.isAnalysing ? (
-                                                <CircularProgress size={24} />
-                                            ) : null
-                                        }
-                                        onClick={onAnalyse}
-                                        sx={{ mr: 2 }}
-                                        variant="contained"
-                                    >
-                                        {statedata.isAnalysing
-                                            ? t('Analysing', { ns: 'courses' })
-                                            : t('Analyse', { ns: 'courses' })}
-                                    </Button>
-                                </Grid>
-                            </Grid>
-                        </CustomTabPanel>
-                        <CustomTabPanel index={1} value={value}>
                             <Typography variant="h5">
-                                Attention: This is <b>NOT</b> production ready
-                                and student WILL NOT be informed and see any
-                                result. Internal testing purpose at the moment.
+                                Attention: This is <b>IN</b> production BUT
+                                student WILL NOT be informed. Please share the
+                                analysed page URL link to the student.
                             </Typography>
                             <ProgramRequirementsTableWrapper
                                 onAnalyseV2={onAnalyseV2}
                             />
+                        </CustomTabPanel>
+                    </>
+                ) : null}
+                {value === 0 ? (
+                    <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                            <Typography variant="h6">
+                                {t('Courses Analysis', { ns: 'courses' })}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={12}>
                             {statedata.analysis &&
                             statedata.analysis.isAnalysedV2 ? (
                                 <>
                                     <Typography>
+                                        {/* <Button
+                                            color="primary"
+                                            disabled={statedata.isDownloading}
+                                            onClick={onDownload}
+                                            size="small"
+                                            startIcon={<DownloadIcon />}
+                                            sx={{ marginRight: 2 }}
+                                            variant="contained"
+                                        >
+                                            {t('Download', { ns: 'common' })}
+                                        </Button> */}
                                         <LinkDom
                                             target="_blank"
                                             to={`${DEMO.COURSES_ANALYSIS_RESULT_V2_LINK(
@@ -884,66 +738,6 @@ export default function MyCourses() {
                                         {statedata.analysis
                                             ? convertDate(
                                                   statedata.analysis.updatedAtV2
-                                              )
-                                            : ''}
-                                    </Typography>
-                                </>
-                            ) : (
-                                <Typography>
-                                    {t('No analysis yet', { ns: 'courses' })}
-                                </Typography>
-                            )}
-                        </CustomTabPanel>
-                    </>
-                ) : null}
-                {value === 0 ? (
-                    <Grid container spacing={2}>
-                        <Grid item xs={12}>
-                            <Typography variant="h6">
-                                {t('Courses Analysis', { ns: 'courses' })}
-                            </Typography>
-                        </Grid>
-                        <Grid item xs={12}>
-                            {statedata.analysis &&
-                            statedata.analysis.isAnalysed ? (
-                                <>
-                                    <Typography>
-                                        <Button
-                                            color="primary"
-                                            disabled={statedata.isDownloading}
-                                            onClick={onDownload}
-                                            size="small"
-                                            startIcon={<DownloadIcon />}
-                                            sx={{ marginRight: 2 }}
-                                            variant="contained"
-                                        >
-                                            {t('Download', { ns: 'common' })}
-                                        </Button>
-                                        <LinkDom
-                                            target="_blank"
-                                            to={`${DEMO.COURSES_ANALYSIS_RESULT_LINK(
-                                                statedata.student._id.toString()
-                                            )}`}
-                                        >
-                                            <Button
-                                                color="secondary"
-                                                size="small"
-                                                variant="contained"
-                                            >
-                                                {t('View Online', {
-                                                    ns: 'courses'
-                                                })}
-                                            </Button>
-                                        </LinkDom>
-                                    </Typography>
-                                    <Typography sx={{ mt: 2 }}>
-                                        {t('Last analysis at', {
-                                            ns: 'courses'
-                                        })}
-                                        :{' '}
-                                        {statedata.analysis
-                                            ? convertDate(
-                                                  statedata.analysis.updatedAt
                                               )
                                             : ''}
                                     </Typography>

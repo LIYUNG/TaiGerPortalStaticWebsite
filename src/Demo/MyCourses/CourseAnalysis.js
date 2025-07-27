@@ -23,7 +23,7 @@ import { convertDate } from '../../utils/contants';
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import {
-    analyzedFileDownload_test,
+    // analyzedFileDownload_test,
     WidgetanalyzedFileDownload
 } from '../../api';
 import { TabTitle } from '../Utils/TabTitle';
@@ -59,9 +59,7 @@ export default function CourseAnalysis() {
     const ref = useRef(null);
     useEffect(() => {
         const isInternal = window.location.href.includes('internal');
-        const downloadFn = isInternal
-            ? WidgetanalyzedFileDownload
-            : analyzedFileDownload_test;
+        const downloadFn = WidgetanalyzedFileDownload;
 
         downloadFn(user_id).then(
             (resp) => {
