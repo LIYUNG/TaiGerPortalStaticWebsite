@@ -36,6 +36,7 @@ export const InterviewFeedback = ({ interview }) => {
     if (isStudentInterviewsLoading || isProgramInterviewsLoading) {
         return <ChildLoading />;
     }
+    // const now = Date.now();
     return (
         <div>
             {is_TaiGer_role(user) && (
@@ -72,8 +73,6 @@ export const InterviewFeedback = ({ interview }) => {
                                 <Box pl={2}>
                                     {programInterviews?.data?.map(
                                         (programInterview) =>
-                                            programInterview.isClosed ===
-                                                true &&
                                             programInterview._id !==
                                                 interview._id && (
                                                 <Link
@@ -140,8 +139,6 @@ export const InterviewFeedback = ({ interview }) => {
                                 <Box pl={2}>
                                     {studentInterviews?.data?.map(
                                         (studentInterview) =>
-                                            studentInterview.isClosed ===
-                                                true &&
                                             studentInterview._id !==
                                                 interview._id && (
                                                 <Link
