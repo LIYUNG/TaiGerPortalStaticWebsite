@@ -10,6 +10,9 @@ import {
 
 export const login = (credentials) => request.post('/auth/login', credentials);
 
+export const googleOAuthCallback = (code) =>
+    postData('/auth/oauth/google/callback', { code });
+
 export const logout = () => request.get('/auth/logout');
 
 export const register = (credentials) =>
@@ -61,8 +64,6 @@ export const changeUserRole = (id, role) => updateUser({ _id: id, role });
 export const getEssayWriters = () => request.get('/api/essay-writers');
 
 export const getStudents = () => request.get(`/api/students`);
-
-export const getStudentsV2 = () => getData(`/api/students`);
 
 export const getStudentsV3 = (queryString) =>
     getData(`/api/students/v3?${queryString}`);

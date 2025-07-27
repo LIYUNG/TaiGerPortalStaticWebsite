@@ -4,6 +4,9 @@ import React from 'react';
 //   import('./Demo/Authentication/SignUp/SignUp1')
 // );
 const SignIn = React.lazy(() => import('./Demo/Authentication/SignIn/SignIn'));
+const GoogleOAuthCallback = React.lazy(
+    () => import('./Demo/Authentication/GoogleOauthCallback/index')
+);
 const LandingPage = React.lazy(
     () => import('./Demo/Authentication/LandingPage/index')
 );
@@ -51,6 +54,11 @@ const route = [
         path: '/account/login',
         name: 'Login',
         Component: SignIn
+    },
+    {
+        path: '/account/google/verify',
+        name: 'Google OAuth Callback',
+        Component: GoogleOAuthCallback
     }
     // { path: '/', exact: false, name: 'Default', Component: SignIn }
 ];

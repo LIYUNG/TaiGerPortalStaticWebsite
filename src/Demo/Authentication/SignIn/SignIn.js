@@ -18,6 +18,7 @@ import Reactivation from '../Activation/Reactivation';
 import { useAuth } from '../../../components/AuthProvider';
 import AuthWrapper from '../../../components/AuthWrapper';
 import DEMO from '../../../store/constant';
+import { GoogleLoginButton } from '../../../components/Buttons/GoolgeSignInButton';
 
 export default function SignIn() {
     const { login } = useAuth();
@@ -158,6 +159,7 @@ export default function SignIn() {
                         )}
                     </Button>
                 </form>
+                <GoogleLoginButton />
                 <Grid container spacing={2} sx={{ my: 1 }}>
                     <Grid item sx={{ textAlign: 'center' }} xs={12}>
                         <Typography>
