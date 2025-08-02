@@ -770,9 +770,9 @@ export const addInterviewTrainingDateTime = (interview_id, payload) =>
     request.post(`/api/interviews/time/${interview_id}`, payload);
 
 export const getInterviewsByProgramId = (program_id) =>
-    request.get(`/api/interviews/interview/${program_id}`);
+    getData(`/api/interviews/interview/${program_id}`);
 export const getInterviewsByStudentId = (student_id) =>
-    request.get(`/api/interviews/interviews/${student_id}`);
+    getData(`/api/interviews/interviews/${student_id}`);
 
 // Program feedback Ticket
 export const createProgramReport = (program_id, description, type) =>
