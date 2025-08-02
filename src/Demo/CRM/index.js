@@ -34,22 +34,55 @@ const CRMDashboard = () => {
         return <Loading />;
     }
 
-    // Process chart data - data is already grouped by calendar week
-    const processWeeklyData = (countByWeek) => {
-        if (!countByWeek || !Array.isArray(countByWeek))
-            return { labels: [], data: [] };
+    // Create unified week range for consistent x-axis across both charts
+    const createUnifiedWeekRange = (leadsData, meetingsData) => {
+        const allWeeks = new Set();
 
-        const sortedData = countByWeek.sort((a, b) =>
-            a.week.localeCompare(b.week)
-        );
+        // Collect all weeks from both datasets
+        if (leadsData && Array.isArray(leadsData)) {
+            leadsData.forEach((item) => allWeeks.add(item.week));
+        }
+        if (meetingsData && Array.isArray(meetingsData)) {
+            meetingsData.forEach((item) => allWeeks.add(item.week));
+        }
 
-        return {
-            labels: sortedData.map((item) => item.week),
-            data: sortedData.map((item) => item.count)
-        };
+        // Sort weeks chronologically
+        return Array.from(allWeeks).sort();
     };
 
-    const meetingsWeeklyData = processWeeklyData(stats.meetingCountByDate);
+    // Prepare data with null values for missing weeks (no bars will be shown)
+    const prepareChartData = (data, allWeeks, valueKey = 'count') => {
+        const dataMap = new Map();
+        if (data && Array.isArray(data)) {
+            data.forEach((item) => dataMap.set(item.week, item[valueKey] || 0));
+        }
+
+        return allWeeks.map((week) =>
+            dataMap.has(week) ? dataMap.get(week) : null
+        );
+    };
+
+    const allWeeks = createUnifiedWeekRange(
+        stats.leadsCountByDate,
+        stats.meetingCountByDate
+    );
+
+    // Prepare data for both charts with consistent x-axis (null for missing weeks)
+    const unifiedLeadsData = prepareChartData(
+        stats.leadsCountByDate,
+        allWeeks,
+        'count'
+    );
+    const unifiedConvertedLeadsData = prepareChartData(
+        stats.leadsCountByDate,
+        allWeeks,
+        'convertedCount'
+    );
+    const unifiedMeetingsData = prepareChartData(
+        stats.meetingCountByDate,
+        allWeeks,
+        'count'
+    );
 
     return (
         <>
@@ -158,20 +191,16 @@ const CRMDashboard = () => {
                                     ns: 'common'
                                 })}
                             </Typography>
-                            {stats.leadsCountByDate.length > 0 ? (
+                            {allWeeks.length > 0 ? (
                                 <BarChart
                                     height={250}
                                     series={[
                                         {
-                                            data: stats.leadsCountByDate.map(
-                                                (item) => item.count
-                                            ),
+                                            data: unifiedLeadsData,
                                             label: 'New Leads'
                                         },
                                         {
-                                            data: stats.leadsCountByDate.map(
-                                                (item) => item.convertedCount
-                                            ),
+                                            data: unifiedConvertedLeadsData,
                                             label: 'Converted Leads'
                                         }
                                     ]}
@@ -181,9 +210,7 @@ const CRMDashboard = () => {
                                     xAxis={[
                                         {
                                             label: 'Calendar Week',
-                                            data: stats.leadsCountByDate.map(
-                                                (item) => item.week
-                                            ),
+                                            data: allWeeks,
                                             scaleType: 'band',
                                             barGapRatio: -1
                                         }
@@ -216,12 +243,12 @@ const CRMDashboard = () => {
                                     ns: 'common'
                                 })}
                             </Typography>
-                            {meetingsWeeklyData.labels.length > 0 ? (
+                            {allWeeks.length > 0 ? (
                                 <BarChart
                                     height={250}
                                     series={[
                                         {
-                                            data: meetingsWeeklyData.data,
+                                            data: unifiedMeetingsData,
                                             label: i18next.t('Meetings', {
                                                 ns: 'common'
                                             })
@@ -235,7 +262,7 @@ const CRMDashboard = () => {
                                             label: i18next.t('Calendar Week', {
                                                 ns: 'common'
                                             }),
-                                            data: meetingsWeeklyData.labels,
+                                            data: allWeeks,
                                             scaleType: 'band'
                                         }
                                     ]}
