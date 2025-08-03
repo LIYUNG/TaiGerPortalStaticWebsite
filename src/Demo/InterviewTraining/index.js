@@ -160,11 +160,7 @@ const InterviewTraining = () => {
             header: t('Duplicate', { ns: 'common' }),
             size: 150,
             Cell: ({ cell }) =>
-                cell.getValue() ? (
-                    <ErrorIcon color="warning" />
-                ) : (
-                    <CheckCircleIcon color="success" />
-                )
+                cell.getValue() ? <ErrorIcon color="warning" /> : ''
         },
         {
             accessorKey: 'surveySubmitted',
