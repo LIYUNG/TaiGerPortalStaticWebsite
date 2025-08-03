@@ -14,22 +14,16 @@ import {
     Person as PersonIcon
 } from '@mui/icons-material';
 
+import { request } from '../../../api/request';
+
 const SimilarStudents = ({ leadId, maxStudents = 5 }) => {
     // Query for similar students
     const { data: similarStudentsData, isLoading: isLoadingSimilarStudents } =
         useQuery({
             queryKey: ['similar-students', leadId],
             queryFn: async () => {
-                // Use fetch directly to avoid credentials being sent
-                const response = await fetch(
-                    `http://localhost:5678/webhook/fe804031-aeff-45c1-b985-fdcb2f5a9122/${leadId}`,
-                    {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        credentials: 'omit' // Don't send credentials for this external API
-                    }
+                const response = await request.get(
+                    `https://beta.taigerconsultancy-portal.com/crm-api/lead-student-matching?leadId=${leadId}`
                 );
 
                 if (!response.ok) {
