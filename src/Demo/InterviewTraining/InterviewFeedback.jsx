@@ -81,12 +81,12 @@ export const InterviewFeedback = ({ interview }) => {
                                                     display="block"
                                                     key={programInterview._id}
                                                     mb={0.5}
+                                                    sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
                                                     target="_blank"
                                                     to={`${DEMO.INTERVIEW_SINGLE_SURVEY_LINK(
                                                         programInterview._id.toString()
                                                     )}`}
                                                     underline="hover"
-                                                    sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
                                                 >
                                                     {`${convertDate(programInterview.interview_date)} - ${programInterview.student_id.firstname} ${programInterview.student_id.lastname}`}
                                                     {programInterview.surveyResponses?.length > 0 && (
