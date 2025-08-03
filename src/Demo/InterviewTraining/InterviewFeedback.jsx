@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import {
     ExpandLess as ExpandLessIcon,
-    ExpandMore as ExpandMoreIcon
+    ExpandMore as ExpandMoreIcon,
+    CheckCircle as CheckCircleIcon,
+    Warning as WarningIcon
 } from '@mui/icons-material';
 import { is_TaiGer_role } from '@taiger-common/core';
 import { Box, Collapse, Link, Typography } from '@mui/material';
@@ -26,17 +28,16 @@ export const InterviewFeedback = ({ interview }) => {
     const { data: programInterviews, isLoading: isProgramInterviewsLoading } =
         useQuery(getInterviewsByProgramIdQuery(interview.program_id._id));
     const [isStudentInterviewsOpen, setIsStudentInterviewsOpen] =
-        useState(false);
+        useState(true);
 
     const [
         isPreviousInterviewQuestionnaireOpen,
         setPreviousInterviewQuestionnaireOpen
-    ] = useState(false);
+    ] = useState(true);
 
     if (isStudentInterviewsLoading || isProgramInterviewsLoading) {
         return <ChildLoading />;
     }
-    // const now = Date.now();
     return (
         <div>
             {is_TaiGer_role(user) && (
@@ -80,6 +81,7 @@ export const InterviewFeedback = ({ interview }) => {
                                                     display="block"
                                                     key={programInterview._id}
                                                     mb={0.5}
+                                                    sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
                                                     target="_blank"
                                                     to={`${DEMO.INTERVIEW_SINGLE_SURVEY_LINK(
                                                         programInterview._id.toString()
@@ -87,6 +89,23 @@ export const InterviewFeedback = ({ interview }) => {
                                                     underline="hover"
                                                 >
                                                     {`${convertDate(programInterview.interview_date)} - ${programInterview.student_id.firstname} ${programInterview.student_id.lastname}`}
+                                                    {programInterview.surveyResponses?.length > 0 && (
+                                                        programInterview.surveyResponses.some(response => response.isFinal) ? (
+                                                            <CheckCircleIcon 
+                                                                sx={{ 
+                                                                    color: 'success.main',
+                                                                    fontSize: '16px'
+                                                                }} 
+                                                            />
+                                                        ) : (
+                                                            <WarningIcon 
+                                                                sx={{ 
+                                                                    color: 'warning.main',
+                                                                    fontSize: '16px'
+                                                                }} 
+                                                            />
+                                                        )
+                                                    )}
                                                 </Link>
                                             )
                                     )}
@@ -97,9 +116,9 @@ export const InterviewFeedback = ({ interview }) => {
                                     >
                                         {t('Total interview records:')}{' '}
                                         {programInterviews?.data?.filter(
-                                            (interview) =>
-                                                interview.isClosed === true &&
-                                                interview._id !== interview._id
+                                            (i) =>
+                                                i.isClosed === true &&
+                                                i._id !== interview._id
                                         )?.length || 0}
                                     </Typography>
                                 </Box>
@@ -163,9 +182,9 @@ export const InterviewFeedback = ({ interview }) => {
                                     >
                                         {t('Total interview records:')}{' '}
                                         {studentInterviews?.data?.filter(
-                                            (interview) =>
-                                                interview.isClosed === true &&
-                                                interview._id !== interview._id
+                                            (inv) =>
+                                                inv.isClosed === true &&
+                                                inv._id !== interview._id
                                         )?.length || 0}
                                     </Typography>
                                 </Box>

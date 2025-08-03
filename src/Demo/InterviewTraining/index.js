@@ -148,6 +148,21 @@ const InterviewTraining = () => {
             size: 180
         },
         {
+            accessorKey: 'isDuplicate',
+            filterVariant: 'select',
+            filterSelectOptions: [
+                { value: true, label: t('Yes', { ns: 'common' }) },
+                { value: false, label: t('No', { ns: 'common' }) }
+            ],
+            filterFn: (row, id, filterValue) => {
+                return row.getValue(id) === filterValue;
+            },
+            header: t('Duplicate', { ns: 'common' }),
+            size: 150,
+            Cell: ({ cell }) =>
+                cell.getValue() ? <ErrorIcon color="warning" /> : ''
+        },
+        {
             accessorKey: 'surveySubmitted',
             filterVariant: 'select',
             filterSelectOptions: [
@@ -245,7 +260,16 @@ const InterviewTraining = () => {
         if (!interviews) {
             return [];
         }
+
+        // Count occurrences of each student_id
+        const studentIdCounts = {};
         for (const interview of interviews) {
+            const studentId = interview.student_id._id;
+            studentIdCounts[studentId] = (studentIdCounts[studentId] || 0) + 1;
+        }
+
+        for (const interview of interviews) {
+            const studentId = interview.student_id._id;
             result.push({
                 ...interview,
                 id: `${interview._id}`,
@@ -257,7 +281,8 @@ const InterviewTraining = () => {
                     (interview.interview_date &&
                         convertDate(interview.interview_date)) ||
                     '',
-                student_id: interview.student_id._id,
+                student_id: studentId,
+                isDuplicate: studentIdCounts[studentId] > 1,
                 trainer_name:
                     interview.trainer_id
                         ?.map((trainer) => trainer.firstname)
