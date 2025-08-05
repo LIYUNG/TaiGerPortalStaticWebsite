@@ -27,7 +27,9 @@ const EditAgentsSubpage = (props) => {
 
     useEffect(() => {
         // Initialize the state with checked checkboxes based on the student's agents
-        getUsers(queryString.stringify({ role: Role.Agent })).then(
+        getUsers(
+            queryString.stringify({ role: Role.Agent, archiv: false })
+        ).then(
             (resp) => {
                 // TODO: check success
                 const { data, success } = resp.data;
