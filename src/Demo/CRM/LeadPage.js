@@ -16,6 +16,7 @@ import EditableCard from './components/EditableCard';
 import { GenericCardContent } from './components/GenericCard';
 import { getCardConfigurations } from './components/CardConfigurations';
 import CreateUserFromLeadModal from './components/CreateUserFromLeadModal';
+import SimilarStudents from './components/SimilarStudents';
 
 import { request } from '../../api/request';
 
@@ -406,6 +407,9 @@ const LeadPage = () => {
                     </Box>
                 </Box>
             )}
+
+            {/* Similar Students Section */}
+            <SimilarStudents leadId={leadId} />
 
             {lead && Object.keys(lead).length > 0 ? (
                 <Grid container spacing={3} sx={{ pb: 5 }}>
