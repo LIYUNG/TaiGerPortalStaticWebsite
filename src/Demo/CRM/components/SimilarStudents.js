@@ -25,20 +25,18 @@ const SimilarStudents = ({ leadId: propLeadId }) => {
             queryKey: ['similar-students', leadId],
             queryFn: async () => {
                 const response = await request.get(
-                    // Prefer relative path in dev; proxy will forward to the beta host.
                     `/crm-api/lead-student-matching?leadId=${leadId}`
-                    // `/crm-api/hello`
                 );
 
                 console.log('similarStudentsData before useQuery:', response);
                 return response?.data;
             },
             enabled: !!leadId,
-            staleTime: Infinity, // Never consider data stale - cache indefinitely
-            cacheTime: 24 * 60 * 60 * 1000, // Keep in cache for 24 hours
-            refetchOnMount: false, // Don't refetch when component mounts
-            refetchOnWindowFocus: false, // Don't refetch when window gains focus
-            refetchOnReconnect: false, // Don't refetch on network reconnect
+            staleTime: Infinity,
+            cacheTime: 24 * 60 * 60 * 1000,
+            refetchOnMount: false,
+            refetchOnWindowFocus: false,
+            refetchOnReconnect: false,
             retry: 1
         });
 
