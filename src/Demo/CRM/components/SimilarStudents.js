@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
     Box,
@@ -16,21 +16,22 @@ import {
 
 import { request } from '../../../api/request';
 
-const SimilarStudents = ({ leadId, maxStudents = 5 }) => {
+const SimilarStudents = ({ leadId: propLeadId }) => {
+    const leadId = useMemo(() => propLeadId, [propLeadId]);
+
     // Query for similar students
     const { data: similarStudentsData, isLoading: isLoadingSimilarStudents } =
         useQuery({
             queryKey: ['similar-students', leadId],
             queryFn: async () => {
                 const response = await request.get(
-                    `https://beta.taigerconsultancy-portal.com/crm-api/lead-student-matching?leadId=${leadId}`
+                    // Prefer relative path in dev; proxy will forward to the beta host.
+                    `/crm-api/lead-student-matching?leadId=${leadId}`
+                    // `/crm-api/hello`
                 );
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                return await response.json();
+                console.log('similarStudentsData before useQuery:', response);
+                return response?.data;
             },
             enabled: !!leadId,
             staleTime: Infinity, // Never consider data stale - cache indefinitely
@@ -38,7 +39,7 @@ const SimilarStudents = ({ leadId, maxStudents = 5 }) => {
             refetchOnMount: false, // Don't refetch when component mounts
             refetchOnWindowFocus: false, // Don't refetch when window gains focus
             refetchOnReconnect: false, // Don't refetch on network reconnect
-            retry: 1 // Only retry once on failure
+            retry: 1
         });
 
     // Parse student text information
@@ -69,11 +70,12 @@ const SimilarStudents = ({ leadId, maxStudents = 5 }) => {
         );
     }
 
-    if (!similarStudentsData || similarStudentsData.length === 0) {
+    if (!similarStudentsData) {
+        console.log('No similar students found', similarStudentsData);
         return null;
     }
 
-    const studentsToShow = similarStudentsData.slice(0, maxStudents);
+    const studentsToShow = similarStudentsData?.matches || [];
 
     return (
         <Card sx={{ mb: 3 }}>
@@ -95,6 +97,7 @@ const SimilarStudents = ({ leadId, maxStudents = 5 }) => {
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                     <Grid container spacing={1}>
                         {studentsToShow.map((student) => {
+                            console.log(student);
                             const info = parseStudentInfo(student.text);
                             return (
                                 <Grid
@@ -178,7 +181,23 @@ const SimilarStudents = ({ leadId, maxStudents = 5 }) => {
                                                     variant="caption"
                                                 >
                                                     <strong>School:</strong>{' '}
-                                                    {info['Bachelor School']}
+                                                    {info['Bachelor School']} -{' '}
+                                                </Typography>
+                                            )}
+
+                                            {info['Bachelor Program'] && (
+                                                <Typography
+                                                    color="text.secondary"
+                                                    sx={{
+                                                        display: 'block',
+                                                        mb: 0.3,
+                                                        fontSize: '0.65rem',
+                                                        lineHeight: 1.2
+                                                    }}
+                                                    variant="caption"
+                                                >
+                                                    <strong>Program:</strong>{' '}
+                                                    {info['Bachelor Program']}
                                                 </Typography>
                                             )}
                                             {info['Bachelor GPA'] && (
@@ -248,4 +267,4 @@ const SimilarStudents = ({ leadId, maxStudents = 5 }) => {
     );
 };
 
-export default SimilarStudents;
+export default React.memo(SimilarStudents);
