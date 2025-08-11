@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
     Box,
@@ -16,10 +16,7 @@ import {
 
 import { request } from '../../../api/request';
 
-const SimilarStudents = ({ leadId: propLeadId }) => {
-    const leadId = useMemo(() => propLeadId, [propLeadId]);
-
-    // Query for similar students
+const SimilarStudents = ({ leadId }) => {
     const { data: similarStudentsData, isLoading: isLoadingSimilarStudents } =
         useQuery({
             queryKey: ['similar-students', leadId],
@@ -27,8 +24,6 @@ const SimilarStudents = ({ leadId: propLeadId }) => {
                 const response = await request.get(
                     `/crm-api/lead-student-matching?leadId=${leadId}`
                 );
-
-                console.log('similarStudentsData before useQuery:', response);
                 return response?.data;
             },
             enabled: !!leadId,
@@ -69,7 +64,6 @@ const SimilarStudents = ({ leadId: propLeadId }) => {
     }
 
     if (!similarStudentsData) {
-        console.log('No similar students found', similarStudentsData);
         return null;
     }
 
@@ -95,7 +89,6 @@ const SimilarStudents = ({ leadId: propLeadId }) => {
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                     <Grid container spacing={1}>
                         {studentsToShow.map((student) => {
-                            console.log(student);
                             const info = parseStudentInfo(student.text);
                             return (
                                 <Grid
@@ -179,7 +172,7 @@ const SimilarStudents = ({ leadId: propLeadId }) => {
                                                     variant="caption"
                                                 >
                                                     <strong>School:</strong>{' '}
-                                                    {info['Bachelor School']} -{' '}
+                                                    {info['Bachelor School']}
                                                 </Typography>
                                             )}
 
@@ -265,4 +258,4 @@ const SimilarStudents = ({ leadId: propLeadId }) => {
     );
 };
 
-export default React.memo(SimilarStudents);
+export default SimilarStudents;
