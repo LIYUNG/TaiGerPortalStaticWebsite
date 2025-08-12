@@ -87,29 +87,75 @@ const StudentCard = ({ student, matchReason }) => {
                         {student.firstname} {student.lastname}
                     </Typography>
                 </Link>
-                <Chip
-                    color="primary"
-                    label={student?.application_preference?.target_degree}
-                    size="small"
-                    sx={{
-                        fontSize: '0.6rem',
-                        height: 16,
-                        '& .MuiChip-label': { px: 0.5 }
-                    }}
-                    variant="filled"
-                />
-                <Chip
-                    color="primary"
-                    label={`${student.application_preference.expected_application_date} ${student.application_preference.expected_application_semester}`}
-                    size="small"
-                    sx={{
-                        fontSize: '0.6rem',
-                        height: 16,
-                        '& .MuiChip-label': { px: 0.5 }
-                    }}
-                    variant="outlined"
-                />
+                {student?.application_preference?.target_degree && (
+                    <Chip
+                        color="primary"
+                        label={student?.application_preference?.target_degree}
+                        size="small"
+                        sx={{
+                            fontSize: '0.6rem',
+                            height: 16,
+                            '& .MuiChip-label': { px: 0.5 }
+                        }}
+                        variant="filled"
+                    />
+                )}
+                {(student.application_preference.expected_application_date ||
+                    student.application_preference
+                        .expected_application_semester) && (
+                    <Chip
+                        color="primary"
+                        label={`${student.application_preference.expected_application_date} ${student.application_preference.expected_application_semester}`}
+                        size="small"
+                        sx={{
+                            fontSize: '0.6rem',
+                            height: 16,
+                            '& .MuiChip-label': { px: 0.5 }
+                        }}
+                        variant="outlined"
+                    />
+                )}
             </Box>
+
+            {/* Match reason - moved to the top */}
+            {matchReason && (
+                <Box sx={{ mb: 0.8 }}>
+                    <Typography
+                        sx={{
+                            display: 'block',
+                            fontSize: '0.65rem',
+                            color: 'primary.main',
+                            fontWeight: 'medium',
+                            mb: 0.2
+                        }}
+                        variant="caption"
+                    >
+                        Match Reason:
+                    </Typography>
+                    <Box
+                        sx={{
+                            p: 0.7,
+                            borderLeft: '2px solid',
+                            borderColor: 'primary.light',
+                            bgcolor: 'primary.lighter',
+                            borderRadius: '0 4px 4px 0',
+                            fontSize: '0.65rem',
+                            lineHeight: 1.2
+                        }}
+                    >
+                        <Typography
+                            sx={{
+                                color: 'text.primary',
+                                fontSize: 'inherit',
+                                display: 'block'
+                            }}
+                            variant="caption"
+                        >
+                            {matchReason}
+                        </Typography>
+                    </Box>
+                </Box>
+            )}
 
             {/* Student details */}
             <Box sx={{ flex: 1, fontSize: '0.75rem' }}>
@@ -138,28 +184,6 @@ const StudentCard = ({ student, matchReason }) => {
                             ?.target_application_field
                     }
                 />
-                {matchReason && (
-                    <Box
-                        sx={{
-                            mt: 0.5,
-                            p: 0.5,
-                            bgcolor: 'info.light',
-                            borderRadius: 0.5,
-                            fontSize: '0.6rem'
-                        }}
-                    >
-                        <Typography
-                            sx={{
-                                color: 'info.contrastText',
-                                fontWeight: 'medium',
-                                fontSize: 'inherit'
-                            }}
-                            variant="caption"
-                        >
-                            Match Reason: {matchReason}
-                        </Typography>
-                    </Box>
-                )}
             </Box>
 
             <Divider sx={{ my: 1 }} />
@@ -255,10 +279,23 @@ const StudentCardSkeleton = () => (
             <Skeleton height={20} variant="circular" width={20} />
             <Skeleton height={20} variant="text" width="60%" />
         </Box>
+
+        {/* Match reason skeleton - moved to the top */}
+        <Box sx={{ mb: 1.5 }}>
+            <Skeleton height={12} variant="text" width="40%" />
+            <Skeleton
+                height={30}
+                sx={{ mt: 0.5, borderRadius: '0 4px 4px 0' }}
+                variant="rectangular"
+                width="100%"
+            />
+        </Box>
+
         <Skeleton height={15} variant="text" width="90%" />
         <Skeleton height={15} variant="text" width="80%" />
         <Skeleton height={15} variant="text" width="40%" />
         <Skeleton height={15} variant="text" width="70%" />
+
         <Divider sx={{ my: 1 }} />
         <Skeleton height={20} variant="text" width="100%" />
         <Skeleton height={20} variant="text" width="100%" />
@@ -276,7 +313,10 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
                 );
                 return response?.data;
             },
-            enabled: !!leadId && similarUsers.length === 0
+            enabled: !!leadId && similarUsers.length === 0,
+            refetchOnWindowFocus: false,
+            refetchOnMount: false,
+            staleTime: Infinity
         });
 
     // Extract student IDs from either prop or API response and create a map of reasons
@@ -314,7 +354,10 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
             );
             return response.data.data;
         },
-        enabled: studentIds.length > 0
+        enabled: studentIds.length > 0,
+        refetchOnWindowFocus: false,
+        refetchOnMount: false,
+        staleTime: Infinity
     });
 
     // Sort students by application date and semester
