@@ -24,7 +24,7 @@ import DEMO from '../../../store/constant';
 const { STUDENT_DATABASE_STUDENTID_LINK, SINGLE_PROGRAM_LINK } = DEMO;
 
 // Extracted student card component for better organization
-const StudentCard = ({ student }) => {
+const StudentCard = ({ student, matchReason }) => {
     const sortedApplications = useMemo(() => {
         return (student?.applications || [])
             .filter((application) =>
@@ -138,6 +138,28 @@ const StudentCard = ({ student }) => {
                             ?.target_application_field
                     }
                 />
+                {matchReason && (
+                    <Box
+                        sx={{
+                            mt: 0.5,
+                            p: 0.5,
+                            bgcolor: 'info.light',
+                            borderRadius: 0.5,
+                            fontSize: '0.6rem'
+                        }}
+                    >
+                        <Typography
+                            sx={{
+                                color: 'info.contrastText',
+                                fontWeight: 'medium',
+                                fontSize: 'inherit'
+                            }}
+                            variant="caption"
+                        >
+                            Match Reason: {matchReason}
+                        </Typography>
+                    </Box>
+                )}
             </Box>
 
             <Divider sx={{ my: 1 }} />
@@ -257,15 +279,29 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
             enabled: !!leadId && similarUsers.length === 0
         });
 
-    // Extract student IDs from either prop or API response
-    const studentIds = useMemo(() => {
+    // Extract student IDs from either prop or API response and create a map of reasons
+    const { studentIds, reasonMap } = useMemo(() => {
         if (similarUsers.length > 0) {
-            return similarUsers.map((user) => user.mongoId);
+            const ids = similarUsers.map((user) => user.mongoId);
+            const reasons = similarUsers.reduce((map, user) => {
+                map[user.mongoId] = user.reason;
+                return map;
+            }, {});
+            return { studentIds: ids, reasonMap: reasons };
         }
-        return (
+
+        const ids =
             similarStudentsData?.matches?.map((student) => student.mongo_id) ||
-            []
+            [];
+        const reasons = (similarStudentsData?.matches || []).reduce(
+            (map, student) => {
+                map[student.mongo_id] = student.reason;
+                return map;
+            },
+            {}
         );
+
+        return { studentIds: ids, reasonMap: reasons };
     }, [similarUsers, similarStudentsData]);
 
     // Fetch detailed student information
@@ -392,7 +428,10 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
                 <Grid container spacing={2}>
                     {sortedStudents.map((student) => (
                         <Grid item key={student._id} md={2.4} sm={6} xs={12}>
-                            <StudentCard student={student} />
+                            <StudentCard
+                                matchReason={reasonMap[student._id]}
+                                student={student}
+                            />
                         </Grid>
                     ))}
                 </Grid>
