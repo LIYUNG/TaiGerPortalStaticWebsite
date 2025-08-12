@@ -256,7 +256,7 @@ const StudentDetailRow = ({ label, value }) => (
             lineHeight: 1.2,
             overflow: 'hidden',
             textOverflow: 'ellipsis',
-            whiteSpace: value === 'Direction' ? 'nowrap' : 'normal'
+            whiteSpace: label === 'Direction' ? 'nowrap' : 'normal'
         }}
         variant="caption"
     >
