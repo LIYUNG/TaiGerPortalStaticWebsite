@@ -391,7 +391,32 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
                     b.application_preference?.expected_application_semester
                 ] || -1;
 
-            return semesterB - semesterA;
+            if (semesterA !== semesterB) {
+                return semesterB - semesterA;
+            }
+
+            // If semester and year are the same, sort by count of valid applications (O or X)
+            const validAppsCountA = (a.applications || []).filter((app) =>
+                ['O', 'X'].includes(app?.admission)
+            ).length;
+
+            const validAppsCountB = (b.applications || []).filter((app) =>
+                ['O', 'X'].includes(app?.admission)
+            ).length;
+
+            if (validAppsCountA !== validAppsCountB) {
+                return validAppsCountB - validAppsCountA; // Higher count first
+            }
+
+            // If application counts are the same, sort alphabetically by name
+            const nameA = `${a.firstname || ''} ${a.lastname || ''}`
+                .trim()
+                .toLowerCase();
+            const nameB = `${b.firstname || ''} ${b.lastname || ''}`
+                .trim()
+                .toLowerCase();
+
+            return nameA.localeCompare(nameB);
         });
     }, [userDetails]);
 
