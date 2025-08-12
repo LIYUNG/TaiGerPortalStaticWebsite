@@ -25,7 +25,9 @@ const EditEditorsSubpage = (props) => {
     const { t } = useTranslation();
 
     useEffect(() => {
-        getUsers(queryString.stringify({ role: Role.Editor })).then(
+        getUsers(
+            queryString.stringify({ role: Role.Editor, archiv: false })
+        ).then(
             (resp) => {
                 const { data, success } = resp.data;
                 if (success) {
