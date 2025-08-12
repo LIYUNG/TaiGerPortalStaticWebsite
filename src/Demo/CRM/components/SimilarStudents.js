@@ -22,7 +22,7 @@ import { request } from '../../../api/request';
 import DEMO from '../../../store/constant';
 const { STUDENT_DATABASE_STUDENTID_LINK, SINGLE_PROGRAM_LINK } = DEMO;
 
-const SimilarStudents = ({ leadId }) => {
+const SimilarStudents = ({ leadId, similarUsers }) => {
     const { data: similarStudentsData, isLoading: isLoadingSimilarStudents } =
         useQuery({
             queryKey: ['similar-students', leadId],
@@ -32,18 +32,24 @@ const SimilarStudents = ({ leadId }) => {
                 );
                 return response?.data;
             },
-            enabled: !!leadId
+            enabled: !!leadId && !similarUsers
         });
 
+    const matchesData =
+        similarUsers.map((user) => user.mongoId) ||
+        similarStudentsData?.matches?.map((student) => student.mongo_id);
+
+    console.log(matchesData);
+
     const { data: userDetails, isLoading: isLoadingUserDetails } = useQuery({
-        queryKey: ['similar-user-details', similarStudentsData?.matches],
+        queryKey: ['similar-user-details', matchesData],
         queryFn: async () => {
             const response = await request.get(
-                `/api/students/batch?ids=${similarStudentsData?.matches?.map((student) => student.mongo_id).join(',')}`
+                `/api/students/batch?ids=${matchesData.join(',')}`
             );
             return response.data.data;
         },
-        enabled: !!similarStudentsData?.matches
+        enabled: !!matchesData
     });
 
     console.log(userDetails, isLoadingUserDetails);
@@ -63,7 +69,7 @@ const SimilarStudents = ({ leadId }) => {
         );
     }
 
-    if (!similarStudentsData || !userDetails) {
+    if (!userDetails) {
         return (
             <Card sx={{ mb: 3 }}>
                 <CardContent>
