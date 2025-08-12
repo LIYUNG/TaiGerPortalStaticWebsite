@@ -119,7 +119,7 @@ const DEMO = {
     STUDENT_APPLICATIONS_ID_LINK: (student_id) => {
         return `/student-applications/${student_id}`;
     },
-    STUDENT_DATABASE_STUDENTID_LINK: (student_id, path) => {
+    STUDENT_DATABASE_STUDENTID_LINK: (student_id, path = '') => {
         return `/student-database/${student_id}${path}`;
     },
     STUDENT_DATABASE_LINK: '/student-database',

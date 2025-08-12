@@ -409,7 +409,10 @@ const LeadPage = () => {
             )}
 
             {/* Similar Students Section */}
-            <SimilarStudents leadId={leadId} />
+            <SimilarStudents
+                leadId={leadId}
+                similarUsers={lead?.leadSimilarUsers}
+            />
 
             {lead && Object.keys(lead).length > 0 ? (
                 <Grid container spacing={3} sx={{ pb: 5 }}>
