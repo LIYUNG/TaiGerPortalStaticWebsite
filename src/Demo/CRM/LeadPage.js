@@ -319,61 +319,135 @@ const LeadPage = () => {
             </Box>
 
             {/* Personal Information Section */}
-            <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography color="text.secondary" variant="body2">
-                        Full Name:
-                    </Typography>
-                    <Typography variant="body1">
-                        {lead.fullName || 'N/A'}
-                    </Typography>
-                </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography color="text.secondary" variant="body2">
-                        Gender:
-                    </Typography>
-                    <Typography variant="body1">
-                        {lead.gender || 'N/A'}
-                    </Typography>
-                </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography color="text.secondary" variant="body2">
-                        Role:
-                    </Typography>
-                    <Typography variant="body1">
-                        {lead.applicantRole || 'N/A'}
-                    </Typography>
-                </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography color="text.secondary" variant="body2">
-                        Status:
-                    </Typography>
-                    <Typography variant="body1">
-                        {lead.status || 'N/A'}
-                    </Typography>
-                    {lead.userId ? (
-                        <Link
-                            component="a"
-                            href={`/student-database/${lead.userId}`}
-                            sx={{ ml: 1 }}
-                            underline="hover"
-                            variant="body2"
+            <Box
+                sx={{
+                    mb: 3,
+                    display: 'flex',
+                    alignItems: 'center',
+                    flexWrap: 'wrap',
+                    p: 2,
+                    borderRadius: 1,
+                    backgroundColor: 'background.paper',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
+                    border: '1px solid',
+                    borderColor: 'divider'
+                }}
+            >
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                        gap: 3,
+                        width: '100%',
+                        mr: 2
+                    }}
+                >
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Typography
+                            color="primary"
+                            sx={{ mr: 0.75, fontWeight: 600 }}
+                            variant="subtitle2"
                         >
-                            View Student Profile
-                        </Link>
-                    ) : !lead.userId &&
-                      lead.status !== 'closed' &&
-                      lead.status !== 'converted' ? (
-                        <Button
-                            onClick={() => handleCreateUser(lead)}
-                            size="small"
-                            startIcon={<PersonAddIcon />}
-                            sx={{ ml: 1 }}
-                            variant="outlined"
+                            Full Name:
+                        </Typography>
+                        <Typography sx={{ fontWeight: 500 }} variant="body1">
+                            {lead.fullName || 'N/A'}
+                        </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Typography
+                            color="primary"
+                            sx={{ mr: 0.75, fontWeight: 600 }}
+                            variant="subtitle2"
                         >
-                            Create User Account
-                        </Button>
-                    ) : null}
+                            Gender:
+                        </Typography>
+                        <Typography variant="body1">
+                            {lead.gender || 'N/A'}
+                        </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Typography
+                            color="primary"
+                            sx={{ mr: 0.75, fontWeight: 600 }}
+                            variant="subtitle2"
+                        >
+                            Role:
+                        </Typography>
+                        <Typography variant="body1">
+                            {lead.applicantRole || 'N/A'}
+                        </Typography>
+                    </Box>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            ml: 'auto'
+                        }}
+                    >
+                        <Typography
+                            color="primary"
+                            sx={{ mr: 0.75, fontWeight: 600 }}
+                            variant="subtitle2"
+                        >
+                            Status:
+                        </Typography>
+                        <Typography
+                            sx={{
+                                fontWeight: 'medium',
+                                px: 1.5,
+                                py: 0.5,
+                                borderRadius: '16px',
+                                backgroundColor:
+                                    lead.status === 'converted'
+                                        ? 'success.light'
+                                        : lead.status === 'qualified'
+                                          ? 'info.light'
+                                          : lead.status === 'closed'
+                                            ? 'error.light'
+                                            : 'primary.light',
+                                color:
+                                    lead.status === 'converted'
+                                        ? 'success.dark'
+                                        : lead.status === 'qualified'
+                                          ? 'info.dark'
+                                          : lead.status === 'closed'
+                                            ? 'error.dark'
+                                            : 'primary.dark'
+                            }}
+                            variant="body1"
+                        >
+                            {lead.status
+                                ? lead.status.charAt(0).toUpperCase() +
+                                  lead.status.slice(1)
+                                : 'N/A'}
+                        </Typography>
+                        {lead.userId ? (
+                            <Link
+                                component="a"
+                                href={`/student-database/${lead.userId}`}
+                                sx={{ ml: 2 }}
+                                underline="hover"
+                                variant="body2"
+                            >
+                                View Student Profile
+                            </Link>
+                        ) : !lead.userId &&
+                          lead.status !== 'closed' &&
+                          lead.status !== 'converted' ? (
+                            <Button
+                                color="primary"
+                                onClick={() => handleCreateUser(lead)}
+                                size="small"
+                                startIcon={<PersonAddIcon />}
+                                sx={{ ml: 2 }}
+                                variant="outlined"
+                            >
+                                Create User Account
+                            </Button>
+                        ) : null}
+                    </Box>
                 </Box>
             </Box>
 
