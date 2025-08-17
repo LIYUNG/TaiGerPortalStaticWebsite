@@ -8,11 +8,21 @@ import {
     Link,
     Typography,
     Grid,
-    Button
+    Button,
+    IconButton,
+    CircularProgress,
+    TextField,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem
 } from '@mui/material';
 import {
     Event as EventIcon,
-    PersonAdd as PersonAddIcon
+    PersonAdd as PersonAddIcon,
+    Edit as EditIcon,
+    Save as SaveIcon,
+    Cancel as CancelIcon
 } from '@mui/icons-material';
 
 import DEMO from '../../store/constant';
@@ -324,7 +334,7 @@ const LeadPage = () => {
                     mb: 3,
                     display: 'flex',
                     alignItems: 'center',
-                    flexWrap: 'wrap',
+                    flexDirection: 'column',
                     p: 2,
                     borderRadius: 1,
                     backgroundColor: 'background.paper',
@@ -336,119 +346,278 @@ const LeadPage = () => {
                 <Box
                     sx={{
                         display: 'flex',
+                        justifyContent: 'space-between',
                         alignItems: 'center',
-                        flexWrap: 'wrap',
-                        gap: 3,
                         width: '100%',
-                        mr: 2
+                        mb: 2
                     }}
                 >
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <Typography
-                            color="primary"
-                            sx={{ mr: 0.75, fontWeight: 600 }}
-                            variant="subtitle2"
+                    <Typography color="primary" variant="h6">
+                        Personal Information
+                        {editStates.personal &&
+                            hasUnsavedChanges('personal') && (
+                                <Typography
+                                    component="span"
+                                    sx={{
+                                        ml: 1,
+                                        color: 'warning.main',
+                                        fontSize: '0.8rem',
+                                        fontWeight: 'normal'
+                                    }}
+                                >
+                                    • Unsaved changes
+                                </Typography>
+                            )}
+                    </Typography>
+                    {!editStates.personal ? (
+                        <IconButton
+                            onClick={() => handleEdit('personal')}
+                            size="small"
                         >
-                            Full Name:
-                        </Typography>
-                        <Typography sx={{ fontWeight: 500 }} variant="body1">
-                            {lead.fullName || 'N/A'}
-                        </Typography>
-                    </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <Typography
-                            color="primary"
-                            sx={{ mr: 0.75, fontWeight: 600 }}
-                            variant="subtitle2"
-                        >
-                            Gender:
-                        </Typography>
-                        <Typography variant="body1">
-                            {lead.gender || 'N/A'}
-                        </Typography>
-                    </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <Typography
-                            color="primary"
-                            sx={{ mr: 0.75, fontWeight: 600 }}
-                            variant="subtitle2"
-                        >
-                            Role:
-                        </Typography>
-                        <Typography variant="body1">
-                            {lead.applicantRole || 'N/A'}
-                        </Typography>
-                    </Box>
+                            <EditIcon />
+                        </IconButton>
+                    ) : (
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                            <IconButton
+                                color="primary"
+                                disabled={updateLeadMutation.isPending}
+                                onClick={() => handleSave('personal')}
+                                size="small"
+                            >
+                                {updateLeadMutation.isPending ? (
+                                    <CircularProgress size={20} />
+                                ) : (
+                                    <SaveIcon />
+                                )}
+                            </IconButton>
+                            <IconButton
+                                disabled={updateLeadMutation.isPending}
+                                onClick={() => handleCancel('personal')}
+                                size="small"
+                            >
+                                <CancelIcon />
+                            </IconButton>
+                        </Box>
+                    )}
+                </Box>
+
+                {!editStates.personal ? (
+                    // View mode
                     <Box
                         sx={{
                             display: 'flex',
                             alignItems: 'center',
-                            ml: 'auto'
+                            flexWrap: 'wrap',
+                            gap: 3,
+                            width: '100%'
                         }}
                     >
-                        <Typography
-                            color="primary"
-                            sx={{ mr: 0.75, fontWeight: 600 }}
-                            variant="subtitle2"
-                        >
-                            Status:
-                        </Typography>
-                        <Typography
-                            sx={{
-                                fontWeight: 'medium',
-                                px: 1.5,
-                                py: 0.5,
-                                borderRadius: '16px',
-                                backgroundColor:
-                                    lead.status === 'converted'
-                                        ? 'success.light'
-                                        : lead.status === 'qualified'
-                                          ? 'info.light'
-                                          : lead.status === 'closed'
-                                            ? 'error.light'
-                                            : 'primary.light',
-                                color:
-                                    lead.status === 'converted'
-                                        ? 'success.dark'
-                                        : lead.status === 'qualified'
-                                          ? 'info.dark'
-                                          : lead.status === 'closed'
-                                            ? 'error.dark'
-                                            : 'primary.dark'
-                            }}
-                            variant="body1"
-                        >
-                            {lead.status
-                                ? lead.status.charAt(0).toUpperCase() +
-                                  lead.status.slice(1)
-                                : 'N/A'}
-                        </Typography>
-                        {lead.userId ? (
-                            <Link
-                                component="a"
-                                href={`/student-database/${lead.userId}`}
-                                sx={{ ml: 2 }}
-                                underline="hover"
-                                variant="body2"
-                            >
-                                View Student Profile
-                            </Link>
-                        ) : !lead.userId &&
-                          lead.status !== 'closed' &&
-                          lead.status !== 'converted' ? (
-                            <Button
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <Typography
                                 color="primary"
-                                onClick={() => handleCreateUser(lead)}
-                                size="small"
-                                startIcon={<PersonAddIcon />}
-                                sx={{ ml: 2 }}
-                                variant="outlined"
+                                sx={{ mr: 0.75, fontWeight: 600 }}
+                                variant="subtitle2"
                             >
-                                Create User Account
-                            </Button>
-                        ) : null}
+                                Full Name:
+                            </Typography>
+                            <Typography
+                                sx={{ fontWeight: 500 }}
+                                variant="body1"
+                            >
+                                {lead.fullName || 'N/A'}
+                            </Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <Typography
+                                color="primary"
+                                sx={{ mr: 0.75, fontWeight: 600 }}
+                                variant="subtitle2"
+                            >
+                                Gender:
+                            </Typography>
+                            <Typography variant="body1">
+                                {lead.gender || 'N/A'}
+                            </Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <Typography
+                                color="primary"
+                                sx={{ mr: 0.75, fontWeight: 600 }}
+                                variant="subtitle2"
+                            >
+                                Role:
+                            </Typography>
+                            <Typography variant="body1">
+                                {lead.applicantRole || 'N/A'}
+                            </Typography>
+                        </Box>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                ml: 'auto'
+                            }}
+                        >
+                            <Typography
+                                color="primary"
+                                sx={{ mr: 0.75, fontWeight: 600 }}
+                                variant="subtitle2"
+                            >
+                                Status:
+                            </Typography>
+                            <Typography
+                                sx={{
+                                    fontWeight: 'medium',
+                                    px: 1.5,
+                                    py: 0.5,
+                                    borderRadius: '16px',
+                                    backgroundColor:
+                                        lead.status === 'converted'
+                                            ? 'success.light'
+                                            : lead.status === 'qualified'
+                                              ? 'info.light'
+                                              : lead.status === 'closed'
+                                                ? 'error.light'
+                                                : 'primary.light',
+                                    color:
+                                        lead.status === 'converted'
+                                            ? 'success.dark'
+                                            : lead.status === 'qualified'
+                                              ? 'info.dark'
+                                              : lead.status === 'closed'
+                                                ? 'error.dark'
+                                                : 'primary.dark'
+                                }}
+                                variant="body1"
+                            >
+                                {lead.status
+                                    ? lead.status.charAt(0).toUpperCase() +
+                                      lead.status.slice(1)
+                                    : 'N/A'}
+                            </Typography>
+                            {lead.userId ? (
+                                <Link
+                                    component="a"
+                                    href={`/student-database/${lead.userId}`}
+                                    sx={{ ml: 2 }}
+                                    underline="hover"
+                                    variant="body2"
+                                >
+                                    View Student Profile
+                                </Link>
+                            ) : !lead.userId &&
+                              lead.status !== 'closed' &&
+                              lead.status !== 'converted' ? (
+                                <Button
+                                    color="primary"
+                                    onClick={() => handleCreateUser(lead)}
+                                    size="small"
+                                    startIcon={<PersonAddIcon />}
+                                    sx={{ ml: 2 }}
+                                    variant="outlined"
+                                >
+                                    Create User Account
+                                </Button>
+                            ) : null}
+                        </Box>
                     </Box>
-                </Box>
+                ) : (
+                    // Edit mode
+                    <Box
+                        sx={{
+                            width: '100%',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 2
+                        }}
+                    >
+                        <Grid container spacing={2}>
+                            <Grid item md={4} xs={12}>
+                                <TextField
+                                    fullWidth
+                                    label="Full Name"
+                                    onChange={(e) =>
+                                        handleFieldChange(
+                                            'fullName',
+                                            e.target.value
+                                        )
+                                    }
+                                    size="small"
+                                    value={formData.fullName || ''}
+                                    variant="outlined"
+                                />
+                            </Grid>
+                            <Grid item md={4} xs={12}>
+                                <FormControl fullWidth size="small">
+                                    <InputLabel id="gender-select-label">
+                                        Gender
+                                    </InputLabel>
+                                    <Select
+                                        label="Gender"
+                                        labelId="gender-select-label"
+                                        onChange={(e) =>
+                                            handleFieldChange(
+                                                'gender',
+                                                e.target.value
+                                            )
+                                        }
+                                        value={formData.gender || ''}
+                                    >
+                                        <MenuItem value="male">Male</MenuItem>
+                                        <MenuItem value="female">
+                                            Female
+                                        </MenuItem>
+                                        <MenuItem value="other">Other</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                            <Grid item md={4} xs={12}>
+                                <TextField
+                                    fullWidth
+                                    label="Role"
+                                    onChange={(e) =>
+                                        handleFieldChange(
+                                            'applicantRole',
+                                            e.target.value
+                                        )
+                                    }
+                                    size="small"
+                                    value={formData.applicantRole || ''}
+                                    variant="outlined"
+                                />
+                            </Grid>
+                            <Grid item md={4} xs={12}>
+                                <FormControl fullWidth size="small">
+                                    <InputLabel id="status-select-label">
+                                        Status
+                                    </InputLabel>
+                                    <Select
+                                        label="Status"
+                                        labelId="status-select-label"
+                                        onChange={(e) =>
+                                            handleFieldChange(
+                                                'status',
+                                                e.target.value
+                                            )
+                                        }
+                                        value={formData.status || ''}
+                                    >
+                                        <MenuItem value="open">Open</MenuItem>
+                                        <MenuItem value="qualified">
+                                            Qualified
+                                        </MenuItem>
+                                        <MenuItem value="closed">
+                                            Closed
+                                        </MenuItem>
+                                        <MenuItem value="converted">
+                                            Converted
+                                        </MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                        </Grid>
+                    </Box>
+                )}
             </Box>
 
             {/* Meetings */}
