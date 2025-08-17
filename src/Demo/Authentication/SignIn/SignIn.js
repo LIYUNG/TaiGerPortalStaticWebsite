@@ -106,8 +106,20 @@ export default function SignIn() {
     } else {
         return (
             <AuthWrapper>
-                <Alert severity="success" variant="filled">
-                    {t('system-announcement', { ns: 'common' })}
+                <Alert severity="success">
+                    <span style={{ fontWeight: 'bold' }}>
+                        🎊 TaiGer
+                        最新好友推薦計劃開跑！邀請好友一起去歐洲留學，推薦雙方都有獎金
+                    </span>
+                    <span style={{ fontWeight: 'bold' }}>
+                        詳情請看
+                        <Link
+                            href="https://drive.google.com/file/d/1JNV0_1-62yxYoHUX3AmFJgK4zxwa4IoU/view"
+                            target="_blank"
+                        >
+                            活動連結
+                        </Link>
+                    </span>
                 </Alert>
                 <Typography component="h1" sx={{ mt: 1 }} variant="h5">
                     {t('Sign in', { ns: 'auth' })}
