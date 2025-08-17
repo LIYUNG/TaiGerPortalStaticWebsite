@@ -27,6 +27,8 @@ const { STUDENT_DATABASE_STUDENTID_LINK, SINGLE_PROGRAM_LINK } = DEMO;
 
 // Extracted student card component for better organization
 const StudentCard = ({ student, matchReason }) => {
+    const [expanded, setExpanded] = React.useState(false);
+
     const sortedApplications = useMemo(() => {
         return (student?.applications || [])
             .filter((application) =>
@@ -192,14 +194,24 @@ const StudentCard = ({ student, matchReason }) => {
 
             {/* Applications section */}
             <Box>
-                {sortedApplications.map((application, index) => (
+                {(expanded
+                    ? sortedApplications
+                    : sortedApplications.slice(0, 7)
+                ).map((application, index) => (
                     <Box
                         key={index}
                         sx={{
                             display: 'flex',
                             alignItems: 'center',
                             gap: 1,
-                            mb: index < sortedApplications.length - 1 ? 1 : 0,
+                            mb:
+                                index <
+                                (expanded
+                                    ? sortedApplications.length - 1
+                                    : Math.min(sortedApplications.length, 7) -
+                                      1)
+                                    ? 1
+                                    : 0,
                             fontSize: '0.75rem'
                         }}
                     >
@@ -242,6 +254,57 @@ const StudentCard = ({ student, matchReason }) => {
                         )}
                     </Box>
                 ))}
+
+                {sortedApplications.length > 7 && (
+                    <Box
+                        onClick={() => setExpanded(!expanded)}
+                        sx={{
+                            mt: 1,
+                            textAlign: 'center',
+                            cursor: 'pointer',
+                            '&:hover': {
+                                color: 'primary.main'
+                            },
+                            fontSize: '0.7rem',
+                            fontWeight: 'medium',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}
+                    >
+                        <Typography
+                            color="primary"
+                            sx={{
+                                fontSize: 'inherit',
+                                display: 'flex',
+                                alignItems: 'center'
+                            }}
+                        >
+                            {expanded
+                                ? 'Show Less'
+                                : `Show ${sortedApplications.length - 7} More`}
+                            {expanded ? (
+                                <Box
+                                    component="span"
+                                    sx={{
+                                        display: 'inline-flex',
+                                        ml: 0.5,
+                                        transform: 'rotate(180deg)'
+                                    }}
+                                >
+                                    ▾
+                                </Box>
+                            ) : (
+                                <Box
+                                    component="span"
+                                    sx={{ display: 'inline-flex', ml: 0.5 }}
+                                >
+                                    ▾
+                                </Box>
+                            )}
+                        </Typography>
+                    </Box>
+                )}
             </Box>
         </Box>
     );
