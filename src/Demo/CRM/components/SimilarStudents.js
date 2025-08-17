@@ -1,21 +1,23 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
     Box,
     Card,
     CardContent,
     Typography,
-    Grid,
     Chip,
     Link,
     Divider,
-    Skeleton
+    Skeleton,
+    IconButton
 } from '@mui/material';
 import {
     School as SchoolIcon,
     Person as PersonIcon,
     CheckCircle,
-    Cancel
+    Cancel,
+    NavigateNext as NavigateNextIcon,
+    NavigateBefore as NavigateBeforeIcon
 } from '@mui/icons-material';
 
 import { request } from '../../../api/request';
@@ -303,6 +305,8 @@ const StudentCardSkeleton = () => (
 );
 
 const SimilarStudents = ({ leadId, similarUsers = [] }) => {
+    // Reference to the scrollable container
+    const scrollContainerRef = useRef(null);
     // Fetch similar students if not provided directly
     const { data: similarStudentsData, isLoading: isLoadingSimilarStudents } =
         useQuery({
@@ -352,7 +356,8 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
             const response = await request.get(
                 `/api/students/batch?ids=${studentIds.join(',')}`
             );
-            return response.data.data;
+            const data = response.data.data;
+            return data;
         },
         enabled: studentIds.length > 0,
         refetchOnWindowFocus: false,
@@ -426,26 +431,118 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
     // Render loading state
     if (isLoading) {
         return (
-            <Card sx={{ mb: 3 }}>
+            <Card>
                 <CardContent>
                     <Box
                         sx={{
                             display: 'flex',
                             alignItems: 'center',
                             gap: 1,
-                            mb: 2
+                            mb: 1
                         }}
                     >
                         <PersonIcon color="primary" />
                         <Typography variant="h6">Similar Students</Typography>
                     </Box>
-                    <Grid container spacing={2}>
-                        {[1, 2, 3, 4, 5].map((i) => (
-                            <Grid item key={i} md={2.4} sm={6} xs={12}>
-                                <StudentCardSkeleton />
-                            </Grid>
-                        ))}
-                    </Grid>
+                    <Box
+                        sx={{
+                            position: 'relative',
+                            mb: 2
+                        }}
+                    >
+                        {/* Navigation buttons for loading state */}
+                        <IconButton
+                            size="small"
+                            sx={{
+                                position: 'absolute',
+                                left: -16,
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                backgroundColor: 'background.paper',
+                                boxShadow: 2,
+                                zIndex: 2,
+                                '&:hover': {
+                                    backgroundColor: 'grey.200'
+                                }
+                            }}
+                        >
+                            <NavigateBeforeIcon />
+                        </IconButton>
+
+                        <IconButton
+                            size="small"
+                            sx={{
+                                position: 'absolute',
+                                right: -16,
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                backgroundColor: 'background.paper',
+                                boxShadow: 2,
+                                zIndex: 2,
+                                '&:hover': {
+                                    backgroundColor: 'grey.200'
+                                }
+                            }}
+                        >
+                            <NavigateNextIcon />
+                        </IconButton>
+
+                        <Box
+                            sx={{
+                                overflowX: 'auto',
+                                pb: 1,
+                                scrollBehavior: 'smooth',
+                                scrollbarWidth: 'auto', // More visible Firefox scrollbar
+                                '&::-webkit-scrollbar': {
+                                    height: 10 // Thicker scrollbar
+                                },
+                                '&::-webkit-scrollbar-track': {
+                                    backgroundColor: 'rgba(0,0,0,0.05)',
+                                    borderRadius: 5
+                                },
+                                '&::-webkit-scrollbar-thumb': {
+                                    backgroundColor: 'rgba(0,0,0,0.3)', // Darker for better visibility
+                                    borderRadius: 5,
+                                    '&:hover': {
+                                        backgroundColor: 'rgba(0,0,0,0.4)'
+                                    }
+                                }
+                            }}
+                        >
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    gap: 2,
+                                    width: 'max-content',
+                                    pl: 1,
+                                    pr: 1,
+                                    py: 1 // Add vertical padding for better visibility of the cards
+                                }}
+                            >
+                                {[1, 2, 3, 4, 5].map((i) => (
+                                    <Box
+                                        key={i}
+                                        sx={{
+                                            width: {
+                                                xs: '280px',
+                                                sm: '260px',
+                                                md: '240px'
+                                            },
+                                            minWidth: {
+                                                xs: '280px',
+                                                sm: '260px',
+                                                md: '240px'
+                                            },
+                                            flexShrink: 0,
+                                            scrollSnapAlign: 'start' // Helps with scroll snapping
+                                        }}
+                                    >
+                                        <StudentCardSkeleton />
+                                    </Box>
+                                ))}
+                            </Box>
+                        </Box>
+                    </Box>
                 </CardContent>
             </Card>
         );
@@ -493,16 +590,134 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
                     </Typography>
                 </Box>
 
-                <Grid container spacing={2}>
-                    {sortedStudents.map((student) => (
-                        <Grid item key={student._id} md={2.4} sm={6} xs={12}>
-                            <StudentCard
-                                matchReason={reasonMap[student._id]}
-                                student={student}
-                            />
-                        </Grid>
-                    ))}
-                </Grid>
+                <Box
+                    sx={{
+                        position: 'relative',
+                        mb: sortedStudents.length > 5 ? 2 : 0
+                    }}
+                >
+                    {/* Navigation buttons */}
+                    {sortedStudents.length > 5 && (
+                        <>
+                            <IconButton
+                                aria-label="Scroll left"
+                                onClick={() => {
+                                    if (scrollContainerRef.current) {
+                                        const scrollAmount = 500; // Adjust this value based on your needs
+                                        scrollContainerRef.current.scrollLeft -=
+                                            scrollAmount;
+                                    }
+                                }}
+                                size="small"
+                                sx={{
+                                    position: 'absolute',
+                                    left: -16,
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    backgroundColor: 'background.paper',
+                                    boxShadow: 2,
+                                    zIndex: 2,
+                                    '&:hover': {
+                                        backgroundColor: 'grey.200'
+                                    }
+                                }}
+                            >
+                                <NavigateBeforeIcon />
+                            </IconButton>
+
+                            <IconButton
+                                aria-label="Scroll right"
+                                onClick={() => {
+                                    if (scrollContainerRef.current) {
+                                        const scrollAmount = 500; // Adjust this value based on your needs
+                                        scrollContainerRef.current.scrollLeft +=
+                                            scrollAmount;
+                                    }
+                                }}
+                                size="small"
+                                sx={{
+                                    position: 'absolute',
+                                    right: -16,
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    backgroundColor: 'background.paper',
+                                    boxShadow: 2,
+                                    zIndex: 2,
+                                    '&:hover': {
+                                        backgroundColor: 'grey.200'
+                                    }
+                                }}
+                            >
+                                <NavigateNextIcon />
+                            </IconButton>
+                        </>
+                    )}
+
+                    <Box
+                        ref={scrollContainerRef}
+                        sx={{
+                            overflowX: 'auto',
+                            pb: 2, // More padding at bottom for better scrollbar visibility
+                            pt: 1, // Add padding at top for better appearance
+                            scrollBehavior: 'smooth',
+                            scrollbarWidth: 'auto', // More visible Firefox scrollbar
+                            '&::-webkit-scrollbar': {
+                                height: 10 // Thicker scrollbar for better usability
+                            },
+                            '&::-webkit-scrollbar-track': {
+                                backgroundColor: 'rgba(0,0,0,0.05)',
+                                borderRadius: 5
+                            },
+                            '&::-webkit-scrollbar-thumb': {
+                                backgroundColor: 'rgba(0,0,0,0.3)', // Darker for better visibility
+                                borderRadius: 5,
+                                '&:hover': {
+                                    backgroundColor: 'rgba(0,0,0,0.4)'
+                                }
+                            }
+                        }}
+                    >
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                gap: 2,
+                                width: 'max-content',
+                                pl: sortedStudents.length > 5 ? 1 : 0,
+                                pr: sortedStudents.length > 5 ? 1 : 0,
+                                py: 1 // Add vertical padding for better visibility of the cards
+                            }}
+                        >
+                            {sortedStudents.map((student) => (
+                                <Box
+                                    key={student._id}
+                                    sx={{
+                                        width: {
+                                            xs: '280px',
+                                            sm: '260px',
+                                            md: '240px'
+                                        },
+                                        minWidth: {
+                                            xs: '280px',
+                                            sm: '260px',
+                                            md: '240px'
+                                        },
+                                        flexShrink: 0,
+                                        scrollSnapAlign: 'start',
+                                        transition: 'transform 0.2s',
+                                        '&:hover': {
+                                            transform: 'translateY(-2px)'
+                                        }
+                                    }}
+                                >
+                                    <StudentCard
+                                        matchReason={reasonMap[student._id]}
+                                        student={student}
+                                    />
+                                </Box>
+                            ))}
+                        </Box>
+                    </Box>
+                </Box>
             </CardContent>
         </Card>
     );
