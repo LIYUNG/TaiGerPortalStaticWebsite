@@ -313,7 +313,7 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
             queryKey: ['similar-students', leadId],
             queryFn: async () => {
                 const response = await request.get(
-                    `/crm-api/lead-student-matching?leadId=${leadId}`
+                    `/crm-api/similar-students?leadId=${leadId}`
                 );
                 return response?.data;
             },
