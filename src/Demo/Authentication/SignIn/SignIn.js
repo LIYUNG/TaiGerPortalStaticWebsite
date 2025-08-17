@@ -109,7 +109,7 @@ export default function SignIn() {
                 <Alert severity="success">
                     <span style={{ fontWeight: 'bold' }}>
                         🎊 TaiGer
-                        最新好友推薦計劃開跑！邀請好友一起去歐洲留學，推薦雙方都有獎金
+                        最新好友推薦計劃開跑！邀請好友一起去歐洲留學，你與好友都有現金回饋！
                     </span>
                     <span style={{ fontWeight: 'bold' }}>
                         詳情請看
