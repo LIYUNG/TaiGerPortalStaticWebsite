@@ -94,7 +94,10 @@ const MessageEdit = (props) => {
                     expandIcon={<ExpandMoreIcon />}
                     id={`${props.idx}`}
                 >
-                    <Avatar {...stringAvatar(props.full_name)} />
+                    <Avatar
+                        {...stringAvatar(props.full_name)}
+                        src={props.message.user_id?.pictureUrl}
+                    />
                     <Typography style={{ marginLeft: '10px', flex: 1 }}>
                         <b className="ps-0 my-1" style={{ cursor: 'pointer' }}>
                             {props.full_name}

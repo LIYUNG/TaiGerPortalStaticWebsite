@@ -209,7 +209,10 @@ const MessageCard = (props) => {
                     id={`${props.idx}`}
                     // onClick={() => props.singleExpandtHandler(props.idx)}
                 >
-                    <Avatar {...stringAvatar(full_name)} />
+                    <Avatar
+                        {...stringAvatar(full_name)}
+                        src={props.message.user_id?.pictureUrl}
+                    />
                     <Typography style={{ marginLeft: '10px', flex: 1 }}>
                         <b style={{ cursor: 'pointer' }}>{full_name}</b>
                     </Typography>

@@ -75,6 +75,7 @@ const Friend = (props) => {
                         {...stringAvatar(
                             `${props.data.firstname} ${props.data.lastname}`
                         )}
+                        src={props.data?.pictureUrl}
                     />
                     <Box
                         style={{

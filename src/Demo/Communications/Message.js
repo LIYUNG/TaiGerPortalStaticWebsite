@@ -202,7 +202,10 @@ const Message = (props) => {
                     expandIcon={<ExpandMoreIcon />}
                     id={`${props.idx}`}
                 >
-                    <Avatar {...stringAvatar(full_name)} />
+                    <Avatar
+                        {...stringAvatar(full_name)}
+                        src={props.message.user_id?.pictureUrl}
+                    />
                     <Box style={{ marginLeft: '10px', flex: 1 }}>
                         <b style={{ cursor: 'pointer' }}>{full_name}</b>
                         <span style={{ display: 'flex', float: 'right' }}>
@@ -336,6 +339,7 @@ const Message = (props) => {
                                                     `${usr?.firstname} ${usr?.lastname}`
                                                 )}
                                                 size="small"
+                                                src={usr?.pictureUrl}
                                                 sx={{
                                                     ...stringAvatar(
                                                         `${usr?.firstname} ${usr?.lastname}`
@@ -363,6 +367,10 @@ const Message = (props) => {
                                                 `${messageState.ignoredMessageBy?.firstname} ${messageState.ignoredMessageBy?.lastname}`
                                             )}
                                             size="small"
+                                            src={
+                                                messageState.ignoredMessageBy
+                                                    ?.pictureUrl
+                                            }
                                             sx={{
                                                 ...stringAvatar(
                                                     `${messageState.ignoredMessageBy?.firstname} ${messageState.ignoredMessageBy?.lastname}`

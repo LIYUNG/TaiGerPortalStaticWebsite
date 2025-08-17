@@ -112,6 +112,7 @@ const CommunicationThreadEditor = (props) => {
             >
                 <Avatar
                     {...stringAvatar(`${user.firstname} ${user.lastname}`)}
+                    src={user?.pictureUrl}
                 />
                 <Typography variant="body1">
                     {user.firstname} {user.lastname}

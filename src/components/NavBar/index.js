@@ -136,7 +136,7 @@ const RenderMenu = ({
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
     >
         <MenuItem onClick={handleCloseProfile}>
-            <Avatar />
+            <Avatar src={user?.pictureUrl} />
             {`${user.firstname} ${user.lastname}`}
         </MenuItem>
         <Divider />
@@ -500,6 +500,7 @@ const NavBar = (props) => {
                                         `${user?.firstname} ${user?.lastname}`
                                     )}
                                     size="small"
+                                    src={user?.pictureUrl}
                                     title={`${user?.firstname} ${user?.lastname}`}
                                 />
                             </IconButton>
@@ -565,6 +566,7 @@ const NavBar = (props) => {
                                         `${user?.firstname} ${user?.lastname}`
                                     )}
                                     size="small"
+                                    src={user?.pictureUrl}
                                     title={`${user?.firstname} ${user?.lastname}`}
                                 />
                             </IconButton>

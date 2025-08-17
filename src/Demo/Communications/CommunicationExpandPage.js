@@ -176,7 +176,10 @@ const TopBar = ({
                             <ArrowBackIcon />
                         </IconButton>
                     ) : null}
-                    <Avatar {...stringAvatar(student_name_english)} />
+                    <Avatar
+                        {...stringAvatar(student_name_english)}
+                        src={student?.pictureUrl}
+                    />
                     <Box>
                         <Link
                             component={LinkDom}

@@ -529,6 +529,7 @@ const SingleInterview = () => {
                                     {...stringAvatar(
                                         `${user.firstname} ${user.lastname}`
                                     )}
+                                    src={user?.pictureUrl}
                                 />
                                 <Typography
                                     style={{ marginLeft: '10px', flex: 1 }}

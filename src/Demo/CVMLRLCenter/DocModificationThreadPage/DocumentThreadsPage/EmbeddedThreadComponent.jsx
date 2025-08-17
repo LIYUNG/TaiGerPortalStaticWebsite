@@ -88,7 +88,10 @@ export const EmbeddedThreadComponent = ({ setThreadId }) => {
                             )}
                             underline="none"
                         >
-                            <Avatar {...stringAvatar(studentName)} />
+                            <Avatar
+                                {...stringAvatar(studentName)}
+                                src={thread.student_id?.pictureUrl}
+                            />
                         </Link>
                     </Tooltip>
                     {thread.program_id ? (

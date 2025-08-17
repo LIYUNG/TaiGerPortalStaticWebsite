@@ -119,6 +119,7 @@ const Friend = (props) => {
                                 `${props.data.firstname} ${props.data.lastname}`
                             )}
                             // src={props.data.profilePicture} // Add the path to the profile picture
+                            src={props.data?.pictureUrl}
                         />
                     </IconButton>
                     <ListItemText

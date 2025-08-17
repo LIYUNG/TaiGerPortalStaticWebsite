@@ -50,6 +50,7 @@ const StudentsAgentAvartar = ({ student }) => {
                         {...stringAvatar(
                             `${agent.firstname} ${agent.lastname}`
                         )}
+                        src={agent?.pictureUrl}
                     />
                 </Link>
             </Tooltip>
