@@ -2,8 +2,18 @@ import { useParams, Navigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, useMemo } from 'react';
 import { useForm } from '@tanstack/react-form';
-import { Box, Breadcrumbs, Link, Typography, Grid } from '@mui/material';
-import { Event as EventIcon } from '@mui/icons-material';
+import {
+    Box,
+    Breadcrumbs,
+    Link,
+    Typography,
+    Grid,
+    Button
+} from '@mui/material';
+import {
+    Event as EventIcon,
+    PersonAdd as PersonAddIcon
+} from '@mui/icons-material';
 
 import DEMO from '../../store/constant';
 import { TabTitle } from '../Utils/TabTitle';
@@ -306,6 +316,65 @@ const LeadPage = () => {
                         {lead.fullName}
                     </Typography>
                 </Breadcrumbs>
+            </Box>
+
+            {/* Personal Information Section */}
+            <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography color="text.secondary" variant="body2">
+                        Full Name:
+                    </Typography>
+                    <Typography variant="body1">
+                        {lead.fullName || 'N/A'}
+                    </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography color="text.secondary" variant="body2">
+                        Gender:
+                    </Typography>
+                    <Typography variant="body1">
+                        {lead.gender || 'N/A'}
+                    </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography color="text.secondary" variant="body2">
+                        Role:
+                    </Typography>
+                    <Typography variant="body1">
+                        {lead.applicantRole || 'N/A'}
+                    </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography color="text.secondary" variant="body2">
+                        Status:
+                    </Typography>
+                    <Typography variant="body1">
+                        {lead.status || 'N/A'}
+                    </Typography>
+                    {lead.userId ? (
+                        <Link
+                            component="a"
+                            href={`/student-database/${lead.userId}`}
+                            sx={{ ml: 1 }}
+                            underline="hover"
+                            variant="body2"
+                        >
+                            View Student Profile
+                        </Link>
+                    ) : !lead.userId &&
+                      lead.status !== 'closed' &&
+                      lead.status !== 'converted' ? (
+                        <Button
+                            onClick={() => handleCreateUser(lead)}
+                            size="small"
+                            startIcon={<PersonAddIcon />}
+                            sx={{ ml: 1 }}
+                            variant="outlined"
+                        >
+                            Create User Account
+                        </Button>
+                    ) : null}
+                </Box>
             </Box>
 
             {/* Meetings */}
