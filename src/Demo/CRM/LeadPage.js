@@ -22,7 +22,11 @@ import {
     PersonAdd as PersonAddIcon,
     Edit as EditIcon,
     Save as SaveIcon,
-    Cancel as CancelIcon
+    Cancel as CancelIcon,
+    Male as MaleIcon,
+    Female as FemaleIcon,
+    Transgender as OtherGenderIcon,
+    Work as RoleIcon
 } from '@mui/icons-material';
 
 import DEMO from '../../store/constant';
@@ -412,111 +416,241 @@ const LeadPage = () => {
                             width: '100%'
                         }}
                     >
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        {/* Redesigned Name, Gender and Role section */}
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                flex: '1 1 auto',
+                                gap: 2
+                            }}
+                        >
+                            {/* Name - larger and more prominent */}
                             <Typography
-                                color="primary"
-                                sx={{ mr: 0.75, fontWeight: 600 }}
-                                variant="subtitle2"
-                            >
-                                Full Name:
-                            </Typography>
-                            <Typography
-                                sx={{ fontWeight: 500 }}
-                                variant="body1"
+                                sx={{
+                                    fontWeight: 600,
+                                    color: 'text.primary',
+                                    letterSpacing: '0.3px'
+                                }}
+                                variant="h5"
                             >
                                 {lead.fullName || 'N/A'}
                             </Typography>
-                        </Box>
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <Typography
-                                color="primary"
-                                sx={{ mr: 0.75, fontWeight: 600 }}
-                                variant="subtitle2"
-                            >
-                                Gender:
-                            </Typography>
-                            <Typography variant="body1">
-                                {lead.gender || 'N/A'}
-                            </Typography>
-                        </Box>
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <Typography
-                                color="primary"
-                                sx={{ mr: 0.75, fontWeight: 600 }}
-                                variant="subtitle2"
-                            >
-                                Role:
-                            </Typography>
-                            <Typography variant="body1">
-                                {lead.applicantRole || 'N/A'}
-                            </Typography>
-                        </Box>
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <Typography
-                                color="primary"
-                                sx={{ mr: 0.75, fontWeight: 600 }}
-                                variant="subtitle2"
-                            >
-                                Close Likelihood:
-                            </Typography>
-                            <Typography variant="body1">
-                                {lead.closeLikelihood
-                                    ? lead.closeLikelihood
-                                          .charAt(0)
-                                          .toUpperCase() +
-                                      lead.closeLikelihood.slice(1)
-                                    : 'N/A'}
-                            </Typography>
+
+                            {/* Gender Icon */}
+                            {lead.gender && (
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        mr: 0.5
+                                    }}
+                                    title={`Gender: ${lead.gender?.charAt(0).toUpperCase() + lead.gender?.slice(1)}`}
+                                >
+                                    {(() => {
+                                        // Normalize gender text to handle various formats
+                                        const genderText = String(
+                                            lead.gender || ''
+                                        )
+                                            .toLowerCase()
+                                            .trim();
+
+                                        // Define keywords for gender detection
+                                        const femaleKeywords = [
+                                            '女',
+                                            'female',
+                                            'woman'
+                                        ];
+                                        const maleKeywords = [
+                                            '男',
+                                            'male',
+                                            'man'
+                                        ];
+
+                                        // Check for female keywords first (checking if text includes any keyword)
+                                        if (
+                                            femaleKeywords.some((keyword) =>
+                                                genderText.includes(keyword)
+                                            )
+                                        ) {
+                                            return (
+                                                <FemaleIcon
+                                                    sx={{
+                                                        color: 'secondary.main',
+                                                        fontSize: '1.5rem'
+                                                    }}
+                                                />
+                                            );
+                                        }
+
+                                        // Then check for male keywords
+                                        else if (
+                                            maleKeywords.some((keyword) =>
+                                                genderText.includes(keyword)
+                                            )
+                                        ) {
+                                            return (
+                                                <MaleIcon
+                                                    sx={{
+                                                        color: 'info.main',
+                                                        fontSize: '1.5rem'
+                                                    }}
+                                                />
+                                            );
+                                        }
+
+                                        // Default to other
+                                        else {
+                                            return (
+                                                <OtherGenderIcon
+                                                    sx={{
+                                                        color: 'text.secondary',
+                                                        fontSize: '1.5rem'
+                                                    }}
+                                                />
+                                            );
+                                        }
+                                    })()}
+                                </Box>
+                            )}
+
+                            {/* Role text */}
+                            {lead.applicantRole && (
+                                <Typography
+                                    sx={{
+                                        color: 'text.secondary',
+                                        backgroundColor: 'grey.100',
+                                        px: 1.5,
+                                        py: 0.5,
+                                        borderRadius: '16px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 0.5,
+                                        fontStyle: 'italic'
+                                    }}
+                                    variant="body2"
+                                >
+                                    <RoleIcon sx={{ fontSize: '0.9rem' }} />
+                                    {lead.applicantRole}
+                                </Typography>
+                            )}
                         </Box>
                         <Box
                             sx={{
                                 display: 'flex',
                                 alignItems: 'center',
-                                ml: 'auto'
+                                ml: 'auto',
+                                gap: 2
                             }}
                         >
-                            <Typography
-                                color="primary"
-                                sx={{ mr: 0.75, fontWeight: 600 }}
-                                variant="subtitle2"
-                            >
-                                Status:
-                            </Typography>
-                            <Typography
-                                sx={{
-                                    fontWeight: 'medium',
-                                    px: 1.5,
-                                    py: 0.5,
-                                    borderRadius: '16px',
-                                    backgroundColor:
-                                        lead.status === 'converted'
-                                            ? 'success.light'
-                                            : lead.status === 'qualified'
-                                              ? 'info.light'
-                                              : lead.status === 'closed'
-                                                ? 'error.light'
-                                                : 'primary.light',
-                                    color:
-                                        lead.status === 'converted'
-                                            ? 'success.dark'
-                                            : lead.status === 'qualified'
-                                              ? 'info.dark'
-                                              : lead.status === 'closed'
-                                                ? 'error.dark'
-                                                : 'primary.dark'
-                                }}
-                                variant="body1"
-                            >
-                                {lead.status
-                                    ? lead.status.charAt(0).toUpperCase() +
-                                      lead.status.slice(1)
-                                    : 'N/A'}
-                            </Typography>
+                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 0.5
+                                    }}
+                                >
+                                    {/* Status pill */}
+                                    <Box
+                                        sx={{
+                                            fontWeight: 'medium',
+                                            px: 1.5,
+                                            py: 0.5,
+                                            borderRadius: '50px',
+                                            backgroundColor:
+                                                lead.status === 'converted'
+                                                    ? 'success.main'
+                                                    : lead.status ===
+                                                        'qualified'
+                                                      ? 'info.main'
+                                                      : lead.status === 'closed'
+                                                        ? 'error.main'
+                                                        : 'primary.main',
+                                            color: '#fff',
+                                            fontSize: '0.8rem',
+                                            letterSpacing: '0.2px',
+                                            boxShadow:
+                                                '0 2px 4px rgba(0,0,0,0.08)',
+                                            border: '1px solid',
+                                            borderColor:
+                                                lead.status === 'converted'
+                                                    ? 'success.dark'
+                                                    : lead.status ===
+                                                        'qualified'
+                                                      ? 'info.dark'
+                                                      : lead.status === 'closed'
+                                                        ? 'error.dark'
+                                                        : 'primary.dark',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            height: 28
+                                        }}
+                                    >
+                                        {lead.status
+                                            ? lead.status
+                                                  .charAt(0)
+                                                  .toUpperCase() +
+                                              lead.status.slice(1)
+                                            : 'N/A'}
+                                    </Box>
+
+                                    {/* Close Likelihood indicator integrated with status */}
+                                    {lead.closeLikelihood && (
+                                        <Box
+                                            sx={{
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                borderRadius: '50%',
+                                                width: 28,
+                                                height: 28,
+                                                bgcolor:
+                                                    lead.closeLikelihood ===
+                                                    'high'
+                                                        ? 'success.main'
+                                                        : lead.closeLikelihood ===
+                                                            'medium'
+                                                          ? 'warning.main'
+                                                          : 'error.main',
+                                                color: '#fff',
+                                                fontWeight: 'bold',
+                                                fontSize: '0.75rem',
+                                                border: '1px solid',
+                                                borderColor:
+                                                    lead.closeLikelihood ===
+                                                    'high'
+                                                        ? 'success.dark'
+                                                        : lead.closeLikelihood ===
+                                                            'medium'
+                                                          ? 'warning.dark'
+                                                          : 'error.dark',
+                                                boxShadow:
+                                                    '0 2px 4px rgba(0,0,0,0.08)',
+                                                letterSpacing: '0.2px'
+                                            }}
+                                            title={`Close Likelihood: ${lead.closeLikelihood.charAt(0).toUpperCase() + lead.closeLikelihood.slice(1)}`}
+                                        >
+                                            {lead.closeLikelihood === 'high'
+                                                ? 'H'
+                                                : lead.closeLikelihood ===
+                                                    'medium'
+                                                  ? 'M'
+                                                  : 'L'}
+                                        </Box>
+                                    )}
+                                </Box>
+                            </Box>
+
                             {lead.userId ? (
                                 <Link
                                     component="a"
                                     href={`/student-database/${lead.userId}`}
-                                    sx={{ ml: 2 }}
+                                    sx={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center'
+                                    }}
                                     underline="hover"
                                     variant="body2"
                                 >
@@ -530,7 +664,6 @@ const LeadPage = () => {
                                     onClick={() => handleCreateUser(lead)}
                                     size="small"
                                     startIcon={<PersonAddIcon />}
-                                    sx={{ ml: 2 }}
                                     variant="outlined"
                                 >
                                     Create User Account
