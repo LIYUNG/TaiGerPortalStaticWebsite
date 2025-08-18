@@ -347,60 +347,6 @@ const LeadPage = () => {
                     borderColor: 'divider'
                 }}
             >
-                <Box
-                    sx={{
-                        display: 'flex',
-                        justifyContent: 'flex-end',
-                        alignItems: 'center',
-                        width: '100%',
-                        mb: 1
-                    }}
-                >
-                    {editStates.personal && hasUnsavedChanges('personal') && (
-                        <Typography
-                            component="span"
-                            sx={{
-                                mr: 'auto',
-                                color: 'warning.main',
-                                fontSize: '0.8rem',
-                                fontWeight: 'normal'
-                            }}
-                        >
-                            • Unsaved changes
-                        </Typography>
-                    )}
-                    {!editStates.personal ? (
-                        <IconButton
-                            onClick={() => handleEdit('personal')}
-                            size="small"
-                        >
-                            <EditIcon />
-                        </IconButton>
-                    ) : (
-                        <Box sx={{ display: 'flex', gap: 1 }}>
-                            <IconButton
-                                color="primary"
-                                disabled={updateLeadMutation.isPending}
-                                onClick={() => handleSave('personal')}
-                                size="small"
-                            >
-                                {updateLeadMutation.isPending ? (
-                                    <CircularProgress size={20} />
-                                ) : (
-                                    <SaveIcon />
-                                )}
-                            </IconButton>
-                            <IconButton
-                                disabled={updateLeadMutation.isPending}
-                                onClick={() => handleCancel('personal')}
-                                size="small"
-                            >
-                                <CancelIcon />
-                            </IconButton>
-                        </Box>
-                    )}
-                </Box>
-
                 {!editStates.personal ? (
                     // View mode
                     <Box
@@ -411,7 +357,7 @@ const LeadPage = () => {
                             gap: 1.5
                         }}
                     >
-                        {/* First row: NAME | STATUS | GENDER */}
+                        {/* First row: NAME | STATUS | GENDER | EDIT BUTTON */}
                         <Box
                             sx={{
                                 display: 'flex',
@@ -588,6 +534,69 @@ const LeadPage = () => {
                                     })()}
                                 </Box>
                             )}
+
+                            {/* Push edit button to the right */}
+                            <Box
+                                sx={{
+                                    ml: 'auto',
+                                    display: 'flex',
+                                    alignItems: 'center'
+                                }}
+                            >
+                                {editStates.personal &&
+                                    hasUnsavedChanges('personal') && (
+                                        <Typography
+                                            component="span"
+                                            sx={{
+                                                mr: 1,
+                                                color: 'warning.main',
+                                                fontSize: '0.8rem',
+                                                fontWeight: 'normal'
+                                            }}
+                                        >
+                                            • Unsaved changes
+                                        </Typography>
+                                    )}
+
+                                {!editStates.personal ? (
+                                    <IconButton
+                                        onClick={() => handleEdit('personal')}
+                                        size="small"
+                                    >
+                                        <EditIcon />
+                                    </IconButton>
+                                ) : (
+                                    <Box sx={{ display: 'flex', gap: 1 }}>
+                                        <IconButton
+                                            color="primary"
+                                            disabled={
+                                                updateLeadMutation.isPending
+                                            }
+                                            onClick={() =>
+                                                handleSave('personal')
+                                            }
+                                            size="small"
+                                        >
+                                            {updateLeadMutation.isPending ? (
+                                                <CircularProgress size={20} />
+                                            ) : (
+                                                <SaveIcon />
+                                            )}
+                                        </IconButton>
+                                        <IconButton
+                                            disabled={
+                                                updateLeadMutation.isPending
+                                            }
+                                            onClick={() =>
+                                                handleCancel('personal')
+                                            }
+                                            size="small"
+                                        >
+                                            <CancelIcon />
+                                        </IconButton>
+                                    </Box>
+                                )}
+                            </Box>
                         </Box>
 
                         {/* Second row: ROLE | USER/CREATE USER BUTTON */}
@@ -659,6 +668,49 @@ const LeadPage = () => {
                             gap: 2
                         }}
                     >
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                justifyContent: 'flex-end',
+                                width: '100%',
+                                mb: 1
+                            }}
+                        >
+                            {hasUnsavedChanges('personal') && (
+                                <Typography
+                                    component="span"
+                                    sx={{
+                                        mr: 'auto',
+                                        color: 'warning.main',
+                                        fontSize: '0.8rem',
+                                        fontWeight: 'normal'
+                                    }}
+                                >
+                                    • Unsaved changes
+                                </Typography>
+                            )}
+                            <Box sx={{ display: 'flex', gap: 1 }}>
+                                <IconButton
+                                    color="primary"
+                                    disabled={updateLeadMutation.isPending}
+                                    onClick={() => handleSave('personal')}
+                                    size="small"
+                                >
+                                    {updateLeadMutation.isPending ? (
+                                        <CircularProgress size={20} />
+                                    ) : (
+                                        <SaveIcon />
+                                    )}
+                                </IconButton>
+                                <IconButton
+                                    disabled={updateLeadMutation.isPending}
+                                    onClick={() => handleCancel('personal')}
+                                    size="small"
+                                >
+                                    <CancelIcon />
+                                </IconButton>
+                            </Box>
+                        </Box>
                         <Grid container spacing={2}>
                             <Grid item md={4} xs={12}>
                                 <TextField
