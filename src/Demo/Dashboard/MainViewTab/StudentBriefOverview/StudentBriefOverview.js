@@ -75,6 +75,7 @@ const StudentsEditorAvartar = ({ student }) => {
                         {...stringAvatar(
                             `${editor.firstname} ${editor.lastname}`
                         )}
+                        src={editor?.pictureUrl}
                     />
                 </Link>
             </Tooltip>
