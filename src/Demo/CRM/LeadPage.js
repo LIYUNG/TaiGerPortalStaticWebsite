@@ -363,7 +363,7 @@ const LeadPage = () => {
                                 display: 'flex',
                                 alignItems: 'center',
                                 width: '100%',
-                                gap: 2
+                                gap: 1
                             }}
                         >
                             {/* Name */}
@@ -377,87 +377,6 @@ const LeadPage = () => {
                             >
                                 {lead.fullName || 'N/A'}
                             </Typography>
-
-                            {/* Status pill */}
-                            <Box
-                                sx={{
-                                    fontWeight: 'medium',
-                                    px: 1.5,
-                                    py: 0.5,
-                                    borderRadius: '50px',
-                                    backgroundColor:
-                                        lead.status === 'converted'
-                                            ? 'success.main'
-                                            : lead.status === 'qualified'
-                                              ? 'info.main'
-                                              : lead.status === 'closed'
-                                                ? 'error.main'
-                                                : 'primary.main',
-                                    color: '#fff',
-                                    fontSize: '0.8rem',
-                                    letterSpacing: '0.2px',
-                                    boxShadow: '0 2px 4px rgba(0,0,0,0.08)',
-                                    border: '1px solid',
-                                    borderColor:
-                                        lead.status === 'converted'
-                                            ? 'success.dark'
-                                            : lead.status === 'qualified'
-                                              ? 'info.dark'
-                                              : lead.status === 'closed'
-                                                ? 'error.dark'
-                                                : 'primary.dark',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    height: 28
-                                }}
-                            >
-                                {lead.status
-                                    ? lead.status.charAt(0).toUpperCase() +
-                                      lead.status.slice(1)
-                                    : 'N/A'}
-                            </Box>
-
-                            {/* Close Likelihood indicator */}
-                            {lead.closeLikelihood && (
-                                <Box
-                                    sx={{
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        borderRadius: '50%',
-                                        width: 28,
-                                        height: 28,
-                                        bgcolor:
-                                            lead.closeLikelihood === 'high'
-                                                ? 'success.main'
-                                                : lead.closeLikelihood ===
-                                                    'medium'
-                                                  ? 'warning.main'
-                                                  : 'error.main',
-                                        color: '#fff',
-                                        fontWeight: 'bold',
-                                        fontSize: '0.75rem',
-                                        border: '1px solid',
-                                        borderColor:
-                                            lead.closeLikelihood === 'high'
-                                                ? 'success.dark'
-                                                : lead.closeLikelihood ===
-                                                    'medium'
-                                                  ? 'warning.dark'
-                                                  : 'error.dark',
-                                        boxShadow: '0 2px 4px rgba(0,0,0,0.08)',
-                                        letterSpacing: '0.2px'
-                                    }}
-                                    title={`Close Likelihood: ${lead.closeLikelihood.charAt(0).toUpperCase() + lead.closeLikelihood.slice(1)}`}
-                                >
-                                    {lead.closeLikelihood === 'high'
-                                        ? 'H'
-                                        : lead.closeLikelihood === 'medium'
-                                          ? 'M'
-                                          : 'L'}
-                                </Box>
-                            )}
 
                             {/* Gender Icon */}
                             {lead.gender && (
@@ -534,6 +453,87 @@ const LeadPage = () => {
                                     })()}
                                 </Box>
                             )}
+
+                            {/* Close Likelihood indicator */}
+                            {lead.closeLikelihood && (
+                                <Box
+                                    sx={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        borderRadius: '50%',
+                                        width: 28,
+                                        height: 28,
+                                        bgcolor:
+                                            lead.closeLikelihood === 'high'
+                                                ? 'success.main'
+                                                : lead.closeLikelihood ===
+                                                    'medium'
+                                                  ? 'warning.main'
+                                                  : 'error.main',
+                                        color: '#fff',
+                                        fontWeight: 'bold',
+                                        fontSize: '0.75rem',
+                                        border: '1px solid',
+                                        borderColor:
+                                            lead.closeLikelihood === 'high'
+                                                ? 'success.dark'
+                                                : lead.closeLikelihood ===
+                                                    'medium'
+                                                  ? 'warning.dark'
+                                                  : 'error.dark',
+                                        boxShadow: '0 2px 4px rgba(0,0,0,0.08)',
+                                        letterSpacing: '0.2px'
+                                    }}
+                                    title={`Close Likelihood: ${lead.closeLikelihood.charAt(0).toUpperCase() + lead.closeLikelihood.slice(1)}`}
+                                >
+                                    {lead.closeLikelihood === 'high'
+                                        ? 'H'
+                                        : lead.closeLikelihood === 'medium'
+                                          ? 'M'
+                                          : 'L'}
+                                </Box>
+                            )}
+
+                            {/* Status pill */}
+                            <Box
+                                sx={{
+                                    fontWeight: 'medium',
+                                    px: 1.5,
+                                    py: 0.5,
+                                    borderRadius: '50px',
+                                    backgroundColor:
+                                        lead.status === 'converted'
+                                            ? 'success.main'
+                                            : lead.status === 'qualified'
+                                              ? 'info.main'
+                                              : lead.status === 'closed'
+                                                ? 'error.main'
+                                                : 'primary.main',
+                                    color: '#fff',
+                                    fontSize: '0.8rem',
+                                    letterSpacing: '0.2px',
+                                    boxShadow: '0 2px 4px rgba(0,0,0,0.08)',
+                                    border: '1px solid',
+                                    borderColor:
+                                        lead.status === 'converted'
+                                            ? 'success.dark'
+                                            : lead.status === 'qualified'
+                                              ? 'info.dark'
+                                              : lead.status === 'closed'
+                                                ? 'error.dark'
+                                                : 'primary.dark',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    height: 28
+                                }}
+                            >
+                                {lead.status
+                                    ? lead.status.charAt(0).toUpperCase() +
+                                      lead.status.slice(1)
+                                    : 'N/A'}
+                            </Box>
 
                             {/* Push edit button to the right */}
                             <Box
