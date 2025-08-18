@@ -451,6 +451,23 @@ const LeadPage = () => {
                                 {lead.applicantRole || 'N/A'}
                             </Typography>
                         </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <Typography
+                                color="primary"
+                                sx={{ mr: 0.75, fontWeight: 600 }}
+                                variant="subtitle2"
+                            >
+                                Close Likelihood:
+                            </Typography>
+                            <Typography variant="body1">
+                                {lead.closeLikelihood
+                                    ? lead.closeLikelihood
+                                          .charAt(0)
+                                          .toUpperCase() +
+                                      lead.closeLikelihood.slice(1)
+                                    : 'N/A'}
+                            </Typography>
+                        </Box>
                         <Box
                             sx={{
                                 display: 'flex',
@@ -603,8 +620,8 @@ const LeadPage = () => {
                                         value={formData.status || ''}
                                     >
                                         <MenuItem value="open">Open</MenuItem>
-                                        <MenuItem value="qualified">
-                                            Qualified
+                                        <MenuItem value="not-qualified">
+                                            Not Qualified
                                         </MenuItem>
                                         <MenuItem value="closed">
                                             Closed
@@ -612,6 +629,30 @@ const LeadPage = () => {
                                         <MenuItem value="converted">
                                             Converted
                                         </MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                            <Grid item md={4} xs={12}>
+                                <FormControl fullWidth size="small">
+                                    <InputLabel id="close-likelihood-select-label">
+                                        Close Likelihood
+                                    </InputLabel>
+                                    <Select
+                                        label="Close Likelihood"
+                                        labelId="close-likelihood-select-label"
+                                        onChange={(e) =>
+                                            handleFieldChange(
+                                                'closeLikelihood',
+                                                e.target.value
+                                            )
+                                        }
+                                        value={formData.closeLikelihood || ''}
+                                    >
+                                        <MenuItem value="high">High</MenuItem>
+                                        <MenuItem value="medium">
+                                            Medium
+                                        </MenuItem>
+                                        <MenuItem value="low">Low</MenuItem>
                                     </Select>
                                 </FormControl>
                             </Grid>
