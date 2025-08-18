@@ -668,66 +668,46 @@ const LeadPage = () => {
                             gap: 2
                         }}
                     >
-                        <Box
-                            sx={{
-                                display: 'flex',
-                                justifyContent: 'flex-end',
-                                width: '100%',
-                                mb: 1
-                            }}
-                        >
-                            {hasUnsavedChanges('personal') && (
-                                <Typography
-                                    component="span"
+                        {/* First row - includes save/cancel buttons */}
+                        <Grid alignItems="center" container spacing={2}>
+                            {/* Left-side fields */}
+                            <Grid item md={3} xs={6}>
+                                <Box
                                     sx={{
-                                        mr: 'auto',
-                                        color: 'warning.main',
-                                        fontSize: '0.8rem',
-                                        fontWeight: 'normal'
+                                        display: 'flex',
+                                        flexDirection: 'column'
                                     }}
                                 >
-                                    • Unsaved changes
-                                </Typography>
-                            )}
-                            <Box sx={{ display: 'flex', gap: 1 }}>
-                                <IconButton
-                                    color="primary"
-                                    disabled={updateLeadMutation.isPending}
-                                    onClick={() => handleSave('personal')}
-                                    size="small"
-                                >
-                                    {updateLeadMutation.isPending ? (
-                                        <CircularProgress size={20} />
-                                    ) : (
-                                        <SaveIcon />
+                                    {hasUnsavedChanges('personal') && (
+                                        <Typography
+                                            component="span"
+                                            sx={{
+                                                color: 'warning.main',
+                                                fontSize: '0.75rem',
+                                                fontWeight: 'normal',
+                                                mb: 0.5
+                                            }}
+                                        >
+                                            • Unsaved changes
+                                        </Typography>
                                     )}
-                                </IconButton>
-                                <IconButton
-                                    disabled={updateLeadMutation.isPending}
-                                    onClick={() => handleCancel('personal')}
-                                    size="small"
-                                >
-                                    <CancelIcon />
-                                </IconButton>
-                            </Box>
-                        </Box>
-                        <Grid container spacing={2}>
-                            <Grid item md={4} xs={12}>
-                                <TextField
-                                    fullWidth
-                                    label="Full Name"
-                                    onChange={(e) =>
-                                        handleFieldChange(
-                                            'fullName',
-                                            e.target.value
-                                        )
-                                    }
-                                    size="small"
-                                    value={formData.fullName || ''}
-                                    variant="outlined"
-                                />
+                                    <TextField
+                                        fullWidth
+                                        label="Full Name"
+                                        onChange={(e) =>
+                                            handleFieldChange(
+                                                'fullName',
+                                                e.target.value
+                                            )
+                                        }
+                                        size="small"
+                                        value={formData.fullName || ''}
+                                        variant="outlined"
+                                    />
+                                </Box>
                             </Grid>
-                            <Grid item md={4} xs={12}>
+
+                            <Grid item md={3} xs={6}>
                                 <FormControl fullWidth size="small">
                                     <InputLabel id="gender-select-label">
                                         Gender
@@ -751,7 +731,8 @@ const LeadPage = () => {
                                     </Select>
                                 </FormControl>
                             </Grid>
-                            <Grid item md={4} xs={12}>
+
+                            <Grid item md={3} xs={6}>
                                 <TextField
                                     fullWidth
                                     label="Role"
@@ -766,7 +747,42 @@ const LeadPage = () => {
                                     variant="outlined"
                                 />
                             </Grid>
-                            <Grid item md={4} xs={12}>
+
+                            {/* Save/Cancel buttons aligned with fields */}
+                            <Grid
+                                item
+                                md={3}
+                                sx={{
+                                    display: 'flex',
+                                    justifyContent: 'flex-end',
+                                    alignItems: 'center'
+                                }}
+                                xs={6}
+                            >
+                                <Box sx={{ display: 'flex', gap: 1 }}>
+                                    <IconButton
+                                        color="primary"
+                                        disabled={updateLeadMutation.isPending}
+                                        onClick={() => handleSave('personal')}
+                                        size="small"
+                                    >
+                                        {updateLeadMutation.isPending ? (
+                                            <CircularProgress size={20} />
+                                        ) : (
+                                            <SaveIcon />
+                                        )}
+                                    </IconButton>
+                                    <IconButton
+                                        disabled={updateLeadMutation.isPending}
+                                        onClick={() => handleCancel('personal')}
+                                        size="small"
+                                    >
+                                        <CancelIcon />
+                                    </IconButton>
+                                </Box>
+                            </Grid>
+
+                            <Grid item md={3} xs={6}>
                                 <FormControl fullWidth size="small">
                                     <InputLabel id="status-select-label">
                                         Status
@@ -795,7 +811,7 @@ const LeadPage = () => {
                                     </Select>
                                 </FormControl>
                             </Grid>
-                            <Grid item md={4} xs={12}>
+                            <Grid item md={3} xs={12}>
                                 <FormControl fullWidth size="small">
                                     <InputLabel id="close-likelihood-select-label">
                                         Close Likelihood
