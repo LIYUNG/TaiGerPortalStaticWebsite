@@ -9,7 +9,9 @@ import {
     Link,
     Divider,
     Skeleton,
-    IconButton
+    IconButton,
+    Tooltip,
+    CircularProgress
 } from '@mui/material';
 import {
     School as SchoolIcon,
@@ -17,7 +19,8 @@ import {
     CheckCircle,
     Cancel,
     NavigateNext as NavigateNextIcon,
-    NavigateBefore as NavigateBeforeIcon
+    NavigateBefore as NavigateBeforeIcon,
+    Autorenew as AutorenewIcon
 } from '@mui/icons-material';
 
 import { request } from '../../../api/request';
@@ -371,20 +374,24 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
     // Reference to the scrollable container
     const scrollContainerRef = useRef(null);
     // Fetch similar students if not provided directly
-    const { data: similarStudentsData, isLoading: isLoadingSimilarStudents } =
-        useQuery({
-            queryKey: ['similar-students', leadId],
-            queryFn: async () => {
-                const response = await request.get(
-                    `/crm-api/similar-students?leadId=${leadId}`
-                );
-                return response?.data;
-            },
-            enabled: !!leadId && similarUsers.length === 0,
-            refetchOnWindowFocus: false,
-            refetchOnMount: false,
-            staleTime: Infinity
-        });
+    const {
+        data: similarStudentsData,
+        isLoading: isLoadingSimilarStudents,
+        isFetching: isFetchingSimilarStudents,
+        refetch: refetchSimilarStudents
+    } = useQuery({
+        queryKey: ['similar-students', leadId],
+        queryFn: async () => {
+            const response = await request.get(
+                `/crm-api/similar-students?leadId=${leadId}`
+            );
+            return response?.data;
+        },
+        enabled: !!leadId && similarUsers.length === 0,
+        refetchOnWindowFocus: false,
+        refetchOnMount: false,
+        staleTime: Infinity
+    });
 
     // Extract student IDs from either prop or API response and create a map of reasons
     const { studentIds, reasonMap } = useMemo(() => {
@@ -412,7 +419,12 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
     }, [similarUsers, similarStudentsData]);
 
     // Fetch detailed student information
-    const { data: userDetails, isLoading: isLoadingUserDetails } = useQuery({
+    const {
+        data: userDetails,
+        isLoading: isLoadingUserDetails,
+        isFetching: isFetchingUserDetails,
+        refetch: refetchUserDetails
+    } = useQuery({
         queryKey: ['similar-user-details', studentIds],
         queryFn: async () => {
             if (!studentIds.length) return [];
@@ -489,6 +501,11 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
     }, [userDetails]);
 
     const isLoading = isLoadingSimilarStudents || isLoadingUserDetails;
+    const isRefreshing = isFetchingSimilarStudents || isFetchingUserDetails;
+    const handleRefetch = async () => {
+        await refetchSimilarStudents();
+        await refetchUserDetails();
+    };
     const studentCount = sortedStudents?.length || 0;
 
     // Render loading state
@@ -500,12 +517,38 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
                         sx={{
                             display: 'flex',
                             alignItems: 'center',
-                            gap: 1,
+                            justifyContent: 'space-between',
                             mb: 1
                         }}
                     >
-                        <PersonIcon color="primary" />
-                        <Typography variant="h6">Similar Students</Typography>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1
+                            }}
+                        >
+                            <PersonIcon color="primary" />
+                            <Typography variant="h6">
+                                Similar Students
+                            </Typography>
+                        </Box>
+                        <Tooltip title="Regenerate">
+                            <span>
+                                <IconButton
+                                    aria-label="Regenerate similar students"
+                                    disabled={isRefreshing}
+                                    onClick={handleRefetch}
+                                    size="small"
+                                >
+                                    {isRefreshing ? (
+                                        <CircularProgress size={16} />
+                                    ) : (
+                                        <AutorenewIcon fontSize="small" />
+                                    )}
+                                </IconButton>
+                            </span>
+                        </Tooltip>
                     </Box>
                     <Box
                         sx={{
@@ -620,12 +663,38 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
                         sx={{
                             display: 'flex',
                             alignItems: 'center',
-                            gap: 1,
+                            justifyContent: 'space-between',
                             mb: 2
                         }}
                     >
-                        <PersonIcon color="primary" />
-                        <Typography variant="h6">Similar Students</Typography>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1
+                            }}
+                        >
+                            <PersonIcon color="primary" />
+                            <Typography variant="h6">
+                                Similar Students
+                            </Typography>
+                        </Box>
+                        <Tooltip title="Regenerate">
+                            <span>
+                                <IconButton
+                                    aria-label="Regenerate similar students"
+                                    disabled={isRefreshing}
+                                    onClick={handleRefetch}
+                                    size="small"
+                                >
+                                    {isRefreshing ? (
+                                        <CircularProgress size={16} />
+                                    ) : (
+                                        <AutorenewIcon fontSize="small" />
+                                    )}
+                                </IconButton>
+                            </span>
+                        </Tooltip>
                     </Box>
                     <Typography color="text.secondary">
                         No similar students found
@@ -643,14 +712,32 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
                     sx={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: 1,
+                        justifyContent: 'space-between',
                         mb: 2
                     }}
                 >
-                    <PersonIcon color="primary" />
-                    <Typography variant="h6">
-                        Similar Students ({studentCount})
-                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <PersonIcon color="primary" />
+                        <Typography variant="h6">
+                            Similar Students ({studentCount})
+                        </Typography>
+                    </Box>
+                    <Tooltip title="Regenerate">
+                        <span>
+                            <IconButton
+                                aria-label="Regenerate similar students"
+                                disabled={isRefreshing}
+                                onClick={handleRefetch}
+                                size="small"
+                            >
+                                {isRefreshing ? (
+                                    <CircularProgress size={16} />
+                                ) : (
+                                    <AutorenewIcon fontSize="small" />
+                                )}
+                            </IconButton>
+                        </span>
+                    </Tooltip>
                 </Box>
 
                 <Box
