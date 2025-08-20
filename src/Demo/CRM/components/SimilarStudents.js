@@ -852,14 +852,14 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
                                     key={student._id}
                                     sx={{
                                         width: {
-                                            xs: '280px',
-                                            sm: '260px',
-                                            md: '240px'
+                                            xs: '320px', // Increased width for extra small screens
+                                            sm: '300px', // Increased width for small screens
+                                            md: '280px' // Increased width for medium screens
                                         },
                                         minWidth: {
-                                            xs: '280px',
-                                            sm: '260px',
-                                            md: '240px'
+                                            xs: '320px',
+                                            sm: '280px',
+                                            md: '260px'
                                         },
                                         flexShrink: 0,
                                         scrollSnapAlign: 'start',
