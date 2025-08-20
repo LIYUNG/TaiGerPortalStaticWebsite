@@ -93,12 +93,12 @@ export const getCardConfigurations = () => [
             },
             {
                 key: 'intendedDirection',
-                label: 'Direction',
+                label: 'Target Field',
                 type: 'text'
             },
             {
                 key: 'intendedProgramLevel',
-                label: 'Program Level',
+                label: 'Target Degree',
                 type: 'text'
             },
             {

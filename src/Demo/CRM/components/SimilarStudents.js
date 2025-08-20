@@ -165,6 +165,10 @@ const StudentCard = ({ student, matchReason }) => {
             {/* Student details */}
             <Box sx={{ flex: 1, fontSize: '0.75rem' }}>
                 <StudentDetailRow
+                    label="GPA"
+                    value={student?.academic_background?.university?.My_GPA_Uni}
+                />
+                <StudentDetailRow
                     label="School"
                     value={
                         student?.academic_background?.university
@@ -179,11 +183,7 @@ const StudentCard = ({ student, matchReason }) => {
                     }
                 />
                 <StudentDetailRow
-                    label="GPA"
-                    value={student?.academic_background?.university?.My_GPA_Uni}
-                />
-                <StudentDetailRow
-                    label="Direction"
+                    label="Target Field"
                     value={
                         student?.application_preference
                             ?.target_application_field
@@ -331,7 +331,6 @@ const StudentDetailRow = ({ label, value }) => (
         color="text.secondary"
         display="block"
         gutterBottom
-        noWrap={label === 'Direction'}
         variant="caption"
     >
         <strong>{label}:</strong> {value || 'N/A'}
