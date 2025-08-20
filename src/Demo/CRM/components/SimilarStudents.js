@@ -20,7 +20,7 @@ import {
     Cancel,
     NavigateNext as NavigateNextIcon,
     NavigateBefore as NavigateBeforeIcon,
-    Autorenew as AutorenewIcon
+    Replay as ReplayIcon
 } from '@mui/icons-material';
 
 import { request } from '../../../api/request';
@@ -544,7 +544,7 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
                                     {isRefreshing ? (
                                         <CircularProgress size={16} />
                                     ) : (
-                                        <AutorenewIcon fontSize="small" />
+                                        <ReplayIcon />
                                     )}
                                 </IconButton>
                             </span>
@@ -690,7 +690,7 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
                                     {isRefreshing ? (
                                         <CircularProgress size={16} />
                                     ) : (
-                                        <AutorenewIcon fontSize="small" />
+                                        <ReplayIcon />
                                     )}
                                 </IconButton>
                             </span>
@@ -733,7 +733,7 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
                                 {isRefreshing ? (
                                     <CircularProgress size={16} />
                                 ) : (
-                                    <AutorenewIcon fontSize="small" />
+                                    <ReplayIcon />
                                 )}
                             </IconButton>
                         </span>
