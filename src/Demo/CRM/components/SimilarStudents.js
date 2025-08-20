@@ -740,6 +740,16 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
                     </Tooltip>
                 </Box>
 
+                {/* Add description here */}
+                <Typography
+                    color="text.secondary"
+                    sx={{ mb: 2 }}
+                    variant="body2"
+                >
+                    Matches are based on academic background (school, program,
+                    GPA) and application preferences (program level, direction).
+                </Typography>
+
                 <Box
                     sx={{
                         position: 'relative',
