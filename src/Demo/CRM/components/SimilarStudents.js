@@ -81,16 +81,7 @@ const StudentCard = ({ student, matchReason }) => {
                     }}
                     underline="hover"
                 >
-                    <Typography
-                        fontWeight="bold"
-                        sx={{
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                            fontSize: '0.8rem'
-                        }}
-                        variant="caption"
-                    >
+                    <Typography fontWeight="bold" noWrap variant="body2">
                         {student.firstname} {student.lastname}
                     </Typography>
                 </Link>
@@ -100,9 +91,10 @@ const StudentCard = ({ student, matchReason }) => {
                         label={student?.application_preference?.target_degree}
                         size="small"
                         sx={{
-                            fontSize: '0.6rem',
-                            height: 16,
-                            '& .MuiChip-label': { px: 0.5 }
+                            '& .MuiChip-label': {
+                                fontSize: '0.7rem',
+                                px: 0.8
+                            }
                         }}
                         variant="filled"
                     />
@@ -115,9 +107,10 @@ const StudentCard = ({ student, matchReason }) => {
                         label={`${student.application_preference.expected_application_date} ${student.application_preference.expected_application_semester}`}
                         size="small"
                         sx={{
-                            fontSize: '0.6rem',
-                            height: 16,
-                            '& .MuiChip-label': { px: 0.5 }
+                            '& .MuiChip-label': {
+                                fontSize: '0.7rem',
+                                px: 0.8
+                            }
                         }}
                         variant="outlined"
                     />
@@ -128,13 +121,10 @@ const StudentCard = ({ student, matchReason }) => {
             {matchReason && (
                 <Box sx={{ mb: 0.8 }}>
                     <Typography
-                        sx={{
-                            display: 'block',
-                            fontSize: '0.65rem',
-                            color: 'primary.main',
-                            fontWeight: 'medium',
-                            mb: 0.2
-                        }}
+                        color="primary.main"
+                        display="block"
+                        fontWeight="medium"
+                        gutterBottom
                         variant="caption"
                     >
                         Match Reason:
@@ -151,11 +141,8 @@ const StudentCard = ({ student, matchReason }) => {
                         }}
                     >
                         <Typography
-                            sx={{
-                                color: 'text.primary',
-                                fontSize: 'inherit',
-                                display: 'block'
-                            }}
+                            color="text.primary"
+                            display="block"
                             variant="caption"
                         >
                             {matchReason}
@@ -317,15 +304,9 @@ const StudentCard = ({ student, matchReason }) => {
 const StudentDetailRow = ({ label, value }) => (
     <Typography
         color="text.secondary"
-        sx={{
-            display: 'block',
-            mb: 0.3,
-            fontSize: '0.65rem',
-            lineHeight: 1.2,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: label === 'Direction' ? 'nowrap' : 'normal'
-        }}
+        display="block"
+        gutterBottom
+        noWrap={label === 'Direction'}
         variant="caption"
     >
         <strong>{label}:</strong> {value || 'N/A'}
@@ -598,16 +579,16 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
                                 overflowX: 'auto',
                                 pb: 1,
                                 scrollBehavior: 'smooth',
-                                scrollbarWidth: 'auto', // More visible Firefox scrollbar
+                                scrollbarWidth: 'auto',
                                 '&::-webkit-scrollbar': {
-                                    height: 10 // Thicker scrollbar
+                                    height: 10
                                 },
                                 '&::-webkit-scrollbar-track': {
                                     backgroundColor: 'rgba(0,0,0,0.05)',
                                     borderRadius: 5
                                 },
                                 '&::-webkit-scrollbar-thumb': {
-                                    backgroundColor: 'rgba(0,0,0,0.3)', // Darker for better visibility
+                                    backgroundColor: 'rgba(0,0,0,0.3)',
                                     borderRadius: 5,
                                     '&:hover': {
                                         backgroundColor: 'rgba(0,0,0,0.4)'
@@ -622,7 +603,7 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
                                     width: 'max-content',
                                     pl: 1,
                                     pr: 1,
-                                    py: 1 // Add vertical padding for better visibility of the cards
+                                    py: 1
                                 }}
                             >
                                 {[1, 2, 3, 4, 5].map((i) => (
@@ -640,7 +621,7 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
                                                 md: '240px'
                                             },
                                             flexShrink: 0,
-                                            scrollSnapAlign: 'start' // Helps with scroll snapping
+                                            scrollSnapAlign: 'start'
                                         }}
                                     >
                                         <StudentCardSkeleton />
@@ -740,7 +721,7 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
                     </Tooltip>
                 </Box>
 
-                {/* Add description here */}
+                {/* description */}
                 <Typography
                     color="text.secondary"
                     sx={{ mb: 2 }}
@@ -763,7 +744,7 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
                                 aria-label="Scroll left"
                                 onClick={() => {
                                     if (scrollContainerRef.current) {
-                                        const scrollAmount = 500; // Adjust this value based on your needs
+                                        const scrollAmount = 500;
                                         scrollContainerRef.current.scrollLeft -=
                                             scrollAmount;
                                     }
@@ -789,7 +770,7 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
                                 aria-label="Scroll right"
                                 onClick={() => {
                                     if (scrollContainerRef.current) {
-                                        const scrollAmount = 500; // Adjust this value based on your needs
+                                        const scrollAmount = 500;
                                         scrollContainerRef.current.scrollLeft +=
                                             scrollAmount;
                                     }
@@ -817,19 +798,19 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
                         ref={scrollContainerRef}
                         sx={{
                             overflowX: 'auto',
-                            pb: 2, // More padding at bottom for better scrollbar visibility
-                            pt: 1, // Add padding at top for better appearance
+                            pb: 2,
+                            pt: 1,
                             scrollBehavior: 'smooth',
-                            scrollbarWidth: 'auto', // More visible Firefox scrollbar
+                            scrollbarWidth: 'auto',
                             '&::-webkit-scrollbar': {
-                                height: 10 // Thicker scrollbar for better usability
+                                height: 10
                             },
                             '&::-webkit-scrollbar-track': {
                                 backgroundColor: 'rgba(0,0,0,0.05)',
                                 borderRadius: 5
                             },
                             '&::-webkit-scrollbar-thumb': {
-                                backgroundColor: 'rgba(0,0,0,0.3)', // Darker for better visibility
+                                backgroundColor: 'rgba(0,0,0,0.3)',
                                 borderRadius: 5,
                                 '&:hover': {
                                     backgroundColor: 'rgba(0,0,0,0.4)'
@@ -844,7 +825,7 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
                                 width: 'max-content',
                                 pl: sortedStudents.length > 5 ? 1 : 0,
                                 pr: sortedStudents.length > 5 ? 1 : 0,
-                                py: 1 // Add vertical padding for better visibility of the cards
+                                py: 1
                             }}
                         >
                             {sortedStudents.map((student) => (
@@ -852,9 +833,9 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
                                     key={student._id}
                                     sx={{
                                         width: {
-                                            xs: '320px', // Increased width for extra small screens
-                                            sm: '300px', // Increased width for small screens
-                                            md: '280px' // Increased width for medium screens
+                                            xs: '320px',
+                                            sm: '300px',
+                                            md: '280px'
                                         },
                                         minWidth: {
                                             xs: '320px',
