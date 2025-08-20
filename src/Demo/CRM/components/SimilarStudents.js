@@ -1,21 +1,26 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
     Box,
     Card,
     CardContent,
     Typography,
-    Grid,
     Chip,
     Link,
     Divider,
-    Skeleton
+    Skeleton,
+    IconButton,
+    Tooltip,
+    CircularProgress
 } from '@mui/material';
 import {
     School as SchoolIcon,
     Person as PersonIcon,
     CheckCircle,
-    Cancel
+    Cancel,
+    NavigateNext as NavigateNextIcon,
+    NavigateBefore as NavigateBeforeIcon,
+    Replay as ReplayIcon
 } from '@mui/icons-material';
 
 import { request } from '../../../api/request';
@@ -25,6 +30,8 @@ const { STUDENT_DATABASE_STUDENTID_LINK, SINGLE_PROGRAM_LINK } = DEMO;
 
 // Extracted student card component for better organization
 const StudentCard = ({ student, matchReason }) => {
+    const [expanded, setExpanded] = React.useState(false);
+
     const sortedApplications = useMemo(() => {
         return (student?.applications || [])
             .filter((application) =>
@@ -67,23 +74,25 @@ const StudentCard = ({ student, matchReason }) => {
                 <SchoolIcon color="primary" fontSize="small" />
                 <Link
                     href={STUDENT_DATABASE_STUDENTID_LINK(student._id)}
+                    rel="noopener noreferrer"
                     sx={{
-                        color: 'inherit',
-                        textDecoration: 'none',
-                        '&:hover': { color: 'primary.main' }
+                        color: 'primary.main',
+                        fontWeight: 500,
+                        cursor: 'pointer',
+                        transition: 'color 0.2s',
+                        '&:hover': {
+                            color: 'primary.dark',
+                            textDecoration: 'underline'
+                        },
+                        px: 0.1,
+                        py: 0.1,
+                        display: 'inline-flex',
+                        alignItems: 'center'
                     }}
+                    target="_blank"
                     underline="hover"
                 >
-                    <Typography
-                        fontWeight="bold"
-                        sx={{
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                            fontSize: '0.8rem'
-                        }}
-                        variant="caption"
-                    >
+                    <Typography fontWeight="bold" noWrap variant="body2">
                         {student.firstname} {student.lastname}
                     </Typography>
                 </Link>
@@ -93,9 +102,10 @@ const StudentCard = ({ student, matchReason }) => {
                         label={student?.application_preference?.target_degree}
                         size="small"
                         sx={{
-                            fontSize: '0.6rem',
-                            height: 16,
-                            '& .MuiChip-label': { px: 0.5 }
+                            '& .MuiChip-label': {
+                                fontSize: '0.7rem',
+                                px: 0.8
+                            }
                         }}
                         variant="filled"
                     />
@@ -108,26 +118,24 @@ const StudentCard = ({ student, matchReason }) => {
                         label={`${student.application_preference.expected_application_date} ${student.application_preference.expected_application_semester}`}
                         size="small"
                         sx={{
-                            fontSize: '0.6rem',
-                            height: 16,
-                            '& .MuiChip-label': { px: 0.5 }
+                            '& .MuiChip-label': {
+                                fontSize: '0.7rem',
+                                px: 0.8
+                            }
                         }}
                         variant="outlined"
                     />
                 )}
             </Box>
 
-            {/* Match reason - moved to the top */}
+            {/* Match reason */}
             {matchReason && (
                 <Box sx={{ mb: 0.8 }}>
                     <Typography
-                        sx={{
-                            display: 'block',
-                            fontSize: '0.65rem',
-                            color: 'primary.main',
-                            fontWeight: 'medium',
-                            mb: 0.2
-                        }}
+                        color="primary.main"
+                        display="block"
+                        fontWeight="medium"
+                        gutterBottom
                         variant="caption"
                     >
                         Match Reason:
@@ -144,11 +152,8 @@ const StudentCard = ({ student, matchReason }) => {
                         }}
                     >
                         <Typography
-                            sx={{
-                                color: 'text.primary',
-                                fontSize: 'inherit',
-                                display: 'block'
-                            }}
+                            color="text.primary"
+                            display="block"
                             variant="caption"
                         >
                             {matchReason}
@@ -159,6 +164,10 @@ const StudentCard = ({ student, matchReason }) => {
 
             {/* Student details */}
             <Box sx={{ flex: 1, fontSize: '0.75rem' }}>
+                <StudentDetailRow
+                    label="GPA"
+                    value={student?.academic_background?.university?.My_GPA_Uni}
+                />
                 <StudentDetailRow
                     label="School"
                     value={
@@ -174,11 +183,7 @@ const StudentCard = ({ student, matchReason }) => {
                     }
                 />
                 <StudentDetailRow
-                    label="GPA"
-                    value={student?.academic_background?.university?.My_GPA_Uni}
-                />
-                <StudentDetailRow
-                    label="Direction"
+                    label="Target Field"
                     value={
                         student?.application_preference
                             ?.target_application_field
@@ -190,14 +195,24 @@ const StudentCard = ({ student, matchReason }) => {
 
             {/* Applications section */}
             <Box>
-                {sortedApplications.map((application, index) => (
+                {(expanded
+                    ? sortedApplications
+                    : sortedApplications.slice(0, 7)
+                ).map((application, index) => (
                     <Box
                         key={index}
                         sx={{
                             display: 'flex',
                             alignItems: 'center',
                             gap: 1,
-                            mb: index < sortedApplications.length - 1 ? 1 : 0,
+                            mb:
+                                index <
+                                (expanded
+                                    ? sortedApplications.length - 1
+                                    : Math.min(sortedApplications.length, 7) -
+                                      1)
+                                    ? 1
+                                    : 0,
                             fontSize: '0.75rem'
                         }}
                     >
@@ -205,12 +220,22 @@ const StudentCard = ({ student, matchReason }) => {
                             href={SINGLE_PROGRAM_LINK(
                                 application.programId._id
                             )}
+                            rel="noopener noreferrer"
                             sx={{
-                                color: 'inherit',
-                                textDecoration: 'none',
-                                '&:hover': { color: 'primary.main' },
-                                flex: 1
+                                color: 'primary.main',
+                                fontWeight: 500,
+                                cursor: 'pointer',
+                                transition: 'color 0.2s',
+                                '&:hover': {
+                                    color: 'primary.dark'
+                                },
+                                px: 0.1,
+                                py: 0.1,
+                                flex: 1,
+                                display: 'inline-flex',
+                                alignItems: 'center'
                             }}
+                            target="_blank"
                             underline="hover"
                         >
                             <Typography
@@ -224,8 +249,12 @@ const StudentCard = ({ student, matchReason }) => {
                                 }}
                                 variant="body2"
                             >
-                                {application.programId?.school}{' '}
-                                {application.programId?.program_name}
+                                <Box component="span" display="block">
+                                    {application.programId?.school}
+                                </Box>
+                                <Box component="span" display="block">
+                                    - {application.programId?.program_name}
+                                </Box>
                             </Typography>
                         </Link>
 
@@ -240,6 +269,57 @@ const StudentCard = ({ student, matchReason }) => {
                         )}
                     </Box>
                 ))}
+
+                {sortedApplications.length > 7 && (
+                    <Box
+                        onClick={() => setExpanded(!expanded)}
+                        sx={{
+                            mt: 1,
+                            textAlign: 'center',
+                            cursor: 'pointer',
+                            '&:hover': {
+                                color: 'primary.main'
+                            },
+                            fontSize: '0.7rem',
+                            fontWeight: 'medium',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}
+                    >
+                        <Typography
+                            color="primary"
+                            sx={{
+                                fontSize: 'inherit',
+                                display: 'flex',
+                                alignItems: 'center'
+                            }}
+                        >
+                            {expanded
+                                ? 'Show Less'
+                                : `Show ${sortedApplications.length - 7} More`}
+                            {expanded ? (
+                                <Box
+                                    component="span"
+                                    sx={{
+                                        display: 'inline-flex',
+                                        ml: 0.5,
+                                        transform: 'rotate(180deg)'
+                                    }}
+                                >
+                                    ▾
+                                </Box>
+                            ) : (
+                                <Box
+                                    component="span"
+                                    sx={{ display: 'inline-flex', ml: 0.5 }}
+                                >
+                                    ▾
+                                </Box>
+                            )}
+                        </Typography>
+                    </Box>
+                )}
             </Box>
         </Box>
     );
@@ -249,15 +329,8 @@ const StudentCard = ({ student, matchReason }) => {
 const StudentDetailRow = ({ label, value }) => (
     <Typography
         color="text.secondary"
-        sx={{
-            display: 'block',
-            mb: 0.3,
-            fontSize: '0.65rem',
-            lineHeight: 1.2,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: label === 'Direction' ? 'nowrap' : 'normal'
-        }}
+        display="block"
+        gutterBottom
         variant="caption"
     >
         <strong>{label}:</strong> {value || 'N/A'}
@@ -303,21 +376,27 @@ const StudentCardSkeleton = () => (
 );
 
 const SimilarStudents = ({ leadId, similarUsers = [] }) => {
+    // Reference to the scrollable container
+    const scrollContainerRef = useRef(null);
     // Fetch similar students if not provided directly
-    const { data: similarStudentsData, isLoading: isLoadingSimilarStudents } =
-        useQuery({
-            queryKey: ['similar-students', leadId],
-            queryFn: async () => {
-                const response = await request.get(
-                    `/crm-api/lead-student-matching?leadId=${leadId}`
-                );
-                return response?.data;
-            },
-            enabled: !!leadId && similarUsers.length === 0,
-            refetchOnWindowFocus: false,
-            refetchOnMount: false,
-            staleTime: Infinity
-        });
+    const {
+        data: similarStudentsData,
+        isLoading: isLoadingSimilarStudents,
+        isFetching: isFetchingSimilarStudents,
+        refetch: refetchSimilarStudents
+    } = useQuery({
+        queryKey: ['similar-students', leadId],
+        queryFn: async () => {
+            const response = await request.get(
+                `/crm-api/similar-students?leadId=${leadId}`
+            );
+            return response?.data;
+        },
+        enabled: !!leadId && similarUsers.length === 0,
+        refetchOnWindowFocus: false,
+        refetchOnMount: false,
+        staleTime: Infinity
+    });
 
     // Extract student IDs from either prop or API response and create a map of reasons
     const { studentIds, reasonMap } = useMemo(() => {
@@ -345,14 +424,20 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
     }, [similarUsers, similarStudentsData]);
 
     // Fetch detailed student information
-    const { data: userDetails, isLoading: isLoadingUserDetails } = useQuery({
+    const {
+        data: userDetails,
+        isLoading: isLoadingUserDetails,
+        isFetching: isFetchingUserDetails,
+        refetch: refetchUserDetails
+    } = useQuery({
         queryKey: ['similar-user-details', studentIds],
         queryFn: async () => {
             if (!studentIds.length) return [];
             const response = await request.get(
                 `/api/students/batch?ids=${studentIds.join(',')}`
             );
-            return response.data.data;
+            const data = response.data.data;
+            return data;
         },
         enabled: studentIds.length > 0,
         refetchOnWindowFocus: false,
@@ -421,31 +506,154 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
     }, [userDetails]);
 
     const isLoading = isLoadingSimilarStudents || isLoadingUserDetails;
+    const isRefreshing = isFetchingSimilarStudents || isFetchingUserDetails;
+    const handleRefetch = async () => {
+        await refetchSimilarStudents();
+        await refetchUserDetails();
+    };
     const studentCount = sortedStudents?.length || 0;
 
     // Render loading state
     if (isLoading) {
         return (
-            <Card sx={{ mb: 3 }}>
+            <Card>
                 <CardContent>
                     <Box
                         sx={{
                             display: 'flex',
                             alignItems: 'center',
-                            gap: 1,
+                            justifyContent: 'space-between',
+                            mb: 1
+                        }}
+                    >
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1
+                            }}
+                        >
+                            <PersonIcon color="primary" />
+                            <Typography variant="h6">
+                                Similar Students
+                            </Typography>
+                        </Box>
+                        <Tooltip title="Regenerate">
+                            <span>
+                                <IconButton
+                                    aria-label="Regenerate similar students"
+                                    disabled={isRefreshing}
+                                    onClick={handleRefetch}
+                                    size="small"
+                                >
+                                    {isRefreshing ? (
+                                        <CircularProgress size={16} />
+                                    ) : (
+                                        <ReplayIcon />
+                                    )}
+                                </IconButton>
+                            </span>
+                        </Tooltip>
+                    </Box>
+                    <Box
+                        sx={{
+                            position: 'relative',
                             mb: 2
                         }}
                     >
-                        <PersonIcon color="primary" />
-                        <Typography variant="h6">Similar Students</Typography>
+                        {/* Navigation buttons for loading state */}
+                        <IconButton
+                            size="small"
+                            sx={{
+                                position: 'absolute',
+                                left: -16,
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                backgroundColor: 'background.paper',
+                                boxShadow: 2,
+                                zIndex: 2,
+                                '&:hover': {
+                                    backgroundColor: 'grey.200'
+                                }
+                            }}
+                        >
+                            <NavigateBeforeIcon />
+                        </IconButton>
+
+                        <IconButton
+                            size="small"
+                            sx={{
+                                position: 'absolute',
+                                right: -16,
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                backgroundColor: 'background.paper',
+                                boxShadow: 2,
+                                zIndex: 2,
+                                '&:hover': {
+                                    backgroundColor: 'grey.200'
+                                }
+                            }}
+                        >
+                            <NavigateNextIcon />
+                        </IconButton>
+
+                        <Box
+                            sx={{
+                                overflowX: 'auto',
+                                pb: 1,
+                                scrollBehavior: 'smooth',
+                                scrollbarWidth: 'auto',
+                                '&::-webkit-scrollbar': {
+                                    height: 10
+                                },
+                                '&::-webkit-scrollbar-track': {
+                                    backgroundColor: 'rgba(0,0,0,0.05)',
+                                    borderRadius: 5
+                                },
+                                '&::-webkit-scrollbar-thumb': {
+                                    backgroundColor: 'rgba(0,0,0,0.3)',
+                                    borderRadius: 5,
+                                    '&:hover': {
+                                        backgroundColor: 'rgba(0,0,0,0.4)'
+                                    }
+                                }
+                            }}
+                        >
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    gap: 2,
+                                    width: 'max-content',
+                                    pl: 1,
+                                    pr: 1,
+                                    py: 1
+                                }}
+                            >
+                                {[1, 2, 3, 4, 5].map((i) => (
+                                    <Box
+                                        key={i}
+                                        sx={{
+                                            width: {
+                                                xs: '280px',
+                                                sm: '260px',
+                                                md: '240px'
+                                            },
+                                            minWidth: {
+                                                xs: '280px',
+                                                sm: '260px',
+                                                md: '240px'
+                                            },
+                                            flexShrink: 0,
+                                            scrollSnapAlign: 'start'
+                                        }}
+                                    >
+                                        <StudentCardSkeleton />
+                                    </Box>
+                                ))}
+                            </Box>
+                        </Box>
                     </Box>
-                    <Grid container spacing={2}>
-                        {[1, 2, 3, 4, 5].map((i) => (
-                            <Grid item key={i} md={2.4} sm={6} xs={12}>
-                                <StudentCardSkeleton />
-                            </Grid>
-                        ))}
-                    </Grid>
                 </CardContent>
             </Card>
         );
@@ -460,12 +668,38 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
                         sx={{
                             display: 'flex',
                             alignItems: 'center',
-                            gap: 1,
+                            justifyContent: 'space-between',
                             mb: 2
                         }}
                     >
-                        <PersonIcon color="primary" />
-                        <Typography variant="h6">Similar Students</Typography>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1
+                            }}
+                        >
+                            <PersonIcon color="primary" />
+                            <Typography variant="h6">
+                                Similar Students
+                            </Typography>
+                        </Box>
+                        <Tooltip title="Regenerate">
+                            <span>
+                                <IconButton
+                                    aria-label="Regenerate similar students"
+                                    disabled={isRefreshing}
+                                    onClick={handleRefetch}
+                                    size="small"
+                                >
+                                    {isRefreshing ? (
+                                        <CircularProgress size={16} />
+                                    ) : (
+                                        <ReplayIcon />
+                                    )}
+                                </IconButton>
+                            </span>
+                        </Tooltip>
                     </Box>
                     <Typography color="text.secondary">
                         No similar students found
@@ -483,26 +717,172 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
                     sx={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: 1,
+                        justifyContent: 'space-between',
                         mb: 2
                     }}
                 >
-                    <PersonIcon color="primary" />
-                    <Typography variant="h6">
-                        Similar Students ({studentCount})
-                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <PersonIcon color="primary" />
+                        <Typography variant="h6">
+                            Similar Students ({studentCount})
+                        </Typography>
+                    </Box>
+                    <Tooltip title="Regenerate">
+                        <span>
+                            <IconButton
+                                aria-label="Regenerate similar students"
+                                disabled={isRefreshing}
+                                onClick={handleRefetch}
+                                size="small"
+                            >
+                                {isRefreshing ? (
+                                    <CircularProgress size={16} />
+                                ) : (
+                                    <ReplayIcon />
+                                )}
+                            </IconButton>
+                        </span>
+                    </Tooltip>
                 </Box>
 
-                <Grid container spacing={2}>
-                    {sortedStudents.map((student) => (
-                        <Grid item key={student._id} md={2.4} sm={6} xs={12}>
-                            <StudentCard
-                                matchReason={reasonMap[student._id]}
-                                student={student}
-                            />
-                        </Grid>
-                    ))}
-                </Grid>
+                {/* description */}
+                <Typography
+                    color="text.secondary"
+                    sx={{ mb: 2 }}
+                    variant="body2"
+                >
+                    Matches are based on academic background (school, program,
+                    GPA) and application preferences (program level, direction).
+                </Typography>
+
+                <Box
+                    sx={{
+                        position: 'relative',
+                        mb: sortedStudents.length > 5 ? 2 : 0
+                    }}
+                >
+                    {/* Navigation buttons */}
+                    {sortedStudents.length > 5 && (
+                        <>
+                            <IconButton
+                                aria-label="Scroll left"
+                                onClick={() => {
+                                    if (scrollContainerRef.current) {
+                                        const scrollAmount = 500;
+                                        scrollContainerRef.current.scrollLeft -=
+                                            scrollAmount;
+                                    }
+                                }}
+                                size="small"
+                                sx={{
+                                    position: 'absolute',
+                                    left: -16,
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    backgroundColor: 'background.paper',
+                                    boxShadow: 2,
+                                    zIndex: 2,
+                                    '&:hover': {
+                                        backgroundColor: 'grey.200'
+                                    }
+                                }}
+                            >
+                                <NavigateBeforeIcon />
+                            </IconButton>
+
+                            <IconButton
+                                aria-label="Scroll right"
+                                onClick={() => {
+                                    if (scrollContainerRef.current) {
+                                        const scrollAmount = 500;
+                                        scrollContainerRef.current.scrollLeft +=
+                                            scrollAmount;
+                                    }
+                                }}
+                                size="small"
+                                sx={{
+                                    position: 'absolute',
+                                    right: -16,
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    backgroundColor: 'background.paper',
+                                    boxShadow: 2,
+                                    zIndex: 2,
+                                    '&:hover': {
+                                        backgroundColor: 'grey.200'
+                                    }
+                                }}
+                            >
+                                <NavigateNextIcon />
+                            </IconButton>
+                        </>
+                    )}
+
+                    <Box
+                        ref={scrollContainerRef}
+                        sx={{
+                            overflowX: 'auto',
+                            pb: 2,
+                            pt: 1,
+                            scrollBehavior: 'smooth',
+                            scrollbarWidth: 'auto',
+                            '&::-webkit-scrollbar': {
+                                height: 10
+                            },
+                            '&::-webkit-scrollbar-track': {
+                                backgroundColor: 'rgba(0,0,0,0.05)',
+                                borderRadius: 5
+                            },
+                            '&::-webkit-scrollbar-thumb': {
+                                backgroundColor: 'rgba(0,0,0,0.3)',
+                                borderRadius: 5,
+                                '&:hover': {
+                                    backgroundColor: 'rgba(0,0,0,0.4)'
+                                }
+                            }
+                        }}
+                    >
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                gap: 2,
+                                width: 'max-content',
+                                pl: sortedStudents.length > 5 ? 1 : 0,
+                                pr: sortedStudents.length > 5 ? 1 : 0,
+                                py: 1
+                            }}
+                        >
+                            {sortedStudents.map((student) => (
+                                <Box
+                                    key={student._id}
+                                    sx={{
+                                        width: {
+                                            xs: '320px',
+                                            sm: '300px',
+                                            md: '280px'
+                                        },
+                                        minWidth: {
+                                            xs: '320px',
+                                            sm: '280px',
+                                            md: '260px'
+                                        },
+                                        flexShrink: 0,
+                                        scrollSnapAlign: 'start',
+                                        transition: 'transform 0.2s',
+                                        '&:hover': {
+                                            transform: 'translateY(-2px)'
+                                        }
+                                    }}
+                                >
+                                    <StudentCard
+                                        matchReason={reasonMap[student._id]}
+                                        student={student}
+                                    />
+                                </Box>
+                            ))}
+                        </Box>
+                    </Box>
+                </Box>
             </CardContent>
         </Card>
     );

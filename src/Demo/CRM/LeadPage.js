@@ -2,8 +2,32 @@ import { useParams, Navigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, useMemo } from 'react';
 import { useForm } from '@tanstack/react-form';
-import { Box, Breadcrumbs, Link, Typography, Grid } from '@mui/material';
-import { Event as EventIcon } from '@mui/icons-material';
+import {
+    Box,
+    Breadcrumbs,
+    Link,
+    Typography,
+    Grid,
+    Button,
+    IconButton,
+    CircularProgress,
+    TextField,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem
+} from '@mui/material';
+import {
+    Event as EventIcon,
+    PersonAdd as PersonAddIcon,
+    Edit as EditIcon,
+    Save as SaveIcon,
+    Cancel as CancelIcon,
+    Male as MaleIcon,
+    Female as FemaleIcon,
+    Transgender as OtherGenderIcon,
+    Work as RoleIcon
+} from '@mui/icons-material';
 
 import DEMO from '../../store/constant';
 import { TabTitle } from '../Utils/TabTitle';
@@ -306,6 +330,514 @@ const LeadPage = () => {
                         {lead.fullName}
                     </Typography>
                 </Breadcrumbs>
+            </Box>
+
+            {/* Personal Information Section */}
+            <Box
+                sx={{
+                    mb: 3,
+                    display: 'flex',
+                    alignItems: 'center',
+                    flexDirection: 'column',
+                    p: 2,
+                    borderRadius: 1,
+                    backgroundColor: 'background.paper',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
+                    border: '1px solid',
+                    borderColor: 'divider'
+                }}
+            >
+                {!editStates.personal ? (
+                    // View mode
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            width: '100%',
+                            gap: 1.5
+                        }}
+                    >
+                        {/* First row: NAME | STATUS | GENDER | EDIT BUTTON */}
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                width: '100%',
+                                gap: 1
+                            }}
+                        >
+                            {/* Name */}
+                            <Typography
+                                sx={{
+                                    fontWeight: 600,
+                                    color: 'text.primary',
+                                    letterSpacing: '0.3px'
+                                }}
+                                variant="h5"
+                            >
+                                {lead.fullName || 'N/A'}
+                            </Typography>
+
+                            {/* Gender Icon */}
+                            {lead.gender && (
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center'
+                                    }}
+                                    title={`Gender: ${lead.gender?.charAt(0).toUpperCase() + lead.gender?.slice(1)}`}
+                                >
+                                    {(() => {
+                                        // Normalize gender text to handle various formats
+                                        const genderText = String(
+                                            lead.gender || ''
+                                        )
+                                            .toLowerCase()
+                                            .trim();
+
+                                        // Define keywords for gender detection
+                                        const femaleKeywords = [
+                                            '女',
+                                            'female',
+                                            'woman'
+                                        ];
+                                        const maleKeywords = [
+                                            '男',
+                                            'male',
+                                            'man'
+                                        ];
+
+                                        // Check for female keywords first (checking if text includes any keyword)
+                                        if (
+                                            femaleKeywords.some((keyword) =>
+                                                genderText.includes(keyword)
+                                            )
+                                        ) {
+                                            return (
+                                                <FemaleIcon
+                                                    sx={{
+                                                        color: 'secondary.main',
+                                                        fontSize: '1.8rem'
+                                                    }}
+                                                />
+                                            );
+                                        }
+
+                                        // Then check for male keywords
+                                        else if (
+                                            maleKeywords.some((keyword) =>
+                                                genderText.includes(keyword)
+                                            )
+                                        ) {
+                                            return (
+                                                <MaleIcon
+                                                    sx={{
+                                                        color: 'info.main',
+                                                        fontSize: '1.8rem'
+                                                    }}
+                                                />
+                                            );
+                                        }
+
+                                        // Default to other
+                                        else {
+                                            return (
+                                                <OtherGenderIcon
+                                                    sx={{
+                                                        color: 'text.secondary',
+                                                        fontSize: '1.8rem'
+                                                    }}
+                                                />
+                                            );
+                                        }
+                                    })()}
+                                </Box>
+                            )}
+
+                            {/* Close Likelihood indicator */}
+                            {lead.closeLikelihood && (
+                                <Box
+                                    sx={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        borderRadius: '50%',
+                                        width: 28,
+                                        height: 28,
+                                        bgcolor:
+                                            lead.closeLikelihood === 'high'
+                                                ? 'success.main'
+                                                : lead.closeLikelihood ===
+                                                    'medium'
+                                                  ? 'warning.main'
+                                                  : 'error.main',
+                                        color: '#fff',
+                                        fontWeight: 'bold',
+                                        fontSize: '0.75rem',
+                                        border: '1px solid',
+                                        borderColor:
+                                            lead.closeLikelihood === 'high'
+                                                ? 'success.dark'
+                                                : lead.closeLikelihood ===
+                                                    'medium'
+                                                  ? 'warning.dark'
+                                                  : 'error.dark',
+                                        boxShadow: '0 2px 4px rgba(0,0,0,0.08)',
+                                        letterSpacing: '0.2px'
+                                    }}
+                                    title={`Close Likelihood: ${lead.closeLikelihood.charAt(0).toUpperCase() + lead.closeLikelihood.slice(1)}`}
+                                >
+                                    {lead.closeLikelihood === 'high'
+                                        ? 'H'
+                                        : lead.closeLikelihood === 'medium'
+                                          ? 'M'
+                                          : 'L'}
+                                </Box>
+                            )}
+
+                            {/* Status pill */}
+                            <Box
+                                sx={{
+                                    fontWeight: 'medium',
+                                    px: 1.5,
+                                    py: 0.5,
+                                    borderRadius: '50px',
+                                    backgroundColor:
+                                        lead.status === 'converted'
+                                            ? 'success.main'
+                                            : lead.status === 'qualified'
+                                              ? 'info.main'
+                                              : lead.status === 'closed'
+                                                ? 'error.main'
+                                                : 'primary.main',
+                                    color: '#fff',
+                                    fontSize: '0.8rem',
+                                    letterSpacing: '0.2px',
+                                    boxShadow: '0 2px 4px rgba(0,0,0,0.08)',
+                                    border: '1px solid',
+                                    borderColor:
+                                        lead.status === 'converted'
+                                            ? 'success.dark'
+                                            : lead.status === 'qualified'
+                                              ? 'info.dark'
+                                              : lead.status === 'closed'
+                                                ? 'error.dark'
+                                                : 'primary.dark',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    height: 28
+                                }}
+                            >
+                                {lead.status
+                                    ? lead.status.charAt(0).toUpperCase() +
+                                      lead.status.slice(1)
+                                    : 'N/A'}
+                            </Box>
+
+                            {/* Push edit button to the right */}
+                            <Box
+                                sx={{
+                                    ml: 'auto',
+                                    display: 'flex',
+                                    alignItems: 'center'
+                                }}
+                            >
+                                {editStates.personal &&
+                                    hasUnsavedChanges('personal') && (
+                                        <Typography
+                                            component="span"
+                                            sx={{
+                                                mr: 1,
+                                                color: 'warning.main',
+                                                fontSize: '0.8rem',
+                                                fontWeight: 'normal'
+                                            }}
+                                        >
+                                            • Unsaved changes
+                                        </Typography>
+                                    )}
+
+                                {!editStates.personal ? (
+                                    <IconButton
+                                        onClick={() => handleEdit('personal')}
+                                        size="small"
+                                    >
+                                        <EditIcon />
+                                    </IconButton>
+                                ) : (
+                                    <Box sx={{ display: 'flex', gap: 1 }}>
+                                        <IconButton
+                                            color="primary"
+                                            disabled={
+                                                updateLeadMutation.isPending
+                                            }
+                                            onClick={() =>
+                                                handleSave('personal')
+                                            }
+                                            size="small"
+                                        >
+                                            {updateLeadMutation.isPending ? (
+                                                <CircularProgress size={20} />
+                                            ) : (
+                                                <SaveIcon />
+                                            )}
+                                        </IconButton>
+                                        <IconButton
+                                            disabled={
+                                                updateLeadMutation.isPending
+                                            }
+                                            onClick={() =>
+                                                handleCancel('personal')
+                                            }
+                                            size="small"
+                                        >
+                                            <CancelIcon />
+                                        </IconButton>
+                                    </Box>
+                                )}
+                            </Box>
+                        </Box>
+
+                        {/* Second row: ROLE | USER/CREATE USER BUTTON */}
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                width: '100%',
+                                gap: 2
+                            }}
+                        >
+                            {/* Role text */}
+                            {lead.applicantRole && (
+                                <Typography
+                                    sx={{
+                                        color: 'text.secondary',
+                                        backgroundColor: 'grey.100',
+                                        px: 1.5,
+                                        py: 0.5,
+                                        borderRadius: '16px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 0.5,
+                                        fontStyle: 'italic'
+                                    }}
+                                    variant="body2"
+                                >
+                                    <RoleIcon sx={{ fontSize: '0.9rem' }} />
+                                    {lead.applicantRole}
+                                </Typography>
+                            )}
+
+                            {/* User link or Create User button */}
+                            {lead.userId ? (
+                                <Link
+                                    component="a"
+                                    href={`/student-database/${lead.userId}`}
+                                    sx={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center'
+                                    }}
+                                    underline="hover"
+                                    variant="body2"
+                                >
+                                    View Student Profile
+                                </Link>
+                            ) : !lead.userId &&
+                              lead.status !== 'closed' &&
+                              lead.status !== 'converted' ? (
+                                <Button
+                                    color="primary"
+                                    onClick={() => handleCreateUser(lead)}
+                                    size="small"
+                                    startIcon={<PersonAddIcon />}
+                                    variant="outlined"
+                                >
+                                    Create User Account
+                                </Button>
+                            ) : null}
+                        </Box>
+                    </Box>
+                ) : (
+                    // Edit mode
+                    <Box
+                        sx={{
+                            width: '100%',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 2
+                        }}
+                    >
+                        {/* First row - includes save/cancel buttons */}
+                        <Grid alignItems="center" container spacing={2}>
+                            {/* Left-side fields */}
+                            <Grid item md={3} xs={6}>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        flexDirection: 'column'
+                                    }}
+                                >
+                                    {hasUnsavedChanges('personal') && (
+                                        <Typography
+                                            component="span"
+                                            sx={{
+                                                color: 'warning.main',
+                                                fontSize: '0.75rem',
+                                                fontWeight: 'normal',
+                                                mb: 0.5
+                                            }}
+                                        >
+                                            • Unsaved changes
+                                        </Typography>
+                                    )}
+                                    <TextField
+                                        fullWidth
+                                        label="Full Name"
+                                        onChange={(e) =>
+                                            handleFieldChange(
+                                                'fullName',
+                                                e.target.value
+                                            )
+                                        }
+                                        size="small"
+                                        value={formData.fullName || ''}
+                                        variant="outlined"
+                                    />
+                                </Box>
+                            </Grid>
+
+                            <Grid item md={3} xs={6}>
+                                <FormControl fullWidth size="small">
+                                    <InputLabel id="gender-select-label">
+                                        Gender
+                                    </InputLabel>
+                                    <Select
+                                        label="Gender"
+                                        labelId="gender-select-label"
+                                        onChange={(e) =>
+                                            handleFieldChange(
+                                                'gender',
+                                                e.target.value
+                                            )
+                                        }
+                                        value={formData.gender || ''}
+                                    >
+                                        <MenuItem value="male">Male</MenuItem>
+                                        <MenuItem value="female">
+                                            Female
+                                        </MenuItem>
+                                        <MenuItem value="other">Other</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+
+                            <Grid item md={3} xs={6}>
+                                <TextField
+                                    fullWidth
+                                    label="Role"
+                                    onChange={(e) =>
+                                        handleFieldChange(
+                                            'applicantRole',
+                                            e.target.value
+                                        )
+                                    }
+                                    size="small"
+                                    value={formData.applicantRole || ''}
+                                    variant="outlined"
+                                />
+                            </Grid>
+
+                            {/* Save/Cancel buttons aligned with fields */}
+                            <Grid
+                                item
+                                md={3}
+                                sx={{
+                                    display: 'flex',
+                                    justifyContent: 'flex-end',
+                                    alignItems: 'center'
+                                }}
+                                xs={6}
+                            >
+                                <Box sx={{ display: 'flex', gap: 1 }}>
+                                    <IconButton
+                                        color="primary"
+                                        disabled={updateLeadMutation.isPending}
+                                        onClick={() => handleSave('personal')}
+                                        size="small"
+                                    >
+                                        {updateLeadMutation.isPending ? (
+                                            <CircularProgress size={20} />
+                                        ) : (
+                                            <SaveIcon />
+                                        )}
+                                    </IconButton>
+                                    <IconButton
+                                        disabled={updateLeadMutation.isPending}
+                                        onClick={() => handleCancel('personal')}
+                                        size="small"
+                                    >
+                                        <CancelIcon />
+                                    </IconButton>
+                                </Box>
+                            </Grid>
+
+                            <Grid item md={3} xs={6}>
+                                <FormControl fullWidth size="small">
+                                    <InputLabel id="status-select-label">
+                                        Status
+                                    </InputLabel>
+                                    <Select
+                                        label="Status"
+                                        labelId="status-select-label"
+                                        onChange={(e) =>
+                                            handleFieldChange(
+                                                'status',
+                                                e.target.value
+                                            )
+                                        }
+                                        value={formData.status || ''}
+                                    >
+                                        <MenuItem value="open">Open</MenuItem>
+                                        <MenuItem value="not-qualified">
+                                            Not Qualified
+                                        </MenuItem>
+                                        <MenuItem value="closed">
+                                            Closed
+                                        </MenuItem>
+                                        <MenuItem value="converted">
+                                            Converted
+                                        </MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                            <Grid item md={3} xs={12}>
+                                <FormControl fullWidth size="small">
+                                    <InputLabel id="close-likelihood-select-label">
+                                        Close Likelihood
+                                    </InputLabel>
+                                    <Select
+                                        label="Close Likelihood"
+                                        labelId="close-likelihood-select-label"
+                                        onChange={(e) =>
+                                            handleFieldChange(
+                                                'closeLikelihood',
+                                                e.target.value
+                                            )
+                                        }
+                                        value={formData.closeLikelihood || ''}
+                                    >
+                                        <MenuItem value="high">High</MenuItem>
+                                        <MenuItem value="medium">
+                                            Medium
+                                        </MenuItem>
+                                        <MenuItem value="low">Low</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                        </Grid>
+                    </Box>
+                )}
             </Box>
 
             {/* Meetings */}
