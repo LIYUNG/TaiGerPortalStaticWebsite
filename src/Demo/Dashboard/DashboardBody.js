@@ -48,7 +48,7 @@ const DashboardBody = () => {
             </Breadcrumbs>
             <Alert severity="success">
                 <span style={{ fontWeight: 'bold' }}>
-                    🎊🎊🎊 TaiGer TaiGer
+                    🎊🎊🎊 TaiGer
                     最新好友推薦計劃開跑！邀請好友一起去歐洲留學，你與好友都有現金回饋！
                 </span>
                 <span style={{ fontWeight: 'bold' }}>
