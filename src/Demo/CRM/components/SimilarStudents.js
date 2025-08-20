@@ -74,11 +74,22 @@ const StudentCard = ({ student, matchReason }) => {
                 <SchoolIcon color="primary" fontSize="small" />
                 <Link
                     href={STUDENT_DATABASE_STUDENTID_LINK(student._id)}
+                    rel="noopener noreferrer"
                     sx={{
-                        color: 'inherit',
-                        textDecoration: 'none',
-                        '&:hover': { color: 'primary.main' }
+                        color: 'primary.main',
+                        fontWeight: 500,
+                        cursor: 'pointer',
+                        transition: 'color 0.2s',
+                        '&:hover': {
+                            color: 'primary.dark',
+                            textDecoration: 'underline'
+                        },
+                        px: 0.1,
+                        py: 0.1,
+                        display: 'inline-flex',
+                        alignItems: 'center'
                     }}
+                    target="_blank"
                     underline="hover"
                 >
                     <Typography fontWeight="bold" noWrap variant="body2">
@@ -117,7 +128,7 @@ const StudentCard = ({ student, matchReason }) => {
                 )}
             </Box>
 
-            {/* Match reason - moved to the top */}
+            {/* Match reason */}
             {matchReason && (
                 <Box sx={{ mb: 0.8 }}>
                     <Typography
@@ -209,12 +220,22 @@ const StudentCard = ({ student, matchReason }) => {
                             href={SINGLE_PROGRAM_LINK(
                                 application.programId._id
                             )}
+                            rel="noopener noreferrer"
                             sx={{
-                                color: 'inherit',
-                                textDecoration: 'none',
-                                '&:hover': { color: 'primary.main' },
-                                flex: 1
+                                color: 'primary.main',
+                                fontWeight: 500,
+                                cursor: 'pointer',
+                                transition: 'color 0.2s',
+                                '&:hover': {
+                                    color: 'primary.dark'
+                                },
+                                px: 0.1,
+                                py: 0.1,
+                                flex: 1,
+                                display: 'inline-flex',
+                                alignItems: 'center'
                             }}
+                            target="_blank"
                             underline="hover"
                         >
                             <Typography
@@ -228,8 +249,12 @@ const StudentCard = ({ student, matchReason }) => {
                                 }}
                                 variant="body2"
                             >
-                                {application.programId?.school}{' '}
-                                {application.programId?.program_name}
+                                <Box component="span" display="block">
+                                    {application.programId?.school}
+                                </Box>
+                                <Box component="span" display="block">
+                                    - {application.programId?.program_name}
+                                </Box>
                             </Typography>
                         </Link>
 
