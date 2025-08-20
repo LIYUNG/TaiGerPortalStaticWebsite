@@ -111,7 +111,7 @@ export const getCardConfigurations = () => [
     {
         id: 'language',
         title: 'Language Skills',
-        gridSize: { md: 6, xs: 12 },
+        gridSize: { md: 4, xs: 8 },
         fields: [
             {
                 key: 'englishLevel',
@@ -126,9 +126,32 @@ export const getCardConfigurations = () => [
         ]
     },
     {
+        id: 'work',
+        title: 'Work Experience',
+        gridSize: { md: 4, xs: 8 },
+        fields: [
+            {
+                key: 'workExperience',
+                label: 'Work Experience',
+                type: 'custom',
+                render: (lead) => (
+                    <Typography sx={{ whiteSpace: 'pre-line' }} variant="body1">
+                        {lead.workExperience || 'No work experience provided'}
+                    </Typography>
+                ),
+                // For edit mode
+                editField: {
+                    type: 'text',
+                    multiline: true,
+                    rows: 6
+                }
+            }
+        ]
+    },
+    {
         id: 'contact',
         title: 'Contact Information',
-        gridSize: { md: 6, xs: 12 },
+        gridSize: { md: 4, xs: 8 },
         fields: [
             {
                 key: 'email',
@@ -155,29 +178,6 @@ export const getCardConfigurations = () => [
                 key: 'source',
                 label: 'Source',
                 type: 'text'
-            }
-        ]
-    },
-    {
-        id: 'work',
-        title: 'Work Experience',
-        gridSize: { xs: 12 },
-        fields: [
-            {
-                key: 'workExperience',
-                label: 'Work Experience',
-                type: 'custom',
-                render: (lead) => (
-                    <Typography sx={{ whiteSpace: 'pre-line' }} variant="body1">
-                        {lead.workExperience || 'No work experience provided'}
-                    </Typography>
-                ),
-                // For edit mode
-                editField: {
-                    type: 'text',
-                    multiline: true,
-                    rows: 6
-                }
             }
         ]
     },
