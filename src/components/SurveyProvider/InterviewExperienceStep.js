@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-    Box,
-    Typography,
-    Divider,
-    RadioGroup,
-    FormControlLabel,
-    Radio
-} from '@mui/material';
+import { Box, Typography, Divider } from '@mui/material';
 import StarRating from './StarRating';
 
 const InterviewExperienceStep = ({ values, onChange, disabled }) => (
@@ -84,39 +77,6 @@ const InterviewExperienceStep = ({ values, onChange, disabled }) => (
                 }}
                 rating={values.trainerFriendliness}
             />
-        </Box>
-
-        <Box>
-            <Typography sx={{ mb: 1 }} variant="subtitle2">
-                Were all your questions answered satisfactorily?{' '}
-                <span style={{ color: '#ef4444' }}>*</span>
-            </Typography>
-            <RadioGroup
-                name="questionsAnswered"
-                onChange={onChange}
-                value={values.questionsAnswered || ''}
-            >
-                {[
-                    { value: 'yes', label: 'Yes, all questions were answered' },
-                    { value: 'mostly', label: 'Most questions were answered' },
-                    {
-                        value: 'some',
-                        label: 'Some questions remained unanswered'
-                    },
-                    {
-                        value: 'no',
-                        label: 'No, many questions were left unanswered'
-                    }
-                ].map((option) => (
-                    <FormControlLabel
-                        control={<Radio />}
-                        disabled={disabled}
-                        key={option.value}
-                        label={option.label}
-                        value={option.value}
-                    />
-                ))}
-            </RadioGroup>
         </Box>
     </Box>
 );
