@@ -400,24 +400,21 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
 
     // Extract student IDs from either prop or API response and create a map of reasons
     const { studentIds, reasonMap } = useMemo(() => {
-        if (similarStudentsData?.matches?.length > 0) {
-            const matches = similarStudentsData.matches;
-            const ids = matches.map((student) => student.mongoId);
-            const reasons = matches.reduce((map, student) => {
-                map[student.mongoId] = student.reason;
+        const buildData = (list) => {
+            const studentIds = list.map((item) => item.mongoId);
+            const reasonMap = list.reduce((map, item) => {
+                map[item.mongoId] = item.reason;
                 return map;
             }, {});
-            return { studentIds: ids, reasonMap: reasons };
+            return { studentIds, reasonMap };
+        };
+
+        if (similarStudentsData?.matches?.length > 0) {
+            return buildData(similarStudentsData.matches);
         }
 
-        // Fallback to provided prop only when API has not loaded yet
         if (similarUsers.length > 0) {
-            const ids = similarUsers.map((user) => user.mongoId);
-            const reasons = similarUsers.reduce((map, user) => {
-                map[user.mongoId] = user.reason;
-                return map;
-            }, {});
-            return { studentIds: ids, reasonMap: reasons };
+            return buildData(similarUsers);
         }
 
         return { studentIds: [], reasonMap: {} };
