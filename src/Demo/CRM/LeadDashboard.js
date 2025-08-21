@@ -88,10 +88,6 @@ const LeadDashboard = () => {
         return colors[closeLikelihood] || 'default';
     };
 
-    const truncate = (str, max = 60) =>
-        typeof str === 'string' && str.length > max
-            ? `${str.slice(0, max)}…`
-            : str;
     const columns = [
         {
             accessorKey: 'closeLikelihood',
@@ -128,12 +124,22 @@ const LeadDashboard = () => {
                 );
             }
         },
+        // Full name: single-line ellipsis
         {
             accessorKey: 'fullName',
             header: 'Full Name',
-            size: 100,
+            size: 160,
+            muiTableBodyCellProps: ({ cell }) => ({
+                sx: {
+                    maxWidth: 160,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap'
+                },
+                title: cell.getValue()
+            }),
             Cell: ({ cell }) => (
-                <Typography fontWeight="medium" variant="body2">
+                <Typography fontWeight="medium" noWrap variant="body2">
                     {cell.getValue()}
                 </Typography>
             )
@@ -160,30 +166,38 @@ const LeadDashboard = () => {
                 </Stack>
             )
         },
+        // Intended Direction: multi-line clamp (no JS truncate)
         {
             accessorKey: 'intendedDirection',
             header: 'Intended Direction',
-            size: 250,
-            minSize: 150,
-            maxSize: 250,
             Cell: ({ cell }) => {
                 const value = cell.getValue();
                 return (
-                    <Stack alignItems="center" direction="row" spacing={1}>
+                    <Stack
+                        alignItems="center"
+                        direction="row"
+                        spacing={1}
+                        sx={{ minWidth: 0 }}
+                    >
                         <DirectionIcon color="action" fontSize="small" />
-                        <Typography
-                            sx={{
-                                display: '-webkit-box',
-                                WebkitLineClamp: 2,
-                                WebkitBoxOrient: 'vertical',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis'
-                            }}
-                            title={value}
-                            variant="body2"
-                        >
-                            {truncate(value, 80)}
-                        </Typography>
+                        <Box sx={{ maxWidth: 500, minWidth: 100 }}>
+                            <Typography
+                                sx={{
+                                    display: '-webkit-box',
+                                    WebkitLineClamp: 2,
+                                    WebkitBoxOrient: 'vertical',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    wordBreak: 'break-word',
+                                    overflowWrap: 'anywhere',
+                                    lineBreak: 'loose'
+                                }}
+                                title={value}
+                                variant="body2"
+                            >
+                                {value}
+                            </Typography>
+                        </Box>
                     </Stack>
                 );
             }
