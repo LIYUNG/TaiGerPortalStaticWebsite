@@ -516,14 +516,14 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
     // Render loading state
     if (isLoading) {
         return (
-            <Card>
+            <Card sx={{ mb: 3 }}>
                 <CardContent>
                     <Box
                         sx={{
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'space-between',
-                            mb: 1
+                            mb: 2
                         }}
                     >
                         <Box
