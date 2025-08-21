@@ -12,15 +12,12 @@ import {
     Card,
     CardContent,
     Chip,
-    Avatar,
     Stack,
     Tabs,
     Tab
 } from '@mui/material';
 import {
-    Source as SourceIcon,
     Schedule as ScheduleIcon,
-    Person as PersonIcon,
     FiberManualRecord as StatusIcon,
     School as SchoolIcon,
     Timeline as DirectionIcon
@@ -82,23 +79,60 @@ const LeadDashboard = () => {
         return colors[status] || 'default';
     };
 
+    const getCloseLikelihoodColor = (closeLikelihood) => {
+        const colors = {
+            high: 'success',
+            medium: 'warning',
+            low: 'error'
+        };
+        return colors[closeLikelihood] || 'default';
+    };
+
     const columns = [
         {
             accessorKey: 'fullName',
             header: 'Full Name',
             size: 200,
             Cell: ({ cell }) => (
-                <Stack alignItems="center" direction="row" spacing={2}>
-                    <Avatar
-                        sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}
-                    >
-                        <PersonIcon fontSize="small" />
-                    </Avatar>
-                    <Typography fontWeight="medium" variant="body2">
-                        {cell.getValue()}
-                    </Typography>
-                </Stack>
+                <Typography fontWeight="medium" variant="body2">
+                    {cell.getValue()}
+                </Typography>
             )
+        },
+        {
+            accessorKey: 'closeLikelihood',
+            header: 'Close Likelihood',
+            size: 120,
+            Cell: ({ cell }) => {
+                const value = cell.getValue();
+                if (!value) return null;
+                return (
+                    <Chip
+                        color={getCloseLikelihoodColor(value)}
+                        icon={<StatusIcon fontSize="small" />}
+                        label={value}
+                        size="small"
+                        variant="outlined"
+                    />
+                );
+            }
+        },
+        {
+            accessorKey: 'status',
+            header: 'Status',
+            size: 120,
+            Cell: ({ cell }) => {
+                const value = cell.getValue();
+                return (
+                    <Chip
+                        color={getStatusColor(value)}
+                        icon={<StatusIcon fontSize="small" />}
+                        label={value}
+                        size="small"
+                        variant="outlined"
+                    />
+                );
+            }
         },
         {
             accessorKey: 'intendedStartTime',
@@ -154,26 +188,12 @@ const LeadDashboard = () => {
             Cell: ({ cell }) => (
                 <Chip
                     color={getSourceColor(cell.getValue())}
-                    icon={<SourceIcon fontSize="small" />}
                     label={cell.getValue()}
                     size="small"
                 />
             )
         },
-        {
-            accessorKey: 'status',
-            header: 'Status',
-            size: 120,
-            Cell: ({ cell }) => (
-                <Chip
-                    color={getStatusColor(cell.getValue())}
-                    icon={<StatusIcon fontSize="small" />}
-                    label={cell.getValue()}
-                    size="small"
-                    variant="outlined"
-                />
-            )
-        },
+
         {
             accessorKey: 'createdAt',
             header: 'Submitted At',
