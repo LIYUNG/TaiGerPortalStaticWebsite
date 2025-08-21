@@ -94,16 +94,6 @@ const LeadDashboard = () => {
             : str;
     const columns = [
         {
-            accessorKey: 'fullName',
-            header: 'Full Name',
-            size: 100,
-            Cell: ({ cell }) => (
-                <Typography fontWeight="medium" variant="body2">
-                    {cell.getValue()}
-                </Typography>
-            )
-        },
-        {
             accessorKey: 'closeLikelihood',
             header: 'Chance',
             size: 100,
@@ -139,14 +129,13 @@ const LeadDashboard = () => {
             }
         },
         {
-            accessorKey: 'intendedStartTime',
-            header: 'Start Time',
-            size: 150,
+            accessorKey: 'fullName',
+            header: 'Full Name',
+            size: 100,
             Cell: ({ cell }) => (
-                <Stack alignItems="center" direction="row" spacing={1}>
-                    <ScheduleIcon color="action" fontSize="small" />
-                    <Typography variant="body2">{cell.getValue()}</Typography>
-                </Stack>
+                <Typography fontWeight="medium" variant="body2">
+                    {cell.getValue()}
+                </Typography>
             )
         },
         {
@@ -156,6 +145,17 @@ const LeadDashboard = () => {
             Cell: ({ cell }) => (
                 <Stack alignItems="center" direction="row" spacing={1}>
                     <SchoolIcon color="action" fontSize="small" />
+                    <Typography variant="body2">{cell.getValue()}</Typography>
+                </Stack>
+            )
+        },
+        {
+            accessorKey: 'intendedStartTime',
+            header: 'Start Time',
+            size: 150,
+            Cell: ({ cell }) => (
+                <Stack alignItems="center" direction="row" spacing={1}>
+                    <ScheduleIcon color="action" fontSize="small" />
                     <Typography variant="body2">{cell.getValue()}</Typography>
                 </Stack>
             )
