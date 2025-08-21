@@ -328,18 +328,22 @@ const LeadDashboard = () => {
                     <MaterialReactTable
                         columns={columns}
                         data={getCurrentLeads()}
-                        initialState={{ density: 'compact' }} // tighter spacing
-                        layoutMode="semantic" // removes the grid column gutter
-                        muiTableBodyCellProps={{ sx: { px: 1 } }} // optional: smaller padding
+                        initialState={{
+                            density: 'compact',
+                            pagination: { pageSize: 15, pageIndex: 0 } // default rows per page
+                        }}
+                        layoutMode="semantic"
+                        muiTableBodyCellProps={{ sx: { px: 1 } }}
                         muiTableBodyRowProps={({ row }) => ({
                             onClick: () => {
                                 navigate(`/crm/leads/${row.original.id}`);
                             },
-                            sx: {
-                                cursor: 'pointer'
-                            }
+                            sx: { cursor: 'pointer' }
                         })}
-                        muiTableHeadCellProps={{ sx: { px: 1 } }} // optional: smaller padding
+                        muiTableHeadCellProps={{ sx: { px: 1 } }}
+                        muiTablePaginationProps={{
+                            rowsPerPageOptions: [10, 15, 25, 50, 100] // include 15 in the selector
+                        }}
                         state={{ isLoading }}
                     />
                 </CardContent>
