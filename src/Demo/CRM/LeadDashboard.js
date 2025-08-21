@@ -34,7 +34,7 @@ import { getCRMLeadsQuery } from '../../api/query';
 const LeadDashboard = () => {
     TabTitle('CRM - Leads');
     const navigate = useNavigate();
-    const [tabValue, setTabValue] = useState(0);
+    const [tabValue, setTabValue] = useState(1);
 
     const { user } = useAuth();
     if (!is_TaiGer_role(user)) {
@@ -44,7 +44,6 @@ const LeadDashboard = () => {
     const { data, isLoading } = useQuery(getCRMLeadsQuery());
     const allLeads = data?.data?.data || [];
 
-    // Split leads based on status
     const openLeads = allLeads.filter(
         (lead) => lead.status === 'open' && lead.meetingCount === 0
     );
@@ -237,12 +236,14 @@ const LeadDashboard = () => {
     const getCurrentLeads = () => {
         switch (tabValue) {
             case 0:
-                return openLeads;
+                return allLeads;
             case 1:
-                return contactedLeads;
+                return openLeads;
             case 2:
-                return convertedLeads;
+                return contactedLeads;
             case 3:
+                return convertedLeads;
+            case 4:
                 return closedLeads;
             default:
                 return openLeads;
@@ -252,12 +253,14 @@ const LeadDashboard = () => {
     const getTabTitle = () => {
         switch (tabValue) {
             case 0:
-                return 'Open Leads';
+                return 'All Leads';
             case 1:
-                return 'Contacted Leads';
+                return 'Open Leads';
             case 2:
-                return 'Converted Leads';
+                return 'Contacted Leads';
             case 3:
+                return 'Converted Leads';
+            case 4:
                 return 'Closed Leads';
             default:
                 return 'Open Leads';
@@ -267,12 +270,14 @@ const LeadDashboard = () => {
     const getTabDescription = () => {
         switch (tabValue) {
             case 0:
-                return 'Open leads submitted by users through the google survey.';
+                return 'All leads from all categories.';
             case 1:
-                return 'Contacted leads with scheduled meetings.';
+                return 'Open leads submitted by users through the google survey.';
             case 2:
-                return 'Leads that have been Converted or completed.';
+                return 'Contacted leads with scheduled meetings.';
             case 3:
+                return 'Leads that have been Converted or completed.';
+            case 4:
                 return 'Leads that have been closed.';
             default:
                 return 'Open leads submitted by users through the google survey.';
@@ -320,6 +325,10 @@ const LeadDashboard = () => {
                     {/* Tabs */}
                     <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                         <Tabs onChange={handleTabChange} value={tabValue}>
+                            <Tab
+                                label={`All Leads (${allLeads.length})`}
+                                sx={{ textTransform: 'none' }}
+                            />
                             <Tab
                                 label={`Open Leads (${openLeads.length})`}
                                 sx={{ textTransform: 'none' }}
