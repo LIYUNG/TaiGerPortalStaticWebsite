@@ -206,12 +206,14 @@ const CRMDashboard = () => {
                                             label: 'New Leads'
                                         },
                                         {
-                                            data: unifiedConvertedLeadsData,
-                                            label: 'Converted Leads'
+                                            data: unifiedHighChanceLeadsData,
+                                            label: 'High Chance Leads',
+                                            color: '#F28E2B'
                                         },
                                         {
-                                            data: unifiedHighChanceLeadsData,
-                                            label: 'High Chance Leads'
+                                            data: unifiedConvertedLeadsData,
+                                            label: 'Converted Leads',
+                                            color: '#59A14F'
                                         }
                                     ]}
                                     slotProps={{
