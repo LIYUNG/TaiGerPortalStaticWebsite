@@ -88,11 +88,15 @@ const LeadDashboard = () => {
         return colors[closeLikelihood] || 'default';
     };
 
+    const truncate = (str, max = 60) =>
+        typeof str === 'string' && str.length > max
+            ? `${str.slice(0, max)}…`
+            : str;
     const columns = [
         {
             accessorKey: 'fullName',
             header: 'Full Name',
-            size: 200,
+            size: 100,
             Cell: ({ cell }) => (
                 <Typography fontWeight="medium" variant="body2">
                     {cell.getValue()}
@@ -101,8 +105,8 @@ const LeadDashboard = () => {
         },
         {
             accessorKey: 'closeLikelihood',
-            header: 'Close Likelihood',
-            size: 120,
+            header: 'Chance',
+            size: 100,
             Cell: ({ cell }) => {
                 const value = cell.getValue();
                 if (!value) return null;
@@ -120,7 +124,7 @@ const LeadDashboard = () => {
         {
             accessorKey: 'status',
             header: 'Status',
-            size: 120,
+            size: 100,
             Cell: ({ cell }) => {
                 const value = cell.getValue();
                 return (
@@ -159,32 +163,35 @@ const LeadDashboard = () => {
         {
             accessorKey: 'intendedDirection',
             header: 'Intended Direction',
-            size: 350,
-            minSize: 200,
-            maxSize: 400,
-            Cell: ({ cell }) => (
-                <Stack alignItems="center" direction="row" spacing={1}>
-                    <DirectionIcon color="action" fontSize="small" />
-                    <Typography
-                        sx={{
-                            display: '-webkit-box',
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis'
-                        }}
-                        title={cell.getValue()}
-                        variant="body2"
-                    >
-                        {cell.getValue()}
-                    </Typography>
-                </Stack>
-            )
+            size: 250,
+            minSize: 150,
+            maxSize: 250,
+            Cell: ({ cell }) => {
+                const value = cell.getValue();
+                return (
+                    <Stack alignItems="center" direction="row" spacing={1}>
+                        <DirectionIcon color="action" fontSize="small" />
+                        <Typography
+                            sx={{
+                                display: '-webkit-box',
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: 'vertical',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis'
+                            }}
+                            title={value}
+                            variant="body2"
+                        >
+                            {truncate(value, 80)}
+                        </Typography>
+                    </Stack>
+                );
+            }
         },
         {
             accessorKey: 'source',
             header: 'Source',
-            size: 150,
+            size: 120,
             Cell: ({ cell }) => (
                 <Chip
                     color={getSourceColor(cell.getValue())}
@@ -321,6 +328,9 @@ const LeadDashboard = () => {
                     <MaterialReactTable
                         columns={columns}
                         data={getCurrentLeads()}
+                        initialState={{ density: 'compact' }} // tighter spacing
+                        layoutMode="semantic" // removes the grid column gutter
+                        muiTableBodyCellProps={{ sx: { px: 1 } }} // optional: smaller padding
                         muiTableBodyRowProps={({ row }) => ({
                             onClick: () => {
                                 navigate(`/crm/leads/${row.original.id}`);
@@ -329,6 +339,7 @@ const LeadDashboard = () => {
                                 cursor: 'pointer'
                             }
                         })}
+                        muiTableHeadCellProps={{ sx: { px: 1 } }} // optional: smaller padding
                         state={{ isLoading }}
                     />
                 </CardContent>
