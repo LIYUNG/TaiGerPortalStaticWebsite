@@ -1,15 +1,10 @@
-// import React from 'react';
-// import { Box, Typography, Link, Button } from '@mui/material';
 import { Typography } from '@mui/material';
-// import PersonAddIcon from '@mui/icons-material/PersonAdd';
 
-// onCreateUser
-// Card configurations for each section
 export const getCardConfigurations = () => [
     {
         id: 'education',
         title: 'Educational Background',
-        gridSize: { xs: 8 },
+        gridSize: { xs: 12, md: 8 },
         layout: 'grid',
         sections: [
             {
@@ -82,7 +77,7 @@ export const getCardConfigurations = () => [
     {
         id: 'programs',
         title: 'Intended Programs',
-        gridSize: { md: 4, xs: 12 },
+        gridSize: { xs: 12, md: 4 },
         fields: [
             {
                 key: 'intendedPrograms',
@@ -111,7 +106,7 @@ export const getCardConfigurations = () => [
     {
         id: 'language',
         title: 'Language Skills',
-        gridSize: { md: 4, xs: 8 },
+        gridSize: { md: 4, xs: 12 },
         fields: [
             {
                 key: 'englishLevel',
@@ -128,7 +123,7 @@ export const getCardConfigurations = () => [
     {
         id: 'work',
         title: 'Work Experience',
-        gridSize: { md: 4, xs: 8 },
+        gridSize: { md: 4, xs: 12 },
         fields: [
             {
                 key: 'workExperience',
@@ -139,7 +134,6 @@ export const getCardConfigurations = () => [
                         {lead.workExperience || 'No work experience provided'}
                     </Typography>
                 ),
-                // For edit mode
                 editField: {
                     type: 'text',
                     multiline: true,
@@ -151,7 +145,7 @@ export const getCardConfigurations = () => [
     {
         id: 'contact',
         title: 'Contact Information',
-        gridSize: { md: 4, xs: 8 },
+        gridSize: { md: 4, xs: 12 },
         fields: [
             {
                 key: 'email',
@@ -203,8 +197,3 @@ export const getCardConfigurations = () => [
         ]
     }
 ];
-
-// Backward compatibility - provide default configurations without handlers
-export const cardConfigurations = getCardConfigurations(() => {
-    console.log('Create user handler not provided');
-});
