@@ -73,6 +73,12 @@ const CRMDashboard = () => {
         allWeeks,
         'count'
     );
+    const unifiedHighChanceLeadsData = prepareChartData(
+        stats.leadsCountByDate,
+        allWeeks,
+        'highChanceCount'
+    );
+
     const unifiedConvertedLeadsData = prepareChartData(
         stats.leadsCountByDate,
         allWeeks,
@@ -200,8 +206,14 @@ const CRMDashboard = () => {
                                             label: 'New Leads'
                                         },
                                         {
+                                            data: unifiedHighChanceLeadsData,
+                                            label: 'High Chance Leads',
+                                            color: '#F28E2B'
+                                        },
+                                        {
                                             data: unifiedConvertedLeadsData,
-                                            label: 'Converted Leads'
+                                            label: 'Converted Leads',
+                                            color: '#59A14F'
                                         }
                                     ]}
                                     slotProps={{

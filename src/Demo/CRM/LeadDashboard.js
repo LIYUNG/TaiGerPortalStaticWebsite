@@ -12,15 +12,12 @@ import {
     Card,
     CardContent,
     Chip,
-    Avatar,
     Stack,
     Tabs,
     Tab
 } from '@mui/material';
 import {
-    Source as SourceIcon,
     Schedule as ScheduleIcon,
-    Person as PersonIcon,
     FiberManualRecord as StatusIcon,
     School as SchoolIcon,
     Timeline as DirectionIcon
@@ -37,7 +34,7 @@ import { getCRMLeadsQuery } from '../../api/query';
 const LeadDashboard = () => {
     TabTitle('CRM - Leads');
     const navigate = useNavigate();
-    const [tabValue, setTabValue] = useState(0);
+    const [tabValue, setTabValue] = useState(1);
 
     const { user } = useAuth();
     if (!is_TaiGer_role(user)) {
@@ -47,7 +44,6 @@ const LeadDashboard = () => {
     const { data, isLoading } = useQuery(getCRMLeadsQuery());
     const allLeads = data?.data?.data || [];
 
-    // Split leads based on status
     const openLeads = allLeads.filter(
         (lead) => lead.status === 'open' && lead.meetingCount === 0
     );
@@ -82,33 +78,69 @@ const LeadDashboard = () => {
         return colors[status] || 'default';
     };
 
+    const getCloseLikelihoodColor = (closeLikelihood) => {
+        const colors = {
+            high: 'success',
+            medium: 'warning',
+            low: 'error'
+        };
+        return colors[closeLikelihood] || 'default';
+    };
+
     const columns = [
+        {
+            accessorKey: 'closeLikelihood',
+            header: 'Chance',
+            size: 100,
+            Cell: ({ cell }) => {
+                const value = cell.getValue();
+                if (!value) return null;
+                return (
+                    <Chip
+                        color={getCloseLikelihoodColor(value)}
+                        icon={<StatusIcon fontSize="small" />}
+                        label={value}
+                        size="small"
+                        variant="outlined"
+                    />
+                );
+            }
+        },
+        {
+            accessorKey: 'status',
+            header: 'Status',
+            size: 100,
+            Cell: ({ cell }) => {
+                const value = cell.getValue();
+                return (
+                    <Chip
+                        color={getStatusColor(value)}
+                        icon={<StatusIcon fontSize="small" />}
+                        label={value}
+                        size="small"
+                        variant="outlined"
+                    />
+                );
+            }
+        },
+        // Full name: single-line ellipsis
         {
             accessorKey: 'fullName',
             header: 'Full Name',
-            size: 200,
+            size: 160,
+            muiTableBodyCellProps: ({ cell }) => ({
+                sx: {
+                    maxWidth: 160,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap'
+                },
+                title: cell.getValue()
+            }),
             Cell: ({ cell }) => (
-                <Stack alignItems="center" direction="row" spacing={2}>
-                    <Avatar
-                        sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}
-                    >
-                        <PersonIcon fontSize="small" />
-                    </Avatar>
-                    <Typography fontWeight="medium" variant="body2">
-                        {cell.getValue()}
-                    </Typography>
-                </Stack>
-            )
-        },
-        {
-            accessorKey: 'intendedStartTime',
-            header: 'Start Time',
-            size: 150,
-            Cell: ({ cell }) => (
-                <Stack alignItems="center" direction="row" spacing={1}>
-                    <ScheduleIcon color="action" fontSize="small" />
-                    <Typography variant="body2">{cell.getValue()}</Typography>
-                </Stack>
+                <Typography fontWeight="medium" noWrap variant="body2">
+                    {cell.getValue()}
+                </Typography>
             )
         },
         {
@@ -123,57 +155,65 @@ const LeadDashboard = () => {
             )
         },
         {
-            accessorKey: 'intendedDirection',
-            header: 'Intended Direction',
-            size: 350,
-            minSize: 200,
-            maxSize: 400,
+            accessorKey: 'intendedStartTime',
+            header: 'Start Time',
+            size: 150,
             Cell: ({ cell }) => (
                 <Stack alignItems="center" direction="row" spacing={1}>
-                    <DirectionIcon color="action" fontSize="small" />
-                    <Typography
-                        sx={{
-                            display: '-webkit-box',
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis'
-                        }}
-                        title={cell.getValue()}
-                        variant="body2"
-                    >
-                        {cell.getValue()}
-                    </Typography>
+                    <ScheduleIcon color="action" fontSize="small" />
+                    <Typography variant="body2">{cell.getValue()}</Typography>
                 </Stack>
             )
+        },
+        // Intended Direction: multi-line clamp (no JS truncate)
+        {
+            accessorKey: 'intendedDirection',
+            header: 'Intended Direction',
+            Cell: ({ cell }) => {
+                const value = cell.getValue();
+                return (
+                    <Stack
+                        alignItems="center"
+                        direction="row"
+                        spacing={1}
+                        sx={{ minWidth: 0 }}
+                    >
+                        <DirectionIcon color="action" fontSize="small" />
+                        <Box sx={{ maxWidth: 500, minWidth: 100 }}>
+                            <Typography
+                                sx={{
+                                    display: '-webkit-box',
+                                    WebkitLineClamp: 2,
+                                    WebkitBoxOrient: 'vertical',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    wordBreak: 'break-word',
+                                    overflowWrap: 'anywhere',
+                                    lineBreak: 'loose'
+                                }}
+                                title={value}
+                                variant="body2"
+                            >
+                                {value}
+                            </Typography>
+                        </Box>
+                    </Stack>
+                );
+            }
         },
         {
             accessorKey: 'source',
             header: 'Source',
-            size: 150,
-            Cell: ({ cell }) => (
-                <Chip
-                    color={getSourceColor(cell.getValue())}
-                    icon={<SourceIcon fontSize="small" />}
-                    label={cell.getValue()}
-                    size="small"
-                />
-            )
-        },
-        {
-            accessorKey: 'status',
-            header: 'Status',
             size: 120,
             Cell: ({ cell }) => (
                 <Chip
-                    color={getStatusColor(cell.getValue())}
-                    icon={<StatusIcon fontSize="small" />}
+                    color={getSourceColor(cell.getValue())}
                     label={cell.getValue()}
                     size="small"
-                    variant="outlined"
                 />
             )
         },
+
         {
             accessorKey: 'createdAt',
             header: 'Submitted At',
@@ -196,12 +236,14 @@ const LeadDashboard = () => {
     const getCurrentLeads = () => {
         switch (tabValue) {
             case 0:
-                return openLeads;
+                return allLeads;
             case 1:
-                return contactedLeads;
+                return openLeads;
             case 2:
-                return convertedLeads;
+                return contactedLeads;
             case 3:
+                return convertedLeads;
+            case 4:
                 return closedLeads;
             default:
                 return openLeads;
@@ -211,12 +253,14 @@ const LeadDashboard = () => {
     const getTabTitle = () => {
         switch (tabValue) {
             case 0:
-                return 'Open Leads';
+                return 'All Leads';
             case 1:
-                return 'Contacted Leads';
+                return 'Open Leads';
             case 2:
-                return 'Converted Leads';
+                return 'Contacted Leads';
             case 3:
+                return 'Converted Leads';
+            case 4:
                 return 'Closed Leads';
             default:
                 return 'Open Leads';
@@ -226,12 +270,14 @@ const LeadDashboard = () => {
     const getTabDescription = () => {
         switch (tabValue) {
             case 0:
-                return 'Open leads submitted by users through the google survey.';
+                return 'All leads from all categories.';
             case 1:
-                return 'Contacted leads with scheduled meetings.';
+                return 'Open leads submitted by users through the google survey.';
             case 2:
-                return 'Leads that have been Converted or completed.';
+                return 'Contacted leads with scheduled meetings.';
             case 3:
+                return 'Leads that have been Converted or completed.';
+            case 4:
                 return 'Leads that have been closed.';
             default:
                 return 'Open leads submitted by users through the google survey.';
@@ -280,6 +326,10 @@ const LeadDashboard = () => {
                     <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                         <Tabs onChange={handleTabChange} value={tabValue}>
                             <Tab
+                                label={`All Leads (${allLeads.length})`}
+                                sx={{ textTransform: 'none' }}
+                            />
+                            <Tab
                                 label={`Open Leads (${openLeads.length})`}
                                 sx={{ textTransform: 'none' }}
                             />
@@ -301,14 +351,22 @@ const LeadDashboard = () => {
                     <MaterialReactTable
                         columns={columns}
                         data={getCurrentLeads()}
+                        initialState={{
+                            density: 'compact',
+                            pagination: { pageSize: 15, pageIndex: 0 } // default rows per page
+                        }}
+                        layoutMode="semantic"
+                        muiTableBodyCellProps={{ sx: { px: 1 } }}
                         muiTableBodyRowProps={({ row }) => ({
                             onClick: () => {
                                 navigate(`/crm/leads/${row.original.id}`);
                             },
-                            sx: {
-                                cursor: 'pointer'
-                            }
+                            sx: { cursor: 'pointer' }
                         })}
+                        muiTableHeadCellProps={{ sx: { px: 1 } }}
+                        muiTablePaginationProps={{
+                            rowsPerPageOptions: [10, 15, 25, 50, 100] // include 15 in the selector
+                        }}
                         state={{ isLoading }}
                     />
                 </CardContent>
