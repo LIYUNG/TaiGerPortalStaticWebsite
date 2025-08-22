@@ -345,33 +345,55 @@ const StudentCardSkeleton = () => (
             border: '1px solid',
             borderColor: 'divider',
             borderRadius: 1,
-            height: '100%'
+            height: '100%',
+            backgroundColor: 'background.paper',
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: 360
         }}
     >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-            <Skeleton height={20} variant="circular" width={20} />
-            <Skeleton height={20} variant="text" width="60%" />
+            <Skeleton height={22} variant="circular" width={22} />
+            <Skeleton height={24} variant="text" width="70%" />
         </Box>
 
         {/* Match reason skeleton - moved to the top */}
         <Box sx={{ mb: 1.5 }}>
-            <Skeleton height={12} variant="text" width="40%" />
+            <Skeleton height={14} variant="text" width="45%" />
             <Skeleton
-                height={30}
+                height={40}
                 sx={{ mt: 0.5, borderRadius: '0 4px 4px 0' }}
                 variant="rectangular"
                 width="100%"
             />
         </Box>
 
-        <Skeleton height={15} variant="text" width="90%" />
-        <Skeleton height={15} variant="text" width="80%" />
-        <Skeleton height={15} variant="text" width="40%" />
-        <Skeleton height={15} variant="text" width="70%" />
+        <Skeleton height={18} variant="text" width="90%" />
+        <Skeleton height={18} variant="text" width="80%" />
+        <Skeleton height={18} variant="text" width="45%" />
+        <Skeleton height={18} variant="text" width="70%" />
 
-        <Divider sx={{ my: 1 }} />
-        <Skeleton height={20} variant="text" width="100%" />
-        <Skeleton height={20} variant="text" width="100%" />
+        <Divider sx={{ my: 1.25 }} />
+        {/* Applications list placeholder */}
+        {[1, 2, 3, 4, 5].map((i) => (
+            <Box
+                key={i}
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    mb: i === 5 ? 0 : 1
+                }}
+            >
+                <Skeleton
+                    height={18}
+                    sx={{ flex: 1 }}
+                    variant="text"
+                    width={i % 2 === 0 ? '92%' : '100%'}
+                />
+                <Skeleton height={16} variant="circular" width={16} />
+            </Box>
+        ))}
     </Box>
 );
 
@@ -627,19 +649,19 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
                                     py: 1
                                 }}
                             >
-                                {[1, 2, 3, 4, 5].map((i) => (
+                                {[1, 2, 3, 4, 5, 6].map((i) => (
                                     <Box
                                         key={i}
                                         sx={{
                                             width: {
-                                                xs: '280px',
-                                                sm: '260px',
-                                                md: '240px'
+                                                xs: '320px',
+                                                sm: '300px',
+                                                md: '280px'
                                             },
                                             minWidth: {
-                                                xs: '280px',
-                                                sm: '260px',
-                                                md: '240px'
+                                                xs: '320px',
+                                                sm: '280px',
+                                                md: '260px'
                                             },
                                             flexShrink: 0,
                                             scrollSnapAlign: 'start'
