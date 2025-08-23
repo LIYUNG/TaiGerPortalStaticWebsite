@@ -1339,7 +1339,7 @@ const LeadPage = () => {
             {/* Create Deal Modal - preselect this lead and lock selection */}
             <CreateDealModal
                 lockLeadSelect
-                lockSalesUserSelect
+                lockSalesUserSelect={lead?.salesRep?.userId ?? false}
                 onClose={closeCreateDeal}
                 onCreated={() =>
                     queryClient.invalidateQueries(['crm/lead', leadId])
