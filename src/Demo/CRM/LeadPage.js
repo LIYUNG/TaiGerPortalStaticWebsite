@@ -40,6 +40,7 @@ import EditableCard from './components/EditableCard';
 import { GenericCardContent } from './components/GenericCard';
 import { getCardConfigurations } from './components/CardConfigurations';
 import CreateUserFromLeadModal from './components/CreateUserFromLeadModal';
+import CreateDealModal from './components/CreateDealModal';
 import SimilarStudents from './components/SimilarStudents';
 
 import { request } from '../../api/request';
@@ -60,6 +61,7 @@ const LeadPage = () => {
     // Modal state for creating user from lead
     const [showCreateUserModal, setShowCreateUserModal] = useState(false);
     const [selectedLead, setSelectedLead] = useState(null);
+    const [showCreateDealModal, setShowCreateDealModal] = useState(false);
 
     // Handle create user modal
     const handleCreateUser = (leadData) => {
@@ -71,6 +73,9 @@ const LeadPage = () => {
         setShowCreateUserModal(false);
         setSelectedLead(null);
     };
+
+    const openCreateDeal = () => setShowCreateDealModal(true);
+    const closeCreateDeal = () => setShowCreateDealModal(false);
 
     const handleUserCreated = async (userData) => {
         // Extract the new user ID from the response
@@ -614,7 +619,7 @@ const LeadPage = () => {
                             </Box>
                         </Box>
 
-                        {/* Second row: ROLE | USER/CREATE USER BUTTON */}
+                        {/* Second row: ROLE | USER/CREATE USER BUTTON | CREATE DEAL */}
                         <Box
                             sx={{
                                 display: 'flex',
@@ -671,6 +676,16 @@ const LeadPage = () => {
                                     Create User Account
                                 </Button>
                             ) : null}
+
+                            {/* Create Deal button */}
+                            <Button
+                                color="secondary"
+                                onClick={openCreateDeal}
+                                size="small"
+                                variant="contained"
+                            >
+                                Create Deal
+                            </Button>
                         </Box>
 
                         {/* Sales note */}
@@ -1256,6 +1271,17 @@ const LeadPage = () => {
                 onClose={handleCloseCreateUserModal}
                 onSuccess={handleUserCreated}
                 open={showCreateUserModal}
+            />
+
+            {/* Create Deal Modal - preselect this lead and lock selection */}
+            <CreateDealModal
+                lockLeadSelect
+                onClose={closeCreateDeal}
+                onCreated={() =>
+                    queryClient.invalidateQueries(['crm/lead', leadId])
+                }
+                open={showCreateDealModal}
+                preselectedLeadId={leadId}
             />
         </Box>
     );

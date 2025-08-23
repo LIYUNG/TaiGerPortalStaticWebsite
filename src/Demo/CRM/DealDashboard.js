@@ -1,5 +1,5 @@
 import { Navigate, Link as RouterLink } from 'react-router-dom';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import i18next from 'i18next';
 import { MaterialReactTable } from 'material-react-table';
 import { useState } from 'react';
@@ -11,16 +11,7 @@ import {
     Typography,
     Chip,
     Stack,
-    Button,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    TextField,
-    MenuItem,
-    FormControl,
-    InputLabel,
-    Select
+    Button
 } from '@mui/material';
 import {
     Schedule as ScheduleIcon,
@@ -34,22 +25,13 @@ import DEMO from '../../store/constant';
 import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';
 
-import { getCRMDealsQuery, getCRMLeadsQuery } from '../../api/query';
-import { createCRMDeal } from '../../api';
+import { getCRMDealsQuery } from '../../api/query';
+import CreateDealModal from './components/CreateDealModal';
 
 const DealDashboard = () => {
     TabTitle('CRM - Deals');
-    const queryClient = useQueryClient();
     const [open, setOpen] = useState(false);
-    const [form, setForm] = useState({
-        leadId: '',
-        salesUserId: '',
-        dealSizeNtd: '',
-        status: 'initiated',
-        note: '',
-        closedDate: ''
-    });
-    const [errors, setErrors] = useState({});
+    // Create Deal modal state is now handled locally; form lives in modal
 
     const { user } = useAuth();
     if (!is_TaiGer_role(user)) {
@@ -57,20 +39,8 @@ const DealDashboard = () => {
     }
 
     const { data, isLoading } = useQuery(getCRMDealsQuery());
-    const { data: leadsData } = useQuery(getCRMLeadsQuery());
     const allDeals = data?.data?.data || [];
-    const allLeads = leadsData?.data?.data || [];
-    const salesOptions = Array.from(
-        new Map(
-            allLeads
-                .map((l) => l.salesRep)
-                .filter((s) => s && (s.value || s.userId))
-                .map((s) => [
-                    s.value || s.userId,
-                    { userId: s.value || s.userId, label: s.label }
-                ])
-        ).values()
-    );
+    // salesOptions now handled inside modal
 
     // Showing all deals; no tabs/filters
 
@@ -266,211 +236,7 @@ const DealDashboard = () => {
                 state={{ isLoading }}
             />
 
-            <Dialog
-                fullWidth
-                maxWidth="sm"
-                onClose={() => setOpen(false)}
-                open={open}
-            >
-                <DialogTitle>Create Deal</DialogTitle>
-                <DialogContent dividers>
-                    <Stack spacing={2} sx={{ mt: 1 }}>
-                        <FormControl fullWidth required>
-                            <InputLabel id="leadId-label">Lead</InputLabel>
-                            <Select
-                                MenuProps={{
-                                    PaperProps: {
-                                        sx: {
-                                            maxHeight: 280,
-                                            overflowY: 'auto'
-                                        }
-                                    },
-                                    MenuListProps: { dense: true }
-                                }}
-                                error={Boolean(errors.leadId)}
-                                label="Lead"
-                                labelId="leadId-label"
-                                onChange={(e) =>
-                                    setForm((f) => ({
-                                        ...f,
-                                        leadId: e.target.value
-                                    }))
-                                }
-                                value={form.leadId}
-                            >
-                                {allLeads
-                                    .filter((l) => l.status != 'closed')
-                                    .map((l) => (
-                                        <MenuItem key={l.id} value={l.id}>
-                                            {l.fullName}
-                                        </MenuItem>
-                                    ))}
-                            </Select>
-                        </FormControl>
-
-                        <FormControl fullWidth required>
-                            <InputLabel id="salesUserId-label">
-                                Sales representative
-                            </InputLabel>
-                            <Select
-                                MenuProps={{
-                                    PaperProps: {
-                                        sx: {
-                                            maxHeight: 280,
-                                            overflowY: 'auto'
-                                        }
-                                    },
-                                    MenuListProps: { dense: true }
-                                }}
-                                error={Boolean(errors.salesUserId)}
-                                label="Sales Rep"
-                                labelId="salesUserId-label"
-                                onChange={(e) =>
-                                    setForm((f) => ({
-                                        ...f,
-                                        salesUserId: e.target.value
-                                    }))
-                                }
-                                value={form.salesUserId}
-                            >
-                                {salesOptions.map((s) => (
-                                    <MenuItem key={s.userId} value={s.userId}>
-                                        {s.label}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-
-                        <TextField
-                            InputProps={{ inputMode: 'numeric' }}
-                            error={Boolean(errors.dealSizeNtd)}
-                            fullWidth
-                            helperText={errors.dealSizeNtd}
-                            label="Deal Size (NTD)"
-                            onChange={(e) =>
-                                setForm((f) => ({
-                                    ...f,
-                                    dealSizeNtd: e.target.value
-                                }))
-                            }
-                            placeholder="e.g. 69999"
-                            required
-                            type="number"
-                            value={form.dealSizeNtd}
-                        />
-
-                        <FormControl fullWidth>
-                            <InputLabel id="status-label">Status</InputLabel>
-                            <Select
-                                label="Status"
-                                labelId="status-label"
-                                onChange={(e) =>
-                                    setForm((f) => ({
-                                        ...f,
-                                        status: e.target.value
-                                    }))
-                                }
-                                value={form.status}
-                            >
-                                {['initiated', 'sent', 'signed', 'closed'].map(
-                                    (s) => (
-                                        <MenuItem key={s} value={s}>
-                                            {s}
-                                        </MenuItem>
-                                    )
-                                )}
-                            </Select>
-                        </FormControl>
-
-                        <TextField
-                            fullWidth
-                            label="Note"
-                            minRows={2}
-                            multiline
-                            onChange={(e) =>
-                                setForm((f) => ({ ...f, note: e.target.value }))
-                            }
-                            value={form.note}
-                        />
-
-                        <TextField
-                            InputLabelProps={{ shrink: true }}
-                            disabled={form.status !== 'closed'}
-                            error={Boolean(errors.closedDate)}
-                            fullWidth
-                            helperText={
-                                form.status === 'closed'
-                                    ? errors.closedDate
-                                    : undefined
-                            }
-                            label="Closed Date"
-                            onChange={(e) =>
-                                setForm((f) => ({
-                                    ...f,
-                                    closedDate: e.target.value
-                                }))
-                            }
-                            type="date"
-                            value={form.closedDate}
-                        />
-                    </Stack>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setOpen(false)}>Cancel</Button>
-                    <Button
-                        onClick={async () => {
-                            const newErrors = {};
-                            if (!form.leadId)
-                                newErrors.leadId = 'Lead is required';
-                            if (!form.salesUserId)
-                                newErrors.salesUserId =
-                                    'Sales representative is required';
-                            if (
-                                !form.dealSizeNtd ||
-                                Number(form.dealSizeNtd) <= 0
-                            )
-                                newErrors.dealSizeNtd = 'Enter a valid amount';
-                            if (form.status === 'closed' && !form.closedDate)
-                                newErrors.closedDate =
-                                    'Closed date required when status is closed';
-                            setErrors(newErrors);
-                            if (Object.keys(newErrors).length) return;
-
-                            const payload = {
-                                leadId: form.leadId,
-                                salesUserId: form.salesUserId,
-                                dealSizeNtd: Number(form.dealSizeNtd),
-                                status: form.status,
-                                note: form.note || undefined,
-                                closedDate:
-                                    form.status === 'closed'
-                                        ? form.closedDate
-                                        : undefined
-                            };
-                            try {
-                                await createCRMDeal(payload);
-                                setOpen(false);
-                                setForm({
-                                    leadId: '',
-                                    salesUserId: '',
-                                    dealSizeNtd: '',
-                                    status: 'initiated',
-                                    note: '',
-                                    closedDate: ''
-                                });
-                                await queryClient.invalidateQueries({
-                                    queryKey: ['crm/deals']
-                                });
-                            } catch (e) {
-                                console.error(e);
-                            }
-                        }}
-                        variant="contained"
-                    >
-                        Create
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            <CreateDealModal onClose={() => setOpen(false)} open={open} />
         </Box>
     );
 };
