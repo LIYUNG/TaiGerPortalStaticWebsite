@@ -58,6 +58,19 @@ const LeadPage = () => {
     const lead = data?.data?.data || {};
     TabTitle(`Lead ${lead ? `- ${lead.fullName}` : ''}`);
 
+    // Sales reps options for editing sales representative
+    const { data: salesData } = useQuery({
+        queryKey: ['crm/sales-reps'],
+        queryFn: async () => {
+            const res = await request.get('/api/crm/sales-reps');
+            return res?.data?.data ?? res?.data ?? [];
+        }
+    });
+    const salesOptions = (salesData || []).map((s) => ({
+        userId: s.userId || s.value,
+        label: s.label || s.name || s.fullName || 'Unknown'
+    }));
+
     // Modal state for creating user from lead
     const [showCreateUserModal, setShowCreateUserModal] = useState(false);
     const [selectedLead, setSelectedLead] = useState(null);
@@ -164,11 +177,24 @@ const LeadPage = () => {
             }
 
             // Compare values, treating undefined/null/empty string as equivalent for form fields
-            const originalValue = original[key] || '';
-            const currentValue = current[key] || '';
+            const originalValue = original[key];
+            const currentValue = current[key];
 
-            if (originalValue !== currentValue) {
-                changes[key] = current[key];
+            // Deep compare for objects/arrays (e.g., salesRep)
+            const bothObjects =
+                originalValue &&
+                typeof originalValue === 'object' &&
+                currentValue &&
+                typeof currentValue === 'object';
+
+            if (bothObjects) {
+                const a = JSON.stringify(originalValue);
+                const b = JSON.stringify(currentValue);
+                if (a !== b) changes[key] = current[key];
+            } else {
+                const ov = originalValue ?? '';
+                const cv = currentValue ?? '';
+                if (ov !== cv) changes[key] = current[key];
             }
         });
         return changes;
@@ -563,6 +589,7 @@ const LeadPage = () => {
                                     Sales:{' '}
                                     {lead?.salesRep?.label || 'Unassigned'}
                                 </Typography>
+
                                 {editStates.personal &&
                                     hasUnsavedChanges('personal') && (
                                         <Typography
@@ -867,7 +894,7 @@ const LeadPage = () => {
                                 </Box>
                             </Grid>
 
-                            <Grid item md={3} xs={6}>
+                            <Grid item md={2} xs={6}>
                                 <FormControl fullWidth size="small">
                                     <InputLabel id="gender-select-label">
                                         Gender
@@ -908,10 +935,46 @@ const LeadPage = () => {
                                 />
                             </Grid>
 
+                            {/* Sales Rep */}
+                            <Grid item md={2} xs={6}>
+                                <FormControl fullWidth size="small">
+                                    <InputLabel id="sales-rep-select-label">
+                                        Sales Rep
+                                    </InputLabel>
+                                    <Select
+                                        label="Sales Rep"
+                                        labelId="sales-rep-select-label"
+                                        onChange={(e) => {
+                                            const selectedId = e.target.value;
+                                            const selected = salesOptions.find(
+                                                (s) => s.userId === selectedId
+                                            );
+                                            handleFieldChange(
+                                                'salesUserId',
+                                                selectedId
+                                                    ? selected?.userId
+                                                    : null
+                                            );
+                                        }}
+                                        value={formData?.salesUserId || ''}
+                                    >
+                                        <MenuItem value="">Unassigned</MenuItem>
+                                        {salesOptions.map((s) => (
+                                            <MenuItem
+                                                key={s.userId}
+                                                value={s.userId}
+                                            >
+                                                {s.label}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+
                             {/* Save/Cancel buttons aligned with fields */}
                             <Grid
                                 item
-                                md={3}
+                                md={2}
                                 sx={{
                                     display: 'flex',
                                     justifyContent: 'flex-end',
