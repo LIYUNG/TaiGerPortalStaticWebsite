@@ -544,19 +544,19 @@ if (appConfig.CRMEnable) {
                 breadcrumbs: false
             },
             {
-                id: 'crm_deals',
-                title: 'Deals',
+                id: 'crm_leads',
+                title: 'Leads',
                 type: 'item',
-                url: '/crm/deals',
+                url: '/crm/leads',
                 icon: <DrawIcon />,
                 target: false,
                 breadcrumbs: false
             },
             {
-                id: 'crm_leads',
-                title: 'Leads',
+                id: 'crm_deals',
+                title: 'Deals',
                 type: 'item',
-                url: '/crm/leads',
+                url: '/crm/deals',
                 icon: <DrawIcon />,
                 target: false,
                 breadcrumbs: false

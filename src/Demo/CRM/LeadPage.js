@@ -689,6 +689,104 @@ const LeadPage = () => {
                                 </Typography>
                             </Box>
                         </Box>
+
+                        {/* Deals - read-only */}
+                        {Array.isArray(lead?.deals) &&
+                            lead.deals.length > 0 && (
+                                <Box sx={{ width: '100%' }}>
+                                    <Typography
+                                        sx={{
+                                            color: 'text.secondary',
+                                            textTransform: 'uppercase',
+                                            letterSpacing: 0.4
+                                        }}
+                                        variant="caption"
+                                    >
+                                        Deals
+                                    </Typography>
+                                    <Box
+                                        sx={{
+                                            mt: 0.5,
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 1
+                                        }}
+                                    >
+                                        {lead.deals.map((deal, idx) => (
+                                            <Box
+                                                key={idx}
+                                                sx={{
+                                                    p: 1,
+                                                    borderRadius: 1,
+                                                    border: '1px solid',
+                                                    borderColor: 'divider',
+                                                    bgcolor: 'grey.50',
+                                                    display: 'flex',
+                                                    flexWrap: 'wrap',
+                                                    gap: 1.5,
+                                                    alignItems: 'center'
+                                                }}
+                                            >
+                                                {/* Status pill (neutral) */}
+                                                <Box
+                                                    sx={{
+                                                        px: 1,
+                                                        py: 0.25,
+                                                        borderRadius: '12px',
+                                                        border: '1px solid',
+                                                        borderColor: 'divider',
+                                                        fontSize: '0.75rem',
+                                                        color: 'text.secondary',
+                                                        backgroundColor:
+                                                            'background.paper'
+                                                    }}
+                                                >
+                                                    {deal?.status || 'N/A'}
+                                                </Box>
+
+                                                {/* Closed date */}
+                                                {deal?.closedDate && (
+                                                    <Typography
+                                                        sx={{
+                                                            color: 'text.secondary'
+                                                        }}
+                                                        variant="body2"
+                                                    >
+                                                        {new Date(
+                                                            deal.closedDate
+                                                        ).toLocaleDateString()}
+                                                    </Typography>
+                                                )}
+
+                                                {/* Amount */}
+                                                {deal?.dealSizeNtd && (
+                                                    <Typography
+                                                        sx={{ fontWeight: 600 }}
+                                                        variant="body2"
+                                                    >
+                                                        NTD{' '}
+                                                        {Number(
+                                                            deal.dealSizeNtd
+                                                        ).toLocaleString()}
+                                                    </Typography>
+                                                )}
+
+                                                {/* Note */}
+                                                {deal?.note && (
+                                                    <Typography
+                                                        sx={{
+                                                            color: 'text.primary'
+                                                        }}
+                                                        variant="body2"
+                                                    >
+                                                        {deal.note}
+                                                    </Typography>
+                                                )}
+                                            </Box>
+                                        ))}
+                                    </Box>
+                                </Box>
+                            )}
                     </Box>
                 ) : (
                     // Edit mode
@@ -886,6 +984,106 @@ const LeadPage = () => {
                                     variant="outlined"
                                 />
                             </Grid>
+
+                            {/* Deals - read-only in edit mode */}
+                            {Array.isArray(lead?.deals) &&
+                                lead.deals.length > 0 && (
+                                    <Grid item xs={12}>
+                                        <Box sx={{ width: '100%' }}>
+                                            <Typography
+                                                sx={{
+                                                    color: 'text.secondary',
+                                                    textTransform: 'uppercase',
+                                                    letterSpacing: 0.4
+                                                }}
+                                                variant="caption"
+                                            >
+                                                Deals
+                                            </Typography>
+                                            <Box
+                                                sx={{
+                                                    mt: 0.5,
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    gap: 1
+                                                }}
+                                            >
+                                                {lead.deals.map((deal, idx) => (
+                                                    <Box
+                                                        key={idx}
+                                                        sx={{
+                                                            p: 1,
+                                                            borderRadius: 1,
+                                                            border: '1px solid',
+                                                            borderColor:
+                                                                'divider',
+                                                            bgcolor: 'grey.50',
+                                                            display: 'flex',
+                                                            flexWrap: 'wrap',
+                                                            gap: 1.5,
+                                                            alignItems: 'center'
+                                                        }}
+                                                    >
+                                                        <Box
+                                                            sx={{
+                                                                px: 1,
+                                                                py: 0.25,
+                                                                borderRadius:
+                                                                    '12px',
+                                                                border: '1px solid',
+                                                                borderColor:
+                                                                    'divider',
+                                                                fontSize:
+                                                                    '0.75rem',
+                                                                color: 'text.secondary',
+                                                                backgroundColor:
+                                                                    'background.paper'
+                                                            }}
+                                                        >
+                                                            {deal?.status ||
+                                                                'N/A'}
+                                                        </Box>
+                                                        {deal?.closedDate && (
+                                                            <Typography
+                                                                sx={{
+                                                                    color: 'text.secondary'
+                                                                }}
+                                                                variant="body2"
+                                                            >
+                                                                {new Date(
+                                                                    deal.closedDate
+                                                                ).toLocaleDateString()}
+                                                            </Typography>
+                                                        )}
+                                                        {deal?.dealSizeNtd && (
+                                                            <Typography
+                                                                sx={{
+                                                                    fontWeight: 600
+                                                                }}
+                                                                variant="body2"
+                                                            >
+                                                                NTD{' '}
+                                                                {Number(
+                                                                    deal.dealSizeNtd
+                                                                ).toLocaleString()}
+                                                            </Typography>
+                                                        )}
+                                                        {deal?.note && (
+                                                            <Typography
+                                                                sx={{
+                                                                    color: 'text.primary'
+                                                                }}
+                                                                variant="body2"
+                                                            >
+                                                                {deal.note}
+                                                            </Typography>
+                                                        )}
+                                                    </Box>
+                                                ))}
+                                            </Box>
+                                        </Box>
+                                    </Grid>
+                                )}
                         </Grid>
                     </Box>
                 )}
