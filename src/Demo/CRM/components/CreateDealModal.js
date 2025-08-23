@@ -16,6 +16,7 @@ import {
 
 import { getCRMLeadsQuery } from '../../../api/query';
 import { createCRMDeal } from '../../../api';
+import { request } from '../../../api/request';
 
 /**
  * CreateDealModal
@@ -23,14 +24,18 @@ import { createCRMDeal } from '../../../api';
  * - open: boolean
  * - onClose: () => void
  * - preselectedLeadId?: string
+ * - preselectedSalesUserId?: string
  * - lockLeadSelect?: boolean
+ * - lockSalesUserSelect?: boolean
  * - onCreated?: () => Promise<void> | void
  */
 const CreateDealModal = ({
     open,
     onClose,
     preselectedLeadId,
+    preselectedSalesUserId,
     lockLeadSelect = false,
+    lockSalesUserSelect = false,
     onCreated
 }) => {
     const queryClient = useQueryClient();
@@ -40,18 +45,20 @@ const CreateDealModal = ({
     });
     const allLeads = leadsData?.data?.data || [];
 
-    // Unique sales options from leads' salesRep
-    const salesOptions = Array.from(
-        new Map(
-            allLeads
-                .map((l) => l.salesRep)
-                .filter((s) => s && (s.value || s.userId))
-                .map((s) => [
-                    s.value || s.userId,
-                    { userId: s.value || s.userId, label: s.label }
-                ])
-        ).values()
-    );
+    // Fetch sales reps from API
+    const { data: salesData } = useQuery({
+        queryKey: ['crm/sales-reps'],
+        enabled: open,
+        queryFn: async () => {
+            const res = await request.get('/api/crm/sales-reps');
+            // Support either { data: { data: [...] }} or { data: [...] }
+            return res?.data?.data ?? res?.data ?? [];
+        }
+    });
+    const salesOptions = (salesData || []).map((s) => ({
+        userId: s.userId || s.value,
+        label: s.label || s.name || s.fullName || 'Unknown'
+    }));
 
     const [form, setForm] = useState({
         leadId: preselectedLeadId || '',
@@ -65,15 +72,19 @@ const CreateDealModal = ({
 
     useEffect(() => {
         if (open) {
-            setForm((f) => ({ ...f, leadId: preselectedLeadId || '' }));
+            setForm((f) => ({
+                ...f,
+                leadId: preselectedLeadId || '',
+                salesUserId: preselectedSalesUserId || ''
+            }));
             setErrors({});
         }
-    }, [open, preselectedLeadId]);
+    }, [open, preselectedLeadId, preselectedSalesUserId]);
 
     const resetForm = () => {
         setForm({
             leadId: preselectedLeadId || '',
-            salesUserId: '',
+            salesUserId: preselectedSalesUserId || '',
             dealSizeNtd: '',
             status: 'initiated',
             note: '',
@@ -154,7 +165,11 @@ const CreateDealModal = ({
                         </Select>
                     </FormControl>
 
-                    <FormControl fullWidth required>
+                    <FormControl
+                        disabled={lockSalesUserSelect}
+                        fullWidth
+                        required
+                    >
                         <InputLabel id="salesUserId-label">
                             Sales representative
                         </InputLabel>
