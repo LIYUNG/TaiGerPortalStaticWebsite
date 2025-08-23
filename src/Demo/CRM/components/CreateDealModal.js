@@ -16,7 +16,7 @@ import {
 
 import { getCRMLeadsQuery } from '../../../api/query';
 import { createCRMDeal } from '../../../api';
-import { request } from '../../../api/request';
+import { getCRMSalesReps } from '../../../api';
 
 /**
  * CreateDealModal
@@ -50,8 +50,7 @@ const CreateDealModal = ({
         queryKey: ['crm/sales-reps'],
         enabled: open,
         queryFn: async () => {
-            const res = await request.get('/api/crm/sales-reps');
-            // Support either { data: { data: [...] }} or { data: [...] }
+            const res = await getCRMSalesReps();
             return res?.data?.data ?? res?.data ?? [];
         }
     });
