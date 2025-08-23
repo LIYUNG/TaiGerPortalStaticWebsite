@@ -98,7 +98,7 @@ const CreateDealModal = ({
         if (!form.salesUserId)
             newErrors.salesUserId = 'Sales representative is required';
         if (!form.dealSizeNtd || Number(form.dealSizeNtd) <= 0)
-            newErrors.dealSizeNtd = 'Enter a valid amount';
+            newErrors.dealSizeNtd = 'Must be positive';
         if (form.status === 'closed' && !form.closedDate)
             newErrors.closedDate = 'Closed date required when status is closed';
 
@@ -199,10 +199,10 @@ const CreateDealModal = ({
                     </FormControl>
 
                     <TextField
-                        InputProps={{ inputMode: 'numeric' }}
                         error={Boolean(errors.dealSizeNtd)}
                         fullWidth
                         helperText={errors.dealSizeNtd}
+                        inputProps={{ inputMode: 'numeric', min: 0, step: 1 }}
                         label="Deal Size (NTD)"
                         onChange={(e) =>
                             setForm((f) => ({
