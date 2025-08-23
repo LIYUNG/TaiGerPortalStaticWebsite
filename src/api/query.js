@@ -30,6 +30,7 @@ import {
     getCRMLead,
     getCRMMeetings,
     getCRMMeeting,
+    getCRMDeals,
     getInterviewsByStudentId,
     getInterviewsByProgramId
 } from '.';
@@ -239,4 +240,10 @@ export const getCRMMeetingQuery = (meetingId) => ({
     queryKey: ['crm/meeting', meetingId],
     queryFn: () => getCRMMeeting(meetingId),
     gcTime: 1000 * 60 * 5 // 5 minutes
+});
+
+export const getCRMDealsQuery = () => ({
+    queryKey: ['crm/deals'],
+    queryFn: getCRMDeals,
+    gcTime: 1000 * 60 * 15 // 15 minutes
 });

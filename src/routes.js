@@ -132,6 +132,7 @@ const CRMMeetingDashboard = React.lazy(
     () => import('./Demo/CRM/MeetingDashboard')
 );
 const CRMMeetingPage = React.lazy(() => import('./Demo/CRM/MeetingPage'));
+const CRMDealDashboard = React.lazy(() => import('./Demo/CRM/DealDashboard'));
 
 const InternalDashboard = React.lazy(
     () => import('./Demo/TaiGerOrg/InternalDashboard/index')
@@ -816,6 +817,12 @@ if (appConfig.CRMEnable) {
         exact: true,
         name: 'CRM Meetings',
         Component: CRMMeetingPage
+    });
+    routes.push({
+        path: '/crm/deals',
+        exact: true,
+        name: 'CRM Deals',
+        Component: CRMDealDashboard
     });
 }
 
