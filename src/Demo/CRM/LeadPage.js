@@ -673,37 +673,37 @@ const LeadPage = () => {
                             ) : null}
                         </Box>
 
-                        {/* Sales note - nicer view */}
-                        <Box sx={{ width: '100%' }}>
-                            <Typography
-                                sx={{
-                                    color: 'text.secondary',
-                                    textTransform: 'uppercase',
-                                    letterSpacing: 0.4
-                                }}
-                                variant="caption"
-                            >
-                                Sales Note
-                            </Typography>
-                            <Box
-                                sx={{
-                                    mt: 0.5,
-                                    p: 1,
-                                    borderRadius: 1,
-                                    border: '1px solid',
-                                    borderColor: 'divider',
-                                    bgcolor: 'grey.50',
-                                    color: 'text.primary',
-                                    whiteSpace: 'pre-wrap'
-                                }}
-                            >
-                                <Typography variant="body2">
-                                    {lead.salesNote?.trim()
-                                        ? lead.salesNote
-                                        : 'No sales note'}
+                        {/* Sales note */}
+                        {lead.salesNote?.trim() && (
+                            <Box sx={{ width: '100%' }}>
+                                <Typography
+                                    sx={{
+                                        color: 'text.secondary',
+                                        textTransform: 'uppercase',
+                                        letterSpacing: 0.4
+                                    }}
+                                    variant="caption"
+                                >
+                                    Sales Note
                                 </Typography>
+                                <Box
+                                    sx={{
+                                        mt: 0.5,
+                                        p: 1,
+                                        borderRadius: 1,
+                                        border: '1px solid',
+                                        borderColor: 'divider',
+                                        bgcolor: 'grey.50',
+                                        color: 'text.primary',
+                                        whiteSpace: 'pre-wrap'
+                                    }}
+                                >
+                                    <Typography variant="body2">
+                                        {lead.salesNote}
+                                    </Typography>
+                                </Box>
                             </Box>
-                        </Box>
+                        )}
 
                         {/* Deals - read-only */}
                         {Array.isArray(lead?.deals) &&
