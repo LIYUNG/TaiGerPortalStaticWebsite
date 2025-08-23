@@ -543,6 +543,21 @@ const LeadPage = () => {
                                     alignItems: 'center'
                                 }}
                             >
+                                {/* Sales representative label */}
+                                <Typography
+                                    sx={{
+                                        mr: 1,
+                                        color: 'text.secondary',
+                                        backgroundColor: 'grey.100',
+                                        px: 1,
+                                        py: 0.25,
+                                        borderRadius: '12px'
+                                    }}
+                                    variant="body2"
+                                >
+                                    Sales:{' '}
+                                    {lead?.salesMember?.label || 'Unassigned'}
+                                </Typography>
                                 {editStates.personal &&
                                     hasUnsavedChanges('personal') && (
                                         <Typography
