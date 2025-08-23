@@ -63,7 +63,7 @@ const DealDashboard = () => {
     const salesOptions = Array.from(
         new Map(
             allLeads
-                .map((l) => l.salesMember)
+                .map((l) => l.salesRep)
                 .filter((s) => s && (s.value || s.userId))
                 .map((s) => [
                     s.value || s.userId,
@@ -310,7 +310,7 @@ const DealDashboard = () => {
 
                         <FormControl fullWidth required>
                             <InputLabel id="salesUserId-label">
-                                Sales Member
+                                Sales representative
                             </InputLabel>
                             <Select
                                 MenuProps={{
@@ -323,7 +323,7 @@ const DealDashboard = () => {
                                     MenuListProps: { dense: true }
                                 }}
                                 error={Boolean(errors.salesUserId)}
-                                label="Sales Member"
+                                label="Sales Rep"
                                 labelId="salesUserId-label"
                                 onChange={(e) =>
                                     setForm((f) => ({
@@ -424,7 +424,7 @@ const DealDashboard = () => {
                                 newErrors.leadId = 'Lead is required';
                             if (!form.salesUserId)
                                 newErrors.salesUserId =
-                                    'Sales member is required';
+                                    'Sales representative is required';
                             if (
                                 !form.dealSizeNtd ||
                                 Number(form.dealSizeNtd) <= 0

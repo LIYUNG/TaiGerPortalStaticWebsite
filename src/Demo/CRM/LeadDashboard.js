@@ -183,7 +183,7 @@ const LeadDashboard = () => {
             )
         },
         {
-            accessorFn: (row) => row.salesMember?.label ?? 'N/A',
+            accessorFn: (row) => row.salesRep?.label ?? 'N/A',
             header: 'Sales',
             size: 100,
             Cell: ({ cell }) => (

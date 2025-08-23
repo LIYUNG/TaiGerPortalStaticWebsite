@@ -556,7 +556,7 @@ const LeadPage = () => {
                                     variant="body2"
                                 >
                                     Sales:{' '}
-                                    {lead?.salesMember?.label || 'Unassigned'}
+                                    {lead?.salesRep?.label || 'Unassigned'}
                                 </Typography>
                                 {editStates.personal &&
                                     hasUnsavedChanges('personal') && (
