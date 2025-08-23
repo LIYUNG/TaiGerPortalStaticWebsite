@@ -55,15 +55,12 @@ const LeadDashboard = () => {
     );
     const closedLeads = allLeads.filter((lead) => lead.status === 'closed');
 
-    const getSourceColor = (source) => {
+    const getSalesColor = (salesName) => {
         const colors = {
-            Website: 'primary',
-            'Social Media': 'secondary',
-            Referral: 'success',
-            Advertisement: 'warning',
-            Other: 'default'
+            David: 'primary',
+            Winnie: 'success'
         };
-        return colors[source] || 'default';
+        return colors[salesName] || 'default';
     };
 
     const getStatusColor = (status) => {
@@ -202,12 +199,12 @@ const LeadDashboard = () => {
             }
         },
         {
-            accessorKey: 'source',
-            header: 'Source',
+            accessorFn: (row) => row.salesMember?.label ?? 'N/A',
+            header: 'Sales',
             size: 120,
             Cell: ({ cell }) => (
                 <Chip
-                    color={getSourceColor(cell.getValue())}
+                    color={getSalesColor(cell.getValue())}
                     label={cell.getValue()}
                     size="small"
                 />
