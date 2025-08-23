@@ -657,6 +657,38 @@ const LeadPage = () => {
                                 </Button>
                             ) : null}
                         </Box>
+
+                        {/* Sales note - nicer view */}
+                        <Box sx={{ width: '100%' }}>
+                            <Typography
+                                sx={{
+                                    color: 'text.secondary',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: 0.4
+                                }}
+                                variant="caption"
+                            >
+                                Sales Note
+                            </Typography>
+                            <Box
+                                sx={{
+                                    mt: 0.5,
+                                    p: 1,
+                                    borderRadius: 1,
+                                    border: '1px solid',
+                                    borderColor: 'divider',
+                                    bgcolor: 'grey.50',
+                                    color: 'text.primary',
+                                    whiteSpace: 'pre-wrap'
+                                }}
+                            >
+                                <Typography variant="body2">
+                                    {lead.salesNote?.trim()
+                                        ? lead.salesNote
+                                        : 'No sales note'}
+                                </Typography>
+                            </Box>
+                        </Box>
                     </Box>
                 ) : (
                     // Edit mode
@@ -834,6 +866,25 @@ const LeadPage = () => {
                                         <MenuItem value="low">Low</MenuItem>
                                     </Select>
                                 </FormControl>
+                            </Grid>
+
+                            {/* Sales note - edit */}
+                            <Grid item xs={12}>
+                                <TextField
+                                    fullWidth
+                                    label="Sales Note"
+                                    minRows={3}
+                                    multiline
+                                    onChange={(e) =>
+                                        handleFieldChange(
+                                            'salesNote',
+                                            e.target.value
+                                        )
+                                    }
+                                    size="small"
+                                    value={formData.salesNote || ''}
+                                    variant="outlined"
+                                />
                             </Grid>
                         </Grid>
                     </Box>
