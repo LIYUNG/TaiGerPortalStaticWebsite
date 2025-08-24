@@ -40,6 +40,7 @@ import EditableCard from './components/EditableCard';
 import { GenericCardContent } from './components/GenericCard';
 import { getCardConfigurations } from './components/CardConfigurations';
 import CreateUserFromLeadModal from './components/CreateUserFromLeadModal';
+import CreateDealModal from './components/CreateDealModal';
 import SimilarStudents from './components/SimilarStudents';
 
 import { request } from '../../api/request';
@@ -57,9 +58,23 @@ const LeadPage = () => {
     const lead = data?.data?.data || {};
     TabTitle(`Lead ${lead ? `- ${lead.fullName}` : ''}`);
 
+    // Sales reps options for editing sales representative
+    const { data: salesData } = useQuery({
+        queryKey: ['crm/sales-reps'],
+        queryFn: async () => {
+            const res = await request.get('/api/crm/sales-reps');
+            return res?.data?.data ?? res?.data ?? [];
+        }
+    });
+    const salesOptions = (salesData || []).map((s) => ({
+        userId: s.userId || s.value,
+        label: s.label || s.name || s.fullName || 'Unknown'
+    }));
+
     // Modal state for creating user from lead
     const [showCreateUserModal, setShowCreateUserModal] = useState(false);
     const [selectedLead, setSelectedLead] = useState(null);
+    const [showCreateDealModal, setShowCreateDealModal] = useState(false);
 
     // Handle create user modal
     const handleCreateUser = (leadData) => {
@@ -71,6 +86,9 @@ const LeadPage = () => {
         setShowCreateUserModal(false);
         setSelectedLead(null);
     };
+
+    const openCreateDeal = () => setShowCreateDealModal(true);
+    const closeCreateDeal = () => setShowCreateDealModal(false);
 
     const handleUserCreated = async (userData) => {
         // Extract the new user ID from the response
@@ -159,11 +177,24 @@ const LeadPage = () => {
             }
 
             // Compare values, treating undefined/null/empty string as equivalent for form fields
-            const originalValue = original[key] || '';
-            const currentValue = current[key] || '';
+            const originalValue = original[key];
+            const currentValue = current[key];
 
-            if (originalValue !== currentValue) {
-                changes[key] = current[key];
+            // Deep compare for objects/arrays (e.g., salesRep)
+            const bothObjects =
+                originalValue &&
+                typeof originalValue === 'object' &&
+                currentValue &&
+                typeof currentValue === 'object';
+
+            if (bothObjects) {
+                const a = JSON.stringify(originalValue);
+                const b = JSON.stringify(currentValue);
+                if (a !== b) changes[key] = current[key];
+            } else {
+                const ov = originalValue ?? '';
+                const cv = currentValue ?? '';
+                if (ov !== cv) changes[key] = current[key];
             }
         });
         return changes;
@@ -543,6 +574,22 @@ const LeadPage = () => {
                                     alignItems: 'center'
                                 }}
                             >
+                                {/* Sales representative label */}
+                                <Typography
+                                    sx={{
+                                        mr: 1,
+                                        color: 'text.secondary',
+                                        backgroundColor: 'grey.100',
+                                        px: 1,
+                                        py: 0.25,
+                                        borderRadius: '12px'
+                                    }}
+                                    variant="body2"
+                                >
+                                    Sales:{' '}
+                                    {lead?.salesRep?.label || 'Unassigned'}
+                                </Typography>
+
                                 {editStates.personal &&
                                     hasUnsavedChanges('personal') && (
                                         <Typography
@@ -599,7 +646,7 @@ const LeadPage = () => {
                             </Box>
                         </Box>
 
-                        {/* Second row: ROLE | USER/CREATE USER BUTTON */}
+                        {/* Second row: ROLE | USER/CREATE USER BUTTON | CREATE DEAL */}
                         <Box
                             sx={{
                                 display: 'flex',
@@ -656,7 +703,147 @@ const LeadPage = () => {
                                     Create User Account
                                 </Button>
                             ) : null}
+
+                            {/* Create Deal button */}
+                            <Button
+                                color="secondary"
+                                onClick={openCreateDeal}
+                                size="small"
+                                variant="contained"
+                            >
+                                Create Deal
+                            </Button>
                         </Box>
+
+                        {/* Sales note */}
+                        {lead.salesNote?.trim() && (
+                            <Box sx={{ width: '100%' }}>
+                                <Typography
+                                    sx={{
+                                        color: 'text.secondary',
+                                        textTransform: 'uppercase',
+                                        letterSpacing: 0.4
+                                    }}
+                                    variant="caption"
+                                >
+                                    Sales Note
+                                </Typography>
+                                <Box
+                                    sx={{
+                                        mt: 0.5,
+                                        p: 1,
+                                        borderRadius: 1,
+                                        border: '1px solid',
+                                        borderColor: 'divider',
+                                        bgcolor: 'grey.50',
+                                        color: 'text.primary',
+                                        whiteSpace: 'pre-wrap'
+                                    }}
+                                >
+                                    <Typography variant="body2">
+                                        {lead.salesNote}
+                                    </Typography>
+                                </Box>
+                            </Box>
+                        )}
+
+                        {/* Deals - read-only */}
+                        {Array.isArray(lead?.deals) &&
+                            lead.deals.length > 0 && (
+                                <Box sx={{ width: '100%' }}>
+                                    <Typography
+                                        sx={{
+                                            color: 'text.secondary',
+                                            textTransform: 'uppercase',
+                                            letterSpacing: 0.4
+                                        }}
+                                        variant="caption"
+                                    >
+                                        Deals
+                                    </Typography>
+                                    <Box
+                                        sx={{
+                                            mt: 0.5,
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 1
+                                        }}
+                                    >
+                                        {lead.deals.map((deal, idx) => (
+                                            <Box
+                                                key={idx}
+                                                sx={{
+                                                    p: 1,
+                                                    borderRadius: 1,
+                                                    border: '1px solid',
+                                                    borderColor: 'divider',
+                                                    bgcolor: 'grey.50',
+                                                    display: 'flex',
+                                                    flexWrap: 'wrap',
+                                                    gap: 1.5,
+                                                    alignItems: 'center'
+                                                }}
+                                            >
+                                                {/* Status pill (neutral) */}
+                                                <Box
+                                                    sx={{
+                                                        px: 1,
+                                                        py: 0.25,
+                                                        borderRadius: '12px',
+                                                        border: '1px solid',
+                                                        borderColor: 'divider',
+                                                        fontSize: '0.75rem',
+                                                        color: 'text.secondary',
+                                                        backgroundColor:
+                                                            'background.paper'
+                                                    }}
+                                                >
+                                                    {deal?.status || 'N/A'}
+                                                </Box>
+
+                                                {/* Closed date */}
+                                                {deal?.closedDate && (
+                                                    <Typography
+                                                        sx={{
+                                                            color: 'text.secondary'
+                                                        }}
+                                                        variant="body2"
+                                                    >
+                                                        {new Date(
+                                                            deal.closedDate
+                                                        ).toLocaleDateString()}
+                                                    </Typography>
+                                                )}
+
+                                                {/* Amount */}
+                                                {deal?.dealSizeNtd && (
+                                                    <Typography
+                                                        sx={{ fontWeight: 600 }}
+                                                        variant="body2"
+                                                    >
+                                                        NTD{' '}
+                                                        {Number(
+                                                            deal.dealSizeNtd
+                                                        ).toLocaleString()}
+                                                    </Typography>
+                                                )}
+
+                                                {/* Note */}
+                                                {deal?.note && (
+                                                    <Typography
+                                                        sx={{
+                                                            color: 'text.primary'
+                                                        }}
+                                                        variant="body2"
+                                                    >
+                                                        {deal.note}
+                                                    </Typography>
+                                                )}
+                                            </Box>
+                                        ))}
+                                    </Box>
+                                </Box>
+                            )}
                     </Box>
                 ) : (
                     // Edit mode
@@ -707,7 +894,7 @@ const LeadPage = () => {
                                 </Box>
                             </Grid>
 
-                            <Grid item md={3} xs={6}>
+                            <Grid item md={2} xs={6}>
                                 <FormControl fullWidth size="small">
                                     <InputLabel id="gender-select-label">
                                         Gender
@@ -748,10 +935,46 @@ const LeadPage = () => {
                                 />
                             </Grid>
 
+                            {/* Sales Rep */}
+                            <Grid item md={2} xs={6}>
+                                <FormControl fullWidth size="small">
+                                    <InputLabel id="sales-rep-select-label">
+                                        Sales Rep
+                                    </InputLabel>
+                                    <Select
+                                        label="Sales Rep"
+                                        labelId="sales-rep-select-label"
+                                        onChange={(e) => {
+                                            const selectedId = e.target.value;
+                                            const selected = salesOptions.find(
+                                                (s) => s.userId === selectedId
+                                            );
+                                            handleFieldChange(
+                                                'salesUserId',
+                                                selectedId
+                                                    ? selected?.userId
+                                                    : null
+                                            );
+                                        }}
+                                        value={formData?.salesUserId || ''}
+                                    >
+                                        <MenuItem value="">Unassigned</MenuItem>
+                                        {salesOptions.map((s) => (
+                                            <MenuItem
+                                                key={s.userId}
+                                                value={s.userId}
+                                            >
+                                                {s.label}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+
                             {/* Save/Cancel buttons aligned with fields */}
                             <Grid
                                 item
-                                md={3}
+                                md={2}
                                 sx={{
                                     display: 'flex',
                                     justifyContent: 'flex-end',
@@ -835,6 +1058,125 @@ const LeadPage = () => {
                                     </Select>
                                 </FormControl>
                             </Grid>
+
+                            {/* Sales note - edit */}
+                            <Grid item xs={12}>
+                                <TextField
+                                    fullWidth
+                                    label="Sales Note"
+                                    minRows={3}
+                                    multiline
+                                    onChange={(e) =>
+                                        handleFieldChange(
+                                            'salesNote',
+                                            e.target.value
+                                        )
+                                    }
+                                    size="small"
+                                    value={formData.salesNote || ''}
+                                    variant="outlined"
+                                />
+                            </Grid>
+
+                            {/* Deals - read-only in edit mode */}
+                            {Array.isArray(lead?.deals) &&
+                                lead.deals.length > 0 && (
+                                    <Grid item xs={12}>
+                                        <Box sx={{ width: '100%' }}>
+                                            <Typography
+                                                sx={{
+                                                    color: 'text.secondary',
+                                                    textTransform: 'uppercase',
+                                                    letterSpacing: 0.4
+                                                }}
+                                                variant="caption"
+                                            >
+                                                Deals
+                                            </Typography>
+                                            <Box
+                                                sx={{
+                                                    mt: 0.5,
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    gap: 1
+                                                }}
+                                            >
+                                                {lead.deals.map((deal, idx) => (
+                                                    <Box
+                                                        key={idx}
+                                                        sx={{
+                                                            p: 1,
+                                                            borderRadius: 1,
+                                                            border: '1px solid',
+                                                            borderColor:
+                                                                'divider',
+                                                            bgcolor: 'grey.50',
+                                                            display: 'flex',
+                                                            flexWrap: 'wrap',
+                                                            gap: 1.5,
+                                                            alignItems: 'center'
+                                                        }}
+                                                    >
+                                                        <Box
+                                                            sx={{
+                                                                px: 1,
+                                                                py: 0.25,
+                                                                borderRadius:
+                                                                    '12px',
+                                                                border: '1px solid',
+                                                                borderColor:
+                                                                    'divider',
+                                                                fontSize:
+                                                                    '0.75rem',
+                                                                color: 'text.secondary',
+                                                                backgroundColor:
+                                                                    'background.paper'
+                                                            }}
+                                                        >
+                                                            {deal?.status ||
+                                                                'N/A'}
+                                                        </Box>
+                                                        {deal?.closedDate && (
+                                                            <Typography
+                                                                sx={{
+                                                                    color: 'text.secondary'
+                                                                }}
+                                                                variant="body2"
+                                                            >
+                                                                {new Date(
+                                                                    deal.closedDate
+                                                                ).toLocaleDateString()}
+                                                            </Typography>
+                                                        )}
+                                                        {deal?.dealSizeNtd && (
+                                                            <Typography
+                                                                sx={{
+                                                                    fontWeight: 600
+                                                                }}
+                                                                variant="body2"
+                                                            >
+                                                                NTD{' '}
+                                                                {Number(
+                                                                    deal.dealSizeNtd
+                                                                ).toLocaleString()}
+                                                            </Typography>
+                                                        )}
+                                                        {deal?.note && (
+                                                            <Typography
+                                                                sx={{
+                                                                    color: 'text.primary'
+                                                                }}
+                                                                variant="body2"
+                                                            >
+                                                                {deal.note}
+                                                            </Typography>
+                                                        )}
+                                                    </Box>
+                                                ))}
+                                            </Box>
+                                        </Box>
+                                    </Grid>
+                                )}
                         </Grid>
                     </Box>
                 )}
@@ -992,6 +1334,19 @@ const LeadPage = () => {
                 onClose={handleCloseCreateUserModal}
                 onSuccess={handleUserCreated}
                 open={showCreateUserModal}
+            />
+
+            {/* Create Deal Modal - preselect this lead and lock selection */}
+            <CreateDealModal
+                lockLeadSelect
+                lockSalesUserSelect={lead?.salesRep?.userId ?? false}
+                onClose={closeCreateDeal}
+                onCreated={() =>
+                    queryClient.invalidateQueries(['crm/lead', leadId])
+                }
+                open={showCreateDealModal}
+                preselectedLeadId={leadId}
+                preselectedSalesUserId={lead?.salesRep?.userId || null}
             />
         </Box>
     );

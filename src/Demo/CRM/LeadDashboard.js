@@ -19,8 +19,7 @@ import {
 import {
     Schedule as ScheduleIcon,
     FiberManualRecord as StatusIcon,
-    School as SchoolIcon,
-    Timeline as DirectionIcon
+    School as SchoolIcon
 } from '@mui/icons-material';
 
 import { is_TaiGer_role } from '@taiger-common/core';
@@ -55,15 +54,12 @@ const LeadDashboard = () => {
     );
     const closedLeads = allLeads.filter((lead) => lead.status === 'closed');
 
-    const getSourceColor = (source) => {
+    const getSalesColor = (salesName) => {
         const colors = {
-            Website: 'primary',
-            'Social Media': 'secondary',
-            Referral: 'success',
-            Advertisement: 'warning',
-            Other: 'default'
+            David: 'primary',
+            Winnie: 'success'
         };
-        return colors[source] || 'default';
+        return colors[salesName] || 'default';
     };
 
     const getStatusColor = (status) => {
@@ -123,11 +119,10 @@ const LeadDashboard = () => {
                 );
             }
         },
-        // Full name: single-line ellipsis
         {
             accessorKey: 'fullName',
             header: 'Full Name',
-            size: 160,
+            size: 120,
             muiTableBodyCellProps: ({ cell }) => ({
                 sx: {
                     maxWidth: 160,
@@ -144,17 +139,6 @@ const LeadDashboard = () => {
             )
         },
         {
-            accessorKey: 'intendedProgramLevel',
-            header: 'Intended Degree',
-            size: 150,
-            Cell: ({ cell }) => (
-                <Stack alignItems="center" direction="row" spacing={1}>
-                    <SchoolIcon color="action" fontSize="small" />
-                    <Typography variant="body2">{cell.getValue()}</Typography>
-                </Stack>
-            )
-        },
-        {
             accessorKey: 'intendedStartTime',
             header: 'Start Time',
             size: 150,
@@ -165,55 +149,70 @@ const LeadDashboard = () => {
                 </Stack>
             )
         },
-        // Intended Direction: multi-line clamp (no JS truncate)
         {
-            accessorKey: 'intendedDirection',
-            header: 'Intended Direction',
-            Cell: ({ cell }) => {
-                const value = cell.getValue();
-                return (
-                    <Stack
-                        alignItems="center"
-                        direction="row"
-                        spacing={1}
-                        sx={{ minWidth: 0 }}
-                    >
-                        <DirectionIcon color="action" fontSize="small" />
-                        <Box sx={{ maxWidth: 500, minWidth: 100 }}>
-                            <Typography
-                                sx={{
-                                    display: '-webkit-box',
-                                    WebkitLineClamp: 2,
-                                    WebkitBoxOrient: 'vertical',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    wordBreak: 'break-word',
-                                    overflowWrap: 'anywhere',
-                                    lineBreak: 'loose'
-                                }}
-                                title={value}
-                                variant="body2"
-                            >
-                                {value}
-                            </Typography>
-                        </Box>
-                    </Stack>
-                );
-            }
+            id: 'intendedProgram',
+            header: 'Intended Program',
+            size: 350,
+            accessorFn: (row) => {
+                const level = row.intendedProgramLevel?.trim();
+                const direction = row.intendedDirection?.trim();
+                if (level && direction) return `${level} — ${direction}`;
+                return level || direction || '';
+            },
+            muiTableBodyCellProps: ({ cell }) => ({
+                sx: {
+                    maxWidth: 350,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap'
+                },
+                title: cell.getValue()
+            }),
+            Cell: ({ cell }) => (
+                <Stack
+                    alignItems="center"
+                    direction="row"
+                    spacing={1}
+                    sx={{ minWidth: 0 }}
+                >
+                    <SchoolIcon color="action" fontSize="small" />
+                    <Typography noWrap sx={{ minWidth: 0 }} variant="body2">
+                        {cell.getValue()}
+                    </Typography>
+                </Stack>
+            )
         },
         {
-            accessorKey: 'source',
-            header: 'Source',
-            size: 120,
+            accessorFn: (row) => row.salesRep?.label ?? 'N/A',
+            header: 'Sales',
+            size: 100,
             Cell: ({ cell }) => (
                 <Chip
-                    color={getSourceColor(cell.getValue())}
+                    color={getSalesColor(cell.getValue())}
                     label={cell.getValue()}
                     size="small"
                 />
             )
         },
-
+        {
+            accessorKey: 'salesNote',
+            header: 'Sales Note',
+            size: 350,
+            muiTableBodyCellProps: ({ cell }) => ({
+                sx: {
+                    maxWidth: 320,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap'
+                },
+                title: cell.getValue()
+            }),
+            Cell: ({ cell }) => (
+                <Typography noWrap sx={{ minWidth: 0 }} variant="body2">
+                    {cell.getValue() || '—'}
+                </Typography>
+            )
+        },
         {
             accessorKey: 'createdAt',
             header: 'Submitted At',
