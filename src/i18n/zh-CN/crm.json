@@ -1,0 +1,156 @@
+{
+    "breadcrumbs": {
+        "crm": "CRM",
+        "dashboard": "CRM 仪表板",
+        "leads": "线索",
+        "deals": "交易",
+        "meetings": "会议"
+    },
+    "actions": {
+        "create": "创建",
+        "cancel": "取消",
+        "save": "保存",
+        "edit": "编辑",
+        "assign": "指派",
+        "change": "更改",
+        "unassign": "移除指派",
+        "archive": "归档会议",
+        "unarchive": "取消归档会议",
+        "regenerate": "重新生成",
+        "createDeal": "创建交易",
+        "createUserAccount": "创建用户账号",
+        "createUserAccountFromLead": "由线索创建用户账号",
+        "viewTranscript": "查看文字记录"
+    },
+    "common": {
+        "na": "无",
+        "unknown": "未知",
+        "note": "备注",
+        "status": "状态",
+        "lead": "线索",
+        "sales": "销售",
+        "salesNote": "销售备注",
+        "submittedAt": "提交时间",
+        "closedDate": "结案日期",
+        "dealSize": "交易金额",
+        "datetime": "日期时间",
+        "summary": "摘要",
+        "noSummary": "没有可用摘要",
+        "noLeadsFound": "未找到线索",
+        "noLeadsAvailable": "没有可用线索",
+        "noLeadAssigned": "未指派线索",
+        "similarStudents": "相似学生",
+        "matchReason": "匹配原因：",
+        "showMore": "再显示 {{count}} 条",
+        "showLess": "收起",
+        "loadingLeadInfo": "正在加载线索信息...",
+        "loadingMeetingDetails": "正在加载会议详情...",
+        "meetinTranscripts": "会议文字记录",
+        "manageTranscripts": "管理并查看所有会议摘要与记录",
+        "gist": "要点",
+        "keywords": "关键词",
+        "overview": "概述",
+        "actionItems": "行动项",
+        "assignedLead": "已指派线索",
+        "speakers": "讲者",
+        "attendees": "与会者",
+        "studentProfile": "查看学生档案",
+        "unsavedChanges": "• 未保存的更改"
+    },
+    "leads": {
+        "fullName": "姓名",
+        "startTime": "开始时间",
+        "intendedProgram": "意向课程",
+        "chance": "机会",
+        "openLeads": "未处理线索",
+        "contactedLeads": "已联系线索",
+        "convertedLeads": "已转化线索",
+        "closedLeads": "已结案线索",
+        "allLeads": "全部线索",
+        "desc": {
+            "all": "所有分类中的线索。",
+            "open": "用户通过 Google 表单提交的未处理线索。",
+            "contacted": "已有排定会议的已联系线索。",
+            "converted": "已转化或完成的线索。",
+            "closed": "已结案的线索。"
+        },
+        "gender": "性别",
+        "role": "角色",
+        "salesRep": "销售代表",
+        "unassigned": "未指派",
+        "createUserAccount": "创建用户账号",
+        "createDeal": "创建交易",
+        "salesLabel": "销售：{{label}}"
+    },
+    "meetings": {
+        "meetingTitle": "会议标题",
+        "meetingDetails": "会议详情",
+        "assignLeadToMeeting": "将线索指派到会议",
+        "searchLeads": "按姓名或邮箱搜索线索...",
+        "unassignLead": "从此会议移除线索指派",
+        "allMeetings": "全部会议",
+        "unassignedMeetings": "未指派线索的会议",
+        "archivedMeetings": "已归档会议"
+    },
+    "deals": {
+        "createDeal": "创建交易",
+        "dealSizeNtd": "交易金额 (NTD)",
+        "placeholderDealSize": "例如 69999",
+        "status": "状态",
+        "note": "备注",
+        "closedDate": "结案日期",
+        "leadIsRequired": "线索为必填",
+        "salesRepIsRequired": "销售代表为必填",
+        "mustBePositive": "必须为正数",
+        "closedDateRequired": "状态为已结案时需填写结案日期",
+        "lead": "线索",
+        "salesRepresentative": "销售代表"
+    },
+    "cards": {
+        "education": {
+            "title": "教育背景",
+            "highSchool": "高中",
+            "highSchoolName": "高中名称",
+            "highSchoolGPA": "高中 GPA",
+            "bachelor": "学士学位",
+            "bachelorSchool": "学士毕业学校",
+            "bachelorProgram": "学士专业",
+            "bachelorGPA": "学士 GPA",
+            "master": "硕士学位",
+            "masterSchool": "硕士毕业学校",
+            "masterProgram": "硕士专业",
+            "masterGPA": "硕士 GPA",
+            "highestEducation": "最高学历"
+        },
+        "programs": {
+            "title": "意向课程",
+            "targetUniversities": "目标大学",
+            "targetField": "目标领域",
+            "targetDegree": "目标学位",
+            "startTime": "开始时间"
+        },
+        "language": {
+            "title": "语言能力",
+            "englishLevel": "英语程度",
+            "germanLevel": "德语程度"
+        },
+        "work": {
+            "title": "工作经验",
+            "workExperience": "工作经验",
+            "noWorkExperience": "未提供工作经验"
+        },
+        "contact": {
+            "title": "联系信息",
+            "email": "电子邮件",
+            "phone": "电话",
+            "preferredContact": "偏好联系方式",
+            "lineId": "LINE ID",
+            "source": "来源"
+        },
+        "additional": {
+            "title": "其他信息",
+            "additionalInfo": "其他说明",
+            "reasonsToStudyAbroad": "出国留学原因"
+        }
+    }
+}

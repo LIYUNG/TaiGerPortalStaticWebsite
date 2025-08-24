@@ -1,0 +1,156 @@
+{
+    "breadcrumbs": {
+        "crm": "CRM",
+        "dashboard": "CRM 儀表板",
+        "leads": "名單",
+        "deals": "交易",
+        "meetings": "會議"
+    },
+    "actions": {
+        "create": "建立",
+        "cancel": "取消",
+        "save": "儲存",
+        "edit": "編輯",
+        "assign": "指派",
+        "change": "變更",
+        "unassign": "移除指派",
+        "archive": "封存會議",
+        "unarchive": "取消封存會議",
+        "regenerate": "重新產生",
+        "createDeal": "建立交易",
+        "createUserAccount": "建立使用者帳號",
+        "createUserAccountFromLead": "由名單建立使用者帳號",
+        "viewTranscript": "檢視逐字稿"
+    },
+    "common": {
+        "na": "無",
+        "unknown": "未知",
+        "note": "備註",
+        "status": "狀態",
+        "lead": "名單",
+        "sales": "業務",
+        "salesNote": "業務備註",
+        "submittedAt": "提交時間",
+        "closedDate": "結案日期",
+        "dealSize": "交易金額",
+        "datetime": "日期時間",
+        "summary": "摘要",
+        "noSummary": "沒有可用摘要",
+        "noLeadsFound": "找不到名單",
+        "noLeadsAvailable": "沒有可用名單",
+        "noLeadAssigned": "未指派名單",
+        "similarStudents": "相似學生",
+        "matchReason": "比對原因：",
+        "showMore": "顯示更多 {{count}} 筆",
+        "showLess": "顯示較少",
+        "loadingLeadInfo": "正在載入名單資訊...",
+        "loadingMeetingDetails": "正在載入會議詳細資料...",
+        "meetinTranscripts": "會議逐字稿",
+        "manageTranscripts": "管理並檢視所有會議摘要與逐字稿",
+        "gist": "重點",
+        "keywords": "關鍵字",
+        "overview": "概述",
+        "actionItems": "行動項目",
+        "assignedLead": "已指派名單",
+        "speakers": "講者",
+        "attendees": "與會者",
+        "studentProfile": "檢視學生資料",
+        "unsavedChanges": "• 尚未儲存的變更"
+    },
+    "leads": {
+        "fullName": "姓名",
+        "startTime": "開始時間",
+        "intendedProgram": "目標課程",
+        "chance": "機率",
+        "openLeads": "未處理名單",
+        "contactedLeads": "已聯繫名單",
+        "convertedLeads": "已轉換名單",
+        "closedLeads": "已結案名單",
+        "allLeads": "全部名單",
+        "desc": {
+            "all": "所有分類中的名單。",
+            "open": "使用者透過 Google 表單提交的未處理名單。",
+            "contacted": "已有排定會議的已聯繫名單。",
+            "converted": "已轉換或完成的名單。",
+            "closed": "已結案的名單。"
+        },
+        "gender": "性別",
+        "role": "角色",
+        "salesRep": "業務代表",
+        "unassigned": "未指派",
+        "createUserAccount": "建立使用者帳號",
+        "createDeal": "建立交易",
+        "salesLabel": "業務：{{label}}"
+    },
+    "meetings": {
+        "meetingTitle": "會議標題",
+        "meetingDetails": "會議詳細資料",
+        "assignLeadToMeeting": "將名單指派到會議",
+        "searchLeads": "以姓名或電子郵件搜尋名單...",
+        "unassignLead": "自此會議移除名單指派",
+        "allMeetings": "全部會議",
+        "unassignedMeetings": "未指派名單之會議",
+        "archivedMeetings": "已封存會議"
+    },
+    "deals": {
+        "createDeal": "建立交易",
+        "dealSizeNtd": "交易金額 (NTD)",
+        "placeholderDealSize": "例如 69999",
+        "status": "狀態",
+        "note": "備註",
+        "closedDate": "結案日期",
+        "leadIsRequired": "名單為必填",
+        "salesRepIsRequired": "業務代表為必填",
+        "mustBePositive": "必須為正數",
+        "closedDateRequired": "狀態為已結案時需填寫結案日期",
+        "lead": "名單",
+        "salesRepresentative": "業務代表"
+    },
+    "cards": {
+        "education": {
+            "title": "教育背景",
+            "highSchool": "高中",
+            "highSchoolName": "高中名稱",
+            "highSchoolGPA": "高中 GPA",
+            "bachelor": "學士學位",
+            "bachelorSchool": "學士畢業學校",
+            "bachelorProgram": "學士科系",
+            "bachelorGPA": "學士 GPA",
+            "master": "碩士學位",
+            "masterSchool": "碩士畢業學校",
+            "masterProgram": "碩士科系",
+            "masterGPA": "碩士 GPA",
+            "highestEducation": "最高學歷"
+        },
+        "programs": {
+            "title": "目標課程",
+            "targetUniversities": "目標大學",
+            "targetField": "目標領域",
+            "targetDegree": "目標學位",
+            "startTime": "開始時間"
+        },
+        "language": {
+            "title": "語言能力",
+            "englishLevel": "英語程度",
+            "germanLevel": "德語程度"
+        },
+        "work": {
+            "title": "工作經驗",
+            "workExperience": "工作經驗",
+            "noWorkExperience": "未提供工作經驗"
+        },
+        "contact": {
+            "title": "聯絡資訊",
+            "email": "電子郵件",
+            "phone": "電話",
+            "preferredContact": "偏好聯絡方式",
+            "lineId": "LINE ID",
+            "source": "來源"
+        },
+        "additional": {
+            "title": "其他資訊",
+            "additionalInfo": "其他說明",
+            "reasonsToStudyAbroad": "出國留學原因"
+        }
+    }
+}

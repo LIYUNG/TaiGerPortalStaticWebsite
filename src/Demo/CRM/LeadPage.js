@@ -1,4 +1,5 @@
 import { useParams, Navigate } from 'react-router-dom';
+import i18next from 'i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, useMemo } from 'react';
 import { useForm } from '@tanstack/react-form';
@@ -56,7 +57,9 @@ const LeadPage = () => {
 
     const { data, isLoading } = useQuery(getCRMLeadQuery(leadId));
     const lead = data?.data?.data || {};
-    TabTitle(`Lead ${lead ? `- ${lead.fullName}` : ''}`);
+    TabTitle(
+        `${i18next.t('breadcrumbs.leads', { ns: 'crm' })} ${lead ? `- ${lead.fullName}` : ''}`
+    );
 
     // Sales reps options for editing sales representative
     const { data: salesData } = useQuery({
@@ -347,7 +350,7 @@ const LeadPage = () => {
                         href="/crm"
                         underline="hover"
                     >
-                        CRM
+                        {i18next.t('breadcrumbs.crm', { ns: 'crm' })}
                     </Link>
                     <Link
                         color="inherit"
@@ -355,7 +358,7 @@ const LeadPage = () => {
                         href="/crm/leads"
                         underline="hover"
                     >
-                        Leads
+                        {i18next.t('breadcrumbs.leads', { ns: 'crm' })}
                     </Link>
                     <Typography color="text.primary">
                         {lead.fullName}
@@ -406,7 +409,8 @@ const LeadPage = () => {
                                 }}
                                 variant="h5"
                             >
-                                {lead.fullName || 'N/A'}
+                                {lead.fullName ||
+                                    i18next.t('common.na', { ns: 'crm' })}
                             </Typography>
 
                             {/* Gender Icon */}

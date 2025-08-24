@@ -46,7 +46,9 @@ import { getCRMMeetingsQuery, getCRMLeadsQuery } from '../../api/query';
 import { updateCRMMeeting } from '../../api';
 
 const MeetingPage = () => {
-    TabTitle('CRM - Meetings');
+    TabTitle(
+        `${i18next.t('breadcrumbs.crm', { ns: 'crm' })} - ${i18next.t('breadcrumbs.meetings', { ns: 'crm' })}`
+    );
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const [assignMenuAnchor, setAssignMenuAnchor] = useState(null);
@@ -223,7 +225,7 @@ const MeetingPage = () => {
     const getColumns = (isArchived = false) => [
         {
             accessorKey: 'date',
-            header: 'Datetime',
+            header: i18next.t('common.datetime', { ns: 'crm' }),
             size: 80,
             Cell: ({ cell }) => {
                 const date = new Date(cell.getValue());
@@ -244,7 +246,7 @@ const MeetingPage = () => {
         },
         {
             accessorKey: 'title',
-            header: 'Meeting Title',
+            header: i18next.t('meetings.meetingTitle', { ns: 'crm' }),
             size: 250,
             Cell: ({ row }) => (
                 <Link
@@ -258,13 +260,14 @@ const MeetingPage = () => {
                     to={`/crm/meetings/${row.original.id}`}
                     underline="hover"
                 >
-                    {row.original.title || 'Untitled Meeting'}
+                    {row.original.title ||
+                        i18next.t('meetings.meetingTitle', { ns: 'crm' })}
                 </Link>
             )
         },
         {
             accessorKey: 'summary.gist',
-            header: 'Summary',
+            header: i18next.t('common.summary', { ns: 'crm' }),
             size: 350,
             minSize: 200,
             maxSize: 400,
@@ -283,7 +286,7 @@ const MeetingPage = () => {
                         }}
                         variant="body2"
                     >
-                        {gist || 'No summary available'}
+                        {gist || i18next.t('common.noSummary', { ns: 'crm' })}
                     </Typography>
                 );
             }
@@ -291,7 +294,7 @@ const MeetingPage = () => {
 
         {
             accessorKey: 'leadFullName',
-            header: 'Lead',
+            header: i18next.t('common.lead', { ns: 'crm' }),
             size: 150,
             Cell: ({ row }) => {
                 const { leadId, leadFullName } = row.original;
@@ -318,13 +321,18 @@ const MeetingPage = () => {
                             >
                                 <PersonIcon fontSize="small" />
                             </Avatar>
-                            <Typography>{leadFullName || 'N/A'}</Typography>
+                            <Typography>
+                                {leadFullName ||
+                                    i18next.t('common.na', { ns: 'crm' })}
+                            </Typography>
                         </Stack>
                     </Link>
                 ) : (
                     <Chip
                         color="warning"
-                        label="No Lead Assigned"
+                        label={i18next.t('common.noLeadAssigned', {
+                            ns: 'crm'
+                        })}
                         size="small"
                         variant="outlined"
                     />
@@ -344,8 +352,12 @@ const MeetingPage = () => {
                         <Tooltip
                             title={
                                 isArchived
-                                    ? 'Unarchive meeting'
-                                    : 'Archive meeting'
+                                    ? i18next.t('actions.unarchive', {
+                                          ns: 'crm'
+                                      })
+                                    : i18next.t('actions.archive', {
+                                          ns: 'crm'
+                                      })
                             }
                         >
                             <IconButton
@@ -370,8 +382,12 @@ const MeetingPage = () => {
                             <Tooltip
                                 title={
                                     leadId
-                                        ? 'Change or remove lead assignment'
-                                        : 'Assign to existing lead'
+                                        ? i18next.t('actions.change', {
+                                              ns: 'crm'
+                                          })
+                                        : i18next.t('actions.assign', {
+                                              ns: 'crm'
+                                          })
                                 }
                             >
                                 <Button
@@ -390,7 +406,13 @@ const MeetingPage = () => {
                                     sx={{ borderRadius: 2 }}
                                     variant={leadId ? 'outlined' : 'contained'}
                                 >
-                                    {leadId ? 'Change' : 'Assign'}
+                                    {leadId
+                                        ? i18next.t('actions.change', {
+                                              ns: 'crm'
+                                          })
+                                        : i18next.t('actions.assign', {
+                                              ns: 'crm'
+                                          })}
                                 </Button>
                             </Tooltip>
                         )}
@@ -419,10 +441,10 @@ const MeetingPage = () => {
                     sx={{ fontWeight: 500 }}
                     underline="hover"
                 >
-                    {i18next.t('CRM', { ns: 'common' })}
+                    {i18next.t('breadcrumbs.crm', { ns: 'crm' })}
                 </Link>
                 <Typography>
-                    {i18next.t('Meetings', { ns: 'common' })}
+                    {i18next.t('breadcrumbs.meetings', { ns: 'crm' })}
                 </Typography>
             </Breadcrumbs>
 
@@ -454,7 +476,9 @@ const MeetingPage = () => {
             >
                 <Box sx={{ p: 2 }}>
                     <Typography sx={{ mb: 2 }} variant="h6">
-                        Assign Lead to Meeting
+                        {i18next.t('meetings.assignLeadToMeeting', {
+                            ns: 'crm'
+                        })}
                     </Typography>
 
                     {/* Search Input */}
@@ -462,7 +486,9 @@ const MeetingPage = () => {
                         autoFocus
                         fullWidth
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        placeholder="Search leads by name or email..."
+                        placeholder={i18next.t('meetings.searchLeads', {
+                            ns: 'crm'
+                        })}
                         size="small"
                         sx={{ mb: 1 }}
                         value={searchTerm}
@@ -502,12 +528,18 @@ const MeetingPage = () => {
                                                 </Avatar>
                                             </ListItemAvatar>
                                             <ListItemText
-                                                primary="Remove Assignment"
+                                                primary={i18next.t(
+                                                    'actions.unassign',
+                                                    { ns: 'crm' }
+                                                )}
                                                 primaryTypographyProps={{
                                                     fontWeight: 500,
                                                     color: 'error.main'
                                                 }}
-                                                secondary="Unassign lead from this meeting"
+                                                secondary={i18next.t(
+                                                    'meetings.unassignLead',
+                                                    { ns: 'crm' }
+                                                )}
                                             />
                                         </ListItemButton>
                                     </ListItem>
@@ -539,7 +571,10 @@ const MeetingPage = () => {
                                         </ListItemAvatar>
                                         <ListItemText
                                             primary={
-                                                lead.fullName || 'Unnamed Lead'
+                                                lead.fullName ||
+                                                i18next.t('leads.fullName', {
+                                                    ns: 'crm'
+                                                })
                                             }
                                             primaryTypographyProps={{
                                                 fontWeight: 500
@@ -554,8 +589,13 @@ const MeetingPage = () => {
                                 <ListItemText
                                     primary={
                                         searchTerm
-                                            ? 'No leads found'
-                                            : 'No leads available'
+                                            ? i18next.t('common.noLeadsFound', {
+                                                  ns: 'crm'
+                                              })
+                                            : i18next.t(
+                                                  'common.noLeadsAvailable',
+                                                  { ns: 'crm' }
+                                              )
                                     }
                                     sx={{
                                         textAlign: 'center',
@@ -577,11 +617,14 @@ const MeetingPage = () => {
                             fontWeight={600}
                             variant="h6"
                         >
-                            Meeting Transcripts
+                            {i18next.t('common.meetinTranscripts', {
+                                ns: 'crm'
+                            })}
                         </Typography>
                         <Typography color="text.secondary" variant="body2">
-                            Manage and review all meeting summaries and
-                            transcripts
+                            {i18next.t('common.manageTranscripts', {
+                                ns: 'crm'
+                            })}
                         </Typography>
                     </Box>
 
@@ -593,15 +636,15 @@ const MeetingPage = () => {
                             value={activeTab}
                         >
                             <Tab
-                                label={`All Meetings (${nonArchivedMeetings.length})`}
+                                label={`${i18next.t('meetings.allMeetings', { ns: 'crm' })} (${nonArchivedMeetings.length})`}
                                 sx={{ textTransform: 'none', fontWeight: 500 }}
                             />
                             <Tab
-                                label={`Unassigned Meetings (${unassignedMeetings.length})`}
+                                label={`${i18next.t('meetings.unassignedMeetings', { ns: 'crm' })} (${unassignedMeetings.length})`}
                                 sx={{ textTransform: 'none', fontWeight: 500 }}
                             />
                             <Tab
-                                label={`Archived Meetings (${archivedMeetings.length})`}
+                                label={`${i18next.t('meetings.archivedMeetings', { ns: 'crm' })} (${archivedMeetings.length})`}
                                 sx={{ textTransform: 'none', fontWeight: 500 }}
                             />
                         </Tabs>

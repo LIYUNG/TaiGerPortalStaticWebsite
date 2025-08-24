@@ -29,7 +29,9 @@ import { getCRMDealsQuery } from '../../api/query';
 import CreateDealModal from './components/CreateDealModal';
 
 const DealDashboard = () => {
-    TabTitle('CRM - Deals');
+    TabTitle(
+        `${i18next.t('breadcrumbs.crm', { ns: 'crm' })} - ${i18next.t('breadcrumbs.deals', { ns: 'crm' })}`
+    );
     const [open, setOpen] = useState(false);
     // Create Deal modal state is now handled locally; form lives in modal
 
@@ -78,7 +80,7 @@ const DealDashboard = () => {
     const columns = [
         {
             accessorKey: 'status',
-            header: 'Status',
+            header: i18next.t('common.status', { ns: 'crm' }),
             size: 100,
             Cell: ({ cell }) => {
                 const value = cell.getValue();
@@ -95,7 +97,7 @@ const DealDashboard = () => {
         },
         {
             accessorKey: 'leadFullName',
-            header: 'Lead',
+            header: i18next.t('common.lead', { ns: 'crm' }),
             size: 160,
             muiTableBodyCellProps: ({ cell }) => ({
                 sx: {
@@ -128,7 +130,7 @@ const DealDashboard = () => {
         },
         {
             accessorKey: 'salesLabel',
-            header: 'Sales',
+            header: i18next.t('common.sales', { ns: 'crm' }),
             size: 100,
             Cell: ({ cell }) => (
                 <Chip
@@ -140,7 +142,7 @@ const DealDashboard = () => {
         },
         {
             accessorKey: 'dealSizeNtd',
-            header: 'Deal Size',
+            header: i18next.t('common.dealSize', { ns: 'crm' }),
             size: 120,
             Cell: ({ cell }) => (
                 <Typography variant="body2">
@@ -150,7 +152,7 @@ const DealDashboard = () => {
         },
         {
             accessorKey: 'closedDate',
-            header: 'Closed Date',
+            header: i18next.t('common.closedDate', { ns: 'crm' }),
             size: 140,
             Cell: ({ cell }) => (
                 <Stack alignItems="center" direction="row" spacing={1}>
@@ -165,7 +167,7 @@ const DealDashboard = () => {
         },
         {
             accessorKey: 'note',
-            header: 'Note',
+            header: i18next.t('common.note', { ns: 'crm' }),
             size: 350,
             muiTableBodyCellProps: ({ cell }) => ({
                 sx: {
@@ -207,14 +209,14 @@ const DealDashboard = () => {
                         href={`${DEMO.DASHBOARD_LINK}`}
                         underline="hover"
                     >
-                        {i18next.t('CRM', { ns: 'common' })}
+                        {i18next.t('breadcrumbs.crm', { ns: 'crm' })}
                     </Link>
                     <Typography>
-                        {i18next.t('Deals', { ns: 'common' })}
+                        {i18next.t('breadcrumbs.deals', { ns: 'crm' })}
                     </Typography>
                 </Breadcrumbs>
                 <Button onClick={() => setOpen(true)} variant="contained">
-                    Create Deal
+                    {i18next.t('actions.createDeal', { ns: 'crm' })}
                 </Button>
             </Stack>
 

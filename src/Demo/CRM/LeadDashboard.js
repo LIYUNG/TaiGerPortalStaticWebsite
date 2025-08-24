@@ -31,7 +31,9 @@ import { appConfig } from '../../config';
 import { getCRMLeadsQuery } from '../../api/query';
 
 const LeadDashboard = () => {
-    TabTitle('CRM - Leads');
+    TabTitle(
+        `${i18next.t('breadcrumbs.crm', { ns: 'crm' })} - ${i18next.t('breadcrumbs.leads', { ns: 'crm' })}`
+    );
     const navigate = useNavigate();
     const [tabValue, setTabValue] = useState(1);
 
@@ -86,7 +88,7 @@ const LeadDashboard = () => {
     const columns = [
         {
             accessorKey: 'closeLikelihood',
-            header: 'Chance',
+            header: i18next.t('leads.chance', { ns: 'crm' }),
             size: 100,
             Cell: ({ cell }) => {
                 const value = cell.getValue();
@@ -104,7 +106,7 @@ const LeadDashboard = () => {
         },
         {
             accessorKey: 'status',
-            header: 'Status',
+            header: i18next.t('common.status', { ns: 'crm' }),
             size: 100,
             Cell: ({ cell }) => {
                 const value = cell.getValue();
@@ -121,7 +123,7 @@ const LeadDashboard = () => {
         },
         {
             accessorKey: 'fullName',
-            header: 'Full Name',
+            header: i18next.t('leads.fullName', { ns: 'crm' }),
             size: 120,
             muiTableBodyCellProps: ({ cell }) => ({
                 sx: {
@@ -140,7 +142,7 @@ const LeadDashboard = () => {
         },
         {
             accessorKey: 'intendedStartTime',
-            header: 'Start Time',
+            header: i18next.t('leads.startTime', { ns: 'crm' }),
             size: 150,
             Cell: ({ cell }) => (
                 <Stack alignItems="center" direction="row" spacing={1}>
@@ -151,7 +153,7 @@ const LeadDashboard = () => {
         },
         {
             id: 'intendedProgram',
-            header: 'Intended Program',
+            header: i18next.t('leads.intendedProgram', { ns: 'crm' }),
             size: 350,
             accessorFn: (row) => {
                 const level = row.intendedProgramLevel?.trim();
@@ -184,7 +186,7 @@ const LeadDashboard = () => {
         },
         {
             accessorFn: (row) => row.salesRep?.label ?? 'N/A',
-            header: 'Sales',
+            header: i18next.t('common.sales', { ns: 'crm' }),
             size: 100,
             Cell: ({ cell }) => (
                 <Chip
@@ -196,7 +198,7 @@ const LeadDashboard = () => {
         },
         {
             accessorKey: 'salesNote',
-            header: 'Sales Note',
+            header: i18next.t('common.salesNote', { ns: 'crm' }),
             size: 350,
             muiTableBodyCellProps: ({ cell }) => ({
                 sx: {
@@ -215,7 +217,7 @@ const LeadDashboard = () => {
         },
         {
             accessorKey: 'createdAt',
-            header: 'Submitted At',
+            header: i18next.t('common.submittedAt', { ns: 'crm' }),
             size: 150,
             Cell: ({ cell }) => (
                 <Stack alignItems="center" direction="row" spacing={1}>
@@ -252,34 +254,34 @@ const LeadDashboard = () => {
     const getTabTitle = () => {
         switch (tabValue) {
             case 0:
-                return 'All Leads';
+                return i18next.t('leads.allLeads', { ns: 'crm' });
             case 1:
-                return 'Open Leads';
+                return i18next.t('leads.openLeads', { ns: 'crm' });
             case 2:
-                return 'Contacted Leads';
+                return i18next.t('leads.contactedLeads', { ns: 'crm' });
             case 3:
-                return 'Converted Leads';
+                return i18next.t('leads.convertedLeads', { ns: 'crm' });
             case 4:
-                return 'Closed Leads';
+                return i18next.t('leads.closedLeads', { ns: 'crm' });
             default:
-                return 'Open Leads';
+                return i18next.t('leads.openLeads', { ns: 'crm' });
         }
     };
 
     const getTabDescription = () => {
         switch (tabValue) {
             case 0:
-                return 'All leads from all categories.';
+                return i18next.t('leads.desc.all', { ns: 'crm' });
             case 1:
-                return 'Open leads submitted by users through the google survey.';
+                return i18next.t('leads.desc.open', { ns: 'crm' });
             case 2:
-                return 'Contacted leads with scheduled meetings.';
+                return i18next.t('leads.desc.contacted', { ns: 'crm' });
             case 3:
-                return 'Leads that have been Converted or completed.';
+                return i18next.t('leads.desc.converted', { ns: 'crm' });
             case 4:
-                return 'Leads that have been closed.';
+                return i18next.t('leads.desc.closed', { ns: 'crm' });
             default:
-                return 'Open leads submitted by users through the google survey.';
+                return i18next.t('leads.desc.open', { ns: 'crm' });
         }
     };
 
@@ -300,9 +302,11 @@ const LeadDashboard = () => {
                     href={`${DEMO.DASHBOARD_LINK}`}
                     underline="hover"
                 >
-                    {i18next.t('CRM', { ns: 'common' })}
+                    {i18next.t('breadcrumbs.crm', { ns: 'crm' })}
                 </Link>
-                <Typography>{i18next.t('Leads', { ns: 'common' })}</Typography>
+                <Typography>
+                    {i18next.t('breadcrumbs.leads', { ns: 'crm' })}
+                </Typography>
             </Breadcrumbs>
 
             {/* Main Table */}
@@ -325,23 +329,23 @@ const LeadDashboard = () => {
                     <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                         <Tabs onChange={handleTabChange} value={tabValue}>
                             <Tab
-                                label={`All Leads (${allLeads.length})`}
+                                label={`${i18next.t('leads.allLeads', { ns: 'crm' })} (${allLeads.length})`}
                                 sx={{ textTransform: 'none' }}
                             />
                             <Tab
-                                label={`Open Leads (${openLeads.length})`}
+                                label={`${i18next.t('leads.openLeads', { ns: 'crm' })} (${openLeads.length})`}
                                 sx={{ textTransform: 'none' }}
                             />
                             <Tab
-                                label={`Contacted Leads (${contactedLeads.length})`}
+                                label={`${i18next.t('leads.contactedLeads', { ns: 'crm' })} (${contactedLeads.length})`}
                                 sx={{ textTransform: 'none' }}
                             />
                             <Tab
-                                label={`Converted Leads (${convertedLeads.length})`}
+                                label={`${i18next.t('leads.convertedLeads', { ns: 'crm' })} (${convertedLeads.length})`}
                                 sx={{ textTransform: 'none' }}
                             />
                             <Tab
-                                label={`Closed Leads (${closedLeads.length})`}
+                                label={`${i18next.t('leads.closedLeads', { ns: 'crm' })} (${closedLeads.length})`}
                                 sx={{ textTransform: 'none' }}
                             />
                         </Tabs>
