@@ -10,7 +10,7 @@ import {
     CardContent
 } from '@mui/material';
 import { BarChart } from '@mui/x-charts/BarChart';
-import i18next from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '../../store/constant';
@@ -21,7 +21,8 @@ import { is_TaiGer_role } from '@taiger-common/core';
 import { getCRMStatsQuery } from '../../api/query';
 
 const CRMDashboard = () => {
-    TabTitle(i18next.t('CRM Dashboard', { ns: 'common' }));
+    const { t } = useTranslation();
+    TabTitle(t('breadcrumbs.dashboard', { ns: 'crm' }));
     const { user } = useAuth();
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
@@ -102,7 +103,7 @@ const CRMDashboard = () => {
                     {appConfig.companyName}
                 </Link>
                 <Typography color="text.primary">
-                    {i18next.t('CRM Dashboard', { ns: 'common' })}
+                    {t('breadcrumbs.dashboard', { ns: 'crm' })}
                 </Typography>
             </Breadcrumbs>
 
@@ -117,7 +118,7 @@ const CRMDashboard = () => {
                         }}
                     >
                         <Typography color="textSecondary" variant="body2">
-                            {i18next.t('Leads', { ns: 'common' })}
+                            {t('dashboard.leads', { ns: 'crm' })}
                         </Typography>
                         <Typography component="div" variant="h5">
                             {stats.totalLeadCount || 0}
@@ -130,9 +131,7 @@ const CRMDashboard = () => {
                             </Typography>
                         </Typography>
                         <Typography color="textSecondary" variant="caption">
-                            {i18next.t('Total leads (+last 7 days)', {
-                                ns: 'common'
-                            })}
+                            {t('dashboard.totalLeadsRecent', { ns: 'crm' })}
                         </Typography>
                     </Box>
                 </Grid>
@@ -146,15 +145,13 @@ const CRMDashboard = () => {
                         }}
                     >
                         <Typography color="textSecondary" variant="body2">
-                            {i18next.t('Converted Leads', { ns: 'common' })}
+                            {t('dashboard.convertedLeads', { ns: 'crm' })}
                         </Typography>
                         <Typography component="div" variant="h5">
                             {stats.convertedLeadCount || 0}
                         </Typography>
                         <Typography color="textSecondary" variant="caption">
-                            {i18next.t('Total Converted', {
-                                ns: 'common'
-                            })}
+                            {t('dashboard.totalConverted', { ns: 'crm' })}
                         </Typography>
                     </Box>
                 </Grid>
@@ -168,7 +165,7 @@ const CRMDashboard = () => {
                         }}
                     >
                         <Typography color="textSecondary" variant="body2">
-                            {i18next.t('Meetings', { ns: 'common' })}
+                            {t('dashboard.meetings', { ns: 'crm' })}
                         </Typography>
                         <Typography component="div" variant="h5">
                             {stats.totalMeetingCount || 0}
@@ -181,9 +178,7 @@ const CRMDashboard = () => {
                             </Typography>
                         </Typography>
                         <Typography color="textSecondary" variant="caption">
-                            {i18next.t('Total meetings (+last 7 days)', {
-                                ns: 'common'
-                            })}
+                            {t('dashboard.totalMeetingsRecent', { ns: 'crm' })}
                         </Typography>
                     </Box>
                 </Grid>
@@ -193,9 +188,7 @@ const CRMDashboard = () => {
                     <Card>
                         <CardContent>
                             <Typography gutterBottom variant="h6">
-                                {i18next.t('Leads Count by Calendar Week', {
-                                    ns: 'common'
-                                })}
+                                {t('dashboard.leadsCountByWeek', { ns: 'crm' })}
                             </Typography>
                             {allWeeks.length > 0 ? (
                                 <BarChart
@@ -203,16 +196,24 @@ const CRMDashboard = () => {
                                     series={[
                                         {
                                             data: unifiedLeadsData,
-                                            label: 'New Leads'
+                                            label: t('dashboard.newLeads', {
+                                                ns: 'crm'
+                                            })
                                         },
                                         {
                                             data: unifiedHighChanceLeadsData,
-                                            label: 'High Chance Leads',
+                                            label: t(
+                                                'dashboard.highChanceLeads',
+                                                { ns: 'crm' }
+                                            ),
                                             color: '#F28E2B'
                                         },
                                         {
                                             data: unifiedConvertedLeadsData,
-                                            label: 'Converted Leads',
+                                            label: t(
+                                                'dashboard.convertedLeadsSeries',
+                                                { ns: 'crm' }
+                                            ),
                                             color: '#59A14F'
                                         }
                                     ]}
@@ -221,7 +222,9 @@ const CRMDashboard = () => {
                                     }}
                                     xAxis={[
                                         {
-                                            label: 'Calendar Week',
+                                            label: t('dashboard.calendarWeek', {
+                                                ns: 'crm'
+                                            }),
                                             data: allWeeks,
                                             scaleType: 'band',
                                             barGapRatio: -1
@@ -229,7 +232,9 @@ const CRMDashboard = () => {
                                     ]}
                                     yAxis={[
                                         {
-                                            label: 'Count'
+                                            label: t('dashboard.count', {
+                                                ns: 'crm'
+                                            })
                                         }
                                     ]}
                                 />
@@ -238,9 +243,7 @@ const CRMDashboard = () => {
                                     color="textSecondary"
                                     variant="body2"
                                 >
-                                    {i18next.t('No data available', {
-                                        ns: 'common'
-                                    })}
+                                    {t('dashboard.noData', { ns: 'crm' })}
                                 </Typography>
                             )}
                         </CardContent>
@@ -251,8 +254,8 @@ const CRMDashboard = () => {
                     <Card>
                         <CardContent>
                             <Typography gutterBottom variant="h6">
-                                {i18next.t('Meeting Count by Calendar Week', {
-                                    ns: 'common'
+                                {t('dashboard.meetingCountByWeek', {
+                                    ns: 'crm'
                                 })}
                             </Typography>
                             {allWeeks.length > 0 ? (
@@ -261,8 +264,8 @@ const CRMDashboard = () => {
                                     series={[
                                         {
                                             data: unifiedMeetingsData,
-                                            label: i18next.t('Meetings', {
-                                                ns: 'common'
+                                            label: t('dashboard.meetings', {
+                                                ns: 'crm'
                                             })
                                         }
                                     ]}
@@ -271,8 +274,8 @@ const CRMDashboard = () => {
                                     }}
                                     xAxis={[
                                         {
-                                            label: i18next.t('Calendar Week', {
-                                                ns: 'common'
+                                            label: t('dashboard.calendarWeek', {
+                                                ns: 'crm'
                                             }),
                                             data: allWeeks,
                                             scaleType: 'band'
@@ -280,8 +283,8 @@ const CRMDashboard = () => {
                                     ]}
                                     yAxis={[
                                         {
-                                            label: i18next.t('Count', {
-                                                ns: 'common'
+                                            label: t('dashboard.count', {
+                                                ns: 'crm'
                                             })
                                         }
                                     ]}
@@ -291,9 +294,7 @@ const CRMDashboard = () => {
                                     color="textSecondary"
                                     variant="body2"
                                 >
-                                    {i18next.t('No data available', {
-                                        ns: 'common'
-                                    })}
+                                    {t('dashboard.noData', { ns: 'crm' })}
                                 </Typography>
                             )}
                         </CardContent>

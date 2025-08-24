@@ -1,6 +1,6 @@
 import { Navigate, useNavigate, Link as LinkDom } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import i18next from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { MaterialReactTable } from 'material-react-table';
 import { useState } from 'react';
 import {
@@ -46,7 +46,10 @@ import { getCRMMeetingsQuery, getCRMLeadsQuery } from '../../api/query';
 import { updateCRMMeeting } from '../../api';
 
 const MeetingPage = () => {
-    TabTitle('CRM - Meetings');
+    const { t } = useTranslation();
+    TabTitle(
+        `${t('breadcrumbs.crm', { ns: 'crm' })} - ${t('breadcrumbs.meetings', { ns: 'crm' })}`
+    );
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const [assignMenuAnchor, setAssignMenuAnchor] = useState(null);
@@ -223,7 +226,7 @@ const MeetingPage = () => {
     const getColumns = (isArchived = false) => [
         {
             accessorKey: 'date',
-            header: 'Datetime',
+            header: t('common.datetime', { ns: 'crm' }),
             size: 80,
             Cell: ({ cell }) => {
                 const date = new Date(cell.getValue());
@@ -244,7 +247,7 @@ const MeetingPage = () => {
         },
         {
             accessorKey: 'title',
-            header: 'Meeting Title',
+            header: t('meetings.meetingTitle', { ns: 'crm' }),
             size: 250,
             Cell: ({ row }) => (
                 <Link
@@ -258,13 +261,14 @@ const MeetingPage = () => {
                     to={`/crm/meetings/${row.original.id}`}
                     underline="hover"
                 >
-                    {row.original.title || 'Untitled Meeting'}
+                    {row.original.title ||
+                        t('meetings.meetingTitle', { ns: 'crm' })}
                 </Link>
             )
         },
         {
             accessorKey: 'summary.gist',
-            header: 'Summary',
+            header: t('common.summary', { ns: 'crm' }),
             size: 350,
             minSize: 200,
             maxSize: 400,
@@ -283,7 +287,7 @@ const MeetingPage = () => {
                         }}
                         variant="body2"
                     >
-                        {gist || 'No summary available'}
+                        {gist || t('common.noSummary', { ns: 'crm' })}
                     </Typography>
                 );
             }
@@ -291,7 +295,7 @@ const MeetingPage = () => {
 
         {
             accessorKey: 'leadFullName',
-            header: 'Lead',
+            header: t('common.lead', { ns: 'crm' }),
             size: 150,
             Cell: ({ row }) => {
                 const { leadId, leadFullName } = row.original;
@@ -318,13 +322,15 @@ const MeetingPage = () => {
                             >
                                 <PersonIcon fontSize="small" />
                             </Avatar>
-                            <Typography>{leadFullName || 'N/A'}</Typography>
+                            <Typography>
+                                {leadFullName || t('common.na', { ns: 'crm' })}
+                            </Typography>
                         </Stack>
                     </Link>
                 ) : (
                     <Chip
                         color="warning"
-                        label="No Lead Assigned"
+                        label={t('common.noLeadAssigned', { ns: 'crm' })}
                         size="small"
                         variant="outlined"
                     />
@@ -344,8 +350,8 @@ const MeetingPage = () => {
                         <Tooltip
                             title={
                                 isArchived
-                                    ? 'Unarchive meeting'
-                                    : 'Archive meeting'
+                                    ? t('actions.unarchive', { ns: 'crm' })
+                                    : t('actions.archive', { ns: 'crm' })
                             }
                         >
                             <IconButton
@@ -370,8 +376,8 @@ const MeetingPage = () => {
                             <Tooltip
                                 title={
                                     leadId
-                                        ? 'Change or remove lead assignment'
-                                        : 'Assign to existing lead'
+                                        ? t('actions.change', { ns: 'crm' })
+                                        : t('actions.assign', { ns: 'crm' })
                                 }
                             >
                                 <Button
@@ -390,7 +396,9 @@ const MeetingPage = () => {
                                     sx={{ borderRadius: 2 }}
                                     variant={leadId ? 'outlined' : 'contained'}
                                 >
-                                    {leadId ? 'Change' : 'Assign'}
+                                    {leadId
+                                        ? t('actions.change', { ns: 'crm' })
+                                        : t('actions.assign', { ns: 'crm' })}
                                 </Button>
                             </Tooltip>
                         )}
@@ -419,10 +427,10 @@ const MeetingPage = () => {
                     sx={{ fontWeight: 500 }}
                     underline="hover"
                 >
-                    {i18next.t('CRM', { ns: 'common' })}
+                    {t('breadcrumbs.crm', { ns: 'crm' })}
                 </Link>
                 <Typography>
-                    {i18next.t('Meetings', { ns: 'common' })}
+                    {t('breadcrumbs.meetings', { ns: 'crm' })}
                 </Typography>
             </Breadcrumbs>
 
@@ -454,7 +462,7 @@ const MeetingPage = () => {
             >
                 <Box sx={{ p: 2 }}>
                     <Typography sx={{ mb: 2 }} variant="h6">
-                        Assign Lead to Meeting
+                        {t('meetings.assignLeadToMeeting', { ns: 'crm' })}
                     </Typography>
 
                     {/* Search Input */}
@@ -462,7 +470,7 @@ const MeetingPage = () => {
                         autoFocus
                         fullWidth
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        placeholder="Search leads by name or email..."
+                        placeholder={t('meetings.searchLeads', { ns: 'crm' })}
                         size="small"
                         sx={{ mb: 1 }}
                         value={searchTerm}
@@ -502,12 +510,17 @@ const MeetingPage = () => {
                                                 </Avatar>
                                             </ListItemAvatar>
                                             <ListItemText
-                                                primary="Remove Assignment"
+                                                primary={t('actions.unassign', {
+                                                    ns: 'crm'
+                                                })}
                                                 primaryTypographyProps={{
                                                     fontWeight: 500,
                                                     color: 'error.main'
                                                 }}
-                                                secondary="Unassign lead from this meeting"
+                                                secondary={t(
+                                                    'meetings.unassignLead',
+                                                    { ns: 'crm' }
+                                                )}
                                             />
                                         </ListItemButton>
                                     </ListItem>
@@ -539,7 +552,10 @@ const MeetingPage = () => {
                                         </ListItemAvatar>
                                         <ListItemText
                                             primary={
-                                                lead.fullName || 'Unnamed Lead'
+                                                lead.fullName ||
+                                                t('leads.fullName', {
+                                                    ns: 'crm'
+                                                })
                                             }
                                             primaryTypographyProps={{
                                                 fontWeight: 500
@@ -554,8 +570,12 @@ const MeetingPage = () => {
                                 <ListItemText
                                     primary={
                                         searchTerm
-                                            ? 'No leads found'
-                                            : 'No leads available'
+                                            ? t('common.noLeadsFound', {
+                                                  ns: 'crm'
+                                              })
+                                            : t('common.noLeadsAvailable', {
+                                                  ns: 'crm'
+                                              })
                                     }
                                     sx={{
                                         textAlign: 'center',
@@ -577,11 +597,10 @@ const MeetingPage = () => {
                             fontWeight={600}
                             variant="h6"
                         >
-                            Meeting Transcripts
+                            {t('common.meetinTranscripts', { ns: 'crm' })}
                         </Typography>
                         <Typography color="text.secondary" variant="body2">
-                            Manage and review all meeting summaries and
-                            transcripts
+                            {t('common.manageTranscripts', { ns: 'crm' })}
                         </Typography>
                     </Box>
 
@@ -593,15 +612,15 @@ const MeetingPage = () => {
                             value={activeTab}
                         >
                             <Tab
-                                label={`All Meetings (${nonArchivedMeetings.length})`}
+                                label={`${t('meetings.allMeetings', { ns: 'crm' })} (${nonArchivedMeetings.length})`}
                                 sx={{ textTransform: 'none', fontWeight: 500 }}
                             />
                             <Tab
-                                label={`Unassigned Meetings (${unassignedMeetings.length})`}
+                                label={`${t('meetings.unassignedMeetings', { ns: 'crm' })} (${unassignedMeetings.length})`}
                                 sx={{ textTransform: 'none', fontWeight: 500 }}
                             />
                             <Tab
-                                label={`Archived Meetings (${archivedMeetings.length})`}
+                                label={`${t('meetings.archivedMeetings', { ns: 'crm' })} (${archivedMeetings.length})`}
                                 sx={{ textTransform: 'none', fontWeight: 500 }}
                             />
                         </Tabs>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     Card,
     CardContent,
@@ -25,6 +26,7 @@ const EditableCard = ({
     hasUnsavedChanges = false,
     gridProps = {}
 }) => {
+    const { t } = useTranslation();
     return (
         <Card sx={{ height: '100%', ...gridProps.sx }}>
             <CardContent>
@@ -48,7 +50,7 @@ const EditableCard = ({
                                     fontWeight: 'normal'
                                 }}
                             >
-                                • Unsaved changes
+                                {t('common.unsavedChanges', { ns: 'crm' })}
                             </Typography>
                         )}
                     </Typography>

@@ -1,4 +1,5 @@
 import { useParams, Navigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, useMemo } from 'react';
 import { useForm } from '@tanstack/react-form';
@@ -46,6 +47,7 @@ import SimilarStudents from './components/SimilarStudents';
 import { request } from '../../api/request';
 
 const LeadPage = () => {
+    const { t } = useTranslation();
     const { leadId } = useParams();
     const queryClient = useQueryClient();
 
@@ -56,7 +58,9 @@ const LeadPage = () => {
 
     const { data, isLoading } = useQuery(getCRMLeadQuery(leadId));
     const lead = data?.data?.data || {};
-    TabTitle(`Lead ${lead ? `- ${lead.fullName}` : ''}`);
+    TabTitle(
+        `${t('breadcrumbs.leads', { ns: 'crm' })} ${lead ? `- ${lead.fullName}` : ''}`
+    );
 
     // Sales reps options for editing sales representative
     const { data: salesData } = useQuery({
@@ -68,7 +72,11 @@ const LeadPage = () => {
     });
     const salesOptions = (salesData || []).map((s) => ({
         userId: s.userId || s.value,
-        label: s.label || s.name || s.fullName || 'Unknown'
+        label:
+            s.label ||
+            s.name ||
+            s.fullName ||
+            t('common.unknown', { ns: 'crm' })
     }));
 
     // Modal state for creating user from lead
@@ -133,7 +141,7 @@ const LeadPage = () => {
     };
 
     // Get card configurations with the create user handler
-    const cardConfigurations = getCardConfigurations(handleCreateUser);
+    const cardConfigurations = getCardConfigurations(t);
 
     // Generate edit states dynamically from card configurations
     const initialEditStates = cardConfigurations.reduce((acc, config) => {
@@ -347,7 +355,7 @@ const LeadPage = () => {
                         href="/crm"
                         underline="hover"
                     >
-                        CRM
+                        {t('breadcrumbs.crm', { ns: 'crm' })}
                     </Link>
                     <Link
                         color="inherit"
@@ -355,7 +363,7 @@ const LeadPage = () => {
                         href="/crm/leads"
                         underline="hover"
                     >
-                        Leads
+                        {t('breadcrumbs.leads', { ns: 'crm' })}
                     </Link>
                     <Typography color="text.primary">
                         {lead.fullName}
@@ -406,7 +414,7 @@ const LeadPage = () => {
                                 }}
                                 variant="h5"
                             >
-                                {lead.fullName || 'N/A'}
+                                {lead.fullName || t('common.na', { ns: 'crm' })}
                             </Typography>
 
                             {/* Gender Icon */}
@@ -416,7 +424,7 @@ const LeadPage = () => {
                                         display: 'flex',
                                         alignItems: 'center'
                                     }}
-                                    title={`Gender: ${lead.gender?.charAt(0).toUpperCase() + lead.gender?.slice(1)}`}
+                                    title={`${t('leads.gender', { ns: 'crm' })}: ${lead.gender?.charAt(0).toUpperCase() + lead.gender?.slice(1)}`}
                                 >
                                     {(() => {
                                         // Normalize gender text to handle various formats
@@ -516,7 +524,7 @@ const LeadPage = () => {
                                         boxShadow: '0 2px 4px rgba(0,0,0,0.08)',
                                         letterSpacing: '0.2px'
                                     }}
-                                    title={`Close Likelihood: ${lead.closeLikelihood.charAt(0).toUpperCase() + lead.closeLikelihood.slice(1)}`}
+                                    title={`${t('leads.closeLikelihood', { ns: 'crm' })}: ${lead.closeLikelihood.charAt(0).toUpperCase() + lead.closeLikelihood.slice(1)}`}
                                 >
                                     {lead.closeLikelihood === 'high'
                                         ? 'H'
@@ -563,7 +571,7 @@ const LeadPage = () => {
                                 {lead.status
                                     ? lead.status.charAt(0).toUpperCase() +
                                       lead.status.slice(1)
-                                    : 'N/A'}
+                                    : t('common.na', { ns: 'crm' })}
                             </Box>
 
                             {/* Push edit button to the right */}
@@ -586,8 +594,9 @@ const LeadPage = () => {
                                     }}
                                     variant="body2"
                                 >
-                                    Sales:{' '}
-                                    {lead?.salesRep?.label || 'Unassigned'}
+                                    {t('common.sales', { ns: 'crm' })}:{' '}
+                                    {lead?.salesRep?.label ||
+                                        t('leads.unassigned', { ns: 'crm' })}
                                 </Typography>
 
                                 {editStates.personal &&
@@ -601,7 +610,9 @@ const LeadPage = () => {
                                                 fontWeight: 'normal'
                                             }}
                                         >
-                                            • Unsaved changes
+                                            {t('common.unsavedChanges', {
+                                                ns: 'crm'
+                                            })}
                                         </Typography>
                                     )}
 
@@ -688,7 +699,7 @@ const LeadPage = () => {
                                     underline="hover"
                                     variant="body2"
                                 >
-                                    View Student Profile
+                                    {t('common.studentProfile', { ns: 'crm' })}
                                 </Link>
                             ) : !lead.userId &&
                               lead.status !== 'closed' &&
@@ -700,7 +711,9 @@ const LeadPage = () => {
                                     startIcon={<PersonAddIcon />}
                                     variant="outlined"
                                 >
-                                    Create User Account
+                                    {t('actions.createUserAccount', {
+                                        ns: 'crm'
+                                    })}
                                 </Button>
                             ) : null}
 
@@ -711,7 +724,7 @@ const LeadPage = () => {
                                 size="small"
                                 variant="contained"
                             >
-                                Create Deal
+                                {t('actions.createDeal', { ns: 'crm' })}
                             </Button>
                         </Box>
 
@@ -726,7 +739,7 @@ const LeadPage = () => {
                                     }}
                                     variant="caption"
                                 >
-                                    Sales Note
+                                    {t('common.salesNote', { ns: 'crm' })}
                                 </Typography>
                                 <Box
                                     sx={{
@@ -759,7 +772,7 @@ const LeadPage = () => {
                                         }}
                                         variant="caption"
                                     >
-                                        Deals
+                                        {t('breadcrumbs.deals', { ns: 'crm' })}
                                     </Typography>
                                     <Box
                                         sx={{
@@ -798,7 +811,10 @@ const LeadPage = () => {
                                                             'background.paper'
                                                     }}
                                                 >
-                                                    {deal?.status || 'N/A'}
+                                                    {deal?.status ||
+                                                        t('common.na', {
+                                                            ns: 'crm'
+                                                        })}
                                                 </Box>
 
                                                 {/* Closed date */}
@@ -875,12 +891,16 @@ const LeadPage = () => {
                                                 mb: 0.5
                                             }}
                                         >
-                                            • Unsaved changes
+                                            {t('common.unsavedChanges', {
+                                                ns: 'crm'
+                                            })}
                                         </Typography>
                                     )}
                                     <TextField
                                         fullWidth
-                                        label="Full Name"
+                                        label={t('leads.fullName', {
+                                            ns: 'crm'
+                                        })}
                                         onChange={(e) =>
                                             handleFieldChange(
                                                 'fullName',
@@ -897,10 +917,10 @@ const LeadPage = () => {
                             <Grid item md={2} xs={6}>
                                 <FormControl fullWidth size="small">
                                     <InputLabel id="gender-select-label">
-                                        Gender
+                                        {t('leads.gender', { ns: 'crm' })}
                                     </InputLabel>
                                     <Select
-                                        label="Gender"
+                                        label={t('leads.gender', { ns: 'crm' })}
                                         labelId="gender-select-label"
                                         onChange={(e) =>
                                             handleFieldChange(
@@ -922,7 +942,7 @@ const LeadPage = () => {
                             <Grid item md={3} xs={6}>
                                 <TextField
                                     fullWidth
-                                    label="Role"
+                                    label={t('leads.role', { ns: 'crm' })}
                                     onChange={(e) =>
                                         handleFieldChange(
                                             'applicantRole',
@@ -939,10 +959,12 @@ const LeadPage = () => {
                             <Grid item md={2} xs={6}>
                                 <FormControl fullWidth size="small">
                                     <InputLabel id="sales-rep-select-label">
-                                        Sales Rep
+                                        {t('leads.salesRep', { ns: 'crm' })}
                                     </InputLabel>
                                     <Select
-                                        label="Sales Rep"
+                                        label={t('leads.salesRep', {
+                                            ns: 'crm'
+                                        })}
                                         labelId="sales-rep-select-label"
                                         onChange={(e) => {
                                             const selectedId = e.target.value;
@@ -958,7 +980,11 @@ const LeadPage = () => {
                                         }}
                                         value={formData?.salesUserId || ''}
                                     >
-                                        <MenuItem value="">Unassigned</MenuItem>
+                                        <MenuItem value="">
+                                            {t('leads.unassigned', {
+                                                ns: 'crm'
+                                            })}
+                                        </MenuItem>
                                         {salesOptions.map((s) => (
                                             <MenuItem
                                                 key={s.userId}
@@ -1008,10 +1034,12 @@ const LeadPage = () => {
                             <Grid item md={3} xs={6}>
                                 <FormControl fullWidth size="small">
                                     <InputLabel id="status-select-label">
-                                        Status
+                                        {t('common.status', { ns: 'crm' })}
                                     </InputLabel>
                                     <Select
-                                        label="Status"
+                                        label={t('common.status', {
+                                            ns: 'crm'
+                                        })}
                                         labelId="status-select-label"
                                         onChange={(e) =>
                                             handleFieldChange(
@@ -1037,10 +1065,14 @@ const LeadPage = () => {
                             <Grid item md={3} xs={12}>
                                 <FormControl fullWidth size="small">
                                     <InputLabel id="close-likelihood-select-label">
-                                        Close Likelihood
+                                        {t('leads.closeLikelihood', {
+                                            ns: 'crm'
+                                        })}
                                     </InputLabel>
                                     <Select
-                                        label="Close Likelihood"
+                                        label={t('leads.closeLikelihood', {
+                                            ns: 'crm'
+                                        })}
                                         labelId="close-likelihood-select-label"
                                         onChange={(e) =>
                                             handleFieldChange(
@@ -1063,7 +1095,7 @@ const LeadPage = () => {
                             <Grid item xs={12}>
                                 <TextField
                                     fullWidth
-                                    label="Sales Note"
+                                    label={t('common.salesNote', { ns: 'crm' })}
                                     minRows={3}
                                     multiline
                                     onChange={(e) =>
@@ -1091,7 +1123,9 @@ const LeadPage = () => {
                                                 }}
                                                 variant="caption"
                                             >
-                                                Deals
+                                                {t('breadcrumbs.deals', {
+                                                    ns: 'crm'
+                                                })}
                                             </Typography>
                                             <Box
                                                 sx={{
@@ -1134,7 +1168,9 @@ const LeadPage = () => {
                                                             }}
                                                         >
                                                             {deal?.status ||
-                                                                'N/A'}
+                                                                t('common.na', {
+                                                                    ns: 'crm'
+                                                                })}
                                                         </Box>
                                                         {deal?.closedDate && (
                                                             <Typography
@@ -1272,7 +1308,9 @@ const LeadPage = () => {
                                             }}
                                         >
                                             {meeting.summary?.gist ||
-                                                'No summary available'}
+                                                t('common.noSummary', {
+                                                    ns: 'crm'
+                                                })}
                                         </Box>
                                     </Typography>
                                 </Box>
@@ -1324,7 +1362,7 @@ const LeadPage = () => {
                 </Grid>
             ) : (
                 <Typography color="text.secondary" variant="body1">
-                    Loading lead information...
+                    {t('common.loadingLeadInfo', { ns: 'crm' })}
                 </Typography>
             )}
 

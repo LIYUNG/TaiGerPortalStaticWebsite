@@ -1,0 +1,212 @@
+{
+    "breadcrumbs": {
+        "crm": "CRM",
+        "dashboard": "CRM Dashboard",
+        "leads": "Leads",
+        "deals": "Deals",
+        "meetings": "Meetings"
+    },
+    "actions": {
+        "create": "Create",
+        "cancel": "Cancel",
+        "save": "Save",
+        "edit": "Edit",
+        "assign": "Assign",
+        "change": "Change",
+        "unassign": "Remove Assignment",
+        "archive": "Archive meeting",
+        "unarchive": "Unarchive meeting",
+        "regenerate": "Regenerate",
+        "createDeal": "Create Deal",
+        "createUserAccount": "Create User Account",
+        "createUserAccountFromLead": "Create User Account from Lead",
+        "viewTranscript": "View Transcript"
+    },
+    "common": {
+        "na": "N/A",
+        "unknown": "Unknown",
+        "note": "Note",
+        "status": "Status",
+        "lead": "Lead",
+        "sales": "Sales",
+        "salesNote": "Sales Note",
+        "submittedAt": "Submitted At",
+        "closedDate": "Closed Date",
+        "dealSize": "Deal Size",
+        "datetime": "Datetime",
+        "summary": "Summary",
+        "noSummary": "No summary available",
+        "noLeadsFound": "No leads found",
+        "noLeadsAvailable": "No leads available",
+        "noLeadAssigned": "No Lead Assigned",
+        "similarStudents": "Similar Students",
+        "matchReason": "Match Reason:",
+        "showMore": "Show {{count}} More",
+        "showLess": "Show Less",
+        "noSimilarStudentsFound": "No similar students found",
+        "similarStudentsDesc": "Matches are based on academic background (school, program, GPA) and application preferences (program level, direction).",
+        "gpa": "GPA",
+        "school": "School",
+        "program": "Program",
+        "targetField": "Target Field",
+        "scrollLeft": "Scroll left",
+        "scrollRight": "Scroll right",
+        "loadingLeadInfo": "Loading lead information...",
+        "loadingMeetingDetails": "Loading meeting details...",
+        "meetinTranscripts": "Meeting Transcripts",
+        "manageTranscripts": "Manage and review all meeting summaries and transcripts",
+        "gist": "Gist",
+        "keywords": "Keywords",
+        "overview": "Overview",
+        "actionItems": "Action Items",
+        "assignedLead": "Assigned Lead",
+        "speakers": "Speakers",
+        "attendees": "Attendees",
+        "studentProfile": "View Student Profile",
+        "unsavedChanges": "• Unsaved changes"
+    },
+    "leads": {
+        "fullName": "Full Name",
+        "startTime": "Start Time",
+        "intendedProgram": "Intended Program",
+        "chance": "Chance",
+        "closeLikelihood": "Close Likelihood",
+        "openLeads": "Open Leads",
+        "contactedLeads": "Contacted Leads",
+        "convertedLeads": "Converted Leads",
+        "closedLeads": "Closed Leads",
+        "allLeads": "All Leads",
+        "desc": {
+            "all": "All leads from all categories.",
+            "open": "Open leads submitted by users through the google survey.",
+            "contacted": "Contacted leads with scheduled meetings.",
+            "converted": "Leads that have been Converted or completed.",
+            "closed": "Leads that have been closed."
+        },
+        "gender": "Gender",
+        "role": "Role",
+        "salesRep": "Sales Rep",
+        "unassigned": "Unassigned",
+        "createUserAccount": "Create User Account",
+        "createDeal": "Create Deal",
+        "salesLabel": "Sales: {{label}}"
+    },
+    "dashboard": {
+        "leads": "Leads",
+        "convertedLeads": "Converted Leads",
+        "meetings": "Meetings",
+        "totalLeadsRecent": "Total leads (+last 7 days)",
+        "totalConverted": "Total Converted",
+        "totalMeetingsRecent": "Total meetings (+last 7 days)",
+        "leadsCountByWeek": "Leads Count by Calendar Week",
+        "meetingCountByWeek": "Meeting Count by Calendar Week",
+        "calendarWeek": "Calendar Week",
+        "count": "Count",
+        "noData": "No data available",
+        "newLeads": "New Leads",
+        "highChanceLeads": "High Chance Leads",
+        "convertedLeadsSeries": "Converted Leads"
+    },
+    "meetings": {
+        "meetingTitle": "Meeting Title",
+        "meetingDetails": "Meeting Details",
+        "assignLeadToMeeting": "Assign Lead to Meeting",
+        "searchLeads": "Search leads by name or email...",
+        "unassignLead": "Unassign lead from this meeting",
+        "allMeetings": "All Meetings",
+        "unassignedMeetings": "Unassigned Meetings",
+        "archivedMeetings": "Archived Meetings"
+    },
+    "deals": {
+        "createDeal": "Create Deal",
+        "dealSizeNtd": "Deal Size (NTD)",
+        "placeholderDealSize": "e.g. 69999",
+        "status": "Status",
+        "note": "Note",
+        "closedDate": "Closed Date",
+        "leadIsRequired": "Lead is required",
+        "salesRepIsRequired": "Sales representative is required",
+        "mustBePositive": "Must be positive",
+        "closedDateRequired": "Closed date required when status is closed",
+        "lead": "Lead",
+        "salesRepresentative": "Sales representative",
+        "statusLabels": {
+            "initiated": "Initiated",
+            "sent": "Sent",
+            "signed": "Signed",
+            "closed": "Closed"
+        }
+    },
+    "users": {
+        "createUserFromLead": "Create User Account from Lead",
+        "firstNameEn": "First Name (English)",
+        "lastNameEn": "Last Name (English)",
+        "firstNameZh": "First Name (Chinese)",
+        "lastNameZh": "Last Name (Chinese)",
+        "email": "Email Address",
+        "applicationCount": "Application Count",
+        "placeholders": {
+            "firstName": "John",
+            "lastName": "Doe",
+            "firstNameZh": "小明",
+            "lastNameZh": "陳",
+            "email": "john.doe@example.com"
+        },
+        "errors": {
+            "requiredFields": "Please fill in all required fields",
+            "firstnameRequired": "First name is required",
+            "lastnameRequired": "Last name is required",
+            "emailRequired": "Email is required",
+            "emailInvalid": "Invalid email format",
+            "failedCreate": "Failed to create user",
+            "failedCreateDetailed": "Failed to create user. Please try again."
+        }
+    },
+    "cards": {
+        "education": {
+            "title": "Educational Background",
+            "highSchool": "High School",
+            "highSchoolName": "High School Name",
+            "highSchoolGPA": "High School GPA",
+            "bachelor": "Bachelor's Degree",
+            "bachelorSchool": "Bachelor School",
+            "bachelorProgram": "Bachelor Program",
+            "bachelorGPA": "Bachelor GPA",
+            "master": "Master's Degree",
+            "masterSchool": "Master School",
+            "masterProgram": "Master Program",
+            "masterGPA": "Master GPA",
+            "highestEducation": "Highest Education"
+        },
+        "programs": {
+            "title": "Intended Programs",
+            "targetUniversities": "Target Universities",
+            "targetField": "Target Field",
+            "targetDegree": "Target Degree",
+            "startTime": "Start Time"
+        },
+        "language": {
+            "title": "Language Skills",
+            "englishLevel": "English Level",
+            "germanLevel": "German Level"
+        },
+        "work": {
+            "title": "Work Experience",
+            "workExperience": "Work Experience",
+            "noWorkExperience": "No work experience provided"
+        },
+        "contact": {
+            "title": "Contact Information",
+            "email": "Email",
+            "phone": "Phone",
+            "preferredContact": "Preferred Contact",
+            "lineId": "LINE ID",
+            "source": "Source"
+        },
+        "additional": {
+            "title": "Additional Information",
+            "additionalInfo": "Additional Info",
+            "reasonsToStudyAbroad": "Reasons to Study Abroad"
+        }
+    }
+}

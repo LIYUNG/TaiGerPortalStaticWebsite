@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     Box,
     Typography,
@@ -13,7 +14,7 @@ import {
 } from '@mui/material';
 
 // Generic field renderer for view mode
-const ViewField = ({ field, lead }) => {
+const ViewField = ({ field, lead, t }) => {
     const value = field.accessor ? field.accessor(lead) : lead[field.key];
 
     if (field.type === 'chip') {
@@ -21,7 +22,7 @@ const ViewField = ({ field, lead }) => {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Chip
                     color={field.color ? field.color(value) : 'default'}
-                    label={value || 'Unknown'}
+                    label={value || t('common.unknown', { ns: 'crm' })}
                     size="small"
                 />
                 {field.additionalContent && field.additionalContent(lead)}
@@ -35,7 +36,7 @@ const ViewField = ({ field, lead }) => {
 
     return (
         <Typography sx={field.sx} variant="body1">
-            {value || field.defaultValue || 'N/A'}
+            {value || field.defaultValue || t('common.na', { ns: 'crm' })}
         </Typography>
     );
 };
@@ -88,6 +89,7 @@ export const GenericCardContent = ({
     formData,
     onFieldChange
 }) => {
+    const { t } = useTranslation();
     if (!isEditing) {
         return (
             <>
@@ -131,6 +133,7 @@ export const GenericCardContent = ({
                                             <ViewField
                                                 field={field}
                                                 lead={lead}
+                                                t={t}
                                             />
                                         </Box>
                                     ))}
@@ -150,7 +153,11 @@ export const GenericCardContent = ({
                                                 {field.label}
                                             </Typography>
                                         )}
-                                    <ViewField field={field} lead={lead} />
+                                    <ViewField
+                                        field={field}
+                                        lead={lead}
+                                        t={t}
+                                    />
                                 </Box>
                             ))}
                     </>
@@ -166,7 +173,7 @@ export const GenericCardContent = ({
                                         {field.label}
                                     </Typography>
                                 )}
-                            <ViewField field={field} lead={lead} />
+                            <ViewField field={field} lead={lead} t={t} />
                         </Box>
                     ))
                 )}

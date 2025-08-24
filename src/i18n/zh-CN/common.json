@@ -401,5 +401,10 @@
     "timeMinutes": "{{minutes}}分钟",
     "timeWeeks": "{{weeks}}周",
     "timeMonth": "{{month}}月",
-    "valid-only-two-years": "有效两年"
+    "valid-only-two-years": "有效两年",
+    "CRM": "CRM",
+    "CRM Overview": "CRM 概览",
+    "Leads": "线索",
+    "Deals": "订单",
+    "Meetings": "会议"
 }

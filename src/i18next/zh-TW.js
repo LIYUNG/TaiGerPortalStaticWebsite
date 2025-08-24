@@ -15,6 +15,7 @@ import survey from '../i18n/zh-TW/survey.json';
 import tickets from '../i18n/en/tickets.json';
 import translation from '../i18n/zh-TW/translation.json';
 import visa from '../i18n/zh-TW/visa.json';
+import crm from '../i18n/zh-TW/crm.json';
 
 export const translation_zh_TW = {
     admissions,
@@ -34,5 +35,6 @@ export const translation_zh_TW = {
     tickets,
     translation,
     uniassist,
-    visa
+    visa,
+    crm
 };

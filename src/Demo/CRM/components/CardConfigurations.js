@@ -1,66 +1,82 @@
 import { Typography } from '@mui/material';
 
-export const getCardConfigurations = () => [
+export const getCardConfigurations = (t) => [
     {
         id: 'education',
-        title: 'Educational Background',
+        title: t('cards.education.title', { ns: 'crm' }),
         gridSize: { xs: 12, md: 8 },
         layout: 'grid',
         sections: [
             {
-                title: 'High School',
+                title: t('cards.education.highSchool', { ns: 'crm' }),
                 gridSize: 4,
                 fields: [
                     {
                         key: 'highschoolName',
-                        label: 'High School Name',
+                        label: t('cards.education.highSchoolName', {
+                            ns: 'crm'
+                        }),
                         type: 'text'
                     },
                     {
                         key: 'highschoolGPA',
-                        label: 'High School GPA',
+                        label: t('cards.education.highSchoolGPA', {
+                            ns: 'crm'
+                        }),
                         type: 'text'
                     }
                 ]
             },
             {
-                title: "Bachelor's Degree",
+                title: t('cards.education.bachelor', { ns: 'crm' }),
                 gridSize: 4,
                 fields: [
                     {
                         key: 'bachelorSchool',
-                        label: 'Bachelor School',
+                        label: t('cards.education.bachelorSchool', {
+                            ns: 'crm'
+                        }),
                         type: 'text'
                     },
                     {
                         key: 'bachelorProgramName',
-                        label: 'Bachelor Program',
+                        label: t('cards.education.bachelorProgram', {
+                            ns: 'crm'
+                        }),
                         type: 'text'
                     },
                     {
                         key: 'bachelorGPA',
-                        label: 'Bachelor GPA',
+                        label: t('cards.education.bachelorGPA', {
+                            ns: 'crm'
+                        }),
                         type: 'text'
                     }
                 ]
             },
             {
-                title: "Master's Degree",
+                title: t('cards.education.master', { ns: 'crm' }),
                 gridSize: 4,
                 fields: [
                     {
                         key: 'masterSchool',
-                        label: 'Master School',
+                        label: t('cards.education.masterSchool', {
+                            ns: 'crm'
+                        }),
                         type: 'text'
                     },
                     {
                         key: 'masterProgramName',
-                        label: 'Master Program',
+                        label: t('cards.education.masterProgram', {
+                            ns: 'crm'
+                        }),
                         type: 'text'
                     },
                     {
                         key: 'masterGPA',
-                        label: 'Master GPA',
+                        label: t('cards.education.masterGPA', {
+                            ns: 'crm'
+                        }),
                         type: 'text'
                     }
                 ]
@@ -69,69 +85,74 @@ export const getCardConfigurations = () => [
         fields: [
             {
                 key: 'highestEducation',
-                label: 'Highest Education',
+                label: t('cards.education.highestEducation', {
+                    ns: 'crm'
+                }),
                 type: 'text'
             }
         ]
     },
     {
         id: 'programs',
-        title: 'Intended Programs',
+        title: t('cards.programs.title', { ns: 'crm' }),
         gridSize: { xs: 12, md: 4 },
         fields: [
             {
                 key: 'intendedPrograms',
-                label: 'Target Universities',
+                label: t('cards.programs.targetUniversities', {
+                    ns: 'crm'
+                }),
                 type: 'text',
                 multiline: true,
                 rows: 2
             },
             {
                 key: 'intendedDirection',
-                label: 'Target Field',
+                label: t('cards.programs.targetField', { ns: 'crm' }),
                 type: 'text'
             },
             {
                 key: 'intendedProgramLevel',
-                label: 'Target Degree',
+                label: t('cards.programs.targetDegree', { ns: 'crm' }),
                 type: 'text'
             },
             {
                 key: 'intendedStartTime',
-                label: 'Start Time',
+                label: t('cards.programs.startTime', { ns: 'crm' }),
                 type: 'text'
             }
         ]
     },
     {
         id: 'language',
-        title: 'Language Skills',
+        title: t('cards.language.title', { ns: 'crm' }),
         gridSize: { md: 4, xs: 12 },
         fields: [
             {
                 key: 'englishLevel',
-                label: 'English Level',
+                label: t('cards.language.englishLevel', { ns: 'crm' }),
                 type: 'text'
             },
             {
                 key: 'germanLevel',
-                label: 'German Level',
+                label: t('cards.language.germanLevel', { ns: 'crm' }),
                 type: 'text'
             }
         ]
     },
     {
         id: 'work',
-        title: 'Work Experience',
+        title: t('cards.work.title', { ns: 'crm' }),
         gridSize: { md: 4, xs: 12 },
         fields: [
             {
                 key: 'workExperience',
-                label: 'Work Experience',
+                label: t('cards.work.workExperience', { ns: 'crm' }),
                 type: 'custom',
                 render: (lead) => (
                     <Typography sx={{ whiteSpace: 'pre-line' }} variant="body1">
-                        {lead.workExperience || 'No work experience provided'}
+                        {lead.workExperience ||
+                            t('cards.work.noWorkExperience', { ns: 'crm' })}
                     </Typography>
                 ),
                 editField: {
@@ -144,52 +165,58 @@ export const getCardConfigurations = () => [
     },
     {
         id: 'contact',
-        title: 'Contact Information',
+        title: t('cards.contact.title', { ns: 'crm' }),
         gridSize: { md: 4, xs: 12 },
         fields: [
             {
                 key: 'email',
-                label: 'Email',
+                label: t('cards.contact.email', { ns: 'crm' }),
                 type: 'text',
                 inputType: 'email'
             },
             {
                 key: 'phone',
-                label: 'Phone',
+                label: t('cards.contact.phone', { ns: 'crm' }),
                 type: 'text'
             },
             {
                 key: 'preferredContact',
-                label: 'Preferred Contact',
+                label: t('cards.contact.preferredContact', {
+                    ns: 'crm'
+                }),
                 type: 'text'
             },
             {
                 key: 'lineId',
-                label: 'LINE ID',
+                label: t('cards.contact.lineId', { ns: 'crm' }),
                 type: 'text'
             },
             {
                 key: 'source',
-                label: 'Source',
+                label: t('cards.contact.source', { ns: 'crm' }),
                 type: 'text'
             }
         ]
     },
     {
         id: 'additional',
-        title: 'Additional Information',
+        title: t('cards.additional.title', { ns: 'crm' }),
         gridSize: { xs: 12 },
         fields: [
             {
                 key: 'additionalInfo',
-                label: 'Additional Info',
+                label: t('cards.additional.additionalInfo', {
+                    ns: 'crm'
+                }),
                 type: 'text',
                 multiline: true,
                 rows: 3
             },
             {
                 key: 'reasonsToStudyAbroad',
-                label: 'Reasons to Study Abroad',
+                label: t('cards.additional.reasonsToStudyAbroad', {
+                    ns: 'crm'
+                }),
                 type: 'text',
                 multiline: true,
                 rows: 3

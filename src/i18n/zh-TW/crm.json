@@ -1,0 +1,212 @@
+{
+    "breadcrumbs": {
+        "crm": "CRM",
+        "dashboard": "CRM 儀表板",
+        "leads": "線索",
+        "deals": "訂單",
+        "meetings": "會議"
+    },
+    "actions": {
+        "create": "建立",
+        "cancel": "取消",
+        "save": "儲存",
+        "edit": "編輯",
+        "assign": "指派",
+        "change": "變更",
+        "unassign": "移除指派",
+        "archive": "封存會議",
+        "unarchive": "取消封存會議",
+        "regenerate": "重新產生",
+        "createDeal": "建立訂單",
+        "createUserAccount": "建立使用者帳號",
+        "createUserAccountFromLead": "由線索建立使用者帳號",
+        "viewTranscript": "檢視逐字稿"
+    },
+    "common": {
+        "na": "無",
+        "unknown": "未知",
+        "note": "備註",
+        "status": "狀態",
+        "lead": "線索",
+        "sales": "業務",
+        "salesNote": "業務備註",
+        "submittedAt": "提交時間",
+        "closedDate": "結案日期",
+        "dealSize": "訂單金額",
+        "datetime": "日期時間",
+        "summary": "摘要",
+        "noSummary": "沒有可用摘要",
+        "noLeadsFound": "找不到線索",
+        "noLeadsAvailable": "沒有可用線索",
+        "noLeadAssigned": "未指派線索",
+        "similarStudents": "相似學生",
+        "matchReason": "比對原因：",
+        "showMore": "顯示更多 {{count}} 筆",
+        "showLess": "顯示較少",
+        "noSimilarStudentsFound": "沒有相似學生",
+        "similarStudentsDesc": "比對依據學術背景（學校、科系、GPA）與申請偏好（學位層級、方向）",
+        "gpa": "GPA",
+        "school": "學校",
+        "program": "科系",
+        "targetField": "目標領域",
+        "scrollLeft": "向左捲動",
+        "scrollRight": "向右捲動",
+        "loadingLeadInfo": "正在載入線索資訊...",
+        "loadingMeetingDetails": "正在載入會議詳細資料...",
+        "meetinTranscripts": "會議逐字稿",
+        "manageTranscripts": "管理並檢視所有會議摘要與逐字稿",
+        "gist": "重點",
+        "keywords": "關鍵字",
+        "overview": "概述",
+        "actionItems": "行動項目",
+        "assignedLead": "已指派線索",
+        "speakers": "講者",
+        "attendees": "與會者",
+        "studentProfile": "檢視學生資料",
+        "unsavedChanges": "• 尚未儲存的變更"
+    },
+    "leads": {
+        "fullName": "姓名",
+        "startTime": "開始時間",
+        "intendedProgram": "目標課程",
+        "chance": "機率",
+        "closeLikelihood": "成交可能性",
+        "openLeads": "未處理線索",
+        "contactedLeads": "已聯繫線索",
+        "convertedLeads": "已轉換線索",
+        "closedLeads": "已結案線索",
+        "allLeads": "全部線索",
+        "desc": {
+            "all": "所有分類中的線索。",
+            "open": "使用者透過 Google 表單提交的未處理線索。",
+            "contacted": "已有排定會議的已聯繫線索。",
+            "converted": "已轉換或完成的線索。",
+            "closed": "已結案的線索。"
+        },
+        "gender": "性別",
+        "role": "角色",
+        "salesRep": "業務代表",
+        "unassigned": "未指派",
+        "createUserAccount": "建立使用者帳號",
+        "createDeal": "建立訂單",
+        "salesLabel": "業務：{{label}}"
+    },
+    "dashboard": {
+        "leads": "線索",
+        "convertedLeads": "已轉換線索",
+        "meetings": "會議",
+        "totalLeadsRecent": "線索總數（＋近 7 天）",
+        "totalConverted": "已轉換總數",
+        "totalMeetingsRecent": "會議總數（＋近 7 天）",
+        "leadsCountByWeek": "各週線索數",
+        "meetingCountByWeek": "各週會議數",
+        "calendarWeek": "曆週",
+        "count": "數量",
+        "noData": "無可用資料",
+        "newLeads": "新增線索",
+        "highChanceLeads": "高機率線索",
+        "convertedLeadsSeries": "已轉換線索"
+    },
+    "meetings": {
+        "meetingTitle": "會議標題",
+        "meetingDetails": "會議詳細資料",
+        "assignLeadToMeeting": "將線索指派到會議",
+        "searchLeads": "以姓名或電子郵件搜尋線索...",
+        "unassignLead": "自此會議移除線索指派",
+        "allMeetings": "全部會議",
+        "unassignedMeetings": "未指派線索之會議",
+        "archivedMeetings": "已封存會議"
+    },
+    "deals": {
+        "createDeal": "建立訂單",
+        "dealSizeNtd": "訂單金額 (NTD)",
+        "placeholderDealSize": "例如 69999",
+        "status": "狀態",
+        "note": "備註",
+        "closedDate": "結案日期",
+        "leadIsRequired": "線索為必填",
+        "salesRepIsRequired": "業務代表為必填",
+        "mustBePositive": "必須為正數",
+        "closedDateRequired": "狀態為已結案時需填寫結案日期",
+        "lead": "線索",
+        "salesRepresentative": "業務代表",
+        "statusLabels": {
+            "initiated": "已發起",
+            "sent": "已寄出",
+            "signed": "已簽署",
+            "closed": "已結案"
+        }
+    },
+    "users": {
+        "createUserFromLead": "由線索建立使用者帳號",
+        "firstNameEn": "名字（英文）",
+        "lastNameEn": "姓氏（英文）",
+        "firstNameZh": "名（中文）",
+        "lastNameZh": "姓（中文）",
+        "email": "電子郵件",
+        "applicationCount": "申請數量",
+        "placeholders": {
+            "firstName": "John",
+            "lastName": "Doe",
+            "firstNameZh": "小明",
+            "lastNameZh": "陳",
+            "email": "john.doe@example.com"
+        },
+        "errors": {
+            "requiredFields": "請填寫所有必填欄位",
+            "firstnameRequired": "名字為必填",
+            "lastnameRequired": "姓氏為必填",
+            "emailRequired": "電子郵件為必填",
+            "emailInvalid": "電子郵件格式不正確",
+            "failedCreate": "建立使用者失敗",
+            "failedCreateDetailed": "建立使用者失敗，請再試一次。"
+        }
+    },
+    "cards": {
+        "education": {
+            "title": "教育背景",
+            "highSchool": "高中",
+            "highSchoolName": "高中名稱",
+            "highSchoolGPA": "高中 GPA",
+            "bachelor": "學士學位",
+            "bachelorSchool": "學士畢業學校",
+            "bachelorProgram": "學士科系",
+            "bachelorGPA": "學士 GPA",
+            "master": "碩士學位",
+            "masterSchool": "碩士畢業學校",
+            "masterProgram": "碩士科系",
+            "masterGPA": "碩士 GPA",
+            "highestEducation": "最高學歷"
+        },
+        "programs": {
+            "title": "目標課程",
+            "targetUniversities": "目標大學",
+            "targetField": "目標領域",
+            "targetDegree": "目標學位",
+            "startTime": "開始時間"
+        },
+        "language": {
+            "title": "語言能力",
+            "englishLevel": "英語程度",
+            "germanLevel": "德語程度"
+        },
+        "work": {
+            "title": "工作經驗",
+            "workExperience": "工作經驗",
+            "noWorkExperience": "未提供工作經驗"
+        },
+        "contact": {
+            "title": "聯絡資訊",
+            "email": "電子郵件",
+            "phone": "電話",
+            "preferredContact": "偏好聯絡方式",
+            "lineId": "LINE ID",
+            "source": "來源"
+        },
+        "additional": {
+            "title": "其他資訊",
+            "additionalInfo": "其他說明",
+            "reasonsToStudyAbroad": "出國留學原因"
+        }
+    }
+}

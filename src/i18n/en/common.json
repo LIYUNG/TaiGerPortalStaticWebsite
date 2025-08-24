@@ -401,5 +401,10 @@
     "timeMinutes": "{{minutes}}m",
     "timeWeeks": "{{weeks}}w",
     "timeMonth": "{{month}}mo",
-    "valid-only-two-years": "valid only 2 years"
+    "valid-only-two-years": "valid only 2 years",
+    "CRM": "CRM",
+    "CRM Overview": "CRM Overview",
+    "Leads": "Leads",
+    "Deals": "Deals",
+    "Meetings": "Meetings"
 }
