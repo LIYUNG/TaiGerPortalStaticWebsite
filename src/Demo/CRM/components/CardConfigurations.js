@@ -1,66 +1,83 @@
 import { Typography } from '@mui/material';
+import i18next from 'i18next';
 
 export const getCardConfigurations = () => [
     {
         id: 'education',
-        title: 'Educational Background',
+        title: i18next.t('cards.education.title', { ns: 'crm' }),
         gridSize: { xs: 12, md: 8 },
         layout: 'grid',
         sections: [
             {
-                title: 'High School',
+                title: i18next.t('cards.education.highSchool', { ns: 'crm' }),
                 gridSize: 4,
                 fields: [
                     {
                         key: 'highschoolName',
-                        label: 'High School Name',
+                        label: i18next.t('cards.education.highSchoolName', {
+                            ns: 'crm'
+                        }),
                         type: 'text'
                     },
                     {
                         key: 'highschoolGPA',
-                        label: 'High School GPA',
+                        label: i18next.t('cards.education.highSchoolGPA', {
+                            ns: 'crm'
+                        }),
                         type: 'text'
                     }
                 ]
             },
             {
-                title: "Bachelor's Degree",
+                title: i18next.t('cards.education.bachelor', { ns: 'crm' }),
                 gridSize: 4,
                 fields: [
                     {
                         key: 'bachelorSchool',
-                        label: 'Bachelor School',
+                        label: i18next.t('cards.education.bachelorSchool', {
+                            ns: 'crm'
+                        }),
                         type: 'text'
                     },
                     {
                         key: 'bachelorProgramName',
-                        label: 'Bachelor Program',
+                        label: i18next.t('cards.education.bachelorProgram', {
+                            ns: 'crm'
+                        }),
                         type: 'text'
                     },
                     {
                         key: 'bachelorGPA',
-                        label: 'Bachelor GPA',
+                        label: i18next.t('cards.education.bachelorGPA', {
+                            ns: 'crm'
+                        }),
                         type: 'text'
                     }
                 ]
             },
             {
-                title: "Master's Degree",
+                title: i18next.t('cards.education.master', { ns: 'crm' }),
                 gridSize: 4,
                 fields: [
                     {
                         key: 'masterSchool',
-                        label: 'Master School',
+                        label: i18next.t('cards.education.masterSchool', {
+                            ns: 'crm'
+                        }),
                         type: 'text'
                     },
                     {
                         key: 'masterProgramName',
-                        label: 'Master Program',
+                        label: i18next.t('cards.education.masterProgram', {
+                            ns: 'crm'
+                        }),
                         type: 'text'
                     },
                     {
                         key: 'masterGPA',
-                        label: 'Master GPA',
+                        label: i18next.t('cards.education.masterGPA', {
+                            ns: 'crm'
+                        }),
                         type: 'text'
                     }
                 ]
@@ -69,69 +86,76 @@ export const getCardConfigurations = () => [
         fields: [
             {
                 key: 'highestEducation',
-                label: 'Highest Education',
+                label: i18next.t('cards.education.highestEducation', {
+                    ns: 'crm'
+                }),
                 type: 'text'
             }
         ]
     },
     {
         id: 'programs',
-        title: 'Intended Programs',
+        title: i18next.t('cards.programs.title', { ns: 'crm' }),
         gridSize: { xs: 12, md: 4 },
         fields: [
             {
                 key: 'intendedPrograms',
-                label: 'Target Universities',
+                label: i18next.t('cards.programs.targetUniversities', {
+                    ns: 'crm'
+                }),
                 type: 'text',
                 multiline: true,
                 rows: 2
             },
             {
                 key: 'intendedDirection',
-                label: 'Target Field',
+                label: i18next.t('cards.programs.targetField', { ns: 'crm' }),
                 type: 'text'
             },
             {
                 key: 'intendedProgramLevel',
-                label: 'Target Degree',
+                label: i18next.t('cards.programs.targetDegree', { ns: 'crm' }),
                 type: 'text'
             },
             {
                 key: 'intendedStartTime',
-                label: 'Start Time',
+                label: i18next.t('cards.programs.startTime', { ns: 'crm' }),
                 type: 'text'
             }
         ]
     },
     {
         id: 'language',
-        title: 'Language Skills',
+        title: i18next.t('cards.language.title', { ns: 'crm' }),
         gridSize: { md: 4, xs: 12 },
         fields: [
             {
                 key: 'englishLevel',
-                label: 'English Level',
+                label: i18next.t('cards.language.englishLevel', { ns: 'crm' }),
                 type: 'text'
             },
             {
                 key: 'germanLevel',
-                label: 'German Level',
+                label: i18next.t('cards.language.germanLevel', { ns: 'crm' }),
                 type: 'text'
             }
         ]
     },
     {
         id: 'work',
-        title: 'Work Experience',
+        title: i18next.t('cards.work.title', { ns: 'crm' }),
         gridSize: { md: 4, xs: 12 },
         fields: [
             {
                 key: 'workExperience',
-                label: 'Work Experience',
+                label: i18next.t('cards.work.workExperience', { ns: 'crm' }),
                 type: 'custom',
                 render: (lead) => (
                     <Typography sx={{ whiteSpace: 'pre-line' }} variant="body1">
-                        {lead.workExperience || 'No work experience provided'}
+                        {lead.workExperience ||
+                            i18next.t('cards.work.noWorkExperience', {
+                                ns: 'crm'
+                            })}
                     </Typography>
                 ),
                 editField: {
@@ -144,52 +168,58 @@ export const getCardConfigurations = () => [
     },
     {
         id: 'contact',
-        title: 'Contact Information',
+        title: i18next.t('cards.contact.title', { ns: 'crm' }),
         gridSize: { md: 4, xs: 12 },
         fields: [
             {
                 key: 'email',
-                label: 'Email',
+                label: i18next.t('cards.contact.email', { ns: 'crm' }),
                 type: 'text',
                 inputType: 'email'
             },
             {
                 key: 'phone',
-                label: 'Phone',
+                label: i18next.t('cards.contact.phone', { ns: 'crm' }),
                 type: 'text'
             },
             {
                 key: 'preferredContact',
-                label: 'Preferred Contact',
+                label: i18next.t('cards.contact.preferredContact', {
+                    ns: 'crm'
+                }),
                 type: 'text'
             },
             {
                 key: 'lineId',
-                label: 'LINE ID',
+                label: i18next.t('cards.contact.lineId', { ns: 'crm' }),
                 type: 'text'
             },
             {
                 key: 'source',
-                label: 'Source',
+                label: i18next.t('cards.contact.source', { ns: 'crm' }),
                 type: 'text'
             }
         ]
     },
     {
         id: 'additional',
-        title: 'Additional Information',
+        title: i18next.t('cards.additional.title', { ns: 'crm' }),
         gridSize: { xs: 12 },
         fields: [
             {
                 key: 'additionalInfo',
-                label: 'Additional Info',
+                label: i18next.t('cards.additional.additionalInfo', {
+                    ns: 'crm'
+                }),
                 type: 'text',
                 multiline: true,
                 rows: 3
             },
             {
                 key: 'reasonsToStudyAbroad',
-                label: 'Reasons to Study Abroad',
+                label: i18next.t('cards.additional.reasonsToStudyAbroad', {
+                    ns: 'crm'
+                }),
                 type: 'text',
                 multiline: true,
                 rows: 3

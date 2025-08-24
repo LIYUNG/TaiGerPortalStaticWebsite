@@ -62,6 +62,7 @@
         "startTime": "开始时间",
         "intendedProgram": "意向课程",
         "chance": "机会",
+        "closeLikelihood": "成交可能性",
         "openLeads": "未处理线索",
         "contactedLeads": "已联系线索",
         "convertedLeads": "已转化线索",
@@ -81,6 +82,22 @@
         "createUserAccount": "创建用户账号",
         "createDeal": "创建交易",
         "salesLabel": "销售：{{label}}"
+    },
+    "dashboard": {
+        "leads": "线索",
+        "convertedLeads": "已转化线索",
+        "meetings": "会议",
+        "totalLeadsRecent": "线索总数（＋近 7 天）",
+        "totalConverted": "已转化总数",
+        "totalMeetingsRecent": "会议总数（＋近 7 天）",
+        "leadsCountByWeek": "按周统计线索数",
+        "meetingCountByWeek": "按周统计会议数",
+        "calendarWeek": "日历周",
+        "count": "数量",
+        "noData": "暂无数据",
+        "newLeads": "新增线索",
+        "highChanceLeads": "高机会线索",
+        "convertedLeadsSeries": "已转化线索"
     },
     "meetings": {
         "meetingTitle": "会议标题",

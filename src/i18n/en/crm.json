@@ -62,6 +62,7 @@
         "startTime": "Start Time",
         "intendedProgram": "Intended Program",
         "chance": "Chance",
+        "closeLikelihood": "Close Likelihood",
         "openLeads": "Open Leads",
         "contactedLeads": "Contacted Leads",
         "convertedLeads": "Converted Leads",
@@ -81,6 +82,22 @@
         "createUserAccount": "Create User Account",
         "createDeal": "Create Deal",
         "salesLabel": "Sales: {{label}}"
+    },
+    "dashboard": {
+        "leads": "Leads",
+        "convertedLeads": "Converted Leads",
+        "meetings": "Meetings",
+        "totalLeadsRecent": "Total leads (+last 7 days)",
+        "totalConverted": "Total Converted",
+        "totalMeetingsRecent": "Total meetings (+last 7 days)",
+        "leadsCountByWeek": "Leads Count by Calendar Week",
+        "meetingCountByWeek": "Meeting Count by Calendar Week",
+        "calendarWeek": "Calendar Week",
+        "count": "Count",
+        "noData": "No data available",
+        "newLeads": "New Leads",
+        "highChanceLeads": "High Chance Leads",
+        "convertedLeadsSeries": "Converted Leads"
     },
     "meetings": {
         "meetingTitle": "Meeting Title",

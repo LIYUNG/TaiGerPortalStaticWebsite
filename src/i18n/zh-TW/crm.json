@@ -62,6 +62,7 @@
         "startTime": "開始時間",
         "intendedProgram": "目標課程",
         "chance": "機率",
+        "closeLikelihood": "成交可能性",
         "openLeads": "未處理名單",
         "contactedLeads": "已聯繫名單",
         "convertedLeads": "已轉換名單",
@@ -81,6 +82,22 @@
         "createUserAccount": "建立使用者帳號",
         "createDeal": "建立交易",
         "salesLabel": "業務：{{label}}"
+    },
+    "dashboard": {
+        "leads": "名單",
+        "convertedLeads": "已轉換名單",
+        "meetings": "會議",
+        "totalLeadsRecent": "名單總數（＋近 7 天）",
+        "totalConverted": "已轉換總數",
+        "totalMeetingsRecent": "會議總數（＋近 7 天）",
+        "leadsCountByWeek": "各週名單數",
+        "meetingCountByWeek": "各週會議數",
+        "calendarWeek": "曆週",
+        "count": "數量",
+        "noData": "無可用資料",
+        "newLeads": "新名單",
+        "highChanceLeads": "高機率名單",
+        "convertedLeadsSeries": "已轉換名單"
     },
     "meetings": {
         "meetingTitle": "會議標題",
