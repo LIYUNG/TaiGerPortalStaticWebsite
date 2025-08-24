@@ -65,7 +65,7 @@ const DealDashboard = () => {
     };
 
     const currencyFormatter = (value) => {
-        if (value == null) return '—';
+        if (!value) return '—';
         const num = Number(value);
         if (Number.isNaN(num)) return value;
         return new Intl.NumberFormat('zh-TW', {
