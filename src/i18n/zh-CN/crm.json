@@ -3,7 +3,7 @@
         "crm": "CRM",
         "dashboard": "CRM 仪表板",
         "leads": "线索",
-        "deals": "交易",
+        "deals": "订单",
         "meetings": "会议"
     },
     "actions": {
@@ -17,7 +17,7 @@
         "archive": "归档会议",
         "unarchive": "取消归档会议",
         "regenerate": "重新生成",
-        "createDeal": "创建交易",
+        "createDeal": "创建订单",
         "createUserAccount": "创建用户账号",
         "createUserAccountFromLead": "由线索创建用户账号",
         "viewTranscript": "查看文字记录"
@@ -32,7 +32,7 @@
         "salesNote": "销售备注",
         "submittedAt": "提交时间",
         "closedDate": "结案日期",
-        "dealSize": "交易金额",
+        "dealSize": "订单金额",
         "datetime": "日期时间",
         "summary": "摘要",
         "noSummary": "没有可用摘要",
@@ -88,7 +88,7 @@
         "salesRep": "销售代表",
         "unassigned": "未指派",
         "createUserAccount": "创建用户账号",
-        "createDeal": "创建交易",
+        "createDeal": "创建订单",
         "salesLabel": "销售：{{label}}"
     },
     "dashboard": {
@@ -118,8 +118,8 @@
         "archivedMeetings": "已归档会议"
     },
     "deals": {
-        "createDeal": "创建交易",
-        "dealSizeNtd": "交易金额 (NTD)",
+        "createDeal": "创建订单",
+        "dealSizeNtd": "订单金额 (NTD)",
         "placeholderDealSize": "例如 69999",
         "status": "状态",
         "note": "备注",
