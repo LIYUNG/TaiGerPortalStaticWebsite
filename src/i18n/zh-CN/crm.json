@@ -129,7 +129,38 @@
         "mustBePositive": "必须为正数",
         "closedDateRequired": "状态为已结案时需填写结案日期",
         "lead": "线索",
-        "salesRepresentative": "销售代表"
+        "salesRepresentative": "销售代表",
+        "statusLabels": {
+            "initiated": "已发起",
+            "sent": "已发送",
+            "signed": "已签署",
+            "closed": "已结案"
+        }
+    },
+    "users": {
+        "createUserFromLead": "由线索创建用户账号",
+        "firstNameEn": "名字（英文）",
+        "lastNameEn": "姓氏（英文）",
+        "firstNameZh": "名（中文）",
+        "lastNameZh": "姓（中文）",
+        "email": "电子邮件",
+        "applicationCount": "申请数量",
+        "placeholders": {
+            "firstName": "John",
+            "lastName": "Doe",
+            "firstNameZh": "小明",
+            "lastNameZh": "陳",
+            "email": "john.doe@example.com"
+        },
+        "errors": {
+            "requiredFields": "请填写所有必填字段",
+            "firstnameRequired": "名字为必填",
+            "lastnameRequired": "姓氏为必填",
+            "emailRequired": "电子邮件为必填",
+            "emailInvalid": "电子邮件格式不正确",
+            "failedCreate": "创建用户失败",
+            "failedCreateDetailed": "创建用户失败，请重试。"
+        }
     },
     "cards": {
         "education": {

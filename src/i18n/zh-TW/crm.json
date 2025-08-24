@@ -129,7 +129,38 @@
         "mustBePositive": "必須為正數",
         "closedDateRequired": "狀態為已結案時需填寫結案日期",
         "lead": "名單",
-        "salesRepresentative": "業務代表"
+        "salesRepresentative": "業務代表",
+        "statusLabels": {
+            "initiated": "已發起",
+            "sent": "已寄出",
+            "signed": "已簽署",
+            "closed": "已結案"
+        }
+    },
+    "users": {
+        "createUserFromLead": "由名單建立使用者帳號",
+        "firstNameEn": "名字（英文）",
+        "lastNameEn": "姓氏（英文）",
+        "firstNameZh": "名（中文）",
+        "lastNameZh": "姓（中文）",
+        "email": "電子郵件",
+        "applicationCount": "申請數量",
+        "placeholders": {
+            "firstName": "John",
+            "lastName": "Doe",
+            "firstNameZh": "小明",
+            "lastNameZh": "陳",
+            "email": "john.doe@example.com"
+        },
+        "errors": {
+            "requiredFields": "請填寫所有必填欄位",
+            "firstnameRequired": "名字為必填",
+            "lastnameRequired": "姓氏為必填",
+            "emailRequired": "電子郵件為必填",
+            "emailInvalid": "電子郵件格式不正確",
+            "failedCreate": "建立使用者失敗",
+            "failedCreateDetailed": "建立使用者失敗，請再試一次。"
+        }
     },
     "cards": {
         "education": {

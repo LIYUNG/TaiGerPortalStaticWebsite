@@ -1,6 +1,6 @@
 import { Navigate, Link as RouterLink } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import i18next from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { MaterialReactTable } from 'material-react-table';
 import { useState } from 'react';
 
@@ -29,8 +29,9 @@ import { getCRMDealsQuery } from '../../api/query';
 import CreateDealModal from './components/CreateDealModal';
 
 const DealDashboard = () => {
+    const { t } = useTranslation();
     TabTitle(
-        `${i18next.t('breadcrumbs.crm', { ns: 'crm' })} - ${i18next.t('breadcrumbs.deals', { ns: 'crm' })}`
+        `${t('breadcrumbs.crm', { ns: 'crm' })} - ${t('breadcrumbs.deals', { ns: 'crm' })}`
     );
     const [open, setOpen] = useState(false);
     // Create Deal modal state is now handled locally; form lives in modal
@@ -67,7 +68,7 @@ const DealDashboard = () => {
     };
 
     const currencyFormatter = (value) => {
-        if (!value) return '—';
+        if (!value) return t('common.na', { ns: 'crm' });
         const num = Number(value);
         if (Number.isNaN(num)) return value;
         return new Intl.NumberFormat('zh-TW', {
@@ -80,7 +81,7 @@ const DealDashboard = () => {
     const columns = [
         {
             accessorKey: 'status',
-            header: i18next.t('common.status', { ns: 'crm' }),
+            header: t('common.status', { ns: 'crm' }),
             size: 100,
             Cell: ({ cell }) => {
                 const value = cell.getValue();
@@ -97,7 +98,7 @@ const DealDashboard = () => {
         },
         {
             accessorKey: 'leadFullName',
-            header: i18next.t('common.lead', { ns: 'crm' }),
+            header: t('common.lead', { ns: 'crm' }),
             size: 160,
             muiTableBodyCellProps: ({ cell }) => ({
                 sx: {
@@ -130,7 +131,7 @@ const DealDashboard = () => {
         },
         {
             accessorKey: 'salesLabel',
-            header: i18next.t('common.sales', { ns: 'crm' }),
+            header: t('common.sales', { ns: 'crm' }),
             size: 100,
             Cell: ({ cell }) => (
                 <Chip
@@ -142,7 +143,7 @@ const DealDashboard = () => {
         },
         {
             accessorKey: 'dealSizeNtd',
-            header: i18next.t('common.dealSize', { ns: 'crm' }),
+            header: t('common.dealSize', { ns: 'crm' }),
             size: 120,
             Cell: ({ cell }) => (
                 <Typography variant="body2">
@@ -152,7 +153,7 @@ const DealDashboard = () => {
         },
         {
             accessorKey: 'closedDate',
-            header: i18next.t('common.closedDate', { ns: 'crm' }),
+            header: t('common.closedDate', { ns: 'crm' }),
             size: 140,
             Cell: ({ cell }) => (
                 <Stack alignItems="center" direction="row" spacing={1}>
@@ -160,14 +161,14 @@ const DealDashboard = () => {
                     <Typography variant="body2">
                         {cell.getValue()
                             ? new Date(cell.getValue()).toLocaleDateString()
-                            : '—'}
+                            : t('common.na', { ns: 'crm' })}
                     </Typography>
                 </Stack>
             )
         },
         {
             accessorKey: 'note',
-            header: i18next.t('common.note', { ns: 'crm' }),
+            header: t('common.note', { ns: 'crm' }),
             size: 350,
             muiTableBodyCellProps: ({ cell }) => ({
                 sx: {
@@ -180,7 +181,7 @@ const DealDashboard = () => {
             }),
             Cell: ({ cell }) => (
                 <Typography noWrap sx={{ minWidth: 0 }} variant="body2">
-                    {cell.getValue() || '—'}
+                    {cell.getValue() || t('common.na', { ns: 'crm' })}
                 </Typography>
             )
         }
@@ -209,14 +210,14 @@ const DealDashboard = () => {
                         href={`${DEMO.DASHBOARD_LINK}`}
                         underline="hover"
                     >
-                        {i18next.t('breadcrumbs.crm', { ns: 'crm' })}
+                        {t('breadcrumbs.crm', { ns: 'crm' })}
                     </Link>
                     <Typography>
-                        {i18next.t('breadcrumbs.deals', { ns: 'crm' })}
+                        {t('breadcrumbs.deals', { ns: 'crm' })}
                     </Typography>
                 </Breadcrumbs>
                 <Button onClick={() => setOpen(true)} variant="contained">
-                    {i18next.t('actions.createDeal', { ns: 'crm' })}
+                    {t('actions.createDeal', { ns: 'crm' })}
                 </Button>
             </Stack>
 

@@ -129,7 +129,38 @@
         "mustBePositive": "Must be positive",
         "closedDateRequired": "Closed date required when status is closed",
         "lead": "Lead",
-        "salesRepresentative": "Sales representative"
+        "salesRepresentative": "Sales representative",
+        "statusLabels": {
+            "initiated": "Initiated",
+            "sent": "Sent",
+            "signed": "Signed",
+            "closed": "Closed"
+        }
+    },
+    "users": {
+        "createUserFromLead": "Create User Account from Lead",
+        "firstNameEn": "First Name (English)",
+        "lastNameEn": "Last Name (English)",
+        "firstNameZh": "First Name (Chinese)",
+        "lastNameZh": "Last Name (Chinese)",
+        "email": "Email Address",
+        "applicationCount": "Application Count",
+        "placeholders": {
+            "firstName": "John",
+            "lastName": "Doe",
+            "firstNameZh": "小明",
+            "lastNameZh": "陳",
+            "email": "john.doe@example.com"
+        },
+        "errors": {
+            "requiredFields": "Please fill in all required fields",
+            "firstnameRequired": "First name is required",
+            "lastnameRequired": "Last name is required",
+            "emailRequired": "Email is required",
+            "emailInvalid": "Invalid email format",
+            "failedCreate": "Failed to create user",
+            "failedCreateDetailed": "Failed to create user. Please try again."
+        }
     },
     "cards": {
         "education": {

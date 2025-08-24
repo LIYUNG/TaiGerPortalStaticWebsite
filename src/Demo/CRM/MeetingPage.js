@@ -1,6 +1,7 @@
 import { useParams, Navigate, Link as LinkDom } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
     Box,
@@ -45,10 +46,10 @@ import { is_TaiGer_role } from '@taiger-common/core';
 import { appConfig } from '../../config';
 import { getCRMMeetingQuery, getCRMLeadsQuery } from '../../api/query';
 import { updateCRMMeeting } from '../../api';
-import i18next from 'i18next';
 
 const MeetingPage = () => {
     const { meetingId } = useParams();
+    const { t } = useTranslation();
     const queryClient = useQueryClient();
     const [assignMenuAnchor, setAssignMenuAnchor] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
@@ -64,7 +65,7 @@ const MeetingPage = () => {
     const leads = leadsData?.data?.data || [];
 
     TabTitle(
-        `${i18next.t('breadcrumbs.meetings', { ns: 'crm' })} ${meeting ? `- ${meeting.title}` : ''}`
+        `${t('breadcrumbs.meetings', { ns: 'crm' })} ${meeting ? `- ${meeting.title}` : ''}`
     );
 
     const handleMeetingUpdate = async (payload) => {
@@ -150,7 +151,7 @@ const MeetingPage = () => {
                         href="/crm"
                         underline="hover"
                     >
-                        {i18next.t('breadcrumbs.crm', { ns: 'crm' })}
+                        {t('breadcrumbs.crm', { ns: 'crm' })}
                     </Link>
                     <Link
                         color="inherit"
@@ -158,7 +159,7 @@ const MeetingPage = () => {
                         href="/crm/meetings"
                         underline="hover"
                     >
-                        {i18next.t('breadcrumbs.meetings', { ns: 'crm' })}
+                        {t('breadcrumbs.meetings', { ns: 'crm' })}
                     </Link>
                     <Typography color="text.primary">
                         {meeting.title}
@@ -173,7 +174,7 @@ const MeetingPage = () => {
                     }}
                 >
                     <Typography color="primary" fontWeight="bold" variant="h5">
-                        {i18next.t('meetings.meetingDetails', { ns: 'crm' })}
+                        {t('meetings.meetingDetails', { ns: 'crm' })}
                     </Typography>
 
                     {/* Action Buttons */}
@@ -181,12 +182,8 @@ const MeetingPage = () => {
                         <Tooltip
                             title={
                                 meeting.isArchived
-                                    ? i18next.t('actions.unarchive', {
-                                          ns: 'crm'
-                                      })
-                                    : i18next.t('actions.archive', {
-                                          ns: 'crm'
-                                      })
+                                    ? t('actions.unarchive', { ns: 'crm' })
+                                    : t('actions.archive', { ns: 'crm' })
                             }
                         >
                             <IconButton
@@ -211,8 +208,8 @@ const MeetingPage = () => {
                         <Tooltip
                             title={
                                 meeting.leadId
-                                    ? i18next.t('actions.change', { ns: 'crm' })
-                                    : i18next.t('actions.assign', { ns: 'crm' })
+                                    ? t('actions.change', { ns: 'crm' })
+                                    : t('actions.assign', { ns: 'crm' })
                             }
                         >
                             <Button
@@ -232,10 +229,8 @@ const MeetingPage = () => {
                                 }
                             >
                                 {meeting.leadId
-                                    ? i18next.t('actions.change', { ns: 'crm' })
-                                    : i18next.t('actions.assign', {
-                                          ns: 'crm'
-                                      })}
+                                    ? t('actions.change', { ns: 'crm' })
+                                    : t('actions.assign', { ns: 'crm' })}
                             </Button>
                         </Tooltip>
                     </Stack>
@@ -270,9 +265,7 @@ const MeetingPage = () => {
             >
                 <Box sx={{ p: 2 }}>
                     <Typography sx={{ mb: 2 }} variant="h6">
-                        {i18next.t('meetings.assignLeadToMeeting', {
-                            ns: 'crm'
-                        })}
+                        {t('meetings.assignLeadToMeeting', { ns: 'crm' })}
                     </Typography>
 
                     {/* Search Input */}
@@ -280,9 +273,7 @@ const MeetingPage = () => {
                         autoFocus
                         fullWidth
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        placeholder={i18next.t('meetings.searchLeads', {
-                            ns: 'crm'
-                        })}
+                        placeholder={t('meetings.searchLeads', { ns: 'crm' })}
                         size="small"
                         sx={{ mb: 1 }}
                         value={searchTerm}
@@ -316,15 +307,14 @@ const MeetingPage = () => {
                                             </Avatar>
                                         </ListItemAvatar>
                                         <ListItemText
-                                            primary={i18next.t(
-                                                'actions.unassign',
-                                                { ns: 'crm' }
-                                            )}
+                                            primary={t('actions.unassign', {
+                                                ns: 'crm'
+                                            })}
                                             primaryTypographyProps={{
                                                 fontWeight: 500,
                                                 color: 'error.main'
                                             }}
-                                            secondary={i18next.t(
+                                            secondary={t(
                                                 'meetings.unassignLead',
                                                 { ns: 'crm' }
                                             )}
@@ -358,7 +348,7 @@ const MeetingPage = () => {
                                         <ListItemText
                                             primary={
                                                 lead.fullName ||
-                                                i18next.t('leads.fullName', {
+                                                t('leads.fullName', {
                                                     ns: 'crm'
                                                 })
                                             }
@@ -375,13 +365,12 @@ const MeetingPage = () => {
                                 <ListItemText
                                     primary={
                                         searchTerm
-                                            ? i18next.t('common.noLeadsFound', {
+                                            ? t('common.noLeadsFound', {
                                                   ns: 'crm'
                                               })
-                                            : i18next.t(
-                                                  'common.noLeadsAvailable',
-                                                  { ns: 'crm' }
-                                              )
+                                            : t('common.noLeadsAvailable', {
+                                                  ns: 'crm'
+                                              })
                                     }
                                     sx={{
                                         textAlign: 'center',
@@ -401,9 +390,7 @@ const MeetingPage = () => {
                         <Card sx={{ mb: 3 }}>
                             <CardContent>
                                 <Typography gutterBottom variant="h6">
-                                    {i18next.t('common.overview', {
-                                        ns: 'crm'
-                                    })}
+                                    {t('common.overview', { ns: 'crm' })}
                                 </Typography>
                                 <Box
                                     sx={{
@@ -439,7 +426,7 @@ const MeetingPage = () => {
                                         target="_blank"
                                         variant="outlined"
                                     >
-                                        {i18next.t('actions.viewTranscript', {
+                                        {t('actions.viewTranscript', {
                                             ns: 'crm'
                                         })}
                                     </Button>
@@ -452,9 +439,7 @@ const MeetingPage = () => {
                             <Card sx={{ mb: 3 }}>
                                 <CardContent>
                                     <Typography gutterBottom variant="h6">
-                                        {i18next.t('common.summary', {
-                                            ns: 'crm'
-                                        })}
+                                        {t('common.summary', { ns: 'crm' })}
                                     </Typography>
 
                                     {meeting.summary.gist && (
@@ -464,7 +449,7 @@ const MeetingPage = () => {
                                                 gutterBottom
                                                 variant="subtitle1"
                                             >
-                                                {i18next.t('common.gist', {
+                                                {t('common.gist', {
                                                     ns: 'crm'
                                                 })}
                                             </Typography>
@@ -481,7 +466,7 @@ const MeetingPage = () => {
                                                 gutterBottom
                                                 variant="subtitle1"
                                             >
-                                                {i18next.t('common.keywords', {
+                                                {t('common.keywords', {
                                                     ns: 'crm'
                                                 })}
                                             </Typography>
@@ -513,7 +498,7 @@ const MeetingPage = () => {
                                                 gutterBottom
                                                 variant="subtitle1"
                                             >
-                                                {i18next.t('common.overview', {
+                                                {t('common.overview', {
                                                     ns: 'crm'
                                                 })}
                                             </Typography>
@@ -533,10 +518,9 @@ const MeetingPage = () => {
                                                 gutterBottom
                                                 variant="subtitle1"
                                             >
-                                                {i18next.t(
-                                                    'common.actionItems',
-                                                    { ns: 'crm' }
-                                                )}
+                                                {t('common.actionItems', {
+                                                    ns: 'crm'
+                                                })}
                                             </Typography>
                                             <Typography
                                                 sx={{ whiteSpace: 'pre-line' }}
@@ -558,7 +542,7 @@ const MeetingPage = () => {
                             <Card sx={{ mb: 3 }}>
                                 <CardContent>
                                     <Typography gutterBottom variant="h6">
-                                        {i18next.t('common.assignedLead', {
+                                        {t('common.assignedLead', {
                                             ns: 'crm'
                                         })}
                                     </Typography>
@@ -596,10 +580,9 @@ const MeetingPage = () => {
                                                 />
                                                 <Typography variant="body1">
                                                     {meeting.leadFullName ||
-                                                        i18next.t(
-                                                            'common.lead',
-                                                            { ns: 'crm' }
-                                                        )}
+                                                        t('common.lead', {
+                                                            ns: 'crm'
+                                                        })}
                                                 </Typography>
                                             </Stack>
                                         </Link>
@@ -621,9 +604,7 @@ const MeetingPage = () => {
                             <Card sx={{ mb: 3 }}>
                                 <CardContent>
                                     <Typography gutterBottom variant="h6">
-                                        {i18next.t('common.speakers', {
-                                            ns: 'crm'
-                                        })}
+                                        {t('common.speakers', { ns: 'crm' })}
                                     </Typography>
                                     <List dense>
                                         {meeting.speakers.map((speaker) => (
@@ -653,7 +634,7 @@ const MeetingPage = () => {
                                 <Card sx={{ mb: 3 }}>
                                     <CardContent>
                                         <Typography gutterBottom variant="h6">
-                                            {i18next.t('common.attendees', {
+                                            {t('common.attendees', {
                                                 ns: 'crm'
                                             })}
                                         </Typography>
@@ -689,7 +670,7 @@ const MeetingPage = () => {
                 </Grid>
             ) : (
                 <Typography color="text.secondary" variant="body1">
-                    {i18next.t('common.loadingMeetingDetails', { ns: 'crm' })}
+                    {t('common.loadingMeetingDetails', { ns: 'crm' })}
                 </Typography>
             )}
         </Box>

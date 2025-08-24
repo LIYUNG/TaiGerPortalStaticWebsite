@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
     Dialog,
@@ -38,6 +39,7 @@ const CreateDealModal = ({
     lockSalesUserSelect = false,
     onCreated
 }) => {
+    const { t } = useTranslation();
     const queryClient = useQueryClient();
     const { data: leadsData } = useQuery({
         ...getCRMLeadsQuery(),
@@ -56,7 +58,11 @@ const CreateDealModal = ({
     });
     const salesOptions = (salesData || []).map((s) => ({
         userId: s.userId || s.value,
-        label: s.label || s.name || s.fullName || 'Unknown'
+        label:
+            s.label ||
+            s.name ||
+            s.fullName ||
+            t('common.unknown', { ns: 'crm' })
     }));
 
     const [form, setForm] = useState({
@@ -94,13 +100,16 @@ const CreateDealModal = ({
 
     const handleCreate = async () => {
         const newErrors = {};
-        if (!form.leadId) newErrors.leadId = 'Lead is required';
+        if (!form.leadId)
+            newErrors.leadId = t('deals.leadIsRequired', { ns: 'crm' });
         if (!form.salesUserId)
-            newErrors.salesUserId = 'Sales representative is required';
+            newErrors.salesUserId = t('deals.salesRepIsRequired', {
+                ns: 'crm'
+            });
         if (!form.dealSizeNtd || Number(form.dealSizeNtd) <= 0)
-            newErrors.dealSizeNtd = 'Must be positive';
+            newErrors.dealSizeNtd = t('deals.mustBePositive', { ns: 'crm' });
         if (form.status === 'closed' && !form.closedDate)
-            newErrors.closedDate = 'Closed date required when status is closed';
+            newErrors.closedDate = t('deals.closedDateRequired', { ns: 'crm' });
 
         setErrors(newErrors);
         if (Object.keys(newErrors).length) return;
@@ -131,11 +140,13 @@ const CreateDealModal = ({
 
     return (
         <Dialog fullWidth maxWidth="sm" onClose={onClose} open={open}>
-            <DialogTitle>Create Deal</DialogTitle>
+            <DialogTitle>{t('deals.createDeal', { ns: 'crm' })}</DialogTitle>
             <DialogContent dividers>
                 <Stack spacing={2} sx={{ mt: 1 }}>
                     <FormControl disabled={lockLeadSelect} fullWidth required>
-                        <InputLabel id="leadId-label">Lead</InputLabel>
+                        <InputLabel id="leadId-label">
+                            {t('deals.lead', { ns: 'crm' })}
+                        </InputLabel>
                         <Select
                             MenuProps={{
                                 PaperProps: {
@@ -144,7 +155,7 @@ const CreateDealModal = ({
                                 MenuListProps: { dense: true }
                             }}
                             error={Boolean(errors.leadId)}
-                            label="Lead"
+                            label={t('deals.lead', { ns: 'crm' })}
                             labelId="leadId-label"
                             onChange={(e) =>
                                 setForm((f) => ({
@@ -170,7 +181,7 @@ const CreateDealModal = ({
                         required
                     >
                         <InputLabel id="salesUserId-label">
-                            Sales representative
+                            {t('deals.salesRepresentative', { ns: 'crm' })}
                         </InputLabel>
                         <Select
                             MenuProps={{
@@ -180,7 +191,9 @@ const CreateDealModal = ({
                                 MenuListProps: { dense: true }
                             }}
                             error={Boolean(errors.salesUserId)}
-                            label="Sales Rep"
+                            label={t('deals.salesRepresentative', {
+                                ns: 'crm'
+                            })}
                             labelId="salesUserId-label"
                             onChange={(e) =>
                                 setForm((f) => ({
@@ -203,23 +216,27 @@ const CreateDealModal = ({
                         fullWidth
                         helperText={errors.dealSizeNtd}
                         inputProps={{ inputMode: 'numeric', min: 0, step: 1 }}
-                        label="Deal Size (NTD)"
+                        label={t('deals.dealSizeNtd', { ns: 'crm' })}
                         onChange={(e) =>
                             setForm((f) => ({
                                 ...f,
                                 dealSizeNtd: e.target.value
                             }))
                         }
-                        placeholder="e.g. 69999"
+                        placeholder={t('deals.placeholderDealSize', {
+                            ns: 'crm'
+                        })}
                         required
                         type="number"
                         value={form.dealSizeNtd}
                     />
 
                     <FormControl fullWidth>
-                        <InputLabel id="status-label">Status</InputLabel>
+                        <InputLabel id="status-label">
+                            {t('deals.status', { ns: 'crm' })}
+                        </InputLabel>
                         <Select
-                            label="Status"
+                            label={t('deals.status', { ns: 'crm' })}
                             labelId="status-label"
                             onChange={(e) =>
                                 setForm((f) => ({
@@ -232,7 +249,9 @@ const CreateDealModal = ({
                             {['initiated', 'sent', 'signed', 'closed'].map(
                                 (s) => (
                                     <MenuItem key={s} value={s}>
-                                        {s}
+                                        {t(`deals.statusLabels.${s}`, {
+                                            ns: 'crm'
+                                        })}
                                     </MenuItem>
                                 )
                             )}
@@ -241,7 +260,7 @@ const CreateDealModal = ({
 
                     <TextField
                         fullWidth
-                        label="Note"
+                        label={t('deals.note', { ns: 'crm' })}
                         minRows={2}
                         multiline
                         onChange={(e) =>
@@ -260,7 +279,7 @@ const CreateDealModal = ({
                                 ? errors.closedDate
                                 : undefined
                         }
-                        label="Closed Date"
+                        label={t('deals.closedDate', { ns: 'crm' })}
                         onChange={(e) =>
                             setForm((f) => ({
                                 ...f,
@@ -279,10 +298,10 @@ const CreateDealModal = ({
                         onClose?.();
                     }}
                 >
-                    Cancel
+                    {t('actions.cancel', { ns: 'crm' })}
                 </Button>
                 <Button onClick={handleCreate} variant="contained">
-                    Create
+                    {t('actions.create', { ns: 'crm' })}
                 </Button>
             </DialogActions>
         </Dialog>

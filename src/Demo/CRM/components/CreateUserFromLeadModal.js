@@ -36,7 +36,7 @@ const CreateUserFromLeadModal = ({ open, onClose, lead, onSuccess }) => {
         onSubmit: async ({ value }) => {
             // Basic validation
             if (!value.firstname || !value.lastname || !value.email) {
-                setError('Please fill in all required fields');
+                setError(t('users.errors.requiredFields', { ns: 'crm' }));
                 return;
             }
 
@@ -56,13 +56,16 @@ const CreateUserFromLeadModal = ({ open, onClose, lead, onSuccess }) => {
                     onSuccess && onSuccess(response.data);
                     handleClose();
                 } else {
-                    setError(response.data.message || 'Failed to create user');
+                    setError(
+                        response.data.message ||
+                            t('users.errors.failedCreate', { ns: 'crm' })
+                    );
                 }
             } catch (err) {
                 console.error('Error creating user:', err);
                 setError(
                     err.response?.data?.message ||
-                        'Failed to create user. Please try again.'
+                        t('users.errors.failedCreateDetailed', { ns: 'crm' })
                 );
             } finally {
                 setLoading(false);
@@ -102,7 +105,9 @@ const CreateUserFromLeadModal = ({ open, onClose, lead, onSuccess }) => {
 
     return (
         <Dialog fullWidth maxWidth="sm" onClose={handleClose} open={open}>
-            <DialogTitle>{t('Create User Account from Lead')}</DialogTitle>
+            <DialogTitle>
+                {t('actions.createUserAccountFromLead', { ns: 'crm' })}
+            </DialogTitle>
 
             <form
                 onSubmit={(e) => {
@@ -124,7 +129,9 @@ const CreateUserFromLeadModal = ({ open, onClose, lead, onSuccess }) => {
                             validators={{
                                 onChange: ({ value }) =>
                                     !value
-                                        ? 'First name is required'
+                                        ? t('users.errors.firstnameRequired', {
+                                              ns: 'crm'
+                                          })
                                         : undefined
                             }}
                         >
@@ -136,13 +143,18 @@ const CreateUserFromLeadModal = ({ open, onClose, lead, onSuccess }) => {
                                     helperText={field.state.meta.errors.join(
                                         ', '
                                     )}
-                                    label={t('First Name (English)')}
+                                    label={t('users.firstNameEn', {
+                                        ns: 'crm'
+                                    })}
                                     name={field.name}
                                     onBlur={field.handleBlur}
                                     onChange={(e) =>
                                         field.handleChange(e.target.value)
                                     }
-                                    placeholder="John"
+                                    placeholder={t(
+                                        'users.placeholders.firstName',
+                                        { ns: 'crm' }
+                                    )}
                                     required
                                     value={field.state.value}
                                 />
@@ -152,7 +164,11 @@ const CreateUserFromLeadModal = ({ open, onClose, lead, onSuccess }) => {
                             name="lastname"
                             validators={{
                                 onChange: ({ value }) =>
-                                    !value ? 'Last name is required' : undefined
+                                    !value
+                                        ? t('users.errors.lastnameRequired', {
+                                              ns: 'crm'
+                                          })
+                                        : undefined
                             }}
                         >
                             {(field) => (
@@ -163,13 +179,16 @@ const CreateUserFromLeadModal = ({ open, onClose, lead, onSuccess }) => {
                                     helperText={field.state.meta.errors.join(
                                         ', '
                                     )}
-                                    label={t('Last Name (English)')}
+                                    label={t('users.lastNameEn', { ns: 'crm' })}
                                     name={field.name}
                                     onBlur={field.handleBlur}
                                     onChange={(e) =>
                                         field.handleChange(e.target.value)
                                     }
-                                    placeholder="Doe"
+                                    placeholder={t(
+                                        'users.placeholders.lastName',
+                                        { ns: 'crm' }
+                                    )}
                                     required
                                     value={field.state.value}
                                 />
@@ -183,13 +202,18 @@ const CreateUserFromLeadModal = ({ open, onClose, lead, onSuccess }) => {
                                 <TextField
                                     disabled={loading}
                                     fullWidth
-                                    label={t('名 (中文)')}
+                                    label={t('users.firstNameZh', {
+                                        ns: 'crm'
+                                    })}
                                     name={field.name}
                                     onBlur={field.handleBlur}
                                     onChange={(e) =>
                                         field.handleChange(e.target.value)
                                     }
-                                    placeholder="小明"
+                                    placeholder={t(
+                                        'users.placeholders.firstNameZh',
+                                        { ns: 'crm' }
+                                    )}
                                     value={field.state.value}
                                 />
                             )}
@@ -199,13 +223,16 @@ const CreateUserFromLeadModal = ({ open, onClose, lead, onSuccess }) => {
                                 <TextField
                                     disabled={loading}
                                     fullWidth
-                                    label={t('姓 (中文)')}
+                                    label={t('users.lastNameZh', { ns: 'crm' })}
                                     name={field.name}
                                     onBlur={field.handleBlur}
                                     onChange={(e) =>
                                         field.handleChange(e.target.value)
                                     }
-                                    placeholder="陳"
+                                    placeholder={t(
+                                        'users.placeholders.lastNameZh',
+                                        { ns: 'crm' }
+                                    )}
                                     value={field.state.value}
                                 />
                             )}
@@ -216,9 +243,14 @@ const CreateUserFromLeadModal = ({ open, onClose, lead, onSuccess }) => {
                         name="email"
                         validators={{
                             onChange: ({ value }) => {
-                                if (!value) return 'Email is required';
+                                if (!value)
+                                    return t('users.errors.emailRequired', {
+                                        ns: 'crm'
+                                    });
                                 if (!/^\S+@\S+\.\S+$/.test(value))
-                                    return 'Invalid email format';
+                                    return t('users.errors.emailInvalid', {
+                                        ns: 'crm'
+                                    });
                                 return undefined;
                             }
                         }}
@@ -229,13 +261,15 @@ const CreateUserFromLeadModal = ({ open, onClose, lead, onSuccess }) => {
                                 error={!!field.state.meta.errors.length}
                                 fullWidth
                                 helperText={field.state.meta.errors.join(', ')}
-                                label={t('Email Address')}
+                                label={t('users.email', { ns: 'crm' })}
                                 name={field.name}
                                 onBlur={field.handleBlur}
                                 onChange={(e) =>
                                     field.handleChange(e.target.value)
                                 }
-                                placeholder="john.doe@example.com"
+                                placeholder={t('users.placeholders.email', {
+                                    ns: 'crm'
+                                })}
                                 required
                                 sx={{ mb: 2 }}
                                 type="email"
@@ -248,11 +282,13 @@ const CreateUserFromLeadModal = ({ open, onClose, lead, onSuccess }) => {
                         {(field) => (
                             <FormControl fullWidth sx={{ mb: 2 }}>
                                 <InputLabel id="application-count-label">
-                                    {t('Application Count')}
+                                    {t('users.applicationCount', { ns: 'crm' })}
                                 </InputLabel>
                                 <Select
                                     disabled={loading}
-                                    label={t('Application Count')}
+                                    label={t('users.applicationCount', {
+                                        ns: 'crm'
+                                    })}
                                     labelId="application-count-label"
                                     name={field.name}
                                     onBlur={field.handleBlur}
@@ -283,7 +319,7 @@ const CreateUserFromLeadModal = ({ open, onClose, lead, onSuccess }) => {
                         disabled={loading}
                         onClick={handleClose}
                     >
-                        {t('Cancel', { ns: 'common' })}
+                        {t('actions.cancel', { ns: 'crm' })}
                     </Button>
                     <form.Subscribe
                         selector={(state) => [
@@ -305,7 +341,9 @@ const CreateUserFromLeadModal = ({ open, onClose, lead, onSuccess }) => {
                             >
                                 {loading
                                     ? t('Creating...')
-                                    : t('Create User Account')}
+                                    : t('actions.createUserAccount', {
+                                          ns: 'crm'
+                                      })}
                             </Button>
                         )}
                     </form.Subscribe>

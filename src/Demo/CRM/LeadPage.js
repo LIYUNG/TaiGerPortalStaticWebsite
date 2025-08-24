@@ -1,5 +1,5 @@
 import { useParams, Navigate } from 'react-router-dom';
-import i18next from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, useMemo } from 'react';
 import { useForm } from '@tanstack/react-form';
@@ -47,6 +47,7 @@ import SimilarStudents from './components/SimilarStudents';
 import { request } from '../../api/request';
 
 const LeadPage = () => {
+    const { t } = useTranslation();
     const { leadId } = useParams();
     const queryClient = useQueryClient();
 
@@ -58,7 +59,7 @@ const LeadPage = () => {
     const { data, isLoading } = useQuery(getCRMLeadQuery(leadId));
     const lead = data?.data?.data || {};
     TabTitle(
-        `${i18next.t('breadcrumbs.leads', { ns: 'crm' })} ${lead ? `- ${lead.fullName}` : ''}`
+        `${t('breadcrumbs.leads', { ns: 'crm' })} ${lead ? `- ${lead.fullName}` : ''}`
     );
 
     // Sales reps options for editing sales representative
@@ -75,7 +76,7 @@ const LeadPage = () => {
             s.label ||
             s.name ||
             s.fullName ||
-            i18next.t('common.unknown', { ns: 'crm' })
+            t('common.unknown', { ns: 'crm' })
     }));
 
     // Modal state for creating user from lead
@@ -140,7 +141,7 @@ const LeadPage = () => {
     };
 
     // Get card configurations with the create user handler
-    const cardConfigurations = getCardConfigurations(handleCreateUser);
+    const cardConfigurations = getCardConfigurations(t);
 
     // Generate edit states dynamically from card configurations
     const initialEditStates = cardConfigurations.reduce((acc, config) => {
@@ -354,7 +355,7 @@ const LeadPage = () => {
                         href="/crm"
                         underline="hover"
                     >
-                        {i18next.t('breadcrumbs.crm', { ns: 'crm' })}
+                        {t('breadcrumbs.crm', { ns: 'crm' })}
                     </Link>
                     <Link
                         color="inherit"
@@ -362,7 +363,7 @@ const LeadPage = () => {
                         href="/crm/leads"
                         underline="hover"
                     >
-                        {i18next.t('breadcrumbs.leads', { ns: 'crm' })}
+                        {t('breadcrumbs.leads', { ns: 'crm' })}
                     </Link>
                     <Typography color="text.primary">
                         {lead.fullName}
@@ -413,8 +414,7 @@ const LeadPage = () => {
                                 }}
                                 variant="h5"
                             >
-                                {lead.fullName ||
-                                    i18next.t('common.na', { ns: 'crm' })}
+                                {lead.fullName || t('common.na', { ns: 'crm' })}
                             </Typography>
 
                             {/* Gender Icon */}
@@ -424,7 +424,7 @@ const LeadPage = () => {
                                         display: 'flex',
                                         alignItems: 'center'
                                     }}
-                                    title={`Gender: ${lead.gender?.charAt(0).toUpperCase() + lead.gender?.slice(1)}`}
+                                    title={`${t('leads.gender', { ns: 'crm' })}: ${lead.gender?.charAt(0).toUpperCase() + lead.gender?.slice(1)}`}
                                 >
                                     {(() => {
                                         // Normalize gender text to handle various formats
@@ -524,7 +524,7 @@ const LeadPage = () => {
                                         boxShadow: '0 2px 4px rgba(0,0,0,0.08)',
                                         letterSpacing: '0.2px'
                                     }}
-                                    title={`${i18next.t('leads.closeLikelihood', { ns: 'crm' })}: ${lead.closeLikelihood.charAt(0).toUpperCase() + lead.closeLikelihood.slice(1)}`}
+                                    title={`${t('leads.closeLikelihood', { ns: 'crm' })}: ${lead.closeLikelihood.charAt(0).toUpperCase() + lead.closeLikelihood.slice(1)}`}
                                 >
                                     {lead.closeLikelihood === 'high'
                                         ? 'H'
@@ -571,7 +571,7 @@ const LeadPage = () => {
                                 {lead.status
                                     ? lead.status.charAt(0).toUpperCase() +
                                       lead.status.slice(1)
-                                    : 'N/A'}
+                                    : t('common.na', { ns: 'crm' })}
                             </Box>
 
                             {/* Push edit button to the right */}
@@ -594,11 +594,9 @@ const LeadPage = () => {
                                     }}
                                     variant="body2"
                                 >
-                                    {i18next.t('common.sales', { ns: 'crm' })}:{' '}
+                                    {t('common.sales', { ns: 'crm' })}:{' '}
                                     {lead?.salesRep?.label ||
-                                        i18next.t('leads.unassigned', {
-                                            ns: 'crm'
-                                        })}
+                                        t('leads.unassigned', { ns: 'crm' })}
                                 </Typography>
 
                                 {editStates.personal &&
@@ -612,10 +610,9 @@ const LeadPage = () => {
                                                 fontWeight: 'normal'
                                             }}
                                         >
-                                            {i18next.t(
-                                                'common.unsavedChanges',
-                                                { ns: 'crm' }
-                                            )}
+                                            {t('common.unsavedChanges', {
+                                                ns: 'crm'
+                                            })}
                                         </Typography>
                                     )}
 
@@ -702,9 +699,7 @@ const LeadPage = () => {
                                     underline="hover"
                                     variant="body2"
                                 >
-                                    {i18next.t('common.studentProfile', {
-                                        ns: 'crm'
-                                    })}
+                                    {t('common.studentProfile', { ns: 'crm' })}
                                 </Link>
                             ) : !lead.userId &&
                               lead.status !== 'closed' &&
@@ -716,7 +711,7 @@ const LeadPage = () => {
                                     startIcon={<PersonAddIcon />}
                                     variant="outlined"
                                 >
-                                    {i18next.t('actions.createUserAccount', {
+                                    {t('actions.createUserAccount', {
                                         ns: 'crm'
                                     })}
                                 </Button>
@@ -729,7 +724,7 @@ const LeadPage = () => {
                                 size="small"
                                 variant="contained"
                             >
-                                {i18next.t('actions.createDeal', { ns: 'crm' })}
+                                {t('actions.createDeal', { ns: 'crm' })}
                             </Button>
                         </Box>
 
@@ -744,9 +739,7 @@ const LeadPage = () => {
                                     }}
                                     variant="caption"
                                 >
-                                    {i18next.t('common.salesNote', {
-                                        ns: 'crm'
-                                    })}
+                                    {t('common.salesNote', { ns: 'crm' })}
                                 </Typography>
                                 <Box
                                     sx={{
@@ -779,9 +772,7 @@ const LeadPage = () => {
                                         }}
                                         variant="caption"
                                     >
-                                        {i18next.t('breadcrumbs.deals', {
-                                            ns: 'crm'
-                                        })}
+                                        {t('breadcrumbs.deals', { ns: 'crm' })}
                                     </Typography>
                                     <Box
                                         sx={{
@@ -821,7 +812,7 @@ const LeadPage = () => {
                                                     }}
                                                 >
                                                     {deal?.status ||
-                                                        i18next.t('common.na', {
+                                                        t('common.na', {
                                                             ns: 'crm'
                                                         })}
                                                 </Box>
@@ -900,12 +891,14 @@ const LeadPage = () => {
                                                 mb: 0.5
                                             }}
                                         >
-                                            • Unsaved changes
+                                            {t('common.unsavedChanges', {
+                                                ns: 'crm'
+                                            })}
                                         </Typography>
                                     )}
                                     <TextField
                                         fullWidth
-                                        label={i18next.t('leads.fullName', {
+                                        label={t('leads.fullName', {
                                             ns: 'crm'
                                         })}
                                         onChange={(e) =>
@@ -924,14 +917,10 @@ const LeadPage = () => {
                             <Grid item md={2} xs={6}>
                                 <FormControl fullWidth size="small">
                                     <InputLabel id="gender-select-label">
-                                        {i18next.t('leads.gender', {
-                                            ns: 'crm'
-                                        })}
+                                        {t('leads.gender', { ns: 'crm' })}
                                     </InputLabel>
                                     <Select
-                                        label={i18next.t('leads.gender', {
-                                            ns: 'crm'
-                                        })}
+                                        label={t('leads.gender', { ns: 'crm' })}
                                         labelId="gender-select-label"
                                         onChange={(e) =>
                                             handleFieldChange(
@@ -953,9 +942,7 @@ const LeadPage = () => {
                             <Grid item md={3} xs={6}>
                                 <TextField
                                     fullWidth
-                                    label={i18next.t('leads.role', {
-                                        ns: 'crm'
-                                    })}
+                                    label={t('leads.role', { ns: 'crm' })}
                                     onChange={(e) =>
                                         handleFieldChange(
                                             'applicantRole',
@@ -972,12 +959,10 @@ const LeadPage = () => {
                             <Grid item md={2} xs={6}>
                                 <FormControl fullWidth size="small">
                                     <InputLabel id="sales-rep-select-label">
-                                        {i18next.t('leads.salesRep', {
-                                            ns: 'crm'
-                                        })}
+                                        {t('leads.salesRep', { ns: 'crm' })}
                                     </InputLabel>
                                     <Select
-                                        label={i18next.t('leads.salesRep', {
+                                        label={t('leads.salesRep', {
                                             ns: 'crm'
                                         })}
                                         labelId="sales-rep-select-label"
@@ -996,7 +981,7 @@ const LeadPage = () => {
                                         value={formData?.salesUserId || ''}
                                     >
                                         <MenuItem value="">
-                                            {i18next.t('leads.unassigned', {
+                                            {t('leads.unassigned', {
                                                 ns: 'crm'
                                             })}
                                         </MenuItem>
@@ -1049,12 +1034,10 @@ const LeadPage = () => {
                             <Grid item md={3} xs={6}>
                                 <FormControl fullWidth size="small">
                                     <InputLabel id="status-select-label">
-                                        {i18next.t('common.status', {
-                                            ns: 'crm'
-                                        })}
+                                        {t('common.status', { ns: 'crm' })}
                                     </InputLabel>
                                     <Select
-                                        label={i18next.t('common.status', {
+                                        label={t('common.status', {
                                             ns: 'crm'
                                         })}
                                         labelId="status-select-label"
@@ -1082,15 +1065,14 @@ const LeadPage = () => {
                             <Grid item md={3} xs={12}>
                                 <FormControl fullWidth size="small">
                                     <InputLabel id="close-likelihood-select-label">
-                                        {i18next.t('leads.closeLikelihood', {
+                                        {t('leads.closeLikelihood', {
                                             ns: 'crm'
                                         })}
                                     </InputLabel>
                                     <Select
-                                        label={i18next.t(
-                                            'leads.closeLikelihood',
-                                            { ns: 'crm' }
-                                        )}
+                                        label={t('leads.closeLikelihood', {
+                                            ns: 'crm'
+                                        })}
                                         labelId="close-likelihood-select-label"
                                         onChange={(e) =>
                                             handleFieldChange(
@@ -1113,9 +1095,7 @@ const LeadPage = () => {
                             <Grid item xs={12}>
                                 <TextField
                                     fullWidth
-                                    label={i18next.t('common.salesNote', {
-                                        ns: 'crm'
-                                    })}
+                                    label={t('common.salesNote', { ns: 'crm' })}
                                     minRows={3}
                                     multiline
                                     onChange={(e) =>
@@ -1143,10 +1123,9 @@ const LeadPage = () => {
                                                 }}
                                                 variant="caption"
                                             >
-                                                {i18next.t(
-                                                    'breadcrumbs.deals',
-                                                    { ns: 'crm' }
-                                                )}
+                                                {t('breadcrumbs.deals', {
+                                                    ns: 'crm'
+                                                })}
                                             </Typography>
                                             <Box
                                                 sx={{
@@ -1189,12 +1168,9 @@ const LeadPage = () => {
                                                             }}
                                                         >
                                                             {deal?.status ||
-                                                                i18next.t(
-                                                                    'common.na',
-                                                                    {
-                                                                        ns: 'crm'
-                                                                    }
-                                                                )}
+                                                                t('common.na', {
+                                                                    ns: 'crm'
+                                                                })}
                                                         </Box>
                                                         {deal?.closedDate && (
                                                             <Typography
@@ -1332,7 +1308,7 @@ const LeadPage = () => {
                                             }}
                                         >
                                             {meeting.summary?.gist ||
-                                                i18next.t('common.noSummary', {
+                                                t('common.noSummary', {
                                                     ns: 'crm'
                                                 })}
                                         </Box>
@@ -1386,7 +1362,7 @@ const LeadPage = () => {
                 </Grid>
             ) : (
                 <Typography color="text.secondary" variant="body1">
-                    {i18next.t('common.loadingLeadInfo', { ns: 'crm' })}
+                    {t('common.loadingLeadInfo', { ns: 'crm' })}
                 </Typography>
             )}
 

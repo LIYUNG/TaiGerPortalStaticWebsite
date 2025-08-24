@@ -1,5 +1,5 @@
 import React, { useMemo, useRef } from 'react';
-import i18next from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import {
     Box,
@@ -31,6 +31,7 @@ const { STUDENT_DATABASE_STUDENTID_LINK, SINGLE_PROGRAM_LINK } = DEMO;
 
 // Extracted student card component for better organization
 const StudentCard = ({ student, matchReason }) => {
+    const { t } = useTranslation();
     const [expanded, setExpanded] = React.useState(false);
 
     const sortedApplications = useMemo(() => {
@@ -139,7 +140,7 @@ const StudentCard = ({ student, matchReason }) => {
                         gutterBottom
                         variant="caption"
                     >
-                        {i18next.t('common.matchReason', { ns: 'crm' })}
+                        {t('common.matchReason', { ns: 'crm' })}
                     </Typography>
                     <Box
                         sx={{
@@ -166,25 +167,25 @@ const StudentCard = ({ student, matchReason }) => {
             {/* Student details */}
             <Box sx={{ flex: 1, fontSize: '0.75rem' }}>
                 <StudentDetailRow
-                    label={i18next.t('common.gpa', { ns: 'crm' })}
+                    label={t('common.gpa', { ns: 'crm' })}
                     value={student?.academic_background?.university?.My_GPA_Uni}
                 />
                 <StudentDetailRow
-                    label={i18next.t('common.school', { ns: 'crm' })}
+                    label={t('common.school', { ns: 'crm' })}
                     value={
                         student?.academic_background?.university
                             ?.attended_university
                     }
                 />
                 <StudentDetailRow
-                    label={i18next.t('common.program', { ns: 'crm' })}
+                    label={t('common.program', { ns: 'crm' })}
                     value={
                         student?.academic_background?.university
                             ?.attended_university_program
                     }
                 />
                 <StudentDetailRow
-                    label={i18next.t('common.targetField', { ns: 'crm' })}
+                    label={t('common.targetField', { ns: 'crm' })}
                     value={
                         student?.application_preference
                             ?.target_application_field
@@ -297,8 +298,8 @@ const StudentCard = ({ student, matchReason }) => {
                             }}
                         >
                             {expanded
-                                ? i18next.t('common.showLess', { ns: 'crm' })
-                                : i18next.t('common.showMore', {
+                                ? t('common.showLess', { ns: 'crm' })
+                                : t('common.showMore', {
                                       ns: 'crm',
                                       count: sortedApplications.length - 7
                                   })}
@@ -330,17 +331,19 @@ const StudentCard = ({ student, matchReason }) => {
 };
 
 // Helper component for consistent student detail rows
-const StudentDetailRow = ({ label, value }) => (
-    <Typography
-        color="text.secondary"
-        display="block"
-        gutterBottom
-        variant="caption"
-    >
-        <strong>{label}:</strong>{' '}
-        {value || i18next.t('common.na', { ns: 'crm' })}
-    </Typography>
-);
+const StudentDetailRow = ({ label, value }) => {
+    const { t } = useTranslation();
+    return (
+        <Typography
+            color="text.secondary"
+            display="block"
+            gutterBottom
+            variant="caption"
+        >
+            <strong>{label}:</strong> {value || t('common.na', { ns: 'crm' })}
+        </Typography>
+    );
+};
 
 // Loading placeholder for student cards
 const StudentCardSkeleton = () => (
@@ -537,6 +540,8 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
     };
     const studentCount = sortedStudents?.length || 0;
 
+    const { t } = useTranslation();
+
     // Render loading state
     if (isLoading) {
         return (
@@ -559,22 +564,15 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
                         >
                             <PersonIcon color="primary" />
                             <Typography variant="h6">
-                                {i18next.t('common.similarStudents', {
-                                    ns: 'crm'
-                                })}
+                                {t('common.similarStudents', { ns: 'crm' })}
                             </Typography>
                         </Box>
-                        <Tooltip
-                            title={i18next.t('actions.regenerate', {
-                                ns: 'crm'
-                            })}
-                        >
+                        <Tooltip title={t('actions.regenerate', { ns: 'crm' })}>
                             <span>
                                 <IconButton
-                                    aria-label={i18next.t(
-                                        'actions.regenerate',
-                                        { ns: 'crm' }
-                                    )}
+                                    aria-label={t('actions.regenerate', {
+                                        ns: 'crm'
+                                    })}
                                     disabled={isRefreshing}
                                     onClick={handleRefetch}
                                     size="small"
@@ -596,9 +594,7 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
                     >
                         {/* Navigation buttons for loading state */}
                         <IconButton
-                            aria-label={i18next.t('common.scrollLeft', {
-                                ns: 'crm'
-                            })}
+                            aria-label={t('common.scrollLeft', { ns: 'crm' })}
                             size="small"
                             sx={{
                                 position: 'absolute',
@@ -617,9 +613,7 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
                         </IconButton>
 
                         <IconButton
-                            aria-label={i18next.t('common.scrollRight', {
-                                ns: 'crm'
-                            })}
+                            aria-label={t('common.scrollRight', { ns: 'crm' })}
                             size="small"
                             sx={{
                                 position: 'absolute',
@@ -720,22 +714,15 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
                         >
                             <PersonIcon color="primary" />
                             <Typography variant="h6">
-                                {i18next.t('common.similarStudents', {
-                                    ns: 'crm'
-                                })}
+                                {t('common.similarStudents', { ns: 'crm' })}
                             </Typography>
                         </Box>
-                        <Tooltip
-                            title={i18next.t('actions.regenerate', {
-                                ns: 'crm'
-                            })}
-                        >
+                        <Tooltip title={t('actions.regenerate', { ns: 'crm' })}>
                             <span>
                                 <IconButton
-                                    aria-label={i18next.t(
-                                        'actions.regenerate',
-                                        { ns: 'crm' }
-                                    )}
+                                    aria-label={t('actions.regenerate', {
+                                        ns: 'crm'
+                                    })}
                                     disabled={isRefreshing}
                                     onClick={handleRefetch}
                                     size="small"
@@ -750,9 +737,7 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
                         </Tooltip>
                     </Box>
                     <Typography color="text.secondary">
-                        {i18next.t('common.noSimilarStudentsFound', {
-                            ns: 'crm'
-                        })}
+                        {t('common.noSimilarStudentsFound', { ns: 'crm' })}
                     </Typography>
                 </CardContent>
             </Card>
@@ -774,14 +759,16 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <PersonIcon color="primary" />
                         <Typography variant="h6">
-                            {i18next.t('common.similarStudents', { ns: 'crm' })}{' '}
-                            ({studentCount})
+                            {t('common.similarStudents', { ns: 'crm' })} (
+                            {studentCount})
                         </Typography>
                     </Box>
-                    <Tooltip title="Regenerate">
+                    <Tooltip title={t('actions.regenerate', { ns: 'crm' })}>
                         <span>
                             <IconButton
-                                aria-label="Regenerate similar students"
+                                aria-label={t('actions.regenerate', {
+                                    ns: 'crm'
+                                })}
                                 disabled={isRefreshing}
                                 onClick={handleRefetch}
                                 size="small"
@@ -802,7 +789,7 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
                     sx={{ mb: 2 }}
                     variant="body2"
                 >
-                    {i18next.t('common.similarStudentsDesc', { ns: 'crm' })}
+                    {t('common.similarStudentsDesc', { ns: 'crm' })}
                 </Typography>
 
                 <Box
@@ -815,7 +802,7 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
                     {sortedStudents.length > 5 && (
                         <>
                             <IconButton
-                                aria-label={i18next.t('common.scrollLeft', {
+                                aria-label={t('common.scrollLeft', {
                                     ns: 'crm'
                                 })}
                                 onClick={() => {
@@ -843,7 +830,7 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
                             </IconButton>
 
                             <IconButton
-                                aria-label={i18next.t('common.scrollRight', {
+                                aria-label={t('common.scrollRight', {
                                     ns: 'crm'
                                 })}
                                 onClick={() => {

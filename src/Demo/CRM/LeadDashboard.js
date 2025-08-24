@@ -1,6 +1,6 @@
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import i18next from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { MaterialReactTable } from 'material-react-table';
 import { useState } from 'react';
 
@@ -31,8 +31,9 @@ import { appConfig } from '../../config';
 import { getCRMLeadsQuery } from '../../api/query';
 
 const LeadDashboard = () => {
+    const { t } = useTranslation();
     TabTitle(
-        `${i18next.t('breadcrumbs.crm', { ns: 'crm' })} - ${i18next.t('breadcrumbs.leads', { ns: 'crm' })}`
+        `${t('breadcrumbs.crm', { ns: 'crm' })} - ${t('breadcrumbs.leads', { ns: 'crm' })}`
     );
     const navigate = useNavigate();
     const [tabValue, setTabValue] = useState(1);
@@ -88,7 +89,7 @@ const LeadDashboard = () => {
     const columns = [
         {
             accessorKey: 'closeLikelihood',
-            header: i18next.t('leads.chance', { ns: 'crm' }),
+            header: t('leads.chance', { ns: 'crm' }),
             size: 100,
             Cell: ({ cell }) => {
                 const value = cell.getValue();
@@ -106,7 +107,7 @@ const LeadDashboard = () => {
         },
         {
             accessorKey: 'status',
-            header: i18next.t('common.status', { ns: 'crm' }),
+            header: t('common.status', { ns: 'crm' }),
             size: 100,
             Cell: ({ cell }) => {
                 const value = cell.getValue();
@@ -123,7 +124,7 @@ const LeadDashboard = () => {
         },
         {
             accessorKey: 'fullName',
-            header: i18next.t('leads.fullName', { ns: 'crm' }),
+            header: t('leads.fullName', { ns: 'crm' }),
             size: 120,
             muiTableBodyCellProps: ({ cell }) => ({
                 sx: {
@@ -142,7 +143,7 @@ const LeadDashboard = () => {
         },
         {
             accessorKey: 'intendedStartTime',
-            header: i18next.t('leads.startTime', { ns: 'crm' }),
+            header: t('leads.startTime', { ns: 'crm' }),
             size: 150,
             Cell: ({ cell }) => (
                 <Stack alignItems="center" direction="row" spacing={1}>
@@ -153,7 +154,7 @@ const LeadDashboard = () => {
         },
         {
             id: 'intendedProgram',
-            header: i18next.t('leads.intendedProgram', { ns: 'crm' }),
+            header: t('leads.intendedProgram', { ns: 'crm' }),
             size: 350,
             accessorFn: (row) => {
                 const level = row.intendedProgramLevel?.trim();
@@ -185,8 +186,9 @@ const LeadDashboard = () => {
             )
         },
         {
-            accessorFn: (row) => row.salesRep?.label ?? 'N/A',
-            header: i18next.t('common.sales', { ns: 'crm' }),
+            accessorFn: (row) =>
+                row.salesRep?.label ?? t('common.na', { ns: 'crm' }),
+            header: t('common.sales', { ns: 'crm' }),
             size: 100,
             Cell: ({ cell }) => (
                 <Chip
@@ -198,7 +200,7 @@ const LeadDashboard = () => {
         },
         {
             accessorKey: 'salesNote',
-            header: i18next.t('common.salesNote', { ns: 'crm' }),
+            header: t('common.salesNote', { ns: 'crm' }),
             size: 350,
             muiTableBodyCellProps: ({ cell }) => ({
                 sx: {
@@ -217,7 +219,7 @@ const LeadDashboard = () => {
         },
         {
             accessorKey: 'createdAt',
-            header: i18next.t('common.submittedAt', { ns: 'crm' }),
+            header: t('common.submittedAt', { ns: 'crm' }),
             size: 150,
             Cell: ({ cell }) => (
                 <Stack alignItems="center" direction="row" spacing={1}>
@@ -254,34 +256,34 @@ const LeadDashboard = () => {
     const getTabTitle = () => {
         switch (tabValue) {
             case 0:
-                return i18next.t('leads.allLeads', { ns: 'crm' });
+                return t('leads.allLeads', { ns: 'crm' });
             case 1:
-                return i18next.t('leads.openLeads', { ns: 'crm' });
+                return t('leads.openLeads', { ns: 'crm' });
             case 2:
-                return i18next.t('leads.contactedLeads', { ns: 'crm' });
+                return t('leads.contactedLeads', { ns: 'crm' });
             case 3:
-                return i18next.t('leads.convertedLeads', { ns: 'crm' });
+                return t('leads.convertedLeads', { ns: 'crm' });
             case 4:
-                return i18next.t('leads.closedLeads', { ns: 'crm' });
+                return t('leads.closedLeads', { ns: 'crm' });
             default:
-                return i18next.t('leads.openLeads', { ns: 'crm' });
+                return t('leads.openLeads', { ns: 'crm' });
         }
     };
 
     const getTabDescription = () => {
         switch (tabValue) {
             case 0:
-                return i18next.t('leads.desc.all', { ns: 'crm' });
+                return t('leads.desc.all', { ns: 'crm' });
             case 1:
-                return i18next.t('leads.desc.open', { ns: 'crm' });
+                return t('leads.desc.open', { ns: 'crm' });
             case 2:
-                return i18next.t('leads.desc.contacted', { ns: 'crm' });
+                return t('leads.desc.contacted', { ns: 'crm' });
             case 3:
-                return i18next.t('leads.desc.converted', { ns: 'crm' });
+                return t('leads.desc.converted', { ns: 'crm' });
             case 4:
-                return i18next.t('leads.desc.closed', { ns: 'crm' });
+                return t('leads.desc.closed', { ns: 'crm' });
             default:
-                return i18next.t('leads.desc.open', { ns: 'crm' });
+                return t('leads.desc.open', { ns: 'crm' });
         }
     };
 
@@ -302,11 +304,9 @@ const LeadDashboard = () => {
                     href={`${DEMO.DASHBOARD_LINK}`}
                     underline="hover"
                 >
-                    {i18next.t('breadcrumbs.crm', { ns: 'crm' })}
+                    {t('breadcrumbs.crm', { ns: 'crm' })}
                 </Link>
-                <Typography>
-                    {i18next.t('breadcrumbs.leads', { ns: 'crm' })}
-                </Typography>
+                <Typography>{t('breadcrumbs.leads', { ns: 'crm' })}</Typography>
             </Breadcrumbs>
 
             {/* Main Table */}
@@ -329,23 +329,23 @@ const LeadDashboard = () => {
                     <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                         <Tabs onChange={handleTabChange} value={tabValue}>
                             <Tab
-                                label={`${i18next.t('leads.allLeads', { ns: 'crm' })} (${allLeads.length})`}
+                                label={`${t('leads.allLeads', { ns: 'crm' })} (${allLeads.length})`}
                                 sx={{ textTransform: 'none' }}
                             />
                             <Tab
-                                label={`${i18next.t('leads.openLeads', { ns: 'crm' })} (${openLeads.length})`}
+                                label={`${t('leads.openLeads', { ns: 'crm' })} (${openLeads.length})`}
                                 sx={{ textTransform: 'none' }}
                             />
                             <Tab
-                                label={`${i18next.t('leads.contactedLeads', { ns: 'crm' })} (${contactedLeads.length})`}
+                                label={`${t('leads.contactedLeads', { ns: 'crm' })} (${contactedLeads.length})`}
                                 sx={{ textTransform: 'none' }}
                             />
                             <Tab
-                                label={`${i18next.t('leads.convertedLeads', { ns: 'crm' })} (${convertedLeads.length})`}
+                                label={`${t('leads.convertedLeads', { ns: 'crm' })} (${convertedLeads.length})`}
                                 sx={{ textTransform: 'none' }}
                             />
                             <Tab
-                                label={`${i18next.t('leads.closedLeads', { ns: 'crm' })} (${closedLeads.length})`}
+                                label={`${t('leads.closedLeads', { ns: 'crm' })} (${closedLeads.length})`}
                                 sx={{ textTransform: 'none' }}
                             />
                         </Tabs>
