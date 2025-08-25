@@ -59,7 +59,7 @@ const CVMLRLDashboard = (props) => {
         (open_task) =>
             open_task.show &&
             !open_task.isFinalVersion &&
-            open_task.latest_message_left_by_id === ''
+            open_task.latest_message_left_by_id === '- None - '
     );
 
     const cvmlrl_closed_v2 = open_tasks_arr.filter(
