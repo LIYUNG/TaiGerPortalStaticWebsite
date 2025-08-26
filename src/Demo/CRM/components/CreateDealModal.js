@@ -101,6 +101,11 @@ const CreateDealModal = ({
         setErrors({});
     };
 
+    const handleCancel = () => {
+        resetForm();
+        onClose?.();
+    };
+
     const handleCreate = async () => {
         const newErrors = {};
         if (!form.leadId)
@@ -142,7 +147,13 @@ const CreateDealModal = ({
     };
 
     return (
-        <Dialog fullWidth maxWidth="sm" onClose={onClose} open={open}>
+        <Dialog
+            disableRestoreFocus
+            fullWidth
+            maxWidth="sm"
+            onClose={onClose}
+            open={open}
+        >
             <DialogTitle>{t('deals.createDeal', { ns: 'crm' })}</DialogTitle>
             <DialogContent dividers>
                 <Stack spacing={2} sx={{ mt: 1 }}>
@@ -293,12 +304,7 @@ const CreateDealModal = ({
                 </Stack>
             </DialogContent>
             <DialogActions>
-                <Button
-                    onClick={() => {
-                        resetForm();
-                        onClose?.();
-                    }}
-                >
+                <Button onClick={handleCancel}>
                     {t('actions.cancel', { ns: 'crm' })}
                 </Button>
                 <Button onClick={handleCreate} variant="contained">
