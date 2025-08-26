@@ -16,7 +16,8 @@ import {
     FormControl,
     InputLabel,
     Select,
-    MenuItem
+    MenuItem,
+    Tooltip
 } from '@mui/material';
 import {
     Event as EventIcon,
@@ -66,6 +67,7 @@ const LeadPage = () => {
     const [showCreateUserModal, setShowCreateUserModal] = useState(false);
     const [selectedLead, setSelectedLead] = useState(null);
     const [showCreateDealModal, setShowCreateDealModal] = useState(false);
+    const [editingDeal, setEditingDeal] = useState(null);
 
     // Handle create user modal
     const handleCreateUser = (leadData) => {
@@ -78,8 +80,19 @@ const LeadPage = () => {
         setSelectedLead(null);
     };
 
-    const openCreateDeal = () => setShowCreateDealModal(true);
-    const closeCreateDeal = () => setShowCreateDealModal(false);
+    const openCreateDeal = () => {
+        setEditingDeal(null);
+        setShowCreateDealModal(true);
+    };
+    const closeCreateDeal = () => {
+        setShowCreateDealModal(false);
+        setEditingDeal(null);
+    };
+
+    const handleEditDeal = (deal) => {
+        setEditingDeal(deal);
+        setShowCreateDealModal(true);
+    };
 
     const handleUserCreated = async (userData) => {
         // Extract the new user ID from the response
@@ -795,67 +808,106 @@ const LeadPage = () => {
                                                     display: 'flex',
                                                     flexWrap: 'wrap',
                                                     gap: 1.5,
-                                                    alignItems: 'center'
+                                                    alignItems: 'center',
+                                                    justifyContent:
+                                                        'space-between'
                                                 }}
                                             >
-                                                {/* Status pill (neutral) */}
                                                 <Box
                                                     sx={{
-                                                        px: 1,
-                                                        py: 0.25,
-                                                        borderRadius: '12px',
-                                                        border: '1px solid',
-                                                        borderColor: 'divider',
-                                                        fontSize: '0.75rem',
-                                                        color: 'text.secondary',
-                                                        backgroundColor:
-                                                            'background.paper'
+                                                        display: 'flex',
+                                                        flexWrap: 'wrap',
+                                                        gap: 1.5,
+                                                        alignItems: 'center',
+                                                        flex: 1
                                                     }}
                                                 >
-                                                    {deal?.status ||
-                                                        t('common.na', {
-                                                            ns: 'crm'
-                                                        })}
+                                                    {/* Status pill (neutral) */}
+                                                    <Box
+                                                        sx={{
+                                                            px: 1,
+                                                            py: 0.25,
+                                                            borderRadius:
+                                                                '12px',
+                                                            border: '1px solid',
+                                                            borderColor:
+                                                                'divider',
+                                                            fontSize: '0.75rem',
+                                                            color: 'text.secondary',
+                                                            backgroundColor:
+                                                                'background.paper'
+                                                        }}
+                                                    >
+                                                        {deal?.status ||
+                                                            t('common.na', {
+                                                                ns: 'crm'
+                                                            })}
+                                                    </Box>
+
+                                                    {/* Closed date */}
+                                                    {deal?.closedDate && (
+                                                        <Typography
+                                                            sx={{
+                                                                color: 'text.secondary'
+                                                            }}
+                                                            variant="body2"
+                                                        >
+                                                            {new Date(
+                                                                deal.closedDate
+                                                            ).toLocaleDateString()}
+                                                        </Typography>
+                                                    )}
+
+                                                    {/* Amount */}
+                                                    {deal?.dealSizeNtd && (
+                                                        <Typography
+                                                            sx={{
+                                                                fontWeight: 600
+                                                            }}
+                                                            variant="body2"
+                                                        >
+                                                            NTD{' '}
+                                                            {Number(
+                                                                deal.dealSizeNtd
+                                                            ).toLocaleString()}
+                                                        </Typography>
+                                                    )}
+
+                                                    {/* Note */}
+                                                    {deal?.note && (
+                                                        <Typography
+                                                            sx={{
+                                                                color: 'text.primary'
+                                                            }}
+                                                            variant="body2"
+                                                        >
+                                                            {deal.note}
+                                                        </Typography>
+                                                    )}
                                                 </Box>
 
-                                                {/* Closed date */}
-                                                {deal?.closedDate && (
-                                                    <Typography
-                                                        sx={{
-                                                            color: 'text.secondary'
+                                                {/* Edit Button */}
+                                                <Tooltip
+                                                    title={t('actions.edit', {
+                                                        ns: 'crm'
+                                                    })}
+                                                >
+                                                    <IconButton
+                                                        color="primary"
+                                                        onClick={() => {
+                                                            deal.leadFullName =
+                                                                lead?.fullName;
+                                                            deal.salesLabel =
+                                                                lead?.salesRep?.label;
+                                                            handleEditDeal(
+                                                                deal
+                                                            );
                                                         }}
-                                                        variant="body2"
+                                                        size="small"
                                                     >
-                                                        {new Date(
-                                                            deal.closedDate
-                                                        ).toLocaleDateString()}
-                                                    </Typography>
-                                                )}
-
-                                                {/* Amount */}
-                                                {deal?.dealSizeNtd && (
-                                                    <Typography
-                                                        sx={{ fontWeight: 600 }}
-                                                        variant="body2"
-                                                    >
-                                                        NTD{' '}
-                                                        {Number(
-                                                            deal.dealSizeNtd
-                                                        ).toLocaleString()}
-                                                    </Typography>
-                                                )}
-
-                                                {/* Note */}
-                                                {deal?.note && (
-                                                    <Typography
-                                                        sx={{
-                                                            color: 'text.primary'
-                                                        }}
-                                                        variant="body2"
-                                                    >
-                                                        {deal.note}
-                                                    </Typography>
-                                                )}
+                                                        <EditIcon fontSize="small" />
+                                                    </IconButton>
+                                                </Tooltip>
                                             </Box>
                                         ))}
                                     </Box>
@@ -1149,65 +1201,103 @@ const LeadPage = () => {
                                                             display: 'flex',
                                                             flexWrap: 'wrap',
                                                             gap: 1.5,
-                                                            alignItems: 'center'
+                                                            alignItems:
+                                                                'center',
+                                                            justifyContent:
+                                                                'space-between'
                                                         }}
                                                     >
                                                         <Box
                                                             sx={{
-                                                                px: 1,
-                                                                py: 0.25,
-                                                                borderRadius:
-                                                                    '12px',
-                                                                border: '1px solid',
-                                                                borderColor:
-                                                                    'divider',
-                                                                fontSize:
-                                                                    '0.75rem',
-                                                                color: 'text.secondary',
-                                                                backgroundColor:
-                                                                    'background.paper'
+                                                                display: 'flex',
+                                                                flexWrap:
+                                                                    'wrap',
+                                                                gap: 1.5,
+                                                                alignItems:
+                                                                    'center',
+                                                                flex: 1
                                                             }}
                                                         >
-                                                            {deal?.status ||
-                                                                t('common.na', {
-                                                                    ns: 'crm'
-                                                                })}
+                                                            <Box
+                                                                sx={{
+                                                                    px: 1,
+                                                                    py: 0.25,
+                                                                    borderRadius:
+                                                                        '12px',
+                                                                    border: '1px solid',
+                                                                    borderColor:
+                                                                        'divider',
+                                                                    fontSize:
+                                                                        '0.75rem',
+                                                                    color: 'text.secondary',
+                                                                    backgroundColor:
+                                                                        'background.paper'
+                                                                }}
+                                                            >
+                                                                {deal?.status ||
+                                                                    t(
+                                                                        'common.na',
+                                                                        {
+                                                                            ns: 'crm'
+                                                                        }
+                                                                    )}
+                                                            </Box>
+                                                            {deal?.closedDate && (
+                                                                <Typography
+                                                                    sx={{
+                                                                        color: 'text.secondary'
+                                                                    }}
+                                                                    variant="body2"
+                                                                >
+                                                                    {new Date(
+                                                                        deal.closedDate
+                                                                    ).toLocaleDateString()}
+                                                                </Typography>
+                                                            )}
+                                                            {deal?.dealSizeNtd && (
+                                                                <Typography
+                                                                    sx={{
+                                                                        fontWeight: 600
+                                                                    }}
+                                                                    variant="body2"
+                                                                >
+                                                                    NTD{' '}
+                                                                    {Number(
+                                                                        deal.dealSizeNtd
+                                                                    ).toLocaleString()}
+                                                                </Typography>
+                                                            )}
+                                                            {deal?.note && (
+                                                                <Typography
+                                                                    sx={{
+                                                                        color: 'text.primary'
+                                                                    }}
+                                                                    variant="body2"
+                                                                >
+                                                                    {deal.note}
+                                                                </Typography>
+                                                            )}
                                                         </Box>
-                                                        {deal?.closedDate && (
-                                                            <Typography
-                                                                sx={{
-                                                                    color: 'text.secondary'
-                                                                }}
-                                                                variant="body2"
+
+                                                        {/* Edit Button */}
+                                                        <Tooltip
+                                                            title={t(
+                                                                'actions.edit',
+                                                                { ns: 'crm' }
+                                                            )}
+                                                        >
+                                                            <IconButton
+                                                                color="primary"
+                                                                onClick={() =>
+                                                                    handleEditDeal(
+                                                                        deal
+                                                                    )
+                                                                }
+                                                                size="small"
                                                             >
-                                                                {new Date(
-                                                                    deal.closedDate
-                                                                ).toLocaleDateString()}
-                                                            </Typography>
-                                                        )}
-                                                        {deal?.dealSizeNtd && (
-                                                            <Typography
-                                                                sx={{
-                                                                    fontWeight: 600
-                                                                }}
-                                                                variant="body2"
-                                                            >
-                                                                NTD{' '}
-                                                                {Number(
-                                                                    deal.dealSizeNtd
-                                                                ).toLocaleString()}
-                                                            </Typography>
-                                                        )}
-                                                        {deal?.note && (
-                                                            <Typography
-                                                                sx={{
-                                                                    color: 'text.primary'
-                                                                }}
-                                                                variant="body2"
-                                                            >
-                                                                {deal.note}
-                                                            </Typography>
-                                                        )}
+                                                                <EditIcon fontSize="small" />
+                                                            </IconButton>
+                                                        </Tooltip>
                                                     </Box>
                                                 ))}
                                             </Box>
@@ -1375,12 +1465,16 @@ const LeadPage = () => {
                 open={showCreateUserModal}
             />
 
-            {/* Create Deal Modal - preselect this lead and lock selection */}
+            {/* Create/Edit Deal Modal - preselect this lead and lock selection */}
             <DealModal
-                lockLeadSelect
+                deal={editingDeal}
+                lockLeadSelect={true} // Always lock lead selection on LeadPage
                 lockSalesUserSelect={lead?.salesRep?.userId ?? false}
                 onClose={closeCreateDeal}
                 onCreated={() =>
+                    queryClient.invalidateQueries(['crm/lead', leadId])
+                }
+                onUpdated={() =>
                     queryClient.invalidateQueries(['crm/lead', leadId])
                 }
                 open={showCreateDealModal}
