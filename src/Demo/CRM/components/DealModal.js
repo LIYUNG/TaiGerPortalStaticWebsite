@@ -49,6 +49,9 @@ const DealModal = ({
     const { t } = useTranslation();
     const queryClient = useQueryClient();
 
+    // Determine if we're in edit mode
+    const isEditMode = !!deal;
+
     // Helper function to format date for HTML date input
     const formatDateForInput = (dateString) => {
         if (!dateString) return '';
@@ -61,14 +64,14 @@ const DealModal = ({
 
     const { data: leadsData } = useQuery({
         ...getCRMLeadsQuery(),
-        enabled: open
+        enabled: open && !isEditMode // Only fetch leads when creating, not editing
     });
     const allLeads = leadsData?.data?.data || [];
 
     // Fetch sales reps from API
     const { data: salesData } = useQuery({
         queryKey: ['crm/sales-reps'],
-        enabled: open,
+        enabled: open && !isEditMode, // Only fetch sales reps when creating, not editing
         queryFn: async () => {
             const res = await getCRMSalesReps();
             return res?.data?.data ?? res?.data ?? [];
@@ -82,8 +85,6 @@ const DealModal = ({
             s.fullName ||
             t('common.unknown', { ns: 'crm' })
     }));
-
-    const isEditMode = !!deal;
 
     const [form, setForm] = useState({
         leadId: deal?.leadId || preselectedLeadId || '',
@@ -220,73 +221,107 @@ const DealModal = ({
             </DialogTitle>
             <DialogContent dividers>
                 <Stack spacing={2} sx={{ mt: 1 }}>
-                    <FormControl disabled={lockLeadSelect} fullWidth required>
-                        <InputLabel id="leadId-label">
-                            {t('deals.lead', { ns: 'crm' })}
-                        </InputLabel>
-                        <Select
-                            MenuProps={{
-                                PaperProps: {
-                                    sx: { maxHeight: 280, overflowY: 'auto' }
-                                },
-                                MenuListProps: { dense: true }
-                            }}
-                            error={Boolean(errors.leadId)}
+                    {/* Lead Selection - Show as read-only text in edit mode, dropdown in create mode */}
+                    {isEditMode ? (
+                        <TextField
+                            InputProps={{ readOnly: true }}
+                            disabled
+                            fullWidth
                             label={t('deals.lead', { ns: 'crm' })}
-                            labelId="leadId-label"
-                            onChange={(e) =>
-                                setForm((f) => ({
-                                    ...f,
-                                    leadId: e.target.value
-                                }))
-                            }
-                            value={form.leadId}
+                            value={deal?.leadFullName || 'Unknown Lead'}
+                        />
+                    ) : (
+                        <FormControl
+                            disabled={lockLeadSelect}
+                            fullWidth
+                            required
                         >
-                            {allLeads
-                                .filter((l) => l.status != 'closed')
-                                .map((l) => (
-                                    <MenuItem key={l.id} value={l.id}>
-                                        {l.fullName}
-                                    </MenuItem>
-                                ))}
-                        </Select>
-                    </FormControl>
+                            <InputLabel id="leadId-label">
+                                {t('deals.lead', { ns: 'crm' })}
+                            </InputLabel>
+                            <Select
+                                MenuProps={{
+                                    PaperProps: {
+                                        sx: {
+                                            maxHeight: 280,
+                                            overflowY: 'auto'
+                                        }
+                                    },
+                                    MenuListProps: { dense: true }
+                                }}
+                                error={Boolean(errors.leadId)}
+                                label={t('deals.lead', { ns: 'crm' })}
+                                labelId="leadId-label"
+                                onChange={(e) =>
+                                    setForm((f) => ({
+                                        ...f,
+                                        leadId: e.target.value
+                                    }))
+                                }
+                                value={form.leadId}
+                            >
+                                {allLeads
+                                    .filter((l) => l.status != 'closed')
+                                    .map((l) => (
+                                        <MenuItem key={l.id} value={l.id}>
+                                            {l.fullName}
+                                        </MenuItem>
+                                    ))}
+                            </Select>
+                        </FormControl>
+                    )}
 
-                    <FormControl
-                        disabled={lockSalesUserSelect}
-                        fullWidth
-                        required
-                    >
-                        <InputLabel id="salesUserId-label">
-                            {t('deals.salesRepresentative', { ns: 'crm' })}
-                        </InputLabel>
-                        <Select
-                            MenuProps={{
-                                PaperProps: {
-                                    sx: { maxHeight: 280, overflowY: 'auto' }
-                                },
-                                MenuListProps: { dense: true }
-                            }}
-                            error={Boolean(errors.salesUserId)}
+                    {/* Sales Representative Selection - Show as read-only text in edit mode, dropdown in create mode */}
+                    {isEditMode ? (
+                        <TextField
+                            InputProps={{ readOnly: true }}
+                            disabled
+                            fullWidth
                             label={t('deals.salesRepresentative', {
                                 ns: 'crm'
                             })}
-                            labelId="salesUserId-label"
-                            onChange={(e) =>
-                                setForm((f) => ({
-                                    ...f,
-                                    salesUserId: e.target.value
-                                }))
-                            }
-                            value={form.salesUserId}
+                            value={deal?.salesLabel || 'Unknown Sales Rep'}
+                        />
+                    ) : (
+                        <FormControl
+                            disabled={lockSalesUserSelect}
+                            fullWidth
+                            required
                         >
-                            {salesOptions.map((s) => (
-                                <MenuItem key={s.userId} value={s.userId}>
-                                    {s.label}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
+                            <InputLabel id="salesUserId-label">
+                                {t('deals.salesRepresentative', { ns: 'crm' })}
+                            </InputLabel>
+                            <Select
+                                MenuProps={{
+                                    PaperProps: {
+                                        sx: {
+                                            maxHeight: 280,
+                                            overflowY: 'auto'
+                                        }
+                                    },
+                                    MenuListProps: { dense: true }
+                                }}
+                                error={Boolean(errors.salesUserId)}
+                                label={t('deals.salesRepresentative', {
+                                    ns: 'crm'
+                                })}
+                                labelId="salesUserId-label"
+                                onChange={(e) =>
+                                    setForm((f) => ({
+                                        ...f,
+                                        salesUserId: e.target.value
+                                    }))
+                                }
+                                value={form.salesUserId}
+                            >
+                                {salesOptions.map((s) => (
+                                    <MenuItem key={s.userId} value={s.userId}>
+                                        {s.label}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    )}
 
                     <TextField
                         error={Boolean(errors.dealSizeNtd)}
