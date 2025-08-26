@@ -134,7 +134,8 @@
             "initiated": "已发起",
             "sent": "已发送",
             "signed": "已签署",
-            "closed": "已结案"
+            "closed": "已结案",
+            "canceled": "已取消"
         }
     },
     "users": {

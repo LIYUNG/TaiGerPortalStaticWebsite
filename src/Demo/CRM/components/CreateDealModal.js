@@ -30,6 +30,9 @@ import { getCRMSalesReps } from '../../../api';
  * - lockSalesUserSelect?: boolean
  * - onCreated?: () => Promise<void> | void
  */
+
+const statusValues = ['initiated', 'sent', 'signed', 'closed', 'canceled'];
+
 const CreateDealModal = ({
     open,
     onClose,
@@ -246,15 +249,13 @@ const CreateDealModal = ({
                             }
                             value={form.status}
                         >
-                            {['initiated', 'sent', 'signed', 'closed'].map(
-                                (s) => (
-                                    <MenuItem key={s} value={s}>
-                                        {t(`deals.statusLabels.${s}`, {
-                                            ns: 'crm'
-                                        })}
-                                    </MenuItem>
-                                )
-                            )}
+                            {statusValues.map((s) => (
+                                <MenuItem key={s} value={s}>
+                                    {t(`deals.statusLabels.${s}`, {
+                                        ns: 'crm'
+                                    })}
+                                </MenuItem>
+                            ))}
                         </Select>
                     </FormControl>
 

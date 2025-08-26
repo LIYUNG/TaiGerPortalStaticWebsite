@@ -134,7 +134,8 @@
             "initiated": "Initiated",
             "sent": "Sent",
             "signed": "Signed",
-            "closed": "Closed"
+            "closed": "Closed",
+            "canceled": "Canceled"
         }
     },
     "users": {
