@@ -152,12 +152,17 @@ const DealModal = ({
 
     const handleSave = async () => {
         const newErrors = {};
-        if (!form.leadId)
-            newErrors.leadId = t('deals.leadIsRequired', { ns: 'crm' });
-        if (!form.salesUserId)
-            newErrors.salesUserId = t('deals.salesRepIsRequired', {
-                ns: 'crm'
-            });
+
+        // Only validate leadId and salesUserId in create mode
+        if (!isEditMode) {
+            if (!form.leadId)
+                newErrors.leadId = t('deals.leadIsRequired', { ns: 'crm' });
+            if (!form.salesUserId)
+                newErrors.salesUserId = t('deals.salesRepIsRequired', {
+                    ns: 'crm'
+                });
+        }
+
         if (!form.dealSizeNtd || Number(form.dealSizeNtd) <= 0)
             newErrors.dealSizeNtd = t('deals.mustBePositive', { ns: 'crm' });
         if (form.status === 'closed' && !form.closedDate)
