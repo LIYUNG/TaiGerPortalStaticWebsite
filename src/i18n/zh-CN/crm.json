@@ -29,6 +29,7 @@
         "status": "状态",
         "lead": "线索",
         "sales": "销售",
+        "actions": "操作",
         "salesNote": "销售备注",
         "submittedAt": "提交时间",
         "closedDate": "结案日期",
@@ -119,6 +120,7 @@
     },
     "deals": {
         "createDeal": "创建订单",
+        "editDeal": "编辑订单",
         "dealSizeNtd": "订单金额 (NTD)",
         "placeholderDealSize": "例如 69999",
         "status": "状态",

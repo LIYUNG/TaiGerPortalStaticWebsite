@@ -823,4 +823,6 @@ export const updateCRMMeeting = (meetingId, payload) =>
 export const getCRMDeals = () => request.get(`/api/crm/deals`);
 export const createCRMDeal = (payload) =>
     request.post(`/api/crm/deals`, payload);
+export const updateCRMDeal = (dealId, payload) =>
+    request.put(`/api/crm/deals/${dealId}`, payload);
 export const getCRMSalesReps = () => request.get(`/api/crm/sales-reps`);

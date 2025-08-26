@@ -29,6 +29,7 @@
         "status": "狀態",
         "lead": "線索",
         "sales": "業務",
+        "actions": "操作",
         "salesNote": "業務備註",
         "submittedAt": "提交時間",
         "closedDate": "結案日期",
@@ -119,6 +120,7 @@
     },
     "deals": {
         "createDeal": "建立訂單",
+        "editDeal": "編輯訂單",
         "dealSizeNtd": "訂單金額 (NTD)",
         "placeholderDealSize": "例如 69999",
         "status": "狀態",

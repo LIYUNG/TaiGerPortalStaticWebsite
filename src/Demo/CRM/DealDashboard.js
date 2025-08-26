@@ -11,12 +11,15 @@ import {
     Typography,
     Chip,
     Stack,
-    Button
+    Button,
+    IconButton,
+    Tooltip
 } from '@mui/material';
 import {
     Schedule as ScheduleIcon,
     Person as PersonIcon,
-    FiberManualRecord as StatusIcon
+    FiberManualRecord as StatusIcon,
+    Edit as EditIcon
 } from '@mui/icons-material';
 
 import { is_TaiGer_role } from '@taiger-common/core';
@@ -26,7 +29,7 @@ import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';
 
 import { getCRMDealsQuery } from '../../api/query';
-import CreateDealModal from './components/CreateDealModal';
+import DealModal from './components/DealModal';
 
 const DealDashboard = () => {
     const { t } = useTranslation();
@@ -34,7 +37,7 @@ const DealDashboard = () => {
         `${t('breadcrumbs.crm', { ns: 'crm' })} - ${t('breadcrumbs.deals', { ns: 'crm' })}`
     );
     const [open, setOpen] = useState(false);
-    // Create Deal modal state is now handled locally; form lives in modal
+    const [editingDeal, setEditingDeal] = useState(null);
 
     const { user } = useAuth();
     if (!is_TaiGer_role(user)) {
@@ -43,7 +46,21 @@ const DealDashboard = () => {
 
     const { data, isLoading } = useQuery(getCRMDealsQuery());
     const allDeals = data?.data?.data || [];
-    // salesOptions now handled inside modal
+
+    const handleCreateDeal = () => {
+        setEditingDeal(null);
+        setOpen(true);
+    };
+
+    const handleEditDeal = (deal) => {
+        setEditingDeal(deal);
+        setOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setOpen(false);
+        setEditingDeal(null);
+    };
 
     // Showing all deals; no tabs/filters
 
@@ -184,6 +201,26 @@ const DealDashboard = () => {
                     {cell.getValue() || t('common.na', { ns: 'crm' })}
                 </Typography>
             )
+        },
+        {
+            accessorKey: 'actions',
+            header: t('common.actions', { ns: 'crm' }),
+            size: 80,
+            enableSorting: false,
+            Cell: ({ row }) => (
+                <Tooltip title={t('actions.edit', { ns: 'crm' })}>
+                    <IconButton
+                        color="primary"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditDeal(row.original);
+                        }}
+                        size="small"
+                    >
+                        <EditIcon fontSize="small" />
+                    </IconButton>
+                </Tooltip>
+            )
         }
     ];
 
@@ -216,7 +253,7 @@ const DealDashboard = () => {
                         {t('breadcrumbs.deals', { ns: 'crm' })}
                     </Typography>
                 </Breadcrumbs>
-                <Button onClick={() => setOpen(true)} variant="contained">
+                <Button onClick={handleCreateDeal} variant="contained">
                     {t('actions.createDeal', { ns: 'crm' })}
                 </Button>
             </Stack>
@@ -239,7 +276,11 @@ const DealDashboard = () => {
                 state={{ isLoading }}
             />
 
-            <CreateDealModal onClose={() => setOpen(false)} open={open} />
+            <DealModal
+                deal={editingDeal}
+                onClose={handleCloseModal}
+                open={open}
+            />
         </Box>
     );
 };

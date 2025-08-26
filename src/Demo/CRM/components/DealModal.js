@@ -48,6 +48,17 @@ const DealModal = ({
 }) => {
     const { t } = useTranslation();
     const queryClient = useQueryClient();
+
+    // Helper function to format date for HTML date input
+    const formatDateForInput = (dateString) => {
+        if (!dateString) return '';
+        // Handle both ISO strings and Date objects
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return '';
+        // Return in YYYY-MM-DD format for HTML date input
+        return date.toISOString().split('T')[0];
+    };
+
     const { data: leadsData } = useQuery({
         ...getCRMLeadsQuery(),
         enabled: open
@@ -80,7 +91,7 @@ const DealModal = ({
         dealSizeNtd: deal?.dealSizeNtd || '',
         status: deal?.status || 'initiated',
         note: deal?.note || '',
-        closedDate: deal?.closedDate || ''
+        closedDate: formatDateForInput(deal?.closedDate) || ''
     });
     const [errors, setErrors] = useState({});
 
@@ -94,7 +105,7 @@ const DealModal = ({
                     dealSizeNtd: deal.dealSizeNtd || '',
                     status: deal.status || 'initiated',
                     note: deal.note || '',
-                    closedDate: deal.closedDate || ''
+                    closedDate: formatDateForInput(deal.closedDate) || ''
                 });
             } else {
                 // Reset for create mode
@@ -117,7 +128,7 @@ const DealModal = ({
                 dealSizeNtd: deal.dealSizeNtd || '',
                 status: deal.status || 'initiated',
                 note: deal.note || '',
-                closedDate: deal.closedDate || ''
+                closedDate: formatDateForInput(deal.closedDate) || ''
             });
         } else {
             // Reset to create mode defaults
@@ -209,11 +220,7 @@ const DealModal = ({
             </DialogTitle>
             <DialogContent dividers>
                 <Stack spacing={2} sx={{ mt: 1 }}>
-                    <FormControl
-                        disabled={lockLeadSelect || isEditMode}
-                        fullWidth
-                        required
-                    >
+                    <FormControl disabled={lockLeadSelect} fullWidth required>
                         <InputLabel id="leadId-label">
                             {t('deals.lead', { ns: 'crm' })}
                         </InputLabel>
@@ -246,7 +253,7 @@ const DealModal = ({
                     </FormControl>
 
                     <FormControl
-                        disabled={lockSalesUserSelect || isEditMode}
+                        disabled={lockSalesUserSelect}
                         fullWidth
                         required
                     >

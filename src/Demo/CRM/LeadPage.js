@@ -41,7 +41,7 @@ import EditableCard from './components/EditableCard';
 import { GenericCardContent } from './components/GenericCard';
 import { getCardConfigurations } from './components/CardConfigurations';
 import CreateUserFromLeadModal from './components/CreateUserFromLeadModal';
-import CreateDealModal from './components/CreateDealModal';
+import DealModal from './components/DealModal';
 import SimilarStudents from './components/SimilarStudents';
 
 import { request } from '../../api/request';
@@ -1376,7 +1376,7 @@ const LeadPage = () => {
             />
 
             {/* Create Deal Modal - preselect this lead and lock selection */}
-            <CreateDealModal
+            <DealModal
                 lockLeadSelect
                 lockSalesUserSelect={lead?.salesRep?.userId ?? false}
                 onClose={closeCreateDeal}
