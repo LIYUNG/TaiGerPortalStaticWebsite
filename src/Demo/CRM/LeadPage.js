@@ -62,23 +62,6 @@ const LeadPage = () => {
         `${t('breadcrumbs.leads', { ns: 'crm' })} ${lead ? `- ${lead.fullName}` : ''}`
     );
 
-    // Sales reps options for editing sales representative
-    const { data: salesData } = useQuery({
-        queryKey: ['crm/sales-reps'],
-        queryFn: async () => {
-            const res = await request.get('/api/crm/sales-reps');
-            return res?.data?.data ?? res?.data ?? [];
-        }
-    });
-    const salesOptions = (salesData || []).map((s) => ({
-        userId: s.userId || s.value,
-        label:
-            s.label ||
-            s.name ||
-            s.fullName ||
-            t('common.unknown', { ns: 'crm' })
-    }));
-
     // Modal state for creating user from lead
     const [showCreateUserModal, setShowCreateUserModal] = useState(false);
     const [selectedLead, setSelectedLead] = useState(null);
@@ -158,6 +141,24 @@ const LeadPage = () => {
             setFormData(lead);
         }
     }, [lead]);
+
+    const { data: salesData } = useQuery({
+        queryKey: ['crm/sales-reps'],
+        queryFn: async () => {
+            const res = await request.get('/api/crm/sales-reps');
+            return res?.data?.data ?? res?.data ?? [];
+        },
+        enabled: !!editStates?.personal, // only fetch when editing
+        staleTime: 5 * 60 * 1000
+    });
+    const salesOptions = (salesData || []).map((s) => ({
+        userId: s.userId || s.value,
+        label:
+            s.label ||
+            s.name ||
+            s.fullName ||
+            t('common.unknown', { ns: 'crm' })
+    }));
 
     // Create form with TanStack Form for change tracking
     const form = useForm({
