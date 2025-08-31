@@ -98,6 +98,16 @@ const CRMDashboard = () => {
         'count'
     );
 
+    // Prepare per-week conversion rate labels (converted / leads * 100)
+    // Round up to nearest integer and omit decimals
+    const unifiedConversionRates = allWeeks.map((_, idx) => {
+        const leads = unifiedLeadsData[idx];
+        const converted = unifiedConvertedLeadsData[idx];
+        if (leads === null || leads === 0 || leads === undefined) return null;
+        const rate = (Number(converted || 0) / Number(leads)) * 100;
+        return `${Math.ceil(rate)}%`;
+    });
+
     return (
         <>
             <Breadcrumbs aria-label="breadcrumb">
@@ -226,15 +236,50 @@ const CRMDashboard = () => {
                             </Typography>
                             {allWeeks.length > 0 ? (
                                 <BarChart
+                                    barLabel={(valueObj, meta) => {
+                                        try {
+                                            const { seriesId, dataIndex } =
+                                                valueObj || {};
+                                            const bar = meta?.bar || {};
+                                            if (seriesId === 'newLeads') {
+                                                const label =
+                                                    unifiedConversionRates[
+                                                        dataIndex
+                                                    ] ?? null;
+                                                if (!label) return null;
+                                                // place label above the bar by shifting it up by half the bar height + padding
+                                                // move label higher and make it slightly bigger
+                                                const dy = bar.height
+                                                    ? -(bar.height / 2 + 12)
+                                                    : -12;
+                                                return (
+                                                    <tspan
+                                                        dy={dy}
+                                                        style={{
+                                                            fontSize: '12px',
+                                                            fill: 'rgba(0,0,0,0.54)'
+                                                        }}
+                                                    >
+                                                        {label}
+                                                    </tspan>
+                                                );
+                                            }
+                                        } catch (e) {
+                                            // fall through to no label
+                                        }
+                                        return null;
+                                    }}
                                     height={250}
                                     series={[
                                         {
+                                            id: 'newLeads',
                                             data: unifiedLeadsData,
                                             label: t('dashboard.newLeads', {
                                                 ns: 'crm'
                                             })
                                         },
                                         {
+                                            id: 'highChance',
                                             data: unifiedHighChanceLeadsData,
                                             label: t(
                                                 'dashboard.highChanceLeads',
@@ -243,6 +288,7 @@ const CRMDashboard = () => {
                                             color: '#F28E2B'
                                         },
                                         {
+                                            id: 'convertedLeads',
                                             data: unifiedConvertedLeadsData,
                                             label: t(
                                                 'dashboard.convertedLeadsSeries',
