@@ -318,11 +318,13 @@ const DealDashboard = () => {
             <MaterialReactTable
                 columns={columns}
                 data={allDeals}
+                enableExpanding
                 initialState={{
                     density: 'compact',
                     pagination: { pageSize: 15, pageIndex: 0 }
                 }}
                 layoutMode="semantic"
+                muiTableBodyCellProps={{ sx: { px: 1 } }}
                 muiTableBodyRowProps={({ row }) => ({
                     hover: true,
                     sx: { cursor: 'pointer' },
@@ -376,10 +378,10 @@ const DealDashboard = () => {
                                     const dateStr = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
                                     return (
                                         <Stack
-                                            key={it.key}
-                                            direction="row"
-                                            spacing={1.5}
                                             alignItems="flex-start"
+                                            direction="row"
+                                            key={it.key}
+                                            spacing={1.5}
                                         >
                                             {/* timeline rail + dot */}
                                             <Box
@@ -438,13 +440,12 @@ const DealDashboard = () => {
                                             {/* content */}
                                             <Stack spacing={0.25}>
                                                 <Typography
-                                                    variant="body2"
                                                     sx={{ fontWeight: 600 }}
+                                                    variant="body2"
                                                 >
                                                     {dateStr}
                                                 </Typography>
                                                 <Typography
-                                                    variant="body2"
                                                     sx={{
                                                         color: (theme) =>
                                                             colorKey ===
@@ -456,6 +457,7 @@ const DealDashboard = () => {
                                                                       colorKey
                                                                   ].main
                                                     }}
+                                                    variant="body2"
                                                 >
                                                     {t(
                                                         `deals.statusLabels.${it.status}`,
@@ -475,9 +477,6 @@ const DealDashboard = () => {
                     );
                 }}
                 state={{ isLoading }}
-                muiTableBodyCellProps={{ sx: { px: 1 } }}
-                // Expand/collapse row to show status timeline; lead name remains a link
-                enableExpanding
             />
 
             <StatusMenu
