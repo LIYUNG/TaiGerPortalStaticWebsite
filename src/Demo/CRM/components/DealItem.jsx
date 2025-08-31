@@ -35,10 +35,24 @@ const DealItem = ({ deal, t, onOpenStatusMenu, onEditDeal, isUpdating }) => {
     ];
     const events = items.filter((it) => Boolean(deal?.[it.key]));
     const [open, setOpen] = useState(false);
+    const hasTimeline = events.length > 0;
 
     return (
         <Box>
             <Box
+                aria-expanded={hasTimeline ? open : undefined}
+                onClick={hasTimeline ? () => setOpen((v) => !v) : undefined}
+                onKeyDown={
+                    hasTimeline
+                        ? (e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                  e.preventDefault();
+                                  setOpen((v) => !v);
+                              }
+                          }
+                        : undefined
+                }
+                role={hasTimeline ? 'button' : undefined}
                 sx={{
                     p: 1,
                     borderRadius: 1,
@@ -49,8 +63,10 @@ const DealItem = ({ deal, t, onOpenStatusMenu, onEditDeal, isUpdating }) => {
                     flexWrap: 'wrap',
                     gap: 1.5,
                     alignItems: 'center',
-                    justifyContent: 'space-between'
+                    justifyContent: 'space-between',
+                    cursor: hasTimeline ? 'pointer' : 'default'
                 }}
+                tabIndex={hasTimeline ? 0 : undefined}
             >
                 <Box
                     sx={{
@@ -74,7 +90,7 @@ const DealItem = ({ deal, t, onOpenStatusMenu, onEditDeal, isUpdating }) => {
                                   })
                         }
                     >
-                        <span>
+                        <span onClick={(e) => e.stopPropagation()}>
                             <Chip
                                 clickable={!isTerminalStatus(deal?.status)}
                                 color={getStatusColor(deal?.status)}
@@ -86,7 +102,10 @@ const DealItem = ({ deal, t, onOpenStatusMenu, onEditDeal, isUpdating }) => {
                                     ns: 'crm',
                                     defaultValue: deal?.status || 'N/A'
                                 })}
-                                onClick={(e) => onOpenStatusMenu(e, deal)}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onOpenStatusMenu(e, deal);
+                                }}
                                 size="small"
                                 variant="outlined"
                             />
@@ -117,7 +136,7 @@ const DealItem = ({ deal, t, onOpenStatusMenu, onEditDeal, isUpdating }) => {
                     )}
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    {events.length > 0 && (
+                    {hasTimeline && (
                         <Tooltip
                             title={
                                 open
@@ -133,7 +152,10 @@ const DealItem = ({ deal, t, onOpenStatusMenu, onEditDeal, isUpdating }) => {
                         >
                             <IconButton
                                 aria-label="toggle-deal-timeline"
-                                onClick={() => setOpen((v) => !v)}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setOpen((v) => !v);
+                                }}
                                 size="small"
                             >
                                 {open ? (
@@ -147,7 +169,10 @@ const DealItem = ({ deal, t, onOpenStatusMenu, onEditDeal, isUpdating }) => {
                     <Tooltip title={t('actions.edit', { ns: 'crm' })}>
                         <IconButton
                             color="primary"
-                            onClick={() => onEditDeal(deal)}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onEditDeal(deal);
+                            }}
                             size="small"
                         >
                             <EditIcon fontSize="small" />
@@ -155,7 +180,7 @@ const DealItem = ({ deal, t, onOpenStatusMenu, onEditDeal, isUpdating }) => {
                     </Tooltip>
                 </Box>
             </Box>
-            {events.length > 0 && (
+            {hasTimeline && (
                 <Collapse in={open} timeout="auto" unmountOnExit>
                     <Box sx={{ p: 1.5, pl: 2.5 }}>
                         <Stack spacing={1.25}>
