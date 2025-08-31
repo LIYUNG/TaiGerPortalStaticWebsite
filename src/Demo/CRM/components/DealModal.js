@@ -48,8 +48,6 @@ const DealModal = ({
 }) => {
     const { t } = useTranslation();
     const queryClient = useQueryClient();
-
-    // Determine if we're in edit mode
     const isEditMode = !!deal;
 
     // Helper: format date/time for HTML datetime-local input (YYYY-MM-DDTHH:MM)
