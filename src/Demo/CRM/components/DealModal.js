@@ -133,13 +133,8 @@ const DealModal = ({
                 initialRef.current = init;
                 setUiStatus(init.status || 'initiated');
             } else {
-                // Reset for create mode
-                form.reset((f) => ({
-                    ...f,
-                    leadId: preselectedLeadId || '',
-                    salesUserId: preselectedSalesUserId || ''
-                }));
-                initialRef.current = {
+                // Reset for create mode with explicit defaults
+                const init = {
                     leadId: preselectedLeadId || '',
                     salesUserId: preselectedSalesUserId || '',
                     dealSizeNtd: '',
@@ -150,6 +145,8 @@ const DealModal = ({
                     signedAt: '',
                     closedAt: ''
                 };
+                form.reset(init);
+                initialRef.current = init;
                 setUiStatus('initiated');
             }
             setErrors({});
