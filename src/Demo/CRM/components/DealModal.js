@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useForm } from '@tanstack/react-form';
 import {
     Dialog,
     DialogTitle,
@@ -89,24 +90,32 @@ const DealModal = ({
             t('common.unknown', { ns: 'crm' })
     }));
 
-    const [form, setForm] = useState({
-        leadId: deal?.leadId || preselectedLeadId || '',
-        salesUserId: deal?.salesUserId || preselectedSalesUserId || '',
-        dealSizeNtd: deal?.dealSizeNtd || '',
-        status: deal?.status || 'initiated',
-        note: deal?.note || '',
-        initiatedAt: formatDateForInput(deal?.initiatedAt) || '',
-        sentAt: formatDateForInput(deal?.sentAt) || '',
-        signedAt: formatDateForInput(deal?.signedAt) || '',
-        closedAt: formatDateForInput(deal?.closedAt) || ''
+    // TanStack Form instance
+    const form = useForm({
+        defaultValues: {
+            leadId: deal?.leadId || preselectedLeadId || '',
+            salesUserId: deal?.salesUserId || preselectedSalesUserId || '',
+            dealSizeNtd: deal?.dealSizeNtd || '',
+            status: deal?.status || 'initiated',
+            note: deal?.note || '',
+            initiatedAt: formatDateForInput(deal?.initiatedAt) || '',
+            sentAt: formatDateForInput(deal?.sentAt) || '',
+            signedAt: formatDateForInput(deal?.signedAt) || '',
+            closedAt: formatDateForInput(deal?.closedAt) || ''
+        },
+        onSubmit: async ({ value }) => {
+            await handleSubmitWithValues(value);
+        }
     });
     const [errors, setErrors] = useState({});
+    // Snapshot of initial values to compute diffs for update
+    const initialRef = useRef(null);
 
     useEffect(() => {
         if (open) {
             if (isEditMode && deal) {
                 // Pre-populate form with deal data for edit mode
-                setForm({
+                const init = {
                     leadId: deal.leadId,
                     salesUserId: deal.salesUserId,
                     dealSizeNtd: deal.dealSizeNtd || '',
@@ -116,14 +125,27 @@ const DealModal = ({
                     sentAt: formatDateForInput(deal.sentAt) || '',
                     signedAt: formatDateForInput(deal.signedAt) || '',
                     closedAt: formatDateForInput(deal.closedAt) || ''
-                });
+                };
+                form.reset(init);
+                initialRef.current = init;
             } else {
                 // Reset for create mode
-                setForm((f) => ({
+                form.reset((f) => ({
                     ...f,
                     leadId: preselectedLeadId || '',
                     salesUserId: preselectedSalesUserId || ''
                 }));
+                initialRef.current = {
+                    leadId: preselectedLeadId || '',
+                    salesUserId: preselectedSalesUserId || '',
+                    dealSizeNtd: '',
+                    status: 'initiated',
+                    note: '',
+                    initiatedAt: '',
+                    sentAt: '',
+                    signedAt: '',
+                    closedAt: ''
+                };
             }
             setErrors({});
         }
@@ -132,7 +154,7 @@ const DealModal = ({
     const resetForm = () => {
         if (isEditMode && deal) {
             // Reset to original deal data in edit mode
-            setForm({
+            const init = {
                 leadId: deal.leadId,
                 salesUserId: deal.salesUserId,
                 dealSizeNtd: deal.dealSizeNtd || '',
@@ -142,10 +164,12 @@ const DealModal = ({
                 sentAt: formatDateForInput(deal.sentAt) || '',
                 signedAt: formatDateForInput(deal.signedAt) || '',
                 closedAt: formatDateForInput(deal.closedAt) || ''
-            });
+            };
+            form.reset(init);
+            initialRef.current = init;
         } else {
             // Reset to create mode defaults
-            setForm({
+            form.reset({
                 leadId: preselectedLeadId || '',
                 salesUserId: preselectedSalesUserId || '',
                 dealSizeNtd: '',
@@ -156,6 +180,17 @@ const DealModal = ({
                 signedAt: '',
                 closedAt: ''
             });
+            initialRef.current = {
+                leadId: preselectedLeadId || '',
+                salesUserId: preselectedSalesUserId || '',
+                dealSizeNtd: '',
+                status: 'initiated',
+                note: '',
+                initiatedAt: '',
+                sentAt: '',
+                signedAt: '',
+                closedAt: ''
+            };
         }
         setErrors({});
     };
@@ -164,60 +199,110 @@ const DealModal = ({
         resetForm();
         onClose?.();
     };
-    const handleSave = async () => {
+    const toIso = (v) => {
+        if (!v) return undefined;
+        const d = new Date(v);
+        return isNaN(d.getTime()) ? undefined : d.toISOString();
+    };
+
+    const handleSubmitWithValues = async (values) => {
         const newErrors = {};
 
         // Only validate leadId and salesUserId in create mode
         if (!isEditMode) {
-            if (!form.leadId)
+            if (!values.leadId)
                 newErrors.leadId = t('deals.leadIsRequired', { ns: 'crm' });
-            if (!form.salesUserId)
+            if (!values.salesUserId)
                 newErrors.salesUserId = t('deals.salesRepIsRequired', {
                     ns: 'crm'
                 });
         }
 
-        if (!form.dealSizeNtd || Number(form.dealSizeNtd) <= 0)
+        if (!values.dealSizeNtd || Number(values.dealSizeNtd) <= 0)
             newErrors.dealSizeNtd = t('deals.mustBePositive', { ns: 'crm' });
-        if (form.status === 'closed' && !form.closedAt)
+        if (values.status === 'closed' && !values.closedAt)
             newErrors.closedAt = t('deals.closedAtRequired', { ns: 'crm' });
 
         setErrors(newErrors);
         if (Object.keys(newErrors).length) return;
-        const payload = {
-            leadId: form.leadId,
-            salesUserId: form.salesUserId,
-            dealSizeNtd: Number(form.dealSizeNtd),
-            status: form.status,
-            note: form.note || undefined,
-            initiatedAt: form.initiatedAt || undefined,
-            sentAt: form.sentAt || undefined,
-            signedAt: form.signedAt || undefined,
-            closedAt: form.status === 'closed' ? form.closedAt : undefined
+        const payloadCreate = {
+            leadId: values.leadId,
+            salesUserId: values.salesUserId,
+            dealSizeNtd: Number(values.dealSizeNtd),
+            status: values.status,
+            note: values.note || undefined,
+            initiatedAt: toIso(values.initiatedAt),
+            sentAt: toIso(values.sentAt),
+            signedAt: toIso(values.signedAt),
+            closedAt:
+                values.status === 'closed' ? toIso(values.closedAt) : undefined
         };
 
         try {
             if (isEditMode) {
-                // Update existing deal
-                await updateCRMDeal(deal.id, payload);
+                // Update existing deal (only changed fields)
+                const buildUpdateDiff = () => {
+                    const diff = {};
+                    const initial = initialRef.current || {};
+                    const numericKeys = new Set(['dealSizeNtd']);
+                    const isDateKey = (k) => /At$/.test(k);
+                    for (const k of Object.keys(values)) {
+                        const currRaw = values[k];
+                        const prevRaw = initial[k];
+                        if (numericKeys.has(k)) {
+                            const curr =
+                                currRaw === '' ? '' : String(Number(currRaw));
+                            const prev =
+                                prevRaw === '' ? '' : String(Number(prevRaw));
+                            if (curr !== prev)
+                                diff[k] =
+                                    currRaw === '' ? null : Number(currRaw);
+                        } else if (isDateKey(k)) {
+                            const curr = currRaw == null ? '' : String(currRaw);
+                            const prev = prevRaw == null ? '' : String(prevRaw);
+                            if (curr !== prev)
+                                diff[k] =
+                                    currRaw === '' ? null : toIso(currRaw);
+                        } else {
+                            const curr = currRaw == null ? '' : String(currRaw);
+                            const prev = prevRaw == null ? '' : String(prevRaw);
+                            if (curr !== prev)
+                                diff[k] = currRaw === '' ? '' : currRaw;
+                        }
+                    }
+                    if (
+                        values.status === 'closed' &&
+                        diff.closedAt == null &&
+                        'closedAt' in values
+                    ) {
+                        diff.closedAt = toIso(values.closedAt);
+                    }
+                    return diff;
+                };
+                const payloadUpdate = buildUpdateDiff();
+                if (Object.keys(payloadUpdate).length === 0) {
+                    onClose?.();
+                    return;
+                }
+                await updateCRMDeal(deal.id, payloadUpdate);
                 await queryClient.invalidateQueries({
                     queryKey: ['crm/deals']
                 });
-                if (form.leadId) {
+                if (values.leadId) {
                     await queryClient.invalidateQueries({
-                        queryKey: ['crm/lead', form.leadId]
+                        queryKey: ['crm/lead', values.leadId]
                     });
                 }
                 if (onUpdated) await onUpdated();
             } else {
                 // Create new deal
-                await createCRMDeal(payload);
+                await createCRMDeal(payloadCreate);
                 await queryClient.invalidateQueries({
                     queryKey: ['crm/deals']
                 });
-                if (form.leadId) {
+                if (values.leadId) {
                     await queryClient.invalidateQueries({
-                        queryKey: ['crm/lead', form.leadId]
+                        queryKey: ['crm/lead', values.leadId]
                     });
                 }
                 if (onCreated) await onCreated();
@@ -243,7 +328,15 @@ const DealModal = ({
                     : t('deals.createDeal', { ns: 'crm' })}
             </DialogTitle>
             <DialogContent dividers>
-                <Stack spacing={2} sx={{ mt: 1 }}>
+                <Stack
+                    component="form"
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        form.handleSubmit();
+                    }}
+                    spacing={2}
+                    sx={{ mt: 1 }}
+                >
                     {/* Lead Selection - read-only in edit mode */}
                     {isEditMode ? (
                         <TextField
@@ -254,44 +347,48 @@ const DealModal = ({
                             value={deal?.leadFullName || 'Unknown Lead'}
                         />
                     ) : (
-                        <FormControl
-                            disabled={lockLeadSelect}
-                            fullWidth
-                            required
-                        >
-                            <InputLabel id="leadId-label">
-                                {t('deals.lead', { ns: 'crm' })}
-                            </InputLabel>
-                            <Select
-                                MenuProps={{
-                                    PaperProps: {
-                                        sx: {
-                                            maxHeight: 280,
-                                            overflowY: 'auto'
+                        <form.Field name="leadId">
+                            {(field) => (
+                                <FormControl
+                                    disabled={lockLeadSelect}
+                                    fullWidth
+                                    required
+                                >
+                                    <InputLabel id="leadId-label">
+                                        {t('deals.lead', { ns: 'crm' })}
+                                    </InputLabel>
+                                    <Select
+                                        MenuProps={{
+                                            PaperProps: {
+                                                sx: {
+                                                    maxHeight: 280,
+                                                    overflowY: 'auto'
+                                                }
+                                            },
+                                            MenuListProps: { dense: true }
+                                        }}
+                                        error={Boolean(errors.leadId)}
+                                        label={t('deals.lead', { ns: 'crm' })}
+                                        labelId="leadId-label"
+                                        onChange={(e) =>
+                                            field.handleChange(e.target.value)
                                         }
-                                    },
-                                    MenuListProps: { dense: true }
-                                }}
-                                error={Boolean(errors.leadId)}
-                                label={t('deals.lead', { ns: 'crm' })}
-                                labelId="leadId-label"
-                                onChange={(e) =>
-                                    setForm((f) => ({
-                                        ...f,
-                                        leadId: e.target.value
-                                    }))
-                                }
-                                value={form.leadId}
-                            >
-                                {allLeads
-                                    .filter((l) => l.status != 'closed')
-                                    .map((l) => (
-                                        <MenuItem key={l.id} value={l.id}>
-                                            {l.fullName}
-                                        </MenuItem>
-                                    ))}
-                            </Select>
-                        </FormControl>
+                                        value={field.state.value}
+                                    >
+                                        {allLeads
+                                            .filter((l) => l.status != 'closed')
+                                            .map((l) => (
+                                                <MenuItem
+                                                    key={l.id}
+                                                    value={l.id}
+                                                >
+                                                    {l.fullName}
+                                                </MenuItem>
+                                            ))}
+                                    </Select>
+                                </FormControl>
+                            )}
+                        </form.Field>
                     )}
 
                     {/* Sales Representative Selection */}
@@ -306,176 +403,197 @@ const DealModal = ({
                             value={deal?.salesLabel || 'Unknown Sales Rep'}
                         />
                     ) : (
-                        <FormControl
-                            disabled={lockSalesUserSelect}
-                            fullWidth
-                            required
-                        >
-                            <InputLabel id="salesUserId-label">
-                                {t('deals.salesRepresentative', { ns: 'crm' })}
-                            </InputLabel>
-                            <Select
-                                MenuProps={{
-                                    PaperProps: {
-                                        sx: {
-                                            maxHeight: 280,
-                                            overflowY: 'auto'
+                        <form.Field name="salesUserId">
+                            {(field) => (
+                                <FormControl
+                                    disabled={lockSalesUserSelect}
+                                    fullWidth
+                                    required
+                                >
+                                    <InputLabel id="salesUserId-label">
+                                        {t('deals.salesRepresentative', {
+                                            ns: 'crm'
+                                        })}
+                                    </InputLabel>
+                                    <Select
+                                        MenuProps={{
+                                            PaperProps: {
+                                                sx: {
+                                                    maxHeight: 280,
+                                                    overflowY: 'auto'
+                                                }
+                                            },
+                                            MenuListProps: { dense: true }
+                                        }}
+                                        error={Boolean(errors.salesUserId)}
+                                        label={t('deals.salesRepresentative', {
+                                            ns: 'crm'
+                                        })}
+                                        labelId="salesUserId-label"
+                                        onChange={(e) =>
+                                            field.handleChange(e.target.value)
                                         }
-                                    },
-                                    MenuListProps: { dense: true }
-                                }}
-                                error={Boolean(errors.salesUserId)}
-                                label={t('deals.salesRepresentative', {
-                                    ns: 'crm'
-                                })}
-                                labelId="salesUserId-label"
-                                onChange={(e) =>
-                                    setForm((f) => ({
-                                        ...f,
-                                        salesUserId: e.target.value
-                                    }))
-                                }
-                                value={form.salesUserId}
-                            >
-                                {salesOptions.map((s) => (
-                                    <MenuItem key={s.userId} value={s.userId}>
-                                        {s.label}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
+                                        value={field.state.value}
+                                    >
+                                        {salesOptions.map((s) => (
+                                            <MenuItem
+                                                key={s.userId}
+                                                value={s.userId}
+                                            >
+                                                {s.label}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            )}
+                        </form.Field>
                     )}
 
-                    <TextField
-                        error={Boolean(errors.dealSizeNtd)}
-                        fullWidth
-                        helperText={errors.dealSizeNtd}
-                        inputProps={{ inputMode: 'numeric', min: 0, step: 1 }}
-                        label={t('deals.dealSizeNtd', { ns: 'crm' })}
-                        onChange={(e) =>
-                            setForm((f) => ({
-                                ...f,
-                                dealSizeNtd: e.target.value
-                            }))
-                        }
-                        placeholder={t('deals.placeholderDealSize', {
-                            ns: 'crm'
-                        })}
-                        required
-                        type="number"
-                        value={form.dealSizeNtd}
-                    />
+                    <form.Field name="dealSizeNtd">
+                        {(field) => (
+                            <TextField
+                                error={Boolean(errors.dealSizeNtd)}
+                                fullWidth
+                                helperText={errors.dealSizeNtd}
+                                inputProps={{
+                                    inputMode: 'numeric',
+                                    min: 0,
+                                    step: 1
+                                }}
+                                label={t('deals.dealSizeNtd', { ns: 'crm' })}
+                                onChange={(e) =>
+                                    field.handleChange(e.target.value)
+                                }
+                                placeholder={t('deals.placeholderDealSize', {
+                                    ns: 'crm'
+                                })}
+                                required
+                                type="number"
+                                value={field.state.value}
+                            />
+                        )}
+                    </form.Field>
 
-                    <FormControl fullWidth>
-                        <InputLabel id="status-label">
-                            {t('deals.status', { ns: 'crm' })}
-                        </InputLabel>
-                        <Select
-                            label={t('deals.status', { ns: 'crm' })}
-                            labelId="status-label"
-                            onChange={(e) =>
-                                setForm((f) => ({
-                                    ...f,
-                                    status: e.target.value
-                                }))
-                            }
-                            value={form.status}
-                        >
-                            {statusValues.map((s) => (
-                                <MenuItem key={s} value={s}>
-                                    {t(`deals.statusLabels.${s}`, {
-                                        ns: 'crm'
-                                    })}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
+                    <form.Field name="status">
+                        {(field) => (
+                            <FormControl fullWidth>
+                                <InputLabel id="status-label">
+                                    {t('deals.status', { ns: 'crm' })}
+                                </InputLabel>
+                                <Select
+                                    label={t('deals.status', { ns: 'crm' })}
+                                    labelId="status-label"
+                                    onChange={(e) =>
+                                        field.handleChange(e.target.value)
+                                    }
+                                    value={field.state.value}
+                                >
+                                    {statusValues.map((s) => (
+                                        <MenuItem key={s} value={s}>
+                                            {t(`deals.statusLabels.${s}`, {
+                                                ns: 'crm'
+                                            })}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        )}
+                    </form.Field>
 
-                    <TextField
-                        fullWidth
-                        label={t('deals.note', { ns: 'crm' })}
-                        minRows={2}
-                        multiline
-                        onChange={(e) =>
-                            setForm((f) => ({ ...f, note: e.target.value }))
-                        }
-                        value={form.note}
-                    />
+                    <form.Field name="note">
+                        {(field) => (
+                            <TextField
+                                fullWidth
+                                label={t('deals.note', { ns: 'crm' })}
+                                minRows={2}
+                                multiline
+                                onChange={(e) =>
+                                    field.handleChange(e.target.value)
+                                }
+                                value={field.state.value}
+                            />
+                        )}
+                    </form.Field>
 
                     {/* Dates */}
                     <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                        <TextField
-                            InputLabelProps={{ shrink: true }}
-                            fullWidth
-                            label={t('deals.initiatedAt', {
-                                ns: 'crm',
-                                defaultValue: 'Initiated at'
-                            })}
-                            onChange={(e) =>
-                                setForm((f) => ({
-                                    ...f,
-                                    initiatedAt: e.target.value
-                                }))
-                            }
-                            type="datetime-local"
-                            value={form.initiatedAt}
-                        />
-                        <TextField
-                            InputLabelProps={{ shrink: true }}
-                            fullWidth
-                            label={t('deals.sentAt', {
-                                ns: 'crm',
-                                defaultValue: 'Sent at'
-                            })}
-                            onChange={(e) =>
-                                setForm((f) => ({
-                                    ...f,
-                                    sentAt: e.target.value
-                                }))
-                            }
-                            type="datetime-local"
-                            value={form.sentAt}
-                        />
+                        <form.Field name="initiatedAt">
+                            {(field) => (
+                                <TextField
+                                    InputLabelProps={{ shrink: true }}
+                                    fullWidth
+                                    label={t('deals.initiatedAt', {
+                                        ns: 'crm',
+                                        defaultValue: 'Initiated at'
+                                    })}
+                                    onChange={(e) =>
+                                        field.handleChange(e.target.value)
+                                    }
+                                    type="datetime-local"
+                                    value={field.state.value}
+                                />
+                            )}
+                        </form.Field>
+                        <form.Field name="sentAt">
+                            {(field) => (
+                                <TextField
+                                    InputLabelProps={{ shrink: true }}
+                                    fullWidth
+                                    label={t('deals.sentAt', {
+                                        ns: 'crm',
+                                        defaultValue: 'Sent at'
+                                    })}
+                                    onChange={(e) =>
+                                        field.handleChange(e.target.value)
+                                    }
+                                    type="datetime-local"
+                                    value={field.state.value}
+                                />
+                            )}
+                        </form.Field>
                     </Stack>
                     <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                        <TextField
-                            InputLabelProps={{ shrink: true }}
-                            fullWidth
-                            label={t('deals.signedAt', {
-                                ns: 'crm',
-                                defaultValue: 'Signed at'
-                            })}
-                            onChange={(e) =>
-                                setForm((f) => ({
-                                    ...f,
-                                    signedAt: e.target.value
-                                }))
-                            }
-                            type="datetime-local"
-                            value={form.signedAt}
-                        />
-                        <TextField
-                            InputLabelProps={{ shrink: true }}
-                            error={Boolean(errors.closedAt)}
-                            fullWidth
-                            helperText={
-                                form.status === 'closed'
-                                    ? errors.closedAt
-                                    : undefined
-                            }
-                            label={t('deals.closedAt', {
-                                ns: 'crm',
-                                defaultValue: 'Closed at'
-                            })}
-                            onChange={(e) =>
-                                setForm((f) => ({
-                                    ...f,
-                                    closedAt: e.target.value
-                                }))
-                            }
-                            type="datetime-local"
-                            value={form.closedAt}
-                        />
+                        <form.Field name="signedAt">
+                            {(field) => (
+                                <TextField
+                                    InputLabelProps={{ shrink: true }}
+                                    fullWidth
+                                    label={t('deals.signedAt', {
+                                        ns: 'crm',
+                                        defaultValue: 'Signed at'
+                                    })}
+                                    onChange={(e) =>
+                                        field.handleChange(e.target.value)
+                                    }
+                                    type="datetime-local"
+                                    value={field.state.value}
+                                />
+                            )}
+                        </form.Field>
+                        <form.Field name="closedAt">
+                            {(field) => (
+                                <TextField
+                                    InputLabelProps={{ shrink: true }}
+                                    error={Boolean(errors.closedAt)}
+                                    fullWidth
+                                    helperText={
+                                        form.getFieldValue('status') ===
+                                        'closed'
+                                            ? errors.closedAt
+                                            : undefined
+                                    }
+                                    label={t('deals.closedAt', {
+                                        ns: 'crm',
+                                        defaultValue: 'Closed at'
+                                    })}
+                                    onChange={(e) =>
+                                        field.handleChange(e.target.value)
+                                    }
+                                    type="datetime-local"
+                                    value={field.state.value}
+                                />
+                            )}
+                        </form.Field>
                     </Stack>
                 </Stack>
             </DialogContent>
@@ -483,7 +601,15 @@ const DealModal = ({
                 <Button onClick={handleCancel}>
                     {t('actions.cancel', { ns: 'crm' })}
                 </Button>
-                <Button onClick={handleSave} variant="contained">
+                <Button
+                    form={undefined}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        form.handleSubmit();
+                    }}
+                    type="submit"
+                    variant="contained"
+                >
                     {isEditMode
                         ? t('actions.save', { ns: 'crm' })
                         : t('actions.create', { ns: 'crm' })}
