@@ -29,6 +29,7 @@
         "status": "Status",
         "lead": "Lead",
         "sales": "Sales",
+        "actions": "Actions",
         "salesNote": "Sales Note",
         "submittedAt": "Submitted At",
         "closedDate": "Closed Date",
@@ -119,6 +120,7 @@
     },
     "deals": {
         "createDeal": "Create Deal",
+        "editDeal": "Edit Deal",
         "dealSizeNtd": "Deal Size (NTD)",
         "placeholderDealSize": "e.g. 69999",
         "status": "Status",
@@ -134,7 +136,8 @@
             "initiated": "Initiated",
             "sent": "Sent",
             "signed": "Signed",
-            "closed": "Closed"
+            "closed": "Closed",
+            "canceled": "Canceled"
         }
     },
     "users": {
