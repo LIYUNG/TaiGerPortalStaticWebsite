@@ -613,7 +613,7 @@ const LeadPage = () => {
                                             const onEditDeal = (d) => {
                                                 d.leadFullName = lead?.fullName;
                                                 d.salesLabel =
-                                                    lead?.salesRep?.label;
+                                                    deal?.salesRep?.label;
                                                 handleEditDeal(d);
                                             };
                                             return (
