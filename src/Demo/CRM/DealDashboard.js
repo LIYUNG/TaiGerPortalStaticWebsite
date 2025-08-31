@@ -379,78 +379,131 @@ const DealDashboard = () => {
                 }}
                 renderDetailPanel={({ row }) => {
                     const d = row.original || {};
+                    // Build timeline events for statuses that have dates
                     const items = [
-                        {
-                            key: 'initiatedAt',
-                            label: t('status.initiated', {
-                                ns: 'crm',
-                                defaultValue: 'initiated'
-                            }),
-                            color: getStatusColor('initiated')
-                        },
-                        {
-                            key: 'sentAt',
-                            label: t('status.sent', {
-                                ns: 'crm',
-                                defaultValue: 'sent'
-                            }),
-                            color: getStatusColor('sent')
-                        },
-                        {
-                            key: 'signedAt',
-                            label: t('status.signed', {
-                                ns: 'crm',
-                                defaultValue: 'signed'
-                            }),
-                            color: getStatusColor('signed')
-                        },
-                        {
-                            key: 'closedAt',
-                            label: t('status.closed', {
-                                ns: 'crm',
-                                defaultValue: 'closed'
-                            }),
-                            color: getStatusColor('closed')
-                        },
-                        {
-                            key: 'canceledAt',
-                            label: t('status.canceled', {
-                                ns: 'crm',
-                                defaultValue: 'canceled'
-                            }),
-                            color: getStatusColor('canceled')
-                        }
+                        { key: 'initiatedAt', status: 'initiated' },
+                        { key: 'sentAt', status: 'sent' },
+                        { key: 'signedAt', status: 'signed' },
+                        { key: 'closedAt', status: 'closed' },
+                        { key: 'canceledAt', status: 'canceled' }
                     ];
+                    const events = items.filter((it) => Boolean(d[it.key]));
+                    if (events.length === 0) {
+                        return (
+                            <Box sx={{ p: 2 }}>
+                                <Typography
+                                    color="text.secondary"
+                                    variant="body2"
+                                >
+                                    {t('common.na', { ns: 'crm' })}
+                                </Typography>
+                            </Box>
+                        );
+                    }
                     return (
-                        <Box sx={{ p: 2 }}>
+                        <Box sx={{ p: 1.5 }}>
                             <Stack spacing={1.25}>
-                                {items.map((it) => (
-                                    <Stack
-                                        key={it.key}
-                                        alignItems="center"
-                                        direction="row"
-                                        spacing={1}
-                                    >
-                                        <Chip
-                                            color={it.color}
-                                            icon={
-                                                <StatusIcon fontSize="small" />
-                                            }
-                                            label={it.label}
-                                            size="small"
-                                            variant="outlined"
-                                        />
-                                        <Typography variant="body2">
-                                            {d[it.key]
-                                                ? new Date(
-                                                      d[it.key]
-                                                  ).toLocaleString()
-                                                : t('common.na', {
-                                                      ns: 'crm'
-                                                  })}
-                                        </Typography>
-                                    </Stack>
-                                ))}
+                                {events.map((it, idx) => {
+                                    const colorKey = getStatusColor(it.status);
+                                    const dateStr = new Date(
+                                        d[it.key]
+                                    ).toLocaleDateString();
+                                    return (
+                                        <Stack
+                                            key={it.key}
+                                            direction="row"
+                                            spacing={1.5}
+                                            alignItems="flex-start"
+                                        >
+                                            {/* timeline rail + dot */}
+                                            <Box
+                                                sx={{
+                                                    width: 20,
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    alignItems: 'center'
+                                                }}
+                                            >
+                                                <Box
+                                                    sx={{
+                                                        width: 2,
+                                                        flex: 1,
+                                                        bgcolor: (theme) =>
+                                                            theme.palette
+                                                                .divider,
+                                                        visibility:
+                                                            idx === 0
+                                                                ? 'hidden'
+                                                                : 'visible'
+                                                    }}
+                                                />
+                                                <Box
+                                                    sx={{
+                                                        width: 12,
+                                                        height: 12,
+                                                        borderRadius: '50%',
+                                                        border: '2px solid #fff',
+                                                        boxShadow: 1,
+                                                        bgcolor: (theme) =>
+                                                            colorKey ===
+                                                            'default'
+                                                                ? theme.palette
+                                                                      .grey[500]
+                                                                : theme.palette[
+                                                                      colorKey
+                                                                  ].main
+                                                    }}
+                                                />
+                                                <Box
+                                                    sx={{
+                                                        width: 2,
+                                                        flex: 1,
+                                                        bgcolor: (theme) =>
+                                                            theme.palette
+                                                                .divider,
+                                                        visibility:
+                                                            idx ===
+                                                            events.length - 1
+                                                                ? 'hidden'
+                                                                : 'visible'
+                                                    }}
+                                                />
+                                            </Box>
+                                            {/* content */}
+                                            <Stack spacing={0.25}>
+                                                <Typography
+                                                    variant="body2"
+                                                    sx={{ fontWeight: 600 }}
+                                                >
+                                                    {dateStr}
+                                                </Typography>
+                                                <Typography
+                                                    variant="body2"
+                                                    sx={{
+                                                        color: (theme) =>
+                                                            colorKey ===
+                                                            'default'
+                                                                ? theme.palette
+                                                                      .text
+                                                                      .secondary
+                                                                : theme.palette[
+                                                                      colorKey
+                                                                  ].main
+                                                    }}
+                                                >
+                                                    {t(
+                                                        `deals.statusLabels.${it.status}`,
+                                                        {
+                                                            ns: 'crm',
+                                                            defaultValue:
+                                                                it.status
+                                                        }
+                                                    )}
+                                                </Typography>
+                                            </Stack>
+                                        </Stack>
+                                    );
+                                })}
                             </Stack>
                         </Box>
                     );
