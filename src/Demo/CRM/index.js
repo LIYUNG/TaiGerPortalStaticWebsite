@@ -125,7 +125,7 @@ const CRMDashboard = () => {
             </Breadcrumbs>
 
             <Grid container spacing={1} sx={{ mt: 0.5 }}>
-                <Grid item md={3} sm={6} xs={12}>
+                <Grid item md={1.5} sm={6} xs={12}>
                     <Box
                         sx={{
                             p: 1.5,
@@ -152,7 +152,7 @@ const CRMDashboard = () => {
                         </Typography>
                     </Box>
                 </Grid>
-                <Grid item md={3} sm={6} xs={12}>
+                <Grid item md={1.5} sm={6} xs={12}>
                     <Box
                         sx={{
                             p: 1.5,
@@ -179,7 +179,7 @@ const CRMDashboard = () => {
                         </Typography>
                     </Box>
                 </Grid>
-                <Grid item md={3} sm={6} xs={12}>
+                <Grid item md={1.5} sm={6} xs={12}>
                     <Box
                         sx={{
                             p: 1.5,
@@ -199,7 +199,7 @@ const CRMDashboard = () => {
                         </Typography>
                     </Box>
                 </Grid>
-                <Grid item md={3} sm={6} xs={12}>
+                <Grid item md={1.5} sm={6} xs={12}>
                     <Box
                         sx={{
                             p: 1.5,
