@@ -123,13 +123,6 @@ const DealDashboard = () => {
     const handleChooseStatus = (status) => {
         const row = statusMenu.row;
         const id = getDealId(row);
-        // If moving to 'closed' and we don't have a closedDate, open modal to capture it
-        if (status === 'closed' && !row?.closedAt) {
-            setEditingDeal({ ...row, status: 'closed' });
-            setOpen(true);
-            closeStatusMenu();
-            return;
-        }
         updateStatusMutation.mutate(
             { id, status },
             { onSettled: () => closeStatusMenu() }
@@ -405,9 +398,8 @@ const DealDashboard = () => {
                             <Stack spacing={1.25}>
                                 {events.map((it, idx) => {
                                     const colorKey = getStatusColor(it.status);
-                                    const dateStr = new Date(
-                                        d[it.key]
-                                    ).toLocaleDateString();
+                                    const date = new Date(d[it.key]);
+                                    const dateStr = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
                                     return (
                                         <Stack
                                             key={it.key}
@@ -524,12 +516,7 @@ const DealDashboard = () => {
             >
                 {(() => {
                     const current = statusMenu.row?.status;
-                    if (
-                        !current ||
-                        current === 'closed' ||
-                        current === 'canceled'
-                    )
-                        return null;
+                    if (!current || isTerminalStatus(current)) return null;
                     const currentIdx = STATUS_FLOW.indexOf(current);
                     const nextOptions =
                         currentIdx >= 0
