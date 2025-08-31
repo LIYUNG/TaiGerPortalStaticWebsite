@@ -105,7 +105,8 @@ const CRMDashboard = () => {
         const converted = unifiedConvertedLeadsData[idx];
         if (leads === null || leads === 0 || leads === undefined) return null;
         const rate = (Number(converted || 0) / Number(leads)) * 100;
-        return `${Math.ceil(rate)}%`;
+        if (rate === 0) return null;
+        return Math.ceil(rate);
     });
 
     return (
@@ -363,7 +364,7 @@ const CRMDashboard = () => {
                                                             fill: 'rgba(0,0,0,0.54)'
                                                         }}
                                                     >
-                                                        {label}
+                                                        {`${label}%`}
                                                     </tspan>
                                                 );
                                             }
