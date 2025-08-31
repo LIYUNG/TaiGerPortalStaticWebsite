@@ -16,14 +16,7 @@ import {
     MenuItem,
     IconButton,
     Button,
-    Chip,
-    Tooltip,
-    Stack,
-    CircularProgress,
-    Menu,
-    Divider,
-    ListItemIcon,
-    ListItemText
+    CircularProgress
 } from '@mui/material';
 import {
     Edit as EditIcon,
@@ -33,10 +26,7 @@ import {
     Event as EventIcon,
     Female as FemaleIcon,
     Male as MaleIcon,
-    Transgender as OtherGenderIcon,
-    FiberManualRecord as StatusIcon,
-    ArrowForward as ArrowForwardIcon,
-    Check as CheckIcon
+    Transgender as OtherGenderIcon
 } from '@mui/icons-material';
 
 import DEMO from '../../store/constant';
@@ -53,220 +43,9 @@ import EditableCard from './components/EditableCard';
 import { GenericCardContent } from './components/GenericCard';
 import { getCardConfigurations } from './components/CardConfigurations';
 import SimilarStudents from './components/SimilarStudents';
-
-const STATUS_FLOW = ['initiated', 'sent', 'signed', 'closed'];
-const isTerminalStatus = (status) =>
-    status === 'closed' || status === 'canceled';
-const getDealId = (deal) => deal?.id ?? deal?.dealId ?? deal?._id ?? deal?.uuid;
-const getStatusColor = (status) =>
-    ({
-        initiated: 'info',
-        sent: 'warning',
-        signed: 'success',
-        closed: 'default',
-        canceled: 'error'
-    })[status] || 'default';
-
-// Top-level DealItem component to avoid nested component lint warnings
-const DealItem = ({ deal, t, onOpenStatusMenu, onEditDeal, isUpdating }) => {
-    const items = [
-        { key: 'initiatedAt', status: 'initiated' },
-        { key: 'sentAt', status: 'sent' },
-        { key: 'signedAt', status: 'signed' },
-        { key: 'closedAt', status: 'closed' },
-        { key: 'canceledAt', status: 'canceled' }
-    ];
-    const events = items.filter((it) => Boolean(deal[it.key]));
-    return (
-        <Box>
-            <Box
-                sx={{
-                    p: 1,
-                    borderRadius: 1,
-                    border: '1px solid',
-                    borderColor: 'divider',
-                    bgcolor: 'grey.50',
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: 1.5,
-                    alignItems: 'center',
-                    justifyContent: 'space-between'
-                }}
-            >
-                <Box
-                    sx={{
-                        display: 'flex',
-                        flexWrap: 'wrap',
-                        gap: 1.5,
-                        alignItems: 'center',
-                        flex: 1
-                    }}
-                >
-                    <Tooltip
-                        title={
-                            isTerminalStatus(deal?.status)
-                                ? t('common.noNextStep', {
-                                      ns: 'crm',
-                                      defaultValue: 'No next step'
-                                  })
-                                : t('actions.changeStatus', {
-                                      ns: 'crm',
-                                      defaultValue: 'Change status'
-                                  })
-                        }
-                    >
-                        <span>
-                            <Chip
-                                clickable={!isTerminalStatus(deal?.status)}
-                                color={getStatusColor(deal?.status)}
-                                disabled={
-                                    isUpdating || isTerminalStatus(deal?.status)
-                                }
-                                icon={<StatusIcon fontSize="small" />}
-                                label={t(`deals.statusLabels.${deal?.status}`, {
-                                    ns: 'crm',
-                                    defaultValue: deal?.status || 'N/A'
-                                })}
-                                onClick={(e) => onOpenStatusMenu(e, deal)}
-                                size="small"
-                                variant="outlined"
-                            />
-                        </span>
-                    </Tooltip>
-                    {(deal?.closedAt || deal?.closedDate) && (
-                        <Typography
-                            sx={{ color: 'text.secondary' }}
-                            variant="body2"
-                        >
-                            {new Date(
-                                deal.closedAt || deal.closedDate
-                            ).toLocaleDateString()}
-                        </Typography>
-                    )}
-                    {deal?.dealSizeNtd && (
-                        <Typography sx={{ fontWeight: 600 }} variant="body2">
-                            NTD {Number(deal.dealSizeNtd).toLocaleString()}
-                        </Typography>
-                    )}
-                    {deal?.note && (
-                        <Typography
-                            sx={{ color: 'text.primary' }}
-                            variant="body2"
-                        >
-                            {deal.note}
-                        </Typography>
-                    )}
-                </Box>
-                <Tooltip title={t('actions.edit', { ns: 'crm' })}>
-                    <IconButton
-                        color="primary"
-                        onClick={() => onEditDeal(deal)}
-                        size="small"
-                    >
-                        <EditIcon fontSize="small" />
-                    </IconButton>
-                </Tooltip>
-            </Box>
-            {events.length > 0 && (
-                <Box sx={{ p: 1.5, pl: 2.5 }}>
-                    <Stack spacing={1.25}>
-                        {events.map((it, idx2) => {
-                            const colorKey = getStatusColor(it.status);
-                            const date = new Date(deal[it.key]);
-                            const dateStr = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-                            return (
-                                <Stack
-                                    alignItems="flex-start"
-                                    direction="row"
-                                    key={it.key}
-                                    spacing={1.5}
-                                >
-                                    <Box
-                                        sx={{
-                                            width: 20,
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            alignItems: 'center'
-                                        }}
-                                    >
-                                        <Box
-                                            sx={{
-                                                width: 2,
-                                                flex: 1,
-                                                bgcolor: (theme) =>
-                                                    theme.palette.divider,
-                                                visibility:
-                                                    idx2 === 0
-                                                        ? 'hidden'
-                                                        : 'visible'
-                                            }}
-                                        />
-                                        <Box
-                                            sx={{
-                                                width: 12,
-                                                height: 12,
-                                                borderRadius: '50%',
-                                                border: '2px solid #fff',
-                                                boxShadow: 1,
-                                                bgcolor: (theme) =>
-                                                    colorKey === 'default'
-                                                        ? theme.palette
-                                                              .grey[500]
-                                                        : theme.palette[
-                                                              colorKey
-                                                          ].main
-                                            }}
-                                        />
-                                        <Box
-                                            sx={{
-                                                width: 2,
-                                                flex: 1,
-                                                bgcolor: (theme) =>
-                                                    theme.palette.divider,
-                                                visibility:
-                                                    idx2 === events.length - 1
-                                                        ? 'hidden'
-                                                        : 'visible'
-                                            }}
-                                        />
-                                    </Box>
-                                    <Stack spacing={0.25}>
-                                        <Typography
-                                            sx={{ fontWeight: 600 }}
-                                            variant="body2"
-                                        >
-                                            {dateStr}
-                                        </Typography>
-                                        <Typography
-                                            sx={{
-                                                color: (theme) =>
-                                                    colorKey === 'default'
-                                                        ? theme.palette.text
-                                                              .secondary
-                                                        : theme.palette[
-                                                              colorKey
-                                                          ].main
-                                            }}
-                                            variant="body2"
-                                        >
-                                            {t(
-                                                `deals.statusLabels.${it.status}`,
-                                                {
-                                                    ns: 'crm',
-                                                    defaultValue: it.status
-                                                }
-                                            )}
-                                        </Typography>
-                                    </Stack>
-                                </Stack>
-                            );
-                        })}
-                    </Stack>
-                </Box>
-            )}
-        </Box>
-    );
-};
+import StatusMenu from './components/StatusMenu';
+import DealItem from './components/DealItem';
+import { isTerminalStatus, getDealId } from './components/statusUtils';
 
 const LeadPage = () => {
     const { leadId } = useParams();
@@ -461,14 +240,7 @@ const LeadPage = () => {
         },
         onSuccess: () => queryClient.invalidateQueries(['crm/lead', leadId])
     });
-    const handleChooseStatus = (status) => {
-        const row = statusMenu.row;
-        const id = getDealId(row);
-        updateStatusMutation.mutate(
-            { id, status },
-            { onSettled: () => closeStatusMenu() }
-        );
-    };
+    // Note: status changes are handled in StatusMenu onChoose
 
     if (isLoading) return <Loading />;
 
@@ -1332,76 +1104,18 @@ const LeadPage = () => {
                 preselectedSalesUserId={lead?.salesRep?.userId || null}
             />
 
-            <Menu
+            <StatusMenu
                 anchorEl={statusMenu.anchorEl}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-                onClose={closeStatusMenu}
-                open={Boolean(statusMenu.anchorEl)}
-                transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-            >
-                {(() => {
-                    const current = statusMenu.row?.status;
-                    if (!current || isTerminalStatus(current)) return null;
-                    const currentIdx = STATUS_FLOW.indexOf(current);
-                    const nextOptions =
-                        currentIdx >= 0
-                            ? STATUS_FLOW.slice(currentIdx + 1)
-                            : [];
-                    return (
-                        <>
-                            <MenuItem disabled>
-                                <ListItemIcon>
-                                    <CheckIcon fontSize="small" />
-                                </ListItemIcon>
-                                <ListItemText
-                                    primary={t('common.current', {
-                                        ns: 'crm',
-                                        defaultValue: 'Current'
-                                    })}
-                                    secondary={t(
-                                        `deals.statusLabels.${current}`,
-                                        { ns: 'crm', defaultValue: current }
-                                    )}
-                                />
-                            </MenuItem>
-                            {nextOptions.length > 0 && <Divider />}
-                            {nextOptions.map((s) => (
-                                <MenuItem
-                                    key={s}
-                                    onClick={() => handleChooseStatus(s)}
-                                >
-                                    <ListItemIcon>
-                                        <ArrowForwardIcon fontSize="small" />
-                                    </ListItemIcon>
-                                    <ListItemText
-                                        primary={t(`deals.statusLabels.${s}`, {
-                                            ns: 'crm',
-                                            defaultValue: s
-                                        })}
-                                    />
-                                </MenuItem>
-                            ))}
-                            <Divider />
-                            <MenuItem
-                                onClick={() => handleChooseStatus('canceled')}
-                            >
-                                <ListItemIcon>
-                                    <CancelIcon
-                                        color="error"
-                                        fontSize="small"
-                                    />
-                                </ListItemIcon>
-                                <ListItemText
-                                    primary={t('actions.cancel', {
-                                        ns: 'crm',
-                                        defaultValue: 'Cancel'
-                                    })}
-                                />
-                            </MenuItem>
-                        </>
+                currentStatus={statusMenu.row?.status}
+                onChoose={(s) => {
+                    const id = getDealId(statusMenu.row);
+                    updateStatusMutation.mutate(
+                        { id, status: s },
+                        { onSettled: () => closeStatusMenu() }
                     );
-                })()}
-            </Menu>
+                }}
+                onClose={closeStatusMenu}
+            />
         </Box>
     );
 };

@@ -13,22 +13,20 @@ import {
     Stack,
     Button,
     IconButton,
-    Tooltip,
-    Menu,
-    MenuItem,
-    Divider,
-    ListItemIcon,
-    ListItemText
+    Tooltip
 } from '@mui/material';
 import {
     Schedule as ScheduleIcon,
     Person as PersonIcon,
     FiberManualRecord as StatusIcon,
-    Edit as EditIcon,
-    ArrowForward as ArrowForwardIcon,
-    Check as CheckIcon
+    Edit as EditIcon
 } from '@mui/icons-material';
-import { Cancel as CancelIcon } from '@mui/icons-material';
+import StatusMenu from './components/StatusMenu';
+import {
+    isTerminalStatus,
+    getDealId,
+    getStatusColor
+} from './components/statusUtils';
 import { is_TaiGer_role } from '@taiger-common/core';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '../../store/constant';
@@ -89,12 +87,6 @@ const DealDashboard = () => {
         setEditingDeal(null);
     };
 
-    const STATUS_FLOW = ['initiated', 'sent', 'signed', 'closed'];
-    // terminal states shouldn't be changeable inline
-    const isTerminalStatus = (status) =>
-        status === 'closed' || status === 'canceled';
-    const getDealId = (deal) => deal?.id ?? deal?.dealId ?? deal?._id;
-
     const getSalesColor = (salesName) => {
         const colors = {
             David: 'primary',
@@ -103,31 +95,13 @@ const DealDashboard = () => {
         return colors[salesName] || 'default';
     };
 
-    const getStatusColor = (status) => {
-        const colors = {
-            initiated: 'info',
-            sent: 'warning',
-            signed: 'success',
-            closed: 'default',
-            canceled: 'error'
-        };
-        return colors[status] || 'default';
-    };
-
     // status menu handlers
     const openStatusMenu = (event, row) => {
         if (isTerminalStatus(row?.status)) return; // don't open for closed/canceled
         setStatusMenu({ anchorEl: event.currentTarget, row });
     };
     const closeStatusMenu = () => setStatusMenu({ anchorEl: null, row: null });
-    const handleChooseStatus = (status) => {
-        const row = statusMenu.row;
-        const id = getDealId(row);
-        updateStatusMutation.mutate(
-            { id, status },
-            { onSettled: () => closeStatusMenu() }
-        );
-    };
+    // Note: status changes are handled in StatusMenu onChoose
 
     // Mutation to update deal status (adjust endpoint if needed)
     const queryClient = useQueryClient();
@@ -506,81 +480,18 @@ const DealDashboard = () => {
                 enableExpanding
             />
 
-            {/* Status selection menu */}
-            <Menu
+            <StatusMenu
                 anchorEl={statusMenu.anchorEl}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-                onClose={closeStatusMenu}
-                open={Boolean(statusMenu.anchorEl)}
-                transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-            >
-                {(() => {
-                    const current = statusMenu.row?.status;
-                    if (!current || isTerminalStatus(current)) return null;
-                    const currentIdx = STATUS_FLOW.indexOf(current);
-                    const nextOptions =
-                        currentIdx >= 0
-                            ? STATUS_FLOW.slice(currentIdx + 1)
-                            : [];
-                    return (
-                        <>
-                            <MenuItem disabled>
-                                <ListItemIcon>
-                                    <CheckIcon fontSize="small" />
-                                </ListItemIcon>
-                                <ListItemText
-                                    primary={t('common.current', {
-                                        ns: 'crm',
-                                        defaultValue: 'Current'
-                                    })}
-                                    secondary={t(
-                                        `deals.statusLabels.${current}`,
-                                        {
-                                            ns: 'crm',
-                                            defaultValue: current
-                                        }
-                                    )}
-                                />
-                            </MenuItem>
-                            {nextOptions.length > 0 && <Divider />}
-                            {nextOptions.map((s) => (
-                                <MenuItem
-                                    key={s}
-                                    onClick={() => handleChooseStatus(s)}
-                                >
-                                    <ListItemIcon>
-                                        <ArrowForwardIcon fontSize="small" />
-                                    </ListItemIcon>
-                                    <ListItemText
-                                        primary={t(`deals.statusLabels.${s}`, {
-                                            ns: 'crm',
-                                            defaultValue: s
-                                        })}
-                                    />
-                                </MenuItem>
-                            ))}
-                            {/* Cancel option available from any non-terminal status */}
-                            <Divider />
-                            <MenuItem
-                                onClick={() => handleChooseStatus('canceled')}
-                            >
-                                <ListItemIcon>
-                                    <CancelIcon
-                                        color="error"
-                                        fontSize="small"
-                                    />
-                                </ListItemIcon>
-                                <ListItemText
-                                    primary={t('actions.cancel', {
-                                        ns: 'crm',
-                                        defaultValue: 'Cancel'
-                                    })}
-                                />
-                            </MenuItem>
-                        </>
+                currentStatus={statusMenu.row?.status}
+                onChoose={(s) => {
+                    const id = getDealId(statusMenu.row);
+                    updateStatusMutation.mutate(
+                        { id, status: s },
+                        { onSettled: () => closeStatusMenu() }
                     );
-                })()}
-            </Menu>
+                }}
+                onClose={closeStatusMenu}
+            />
 
             <DealModal
                 deal={editingDeal}
