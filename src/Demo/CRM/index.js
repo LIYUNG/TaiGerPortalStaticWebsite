@@ -125,6 +125,7 @@ const CRMDashboard = () => {
             </Breadcrumbs>
 
             <Grid container spacing={1} sx={{ mt: 0.5 }}>
+                {/* Leads Box */}
                 <Grid item md={1.5} sm={6} xs={12}>
                     <Box
                         sx={{
@@ -152,6 +153,7 @@ const CRMDashboard = () => {
                         </Typography>
                     </Box>
                 </Grid>
+                {/* Meetings Box */}
                 <Grid item md={1.5} sm={6} xs={12}>
                     <Box
                         sx={{
@@ -179,6 +181,7 @@ const CRMDashboard = () => {
                         </Typography>
                     </Box>
                 </Grid>
+                {/* Converted Leads Box */}
                 <Grid item md={1.5} sm={6} xs={12}>
                     <Box
                         sx={{
@@ -199,6 +202,7 @@ const CRMDashboard = () => {
                         </Typography>
                     </Box>
                 </Grid>
+                {/* Conversion Rate Box */}
                 <Grid item md={1.5} sm={6} xs={12}>
                     <Box
                         sx={{
@@ -222,11 +226,14 @@ const CRMDashboard = () => {
                                 ns: 'crm',
                                 defaultValue: 'Converted / Total'
                             })}
-                            : {convertedLeads}/{totalLeads}
+                            : {convertedLeads}
+                            {' / '}
+                            {totalLeads}
                         </Typography>
                     </Box>
                 </Grid>
-                <Grid item md={3} sm={6} xs={12}>
+                {/* Avg Response Time Box */}
+                <Grid item md={2} sm={6} xs={12}>
                     <Box
                         sx={{
                             p: 1.5,
@@ -255,7 +262,45 @@ const CRMDashboard = () => {
                         </Typography>
                     </Box>
                 </Grid>
-                <Grid item md={3} sm={6} xs={12}>
+                {/* Follow-Up Rate Box */}
+                <Grid item md={2} sm={6} xs={12}>
+                    <Box
+                        sx={{
+                            p: 1.5,
+                            backgroundColor: 'background.paper',
+                            borderRadius: 1,
+                            boxShadow: 1
+                        }}
+                    >
+                        <Typography color="textSecondary" variant="body2">
+                            {t('dashboard.followUpRate', {
+                                ns: 'crm',
+                                defaultValue: 'Follow-Up Rate'
+                            })}
+                        </Typography>
+                        <Typography component="div" variant="h5">
+                            {(() => {
+                                const totalWithMeeting =
+                                    Number(stats.totalLeadsWithMeeting) || 0;
+                                const totalWithFollowUp =
+                                    Number(stats.totalLeadsWithFollowUp) || 0;
+                                return totalWithMeeting
+                                    ? `${((totalWithFollowUp / totalWithMeeting) * 100).toFixed(1)}%`
+                                    : '-';
+                            })()}
+                        </Typography>
+                        <Typography color="textSecondary" variant="caption">
+                            {t('dashboard.followUpRateDesc', {
+                                ns: 'crm',
+                                defaultValue: 'follow-ups / total'
+                            })}
+                            : {stats.totalLeadsWithFollowUp || 0} {' / '}
+                            {stats.totalLeadsWithMeeting || 0}
+                        </Typography>
+                    </Box>
+                </Grid>
+                {/* Avg Sales Cycle Box */}
+                <Grid item md={2} sm={6} xs={12}>
                     <Box
                         sx={{
                             p: 1.5,

@@ -112,7 +112,9 @@
         "avgResponseTime": "平均回應時間",
         "avgResponseTimeDesc": "首次聯絡與首次會議之間的平均天數",
         "avgSalesCycle": "平均銷售周期",
-        "avgSalesCycleDesc": "從首次接觸到客戶轉化的平均天數"
+        "avgSalesCycleDesc": "從首次接觸到客戶轉化的平均天數",
+        "followUpRate": "跟進率",
+        "followUpRateDesc": "總數 / 跟進數"
     },
     "meetings": {
         "meetingTitle": "會議標題",
