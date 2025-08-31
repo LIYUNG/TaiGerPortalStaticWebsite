@@ -1,5 +1,5 @@
 import { Navigate, Link as RouterLink } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { MaterialReactTable } from 'material-react-table';
 import { useState } from 'react';
@@ -13,15 +13,22 @@ import {
     Stack,
     Button,
     IconButton,
-    Tooltip
+    Tooltip,
+    Menu,
+    MenuItem,
+    Divider,
+    ListItemIcon,
+    ListItemText
 } from '@mui/material';
 import {
     Schedule as ScheduleIcon,
     Person as PersonIcon,
     FiberManualRecord as StatusIcon,
-    Edit as EditIcon
+    Edit as EditIcon,
+    ArrowForward as ArrowForwardIcon,
+    Check as CheckIcon
 } from '@mui/icons-material';
-
+import { Cancel as CancelIcon } from '@mui/icons-material';
 import { is_TaiGer_role } from '@taiger-common/core';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '../../store/constant';
@@ -29,7 +36,24 @@ import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';
 
 import { getCRMDealsQuery } from '../../api/query';
+import { updateCRMDeal } from '../../api';
 import DealModal from './components/DealModal';
+
+// Simple currency formatter (defaults to TWD, no fraction digits)
+const currencyFormatter = (value, options = {}) => {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return value ?? '';
+    try {
+        return new Intl.NumberFormat(undefined, {
+            style: 'currency',
+            currency: 'TWD',
+            maximumFractionDigits: 0,
+            ...options
+        }).format(n);
+    } catch (e) {
+        return n.toLocaleString();
+    }
+};
 
 const DealDashboard = () => {
     const { t } = useTranslation();
@@ -38,13 +62,16 @@ const DealDashboard = () => {
     );
     const [open, setOpen] = useState(false);
     const [editingDeal, setEditingDeal] = useState(null);
+    const [statusMenu, setStatusMenu] = useState({ anchorEl: null, row: null });
 
     const { user } = useAuth();
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
-    const { data, isLoading } = useQuery(getCRMDealsQuery());
+    // prepare query so we can reuse its key for invalidation
+    const dealsQuery = getCRMDealsQuery();
+    const { data, isLoading } = useQuery(dealsQuery);
     const allDeals = data?.data?.data || [];
 
     const handleCreateDeal = () => {
@@ -62,7 +89,11 @@ const DealDashboard = () => {
         setEditingDeal(null);
     };
 
-    // Showing all deals; no tabs/filters
+    const STATUS_FLOW = ['initiated', 'sent', 'signed', 'closed'];
+    // terminal states shouldn't be changeable inline
+    const isTerminalStatus = (status) =>
+        status === 'closed' || status === 'canceled';
+    const getDealId = (deal) => deal?.id ?? deal?.dealId ?? deal?._id;
 
     const getSalesColor = (salesName) => {
         const colors = {
@@ -74,42 +105,98 @@ const DealDashboard = () => {
 
     const getStatusColor = (status) => {
         const colors = {
-            open: 'info',
-            contacted: 'warning',
-            qualified: 'success',
-            converted: 'primary',
-            lost: 'error',
-            closed: 'default'
+            initiated: 'info',
+            sent: 'warning',
+            signed: 'success',
+            closed: 'default',
+            canceled: 'error'
         };
         return colors[status] || 'default';
     };
 
-    const currencyFormatter = (value) => {
-        if (!value) return t('common.na', { ns: 'crm' });
-        const num = Number(value);
-        if (Number.isNaN(num)) return value;
-        return new Intl.NumberFormat('zh-TW', {
-            style: 'currency',
-            currency: 'TWD',
-            maximumFractionDigits: 0
-        }).format(num);
+    // status menu handlers
+    const openStatusMenu = (event, row) => {
+        if (isTerminalStatus(row?.status)) return; // don't open for closed/canceled
+        setStatusMenu({ anchorEl: event.currentTarget, row });
     };
+    const closeStatusMenu = () => setStatusMenu({ anchorEl: null, row: null });
+    const handleChooseStatus = (status) => {
+        const row = statusMenu.row;
+        const id = getDealId(row);
+        // If moving to 'closed' and we don't have a closedDate, open modal to capture it
+        if (status === 'closed' && !row?.closedDate) {
+            setEditingDeal({ ...row, status: 'closed' });
+            setOpen(true);
+            closeStatusMenu();
+            return;
+        }
+        updateStatusMutation.mutate(
+            { id, status },
+            { onSettled: () => closeStatusMenu() }
+        );
+    };
+
+    // Mutation to update deal status (adjust endpoint if needed)
+    const queryClient = useQueryClient();
+    const updateStatusMutation = useMutation({
+        mutationFn: async ({ id, status, closedDate }) => {
+            await updateCRMDeal(id, {
+                status,
+                ...(status === 'closed' && closedDate ? { closedDate } : {})
+            });
+            return { ok: true };
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: dealsQuery.queryKey });
+        }
+    });
 
     const columns = [
         {
             accessorKey: 'status',
             header: t('common.status', { ns: 'crm' }),
-            size: 100,
-            Cell: ({ cell }) => {
+            size: 140,
+            Cell: ({ row, cell }) => {
                 const value = cell.getValue();
+                const id = getDealId(row.original);
+                const isUpdating =
+                    updateStatusMutation.isPending &&
+                    updateStatusMutation.variables?.id === id;
+
+                const terminal = isTerminalStatus(value);
                 return (
-                    <Chip
-                        color={getStatusColor(value)}
-                        icon={<StatusIcon fontSize="small" />}
-                        label={value}
-                        size="small"
-                        variant="outlined"
-                    />
+                    <Stack alignItems="center" direction="row" spacing={0.5}>
+                        <Tooltip
+                            title={
+                                terminal
+                                    ? t('common.noNextStep', {
+                                          ns: 'crm',
+                                          defaultValue: 'No next step'
+                                      })
+                                    : t('actions.changeStatus', {
+                                          ns: 'crm',
+                                          defaultValue: 'Change status'
+                                      })
+                            }
+                        >
+                            <span>
+                                <Chip
+                                    clickable={!terminal}
+                                    color={getStatusColor(value)}
+                                    disabled={isUpdating || terminal}
+                                    icon={<StatusIcon fontSize="small" />}
+                                    label={value}
+                                    onClick={(e) => {
+                                        if (terminal) return;
+                                        e.stopPropagation();
+                                        openStatusMenu(e, row.original);
+                                    }}
+                                    size="small"
+                                    variant="outlined"
+                                />
+                            </span>
+                        </Tooltip>
+                    </Stack>
                 );
             }
         },
@@ -275,6 +362,76 @@ const DealDashboard = () => {
                 }}
                 state={{ isLoading }}
             />
+
+            {/* Status selection menu */}
+            <Menu
+                anchorEl={statusMenu.anchorEl}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+                onClose={closeStatusMenu}
+                open={Boolean(statusMenu.anchorEl)}
+                transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+            >
+                {(() => {
+                    const current = statusMenu.row?.status;
+                    if (
+                        !current ||
+                        current === 'closed' ||
+                        current === 'canceled'
+                    )
+                        return null;
+                    const currentIdx = STATUS_FLOW.indexOf(current);
+                    const nextOptions =
+                        currentIdx >= 0
+                            ? STATUS_FLOW.slice(currentIdx + 1)
+                            : [];
+                    return (
+                        <>
+                            <MenuItem disabled>
+                                <ListItemIcon>
+                                    <CheckIcon fontSize="small" />
+                                </ListItemIcon>
+                                <ListItemText
+                                    primary={t('common.current', {
+                                        ns: 'crm',
+                                        defaultValue: 'Current'
+                                    })}
+                                    secondary={current}
+                                />
+                            </MenuItem>
+                            {nextOptions.length > 0 && <Divider />}
+                            {nextOptions.map((s) => (
+                                <MenuItem
+                                    key={s}
+                                    onClick={() => handleChooseStatus(s)}
+                                >
+                                    <ListItemIcon>
+                                        <ArrowForwardIcon fontSize="small" />
+                                    </ListItemIcon>
+                                    <ListItemText primary={s} />
+                                </MenuItem>
+                            ))}
+                            {/* Cancel option available from any non-terminal status */}
+                            <Divider />
+                            <MenuItem
+                                onClick={() => handleChooseStatus('canceled')}
+                            >
+                                <ListItemIcon>
+                                    <CancelIcon
+                                        color="error"
+                                        fontSize="small"
+                                    />
+                                </ListItemIcon>
+                                <ListItemText
+                                    primary={t('actions.cancel', {
+                                        ns: 'crm',
+                                        defaultValue: 'Cancel'
+                                    })}
+                                />
+                            </MenuItem>
+                        </>
+                    );
+                })()}
+            </Menu>
 
             <DealModal
                 deal={editingDeal}
