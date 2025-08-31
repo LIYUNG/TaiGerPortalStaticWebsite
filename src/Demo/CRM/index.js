@@ -255,6 +255,35 @@ const CRMDashboard = () => {
                         </Typography>
                     </Box>
                 </Grid>
+                <Grid item md={3} sm={6} xs={12}>
+                    <Box
+                        sx={{
+                            p: 1.5,
+                            backgroundColor: 'background.paper',
+                            borderRadius: 1,
+                            boxShadow: 1
+                        }}
+                    >
+                        <Typography color="textSecondary" variant="body2">
+                            {t('dashboard.avgSalesCycle', {
+                                ns: 'crm',
+                                defaultValue: 'Avg Sales Cycle'
+                            })}
+                        </Typography>
+                        <Typography component="div" variant="h5">
+                            {stats.avgSalesCycleDays != null
+                                ? `${Number(stats.avgSalesCycleDays).toFixed(2)} days`
+                                : '-'}
+                        </Typography>
+                        <Typography color="textSecondary" variant="caption">
+                            {t('dashboard.avgSalesCycleDesc', {
+                                ns: 'crm',
+                                defaultValue:
+                                    'Average days between first contact and conversion'
+                            })}
+                        </Typography>
+                    </Box>
+                </Grid>
             </Grid>
             <Grid container spacing={1} sx={{ mt: 0.5 }}>
                 <Grid item xs={12}>
