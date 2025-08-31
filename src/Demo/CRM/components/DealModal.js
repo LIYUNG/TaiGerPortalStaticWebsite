@@ -377,7 +377,9 @@ const DealModal = ({
                                         value={field.state.value}
                                     >
                                         {allLeads
-                                            .filter((l) => l.status != 'closed')
+                                            .filter(
+                                                (l) => l.status !== 'closed'
+                                            )
                                             .map((l) => (
                                                 <MenuItem
                                                     key={l.id}
