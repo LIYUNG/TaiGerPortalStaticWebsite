@@ -1,15 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     Box,
     Tooltip,
     Chip,
     Typography,
     Stack,
-    IconButton
+    IconButton,
+    Collapse
 } from '@mui/material';
 import {
     FiberManualRecord as StatusIcon,
-    Edit as EditIcon
+    Edit as EditIcon,
+    ExpandMore as ExpandMoreIcon,
+    ExpandLess as ExpandLessIcon
 } from '@mui/icons-material';
 import { isTerminalStatus, getStatusColor } from './statusUtils';
 
@@ -31,6 +34,7 @@ const DealItem = ({ deal, t, onOpenStatusMenu, onEditDeal, isUpdating }) => {
         { key: 'canceledAt', status: 'canceled' }
     ];
     const events = items.filter((it) => Boolean(deal?.[it.key]));
+    const [open, setOpen] = useState(false);
 
     return (
         <Box>
@@ -112,112 +116,144 @@ const DealItem = ({ deal, t, onOpenStatusMenu, onEditDeal, isUpdating }) => {
                         </Typography>
                     )}
                 </Box>
-                <Tooltip title={t('actions.edit', { ns: 'crm' })}>
-                    <IconButton
-                        color="primary"
-                        onClick={() => onEditDeal(deal)}
-                        size="small"
-                    >
-                        <EditIcon fontSize="small" />
-                    </IconButton>
-                </Tooltip>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    {events.length > 0 && (
+                        <Tooltip
+                            title={
+                                open
+                                    ? t('common.collapse', {
+                                          ns: 'crm',
+                                          defaultValue: 'Collapse'
+                                      })
+                                    : t('common.expand', {
+                                          ns: 'crm',
+                                          defaultValue: 'Expand'
+                                      })
+                            }
+                        >
+                            <IconButton
+                                aria-label="toggle-deal-timeline"
+                                onClick={() => setOpen((v) => !v)}
+                                size="small"
+                            >
+                                {open ? (
+                                    <ExpandLessIcon fontSize="small" />
+                                ) : (
+                                    <ExpandMoreIcon fontSize="small" />
+                                )}
+                            </IconButton>
+                        </Tooltip>
+                    )}
+                    <Tooltip title={t('actions.edit', { ns: 'crm' })}>
+                        <IconButton
+                            color="primary"
+                            onClick={() => onEditDeal(deal)}
+                            size="small"
+                        >
+                            <EditIcon fontSize="small" />
+                        </IconButton>
+                    </Tooltip>
+                </Box>
             </Box>
             {events.length > 0 && (
-                <Box sx={{ p: 1.5, pl: 2.5 }}>
-                    <Stack spacing={1.25}>
-                        {events.map((it, idx2) => {
-                            const colorKey = getStatusColor(it.status);
-                            const date = new Date(deal[it.key]);
-                            const dateStr = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-                            return (
-                                <Stack
-                                    alignItems="flex-start"
-                                    direction="row"
-                                    key={it.key}
-                                    spacing={1.5}
-                                >
-                                    <Box
-                                        sx={{
-                                            width: 20,
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            alignItems: 'center'
-                                        }}
+                <Collapse in={open} timeout="auto" unmountOnExit>
+                    <Box sx={{ p: 1.5, pl: 2.5 }}>
+                        <Stack spacing={1.25}>
+                            {events.map((it, idx2) => {
+                                const colorKey = getStatusColor(it.status);
+                                const date = new Date(deal[it.key]);
+                                const dateStr = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+                                return (
+                                    <Stack
+                                        alignItems="flex-start"
+                                        direction="row"
+                                        key={it.key}
+                                        spacing={1.5}
                                     >
                                         <Box
                                             sx={{
-                                                width: 2,
-                                                flex: 1,
-                                                bgcolor: (theme) =>
-                                                    theme.palette.divider,
-                                                visibility:
-                                                    idx2 === 0
-                                                        ? 'hidden'
-                                                        : 'visible'
+                                                width: 20,
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                alignItems: 'center'
                                             }}
-                                        />
-                                        <Box
-                                            sx={{
-                                                width: 12,
-                                                height: 12,
-                                                borderRadius: '50%',
-                                                border: '2px solid #fff',
-                                                boxShadow: 1,
-                                                bgcolor: (theme) =>
-                                                    colorKey === 'default'
-                                                        ? theme.palette
-                                                              .grey[500]
-                                                        : theme.palette[
-                                                              colorKey
-                                                          ].main
-                                            }}
-                                        />
-                                        <Box
-                                            sx={{
-                                                width: 2,
-                                                flex: 1,
-                                                bgcolor: (theme) =>
-                                                    theme.palette.divider,
-                                                visibility:
-                                                    idx2 === events.length - 1
-                                                        ? 'hidden'
-                                                        : 'visible'
-                                            }}
-                                        />
-                                    </Box>
-                                    <Stack spacing={0.25}>
-                                        <Typography
-                                            sx={{ fontWeight: 600 }}
-                                            variant="body2"
                                         >
-                                            {dateStr}
-                                        </Typography>
-                                        <Typography
-                                            sx={{
-                                                color: (theme) =>
-                                                    colorKey === 'default'
-                                                        ? theme.palette.text
-                                                              .secondary
-                                                        : theme.palette[
-                                                              colorKey
-                                                          ].main
-                                            }}
-                                            variant="body2"
-                                        >
-                                            {t(
-                                                `deals.statusLabels.${it.status}`,
-                                                {
-                                                    ns: 'crm',
-                                                    defaultValue: it.status
-                                                }
-                                            )}
-                                        </Typography>
+                                            <Box
+                                                sx={{
+                                                    width: 2,
+                                                    flex: 1,
+                                                    bgcolor: (theme) =>
+                                                        theme.palette.divider,
+                                                    visibility:
+                                                        idx2 === 0
+                                                            ? 'hidden'
+                                                            : 'visible'
+                                                }}
+                                            />
+                                            <Box
+                                                sx={{
+                                                    width: 12,
+                                                    height: 12,
+                                                    borderRadius: '50%',
+                                                    border: '2px solid #fff',
+                                                    boxShadow: 1,
+                                                    bgcolor: (theme) =>
+                                                        colorKey === 'default'
+                                                            ? theme.palette
+                                                                  .grey[500]
+                                                            : theme.palette[
+                                                                  colorKey
+                                                              ].main
+                                                }}
+                                            />
+                                            <Box
+                                                sx={{
+                                                    width: 2,
+                                                    flex: 1,
+                                                    bgcolor: (theme) =>
+                                                        theme.palette.divider,
+                                                    visibility:
+                                                        idx2 ===
+                                                        events.length - 1
+                                                            ? 'hidden'
+                                                            : 'visible'
+                                                }}
+                                            />
+                                        </Box>
+                                        <Stack spacing={0.25}>
+                                            <Typography
+                                                sx={{ fontWeight: 600 }}
+                                                variant="body2"
+                                            >
+                                                {dateStr}
+                                            </Typography>
+                                            <Typography
+                                                sx={{
+                                                    color: (theme) =>
+                                                        colorKey === 'default'
+                                                            ? theme.palette.text
+                                                                  .secondary
+                                                            : theme.palette[
+                                                                  colorKey
+                                                              ].main
+                                                }}
+                                                variant="body2"
+                                            >
+                                                {t(
+                                                    `deals.statusLabels.${it.status}`,
+                                                    {
+                                                        ns: 'crm',
+                                                        defaultValue: it.status
+                                                    }
+                                                )}
+                                            </Typography>
+                                        </Stack>
                                     </Stack>
-                                </Stack>
-                            );
-                        })}
-                    </Stack>
-                </Box>
+                                );
+                            })}
+                        </Stack>
+                    </Box>
+                </Collapse>
             )}
         </Box>
     );
