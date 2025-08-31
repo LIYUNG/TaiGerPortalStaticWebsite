@@ -121,13 +121,13 @@ const DealModal = ({
                 const init = {
                     leadId: deal.leadId,
                     salesUserId: deal.salesUserId,
-                    dealSizeNtd: deal.dealSizeNtd || '',
+                    dealSizeNtd: deal.dealSizeNtd || null,
                     status: deal.status || 'initiated',
-                    note: deal.note || '',
-                    initiatedAt: formatDateForInput(deal.initiatedAt) || '',
-                    sentAt: formatDateForInput(deal.sentAt) || '',
-                    signedAt: formatDateForInput(deal.signedAt) || '',
-                    closedAt: formatDateForInput(deal.closedAt) || ''
+                    note: deal.note || null,
+                    initiatedAt: formatDateForInput(deal.initiatedAt) || null,
+                    sentAt: formatDateForInput(deal.sentAt) || null,
+                    signedAt: formatDateForInput(deal.signedAt) || null,
+                    closedAt: formatDateForInput(deal.closedAt) || null
                 };
                 form.reset(init);
                 initialRef.current = init;
