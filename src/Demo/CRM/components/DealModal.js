@@ -52,14 +52,19 @@ const DealModal = ({
     // Determine if we're in edit mode
     const isEditMode = !!deal;
 
-    // Helper function to format date for HTML date input
+    // Helper: format date/time for HTML datetime-local input (YYYY-MM-DDTHH:MM)
     const formatDateForInput = (dateString) => {
         if (!dateString) return '';
         // Handle both ISO strings and Date objects
         const date = new Date(dateString);
         if (isNaN(date.getTime())) return '';
-        // Return in YYYY-MM-DD format for HTML date input
-        return date.toISOString().split('T')[0];
+        const pad = (n) => String(n).padStart(2, '0');
+        const yyyy = date.getFullYear();
+        const mm = pad(date.getMonth() + 1);
+        const dd = pad(date.getDate());
+        const hh = pad(date.getHours());
+        const mi = pad(date.getMinutes());
+        return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
     };
 
     const { data: leadsData } = useQuery({
@@ -177,7 +182,7 @@ const DealModal = ({
         if (!form.dealSizeNtd || Number(form.dealSizeNtd) <= 0)
             newErrors.dealSizeNtd = t('deals.mustBePositive', { ns: 'crm' });
         if (form.status === 'closed' && !form.closedAt)
-            newErrors.closedDate = t('deals.closedDateRequired', { ns: 'crm' });
+            newErrors.closedAt = t('deals.closedAtRequired', { ns: 'crm' });
 
         setErrors(newErrors);
         if (Object.keys(newErrors).length) return;
@@ -414,7 +419,7 @@ const DealModal = ({
                                     initiatedAt: e.target.value
                                 }))
                             }
-                            type="date"
+                            type="datetime-local"
                             value={form.initiatedAt}
                         />
                         <TextField
@@ -430,7 +435,7 @@ const DealModal = ({
                                     sentAt: e.target.value
                                 }))
                             }
-                            type="date"
+                            type="datetime-local"
                             value={form.sentAt}
                         />
                     </Stack>
@@ -448,16 +453,16 @@ const DealModal = ({
                                     signedAt: e.target.value
                                 }))
                             }
-                            type="date"
+                            type="datetime-local"
                             value={form.signedAt}
                         />
                         <TextField
                             InputLabelProps={{ shrink: true }}
-                            error={Boolean(errors.closedDate)}
+                            error={Boolean(errors.closedAt)}
                             fullWidth
                             helperText={
                                 form.status === 'closed'
-                                    ? errors.closedDate
+                                    ? errors.closedAt
                                     : undefined
                             }
                             label={t('deals.closedAt', {
@@ -470,7 +475,7 @@ const DealModal = ({
                                     closedAt: e.target.value
                                 }))
                             }
-                            type="date"
+                            type="datetime-local"
                             value={form.closedAt}
                         />
                     </Stack>
