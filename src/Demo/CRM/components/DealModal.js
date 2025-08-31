@@ -288,6 +288,23 @@ const DealModal = ({
         }
     };
 
+    // Determine which datetime fields are editable based on current status (edit mode only)
+    const editableDateFieldsByStatus = {
+        initiated: ['initiatedAt'],
+        sent: ['initiatedAt', 'sentAt'],
+        signed: ['initiatedAt', 'sentAt', 'signedAt'],
+        closed: ['initiatedAt', 'sentAt', 'signedAt', 'closedAt'],
+        canceled: ['initiatedAt', 'sentAt', 'signedAt'] // no closedAt when canceled
+    };
+    const currentStatus = form.getFieldValue('status');
+    const editableSet = new Set(
+        editableDateFieldsByStatus[currentStatus] || []
+    );
+    const canEditInitiatedAt = !isEditMode || editableSet.has('initiatedAt');
+    const canEditSentAt = !isEditMode || editableSet.has('sentAt');
+    const canEditSignedAt = !isEditMode || editableSet.has('signedAt');
+    const canEditClosedAt = !isEditMode || editableSet.has('closedAt');
+
     return (
         <Dialog
             disableRestoreFocus
@@ -495,6 +512,7 @@ const DealModal = ({
                             {(field) => (
                                 <TextField
                                     InputLabelProps={{ shrink: true }}
+                                    disabled={!canEditInitiatedAt}
                                     fullWidth
                                     label={t('deals.initiatedAt', {
                                         ns: 'crm',
@@ -512,6 +530,7 @@ const DealModal = ({
                             {(field) => (
                                 <TextField
                                     InputLabelProps={{ shrink: true }}
+                                    disabled={!canEditSentAt}
                                     fullWidth
                                     label={t('deals.sentAt', {
                                         ns: 'crm',
@@ -531,6 +550,7 @@ const DealModal = ({
                             {(field) => (
                                 <TextField
                                     InputLabelProps={{ shrink: true }}
+                                    disabled={!canEditSignedAt}
                                     fullWidth
                                     label={t('deals.signedAt', {
                                         ns: 'crm',
@@ -548,6 +568,7 @@ const DealModal = ({
                             {(field) => (
                                 <TextField
                                     InputLabelProps={{ shrink: true }}
+                                    disabled={!canEditClosedAt}
                                     error={Boolean(errors.closedAt)}
                                     fullWidth
                                     helperText={
