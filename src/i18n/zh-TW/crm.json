@@ -108,7 +108,9 @@
         "highChanceLeads": "高機率線索",
         "convertedLeadsSeries": "已轉換線索",
         "conversionRate": "轉換率",
-        "conversionRateDesc": "已轉換 / 總數"
+        "conversionRateDesc": "已轉換 / 總數",
+        "avgResponseTime": "平均回應時間",
+        "avgResponseTimeDesc": "首次聯絡與首次會議之間的平均天數"
     },
     "meetings": {
         "meetingTitle": "會議標題",

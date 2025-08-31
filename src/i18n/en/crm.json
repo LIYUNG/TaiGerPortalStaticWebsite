@@ -108,7 +108,9 @@
         "highChanceLeads": "High Chance Leads",
         "convertedLeadsSeries": "Converted Leads",
         "conversionRate": "Conversion Rate",
-        "conversionRateDesc": "Converted / Total"
+        "conversionRateDesc": "Converted / Total",
+        "avgResponseTime": "Avg Response Time",
+        "avgResponseTimeDesc": "Average days between first contact and first meeting"
     },
     "meetings": {
         "meetingTitle": "Meeting Title",
