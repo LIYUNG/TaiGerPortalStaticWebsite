@@ -50,6 +50,8 @@ const DealModal = ({
     const { t } = useTranslation();
     const queryClient = useQueryClient();
     const isEditMode = !!deal;
+    // Local UI status mirrors selected status for immediate UI updates
+    const [uiStatus, setUiStatus] = useState(deal?.status || 'initiated');
 
     // Helper: format date/time for HTML datetime-local input (YYYY-MM-DDTHH:MM)
     const formatDateForInput = (dateString) => {
@@ -129,6 +131,7 @@ const DealModal = ({
                 };
                 form.reset(init);
                 initialRef.current = init;
+                setUiStatus(init.status || 'initiated');
             } else {
                 // Reset for create mode
                 form.reset((f) => ({
@@ -147,6 +150,7 @@ const DealModal = ({
                     signedAt: '',
                     closedAt: ''
                 };
+                setUiStatus('initiated');
             }
             setErrors({});
         }
@@ -168,6 +172,7 @@ const DealModal = ({
             };
             form.reset(init);
             initialRef.current = init;
+            setUiStatus(init.status || 'initiated');
         } else {
             // Reset to create mode defaults
             form.reset({
@@ -192,6 +197,7 @@ const DealModal = ({
                 signedAt: '',
                 closedAt: ''
             };
+            setUiStatus('initiated');
         }
         setErrors({});
     };
@@ -288,18 +294,25 @@ const DealModal = ({
         }
     };
 
-    // Determine which datetime fields are editable based on current status (edit mode only)
-    const editableDateFieldsByStatus = {
-        initiated: ['initiatedAt'],
-        sent: ['initiatedAt', 'sentAt'],
-        signed: ['initiatedAt', 'sentAt', 'signedAt'],
-        closed: ['initiatedAt', 'sentAt', 'signedAt', 'closedAt'],
-        canceled: ['initiatedAt', 'sentAt', 'signedAt'] // no closedAt when canceled
-    };
-    const currentStatus = form.getFieldValue('status');
-    const editableSet = new Set(
-        editableDateFieldsByStatus[currentStatus] || []
-    );
+    // Determine which datetime fields are editable based on status order (edit mode only)
+    const currentStatus = uiStatus;
+    const statusIndex = statusValues.indexOf(currentStatus);
+    const dateKeysInOrder = ['initiatedAt', 'sentAt', 'signedAt', 'closedAt'];
+    let allowedDateKeys = [];
+    if (!isEditMode) {
+        // In create mode allow all date fields
+        allowedDateKeys = dateKeysInOrder;
+    } else if (currentStatus === 'canceled') {
+        // When canceled, allow edits up to signedAt only
+        allowedDateKeys = ['initiatedAt', 'sentAt', 'signedAt'];
+    } else if (statusIndex >= 0) {
+        // Allow editing up to the current status (inclusive)
+        allowedDateKeys = dateKeysInOrder.slice(
+            0,
+            Math.min(statusIndex + 1, dateKeysInOrder.length)
+        );
+    }
+    const editableSet = new Set(allowedDateKeys);
     const canEditInitiatedAt = !isEditMode || editableSet.has('initiatedAt');
     const canEditSentAt = !isEditMode || editableSet.has('sentAt');
     const canEditSignedAt = !isEditMode || editableSet.has('signedAt');
@@ -474,9 +487,39 @@ const DealModal = ({
                                 <Select
                                     label={t('deals.status', { ns: 'crm' })}
                                     labelId="status-label"
-                                    onChange={(e) =>
-                                        field.handleChange(e.target.value)
-                                    }
+                                    onChange={(e) => {
+                                        const newStatus = e.target.value;
+                                        field.handleChange(newStatus);
+                                        setUiStatus(newStatus);
+                                        // Reset datetime fields that come after the selected status in the order
+                                        const order = [
+                                            'initiated',
+                                            'sent',
+                                            'signed',
+                                            'closed',
+                                            'canceled'
+                                        ];
+                                        const idx = order.indexOf(newStatus);
+                                        const dateKeysInOrder = [
+                                            'initiatedAt',
+                                            'sentAt',
+                                            'signedAt',
+                                            'closedAt'
+                                        ];
+                                        let toReset = [];
+                                        if (newStatus === 'canceled') {
+                                            // Ensure closedAt is cleared when switching to canceled
+                                            toReset = ['closedAt'];
+                                        } else if (idx >= 0) {
+                                            toReset = dateKeysInOrder.slice(
+                                                idx + 1
+                                            );
+                                        }
+                                        for (const k of toReset) {
+                                            // Clear to empty string so submit maps it to null
+                                            form.setFieldValue(k, '');
+                                        }
+                                    }}
                                     value={field.state.value}
                                 >
                                     {statusValues.map((s) => (
@@ -572,8 +615,7 @@ const DealModal = ({
                                     error={Boolean(errors.closedAt)}
                                     fullWidth
                                     helperText={
-                                        form.getFieldValue('status') ===
-                                        'closed'
+                                        uiStatus === 'closed'
                                             ? errors.closedAt
                                             : undefined
                                     }
