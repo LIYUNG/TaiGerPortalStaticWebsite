@@ -35,6 +35,13 @@ const CRMDashboard = () => {
         return <Loading />;
     }
 
+    // Calculate conversion rate (converted leads / total leads)
+    const totalLeads = Number(stats.totalLeadCount) || 0;
+    const convertedLeads = Number(stats.convertedLeadCount) || 0;
+    const conversionRate = totalLeads
+        ? Number(((convertedLeads / totalLeads) * 100).toFixed(1))
+        : 0;
+
     // Create unified week range for consistent x-axis across both charts
     const createUnifiedWeekRange = (leadsData, meetingsData) => {
         const allWeeks = new Set();
@@ -91,6 +98,16 @@ const CRMDashboard = () => {
         'count'
     );
 
+    // Prepare per-week conversion rate labels (converted / leads * 100)
+    // Round up to nearest integer and omit decimals
+    const unifiedConversionRates = allWeeks.map((_, idx) => {
+        const leads = unifiedLeadsData[idx];
+        const converted = unifiedConvertedLeadsData[idx];
+        if (leads === null || leads === 0 || leads === undefined) return null;
+        const rate = (Number(converted || 0) / Number(leads)) * 100;
+        return `${Math.ceil(rate)}%`;
+    });
+
     return (
         <>
             <Breadcrumbs aria-label="breadcrumb">
@@ -108,7 +125,8 @@ const CRMDashboard = () => {
             </Breadcrumbs>
 
             <Grid container spacing={1} sx={{ mt: 0.5 }}>
-                <Grid item md={3} sm={6} xs={12}>
+                {/* Leads Box */}
+                <Grid item md={1.5} sm={6} xs={12}>
                     <Box
                         sx={{
                             p: 1.5,
@@ -135,27 +153,8 @@ const CRMDashboard = () => {
                         </Typography>
                     </Box>
                 </Grid>
-                <Grid item md={3} sm={6} xs={12}>
-                    <Box
-                        sx={{
-                            p: 1.5,
-                            backgroundColor: 'background.paper',
-                            borderRadius: 1,
-                            boxShadow: 1
-                        }}
-                    >
-                        <Typography color="textSecondary" variant="body2">
-                            {t('dashboard.convertedLeads', { ns: 'crm' })}
-                        </Typography>
-                        <Typography component="div" variant="h5">
-                            {stats.convertedLeadCount || 0}
-                        </Typography>
-                        <Typography color="textSecondary" variant="caption">
-                            {t('dashboard.totalConverted', { ns: 'crm' })}
-                        </Typography>
-                    </Box>
-                </Grid>
-                <Grid item md={3} sm={6} xs={12}>
+                {/* Meetings Box */}
+                <Grid item md={1.5} sm={6} xs={12}>
                     <Box
                         sx={{
                             p: 1.5,
@@ -182,6 +181,154 @@ const CRMDashboard = () => {
                         </Typography>
                     </Box>
                 </Grid>
+                {/* Converted Leads Box */}
+                <Grid item md={1.5} sm={6} xs={12}>
+                    <Box
+                        sx={{
+                            p: 1.5,
+                            backgroundColor: 'background.paper',
+                            borderRadius: 1,
+                            boxShadow: 1
+                        }}
+                    >
+                        <Typography color="textSecondary" variant="body2">
+                            {t('dashboard.convertedLeads', { ns: 'crm' })}
+                        </Typography>
+                        <Typography component="div" variant="h5">
+                            {stats.convertedLeadCount || 0}
+                        </Typography>
+                        <Typography color="textSecondary" variant="caption">
+                            {t('dashboard.totalConverted', { ns: 'crm' })}
+                        </Typography>
+                    </Box>
+                </Grid>
+                {/* Conversion Rate Box */}
+                <Grid item md={1.5} sm={6} xs={12}>
+                    <Box
+                        sx={{
+                            p: 1.5,
+                            backgroundColor: 'background.paper',
+                            borderRadius: 1,
+                            boxShadow: 1
+                        }}
+                    >
+                        <Typography color="textSecondary" variant="body2">
+                            {t('dashboard.conversionRate', {
+                                ns: 'crm',
+                                defaultValue: 'Conversion Rate'
+                            })}
+                        </Typography>
+                        <Typography component="div" variant="h5">
+                            {conversionRate}%
+                        </Typography>
+                        <Typography color="textSecondary" variant="caption">
+                            {t('dashboard.conversionRateDesc', {
+                                ns: 'crm',
+                                defaultValue: 'Converted / Total'
+                            })}
+                            : {convertedLeads}
+                            {' / '}
+                            {totalLeads}
+                        </Typography>
+                    </Box>
+                </Grid>
+                {/* Avg Response Time Box */}
+                <Grid item md={2} sm={6} xs={12}>
+                    <Box
+                        sx={{
+                            p: 1.5,
+                            backgroundColor: 'background.paper',
+                            borderRadius: 1,
+                            boxShadow: 1
+                        }}
+                    >
+                        <Typography color="textSecondary" variant="body2">
+                            {t('dashboard.avgResponseTime', {
+                                ns: 'crm',
+                                defaultValue: 'Avg Response Time'
+                            })}
+                        </Typography>
+                        <Typography component="div" variant="h5">
+                            {stats.avgResponseTimeDays != null
+                                ? `${Number(stats.avgResponseTimeDays).toFixed(2)} days`
+                                : '-'}
+                        </Typography>
+                        <Typography color="textSecondary" variant="caption">
+                            {t('dashboard.avgResponseTimeDesc', {
+                                ns: 'crm',
+                                defaultValue:
+                                    'Average days between first contact and first meeting'
+                            })}
+                        </Typography>
+                    </Box>
+                </Grid>
+                {/* Follow-Up Rate Box */}
+                <Grid item md={2} sm={6} xs={12}>
+                    <Box
+                        sx={{
+                            p: 1.5,
+                            backgroundColor: 'background.paper',
+                            borderRadius: 1,
+                            boxShadow: 1
+                        }}
+                    >
+                        <Typography color="textSecondary" variant="body2">
+                            {t('dashboard.followUpRate', {
+                                ns: 'crm',
+                                defaultValue: 'Follow-Up Rate'
+                            })}
+                        </Typography>
+                        <Typography component="div" variant="h5">
+                            {(() => {
+                                const totalWithMeeting =
+                                    Number(stats.totalLeadsWithMeeting) || 0;
+                                const totalWithFollowUp =
+                                    Number(stats.totalLeadsWithFollowUp) || 0;
+                                return totalWithMeeting
+                                    ? `${((totalWithFollowUp / totalWithMeeting) * 100).toFixed(1)}%`
+                                    : '-';
+                            })()}
+                        </Typography>
+                        <Typography color="textSecondary" variant="caption">
+                            {t('dashboard.followUpRateDesc', {
+                                ns: 'crm',
+                                defaultValue: 'follow-ups / total'
+                            })}
+                            : {stats.totalLeadsWithFollowUp || 0} {' / '}
+                            {stats.totalLeadsWithMeeting || 0}
+                        </Typography>
+                    </Box>
+                </Grid>
+                {/* Avg Sales Cycle Box */}
+                <Grid item md={2} sm={6} xs={12}>
+                    <Box
+                        sx={{
+                            p: 1.5,
+                            backgroundColor: 'background.paper',
+                            borderRadius: 1,
+                            boxShadow: 1
+                        }}
+                    >
+                        <Typography color="textSecondary" variant="body2">
+                            {t('dashboard.avgSalesCycle', {
+                                ns: 'crm',
+                                defaultValue: 'Avg Sales Cycle'
+                            })}
+                        </Typography>
+                        <Typography component="div" variant="h5">
+                            {stats.avgSalesCycleDays != null
+                                ? `${Number(stats.avgSalesCycleDays).toFixed(2)} days`
+                                : '-'}
+                        </Typography>
+                        <Typography color="textSecondary" variant="caption">
+                            {t('dashboard.avgSalesCycleDesc', {
+                                ns: 'crm',
+                                defaultValue:
+                                    'Average days between first contact and conversion'
+                            })}
+                        </Typography>
+                    </Box>
+                </Grid>
             </Grid>
             <Grid container spacing={1} sx={{ mt: 0.5 }}>
                 <Grid item xs={12}>
@@ -192,15 +339,50 @@ const CRMDashboard = () => {
                             </Typography>
                             {allWeeks.length > 0 ? (
                                 <BarChart
+                                    barLabel={(valueObj, meta) => {
+                                        try {
+                                            const { seriesId, dataIndex } =
+                                                valueObj || {};
+                                            const bar = meta?.bar || {};
+                                            if (seriesId === 'newLeads') {
+                                                const label =
+                                                    unifiedConversionRates[
+                                                        dataIndex
+                                                    ] ?? null;
+                                                if (!label) return null;
+                                                // place label above the bar by shifting it up by half the bar height + padding
+                                                // move label higher and make it slightly bigger
+                                                const dy = bar.height
+                                                    ? -(bar.height / 2 + 12)
+                                                    : -12;
+                                                return (
+                                                    <tspan
+                                                        dy={dy}
+                                                        style={{
+                                                            fontSize: '12px',
+                                                            fill: 'rgba(0,0,0,0.54)'
+                                                        }}
+                                                    >
+                                                        {label}
+                                                    </tspan>
+                                                );
+                                            }
+                                        } catch (e) {
+                                            // fall through to no label
+                                        }
+                                        return null;
+                                    }}
                                     height={250}
                                     series={[
                                         {
+                                            id: 'newLeads',
                                             data: unifiedLeadsData,
                                             label: t('dashboard.newLeads', {
                                                 ns: 'crm'
                                             })
                                         },
                                         {
+                                            id: 'highChance',
                                             data: unifiedHighChanceLeadsData,
                                             label: t(
                                                 'dashboard.highChanceLeads',
@@ -209,6 +391,7 @@ const CRMDashboard = () => {
                                             color: '#F28E2B'
                                         },
                                         {
+                                            id: 'convertedLeads',
                                             data: unifiedConvertedLeadsData,
                                             label: t(
                                                 'dashboard.convertedLeadsSeries',
