@@ -106,7 +106,9 @@
         "noData": "無可用資料",
         "newLeads": "新增線索",
         "highChanceLeads": "高機率線索",
-        "convertedLeadsSeries": "已轉換線索"
+        "convertedLeadsSeries": "已轉換線索",
+        "conversionRate": "轉換率",
+        "conversionRateDesc": "已轉換 / 總數"
     },
     "meetings": {
         "meetingTitle": "會議標題",

@@ -35,6 +35,13 @@ const CRMDashboard = () => {
         return <Loading />;
     }
 
+    // Calculate conversion rate (converted leads / total leads)
+    const totalLeads = Number(stats.totalLeadCount) || 0;
+    const convertedLeads = Number(stats.convertedLeadCount) || 0;
+    const conversionRate = totalLeads
+        ? Number(((convertedLeads / totalLeads) * 100).toFixed(1))
+        : 0;
+
     // Create unified week range for consistent x-axis across both charts
     const createUnifiedWeekRange = (leadsData, meetingsData) => {
         const allWeeks = new Set();
@@ -145,6 +152,33 @@ const CRMDashboard = () => {
                         }}
                     >
                         <Typography color="textSecondary" variant="body2">
+                            {t('dashboard.meetings', { ns: 'crm' })}
+                        </Typography>
+                        <Typography component="div" variant="h5">
+                            {stats.totalMeetingCount || 0}
+                            <Typography
+                                component="span"
+                                sx={{ color: 'success.main', ml: 1 }}
+                                variant="body2"
+                            >
+                                (+{stats.recentMeetingCount || 0})
+                            </Typography>
+                        </Typography>
+                        <Typography color="textSecondary" variant="caption">
+                            {t('dashboard.totalMeetingsRecent', { ns: 'crm' })}
+                        </Typography>
+                    </Box>
+                </Grid>
+                <Grid item md={3} sm={6} xs={12}>
+                    <Box
+                        sx={{
+                            p: 1.5,
+                            backgroundColor: 'background.paper',
+                            borderRadius: 1,
+                            boxShadow: 1
+                        }}
+                    >
+                        <Typography color="textSecondary" variant="body2">
                             {t('dashboard.convertedLeads', { ns: 'crm' })}
                         </Typography>
                         <Typography component="div" variant="h5">
@@ -165,20 +199,20 @@ const CRMDashboard = () => {
                         }}
                     >
                         <Typography color="textSecondary" variant="body2">
-                            {t('dashboard.meetings', { ns: 'crm' })}
+                            {t('dashboard.conversionRate', {
+                                ns: 'crm',
+                                defaultValue: 'Conversion Rate'
+                            })}
                         </Typography>
                         <Typography component="div" variant="h5">
-                            {stats.totalMeetingCount || 0}
-                            <Typography
-                                component="span"
-                                sx={{ color: 'success.main', ml: 1 }}
-                                variant="body2"
-                            >
-                                (+{stats.recentMeetingCount || 0})
-                            </Typography>
+                            {conversionRate}%
                         </Typography>
                         <Typography color="textSecondary" variant="caption">
-                            {t('dashboard.totalMeetingsRecent', { ns: 'crm' })}
+                            {t('dashboard.conversionRateDesc', {
+                                ns: 'crm',
+                                defaultValue: 'Converted / Total'
+                            })}
+                            : {convertedLeads}/{totalLeads}
                         </Typography>
                     </Box>
                 </Grid>

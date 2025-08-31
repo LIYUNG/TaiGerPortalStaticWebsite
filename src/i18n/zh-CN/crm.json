@@ -106,7 +106,9 @@
         "noData": "暂无数据",
         "newLeads": "新增线索",
         "highChanceLeads": "高机会线索",
-        "convertedLeadsSeries": "已转化线索"
+        "convertedLeadsSeries": "已转化线索",
+        "conversionRate": "转化率",
+        "conversionRateDesc": "已转化 / 总数"
     },
     "meetings": {
         "meetingTitle": "会议标题",

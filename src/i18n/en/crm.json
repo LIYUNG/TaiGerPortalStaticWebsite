@@ -106,7 +106,9 @@
         "noData": "No data available",
         "newLeads": "New Leads",
         "highChanceLeads": "High Chance Leads",
-        "convertedLeadsSeries": "Converted Leads"
+        "convertedLeadsSeries": "Converted Leads",
+        "conversionRate": "Conversion Rate",
+        "conversionRateDesc": "Converted / Total"
     },
     "meetings": {
         "meetingTitle": "Meeting Title",
