@@ -92,7 +92,10 @@ const DealModal = ({
         dealSizeNtd: deal?.dealSizeNtd || '',
         status: deal?.status || 'initiated',
         note: deal?.note || '',
-        closedDate: formatDateForInput(deal?.closedDate) || ''
+        initiatedAt: formatDateForInput(deal?.initiatedAt) || '',
+        sentAt: formatDateForInput(deal?.sentAt) || '',
+        signedAt: formatDateForInput(deal?.signedAt) || '',
+        closedAt: formatDateForInput(deal?.closedAt) || ''
     });
     const [errors, setErrors] = useState({});
 
@@ -106,7 +109,10 @@ const DealModal = ({
                     dealSizeNtd: deal.dealSizeNtd || '',
                     status: deal.status || 'initiated',
                     note: deal.note || '',
-                    closedDate: formatDateForInput(deal.closedDate) || ''
+                    initiatedAt: formatDateForInput(deal.initiatedAt) || '',
+                    sentAt: formatDateForInput(deal.sentAt) || '',
+                    signedAt: formatDateForInput(deal.signedAt) || '',
+                    closedAt: formatDateForInput(deal.closedAt) || ''
                 });
             } else {
                 // Reset for create mode
@@ -129,7 +135,10 @@ const DealModal = ({
                 dealSizeNtd: deal.dealSizeNtd || '',
                 status: deal.status || 'initiated',
                 note: deal.note || '',
-                closedDate: formatDateForInput(deal.closedDate) || ''
+                initiatedAt: formatDateForInput(deal.initiatedAt) || '',
+                sentAt: formatDateForInput(deal.sentAt) || '',
+                signedAt: formatDateForInput(deal.signedAt) || '',
+                closedAt: formatDateForInput(deal.closedAt) || ''
             });
         } else {
             // Reset to create mode defaults
@@ -139,7 +148,10 @@ const DealModal = ({
                 dealSizeNtd: '',
                 status: 'initiated',
                 note: '',
-                closedDate: ''
+                initiatedAt: '',
+                sentAt: '',
+                signedAt: '',
+                closedAt: ''
             });
         }
         setErrors({});
@@ -149,7 +161,6 @@ const DealModal = ({
         resetForm();
         onClose?.();
     };
-
     const handleSave = async () => {
         const newErrors = {};
 
@@ -165,19 +176,21 @@ const DealModal = ({
 
         if (!form.dealSizeNtd || Number(form.dealSizeNtd) <= 0)
             newErrors.dealSizeNtd = t('deals.mustBePositive', { ns: 'crm' });
-        if (form.status === 'closed' && !form.closedDate)
+        if (form.status === 'closed' && !form.closedAt)
             newErrors.closedDate = t('deals.closedDateRequired', { ns: 'crm' });
 
         setErrors(newErrors);
         if (Object.keys(newErrors).length) return;
-
         const payload = {
             leadId: form.leadId,
             salesUserId: form.salesUserId,
             dealSizeNtd: Number(form.dealSizeNtd),
             status: form.status,
             note: form.note || undefined,
-            closedDate: form.status === 'closed' ? form.closedDate : undefined
+            initiatedAt: form.initiatedAt || undefined,
+            sentAt: form.sentAt || undefined,
+            signedAt: form.signedAt || undefined,
+            closedAt: form.status === 'closed' ? form.closedAt : undefined
         };
 
         try {
@@ -187,10 +200,11 @@ const DealModal = ({
                 await queryClient.invalidateQueries({
                     queryKey: ['crm/deals']
                 });
-                if (form.leadId)
+                if (form.leadId) {
                     await queryClient.invalidateQueries({
                         queryKey: ['crm/lead', form.leadId]
                     });
+                }
                 if (onUpdated) await onUpdated();
             } else {
                 // Create new deal
@@ -198,10 +212,11 @@ const DealModal = ({
                 await queryClient.invalidateQueries({
                     queryKey: ['crm/deals']
                 });
-                if (form.leadId)
+                if (form.leadId) {
                     await queryClient.invalidateQueries({
                         queryKey: ['crm/lead', form.leadId]
                     });
+                }
                 if (onCreated) await onCreated();
             }
             resetForm();
@@ -226,7 +241,7 @@ const DealModal = ({
             </DialogTitle>
             <DialogContent dividers>
                 <Stack spacing={2} sx={{ mt: 1 }}>
-                    {/* Lead Selection - Show as read-only text in edit mode, dropdown in create mode */}
+                    {/* Lead Selection - read-only in edit mode */}
                     {isEditMode ? (
                         <TextField
                             InputProps={{ readOnly: true }}
@@ -276,7 +291,7 @@ const DealModal = ({
                         </FormControl>
                     )}
 
-                    {/* Sales Representative Selection - Show as read-only text in edit mode, dropdown in create mode */}
+                    {/* Sales Representative Selection */}
                     {isEditMode ? (
                         <TextField
                             InputProps={{ readOnly: true }}
@@ -384,26 +399,81 @@ const DealModal = ({
                         value={form.note}
                     />
 
-                    <TextField
-                        InputLabelProps={{ shrink: true }}
-                        disabled={form.status !== 'closed'}
-                        error={Boolean(errors.closedDate)}
-                        fullWidth
-                        helperText={
-                            form.status === 'closed'
-                                ? errors.closedDate
-                                : undefined
-                        }
-                        label={t('deals.closedDate', { ns: 'crm' })}
-                        onChange={(e) =>
-                            setForm((f) => ({
-                                ...f,
-                                closedDate: e.target.value
-                            }))
-                        }
-                        type="date"
-                        value={form.closedDate}
-                    />
+                    {/* Dates */}
+                    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                        <TextField
+                            InputLabelProps={{ shrink: true }}
+                            fullWidth
+                            label={t('deals.initiatedAt', {
+                                ns: 'crm',
+                                defaultValue: 'Initiated at'
+                            })}
+                            onChange={(e) =>
+                                setForm((f) => ({
+                                    ...f,
+                                    initiatedAt: e.target.value
+                                }))
+                            }
+                            type="date"
+                            value={form.initiatedAt}
+                        />
+                        <TextField
+                            InputLabelProps={{ shrink: true }}
+                            fullWidth
+                            label={t('deals.sentAt', {
+                                ns: 'crm',
+                                defaultValue: 'Sent at'
+                            })}
+                            onChange={(e) =>
+                                setForm((f) => ({
+                                    ...f,
+                                    sentAt: e.target.value
+                                }))
+                            }
+                            type="date"
+                            value={form.sentAt}
+                        />
+                    </Stack>
+                    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                        <TextField
+                            InputLabelProps={{ shrink: true }}
+                            fullWidth
+                            label={t('deals.signedAt', {
+                                ns: 'crm',
+                                defaultValue: 'Signed at'
+                            })}
+                            onChange={(e) =>
+                                setForm((f) => ({
+                                    ...f,
+                                    signedAt: e.target.value
+                                }))
+                            }
+                            type="date"
+                            value={form.signedAt}
+                        />
+                        <TextField
+                            InputLabelProps={{ shrink: true }}
+                            error={Boolean(errors.closedDate)}
+                            fullWidth
+                            helperText={
+                                form.status === 'closed'
+                                    ? errors.closedDate
+                                    : undefined
+                            }
+                            label={t('deals.closedAt', {
+                                ns: 'crm',
+                                defaultValue: 'Closed at'
+                            })}
+                            onChange={(e) =>
+                                setForm((f) => ({
+                                    ...f,
+                                    closedAt: e.target.value
+                                }))
+                            }
+                            type="date"
+                            value={form.closedAt}
+                        />
+                    </Stack>
                 </Stack>
             </DialogContent>
             <DialogActions>
