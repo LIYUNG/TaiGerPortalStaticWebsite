@@ -124,7 +124,7 @@ const DealDashboard = () => {
         const row = statusMenu.row;
         const id = getDealId(row);
         // If moving to 'closed' and we don't have a closedDate, open modal to capture it
-        if (status === 'closed' && !row?.closedDate) {
+        if (status === 'closed' && !row?.closedAt) {
             setEditingDeal({ ...row, status: 'closed' });
             setOpen(true);
             closeStatusMenu();
@@ -139,10 +139,10 @@ const DealDashboard = () => {
     // Mutation to update deal status (adjust endpoint if needed)
     const queryClient = useQueryClient();
     const updateStatusMutation = useMutation({
-        mutationFn: async ({ id, status, closedDate }) => {
+        mutationFn: async ({ id, status, closedAt }) => {
             await updateCRMDeal(id, {
                 status,
-                ...(status === 'closed' && closedDate ? { closedDate } : {})
+                ...(status === 'closed' && closedAt ? { closedAt } : {})
             });
             return { ok: true };
         },
@@ -256,7 +256,7 @@ const DealDashboard = () => {
             )
         },
         {
-            accessorKey: 'closedDate',
+            accessorKey: 'closedAt',
             header: t('common.closedDate', { ns: 'crm' }),
             size: 140,
             Cell: ({ cell }) => (
@@ -350,17 +350,112 @@ const DealDashboard = () => {
                 data={allDeals}
                 initialState={{
                     density: 'compact',
-                    pagination: { pageSize: 15, pageIndex: 0 },
-                    sorting: [{ id: 'closedDate', desc: true }]
+                    pagination: { pageSize: 15, pageIndex: 0 }
                 }}
                 layoutMode="semantic"
-                muiTableBodyCellProps={{ sx: { px: 1 } }}
-                // No row click navigation; lead name is a link
+                muiTableBodyRowProps={({ row }) => ({
+                    hover: true,
+                    sx: { cursor: 'pointer' },
+                    onClick: (e) => {
+                        // Ignore clicks from interactive elements (links, buttons, chips)
+                        const el = e.target;
+                        if (
+                            el.closest &&
+                            el.closest(
+                                'a,button,[role="button"],.MuiChip-root,.MuiIconButton-root'
+                            )
+                        ) {
+                            return;
+                        }
+                        row.toggleExpanded();
+                    }
+                })}
                 muiTableHeadCellProps={{ sx: { px: 1 } }}
                 muiTablePaginationProps={{
                     rowsPerPageOptions: [10, 15, 25, 50, 100]
                 }}
+                renderDetailPanel={({ row }) => {
+                    const d = row.original || {};
+                    const items = [
+                        {
+                            key: 'initiatedAt',
+                            label: t('status.initiated', {
+                                ns: 'crm',
+                                defaultValue: 'initiated'
+                            }),
+                            color: getStatusColor('initiated')
+                        },
+                        {
+                            key: 'sentAt',
+                            label: t('status.sent', {
+                                ns: 'crm',
+                                defaultValue: 'sent'
+                            }),
+                            color: getStatusColor('sent')
+                        },
+                        {
+                            key: 'signedAt',
+                            label: t('status.signed', {
+                                ns: 'crm',
+                                defaultValue: 'signed'
+                            }),
+                            color: getStatusColor('signed')
+                        },
+                        {
+                            key: 'closedAt',
+                            label: t('status.closed', {
+                                ns: 'crm',
+                                defaultValue: 'closed'
+                            }),
+                            color: getStatusColor('closed')
+                        },
+                        {
+                            key: 'canceledAt',
+                            label: t('status.canceled', {
+                                ns: 'crm',
+                                defaultValue: 'canceled'
+                            }),
+                            color: getStatusColor('canceled')
+                        }
+                    ];
+                    return (
+                        <Box sx={{ p: 2 }}>
+                            <Stack spacing={1.25}>
+                                {items.map((it) => (
+                                    <Stack
+                                        key={it.key}
+                                        alignItems="center"
+                                        direction="row"
+                                        spacing={1}
+                                    >
+                                        <Chip
+                                            color={it.color}
+                                            icon={
+                                                <StatusIcon fontSize="small" />
+                                            }
+                                            label={it.label}
+                                            size="small"
+                                            variant="outlined"
+                                        />
+                                        <Typography variant="body2">
+                                            {d[it.key]
+                                                ? new Date(
+                                                      d[it.key]
+                                                  ).toLocaleString()
+                                                : t('common.na', {
+                                                      ns: 'crm'
+                                                  })}
+                                        </Typography>
+                                    </Stack>
+                                ))}
+                            </Stack>
+                        </Box>
+                    );
+                }}
                 state={{ isLoading }}
+                muiTableBodyCellProps={{ sx: { px: 1 } }}
+                // Expand/collapse row to show status timeline; lead name remains a link
+                enableExpanding
             />
 
             {/* Status selection menu */}
