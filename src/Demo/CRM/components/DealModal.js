@@ -107,6 +107,7 @@ const DealModal = ({
             await handleSubmitWithValues(value);
         }
     });
+
     const [errors, setErrors] = useState({});
     // Snapshot of initial values to compute diffs for update
     const initialRef = useRef(null);
@@ -240,50 +241,23 @@ const DealModal = ({
 
         try {
             if (isEditMode) {
-                // Update existing deal (only changed fields)
-                const buildUpdateDiff = () => {
-                    const diff = {};
-                    const initial = initialRef.current || {};
-                    const numericKeys = new Set(['dealSizeNtd']);
-                    const isDateKey = (k) => /At$/.test(k);
-                    for (const k of Object.keys(values)) {
-                        const currRaw = values[k];
-                        const prevRaw = initial[k];
-                        if (numericKeys.has(k)) {
-                            const curr =
-                                currRaw === '' ? '' : String(Number(currRaw));
-                            const prev =
-                                prevRaw === '' ? '' : String(Number(prevRaw));
-                            if (curr !== prev)
-                                diff[k] =
-                                    currRaw === '' ? null : Number(currRaw);
-                        } else if (isDateKey(k)) {
-                            const curr = currRaw == null ? '' : String(currRaw);
-                            const prev = prevRaw == null ? '' : String(prevRaw);
-                            if (curr !== prev)
-                                diff[k] =
-                                    currRaw === '' ? null : toIso(currRaw);
-                        } else {
-                            const curr = currRaw == null ? '' : String(currRaw);
-                            const prev = prevRaw == null ? '' : String(prevRaw);
-                            if (curr !== prev)
-                                diff[k] = currRaw === '' ? '' : currRaw;
-                        }
-                    }
-                    if (
-                        values.status === 'closed' &&
-                        diff.closedAt == null &&
-                        'closedAt' in values
-                    ) {
-                        diff.closedAt = toIso(values.closedAt);
-                    }
-                    return diff;
+                // Update existing deal: send full payload (no diff)
+                const isoOrNull = (v) =>
+                    v === '' || v == null ? null : (toIso(v) ?? null);
+                const payloadUpdate = {
+                    leadId: values.leadId,
+                    salesUserId: values.salesUserId,
+                    dealSizeNtd:
+                        values.dealSizeNtd === ''
+                            ? null
+                            : Number(values.dealSizeNtd),
+                    status: values.status,
+                    note: values.note ?? '',
+                    initiatedAt: isoOrNull(values.initiatedAt),
+                    sentAt: isoOrNull(values.sentAt),
+                    signedAt: isoOrNull(values.signedAt),
+                    closedAt: isoOrNull(values.closedAt)
                 };
-                const payloadUpdate = buildUpdateDiff();
-                if (Object.keys(payloadUpdate).length === 0) {
-                    onClose?.();
-                    return;
-                }
                 await updateCRMDeal(deal.id, payloadUpdate);
                 await queryClient.invalidateQueries({
                     queryKey: ['crm/deals']
