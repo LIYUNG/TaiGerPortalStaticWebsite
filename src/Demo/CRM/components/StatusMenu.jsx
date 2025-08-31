@@ -76,21 +76,19 @@ const StatusMenu = ({ anchorEl, currentStatus, onClose, onChoose }) => {
                 </MenuItem>
             ))}
 
+            {!isTerminal && <Divider />}
             {!isTerminal && (
-                <>
-                    <Divider />
-                    <MenuItem onClick={() => onChoose('canceled')}>
-                        <ListItemIcon>
-                            <CancelIcon color="error" fontSize="small" />
-                        </ListItemIcon>
-                        <ListItemText
-                            primary={t('actions.cancel', {
-                                ns: 'crm',
-                                defaultValue: 'Cancel'
-                            })}
-                        />
-                    </MenuItem>
-                </>
+                <MenuItem onClick={() => onChoose('canceled')}>
+                    <ListItemIcon>
+                        <CancelIcon color="error" fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText
+                        primary={t('actions.cancel', {
+                            ns: 'crm',
+                            defaultValue: 'Cancel'
+                        })}
+                    />
+                </MenuItem>
             )}
         </Menu>
     );
