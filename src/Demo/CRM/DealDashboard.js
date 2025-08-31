@@ -185,7 +185,10 @@ const DealDashboard = () => {
                                     color={getStatusColor(value)}
                                     disabled={isUpdating || terminal}
                                     icon={<StatusIcon fontSize="small" />}
-                                    label={value}
+                                    label={t(`deals.statusLabels.${value}`, {
+                                        ns: 'crm',
+                                        defaultValue: value
+                                    })}
                                     onClick={(e) => {
                                         if (terminal) return;
                                         e.stopPropagation();
@@ -490,7 +493,13 @@ const DealDashboard = () => {
                                         ns: 'crm',
                                         defaultValue: 'Current'
                                     })}
-                                    secondary={current}
+                                    secondary={t(
+                                        `deals.statusLabels.${current}`,
+                                        {
+                                            ns: 'crm',
+                                            defaultValue: current
+                                        }
+                                    )}
                                 />
                             </MenuItem>
                             {nextOptions.length > 0 && <Divider />}
@@ -502,7 +511,12 @@ const DealDashboard = () => {
                                     <ListItemIcon>
                                         <ArrowForwardIcon fontSize="small" />
                                     </ListItemIcon>
-                                    <ListItemText primary={s} />
+                                    <ListItemText
+                                        primary={t(`deals.statusLabels.${s}`, {
+                                            ns: 'crm',
+                                            defaultValue: s
+                                        })}
+                                    />
                                 </MenuItem>
                             ))}
                             {/* Cancel option available from any non-terminal status */}
