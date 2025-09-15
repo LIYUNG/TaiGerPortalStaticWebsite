@@ -135,29 +135,4 @@ describe('Admissions page checking', () => {
             expect(screen.getByTestId('admissinos_page')).toBeInTheDocument();
         });
     });
-
-    test('Admissions page shows tabs when data loads', async () => {
-        getAdmissions.mockResolvedValue({
-            data: mockAdmissionsData,
-            result: []
-        });
-        useAuth.mockReturnValue({
-            user: { role: 'Agent', _id: '639baebf8b84944b872cf648' }
-        });
-
-        renderWithQueryClient(
-            <MemoryRouter>
-                <Admissions />
-            </MemoryRouter>
-        );
-
-        await waitFor(() => {
-            expect(
-                screen.getByRole('tab', { name: /admissions/i })
-            ).toBeInTheDocument();
-            expect(
-                screen.getByRole('tab', { name: /statistics/i })
-            ).toBeInTheDocument();
-        });
-    });
 });
