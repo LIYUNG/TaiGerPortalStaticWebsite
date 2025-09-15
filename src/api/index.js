@@ -170,20 +170,23 @@ export const deleteFileV2 = ({ category, studentId }) =>
 
 export const uploadVPDforstudentV2 = ({
     studentId,
-    program_id,
+    applicationId,
     data,
     fileType
 }) =>
-    postData(`/api/students/${studentId}/vpd/${program_id}/${fileType}`, data);
+    postData(
+        `/api/students/${studentId}/vpd/${applicationId}/${fileType}`,
+        data
+    );
 
-export const deleteVPDFileV2 = ({ studentId, program_id, fileType }) =>
-    deleteData(`/api/students/${studentId}/vpd/${program_id}/${fileType}`);
+export const deleteVPDFileV2 = ({ studentId, applicationId, fileType }) =>
+    deleteData(`/api/students/${studentId}/vpd/${applicationId}/${fileType}`);
 
-export const SetAsNotNeededV2 = ({ studentId, program_id }) =>
-    putData(`/api/students/${studentId}/vpd/${program_id}/VPD`);
+export const SetAsNotNeededV2 = ({ studentId, applicationId }) =>
+    putData(`/api/students/${studentId}/vpd/${applicationId}/VPD`);
 
-export const SetUniAssistPaidV2 = ({ studentId, program_id, isPaid }) =>
-    postData(`/api/students/${studentId}/vpd/${program_id}/payments`, {
+export const SetUniAssistPaidV2 = ({ studentId, applicationId, isPaid }) =>
+    postData(`/api/students/${studentId}/vpd/${applicationId}/payments`, {
         isPaid
     });
 

@@ -186,29 +186,41 @@ export const UniAssistProgramBlock = ({ application, student }) => {
         setDeleteVPDFileWarningModelOpen(true);
     };
 
-    const handleUniAssistDocSubmit = (e, student_id, program_id) => {
+    const handleUniAssistDocSubmit = (e, student_id, application_id) => {
         e.preventDefault();
-        onSubmitVPDFileV2(e, e.target.files[0], student_id, program_id, 'VPD');
+        onSubmitVPDFileV2(
+            e,
+            e.target.files[0],
+            student_id,
+            application_id,
+            'VPD'
+        );
     };
 
     const handleSetAsNotNeededV2 = () => {
         mutateUpdate({
             studentId: student._id.toString(),
-            program_id: application.programId._id.toString()
+            applicationId: application._id.toString()
         });
     };
 
-    const onSubmitVPDFileV2 = (e, NewFile, studentId, program_id, fileType) => {
+    const onSubmitVPDFileV2 = (
+        e,
+        NewFile,
+        studentId,
+        applicationId,
+        fileType
+    ) => {
         e.preventDefault();
         const formData = new FormData();
         formData.append('file', NewFile);
-        mutateUpload({ studentId, program_id, data: formData, fileType });
+        mutateUpload({ studentId, applicationId, data: formData, fileType });
     };
 
     const handleUniAssistDocDeleteV2 = () => {
         mutateDelete({
             studentId: student._id.toString(),
-            program_id: application.programId._id.toString(),
+            applicationId: application._id.toString(),
             fileType: uniAssistProgramBlockState.fileType
         });
     };
@@ -216,20 +228,20 @@ export const UniAssistProgramBlock = ({ application, student }) => {
     const handleUniAssistVPDPaidConfirmationDocSubmit = (
         e,
         student_id,
-        program_id
+        application_id
     ) => {
         e.preventDefault();
         onSubmitVPDFileV2(
             e,
             e.target.files[0],
             student_id,
-            program_id,
+            application_id,
             'VPDConfirmation'
         );
     };
-    const onCheckHandlerV2 = (e, studentId, program_id, isPaid) => {
+    const onCheckHandlerV2 = (e, studentId, applicationId, isPaid) => {
         e.preventDefault();
-        mutateCheck({ studentId, program_id, isPaid });
+        mutateCheck({ studentId, applicationId, isPaid });
     };
 
     return (
@@ -268,7 +280,7 @@ export const UniAssistProgramBlock = ({ application, student }) => {
                                                 onCheckHandlerV2(
                                                     e,
                                                     student._id.toString(),
-                                                    applicationState.programId._id.toString(),
+                                                    applicationState._id.toString(),
                                                     !applicationState.uni_assist
                                                         .isPaid
                                                 )
@@ -339,7 +351,7 @@ export const UniAssistProgramBlock = ({ application, student }) => {
                                                     handleUniAssistDocSubmit(
                                                         e,
                                                         student._id.toString(),
-                                                        applicationState.programId._id.toString()
+                                                        applicationState._id.toString()
                                                     )
                                                 }
                                                 type="file"
@@ -349,7 +361,7 @@ export const UniAssistProgramBlock = ({ application, student }) => {
                                         <>
                                             <Button
                                                 component={Link}
-                                                href={`${BASE_URL}/api/students/${student._id.toString()}/vpd/${applicationState.programId._id.toString()}/VPD`}
+                                                href={`${BASE_URL}/api/students/${student._id.toString()}/vpd/${applicationState._id.toString()}/VPD`}
                                                 rel="noopener noreferrer"
                                                 size="small"
                                                 startIcon={<DownloadIcon />}
@@ -441,7 +453,7 @@ export const UniAssistProgramBlock = ({ application, student }) => {
                                                         handleUniAssistVPDPaidConfirmationDocSubmit(
                                                             e,
                                                             student._id.toString(),
-                                                            applicationState.programId._id.toString()
+                                                            applicationState._id.toString()
                                                         )
                                                     }
                                                     type="file"
@@ -453,7 +465,7 @@ export const UniAssistProgramBlock = ({ application, student }) => {
                                             <Button
                                                 color="primary"
                                                 component={Link}
-                                                href={`${BASE_URL}/api/students/${student._id.toString()}/vpd/${applicationState.programId._id.toString()}/VPDConfirmation`}
+                                                href={`${BASE_URL}/api/students/${student._id.toString()}/vpd/${applicationState._id.toString()}/VPDConfirmation`}
                                                 rel="noopener noreferrer"
                                                 size="small"
                                                 startIcon={<DownloadIcon />}
