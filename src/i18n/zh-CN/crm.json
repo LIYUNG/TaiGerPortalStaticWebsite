@@ -29,6 +29,7 @@
         "status": "状态",
         "lead": "线索",
         "sales": "销售",
+        "actions": "操作",
         "salesNote": "销售备注",
         "submittedAt": "提交时间",
         "closedDate": "结案日期",
@@ -105,7 +106,15 @@
         "noData": "暂无数据",
         "newLeads": "新增线索",
         "highChanceLeads": "高机会线索",
-        "convertedLeadsSeries": "已转化线索"
+        "convertedLeadsSeries": "已转化线索",
+        "conversionRate": "转化率",
+        "conversionRateDesc": "已转化 / 总数",
+        "avgResponseTime": "平均响应时间",
+        "avgResponseTimeDesc": "第一次接触与第一次会议之间的平均天数",
+        "avgSalesCycle": "平均销售周期",
+        "avgSalesCycleDesc": "从首次接触到客户转化的平均天数",
+        "followUpRate": "跟进率",
+        "followUpRateDesc": "总数 / 跟进数"
     },
     "meetings": {
         "meetingTitle": "会议标题",
@@ -119,6 +128,7 @@
     },
     "deals": {
         "createDeal": "创建订单",
+        "editDeal": "编辑订单",
         "dealSizeNtd": "订单金额 (NTD)",
         "placeholderDealSize": "例如 69999",
         "status": "状态",
@@ -134,7 +144,8 @@
             "initiated": "已发起",
             "sent": "已发送",
             "signed": "已签署",
-            "closed": "已结案"
+            "closed": "已结案",
+            "canceled": "已取消"
         }
     },
     "users": {

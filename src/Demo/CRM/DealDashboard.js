@@ -1,5 +1,5 @@
 import { Navigate, Link as RouterLink } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { MaterialReactTable } from 'material-react-table';
 import { useState } from 'react';
@@ -11,14 +11,22 @@ import {
     Typography,
     Chip,
     Stack,
-    Button
+    Button,
+    IconButton,
+    Tooltip
 } from '@mui/material';
 import {
     Schedule as ScheduleIcon,
     Person as PersonIcon,
-    FiberManualRecord as StatusIcon
+    FiberManualRecord as StatusIcon,
+    Edit as EditIcon
 } from '@mui/icons-material';
-
+import StatusMenu from './components/StatusMenu';
+import {
+    isTerminalStatus,
+    getDealId,
+    getStatusColor
+} from './components/statusUtils';
 import { is_TaiGer_role } from '@taiger-common/core';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '../../store/constant';
@@ -26,7 +34,24 @@ import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';
 
 import { getCRMDealsQuery } from '../../api/query';
-import CreateDealModal from './components/CreateDealModal';
+import { updateCRMDeal } from '../../api';
+import DealModal from './components/DealModal';
+
+// Simple currency formatter (defaults to TWD, no fraction digits)
+const currencyFormatter = (value, options = {}) => {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return value ?? '';
+    try {
+        return new Intl.NumberFormat(undefined, {
+            style: 'currency',
+            currency: 'TWD',
+            maximumFractionDigits: 0,
+            ...options
+        }).format(n);
+    } catch (e) {
+        return n.toLocaleString();
+    }
+};
 
 const DealDashboard = () => {
     const { t } = useTranslation();
@@ -34,18 +59,33 @@ const DealDashboard = () => {
         `${t('breadcrumbs.crm', { ns: 'crm' })} - ${t('breadcrumbs.deals', { ns: 'crm' })}`
     );
     const [open, setOpen] = useState(false);
-    // Create Deal modal state is now handled locally; form lives in modal
+    const [editingDeal, setEditingDeal] = useState(null);
+    const [statusMenu, setStatusMenu] = useState({ anchorEl: null, row: null });
 
     const { user } = useAuth();
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
-    const { data, isLoading } = useQuery(getCRMDealsQuery());
+    // prepare query so we can reuse its key for invalidation
+    const dealsQuery = getCRMDealsQuery();
+    const { data, isLoading } = useQuery(dealsQuery);
     const allDeals = data?.data?.data || [];
-    // salesOptions now handled inside modal
 
-    // Showing all deals; no tabs/filters
+    const handleCreateDeal = () => {
+        setEditingDeal(null);
+        setOpen(true);
+    };
+
+    const handleEditDeal = (deal) => {
+        setEditingDeal(deal);
+        setOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setOpen(false);
+        setEditingDeal(null);
+    };
 
     const getSalesColor = (salesName) => {
         const colors = {
@@ -55,44 +95,78 @@ const DealDashboard = () => {
         return colors[salesName] || 'default';
     };
 
-    const getStatusColor = (status) => {
-        const colors = {
-            open: 'info',
-            contacted: 'warning',
-            qualified: 'success',
-            converted: 'primary',
-            lost: 'error',
-            closed: 'default'
-        };
-        return colors[status] || 'default';
+    // status menu handlers
+    const openStatusMenu = (event, row) => {
+        if (isTerminalStatus(row?.status)) return; // don't open for closed/canceled
+        setStatusMenu({ anchorEl: event.currentTarget, row });
     };
+    const closeStatusMenu = () => setStatusMenu({ anchorEl: null, row: null });
+    // Note: status changes are handled in StatusMenu onChoose
 
-    const currencyFormatter = (value) => {
-        if (!value) return t('common.na', { ns: 'crm' });
-        const num = Number(value);
-        if (Number.isNaN(num)) return value;
-        return new Intl.NumberFormat('zh-TW', {
-            style: 'currency',
-            currency: 'TWD',
-            maximumFractionDigits: 0
-        }).format(num);
-    };
+    // Mutation to update deal status (adjust endpoint if needed)
+    const queryClient = useQueryClient();
+    const updateStatusMutation = useMutation({
+        mutationFn: async ({ id, status, closedAt }) => {
+            await updateCRMDeal(id, {
+                status,
+                ...(status === 'closed' && closedAt ? { closedAt } : {})
+            });
+            return { ok: true };
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: dealsQuery.queryKey });
+        }
+    });
 
     const columns = [
         {
             accessorKey: 'status',
             header: t('common.status', { ns: 'crm' }),
-            size: 100,
-            Cell: ({ cell }) => {
+            size: 140,
+            Cell: ({ row, cell }) => {
                 const value = cell.getValue();
+                const id = getDealId(row.original);
+                const isUpdating =
+                    updateStatusMutation.isPending &&
+                    updateStatusMutation.variables?.id === id;
+
+                const terminal = isTerminalStatus(value);
                 return (
-                    <Chip
-                        color={getStatusColor(value)}
-                        icon={<StatusIcon fontSize="small" />}
-                        label={value}
-                        size="small"
-                        variant="outlined"
-                    />
+                    <Stack alignItems="center" direction="row" spacing={0.5}>
+                        <Tooltip
+                            title={
+                                terminal
+                                    ? t('common.noNextStep', {
+                                          ns: 'crm',
+                                          defaultValue: 'No next step'
+                                      })
+                                    : t('actions.changeStatus', {
+                                          ns: 'crm',
+                                          defaultValue: 'Change status'
+                                      })
+                            }
+                        >
+                            <span>
+                                <Chip
+                                    clickable={!terminal}
+                                    color={getStatusColor(value)}
+                                    disabled={isUpdating || terminal}
+                                    icon={<StatusIcon fontSize="small" />}
+                                    label={t(`deals.statusLabels.${value}`, {
+                                        ns: 'crm',
+                                        defaultValue: value
+                                    })}
+                                    onClick={(e) => {
+                                        if (terminal) return;
+                                        e.stopPropagation();
+                                        openStatusMenu(e, row.original);
+                                    }}
+                                    size="small"
+                                    variant="outlined"
+                                />
+                            </span>
+                        </Tooltip>
+                    </Stack>
                 );
             }
         },
@@ -152,7 +226,7 @@ const DealDashboard = () => {
             )
         },
         {
-            accessorKey: 'closedDate',
+            accessorKey: 'closedAt',
             header: t('common.closedDate', { ns: 'crm' }),
             size: 140,
             Cell: ({ cell }) => (
@@ -183,6 +257,26 @@ const DealDashboard = () => {
                 <Typography noWrap sx={{ minWidth: 0 }} variant="body2">
                     {cell.getValue() || t('common.na', { ns: 'crm' })}
                 </Typography>
+            )
+        },
+        {
+            accessorKey: 'actions',
+            header: t('common.actions', { ns: 'crm' }),
+            size: 80,
+            enableSorting: false,
+            Cell: ({ row }) => (
+                <Tooltip title={t('actions.edit', { ns: 'crm' })}>
+                    <IconButton
+                        color="primary"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditDeal(row.original);
+                        }}
+                        size="small"
+                    >
+                        <EditIcon fontSize="small" />
+                    </IconButton>
+                </Tooltip>
             )
         }
     ];
@@ -216,7 +310,7 @@ const DealDashboard = () => {
                         {t('breadcrumbs.deals', { ns: 'crm' })}
                     </Typography>
                 </Breadcrumbs>
-                <Button onClick={() => setOpen(true)} variant="contained">
+                <Button onClick={handleCreateDeal} variant="contained">
                     {t('actions.createDeal', { ns: 'crm' })}
                 </Button>
             </Stack>
@@ -224,22 +318,185 @@ const DealDashboard = () => {
             <MaterialReactTable
                 columns={columns}
                 data={allDeals}
+                enableExpanding
                 initialState={{
                     density: 'compact',
-                    pagination: { pageSize: 15, pageIndex: 0 },
-                    sorting: [{ id: 'closedDate', desc: true }]
+                    pagination: { pageSize: 15, pageIndex: 0 }
                 }}
                 layoutMode="semantic"
                 muiTableBodyCellProps={{ sx: { px: 1 } }}
-                // No row click navigation; lead name is a link
+                muiTableBodyRowProps={({ row }) => ({
+                    hover: true,
+                    sx: { cursor: 'pointer' },
+                    onClick: (e) => {
+                        // Ignore clicks from interactive elements (links, buttons, chips)
+                        const el = e.target;
+                        if (
+                            el.closest &&
+                            el.closest(
+                                'a,button,[role="button"],.MuiChip-root,.MuiIconButton-root'
+                            )
+                        ) {
+                            return;
+                        }
+                        row.toggleExpanded();
+                    }
+                })}
                 muiTableHeadCellProps={{ sx: { px: 1 } }}
                 muiTablePaginationProps={{
                     rowsPerPageOptions: [10, 15, 25, 50, 100]
                 }}
+                renderDetailPanel={({ row }) => {
+                    const d = row.original || {};
+                    // Build timeline events for statuses that have dates
+                    const items = [
+                        { key: 'initiatedAt', status: 'initiated' },
+                        { key: 'sentAt', status: 'sent' },
+                        { key: 'signedAt', status: 'signed' },
+                        { key: 'closedAt', status: 'closed' },
+                        { key: 'canceledAt', status: 'canceled' }
+                    ];
+                    const events = items.filter((it) => Boolean(d[it.key]));
+                    if (events.length === 0) {
+                        return (
+                            <Box sx={{ p: 2 }}>
+                                <Typography
+                                    color="text.secondary"
+                                    variant="body2"
+                                >
+                                    {t('common.na', { ns: 'crm' })}
+                                </Typography>
+                            </Box>
+                        );
+                    }
+                    return (
+                        <Box sx={{ p: 1.5 }}>
+                            <Stack spacing={1.25}>
+                                {events.map((it, idx) => {
+                                    const colorKey = getStatusColor(it.status);
+                                    const date = new Date(d[it.key]);
+                                    const dateStr = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+                                    return (
+                                        <Stack
+                                            alignItems="flex-start"
+                                            direction="row"
+                                            key={it.key}
+                                            spacing={1.5}
+                                        >
+                                            {/* timeline rail + dot */}
+                                            <Box
+                                                sx={{
+                                                    width: 20,
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    alignItems: 'center'
+                                                }}
+                                            >
+                                                <Box
+                                                    sx={{
+                                                        width: 2,
+                                                        flex: 1,
+                                                        bgcolor: (theme) =>
+                                                            theme.palette
+                                                                .divider,
+                                                        visibility:
+                                                            idx === 0
+                                                                ? 'hidden'
+                                                                : 'visible'
+                                                    }}
+                                                />
+                                                <Box
+                                                    sx={{
+                                                        width: 12,
+                                                        height: 12,
+                                                        borderRadius: '50%',
+                                                        border: '2px solid #fff',
+                                                        boxShadow: 1,
+                                                        bgcolor: (theme) =>
+                                                            colorKey ===
+                                                            'default'
+                                                                ? theme.palette
+                                                                      .grey[500]
+                                                                : theme.palette[
+                                                                      colorKey
+                                                                  ].main
+                                                    }}
+                                                />
+                                                <Box
+                                                    sx={{
+                                                        width: 2,
+                                                        flex: 1,
+                                                        bgcolor: (theme) =>
+                                                            theme.palette
+                                                                .divider,
+                                                        visibility:
+                                                            idx ===
+                                                            events.length - 1
+                                                                ? 'hidden'
+                                                                : 'visible'
+                                                    }}
+                                                />
+                                            </Box>
+                                            {/* content */}
+                                            <Stack spacing={0.25}>
+                                                <Typography
+                                                    sx={{ fontWeight: 600 }}
+                                                    variant="body2"
+                                                >
+                                                    {dateStr}
+                                                </Typography>
+                                                <Typography
+                                                    sx={{
+                                                        color: (theme) =>
+                                                            colorKey ===
+                                                            'default'
+                                                                ? theme.palette
+                                                                      .text
+                                                                      .secondary
+                                                                : theme.palette[
+                                                                      colorKey
+                                                                  ].main
+                                                    }}
+                                                    variant="body2"
+                                                >
+                                                    {t(
+                                                        `deals.statusLabels.${it.status}`,
+                                                        {
+                                                            ns: 'crm',
+                                                            defaultValue:
+                                                                it.status
+                                                        }
+                                                    )}
+                                                </Typography>
+                                            </Stack>
+                                        </Stack>
+                                    );
+                                })}
+                            </Stack>
+                        </Box>
+                    );
+                }}
                 state={{ isLoading }}
             />
 
-            <CreateDealModal onClose={() => setOpen(false)} open={open} />
+            <StatusMenu
+                anchorEl={statusMenu.anchorEl}
+                currentStatus={statusMenu.row?.status}
+                onChoose={(s) => {
+                    const id = getDealId(statusMenu.row);
+                    updateStatusMutation.mutate(
+                        { id, status: s },
+                        { onSettled: () => closeStatusMenu() }
+                    );
+                }}
+                onClose={closeStatusMenu}
+            />
+
+            <DealModal
+                deal={editingDeal}
+                onClose={handleCloseModal}
+                open={open}
+            />
         </Box>
     );
 };
