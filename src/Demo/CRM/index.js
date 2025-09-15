@@ -120,11 +120,7 @@ const CRMDashboard = () => {
         if (p50 != null) parts.push(`p50 ${Number(p50).toFixed(2)}d`);
         if (p95 != null) parts.push(`p95 ${Number(p95).toFixed(2)}d`);
         return (
-            <Typography
-                color="text.secondary"
-                sx={{ display: 'block', mt: 0.25 }}
-                variant="caption"
-            >
+            <Typography color="textSecondary" variant="caption">
                 {parts.join(' \u2022 ')}
             </Typography>
         );
@@ -293,18 +289,13 @@ const CRMDashboard = () => {
                                 </IconButton>
                             </Tooltip>
                         </Box>
-                        <Typography
-                            component="div"
-                            sx={{ fontWeight: 600 }}
-                            variant="h6"
-                        >
+                        <Typography component="div" variant="h5">
                             {formatDays(stats.avgResponseTimeDays)}
                         </Typography>
                         {percentileLine(
                             stats.p50ResponseTimeDays,
                             stats.p95ResponseTimeDays
                         )}
-                        {/* description moved to tooltip */}
                     </Box>
                 </Grid>
                 {/* Follow-Up Rate Box */}
@@ -383,18 +374,13 @@ const CRMDashboard = () => {
                                 </IconButton>
                             </Tooltip>
                         </Box>
-                        <Typography
-                            component="div"
-                            sx={{ fontWeight: 600 }}
-                            variant="h6"
-                        >
+                        <Typography component="div" variant="h5">
                             {formatDays(stats.avgSalesCycleDays)}
                         </Typography>
                         {percentileLine(
                             stats.p50SalesCycleDays,
                             stats.p95SalesCycleDays
                         )}
-                        {/* description moved to tooltip */}
                     </Box>
                 </Grid>
             </Grid>
