@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { is_TaiGer_role } from '@taiger-common/core';
 import queryString from 'query-string';
 
-import AdmissionsTable from './AdmissionsTable';
+import AdmissionsTables from './AdmissionsTables';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '../../store/constant';
 import { appConfig } from '../../config';
@@ -22,7 +22,7 @@ const Admissions = () => {
     const [value, setValue] = useState(0);
     const { t } = useTranslation();
     const query = new URLSearchParams(window.location.search);
-    const decided = query.get('decided');
+    const decided = query.get('decided') || 'O';
     const closed = query.get('closed');
     const admission = query.get('admission');
     const { data, isLoading, isError, error } = useQuery(
@@ -37,7 +37,6 @@ const Admissions = () => {
     };
 
     const result = data?.result;
-    const admissions = data?.data || [];
 
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
@@ -86,7 +85,7 @@ const Admissions = () => {
                         </Tabs>
                     </Box>
                     <CustomTabPanel index={0} value={value}>
-                        <AdmissionsTable admissions={admissions} />
+                        <AdmissionsTables />
                     </CustomTabPanel>
                     <CustomTabPanel index={1} value={value}>
                         <AdmissionsStat result={result} />

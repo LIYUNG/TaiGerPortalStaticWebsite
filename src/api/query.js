@@ -1,5 +1,6 @@
 import {
     getAdmissions,
+    getAdmissionsOverview,
     verifyV2,
     getProgramsV2,
     getProgramTicketsV2,
@@ -198,6 +199,12 @@ export const getStudentsAndDocLinks2Query = (queryString) => ({
 export const getAdmissionsQuery = (queryString) => ({
     queryKey: ['admissions', queryString],
     queryFn: () => getAdmissions(queryString),
+    staleTime: 1000 * 60 * 5 // 5 minutes
+});
+
+export const getAdmissionsOverviewQuery = () => ({
+    queryKey: ['admissions'],
+    queryFn: () => getAdmissionsOverview(),
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
 
