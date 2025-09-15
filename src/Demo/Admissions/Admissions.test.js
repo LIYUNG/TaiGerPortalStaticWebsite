@@ -51,11 +51,33 @@ class ResizeObserver {
 
 describe('Admissions page checking', () => {
     window.ResizeObserver = ResizeObserver;
-    test('Admissions page not crash', async () => {
-        getAdmissions.mockResolvedValue({ data: mockAdmissionsData });
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    test('Admissions page renders without crashing', async () => {
+        getAdmissions.mockResolvedValue({
+            data: mockAdmissionsData,
+            result: [
+                {
+                    applicationCount: 10,
+                    admissionCount: 3,
+                    rejectionCount: 2,
+                    pendingResultCount: 5,
+                    id: '2532fde46751651537926662',
+                    school: 'ETH Zurich',
+                    program_name: 'Mechanical Engineering',
+                    semester: 'WS',
+                    degree: 'M. Sc.',
+                    lang: 'English'
+                }
+            ]
+        });
         useAuth.mockReturnValue({
             user: { role: 'Agent', _id: '639baebf8b84944b872cf648' }
         });
+
         renderWithQueryClient(
             <MemoryRouter>
                 <Admissions />
@@ -63,10 +85,79 @@ describe('Admissions page checking', () => {
         );
 
         await waitFor(() => {
-            // TODO
-            expect(screen.getByTestId('admissinos_page')).toHaveTextContent(
-                'Admissions'
-            );
+            expect(screen.getByTestId('admissinos_page')).toBeInTheDocument();
+        });
+    });
+
+    test('Admissions page shows loading state', () => {
+        getAdmissions.mockImplementation(() => new Promise(() => {})); // Never resolves
+        useAuth.mockReturnValue({
+            user: { role: 'Agent', _id: '639baebf8b84944b872cf648' }
+        });
+
+        renderWithQueryClient(
+            <MemoryRouter>
+                <Admissions />
+            </MemoryRouter>
+        );
+
+        expect(screen.getByTestId('admissinos_page')).toBeInTheDocument();
+    });
+
+    test('Admissions page redirects non-TaiGer users', () => {
+        useAuth.mockReturnValue({
+            user: { role: 'Student', _id: '639baebf8b84944b872cf648' }
+        });
+
+        renderWithQueryClient(
+            <MemoryRouter>
+                <Admissions />
+            </MemoryRouter>
+        );
+
+        // Should redirect, so the main content shouldn't be visible
+        expect(screen.queryByTestId('admissinos_page')).not.toBeInTheDocument();
+    });
+
+    test('Admissions page handles API error', async () => {
+        getAdmissions.mockRejectedValue(new Error('API Error'));
+        useAuth.mockReturnValue({
+            user: { role: 'Agent', _id: '639baebf8b84944b872cf648' }
+        });
+
+        renderWithQueryClient(
+            <MemoryRouter>
+                <Admissions />
+            </MemoryRouter>
+        );
+
+        await waitFor(() => {
+            expect(screen.getByTestId('admissinos_page')).toBeInTheDocument();
+        });
+    });
+
+    test('Admissions page shows tabs when data loads', async () => {
+        getAdmissions.mockResolvedValue({
+            data: mockAdmissionsData,
+            result: []
+        });
+        useAuth.mockReturnValue({
+            user: { role: 'Agent', _id: '639baebf8b84944b872cf648' }
+        });
+
+        renderWithQueryClient(
+            <MemoryRouter>
+                <Admissions />
+            </MemoryRouter>
+        );
+
+        await waitFor(() => {
+            expect(
+                screen.getByRole('tab', { name: /admissions/i })
+            ).toBeInTheDocument();
+            expect(
+                screen.getByRole('tab', { name: /statistics/i })
+            ).toBeInTheDocument();
         });
     });
 });
