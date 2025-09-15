@@ -717,10 +717,7 @@ const StudentOverviewTable = ({ students }) => {
             {
                 field: 'openofferreject',
                 headerName: t('open/offer/reject', { ns: 'common' }),
-                width: 100,
-                renderCell: (params) => {
-                    return <>{params.value}</>;
-                }
+                width: 100
             }
         ];
     }, [t]);
