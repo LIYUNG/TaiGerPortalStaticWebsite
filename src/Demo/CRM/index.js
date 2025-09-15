@@ -109,6 +109,24 @@ const CRMDashboard = () => {
         return Math.ceil(rate);
     });
 
+    const formatDays = (value) =>
+        value == null || isNaN(value) ? '-' : `${Number(value).toFixed(2)}d`;
+    const percentileLine = (p50, p95) => {
+        if (p50 == null && p95 == null) return null;
+        const parts = [];
+        if (p50 != null) parts.push(`p50 ${Number(p50).toFixed(2)}d`);
+        if (p95 != null) parts.push(`p95 ${Number(p95).toFixed(2)}d`);
+        return (
+            <Typography
+                color="text.secondary"
+                sx={{ display: 'block', mt: 0.25 }}
+                variant="caption"
+            >
+                {parts.join(' \u2022 ')}
+            </Typography>
+        );
+    };
+
     return (
         <>
             <Breadcrumbs aria-label="breadcrumb">
@@ -254,36 +272,12 @@ const CRMDashboard = () => {
                             sx={{ fontWeight: 600 }}
                             variant="h6"
                         >
-                            {stats.avgResponseTimeDays != null
-                                ? `${Number(stats.avgResponseTimeDays).toFixed(2)}d`
-                                : '-'}
-                            {stats.p50ResponseTimeDays != null && (
-                                <Typography
-                                    component="span"
-                                    sx={{ ml: 1 }}
-                                    variant="caption"
-                                >
-                                    p50:{' '}
-                                    {Number(stats.p50ResponseTimeDays).toFixed(
-                                        2
-                                    )}
-                                    d
-                                </Typography>
-                            )}
-                            {stats.p95ResponseTimeDays != null && (
-                                <Typography
-                                    component="span"
-                                    sx={{ ml: 1 }}
-                                    variant="caption"
-                                >
-                                    p95:{' '}
-                                    {Number(stats.p95ResponseTimeDays).toFixed(
-                                        2
-                                    )}
-                                    d
-                                </Typography>
-                            )}
+                            {formatDays(stats.avgResponseTimeDays)}
                         </Typography>
+                        {percentileLine(
+                            stats.p50ResponseTimeDays,
+                            stats.p95ResponseTimeDays
+                        )}
                         <Typography color="textSecondary" variant="caption">
                             {t('dashboard.avgResponseTimeDesc', {
                                 ns: 'crm',
@@ -351,32 +345,12 @@ const CRMDashboard = () => {
                             sx={{ fontWeight: 600 }}
                             variant="h6"
                         >
-                            {stats.avgSalesCycleDays != null
-                                ? `${Number(stats.avgSalesCycleDays).toFixed(2)}d`
-                                : '-'}
-                            {stats.p50SalesCycleDays != null && (
-                                <Typography
-                                    component="span"
-                                    sx={{ ml: 1 }}
-                                    variant="caption"
-                                >
-                                    p50:{' '}
-                                    {Number(stats.p50SalesCycleDays).toFixed(2)}
-                                    d
-                                </Typography>
-                            )}
-                            {stats.p95SalesCycleDays != null && (
-                                <Typography
-                                    component="span"
-                                    sx={{ ml: 1 }}
-                                    variant="caption"
-                                >
-                                    p95:{' '}
-                                    {Number(stats.p95SalesCycleDays).toFixed(2)}
-                                    d
-                                </Typography>
-                            )}
+                            {formatDays(stats.avgSalesCycleDays)}
                         </Typography>
+                        {percentileLine(
+                            stats.p50SalesCycleDays,
+                            stats.p95SalesCycleDays
+                        )}
                         <Typography color="textSecondary" variant="caption">
                             {t('dashboard.avgSalesCycleDesc', {
                                 ns: 'crm',
