@@ -248,7 +248,29 @@ const tranform = (stds) => {
             numb_uni_assist_vpd_needed,
             numb_uni_assist_vpd_uploaded,
             expected_application_year,
-            expected_application_semster
+            expected_application_semster,
+            openofferreject: `${
+                student.applications.filter(
+                    (application) =>
+                        isProgramSubmitted(application) &&
+                        isProgramDecided(application) &&
+                        application.admission === '-'
+                ).length
+            } | ${
+                student.applications.filter(
+                    (application) =>
+                        isProgramSubmitted(application) &&
+                        isProgramDecided(application) &&
+                        application.admission === 'O'
+                ).length
+            } | ${
+                student.applications.filter(
+                    (application) =>
+                        isProgramSubmitted(application) &&
+                        isProgramDecided(application) &&
+                        application.admission === 'X'
+                ).length
+            }`
         });
     }
 
@@ -697,37 +719,7 @@ const StudentOverviewTable = ({ students }) => {
                 headerName: t('open/offer/reject', { ns: 'common' }),
                 width: 100,
                 renderCell: (params) => {
-                    const { row } = params;
-                    return (
-                        <>
-                            {
-                                row.student.applications.filter(
-                                    (application) =>
-                                        isProgramSubmitted(application) &&
-                                        isProgramDecided(application) &&
-                                        application.admission === '-'
-                                ).length
-                            }
-                            /
-                            {
-                                row.student.applications.filter(
-                                    (application) =>
-                                        isProgramSubmitted(application) &&
-                                        isProgramDecided(application) &&
-                                        application.admission === 'O'
-                                ).length
-                            }
-                            /
-                            {
-                                row.student.applications.filter(
-                                    (application) =>
-                                        isProgramSubmitted(application) &&
-                                        isProgramDecided(application) &&
-                                        application.admission === 'X'
-                                ).length
-                            }
-                        </>
-                    );
+                    return <>{params.value}</>;
                 }
             }
         ];
