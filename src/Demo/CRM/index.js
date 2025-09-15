@@ -7,8 +7,11 @@ import {
     Grid,
     Box,
     Card,
-    CardContent
+    CardContent,
+    Tooltip,
+    IconButton
 } from '@mui/material';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { useTranslation } from 'react-i18next';
 
@@ -261,12 +264,35 @@ const CRMDashboard = () => {
                             boxShadow: 1
                         }}
                     >
-                        <Typography color="textSecondary" variant="body2">
-                            {t('dashboard.avgResponseTime', {
-                                ns: 'crm',
-                                defaultValue: 'Avg Response Time'
-                            })}
-                        </Typography>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 0.5
+                            }}
+                        >
+                            <Typography color="textSecondary" variant="body2">
+                                {t('dashboard.avgResponseTime', {
+                                    ns: 'crm',
+                                    defaultValue: 'Avg Response Time'
+                                })}
+                            </Typography>
+                            <Tooltip
+                                arrow
+                                title={t('dashboard.avgResponseTimeDesc', {
+                                    ns: 'crm',
+                                    defaultValue:
+                                        'Average days between first contact and first meeting'
+                                })}
+                            >
+                                <IconButton
+                                    size="small"
+                                    sx={{ p: 0, color: 'text.secondary' }}
+                                >
+                                    <InfoOutlinedIcon fontSize="inherit" />
+                                </IconButton>
+                            </Tooltip>
+                        </Box>
                         <Typography
                             component="div"
                             sx={{ fontWeight: 600 }}
@@ -278,13 +304,7 @@ const CRMDashboard = () => {
                             stats.p50ResponseTimeDays,
                             stats.p95ResponseTimeDays
                         )}
-                        <Typography color="textSecondary" variant="caption">
-                            {t('dashboard.avgResponseTimeDesc', {
-                                ns: 'crm',
-                                defaultValue:
-                                    'Average days between first contact and first meeting'
-                            })}
-                        </Typography>
+                        {/* description moved to tooltip */}
                     </Box>
                 </Grid>
                 {/* Follow-Up Rate Box */}
@@ -334,12 +354,35 @@ const CRMDashboard = () => {
                             boxShadow: 1
                         }}
                     >
-                        <Typography color="textSecondary" variant="body2">
-                            {t('dashboard.avgSalesCycle', {
-                                ns: 'crm',
-                                defaultValue: 'Avg Sales Cycle'
-                            })}
-                        </Typography>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 0.5
+                            }}
+                        >
+                            <Typography color="textSecondary" variant="body2">
+                                {t('dashboard.avgSalesCycle', {
+                                    ns: 'crm',
+                                    defaultValue: 'Avg Sales Cycle'
+                                })}
+                            </Typography>
+                            <Tooltip
+                                arrow
+                                title={t('dashboard.avgSalesCycleDesc', {
+                                    ns: 'crm',
+                                    defaultValue:
+                                        'Average days between first contact and conversion'
+                                })}
+                            >
+                                <IconButton
+                                    size="small"
+                                    sx={{ p: 0, color: 'text.secondary' }}
+                                >
+                                    <InfoOutlinedIcon fontSize="inherit" />
+                                </IconButton>
+                            </Tooltip>
+                        </Box>
                         <Typography
                             component="div"
                             sx={{ fontWeight: 600 }}
@@ -351,13 +394,7 @@ const CRMDashboard = () => {
                             stats.p50SalesCycleDays,
                             stats.p95SalesCycleDays
                         )}
-                        <Typography color="textSecondary" variant="caption">
-                            {t('dashboard.avgSalesCycleDesc', {
-                                ns: 'crm',
-                                defaultValue:
-                                    'Average days between first contact and conversion'
-                            })}
-                        </Typography>
+                        {/* description moved to tooltip */}
                     </Box>
                 </Grid>
             </Grid>
