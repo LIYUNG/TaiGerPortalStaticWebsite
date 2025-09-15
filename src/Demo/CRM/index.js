@@ -249,10 +249,40 @@ const CRMDashboard = () => {
                                 defaultValue: 'Avg Response Time'
                             })}
                         </Typography>
-                        <Typography component="div" variant="h5">
+                        <Typography
+                            component="div"
+                            sx={{ fontWeight: 600 }}
+                            variant="h6"
+                        >
                             {stats.avgResponseTimeDays != null
-                                ? `${Number(stats.avgResponseTimeDays).toFixed(2)} days`
+                                ? `${Number(stats.avgResponseTimeDays).toFixed(2)}d`
                                 : '-'}
+                            {stats.p50ResponseTimeDays != null && (
+                                <Typography
+                                    component="span"
+                                    sx={{ ml: 1 }}
+                                    variant="caption"
+                                >
+                                    p50:{' '}
+                                    {Number(stats.p50ResponseTimeDays).toFixed(
+                                        2
+                                    )}
+                                    d
+                                </Typography>
+                            )}
+                            {stats.p95ResponseTimeDays != null && (
+                                <Typography
+                                    component="span"
+                                    sx={{ ml: 1 }}
+                                    variant="caption"
+                                >
+                                    p95:{' '}
+                                    {Number(stats.p95ResponseTimeDays).toFixed(
+                                        2
+                                    )}
+                                    d
+                                </Typography>
+                            )}
                         </Typography>
                         <Typography color="textSecondary" variant="caption">
                             {t('dashboard.avgResponseTimeDesc', {
@@ -316,10 +346,36 @@ const CRMDashboard = () => {
                                 defaultValue: 'Avg Sales Cycle'
                             })}
                         </Typography>
-                        <Typography component="div" variant="h5">
+                        <Typography
+                            component="div"
+                            sx={{ fontWeight: 600 }}
+                            variant="h6"
+                        >
                             {stats.avgSalesCycleDays != null
-                                ? `${Number(stats.avgSalesCycleDays).toFixed(2)} days`
+                                ? `${Number(stats.avgSalesCycleDays).toFixed(2)}d`
                                 : '-'}
+                            {stats.p50SalesCycleDays != null && (
+                                <Typography
+                                    component="span"
+                                    sx={{ ml: 1 }}
+                                    variant="caption"
+                                >
+                                    p50:{' '}
+                                    {Number(stats.p50SalesCycleDays).toFixed(2)}
+                                    d
+                                </Typography>
+                            )}
+                            {stats.p95SalesCycleDays != null && (
+                                <Typography
+                                    component="span"
+                                    sx={{ ml: 1 }}
+                                    variant="caption"
+                                >
+                                    p95:{' '}
+                                    {Number(stats.p95SalesCycleDays).toFixed(2)}
+                                    d
+                                </Typography>
+                            )}
                         </Typography>
                         <Typography color="textSecondary" variant="caption">
                             {t('dashboard.avgSalesCycleDesc', {
