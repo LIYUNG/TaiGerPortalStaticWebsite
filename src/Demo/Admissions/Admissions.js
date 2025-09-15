@@ -4,6 +4,7 @@ import { Navigate } from 'react-router-dom';
 import { Box, Tab, Tabs } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { is_TaiGer_role } from '@taiger-common/core';
+import queryString from 'query-string';
 
 import AdmissionsTable from './AdmissionsTable';
 import { TabTitle } from '../Utils/TabTitle';
@@ -20,8 +21,18 @@ const Admissions = () => {
     const { user } = useAuth();
     const [value, setValue] = useState(0);
     const { t } = useTranslation();
-    const { data, isLoading, isError, error } = useQuery(getAdmissionsQuery());
+    const query = new URLSearchParams(window.location.search);
+    const decided = query.get('decided');
+    const closed = query.get('closed');
+    const admission = query.get('admission');
+    const { data, isLoading, isError, error } = useQuery(
+        getAdmissionsQuery(
+            queryString.stringify({ decided, closed, admission })
+        )
+    );
+
     const handleChange = (event, newValue) => {
+        // navigate(`${window.location.pathname}?${query.toString()}`);
         setValue(newValue);
     };
 

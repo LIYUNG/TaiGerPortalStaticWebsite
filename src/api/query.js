@@ -195,9 +195,9 @@ export const getStudentsAndDocLinks2Query = (queryString) => ({
     staleTime: 1000 * 60 * 1 // 1 minutes
 });
 
-export const getAdmissionsQuery = () => ({
-    queryKey: ['admissions'],
-    queryFn: getAdmissions,
+export const getAdmissionsQuery = (queryString) => ({
+    queryKey: ['admissions', queryString],
+    queryFn: () => getAdmissions(queryString),
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
 
