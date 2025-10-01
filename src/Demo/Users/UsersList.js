@@ -1,21 +1,12 @@
 import React, { useState } from 'react';
-import {
-    Link,
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableRow
-} from '@mui/material';
+import { Link } from '@mui/material';
 import { Link as LinkDom } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-import User from './User';
 import UsersListSubpage from './UsersListSubpage';
 import UserDeleteWarning from './UserDeleteWarning';
-import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { deleteUser, changeUserRole, updateArchivUser } from '../../api';
-import { convertDate, getDate, UserlistHeader } from '../../utils/contants';
+import { convertDate, getDate } from '../../utils/contants';
 import UserArchivWarning from './UserArchivWarning';
 import { getUsersQuery } from '../../api/query';
 import { useQuery } from '@tanstack/react-query';
@@ -26,12 +17,13 @@ import {
     useMaterialReactTable
 } from 'material-react-table';
 import DEMO from '../../store/constant';
+import { TopToolbar } from '../../components/table/users-table/TopToolbar';
 
 const UsersList = (props) => {
     const { t } = useTranslation();
     const {
         data: usersList,
-        isSuccess,
+        // isSuccess,
         isLoading
     } = useQuery(getUsersQuery(props.queryString));
     const customTableStyles = useTableStyles();
@@ -107,6 +99,26 @@ const UsersList = (props) => {
             size: 100
         },
         {
+            accessorKey: 'isAccountActivated',
+            header: t('Activated', { ns: 'common' }),
+            size: 100,
+            Cell: (params) => {
+                return params.row.original.isAccountActivated
+                    ? t('Yes', { ns: 'common' })
+                    : t('No', { ns: 'common' });
+            }
+        },
+        {
+            accessorKey: 'archiv',
+            header: t('Archived', { ns: 'common' }),
+            size: 100,
+            Cell: (params) => {
+                return params.row.original.archiv
+                    ? t('Yes', { ns: 'common' })
+                    : t('No', { ns: 'common' });
+            }
+        },
+        {
             accessorKey: 'createdAt',
             header: t('Created At', { ns: 'common' }),
             size: 100,
@@ -177,6 +189,7 @@ const UsersList = (props) => {
             selected_user_id: user_id
         }));
     };
+
     const setModalArchiv = (user_firstname, user_lastname, user_id, archiv) => {
         setUsersListState((prevState) => ({
             ...prevState,
@@ -187,6 +200,18 @@ const UsersList = (props) => {
             archiv
         }));
     };
+
+    table.options.renderTopToolbar = (
+        <TopToolbar
+            onAddClick={props.openAddUserModal}
+            onArchiveClick={setModalArchiv}
+            onDeleteClick={setModalShowDelete}
+            onEditClick={setModalShow}
+            table={table}
+            toolbarStyle={customTableStyles.toolbarStyle}
+        />
+    );
+
     const handleChange2 = (e) => {
         const { value } = e.target;
         setUsersListState((prevState) => ({
@@ -339,52 +364,9 @@ const UsersList = (props) => {
         );
     };
 
-    const ConfirmError = () => {
-        setUsersListState((prevState) => ({
-            ...prevState,
-            res_modal_status: 0,
-            res_modal_message: ''
-        }));
-    };
-
-    const { res_modal_message, res_modal_status } = usersListState;
-
-    const headers = (
-        <TableRow>
-            <TableCell> </TableCell>
-            {UserlistHeader.map((x, i) => (
-                <TableCell key={i}>{t(`${x.name}`)}</TableCell>
-            ))}
-            <TableCell>{t('Created At')}</TableCell>
-            <TableCell>{t('Last Login', { ns: 'auth' })}</TableCell>
-        </TableRow>
-    );
-
-    const users = usersList?.map((user) => (
-        <User
-            key={user._id}
-            setModalArchiv={setModalArchiv}
-            setModalShow={setModalShow}
-            setModalShowDelete={setModalShowDelete}
-            success={isSuccess}
-            user={user}
-        />
-    ));
-
     return (
         <>
-            {res_modal_status >= 400 ? (
-                <ModalMain
-                    ConfirmError={ConfirmError}
-                    res_modal_message={res_modal_message}
-                    res_modal_status={res_modal_status}
-                />
-            ) : null}
             <MaterialReactTable table={table} />
-            <Table size="small">
-                <TableHead>{headers}</TableHead>
-                <TableBody>{users}</TableBody>
-            </Table>
 
             <UsersListSubpage
                 firstname={usersListState.firstname}

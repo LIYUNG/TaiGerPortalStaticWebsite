@@ -1,16 +1,7 @@
 import React, { useState } from 'react';
 import { Navigate, Link as LinkDom } from 'react-router-dom';
-import {
-    Button,
-    Tabs,
-    Tab,
-    Box,
-    Link,
-    Typography,
-    Breadcrumbs
-} from '@mui/material';
+import { Tabs, Tab, Box, Link, Typography, Breadcrumbs } from '@mui/material';
 import PropTypes from 'prop-types';
-import AddIcon from '@mui/icons-material/Add';
 import { useTranslation } from 'react-i18next';
 import queryString from 'query-string';
 
@@ -119,16 +110,6 @@ const UsersTable = () => {
                     {t('User List', { ns: 'common' })}
                 </Typography>
             </Breadcrumbs>
-            <Button
-                color="primary"
-                fullWidth
-                onClick={openAddUserModal}
-                size="small"
-                startIcon={<AddIcon />}
-                variant="contained"
-            >
-                {t('Add New User')}
-            </Button>
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                 <Tabs
                     aria-label="basic tabs example"
@@ -170,39 +151,34 @@ const UsersTable = () => {
             </Box>
             <CustomTabPanel index={0} value={value}>
                 <UsersList
+                    openAddUserModal={openAddUserModal}
                     queryString={queryString.stringify({ role: 'Student' })}
                 />
             </CustomTabPanel>
             <CustomTabPanel index={1} value={value}>
                 <UsersList
+                    openAddUserModal={openAddUserModal}
                     queryString={queryString.stringify({ role: 'Agent' })}
                 />
             </CustomTabPanel>
             <CustomTabPanel index={2} value={value}>
                 <UsersList
+                    openAddUserModal={openAddUserModal}
                     queryString={queryString.stringify({ role: 'Editor' })}
                 />
             </CustomTabPanel>
             <CustomTabPanel index={3} value={value}>
                 <UsersList
+                    openAddUserModal={openAddUserModal}
                     queryString={queryString.stringify({ role: 'External' })}
                 />
             </CustomTabPanel>
             <CustomTabPanel index={4} value={value}>
                 <UsersList
+                    openAddUserModal={openAddUserModal}
                     queryString={queryString.stringify({ role: 'Admin' })}
                 />
             </CustomTabPanel>
-            <Button
-                color="primary"
-                fullWidth
-                onClick={openAddUserModal}
-                size="small"
-                startIcon={<AddIcon />}
-                variant="contained"
-            >
-                {t('Add New User')}
-            </Button>
             <AddUserModal
                 AddUserSubmit={AddUserSubmit}
                 addUserModalState={userTableState.addUserModalState}

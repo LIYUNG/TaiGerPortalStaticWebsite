@@ -1,17 +1,16 @@
-import { Box, IconButton, Tooltip } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-
 export const getTableConfig = (customTableStyles, isLoading) => ({
     enableFilters: true,
     enableColumnFilters: true,
-    enableEditing: true,
     enableColumnFilterModes: true,
     enableColumnPinning: true,
     enableColumnResizing: true,
+    enableRowSelection: true,
+    enableMultiRowSelection: true,
     initialState: {
         showColumnFilters: true,
         showGlobalFilter: true,
         density: 'compact',
+        columnVisibility: { programSubjects: false, tags: false },
         columnPinning: {
             left: ['mrt-row-expand', 'mrt-row-select'],
             right: ['mrt-row-actions']
@@ -45,14 +44,5 @@ export const getTableConfig = (customTableStyles, isLoading) => ({
     },
     muiToolbarAlertBannerProps: isLoading
         ? { color: 'info', children: 'Loading data ...' }
-        : undefined,
-    renderRowActions: ({ row, table }) => (
-        <Box sx={{ display: 'flex', gap: '1rem' }}>
-            <Tooltip title="Edit">
-                <IconButton onClick={() => table.setEditingRow(row)}>
-                    <EditIcon />
-                </IconButton>
-            </Tooltip>
-        </Box>
-    )
+        : undefined
 });
