@@ -6,7 +6,6 @@ import 'react-i18next';
 import { getUsers } from '../../api';
 import { useAuth } from '../../components/AuthProvider';
 import { MemoryRouter } from 'react-router-dom';
-
 import { testingUsersData } from '../../test/testingUsersData';
 
 jest.mock('axios');
@@ -23,6 +22,28 @@ jest.mock('react-i18next', () => ({
 }));
 
 jest.mock('../../components/AuthProvider');
+jest.mock('@tanstack/react-query', () => ({
+    QueryClient: jest.fn().mockImplementation(() => ({
+        getQueryData: jest.fn(),
+        setQueryData: jest.fn(),
+        invalidateQueries: jest.fn(),
+        clear: jest.fn()
+    })),
+    useQuery: () => ({
+        data: [],
+        isLoading: false,
+        isError: false
+    }),
+    useMutation: () => ({ mutate: () => {} })
+}));
+
+jest.mock('../../contexts/use-snack-bar', () => ({
+    useSnackBar: () => ({
+        setMessage: () => {},
+        setSeverity: () => {},
+        setOpenSnackbar: () => {}
+    })
+}));
 
 class ResizeObserver {
     observe() {}
@@ -33,7 +54,8 @@ class ResizeObserver {
 describe('Users Table page checking', () => {
     window.ResizeObserver = ResizeObserver;
     test('Users Table page not crash', async () => {
-        getUsers.mockResolvedValue({ data: testingUsersData });
+        getUsers.mockResolvedValue({ data: testingUsersData.data });
+
         useAuth.mockReturnValue({
             user: { role: 'Admin', _id: '639baebf8b84944b872cf648' }
         });
@@ -53,7 +75,8 @@ describe('Users Table page checking', () => {
     });
 
     test('Users Table page switching tab not crash', async () => {
-        getUsers.mockResolvedValue({ data: testingUsersData });
+        getUsers.mockResolvedValue({ data: testingUsersData.data });
+
         useAuth.mockReturnValue({
             user: { role: 'Admin', _id: '639baebf8b84944b872cf648' }
         });

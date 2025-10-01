@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Navigate, Link as LinkDom } from 'react-router-dom';
 import {
     Button,
@@ -17,9 +17,8 @@ import queryString from 'query-string';
 import UsersList from './UsersList';
 import AddUserModal from './AddUserModal';
 import ErrorPage from '../Utils/ErrorPage';
-import ModalMain from '../Utils/ModalHandler/ModalMain';
 import DEMO from '../../store/constant';
-import { getUsers, addUser } from '../../api';
+import { addUser } from '../../api';
 import { TabTitle } from '../Utils/TabTitle';
 import {
     is_TaiGer_Admin,
@@ -33,6 +32,10 @@ import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';
 import Loading from '../../components/Loading/Loading';
 import { CustomTabPanel, a11yProps } from '../../components/Tabs';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { queryClient } from '../../api/client';
+import { useSnackBar } from '../../contexts/use-snack-bar';
+import { getUsersQuery } from '../../api/query';
 
 CustomTabPanel.propTypes = {
     children: PropTypes.node,
@@ -43,6 +46,7 @@ CustomTabPanel.propTypes = {
 const UsersTable = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
+    const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
     const [userTableState, setUserTableState] = useState({
         error: null,
         addUserModalState: false,
@@ -58,30 +62,38 @@ const UsersTable = () => {
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
-    useEffect(() => {
-        getUsers(queryString.stringify({})).then(
-            (resp) => {
-                const { data, success } = resp.data;
-                const { status } = resp;
-                if (success) {
-                    setUserTableState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        users: data,
-                        success,
-                        res_status: status
-                    }));
-                } else {
-                    setUserTableState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        res_status: status
-                    }));
-                }
-            },
-            (error) => setUserTableState({ isLoaded: true, error })
-        );
-    }, []);
+
+    const {
+        data: users,
+        isLoading,
+        isError
+    } = useQuery(getUsersQuery(queryString.stringify({})));
+
+    const { mutate: addUserMutation, isPending: isAddingUser } = useMutation({
+        mutationFn: (user_information) => addUser(user_information),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['users'] });
+            setUserTableState((prevState) => ({
+                ...prevState,
+                addUserModalState: false
+            }));
+            setMessage(t('User added successfully'));
+            setSeverity('success');
+            setOpenSnackbar(true);
+        },
+        onError: (error) => {
+            setMessage(error.message);
+            setSeverity('error');
+            setOpenSnackbar(true);
+        }
+    });
+
+    if (isLoading) {
+        return <Loading />;
+    }
+    if (isError) {
+        return <ErrorPage res_status={400} />;
+    }
 
     const openAddUserModal = () => {
         setUserTableState((prevState) => ({
@@ -97,87 +109,27 @@ const UsersTable = () => {
     };
 
     const AddUserSubmit = (e, user_information) => {
-        e.preventDefault();
-        setUserTableState((prevState) => ({
-            ...prevState,
-            isLoaded: false
-        }));
-        // Remove email space
-        user_information.email = user_information.email.trim();
-        addUser(user_information).then(
-            (resp) => {
-                const { data, success } = resp.data;
-                const { status } = resp;
-                if (success) {
-                    setUserTableState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        users: data,
-                        success,
-                        addUserModalState: false,
-                        res_modal_status: status
-                    }));
-                } else {
-                    const { message } = resp.data;
-                    setUserTableState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        addUserModalState: false,
-                        res_modal_message: message,
-                        res_modal_status: status
-                    }));
-                }
-            },
-            (error) => setUserTableState({ isLoaded: true, error })
-        );
-    };
-
-    const ConfirmError = () => {
-        setUserTableState((prevState) => ({
-            ...prevState,
-            res_modal_status: 0,
-            res_modal_message: ''
-        }));
+        addUserMutation(user_information);
     };
 
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
     TabTitle(t('User List', { ns: 'common' }));
-    const { res_modal_message, res_modal_status, res_status, isLoaded } =
-        userTableState;
+    const { res_status } = userTableState;
 
-    if (!isLoaded && !userTableState.users) {
-        return <Loading />;
-    }
     if (res_status >= 400) {
         return <ErrorPage res_status={res_status} />;
     }
-    const student_list = userTableState.users.filter((usr) =>
-        is_TaiGer_Student(usr)
-    );
-    const agent_list = userTableState.users.filter((usr) =>
-        is_TaiGer_Agent(usr)
-    );
-    const editor_list = userTableState.users.filter((usr) =>
-        is_TaiGer_Editor(usr)
-    );
-    const external_list = userTableState.users.filter((usr) =>
-        is_TaiGer_External(usr)
-    );
-    const admin_list = userTableState.users.filter((usr) =>
-        is_TaiGer_Admin(usr)
-    );
+
+    const student_list = users.filter((usr) => is_TaiGer_Student(usr));
+    const agent_list = users.filter((usr) => is_TaiGer_Agent(usr));
+    const editor_list = users.filter((usr) => is_TaiGer_Editor(usr));
+    const external_list = users.filter((usr) => is_TaiGer_External(usr));
+    const admin_list = users.filter((usr) => is_TaiGer_Admin(usr));
 
     return (
         <Box data-testid="users_table_page">
-            {res_modal_status >= 400 ? (
-                <ModalMain
-                    ConfirmError={ConfirmError}
-                    res_modal_message={res_modal_message}
-                    res_modal_status={res_modal_status}
-                />
-            ) : null}
             <Breadcrumbs aria-label="breadcrumb">
                 <Link
                     color="inherit"
@@ -242,36 +194,36 @@ const UsersTable = () => {
             </Box>
             <CustomTabPanel index={0} value={value}>
                 <UsersList
-                    isLoaded={userTableState.isLoaded}
-                    success={userTableState.success}
+                    isLoaded={isLoading}
+                    success={!isError}
                     users={student_list}
                 />
             </CustomTabPanel>
             <CustomTabPanel index={1} value={value}>
                 <UsersList
-                    isLoaded={userTableState.isLoaded}
-                    success={userTableState.success}
+                    isLoaded={isLoading}
+                    success={!isError}
                     users={agent_list}
                 />
             </CustomTabPanel>
             <CustomTabPanel index={2} value={value}>
                 <UsersList
-                    isLoaded={userTableState.isLoaded}
-                    success={userTableState.success}
+                    isLoaded={isLoading}
+                    success={!isError}
                     users={editor_list}
                 />
             </CustomTabPanel>
             <CustomTabPanel index={3} value={value}>
                 <UsersList
-                    isLoaded={userTableState.isLoaded}
-                    success={userTableState.success}
+                    isLoaded={isLoading}
+                    success={!isError}
                     users={external_list}
                 />
             </CustomTabPanel>
             <CustomTabPanel index={4} value={value}>
                 <UsersList
-                    isLoaded={userTableState.isLoaded}
-                    success={userTableState.success}
+                    isLoaded={isLoading}
+                    success={!isError}
                     users={admin_list}
                 />
             </CustomTabPanel>
@@ -289,9 +241,7 @@ const UsersTable = () => {
                 AddUserSubmit={AddUserSubmit}
                 addUserModalState={userTableState.addUserModalState}
                 cloaseAddUserModal={cloaseAddUserModal}
-                firstname={userTableState.firstname}
-                isLoaded={userTableState.isLoaded}
-                lastname={userTableState.lastname}
+                isloading={isAddingUser}
                 selected_user_id={userTableState.selected_user_id}
             />
         </Box>

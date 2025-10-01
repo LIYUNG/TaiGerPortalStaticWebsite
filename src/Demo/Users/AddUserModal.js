@@ -132,16 +132,16 @@ const AddUserModal = (props) => {
                         !addUserModal.user_information.firstname ||
                         !addUserModal.user_information.lastname ||
                         !addUserModal.user_information.email ||
-                        !props.isLoaded
+                        props.isloading
                     }
                     onClick={(e) =>
                         AddUserSubmit(e, addUserModal.user_information)
                     }
                     variant="contained"
                 >
-                    {props.isLoaded
-                        ? i18next.t('add-user')
-                        : i18next.t('Loading')}
+                    {props.isloading
+                        ? i18next.t('Loading')
+                        : i18next.t('add-user')}
                 </Button>
                 <Button
                     color="secondary"
