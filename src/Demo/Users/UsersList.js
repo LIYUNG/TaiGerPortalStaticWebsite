@@ -162,6 +162,33 @@ const UsersList = (props) => {
             setOpenSnackbar(true);
         }
     });
+    const { mutate: deleteUserMutation, isPending: isDeletingUser } =
+        useMutation({
+            mutationFn: deleteUser,
+            onError: (error) => {
+                setSeverity('error');
+                setMessage(
+                    error.message || 'An error occurred. Please try again.'
+                );
+                setOpenSnackbar(true);
+            },
+            onSuccess: () => {
+                setSeverity('success');
+                setMessage('Delete user successfully!');
+                queryClient.invalidateQueries({
+                    queryKey: ['users', props.queryString]
+                });
+                queryClient.invalidateQueries({
+                    queryKey: ['users/count']
+                });
+                setOpenSnackbar(true);
+                setUsersListState((prevState) => ({
+                    ...prevState,
+                    deleteUserWarning: false,
+                    delete_field: ''
+                }));
+            }
+        });
 
     const table = useMaterialReactTable({
         ...tableConfig,
@@ -248,53 +275,7 @@ const UsersList = (props) => {
     };
 
     const handleDeleteUser = (user_id) => {
-        // TODO: also delete files in file system
-        setUsersListState((prevState) => ({
-            ...prevState,
-            isLoaded: false
-        }));
-
-        deleteUser(user_id).then(
-            (resp) => {
-                const { success } = resp.data;
-                const { status } = resp;
-                if (success) {
-                    var array = [...usersListState.data];
-                    let idx = usersListState.data.findIndex(
-                        (user) => user._id === user_id
-                    );
-                    if (idx !== -1) {
-                        array.splice(idx, 1);
-                    }
-                    setUsersListState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        success,
-                        delete_field: '',
-                        deleteUserWarning: false,
-                        data: array,
-                        res_modal_status: status
-                    }));
-                } else {
-                    const { message } = resp.data;
-                    setUsersListState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        res_modal_message: message,
-                        res_modal_status: status
-                    }));
-                }
-            },
-            (error) => {
-                setUsersListState((prevState) => ({
-                    ...prevState,
-                    isLoaded: true,
-                    error,
-                    res_modal_status: 500,
-                    res_modal_message: ''
-                }));
-            }
-        );
+        deleteUserMutation({ id: user_id });
     };
 
     const onChangeDeleteField = (e) => {
@@ -370,7 +351,7 @@ const UsersList = (props) => {
                 delete_field={usersListState.delete_field}
                 firstname={usersListState.firstname}
                 handleDeleteUser={handleDeleteUser}
-                isLoaded={usersListState.isLoaded}
+                isDeletingUser={isDeletingUser}
                 lastname={usersListState.lastname}
                 onChangeDeleteField={onChangeDeleteField}
                 selected_user_id={usersListState.selected_user_id}

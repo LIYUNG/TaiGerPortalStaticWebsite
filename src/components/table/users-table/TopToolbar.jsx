@@ -21,7 +21,13 @@ export const TopToolbar = ({
                 <Button
                     color="error"
                     disabled={selectedRows?.length !== 1}
-                    onClick={onDeleteClick}
+                    onClick={() =>
+                        onDeleteClick(
+                            selectedRow.firstname,
+                            selectedRow.lastname,
+                            selectedRow._id
+                        )
+                    }
                     startIcon={<DeleteIcon />}
                     variant="contained"
                 >

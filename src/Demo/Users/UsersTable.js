@@ -53,6 +53,7 @@ const UsersTable = () => {
         mutationFn: (user_information) => addUser(user_information),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['users'] });
+            queryClient.invalidateQueries({ queryKey: ['users/count'] });
             setUserTableState((prevState) => ({
                 ...prevState,
                 addUserModalState: false
