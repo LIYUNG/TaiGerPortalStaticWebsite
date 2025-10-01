@@ -2202,37 +2202,6 @@ export const templatelist = [
     }
 ];
 
-export const UserlistHeader = [
-    {
-        name: 'First Name',
-        prop: 'firstname'
-    },
-    {
-        name: 'Last Name',
-        prop: 'lastname'
-    },
-    {
-        name: 'Birthday',
-        prop: 'birthday'
-    },
-    {
-        name: 'Email Address',
-        prop: 'email'
-    },
-    {
-        name: 'Activated',
-        prop: 'isAccountActivated'
-    },
-    {
-        name: 'Archived',
-        prop: 'archiv'
-    },
-    {
-        name: 'User Type',
-        prop: 'role'
-    }
-];
-
 export const PROGRAM_SUBJECT_CATEGORIES = {
     SSM: {
         categoryName: 'Social Sciences & Management',

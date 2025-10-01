@@ -46,17 +46,18 @@ const UserDeleteWarning = (props) => {
                 <Button
                     color="primary"
                     disabled={
-                        !props.isLoaded || !(props.delete_field === 'delete')
+                        props.isDeletingUser ||
+                        !(props.delete_field === 'delete')
                     }
                     onClick={() =>
                         props.handleDeleteUser(props.selected_user_id)
                     }
                     variant="contained"
                 >
-                    {props.isLoaded ? (
-                        t('Yes', { ns: 'common' })
-                    ) : (
+                    {props.isDeletingUser ? (
                         <CircularProgress size={24} />
+                    ) : (
+                        t('Yes', { ns: 'common' })
                     )}
                 </Button>
                 <Button

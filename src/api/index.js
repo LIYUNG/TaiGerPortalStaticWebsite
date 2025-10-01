@@ -50,16 +50,16 @@ export const getQueryStudentResults = (keywords) =>
 // User APIs
 export const getUsers = (queryString) =>
     request.get(`/api/users?${queryString}`);
+export const getUsersCount = () => request.get(`/api/users/count`);
 export const getUser = (user_id) => request.get(`/api/users/${user_id}`);
 export const addUser = (user_information) =>
     request.post('/api/users', user_information);
 
-export const deleteUser = (id) => request.delete(`/api/users/${id}`);
+export const deleteUser = ({ id }) => deleteData(`/api/users/${id}`);
 
-export const updateUser = (user) =>
-    request.post(`/api/users/${user._id}`, user);
+export const updateUser = (user) => postData(`/api/users/${user._id}`, user);
 
-export const changeUserRole = (id, role) => updateUser({ _id: id, role });
+export const changeUserRole = ({ id, role }) => updateUser({ _id: id, role });
 
 export const getEssayWriters = () => request.get('/api/essay-writers');
 
@@ -131,8 +131,8 @@ export const updateArchivStudents = (studentId, isArchived, shouldInform) =>
         shouldInform
     });
 
-export const updateArchivUser = (user_id, isArchived) =>
-    request.post(`/api/users/archiv/${user_id}`, {
+export const updateArchivUser = ({ user_id, isArchived }) =>
+    postData(`/api/users/archiv/${user_id}`, {
         isArchived: isArchived
     });
 
