@@ -20,22 +20,14 @@ import ErrorPage from '../Utils/ErrorPage';
 import DEMO from '../../store/constant';
 import { addUser } from '../../api';
 import { TabTitle } from '../Utils/TabTitle';
-import {
-    is_TaiGer_Admin,
-    is_TaiGer_Agent,
-    is_TaiGer_Editor,
-    is_TaiGer_External,
-    is_TaiGer_role,
-    is_TaiGer_Student
-} from '@taiger-common/core';
+import { is_TaiGer_role } from '@taiger-common/core';
 import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';
-import Loading from '../../components/Loading/Loading';
 import { CustomTabPanel, a11yProps } from '../../components/Tabs';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { queryClient } from '../../api/client';
 import { useSnackBar } from '../../contexts/use-snack-bar';
-import { getUsersQuery } from '../../api/query';
+import { getUsersCountQuery } from '../../api/query';
 
 CustomTabPanel.propTypes = {
     children: PropTypes.node,
@@ -63,11 +55,8 @@ const UsersTable = () => {
         setValue(newValue);
     };
 
-    const {
-        data: users,
-        isLoading,
-        isError
-    } = useQuery(getUsersQuery(queryString.stringify({})));
+    const { data: usersCount } = useQuery(getUsersCountQuery());
+    console.log(usersCount);
 
     const { mutate: addUserMutation, isPending: isAddingUser } = useMutation({
         mutationFn: (user_information) => addUser(user_information),
@@ -87,13 +76,6 @@ const UsersTable = () => {
             setOpenSnackbar(true);
         }
     });
-
-    if (isLoading) {
-        return <Loading />;
-    }
-    if (isError) {
-        return <ErrorPage res_status={400} />;
-    }
 
     const openAddUserModal = () => {
         setUserTableState((prevState) => ({
@@ -121,12 +103,6 @@ const UsersTable = () => {
     if (res_status >= 400) {
         return <ErrorPage res_status={res_status} />;
     }
-
-    const student_list = users.filter((usr) => is_TaiGer_Student(usr));
-    const agent_list = users.filter((usr) => is_TaiGer_Agent(usr));
-    const editor_list = users.filter((usr) => is_TaiGer_Editor(usr));
-    const external_list = users.filter((usr) => is_TaiGer_External(usr));
-    const admin_list = users.filter((usr) => is_TaiGer_Admin(usr));
 
     return (
         <Box data-testid="users_table_page">
@@ -164,67 +140,57 @@ const UsersTable = () => {
                     <Tab
                         data-testid="users_table_page_student_tab"
                         label={`${t('Student', { ns: 'common' })} (${
-                            student_list?.length
+                            usersCount?.studentCount
                         })`}
                         {...a11yProps(value, 0)}
                     />
                     <Tab
                         data-testid="users_table_page_agent_tab"
-                        label={`${t('Agents', { ns: 'common' })} (${agent_list.length})`}
+                        label={`${t('Agents', { ns: 'common' })} (${usersCount?.agentCount})`}
                         {...a11yProps(value, 1)}
                     />
                     <Tab
                         data-testid="users_table_page_editor_tab"
-                        label={`${t('Editor', { ns: 'common' })} (${editor_list.length})`}
+                        label={`${t('Editor', { ns: 'common' })} (${usersCount?.editorCount})`}
                         {...a11yProps(value, 2)}
                     />
                     <Tab
                         data-testid="users_table_page_external_tab"
                         label={`${t('External', { ns: 'common' })} (${
-                            external_list.length
+                            usersCount?.externalCount
                         })`}
                         {...a11yProps(value, 3)}
                     />
                     <Tab
                         data-testid="users_table_page_admin_tab"
-                        label={`${t('Admin', { ns: 'common' })} (${admin_list.length})`}
+                        label={`${t('Admin', { ns: 'common' })} (${usersCount?.adminCount})`}
                         {...a11yProps(value, 4)}
                     />
                 </Tabs>
             </Box>
             <CustomTabPanel index={0} value={value}>
                 <UsersList
-                    isLoaded={isLoading}
-                    success={!isError}
-                    users={student_list}
+                    queryString={queryString.stringify({ role: 'Student' })}
                 />
             </CustomTabPanel>
             <CustomTabPanel index={1} value={value}>
                 <UsersList
-                    isLoaded={isLoading}
-                    success={!isError}
-                    users={agent_list}
+                    queryString={queryString.stringify({ role: 'Agent' })}
                 />
             </CustomTabPanel>
             <CustomTabPanel index={2} value={value}>
                 <UsersList
-                    isLoaded={isLoading}
-                    success={!isError}
-                    users={editor_list}
+                    queryString={queryString.stringify({ role: 'Editor' })}
                 />
             </CustomTabPanel>
             <CustomTabPanel index={3} value={value}>
                 <UsersList
-                    isLoaded={isLoading}
-                    success={!isError}
-                    users={external_list}
+                    queryString={queryString.stringify({ role: 'External' })}
                 />
             </CustomTabPanel>
             <CustomTabPanel index={4} value={value}>
                 <UsersList
-                    isLoaded={isLoading}
-                    success={!isError}
-                    users={admin_list}
+                    queryString={queryString.stringify({ role: 'Admin' })}
                 />
             </CustomTabPanel>
             <Button

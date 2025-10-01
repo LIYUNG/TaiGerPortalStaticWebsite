@@ -50,6 +50,7 @@ export const getQueryStudentResults = (keywords) =>
 // User APIs
 export const getUsers = (queryString) =>
     request.get(`/api/users?${queryString}`);
+export const getUsersCount = () => request.get(`/api/users/count`);
 export const getUser = (user_id) => request.get(`/api/users/${user_id}`);
 export const addUser = (user_information) =>
     request.post('/api/users', user_information);

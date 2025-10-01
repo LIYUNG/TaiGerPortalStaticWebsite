@@ -15,6 +15,8 @@ import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { deleteUser, changeUserRole, updateArchivUser } from '../../api';
 import { UserlistHeader } from '../../utils/contants';
 import UserArchivWarning from './UserArchivWarning';
+import { getUsersQuery } from '../../api/query';
+import { useQuery } from '@tanstack/react-query';
 
 const UsersList = (props) => {
     const { t } = useTranslation();
@@ -38,10 +40,14 @@ const UsersList = (props) => {
         res_modal_status: 0
     });
 
+    const { data: usersList, isSuccess } = useQuery(
+        getUsersQuery(props.queryString)
+    );
+
     useEffect(() => {
         setUsersListState((prevState) => ({
             ...prevState,
-            data: props.users
+            data: usersList
         }));
     }, [props.users]);
 
@@ -274,13 +280,13 @@ const UsersList = (props) => {
         </TableRow>
     );
 
-    const users = usersListState.data.map((user) => (
+    const users = usersList?.map((user) => (
         <User
             key={user._id}
             setModalArchiv={setModalArchiv}
             setModalShow={setModalShow}
             setModalShowDelete={setModalShowDelete}
-            success={usersListState.success}
+            success={isSuccess}
             user={user}
         />
     ));

@@ -35,7 +35,8 @@ import {
     getCRMSalesReps,
     getInterviewsByStudentId,
     getInterviewsByProgramId,
-    getUsers
+    getUsers,
+    getUsersCount
 } from '.';
 
 export const getMessagThreadQuery = (threadId) => ({
@@ -92,6 +93,13 @@ export const getIsManagerQuery = ({ userId }) => ({
 export const getUsersQuery = (queryString) => ({
     queryKey: ['users', queryString],
     queryFn: () => getUsers(queryString),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    select: (data) => data.data?.data || []
+});
+
+export const getUsersCountQuery = () => ({
+    queryKey: ['users/count'],
+    queryFn: () => getUsersCount(),
     staleTime: 1000 * 60 * 5, // 5 minutes
     select: (data) => data.data?.data || []
 });
