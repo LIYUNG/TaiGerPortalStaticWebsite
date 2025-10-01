@@ -139,6 +139,8 @@ const UsersList = (props) => {
 
     const table = useMaterialReactTable({
         ...tableConfig,
+        enableRowSelection: !props.readOnly,
+        enableMultiRowSelection: !props.readOnly,
         columns,
         state: { isLoading },
         data: usersList || []

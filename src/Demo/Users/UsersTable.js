@@ -178,6 +178,7 @@ const UsersTable = () => {
                 <UsersList
                     openAddUserModal={openAddUserModal}
                     queryString={queryString.stringify({ role: 'Admin' })}
+                    readOnly={true}
                 />
             </CustomTabPanel>
             <AddUserModal
