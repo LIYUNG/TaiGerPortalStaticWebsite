@@ -184,6 +184,7 @@ const UsersList = (props) => {
             onSuccess: () => {
                 setSeverity('success');
                 setMessage('Delete user successfully!');
+                table.resetRowSelection();
                 queryClient.invalidateQueries({
                     queryKey: ['users', props.queryString]
                 });
