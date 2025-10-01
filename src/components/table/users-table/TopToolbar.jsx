@@ -13,13 +13,14 @@ export const TopToolbar = ({
     onArchiveClick
 }) => {
     const { t } = useTranslation();
-
+    const selectedRows = table.getSelectedRowModel().rows;
+    const selectedRow = table.getSelectedRowModel().rows[0]?.original;
     return (
         <Box sx={toolbarStyle}>
             <Stack direction="row" justifyContent="flex-end" spacing={1}>
                 <Button
                     color="error"
-                    disabled={table.getSelectedRowModel().rows?.length !== 1}
+                    disabled={selectedRows?.length !== 1}
                     onClick={onDeleteClick}
                     startIcon={<DeleteIcon />}
                     variant="contained"
@@ -28,8 +29,15 @@ export const TopToolbar = ({
                 </Button>
                 <Button
                     color="success"
-                    disabled={table.getSelectedRowModel().rows?.length !== 1}
-                    onClick={onEditClick}
+                    disabled={selectedRows?.length !== 1}
+                    onClick={() =>
+                        onEditClick(
+                            selectedRow.firstname,
+                            selectedRow.lastname,
+                            selectedRow.role,
+                            selectedRow._id
+                        )
+                    }
                     startIcon={<EditIcon />}
                     sx={{ mr: 1 }}
                     variant="contained"
@@ -38,8 +46,15 @@ export const TopToolbar = ({
                 </Button>
                 <Button
                     color="warning"
-                    disabled={table.getSelectedRowModel().rows?.length !== 1}
-                    onClick={onArchiveClick}
+                    disabled={selectedRows?.length !== 1}
+                    onClick={() =>
+                        onArchiveClick(
+                            selectedRow.firstname,
+                            selectedRow.lastname,
+                            selectedRow._id,
+                            selectedRow.archiv
+                        )
+                    }
                     startIcon={<ArchiveIcon />}
                     variant="contained"
                 >

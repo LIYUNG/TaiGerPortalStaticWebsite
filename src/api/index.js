@@ -60,7 +60,7 @@ export const deleteUser = (id) => request.delete(`/api/users/${id}`);
 export const updateUser = (user) =>
     request.post(`/api/users/${user._id}`, user);
 
-export const changeUserRole = (id, role) => updateUser({ _id: id, role });
+export const changeUserRole = ({ id, role }) => updateUser({ _id: id, role });
 
 export const getEssayWriters = () => request.get('/api/essay-writers');
 

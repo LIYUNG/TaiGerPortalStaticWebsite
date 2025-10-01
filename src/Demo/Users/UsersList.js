@@ -9,7 +9,7 @@ import { deleteUser, changeUserRole, updateArchivUser } from '../../api';
 import { convertDate, getDate } from '../../utils/contants';
 import UserArchivWarning from './UserArchivWarning';
 import { getUsersQuery } from '../../api/query';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTableStyles } from '../../components/table/users-table/styles';
 import { getTableConfig } from '../../components/table/users-table/table-config';
 import {
@@ -18,6 +18,8 @@ import {
 } from 'material-react-table';
 import DEMO from '../../store/constant';
 import { TopToolbar } from '../../components/table/users-table/TopToolbar';
+import { queryClient } from '../../api/client';
+import { useSnackBar } from '../../contexts/use-snack-bar';
 
 const UsersList = (props) => {
     const { t } = useTranslation();
@@ -27,6 +29,7 @@ const UsersList = (props) => {
         isLoading
     } = useQuery(getUsersQuery(props.queryString));
     const customTableStyles = useTableStyles();
+    const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
 
     const tableConfig = getTableConfig(customTableStyles, isLoading);
     const [usersListState, setUsersListState] = useState({
@@ -135,6 +138,30 @@ const UsersList = (props) => {
             }
         }
     ];
+
+    const { mutate: changeUserRoleMutation } = useMutation({
+        mutationFn: changeUserRole,
+        onError: (error) => {
+            setSeverity('error');
+            setMessage(error.message || 'An error occurred. Please try again.');
+            setOpenSnackbar(true);
+        },
+        onSuccess: () => {
+            setSeverity('success');
+            setMessage('Update user role successfully!');
+            queryClient.invalidateQueries({
+                queryKey: ['users', props.queryString]
+            });
+            queryClient.invalidateQueries({
+                queryKey: ['users/count']
+            });
+            setUsersListState((prevState) => ({
+                ...prevState,
+                modalShow: false
+            }));
+            setOpenSnackbar(true);
+        }
+    });
 
     const table = useMaterialReactTable({
         ...tableConfig,
@@ -278,47 +305,7 @@ const UsersList = (props) => {
     };
 
     const assignUserAs = (user_data) => {
-        var updated_user = usersListState.data.map((user) => {
-            if (user._id === user_data._id) {
-                return Object.assign(user, user_data);
-            } else {
-                return user;
-            }
-        });
-
-        changeUserRole(user_data._id, user_data.role).then(
-            (resp) => {
-                const { success } = resp.data;
-                const { status } = resp;
-                if (success) {
-                    setUsersListState((prevState) => ({
-                        ...prevState,
-                        modalShow: false,
-                        isLoaded: true,
-                        success,
-                        data: updated_user,
-                        res_modal_status: status
-                    }));
-                } else {
-                    const { message } = resp.data;
-                    setUsersListState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        res_modal_message: message,
-                        res_modal_status: status
-                    }));
-                }
-            },
-            (error) => {
-                setUsersListState((prevState) => ({
-                    ...prevState,
-                    isLoaded: true,
-                    error,
-                    res_modal_status: 500,
-                    res_modal_message: ''
-                }));
-            }
-        );
+        changeUserRoleMutation({ id: user_data._id, role: user_data.role });
     };
 
     const onSubmit2 = (e) => {
