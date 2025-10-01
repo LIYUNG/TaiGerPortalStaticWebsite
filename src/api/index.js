@@ -55,10 +55,9 @@ export const getUser = (user_id) => request.get(`/api/users/${user_id}`);
 export const addUser = (user_information) =>
     request.post('/api/users', user_information);
 
-export const deleteUser = ({ id }) => request.delete(`/api/users/${id}`);
+export const deleteUser = ({ id }) => deleteData(`/api/users/${id}`);
 
-export const updateUser = (user) =>
-    request.post(`/api/users/${user._id}`, user);
+export const updateUser = (user) => postData(`/api/users/${user._id}`, user);
 
 export const changeUserRole = ({ id, role }) => updateUser({ _id: id, role });
 

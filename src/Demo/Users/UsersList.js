@@ -139,6 +139,13 @@ const UsersList = (props) => {
         }
     ];
 
+    const table = useMaterialReactTable({
+        ...tableConfig,
+        columns,
+        state: { isLoading },
+        data: usersList || []
+    });
+
     const { mutate: changeUserRoleMutation } = useMutation({
         mutationFn: changeUserRole,
         onError: (error) => {
@@ -147,6 +154,7 @@ const UsersList = (props) => {
             setOpenSnackbar(true);
         },
         onSuccess: () => {
+            table.resetRowSelection();
             setSeverity('success');
             setMessage('Update user role successfully!');
             queryClient.invalidateQueries({
@@ -189,13 +197,6 @@ const UsersList = (props) => {
                 }));
             }
         });
-
-    const table = useMaterialReactTable({
-        ...tableConfig,
-        columns,
-        state: { isLoading },
-        data: usersList || []
-    });
 
     const setModalShow = (
         user_firstname,
