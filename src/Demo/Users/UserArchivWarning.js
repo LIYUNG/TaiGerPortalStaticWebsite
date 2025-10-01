@@ -30,17 +30,18 @@ const UserArchivWarning = (props) => {
             <DialogActions>
                 <Button
                     color="primary"
+                    disabled={props.isUpdatingArchivUser}
                     onClick={() =>
-                        props.updateUserArchivStatus(
-                            props.selected_user_id,
-                            props.archiv === true ? false : true
-                        )
+                        props.updateUserArchivStatus({
+                            user_id: props.selected_user_id,
+                            isArchived: props.archiv === true ? false : true
+                        })
                     }
                     variant="contained"
                 >
-                    {props.isLoaded
-                        ? i18next.t('Yes', { ns: 'common' })
-                        : i18next.t('Loading')}
+                    {props.isUpdatingArchivUser
+                        ? i18next.t('Loading')
+                        : i18next.t('Yes', { ns: 'common' })}
                 </Button>
                 <Button
                     color="primary"

@@ -23,11 +23,9 @@ import { useSnackBar } from '../../contexts/use-snack-bar';
 
 const UsersList = (props) => {
     const { t } = useTranslation();
-    const {
-        data: usersList,
-        // isSuccess,
-        isLoading
-    } = useQuery(getUsersQuery(props.queryString));
+    const { data: usersList, isLoading } = useQuery(
+        getUsersQuery(props.queryString)
+    );
     const customTableStyles = useTableStyles();
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
 
@@ -170,6 +168,7 @@ const UsersList = (props) => {
             setOpenSnackbar(true);
         }
     });
+
     const { mutate: deleteUserMutation, isPending: isDeletingUser } =
         useMutation({
             mutationFn: deleteUser,
@@ -197,6 +196,38 @@ const UsersList = (props) => {
                 }));
             }
         });
+
+    const {
+        mutate: updateArchivUserMutation,
+        isPending: isUpdatingArchivUser
+    } = useMutation({
+        mutationFn: updateArchivUser,
+        onError: (error) => {
+            setSeverity('error');
+            setMessage(error.message || 'An error occurred. Please try again.');
+            setOpenSnackbar(true);
+        },
+        onSuccess: () => {
+            table.resetRowSelection();
+            setSeverity('success');
+            setMessage('Update user archiv status successfully!');
+            queryClient.invalidateQueries({
+                queryKey: ['users', props.queryString]
+            });
+            queryClient.invalidateQueries({
+                queryKey: ['users/count']
+            });
+            setUsersListState((prevState) => ({
+                ...prevState,
+                archivUserWarning: false,
+                archiv: false,
+                selected_user_id: '',
+                firstname: '',
+                lastname: ''
+            }));
+            setOpenSnackbar(true);
+        }
+    });
 
     const setModalShow = (
         user_firstname,
@@ -297,42 +328,6 @@ const UsersList = (props) => {
         assignUserAs({ role: user_role, _id: user_id });
     };
 
-    const updateUserArchivStatus = (user_id, isArchived) => {
-        updateArchivUser(user_id, isArchived).then(
-            (resp) => {
-                const { data, success } = resp.data;
-                const { status } = resp;
-                if (success) {
-                    setUsersListState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        archivUserWarning: false,
-                        data: data,
-                        success: success,
-                        res_modal_status: status
-                    }));
-                } else {
-                    const { message } = resp.data;
-                    setUsersListState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        res_modal_message: message,
-                        res_modal_status: status
-                    }));
-                }
-            },
-            (error) => {
-                setUsersListState((prevState) => ({
-                    ...prevState,
-                    isLoaded: true,
-                    error,
-                    res_modal_status: 500,
-                    res_modal_message: ''
-                }));
-            }
-        );
-    };
-
     return (
         <>
             <MaterialReactTable table={table} />
@@ -362,11 +357,11 @@ const UsersList = (props) => {
                 archiv={usersListState.archiv}
                 archivUserWarning={usersListState.archivUserWarning}
                 firstname={usersListState.firstname}
-                isLoaded={usersListState.isLoaded}
+                isUpdatingArchivUser={isUpdatingArchivUser}
                 lastname={usersListState.lastname}
                 selected_user_id={usersListState.selected_user_id}
                 setModalArchivHide={setModalArchivHide}
-                updateUserArchivStatus={updateUserArchivStatus}
+                updateUserArchivStatus={updateArchivUserMutation}
             />
         </>
     );

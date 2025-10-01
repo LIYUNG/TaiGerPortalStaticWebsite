@@ -131,8 +131,8 @@ export const updateArchivStudents = (studentId, isArchived, shouldInform) =>
         shouldInform
     });
 
-export const updateArchivUser = (user_id, isArchived) =>
-    request.post(`/api/users/archiv/${user_id}`, {
+export const updateArchivUser = ({ user_id, isArchived }) =>
+    postData(`/api/users/archiv/${user_id}`, {
         isArchived: isArchived
     });
 
