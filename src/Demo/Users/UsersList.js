@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
+    Link,
     Table,
     TableBody,
     TableCell,
     TableHead,
     TableRow
 } from '@mui/material';
+import { Link as LinkDom } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import User from './User';
@@ -13,13 +15,28 @@ import UsersListSubpage from './UsersListSubpage';
 import UserDeleteWarning from './UserDeleteWarning';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { deleteUser, changeUserRole, updateArchivUser } from '../../api';
-import { UserlistHeader } from '../../utils/contants';
+import { convertDate, getDate, UserlistHeader } from '../../utils/contants';
 import UserArchivWarning from './UserArchivWarning';
 import { getUsersQuery } from '../../api/query';
 import { useQuery } from '@tanstack/react-query';
+import { useTableStyles } from '../../components/table/users-table/styles';
+import { getTableConfig } from '../../components/table/users-table/table-config';
+import {
+    MaterialReactTable,
+    useMaterialReactTable
+} from 'material-react-table';
+import DEMO from '../../store/constant';
 
 const UsersList = (props) => {
     const { t } = useTranslation();
+    const {
+        data: usersList,
+        isSuccess,
+        isLoading
+    } = useQuery(getUsersQuery(props.queryString));
+    const customTableStyles = useTableStyles();
+
+    const tableConfig = getTableConfig(customTableStyles, isLoading);
     const [usersListState, setUsersListState] = useState({
         error: '',
         modalShow: false,
@@ -40,16 +57,79 @@ const UsersList = (props) => {
         res_modal_status: 0
     });
 
-    const { data: usersList, isSuccess } = useQuery(
-        getUsersQuery(props.queryString)
-    );
+    const columns = [
+        {
+            accessorKey: 'firstname',
+            header: t('First Name', { ns: 'common' }),
+            size: 100,
+            Cell: (params) => {
+                const linkUrl = `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(params.row.original._id)}`;
+                return (
+                    <Link
+                        component={LinkDom}
+                        target="_blank"
+                        to={linkUrl}
+                        underline="hover"
+                    >
+                        {params.row.original.firstname}
+                    </Link>
+                );
+            }
+        },
+        {
+            accessorKey: 'lastname',
+            header: t('Last Name', { ns: 'common' }),
+            //   filterVariant: 'autocomplete',
+            filterFn: 'contains',
+            size: 100,
+            Cell: (params) => {
+                const linkUrl = `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(params.row.original._id)}`;
+                return (
+                    <Link
+                        component={LinkDom}
+                        target="_blank"
+                        to={linkUrl}
+                        underline="hover"
+                    >
+                        {params.row.original.lastname}
+                    </Link>
+                );
+            }
+        },
+        {
+            accessorKey: 'birthday',
+            header: t('Birthday', { ns: 'common' }),
+            size: 100
+        },
+        {
+            accessorKey: 'email',
+            header: t('Email', { ns: 'common' }),
+            size: 100
+        },
+        {
+            accessorKey: 'createdAt',
+            header: t('Created At', { ns: 'common' }),
+            size: 100,
+            Cell: (params) => {
+                return <>{getDate(params.row.original.createdAt)}</>;
+            }
+        },
+        {
+            accessorKey: 'lastLoginAt',
+            header: t('Last Login', { ns: 'auth' }),
+            size: 100,
+            Cell: (params) => {
+                return <>{convertDate(params.row.original.lastLoginAt)}</>;
+            }
+        }
+    ];
 
-    useEffect(() => {
-        setUsersListState((prevState) => ({
-            ...prevState,
-            data: usersList
-        }));
-    }, [props.users]);
+    const table = useMaterialReactTable({
+        ...tableConfig,
+        columns,
+        state: { isLoading },
+        data: usersList || []
+    });
 
     const setModalShow = (
         user_firstname,
@@ -300,10 +380,12 @@ const UsersList = (props) => {
                     res_modal_status={res_modal_status}
                 />
             ) : null}
+            <MaterialReactTable table={table} />
             <Table size="small">
                 <TableHead>{headers}</TableHead>
                 <TableBody>{users}</TableBody>
             </Table>
+
             <UsersListSubpage
                 firstname={usersListState.firstname}
                 handleChange2={handleChange2}
