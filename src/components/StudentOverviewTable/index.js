@@ -41,13 +41,14 @@ import {
     num_uni_assist_vpd_needed,
     num_uni_assist_vpd_uploaded,
     prepTaskStudent,
-    to_register_application_portals
+    to_register_application_portals,
+    has_admissions
 } from '../../Demo/Utils/checking-functions';
 import DEMO from '../../store/constant';
 import { green, grey } from '@mui/material/colors';
 import { useTranslation } from 'react-i18next';
 
-const tranform = (stds) => {
+const transform = (stds, riskOnly = false) => {
     const transformedStudents = [];
     if (!stds) {
         return [];
@@ -117,6 +118,18 @@ const tranform = (stds) => {
             student.application_preference?.expected_application_date || '';
         let expected_application_semster =
             student.application_preference?.expected_application_semester || '';
+
+        if (riskOnly) {
+            const isStudentAtRisk =
+                num_apps_closed > 0 &&
+                num_apps_closed >= student.applying_program_count &&
+                !has_admissions(student);
+
+            // Filter out students who are not at risk
+            if (!isStudentAtRisk) {
+                continue;
+            }
+        }
 
         transformedStudents.push({
             ...prepTaskStudent(student),
@@ -277,7 +290,7 @@ const tranform = (stds) => {
     return transformedStudents;
 };
 
-const StudentOverviewTable = ({ students }) => {
+const StudentOverviewTable = ({ students, riskOnly = false }) => {
     const { t } = useTranslation();
 
     const memoizedColumns = useMemo(() => {
@@ -722,7 +735,7 @@ const StudentOverviewTable = ({ students }) => {
         ];
     }, [t]);
 
-    const rows = tranform(students);
+    const rows = transform(students, riskOnly);
     return (
         <Card>
             <MuiDataGrid columns={memoizedColumns} rows={rows} />

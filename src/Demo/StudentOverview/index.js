@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, Link as LinkDom } from 'react-router-dom';
-import { Box, Breadcrumbs, Link, Typography } from '@mui/material';
+import { Box, Breadcrumbs, Link, Typography, Tabs, Tab } from '@mui/material';
 import { is_TaiGer_role } from '@taiger-common/core';
 import { useQuery } from '@tanstack/react-query';
 import i18next from 'i18next';
@@ -23,6 +23,9 @@ const StudentOverviewPage = () => {
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
+    const [tab, setTab] = React.useState(0);
+    const handleTabChange = (_e, newValue) => setTab(newValue);
+
     if (isLoading) {
         return <Loading />;
     }
@@ -47,11 +50,24 @@ const StudentOverviewPage = () => {
                     ({data?.data?.length})
                 </Typography>
             </Breadcrumbs>
-            <StudentOverviewTable
-                students={data?.data}
-                title="All"
-                user={user}
-            />
+            <Box sx={{ mt: 2 }}>
+                <Tabs
+                    aria-label="student overview tabs"
+                    onChange={handleTabChange}
+                    value={tab}
+                >
+                    <Tab label={i18next.t('All Active', { ns: 'common' })} />
+                    <Tab label={i18next.t('Risk', { ns: 'common' })} />
+                </Tabs>
+                <Box sx={{ mt: 2 }}>
+                    <StudentOverviewTable
+                        riskOnly={tab === 1}
+                        students={data?.data}
+                        title={tab === 1 ? 'Risk' : 'All'}
+                        user={user}
+                    />
+                </Box>
+            </Box>
         </Box>
     );
 };
