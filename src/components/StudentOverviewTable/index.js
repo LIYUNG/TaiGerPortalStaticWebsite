@@ -49,7 +49,7 @@ import { green, grey } from '@mui/material/colors';
 import { useTranslation } from 'react-i18next';
 
 const transform = (stds, riskOnly = false) => {
-    let transformedStudents = [];
+    const transformedStudents = [];
     if (!stds) {
         return [];
     }
