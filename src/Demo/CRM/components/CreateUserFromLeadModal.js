@@ -47,7 +47,8 @@ const CreateUserFromLeadModal = ({ open, onClose, lead, onSuccess }) => {
                 // Trim email to remove any spaces
                 const userInformation = {
                     ...value,
-                    email: value.email.trim()
+                    email: value.email.trim(),
+                    role: 'Student'
                 };
 
                 const response = await addUser(userInformation);
