@@ -1,6 +1,10 @@
 import React from 'react';
 import { Link as LinkDom } from 'react-router-dom';
-import { is_TaiGer_Editor, is_TaiGer_role } from '@taiger-common/core';
+import {
+    is_TaiGer_Admin,
+    is_TaiGer_Editor,
+    is_TaiGer_role
+} from '@taiger-common/core';
 import queryString from 'query-string';
 
 import { TabTitle } from '../Utils/TabTitle';
@@ -19,10 +23,10 @@ const RiskStudentsOverview = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const role = is_TaiGer_Editor(user) ? 'editors' : 'agents';
+    const params = is_TaiGer_Admin(user) ? {} : { [role]: user._id };
+    params.archiv = false;
     const { data, isLoading } = useQuery(
-        getActiveStudentsQuery(
-            queryString.stringify({ [role]: user._id, archiv: false })
-        )
+        getActiveStudentsQuery(queryString.stringify(params))
     );
 
     if (!is_TaiGer_role(user)) {
@@ -34,6 +38,8 @@ const RiskStudentsOverview = () => {
     }
     const students = data?.data;
     TabTitle('Risk Students Overview');
+
+    console.log(students);
 
     return (
         <Box>
@@ -47,20 +53,26 @@ const RiskStudentsOverview = () => {
                     {appConfig.companyName}
                 </Link>
                 <Typography color="text.primary">
-                    {t('Risk Student Overview', { ns: 'common' })} (
-                    {students.length})
+                    {t('Risk Student Overview', { ns: 'common' })}
                 </Typography>
             </Breadcrumbs>
             <StudentOverviewTable
-                students={students?.filter(
-                    (student) =>
-                        student.editors.some(
-                            (editor) => editor._id === user._id.toString()
-                        ) ||
-                        student.agents.some(
-                            (agent) => agent._id === user._id.toString()
-                        )
-                )}
+                riskOnly={true}
+                students={
+                    is_TaiGer_Admin(user)
+                        ? students
+                        : students?.filter(
+                              (student) =>
+                                  student.editors.some(
+                                      (editor) =>
+                                          editor._id === user._id.toString()
+                                  ) ||
+                                  student.agents.some(
+                                      (agent) =>
+                                          agent._id === user._id.toString()
+                                  )
+                          )
+                }
                 title="All"
                 user={user}
             />
