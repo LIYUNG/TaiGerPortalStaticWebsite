@@ -121,6 +121,10 @@ const CustomerTicketDetailPage = React.lazy(
 const MyStudentOverviewPage = React.lazy(
     () => import('./Demo/StudentOverview/MyStudentsOverview')
 );
+
+const RiskStudentsOverview = React.lazy(
+    () => import('./Demo/StudentOverview/RiskStudentsOverview.js')
+);
 const StudentOverviewPage = React.lazy(
     () => import('./Demo/StudentOverview/index')
 );
@@ -604,6 +608,11 @@ const routes = [
         path: '/all-students-applications',
         errorElement: <DefaultErrorPage />,
         element: <AllApplicantsOverview />
+    },
+    {
+        path: '/students-overview/risk',
+        errorElement: <DefaultErrorPage />,
+        element: <RiskStudentsOverview />
     },
     {
         path: '/students-overview',
