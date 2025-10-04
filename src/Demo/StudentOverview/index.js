@@ -19,13 +19,13 @@ const StudentOverviewPage = () => {
     const { data, isLoading } = useQuery(
         getActiveStudentsQuery(queryString.stringify({ archiv: false }))
     );
-
-    if (!is_TaiGer_role(user)) {
-        return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
-    }
     const [tab, setTab] = React.useState(0);
     const handleTabChange = (_e, newValue) => setTab(newValue);
 
+    // Early exits AFTER declaring all hooks to keep hook order stable
+    if (!is_TaiGer_role(user)) {
+        return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
+    }
     if (isLoading) {
         return <Loading />;
     }

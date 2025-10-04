@@ -21,23 +21,13 @@ const MyStudentsOverview = () => {
     const role = is_TaiGer_Editor(user) ? 'editors' : 'agents';
     const { data, isLoading } = useQuery(
         getActiveStudentsQuery(
-            queryString.stringify({ [role]: user._id, archiv: false })
+            queryString.stringify({ [role]: user?._id, archiv: false })
         )
     );
-
-    if (!is_TaiGer_role(user)) {
-        return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
-    }
-
     const [tab, setTab] = React.useState(0);
     const handleTabChange = (_e, newValue) => setTab(newValue);
-
-    if (isLoading) {
-        return <Loading />;
-    }
     const students = data?.data;
-    const userId = user._id?.toString();
-    // Filter only once for user's students
+    const userId = user?._id?.toString();
     const myStudents = useMemo(
         () =>
             students?.filter(
@@ -47,6 +37,14 @@ const MyStudentsOverview = () => {
             ) || [],
         [students, userId]
     );
+
+    // Early exits AFTER declaring all hooks to keep hook order stable
+    if (!is_TaiGer_role(user)) {
+        return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
+    }
+    if (isLoading) {
+        return <Loading />;
+    }
     TabTitle('My Students Overview');
 
     return (
