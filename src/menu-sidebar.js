@@ -27,7 +27,6 @@ import BorderColorIcon from '@mui/icons-material/BorderColor';
 import DifferenceIcon from '@mui/icons-material/Difference';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import ArchitectureIcon from '@mui/icons-material/Architecture';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { appConfig } from './config';
 
 let application_overview = [
@@ -148,13 +147,6 @@ let all_students_nestedList = [
         type: 'item',
         url: '/students-overview/all',
         icon: <GroupOutlinedIcon />
-    },
-    {
-        id: 'risk-students-overview',
-        title: 'Risk Students Overview',
-        type: 'item',
-        url: '/students-overview/risk',
-        icon: <WarningAmberIcon />
     },
     {
         id: 'internal_program_conflict',
