@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Card, Chip, Link } from '@mui/material';
+import { Card, Link } from '@mui/material';
 import { Link as LinkDom } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -24,10 +24,12 @@ const transform = (students = []) => {
 
                 return {
                     key: a?._id || p?._id || Math.random().toString(36),
+                    programId: p?._id || a?.programId?._id,
                     school: p?.school || '',
                     program_name: p?.program_name || '',
                     degree: p?.degree || '',
-                    application_year: a?.application_year || ''
+                    application_year: a?.application_year || '',
+                    country: p?.country || ''
                 };
             });
 
@@ -76,11 +78,6 @@ const FinalDecisionOverview = ({ students }) => {
                 }
             },
             {
-                field: 'finalEnrolmentsCount',
-                headerName: t('Final Enrolments', { ns: 'common' }),
-                width: 120
-            },
-            {
                 field: 'finalEnrolments',
                 headerName: t('Program / University', { ns: 'common' }),
                 flex: 1,
@@ -93,20 +90,65 @@ const FinalDecisionOverview = ({ students }) => {
                         <div
                             style={{
                                 display: 'flex',
-                                flexWrap: 'wrap',
-                                gap: 6
+                                flexDirection: 'column',
+                                gap: 4
+                            }}
+                        >
+                            {items.map((it) => {
+                                const label = `${it.school} - ${it.program_name}${it.degree ? ` (${it.degree})` : ''}`;
+                                const to = it.programId
+                                    ? `/programs/${it.programId}`
+                                    : null;
+                                return to ? (
+                                    <Link
+                                        component={LinkDom}
+                                        key={it.key}
+                                        target="_blank"
+                                        to={to}
+                                        underline="hover"
+                                    >
+                                        {label}
+                                    </Link>
+                                ) : (
+                                    <span key={it.key}>{label}</span>
+                                );
+                            })}
+                        </div>
+                    );
+                }
+            },
+            {
+                field: 'countries',
+                headerName: t('Country', { ns: 'common' }),
+                minWidth: 100,
+                flex: 0.4,
+                sortable: false,
+                renderCell: (params) => {
+                    const items = params.row?.finalEnrolments || [];
+                    if (!items.length) return '-';
+                    return (
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 4
                             }}
                         >
                             {items.map((it) => (
-                                <Chip
-                                    key={it.key}
-                                    label={`${it.school} - ${it.program_name}${it.degree ? ` (${it.degree})` : ''}`}
-                                    size="small"
-                                />
+                                <span key={it.key}>
+                                    {(it.country || '')
+                                        .toString()
+                                        .toUpperCase() || '-'}
+                                </span>
                             ))}
                         </div>
                     );
                 }
+            },
+            {
+                field: 'finalEnrolmentsCount',
+                headerName: t('Final Enrolments', { ns: 'common' }),
+                width: 120
             }
         ];
     }, [t]);
