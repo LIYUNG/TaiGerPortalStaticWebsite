@@ -9,6 +9,7 @@ import queryString from 'query-string';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '../../store/constant';
 import StudentOverviewTable from '../../components/StudentOverviewTable';
+import FinalDecisionOverview from '../../components/StudentOverviewTable/finalDecisionOverview';
 import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';
 import { getActiveStudentsQuery } from '../../api/query';
@@ -58,14 +59,20 @@ const StudentOverviewPage = () => {
                 >
                     <Tab label={i18next.t('All Active', { ns: 'common' })} />
                     <Tab label={i18next.t('Risk', { ns: 'common' })} />
+                    <Tab label={i18next.t('Final', { ns: 'common' })} />
                 </Tabs>
                 <Box sx={{ mt: 2 }}>
-                    <StudentOverviewTable
-                        riskOnly={tab === 1}
-                        students={data?.data}
-                        title={tab === 1 ? 'Risk' : 'All'}
-                        user={user}
-                    />
+                    {tab < 2 && (
+                        <StudentOverviewTable
+                            riskOnly={tab === 1}
+                            students={data?.data}
+                            title={tab === 1 ? 'Risk' : 'All'}
+                            user={user}
+                        />
+                    )}
+                    {tab === 2 && (
+                        <FinalDecisionOverview students={data?.data || []} />
+                    )}
                 </Box>
             </Box>
         </Box>
