@@ -37,11 +37,10 @@ const transform = (students = []) => {
 
         rows.push({
             id: student?._id?.toString(),
-            firstname_lastname:
-                `${student?.firstname || ''} ${student?.lastname || ''}`.trim(),
+            studentId: student?._id?.toString(),
+            name: `${student?.firstname || ''} ${student?.lastname || ''}`.trim(),
             finalEnrolments,
-            finalEnrolmentsCount: finalEnrolments.length,
-            student
+            finalEnrolmentsCount: finalEnrolments.length
         });
     }
 
@@ -54,25 +53,25 @@ const FinalDecisionOverview = ({ students }) => {
     const columns = useMemo(() => {
         return [
             {
-                field: 'firstname_lastname',
+                field: 'name',
                 headerName: t('First-/ Last Name', { ns: 'common' }),
                 align: 'left',
                 headerAlign: 'left',
-                width: 180,
+                width: 220,
                 renderCell: (params) => {
                     const linkUrl = `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                        params.row.id,
+                        params.row.studentId,
                         DEMO.PROFILE_HASH
                     )}`;
                     return (
                         <Link
                             component={LinkDom}
                             target="_blank"
-                            title={params.value}
+                            title={params.row.name}
                             to={linkUrl}
                             underline="hover"
                         >
-                            {params.value}
+                            {params.row.name}
                         </Link>
                     );
                 }
@@ -84,7 +83,7 @@ const FinalDecisionOverview = ({ students }) => {
                 minWidth: 360,
                 sortable: false,
                 renderCell: (params) => {
-                    const items = params.value || [];
+                    const items = params.row?.finalEnrolments || [];
                     if (!items.length) return '-';
                     return (
                         <div
@@ -148,7 +147,9 @@ const FinalDecisionOverview = ({ students }) => {
             {
                 field: 'finalEnrolmentsCount',
                 headerName: t('Final Enrolments', { ns: 'common' }),
-                width: 120
+                width: 120,
+                align: 'center',
+                headerAlign: 'center'
             }
         ];
     }, [t]);
