@@ -5,7 +5,7 @@ import ArticleIcon from '@mui/icons-material/Article'; // Using Article icon for
 // import jsPDF from 'jspdf';
 import DownloadIcon from '@mui/icons-material/Download';
 import LaunchIcon from '@mui/icons-material/Launch';
-import { green, grey, red } from '@mui/material/colors';
+import { green, grey } from '@mui/material/colors';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import HelpIcon from '@mui/icons-material/Help';
@@ -34,7 +34,8 @@ import {
     DialogContentText,
     Stack,
     Tabs,
-    Tab
+    Tab,
+    Chip
 } from '@mui/material';
 import { pdfjs } from 'react-pdf'; // Library for rendering PDFs
 import {
@@ -1453,7 +1454,21 @@ const DocModificationThreadPage = ({
                 ) : null}
             </CustomTabPanel>
             <CustomTabPanel index={1} value={value}>
-                Files Overview
+                <Box sx={{ px: 2, py: 1 }}>
+                    <Typography sx={{ mb: 1 }} variant="h6">
+                        {i18next.t('Files Overview', { ns: 'common' })}
+                    </Typography>
+                    <Typography
+                        color="text.secondary"
+                        sx={{ mb: 2 }}
+                        variant="body2"
+                    >
+                        {i18next.t(
+                            'All files shared in this thread are listed below.',
+                            { ns: 'common' }
+                        )}
+                    </Typography>
+                </Box>
                 <FilesList thread={thread} />
             </CustomTabPanel>
             {is_TaiGer_role(user) ? (
@@ -1461,54 +1476,107 @@ const DocModificationThreadPage = ({
                     {similarThreads && similarThreads?.length > 0 ? (
                         <Stack spacing={1.5} sx={{ mx: 2 }}>
                             {similarThreads.map((t) => (
-                                <Link
-                                    component={LinkDom}
+                                <Card
                                     key={t._id}
                                     sx={{
                                         display: 'flex',
                                         alignItems: 'center',
-                                        gap: 1,
-                                        p: 1,
-                                        borderRadius: 1,
-                                        transition: 'background 0.2s',
+                                        justifyContent: 'space-between',
+                                        gap: 2,
+                                        p: 2,
+                                        borderRadius: 2,
+                                        transition: 'all 0.2s',
                                         '&:hover': {
                                             backgroundColor: 'action.hover'
                                         }
                                     }}
-                                    target="_blank"
-                                    to={DEMO.DOCUMENT_MODIFICATION_LINK(t._id)}
-                                    underline="hover"
                                 >
-                                    <ArticleIcon />
-                                    <Box>
-                                        <Typography
-                                            fontWeight="bold"
-                                            variant="subtitle1"
-                                        >
-                                            {`${t.student_id?.firstname} ${t.student_id?.lastname}`}
-                                        </Typography>
-                                        <Typography
-                                            color="text.secondary"
-                                            variant="body2"
-                                        >
-                                            {`${t.application_id?.application_year}
-                                          ${'-'}
-                                          ${t.file_type}
-                                        `}
-                                        </Typography>
-                                    </Box>
+                                    <Link
+                                        component={LinkDom}
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 1.5,
+                                            flex: 1,
+                                            textDecoration: 'none'
+                                        }}
+                                        target="_blank"
+                                        to={DEMO.DOCUMENT_MODIFICATION_LINK(
+                                            t._id
+                                        )}
+                                    >
+                                        <ArticleIcon
+                                            sx={{ color: 'primary.main' }}
+                                        />
+                                        <Box sx={{ flex: 1 }}>
+                                            <Typography
+                                                fontWeight="bold"
+                                                variant="subtitle1"
+                                            >
+                                                {`${t.student_id?.firstname} ${t.student_id?.lastname}`}
+                                            </Typography>
+                                            <Typography
+                                                color="text.secondary"
+                                                variant="body2"
+                                            >
+                                                {`${t.application_id?.application_year} - ${t.file_type}`}
+                                            </Typography>
+                                        </Box>
+                                    </Link>
                                     {t.application_id?.admission === 'O' ? (
-                                        <CheckCircleIcon
-                                            sx={{ color: green[500] }}
-                                            title="Admitted"
+                                        <Chip
+                                            color="success"
+                                            icon={
+                                                <CheckCircleIcon
+                                                    sx={{
+                                                        color: 'inherit !important'
+                                                    }}
+                                                />
+                                            }
+                                            label="Admitted"
+                                            size="small"
+                                            sx={{
+                                                fontWeight: 'bold',
+                                                minWidth: 100
+                                            }}
+                                        />
+                                    ) : t.application_id?.admission === 'X' ? (
+                                        <Chip
+                                            color="error"
+                                            icon={
+                                                <CancelOutlinedIcon
+                                                    sx={{
+                                                        color: 'inherit !important'
+                                                    }}
+                                                />
+                                            }
+                                            label="Rejected"
+                                            size="small"
+                                            sx={{
+                                                fontWeight: 'bold',
+                                                minWidth: 100
+                                            }}
                                         />
                                     ) : (
-                                        <CancelOutlinedIcon
-                                            sx={{ color: red[500] }}
-                                            title="Rejected"
+                                        <Chip
+                                            color="default"
+                                            icon={
+                                                <HelpIcon
+                                                    sx={{
+                                                        color: 'inherit !important'
+                                                    }}
+                                                />
+                                            }
+                                            label="Pending"
+                                            size="small"
+                                            sx={{
+                                                fontWeight: 'bold',
+                                                minWidth: 100
+                                            }}
+                                            variant="outlined"
                                         />
                                     )}
-                                </Link>
+                                </Card>
                             ))}
                         </Stack>
                     ) : (
