@@ -1,12 +1,14 @@
 import React, { useMemo } from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import { is_TaiGer_Editor, is_TaiGer_role } from '@taiger-common/core';
+import i18next from 'i18next';
 import queryString from 'query-string';
 
 import { TabTitle } from '../Utils/TabTitle';
 import { Navigate } from 'react-router-dom';
 import DEMO from '../../store/constant';
 import StudentOverviewTable from '../../components/StudentOverviewTable';
+import FinalDecisionOverview from '../../components/StudentOverviewTable/finalDecisionOverview';
 import { useAuth } from '../../components/AuthProvider';
 import { Box, Breadcrumbs, Link, Typography, Tabs, Tab } from '@mui/material';
 import { appConfig } from '../../config';
@@ -69,16 +71,30 @@ const MyStudentsOverview = () => {
                     onChange={handleTabChange}
                     value={tab}
                 >
-                    <Tab label={t('All Active', { ns: 'common' })} />
-                    <Tab label={t('Risk', { ns: 'common' })} />
+                    <Tab
+                        label={i18next.t('All Active Students', {
+                            ns: 'common'
+                        })}
+                    />
+                    <Tab
+                        label={i18next.t('Students at Risk', { ns: 'common' })}
+                    />
+                    <Tab
+                        label={i18next.t('Final Decisions', { ns: 'common' })}
+                    />
                 </Tabs>
                 <Box sx={{ mt: 2 }}>
-                    <StudentOverviewTable
-                        riskOnly={tab === 1}
-                        students={myStudents}
-                        title={tab === 1 ? 'Risk' : 'All'}
-                        user={user}
-                    />
+                    {tab < 2 && (
+                        <StudentOverviewTable
+                            riskOnly={tab === 1}
+                            students={myStudents}
+                            title={tab === 1 ? 'Risk' : 'All'}
+                            user={user}
+                        />
+                    )}
+                    {tab === 2 && (
+                        <FinalDecisionOverview students={myStudents || []} />
+                    )}
                 </Box>
             </Box>
         </Box>

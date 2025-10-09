@@ -57,9 +57,17 @@ const StudentOverviewPage = () => {
                     onChange={handleTabChange}
                     value={tab}
                 >
-                    <Tab label={i18next.t('All Active', { ns: 'common' })} />
-                    <Tab label={i18next.t('Risk', { ns: 'common' })} />
-                    <Tab label={i18next.t('Final', { ns: 'common' })} />
+                    <Tab
+                        label={i18next.t('All Active Students', {
+                            ns: 'common'
+                        })}
+                    />
+                    <Tab
+                        label={i18next.t('Students at Risk', { ns: 'common' })}
+                    />
+                    <Tab
+                        label={i18next.t('Final Decisions', { ns: 'common' })}
+                    />
                 </Tabs>
                 <Box sx={{ mt: 2 }}>
                     {tab < 2 && (
