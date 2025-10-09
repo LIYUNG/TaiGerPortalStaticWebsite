@@ -36,7 +36,8 @@ import {
     getInterviewsByStudentId,
     getInterviewsByProgramId,
     getUsers,
-    getUsersCount
+    getUsersCount,
+    getActiveThreads
 } from '.';
 
 export const getMessagThreadQuery = (threadId) => ({
@@ -52,6 +53,13 @@ export const getMessagThreadQuery = (threadId) => ({
     },
     staleTime: 1000 * 60, // 1 minutes
     cacheTime: 60 * 1000 // 1 minutes
+});
+
+export const getActiveThreadsQuery = (queryString) => ({
+    queryKey: ['active-threads', queryString],
+    queryFn: () => getActiveThreads(queryString),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    select: (data) => data?.data || []
 });
 
 export const getProgramQuery = ({ programId }) => ({

@@ -351,7 +351,7 @@ export const getCheckDocumentPatternIsPassed = (thread_id, file_type) =>
     );
 
 export const getActiveThreads = (queryString) =>
-    request.get(`/api/document-threads/overview/all?${queryString}`);
+    getData(`/api/document-threads/overview/all?${queryString}`);
 
 export const getMyStudentThreadMetrics = () =>
     request.get(`/api/document-threads/overview/my-student-metrics`);

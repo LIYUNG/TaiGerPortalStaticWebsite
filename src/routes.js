@@ -16,8 +16,7 @@ import {
     getProgramRequirementsV2Loader,
     getAllCoursesLoader,
     getCourseLoader,
-    getAllOpenInterviewsLoader,
-    getActiveEssayThreadsLoader
+    getAllOpenInterviewsLoader
 } from './api/dataLoader';
 import DefaultErrorPage from './Demo/Utils/DefaultErrorPage';
 import StudentApplicationsAssignPage from './Demo/StudentApplications/assignPage';
@@ -269,7 +268,6 @@ const routes = [
             {
                 path: 'essay-writers',
                 errorElement: <DefaultErrorPage />,
-                loader: getActiveEssayThreadsLoader,
                 element: <EssayWritersAssignment />
             },
             {

@@ -35,9 +35,7 @@ const EssayOverview = (props) => {
     const { t } = useTranslation();
     const [cVMLRLOverviewState, setCVMLRLOverviewState] = useState({
         error: '',
-        isLoaded: props.isLoaded,
         data: null,
-        success: props.success,
         doc_thread_id: '',
         student_id: '',
         program_id: '',
