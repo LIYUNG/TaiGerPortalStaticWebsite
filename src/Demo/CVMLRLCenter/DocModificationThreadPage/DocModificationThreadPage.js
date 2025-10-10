@@ -677,6 +677,9 @@ const InformationBlock = ({
                                                                         src={
                                                                             agent.pictureUrl
                                                                         }
+                                                                        {...stringAvatar(
+                                                                            `${agent.firstname} ${agent.lastname}`
+                                                                        )}
                                                                         sx={{
                                                                             bgcolor:
                                                                                 theme
@@ -723,6 +726,9 @@ const InformationBlock = ({
                                                                         src={
                                                                             agent.pictureUrl
                                                                         }
+                                                                        {...stringAvatar(
+                                                                            `${agent.firstname} ${agent.lastname}`
+                                                                        )}
                                                                         sx={{
                                                                             bgcolor:
                                                                                 theme
@@ -814,6 +820,12 @@ const InformationBlock = ({
                                                                     <Chip
                                                                         avatar={
                                                                             <Avatar
+                                                                                src={
+                                                                                    outsourcer.pictureUrl
+                                                                                }
+                                                                                {...stringAvatar(
+                                                                                    `${outsourcer.firstname} ${outsourcer.lastname}`
+                                                                                )}
                                                                                 sx={{
                                                                                     bgcolor:
                                                                                         theme
@@ -860,6 +872,12 @@ const InformationBlock = ({
                                                                     <Chip
                                                                         avatar={
                                                                             <Avatar
+                                                                                src={
+                                                                                    outsourcer.pictureUrl
+                                                                                }
+                                                                                {...stringAvatar(
+                                                                                    `${outsourcer.firstname} ${outsourcer.lastname}`
+                                                                                )}
                                                                                 sx={{
                                                                                     bgcolor:
                                                                                         theme
@@ -933,6 +951,12 @@ const InformationBlock = ({
                                                             <Chip
                                                                 avatar={
                                                                     <Avatar
+                                                                        src={
+                                                                            editor.pictureUrl
+                                                                        }
+                                                                        {...stringAvatar(
+                                                                            `${editor.firstname} ${editor.lastname}`
+                                                                        )}
                                                                         sx={{
                                                                             bgcolor:
                                                                                 theme
@@ -976,6 +1000,12 @@ const InformationBlock = ({
                                                             <Chip
                                                                 avatar={
                                                                     <Avatar
+                                                                        src={
+                                                                            editor.pictureUrl
+                                                                        }
+                                                                        {...stringAvatar(
+                                                                            `${editor.firstname} ${editor.lastname}`
+                                                                        )}
                                                                         sx={{
                                                                             bgcolor:
                                                                                 theme
@@ -2417,63 +2447,129 @@ const DocModificationThreadPage = ({
                     {user.archiv !== true ? (
                         <Card
                             sx={{
-                                p: 2,
-                                overflowWrap: 'break-word', // Add this line
-                                maxWidth: window.innerWidth - 64,
-                                marginTop: '1px',
-                                '& .MuiAvatar-root': {
-                                    width: 32,
-                                    height: 32,
-                                    ml: -0.5,
-                                    mr: 1
+                                borderRadius: 2,
+                                border: `1px solid ${theme.palette.divider}`,
+                                boxShadow: theme.shadows[1],
+                                overflow: 'hidden',
+                                mt: 1,
+                                transition: 'all 0.3s',
+                                '&:hover': {
+                                    boxShadow: theme.shadows[3],
+                                    borderColor: theme.palette.primary.main
                                 }
                             }}
                         >
                             {thread.isFinalVersion ? (
-                                <Typography>
-                                    {i18next.t('thread-close')}
-                                </Typography>
-                            ) : (
-                                <>
-                                    <Avatar
-                                        {...stringAvatar(
-                                            `${user.firstname} ${user.lastname}`
-                                        )}
-                                        src={user?.pictureUrl}
+                                <Box
+                                    sx={{
+                                        p: 3,
+                                        textAlign: 'center'
+                                    }}
+                                >
+                                    <CheckCircleIcon
+                                        color="success"
+                                        sx={{ fontSize: 48, mb: 1 }}
                                     />
                                     <Typography
-                                        style={{ marginLeft: '10px', flex: 1 }}
-                                        sx={{ mt: 1 }}
+                                        color="text.secondary"
                                         variant="body1"
                                     >
-                                        <b>
-                                            {user.firstname} {user.lastname}
-                                        </b>
+                                        {i18next.t('thread-close')}
                                     </Typography>
-                                    <DocThreadEditor
-                                        buttonDisabled={
-                                            docModificationThreadPageState.buttonDisabled
-                                        }
-                                        checkResult={checkResult}
-                                        doc_title="docModificationThreadPageState.doc_title"
-                                        editorState={
-                                            docModificationThreadPageState.editorState
-                                        }
-                                        file={
-                                            docModificationThreadPageState.file
-                                        }
-                                        handleClickSave={handleClickSave}
-                                        onFileChange={onFileChange}
-                                        thread={thread}
-                                    />
+                                </Box>
+                            ) : (
+                                <>
+                                    {/* Header */}
+                                    <Box
+                                        sx={{
+                                            background: `linear-gradient(135deg, ${theme.palette.primary.light} 0%, ${theme.palette.primary.main} 100%)`,
+                                            color: theme.palette.primary
+                                                .contrastText,
+                                            p: 1.5
+                                        }}
+                                    >
+                                        <Stack
+                                            alignItems="center"
+                                            direction="row"
+                                            spacing={1.5}
+                                        >
+                                            <Avatar
+                                                {...stringAvatar(
+                                                    `${user.firstname} ${user.lastname}`
+                                                )}
+                                                src={user?.pictureUrl}
+                                                sx={{
+                                                    width: 36,
+                                                    height: 36,
+                                                    border: '2px solid white'
+                                                }}
+                                            />
+                                            <Box>
+                                                <Typography
+                                                    fontWeight="600"
+                                                    variant="body2"
+                                                >
+                                                    {user.firstname}{' '}
+                                                    {user.lastname}
+                                                </Typography>
+                                                <Typography
+                                                    sx={{
+                                                        fontSize: '0.7rem',
+                                                        opacity: 0.9
+                                                    }}
+                                                    variant="caption"
+                                                >
+                                                    Write a reply
+                                                </Typography>
+                                            </Box>
+                                        </Stack>
+                                    </Box>
+
+                                    {/* Editor Content */}
+                                    <Box
+                                        sx={{
+                                            p: 2,
+                                            overflowWrap: 'break-word'
+                                        }}
+                                    >
+                                        <DocThreadEditor
+                                            buttonDisabled={
+                                                docModificationThreadPageState.buttonDisabled
+                                            }
+                                            checkResult={checkResult}
+                                            doc_title="docModificationThreadPageState.doc_title"
+                                            editorState={
+                                                docModificationThreadPageState.editorState
+                                            }
+                                            file={
+                                                docModificationThreadPageState.file
+                                            }
+                                            handleClickSave={handleClickSave}
+                                            onFileChange={onFileChange}
+                                            thread={thread}
+                                        />
+                                    </Box>
                                 </>
                             )}
                         </Card>
                     ) : (
-                        <Card>
-                            <Typography>
+                        <Card
+                            sx={{
+                                borderRadius: 2,
+                                border: `1px solid ${theme.palette.divider}`,
+                                mt: 2,
+                                p: 3,
+                                textAlign: 'center',
+                                bgcolor: 'grey.50'
+                            }}
+                        >
+                            <CancelOutlinedIcon
+                                color="disabled"
+                                sx={{ fontSize: 48, mb: 1 }}
+                            />
+                            <Typography color="text.secondary" variant="body1">
                                 Your service is finished. Therefore, you are in
-                                read only mode.
+                                read-only mode.
                             </Typography>
                         </Card>
                     )}

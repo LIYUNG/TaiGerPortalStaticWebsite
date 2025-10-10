@@ -14,7 +14,10 @@ import {
     DialogContentText,
     DialogActions,
     Tabs,
-    Tab
+    Tab,
+    Box,
+    Stack,
+    useTheme
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { is_TaiGer_role } from '@taiger-common/core';
@@ -53,6 +56,7 @@ const SingleInterview = () => {
     const { t } = useTranslation();
     const { hash } = useLocation();
     const [value, setValue] = useState(THREAD_TABS[hash.replace('#', '')] || 0);
+    const theme = useTheme();
 
     const [singleInterviewState, setSingleInterviewState] = useState({
         error: '',
@@ -513,93 +517,134 @@ const SingleInterview = () => {
                         {user.archiv !== true ? (
                             <Card
                                 sx={{
-                                    p: 2,
-                                    overflowWrap: 'break-word', // Add this line
-                                    maxWidth: window.innerWidth - 64,
-                                    marginTop: '1px',
-                                    '& .MuiAvatar-root': {
-                                        width: 32,
-                                        height: 32,
-                                        ml: -0.5,
-                                        mr: 1
+                                    borderRadius: 2,
+                                    border: `1px solid ${theme.palette.divider}`,
+                                    boxShadow: theme.shadows[1],
+                                    overflow: 'hidden',
+                                    mt: 1,
+                                    transition: 'all 0.3s',
+                                    '&:hover': {
+                                        boxShadow: theme.shadows[3],
+                                        borderColor: theme.palette.primary.main
                                     }
                                 }}
                             >
-                                <Avatar
-                                    {...stringAvatar(
-                                        `${user.firstname} ${user.lastname}`
-                                    )}
-                                    src={user?.pictureUrl}
-                                />
-                                <Typography
-                                    style={{ marginLeft: '10px', flex: 1 }}
-                                    sx={{ mt: 1 }}
-                                    variant="body1"
-                                >
-                                    <b>
-                                        {user.firstname} {user.lastname}
-                                    </b>
-                                </Typography>
                                 {interview.isClosed ? (
-                                    <Typography>
+                                    <Typography sx={{ p: 2 }}>
                                         This interview is closed.
                                     </Typography>
                                 ) : (
-                                    <DocThreadEditor
-                                        buttonDisabled={
-                                            singleInterviewState.buttonDisabled
-                                        }
-                                        checkResult={[]}
-                                        // buttonDisabled={false}
-                                        editorState={
-                                            singleInterviewState.editorInputState
-                                        }
-                                        file={singleInterviewState.file}
-                                        handleClickSave={handleClickSave}
-                                        onFileChange={onFileChange}
-                                        thread={interview.thread_id}
-                                    />
+                                    <>
+                                        {/* Header */}
+                                        <Box
+                                            sx={{
+                                                background: `linear-gradient(135deg, ${theme.palette.primary.light} 0%, ${theme.palette.primary.main} 100%)`,
+                                                color: theme.palette.primary
+                                                    .contrastText,
+                                                p: 1.5
+                                            }}
+                                        >
+                                            <Stack
+                                                alignItems="center"
+                                                direction="row"
+                                                spacing={1.5}
+                                            >
+                                                <Avatar
+                                                    {...stringAvatar(
+                                                        `${user.firstname} ${user.lastname}`
+                                                    )}
+                                                    src={user?.pictureUrl}
+                                                    sx={{
+                                                        width: 36,
+                                                        height: 36,
+                                                        border: '2px solid white'
+                                                    }}
+                                                />
+                                                <Box>
+                                                    <Typography
+                                                        fontWeight="600"
+                                                        variant="body2"
+                                                    >
+                                                        {user.firstname}{' '}
+                                                        {user.lastname}
+                                                    </Typography>
+                                                    <Typography
+                                                        sx={{
+                                                            fontSize: '0.7rem',
+                                                            opacity: 0.9
+                                                        }}
+                                                        variant="caption"
+                                                    >
+                                                        Write a reply
+                                                    </Typography>
+                                                </Box>
+                                            </Stack>
+                                        </Box>
+                                        <Box
+                                            sx={{
+                                                p: 2,
+                                                overflowWrap: 'break-word'
+                                            }}
+                                        >
+                                            <DocThreadEditor
+                                                buttonDisabled={
+                                                    singleInterviewState.buttonDisabled
+                                                }
+                                                checkResult={[]}
+                                                // buttonDisabled={false}
+                                                editorState={
+                                                    singleInterviewState.editorInputState
+                                                }
+                                                file={singleInterviewState.file}
+                                                handleClickSave={
+                                                    handleClickSave
+                                                }
+                                                onFileChange={onFileChange}
+                                                thread={interview.thread_id}
+                                            />
+                                        </Box>
+                                    </>
                                 )}
-                                {is_TaiGer_role(user) ? (
-                                    !singleInterviewState.interview.isClosed ? (
-                                        <Button
-                                            color="success"
-                                            fullWidth
-                                            onClick={() => handleAsFinalFile()}
-                                            sx={{ mt: 2 }}
-                                            variant="contained"
-                                        >
-                                            {isSubmissionLoaded ? (
-                                                t('Mark as finished')
-                                            ) : (
-                                                <CircularProgress size={24} />
-                                            )}
-                                        </Button>
-                                    ) : (
-                                        <Button
-                                            color="secondary"
-                                            fullWidth
-                                            onClick={() => handleAsFinalFile()}
-                                            sx={{ mt: 2 }}
-                                            variant="outlined"
-                                        >
-                                            {isSubmissionLoaded ? (
-                                                t('Mark as open')
-                                            ) : (
-                                                <CircularProgress size={24} />
-                                            )}
-                                        </Button>
-                                    )
-                                ) : null}
                             </Card>
                         ) : (
                             <Card>
-                                <Typography>
+                                <Typography sx={{ p: 2 }}>
                                     Your service is finished. Therefore, you are
                                     in read only mode.
                                 </Typography>
                             </Card>
                         )}
+                        {is_TaiGer_role(user) ? (
+                            !singleInterviewState.interview.isClosed ? (
+                                <Button
+                                    color="success"
+                                    fullWidth
+                                    onClick={() => handleAsFinalFile()}
+                                    sx={{ mt: 2 }}
+                                    variant="contained"
+                                >
+                                    {isSubmissionLoaded ? (
+                                        t('Mark as finished')
+                                    ) : (
+                                        <CircularProgress size={24} />
+                                    )}
+                                </Button>
+                            ) : (
+                                <Button
+                                    color="secondary"
+                                    fullWidth
+                                    onClick={() => handleAsFinalFile()}
+                                    sx={{ mt: 2 }}
+                                    variant="outlined"
+                                >
+                                    {isSubmissionLoaded ? (
+                                        t('Mark as open')
+                                    ) : (
+                                        <CircularProgress size={24} />
+                                    )}
+                                </Button>
+                            )
+                        ) : null}
                     </CustomTabPanel>
                     {is_TaiGer_role(user) ? (
                         <CustomTabPanel index={1} value={value}>
