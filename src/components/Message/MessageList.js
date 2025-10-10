@@ -26,7 +26,7 @@ const MessageList = (props) => {
     ));
 
     return (
-        <Box sx={{ mt: 2 }}>
+        <Box sx={{ mt: 1 }}>
             {/* Messages Stack */}
             <Stack spacing={1.5}>
                 {messageCount > 0 ? (

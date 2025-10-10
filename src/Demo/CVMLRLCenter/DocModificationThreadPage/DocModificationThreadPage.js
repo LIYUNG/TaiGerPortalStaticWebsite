@@ -479,8 +479,8 @@ const InformationBlock = ({
                     <Box
                         sx={{
                             position: { md: 'sticky' },
-                            top: { md: 16 },
-                            maxHeight: { md: 'calc(100vh - 32px)' },
+                            top: { md: 8 },
+                            maxHeight: { md: 'calc(100vh - 188px)' },
                             overflowY: { md: 'auto' },
                             '&::-webkit-scrollbar': {
                                 width: '6px'
@@ -491,7 +491,14 @@ const InformationBlock = ({
                             }
                         }}
                     >
-                        <Stack spacing={2}>
+                        <Stack spacing={1}>
+                            {thread?.file_type === 'Essay' ? (
+                                <OriginAuthorStatementBar
+                                    theme={theme}
+                                    thread={thread}
+                                    user={user}
+                                />
+                            ) : null}
                             {/* Deadline & Favorite Card */}
                             <Card
                                 elevation={urgent ? 4 : 2}
@@ -610,566 +617,6 @@ const InformationBlock = ({
                                     </Stack>
                                 </Box>
                             </Card>
-
-                            {/* Team Card */}
-                            <Card
-                                sx={{
-                                    borderRadius: 2,
-                                    boxShadow: theme.shadows[1],
-                                    border: `1px solid ${theme.palette.divider}`
-                                }}
-                            >
-                                <Box
-                                    sx={{
-                                        background: `linear-gradient(135deg, ${teamGradient.start} 0%, ${teamGradient.end} 100%)`,
-                                        color: 'white',
-                                        p: 1.5
-                                    }}
-                                >
-                                    <Stack
-                                        alignItems="center"
-                                        direction="row"
-                                        spacing={0.75}
-                                    >
-                                        <PersonIcon fontSize="small" />
-                                        <Typography
-                                            fontWeight="600"
-                                            variant="subtitle1"
-                                        >
-                                            Your Team
-                                        </Typography>
-                                    </Stack>
-                                </Box>
-                                <Box sx={{ p: 2 }}>
-                                    {/* Agents */}
-                                    <Box sx={{ mb: 2 }}>
-                                        <Typography
-                                            color="text.secondary"
-                                            sx={{
-                                                fontSize: '0.7rem',
-                                                textTransform: 'uppercase',
-                                                letterSpacing: 0.5,
-                                                mb: 0.75
-                                            }}
-                                            variant="overline"
-                                        >
-                                            {i18next.t('Agent', {
-                                                ns: 'common'
-                                            })}
-                                        </Typography>
-                                        <Stack
-                                            direction="row"
-                                            flexWrap="wrap"
-                                            gap={0.75}
-                                        >
-                                            {agents.length > 0 ? (
-                                                agents.map((agent, i) => (
-                                                    <Tooltip
-                                                        key={i}
-                                                        title={`${agent.firstname} ${agent.lastname}`}
-                                                    >
-                                                        {is_TaiGer_role(
-                                                            user
-                                                        ) ? (
-                                                            <Chip
-                                                                avatar={
-                                                                    <Avatar
-                                                                        src={
-                                                                            agent.pictureUrl
-                                                                        }
-                                                                        {...stringAvatar(
-                                                                            `${agent.firstname} ${agent.lastname}`
-                                                                        )}
-                                                                        sx={{
-                                                                            bgcolor:
-                                                                                theme
-                                                                                    .palette
-                                                                                    .primary
-                                                                                    .main,
-                                                                            color: 'white',
-                                                                            fontSize:
-                                                                                '0.65rem',
-                                                                            width: 24,
-                                                                            height: 24
-                                                                        }}
-                                                                    >
-                                                                        {getInitials(
-                                                                            agent.firstname,
-                                                                            agent.lastname
-                                                                        )}
-                                                                    </Avatar>
-                                                                }
-                                                                clickable
-                                                                component={
-                                                                    LinkDom
-                                                                }
-                                                                label={`${agent.firstname} ${agent.lastname}`}
-                                                                size="small"
-                                                                sx={{
-                                                                    fontWeight: 500,
-                                                                    fontSize:
-                                                                        '0.8rem',
-                                                                    height: 28,
-                                                                    '&:hover': {
-                                                                        bgcolor:
-                                                                            'primary.50'
-                                                                    }
-                                                                }}
-                                                                target="_blank"
-                                                                to={`${DEMO.TEAM_AGENT_LINK(agent._id.toString())}`}
-                                                                variant="outlined"
-                                                            />
-                                                        ) : (
-                                                            <Chip
-                                                                avatar={
-                                                                    <Avatar
-                                                                        src={
-                                                                            agent.pictureUrl
-                                                                        }
-                                                                        {...stringAvatar(
-                                                                            `${agent.firstname} ${agent.lastname}`
-                                                                        )}
-                                                                        sx={{
-                                                                            bgcolor:
-                                                                                theme
-                                                                                    .palette
-                                                                                    .primary
-                                                                                    .main,
-                                                                            color: 'white',
-                                                                            fontSize:
-                                                                                '0.65rem',
-                                                                            width: 24,
-                                                                            height: 24
-                                                                        }}
-                                                                    >
-                                                                        {getInitials(
-                                                                            agent.firstname,
-                                                                            agent.lastname
-                                                                        )}
-                                                                    </Avatar>
-                                                                }
-                                                                label={`${agent.firstname} ${agent.lastname}`}
-                                                                size="small"
-                                                                sx={{
-                                                                    fontWeight: 500,
-                                                                    fontSize:
-                                                                        '0.8rem',
-                                                                    height: 28
-                                                                }}
-                                                                variant="outlined"
-                                                            />
-                                                        )}
-                                                    </Tooltip>
-                                                ))
-                                            ) : (
-                                                <Typography
-                                                    color="text.secondary"
-                                                    sx={{ fontSize: '0.85rem' }}
-                                                    variant="body2"
-                                                >
-                                                    No agents assigned
-                                                </Typography>
-                                            )}
-                                        </Stack>
-                                    </Box>
-
-                                    <Divider sx={{ my: 1.5 }} />
-
-                                    {/* Editors */}
-                                    <Box>
-                                        <Typography
-                                            color="text.secondary"
-                                            sx={{
-                                                fontSize: '0.7rem',
-                                                textTransform: 'uppercase',
-                                                letterSpacing: 0.5,
-                                                mb: 0.75
-                                            }}
-                                            variant="overline"
-                                        >
-                                            {thread.file_type === 'Essay'
-                                                ? i18next.t('Essay Writer', {
-                                                      ns: 'common'
-                                                  })
-                                                : i18next.t('Editor', {
-                                                      ns: 'common'
-                                                  })}
-                                        </Typography>
-                                        {[
-                                            ...AGENT_SUPPORT_DOCUMENTS_A,
-                                            FILE_TYPE_E.essay_required
-                                        ].includes(thread.file_type) ? (
-                                            thread?.outsourced_user_id?.length >
-                                            0 ? (
-                                                <Stack
-                                                    direction="row"
-                                                    flexWrap="wrap"
-                                                    gap={0.75}
-                                                >
-                                                    {thread?.outsourced_user_id?.map(
-                                                        (outsourcer) => (
-                                                            <Tooltip
-                                                                key={
-                                                                    outsourcer._id
-                                                                }
-                                                                title={`${outsourcer.firstname} ${outsourcer.lastname}`}
-                                                            >
-                                                                {is_TaiGer_role(
-                                                                    user
-                                                                ) ? (
-                                                                    <Chip
-                                                                        avatar={
-                                                                            <Avatar
-                                                                                src={
-                                                                                    outsourcer.pictureUrl
-                                                                                }
-                                                                                {...stringAvatar(
-                                                                                    `${outsourcer.firstname} ${outsourcer.lastname}`
-                                                                                )}
-                                                                                sx={{
-                                                                                    bgcolor:
-                                                                                        theme
-                                                                                            .palette
-                                                                                            .secondary
-                                                                                            .main,
-                                                                                    color: 'white',
-                                                                                    fontSize:
-                                                                                        '0.65rem',
-                                                                                    width: 24,
-                                                                                    height: 24
-                                                                                }}
-                                                                            >
-                                                                                {getInitials(
-                                                                                    outsourcer.firstname,
-                                                                                    outsourcer.lastname
-                                                                                )}
-                                                                            </Avatar>
-                                                                        }
-                                                                        clickable
-                                                                        component={
-                                                                            LinkDom
-                                                                        }
-                                                                        label={`${outsourcer.firstname} ${outsourcer.lastname}`}
-                                                                        size="small"
-                                                                        sx={{
-                                                                            fontWeight: 500,
-                                                                            fontSize:
-                                                                                '0.8rem',
-                                                                            height: 28,
-                                                                            '&:hover':
-                                                                                {
-                                                                                    bgcolor:
-                                                                                        'secondary.50'
-                                                                                }
-                                                                        }}
-                                                                        target="_blank"
-                                                                        to={`${DEMO.TEAM_EDITOR_LINK(
-                                                                            outsourcer._id.toString()
-                                                                        )}`}
-                                                                        variant="outlined"
-                                                                    />
-                                                                ) : (
-                                                                    <Chip
-                                                                        avatar={
-                                                                            <Avatar
-                                                                                src={
-                                                                                    outsourcer.pictureUrl
-                                                                                }
-                                                                                {...stringAvatar(
-                                                                                    `${outsourcer.firstname} ${outsourcer.lastname}`
-                                                                                )}
-                                                                                sx={{
-                                                                                    bgcolor:
-                                                                                        theme
-                                                                                            .palette
-                                                                                            .secondary
-                                                                                            .main,
-                                                                                    color: 'white',
-                                                                                    fontSize:
-                                                                                        '0.65rem',
-                                                                                    width: 24,
-                                                                                    height: 24
-                                                                                }}
-                                                                            >
-                                                                                {getInitials(
-                                                                                    outsourcer.firstname,
-                                                                                    outsourcer.lastname
-                                                                                )}
-                                                                            </Avatar>
-                                                                        }
-                                                                        label={`${outsourcer.firstname} ${outsourcer.lastname}`}
-                                                                        size="small"
-                                                                        sx={{
-                                                                            fontWeight: 500,
-                                                                            fontSize:
-                                                                                '0.8rem',
-                                                                            height: 28
-                                                                        }}
-                                                                        variant="outlined"
-                                                                    />
-                                                                )}
-                                                            </Tooltip>
-                                                        )
-                                                    )}
-                                                </Stack>
-                                            ) : (
-                                                <Typography
-                                                    color="text.secondary"
-                                                    sx={{
-                                                        fontStyle: 'italic',
-                                                        py: 0.5,
-                                                        fontSize: '0.85rem'
-                                                    }}
-                                                    variant="body2"
-                                                >
-                                                    {[
-                                                        ...AGENT_SUPPORT_DOCUMENTS_A
-                                                    ].includes(thread.file_type)
-                                                        ? 'If needed, editor can be added'
-                                                        : 'To Be Assigned'}
-                                                </Typography>
-                                            )
-                                        ) : null}
-                                        {![
-                                            ...AGENT_SUPPORT_DOCUMENTS_A,
-                                            FILE_TYPE_E.essay_required
-                                        ].includes(thread.file_type) &&
-                                        editors.length > 0 ? (
-                                            <Stack
-                                                direction="row"
-                                                flexWrap="wrap"
-                                                gap={0.75}
-                                            >
-                                                {editors.map((editor, i) => (
-                                                    <Tooltip
-                                                        key={i}
-                                                        title={`${editor.firstname} ${editor.lastname}`}
-                                                    >
-                                                        {is_TaiGer_role(
-                                                            user
-                                                        ) ? (
-                                                            <Chip
-                                                                avatar={
-                                                                    <Avatar
-                                                                        src={
-                                                                            editor.pictureUrl
-                                                                        }
-                                                                        {...stringAvatar(
-                                                                            `${editor.firstname} ${editor.lastname}`
-                                                                        )}
-                                                                        sx={{
-                                                                            bgcolor:
-                                                                                theme
-                                                                                    .palette
-                                                                                    .secondary
-                                                                                    .main,
-                                                                            color: 'white',
-                                                                            fontSize:
-                                                                                '0.65rem',
-                                                                            width: 24,
-                                                                            height: 24
-                                                                        }}
-                                                                    >
-                                                                        {getInitials(
-                                                                            editor.firstname,
-                                                                            editor.lastname
-                                                                        )}
-                                                                    </Avatar>
-                                                                }
-                                                                clickable
-                                                                component={
-                                                                    LinkDom
-                                                                }
-                                                                label={`${editor.firstname} ${editor.lastname}`}
-                                                                size="small"
-                                                                sx={{
-                                                                    fontWeight: 500,
-                                                                    fontSize:
-                                                                        '0.8rem',
-                                                                    height: 28,
-                                                                    '&:hover': {
-                                                                        bgcolor:
-                                                                            'secondary.50'
-                                                                    }
-                                                                }}
-                                                                target="_blank"
-                                                                to={`${DEMO.TEAM_EDITOR_LINK(editor._id.toString())}`}
-                                                                variant="outlined"
-                                                            />
-                                                        ) : (
-                                                            <Chip
-                                                                avatar={
-                                                                    <Avatar
-                                                                        src={
-                                                                            editor.pictureUrl
-                                                                        }
-                                                                        {...stringAvatar(
-                                                                            `${editor.firstname} ${editor.lastname}`
-                                                                        )}
-                                                                        sx={{
-                                                                            bgcolor:
-                                                                                theme
-                                                                                    .palette
-                                                                                    .secondary
-                                                                                    .main,
-                                                                            color: 'white',
-                                                                            fontSize:
-                                                                                '0.65rem',
-                                                                            width: 24,
-                                                                            height: 24
-                                                                        }}
-                                                                    >
-                                                                        {getInitials(
-                                                                            editor.firstname,
-                                                                            editor.lastname
-                                                                        )}
-                                                                    </Avatar>
-                                                                }
-                                                                label={`${editor.firstname} ${editor.lastname}`}
-                                                                size="small"
-                                                                sx={{
-                                                                    fontWeight: 500,
-                                                                    fontSize:
-                                                                        '0.8rem',
-                                                                    height: 28
-                                                                }}
-                                                                variant="outlined"
-                                                            />
-                                                        )}
-                                                    </Tooltip>
-                                                ))}
-                                            </Stack>
-                                        ) : null}
-                                        {is_TaiGer_role(user) &&
-                                        [
-                                            ...AGENT_SUPPORT_DOCUMENTS_A,
-                                            FILE_TYPE_E.essay_required
-                                        ].includes(thread.file_type) ? (
-                                            <Button
-                                                color="secondary"
-                                                onClick={startEditingEditor}
-                                                size="small"
-                                                startIcon={
-                                                    <AddIcon
-                                                        sx={{ fontSize: 16 }}
-                                                    />
-                                                }
-                                                sx={{
-                                                    mt: 1,
-                                                    fontSize: '0.8rem',
-                                                    py: 0.5
-                                                }}
-                                                variant="contained"
-                                            >
-                                                {thread.file_type === 'Essay'
-                                                    ? i18next.t(
-                                                          'Add Essay Writer'
-                                                      )
-                                                    : i18next.t('Add Editor')}
-                                            </Button>
-                                        ) : null}
-                                    </Box>
-                                </Box>
-                            </Card>
-
-                            {/* Program Details Card */}
-                            {thread.program_id && (
-                                <Card
-                                    sx={{
-                                        borderRadius: 2,
-                                        boxShadow: theme.shadows[1],
-                                        border: `1px solid ${theme.palette.divider}`
-                                    }}
-                                >
-                                    <Box
-                                        sx={{
-                                            background: `linear-gradient(135deg, ${programGradient.start} 0%, ${programGradient.end} 100%)`,
-                                            color: 'white',
-                                            p: 1.5
-                                        }}
-                                    >
-                                        <Stack
-                                            alignItems="center"
-                                            direction="row"
-                                            spacing={0.75}
-                                        >
-                                            <SchoolIcon fontSize="small" />
-                                            <Typography
-                                                fontWeight="600"
-                                                variant="subtitle1"
-                                            >
-                                                Program Details
-                                            </Typography>
-                                        </Stack>
-                                    </Box>
-                                    <Box sx={{ p: 2 }}>
-                                        <Stack spacing={2}>
-                                            <Stack
-                                                alignItems="center"
-                                                direction="row"
-                                                justifyContent="space-between"
-                                            >
-                                                <Stack
-                                                    alignItems="center"
-                                                    direction="row"
-                                                    spacing={0.75}
-                                                >
-                                                    <AccessTimeIcon
-                                                        color="action"
-                                                        sx={{ fontSize: 18 }}
-                                                    />
-                                                    <Typography
-                                                        color="text.secondary"
-                                                        variant="body2"
-                                                    >
-                                                        {i18next.t('Semester', {
-                                                            ns: 'common'
-                                                        })}
-                                                    </Typography>
-                                                </Stack>
-                                                <Typography
-                                                    fontWeight="600"
-                                                    variant="body2"
-                                                >
-                                                    {thread.program_id.semester}
-                                                </Typography>
-                                            </Stack>
-                                            <Divider />
-                                            <Stack
-                                                alignItems="center"
-                                                direction="row"
-                                                justifyContent="space-between"
-                                            >
-                                                <Stack
-                                                    alignItems="center"
-                                                    direction="row"
-                                                    spacing={0.75}
-                                                >
-                                                    <LanguageIcon
-                                                        color="action"
-                                                        sx={{ fontSize: 18 }}
-                                                    />
-                                                    <Typography
-                                                        color="text.secondary"
-                                                        variant="body2"
-                                                    >
-                                                        {i18next.t(
-                                                            'Program Language',
-                                                            { ns: 'common' }
-                                                        )}
-                                                    </Typography>
-                                                </Stack>
-                                                <Typography
-                                                    fontWeight="600"
-                                                    variant="body2"
-                                                >
-                                                    {thread.program_id.lang}
-                                                </Typography>
-                                            </Stack>
-                                        </Stack>
-                                    </Box>
-                                </Card>
-                            )}
 
                             {/* Requirements Card - MOST IMPORTANT */}
                             <Card
@@ -1358,6 +805,552 @@ const InformationBlock = ({
                                     />
                                 </Box>
                             </Card>
+
+                            {/* Team Card */}
+                            <Card
+                                sx={{
+                                    borderRadius: 2,
+                                    boxShadow: theme.shadows[1],
+                                    border: `1px solid ${theme.palette.divider}`
+                                }}
+                            >
+                                <Box
+                                    sx={{
+                                        background: `linear-gradient(135deg, ${teamGradient.start} 0%, ${teamGradient.end} 100%)`,
+                                        color: 'white',
+                                        p: 1.5
+                                    }}
+                                >
+                                    <Stack
+                                        alignItems="center"
+                                        direction="row"
+                                        spacing={0.75}
+                                    >
+                                        <PersonIcon fontSize="small" />
+                                        <Typography
+                                            fontWeight="600"
+                                            variant="subtitle1"
+                                        >
+                                            Your Team
+                                        </Typography>
+                                    </Stack>
+                                </Box>
+
+                                <Box sx={{ p: 2 }}>
+                                    {/* Agents */}
+                                    <Box sx={{ mb: 2 }}>
+                                        <Typography
+                                            color="text.secondary"
+                                            sx={{
+                                                fontSize: '0.7rem',
+                                                textTransform: 'uppercase',
+                                                letterSpacing: 0.5,
+                                                mb: 0.75
+                                            }}
+                                            variant="overline"
+                                        >
+                                            {i18next.t('Agent', {
+                                                ns: 'common'
+                                            })}
+                                        </Typography>
+                                        <Stack
+                                            direction="row"
+                                            flexWrap="wrap"
+                                            gap={0.75}
+                                        >
+                                            {agents.length > 0 ? (
+                                                agents.map((agent, i) => (
+                                                    <Tooltip
+                                                        key={i}
+                                                        title={`${agent.firstname} ${agent.lastname}`}
+                                                    >
+                                                        {is_TaiGer_role(
+                                                            user
+                                                        ) ? (
+                                                            <Chip
+                                                                avatar={
+                                                                    <Avatar
+                                                                        src={
+                                                                            agent.pictureUrl
+                                                                        }
+                                                                        {...stringAvatar(
+                                                                            `${agent.firstname} ${agent.lastname}`
+                                                                        )}
+                                                                        sx={{
+                                                                            bgcolor:
+                                                                                theme
+                                                                                    .palette
+                                                                                    .primary
+                                                                                    .main,
+                                                                            color: 'white',
+                                                                            fontSize:
+                                                                                '0.65rem',
+                                                                            width: 24,
+                                                                            height: 24
+                                                                        }}
+                                                                    >
+                                                                        {getInitials(
+                                                                            agent.firstname,
+                                                                            agent.lastname
+                                                                        )}
+                                                                    </Avatar>
+                                                                }
+                                                                clickable
+                                                                component={
+                                                                    LinkDom
+                                                                }
+                                                                label={`${agent.firstname}`}
+                                                                size="small"
+                                                                sx={{
+                                                                    fontWeight: 500,
+                                                                    fontSize:
+                                                                        '0.8rem',
+                                                                    height: 28,
+                                                                    '&:hover': {
+                                                                        bgcolor:
+                                                                            'primary.50'
+                                                                    }
+                                                                }}
+                                                                target="_blank"
+                                                                to={`${DEMO.TEAM_AGENT_LINK(agent._id.toString())}`}
+                                                                variant="outlined"
+                                                            />
+                                                        ) : (
+                                                            <Chip
+                                                                avatar={
+                                                                    <Avatar
+                                                                        src={
+                                                                            agent.pictureUrl
+                                                                        }
+                                                                        {...stringAvatar(
+                                                                            `${agent.firstname} ${agent.lastname}`
+                                                                        )}
+                                                                        sx={{
+                                                                            bgcolor:
+                                                                                theme
+                                                                                    .palette
+                                                                                    .primary
+                                                                                    .main,
+                                                                            color: 'white',
+                                                                            fontSize:
+                                                                                '0.65rem',
+                                                                            width: 24,
+                                                                            height: 24
+                                                                        }}
+                                                                    >
+                                                                        {getInitials(
+                                                                            agent.firstname,
+                                                                            agent.lastname
+                                                                        )}
+                                                                    </Avatar>
+                                                                }
+                                                                label={`${agent.firstname} ${agent.lastname}`}
+                                                                size="small"
+                                                                sx={{
+                                                                    fontWeight: 500,
+                                                                    fontSize:
+                                                                        '0.8rem',
+                                                                    height: 28
+                                                                }}
+                                                                variant="outlined"
+                                                            />
+                                                        )}
+                                                    </Tooltip>
+                                                ))
+                                            ) : (
+                                                <Typography
+                                                    color="text.secondary"
+                                                    sx={{ fontSize: '0.85rem' }}
+                                                    variant="body2"
+                                                >
+                                                    No agents assigned
+                                                </Typography>
+                                            )}
+                                        </Stack>
+                                    </Box>
+
+                                    <Divider sx={{ my: 1.5 }} />
+
+                                    {/* Editors */}
+                                    <Box>
+                                        <Typography
+                                            color="text.secondary"
+                                            sx={{
+                                                fontSize: '0.7rem',
+                                                textTransform: 'uppercase',
+                                                letterSpacing: 0.5,
+                                                mb: 0.75
+                                            }}
+                                            variant="overline"
+                                        >
+                                            {thread.file_type === 'Essay'
+                                                ? i18next.t('Essay Writer', {
+                                                      ns: 'common'
+                                                  })
+                                                : i18next.t('Editor', {
+                                                      ns: 'common'
+                                                  })}
+                                        </Typography>
+                                        {[
+                                            ...AGENT_SUPPORT_DOCUMENTS_A,
+                                            FILE_TYPE_E.essay_required
+                                        ].includes(thread.file_type) ? (
+                                            thread?.outsourced_user_id?.length >
+                                            0 ? (
+                                                <Stack
+                                                    direction="row"
+                                                    flexWrap="wrap"
+                                                    gap={0.75}
+                                                >
+                                                    {thread?.outsourced_user_id?.map(
+                                                        (outsourcer) => (
+                                                            <Tooltip
+                                                                key={
+                                                                    outsourcer._id
+                                                                }
+                                                                title={`${outsourcer.firstname} ${outsourcer.lastname}`}
+                                                            >
+                                                                {is_TaiGer_role(
+                                                                    user
+                                                                ) ? (
+                                                                    <Chip
+                                                                        avatar={
+                                                                            <Avatar
+                                                                                src={
+                                                                                    outsourcer.pictureUrl
+                                                                                }
+                                                                                {...stringAvatar(
+                                                                                    `${outsourcer.firstname} ${outsourcer.lastname}`
+                                                                                )}
+                                                                                sx={{
+                                                                                    bgcolor:
+                                                                                        theme
+                                                                                            .palette
+                                                                                            .secondary
+                                                                                            .main,
+                                                                                    color: 'white',
+                                                                                    fontSize:
+                                                                                        '0.65rem',
+                                                                                    width: 24,
+                                                                                    height: 24
+                                                                                }}
+                                                                            >
+                                                                                {getInitials(
+                                                                                    outsourcer.firstname,
+                                                                                    outsourcer.lastname
+                                                                                )}
+                                                                            </Avatar>
+                                                                        }
+                                                                        clickable
+                                                                        component={
+                                                                            LinkDom
+                                                                        }
+                                                                        label={`${outsourcer.firstname}`}
+                                                                        size="small"
+                                                                        sx={{
+                                                                            fontWeight: 500,
+                                                                            fontSize:
+                                                                                '0.8rem',
+                                                                            height: 28,
+                                                                            '&:hover':
+                                                                                {
+                                                                                    bgcolor:
+                                                                                        'secondary.50'
+                                                                                }
+                                                                        }}
+                                                                        target="_blank"
+                                                                        to={`${DEMO.TEAM_EDITOR_LINK(
+                                                                            outsourcer._id.toString()
+                                                                        )}`}
+                                                                        variant="outlined"
+                                                                    />
+                                                                ) : (
+                                                                    <Chip
+                                                                        avatar={
+                                                                            <Avatar
+                                                                                src={
+                                                                                    outsourcer.pictureUrl
+                                                                                }
+                                                                                {...stringAvatar(
+                                                                                    `${outsourcer.firstname} ${outsourcer.lastname}`
+                                                                                )}
+                                                                                sx={{
+                                                                                    bgcolor:
+                                                                                        theme
+                                                                                            .palette
+                                                                                            .secondary
+                                                                                            .main,
+                                                                                    color: 'white',
+                                                                                    fontSize:
+                                                                                        '0.65rem',
+                                                                                    width: 24,
+                                                                                    height: 24
+                                                                                }}
+                                                                            >
+                                                                                {getInitials(
+                                                                                    outsourcer.firstname,
+                                                                                    outsourcer.lastname
+                                                                                )}
+                                                                            </Avatar>
+                                                                        }
+                                                                        label={`${outsourcer.firstname} ${outsourcer.lastname}`}
+                                                                        size="small"
+                                                                        sx={{
+                                                                            fontWeight: 500,
+                                                                            fontSize:
+                                                                                '0.8rem',
+                                                                            height: 28
+                                                                        }}
+                                                                        variant="outlined"
+                                                                    />
+                                                                )}
+                                                            </Tooltip>
+                                                        )
+                                                    )}
+                                                </Stack>
+                                            ) : (
+                                                <Typography
+                                                    color="text.secondary"
+                                                    sx={{
+                                                        fontStyle: 'italic',
+                                                        py: 0.5,
+                                                        fontSize: '0.85rem'
+                                                    }}
+                                                    variant="body2"
+                                                >
+                                                    {[
+                                                        ...AGENT_SUPPORT_DOCUMENTS_A
+                                                    ].includes(thread.file_type)
+                                                        ? 'If needed, editor can be added'
+                                                        : 'To Be Assigned'}
+                                                </Typography>
+                                            )
+                                        ) : null}
+                                        {![
+                                            ...AGENT_SUPPORT_DOCUMENTS_A,
+                                            FILE_TYPE_E.essay_required
+                                        ].includes(thread.file_type) &&
+                                        editors.length > 0 ? (
+                                            <Stack
+                                                direction="row"
+                                                flexWrap="wrap"
+                                                gap={0.75}
+                                            >
+                                                {editors.map((editor, i) => (
+                                                    <Tooltip
+                                                        key={i}
+                                                        title={`${editor.firstname} ${editor.lastname}`}
+                                                    >
+                                                        {is_TaiGer_role(
+                                                            user
+                                                        ) ? (
+                                                            <Chip
+                                                                avatar={
+                                                                    <Avatar
+                                                                        src={
+                                                                            editor.pictureUrl
+                                                                        }
+                                                                        {...stringAvatar(
+                                                                            `${editor.firstname} ${editor.lastname}`
+                                                                        )}
+                                                                        sx={{
+                                                                            bgcolor:
+                                                                                theme
+                                                                                    .palette
+                                                                                    .secondary
+                                                                                    .main,
+                                                                            color: 'white',
+                                                                            fontSize:
+                                                                                '0.65rem',
+                                                                            width: 24,
+                                                                            height: 24
+                                                                        }}
+                                                                    >
+                                                                        {getInitials(
+                                                                            editor.firstname,
+                                                                            editor.lastname
+                                                                        )}
+                                                                    </Avatar>
+                                                                }
+                                                                clickable
+                                                                component={
+                                                                    LinkDom
+                                                                }
+                                                                label={`${editor.firstname} ${editor.lastname}`}
+                                                                size="small"
+                                                                sx={{
+                                                                    fontWeight: 500,
+                                                                    fontSize:
+                                                                        '0.8rem',
+                                                                    height: 28,
+                                                                    '&:hover': {
+                                                                        bgcolor:
+                                                                            'secondary.50'
+                                                                    }
+                                                                }}
+                                                                target="_blank"
+                                                                to={`${DEMO.TEAM_EDITOR_LINK(editor._id.toString())}`}
+                                                                variant="outlined"
+                                                            />
+                                                        ) : (
+                                                            <Chip
+                                                                avatar={
+                                                                    <Avatar
+                                                                        src={
+                                                                            editor.pictureUrl
+                                                                        }
+                                                                        {...stringAvatar(
+                                                                            `${editor.firstname} ${editor.lastname}`
+                                                                        )}
+                                                                        sx={{
+                                                                            bgcolor:
+                                                                                theme
+                                                                                    .palette
+                                                                                    .secondary
+                                                                                    .main,
+                                                                            color: 'white',
+                                                                            fontSize:
+                                                                                '0.65rem',
+                                                                            width: 24,
+                                                                            height: 24
+                                                                        }}
+                                                                    >
+                                                                        {getInitials(
+                                                                            editor.firstname,
+                                                                            editor.lastname
+                                                                        )}
+                                                                    </Avatar>
+                                                                }
+                                                                label={`${editor.firstname}`}
+                                                                size="small"
+                                                                sx={{
+                                                                    fontWeight: 500,
+                                                                    fontSize:
+                                                                        '0.8rem',
+                                                                    height: 28
+                                                                }}
+                                                                variant="outlined"
+                                                            />
+                                                        )}
+                                                    </Tooltip>
+                                                ))}
+                                            </Stack>
+                                        ) : null}
+                                        {is_TaiGer_role(user) &&
+                                        [
+                                            ...AGENT_SUPPORT_DOCUMENTS_A,
+                                            FILE_TYPE_E.essay_required
+                                        ].includes(thread.file_type) ? (
+                                            <Chip
+                                                color="secondary"
+                                                icon={<AddIcon />}
+                                                onClick={startEditingEditor}
+                                                size="small"
+                                                sx={{ mt: 1, pl: 1 }}
+                                            />
+                                        ) : null}
+                                    </Box>
+                                </Box>
+                            </Card>
+
+                            {/* Program Details Card */}
+                            {thread.program_id && (
+                                <Card
+                                    sx={{
+                                        borderRadius: 2,
+                                        boxShadow: theme.shadows[1],
+                                        border: `1px solid ${theme.palette.divider}`
+                                    }}
+                                >
+                                    <Box
+                                        sx={{
+                                            background: `linear-gradient(135deg, ${programGradient.start} 0%, ${programGradient.end} 100%)`,
+                                            color: 'white',
+                                            p: 1.5
+                                        }}
+                                    >
+                                        <Stack
+                                            alignItems="center"
+                                            direction="row"
+                                            spacing={0.75}
+                                        >
+                                            <SchoolIcon fontSize="small" />
+                                            <Typography
+                                                fontWeight="600"
+                                                variant="subtitle1"
+                                            >
+                                                {i18next.t('Program Details')}
+                                            </Typography>
+                                        </Stack>
+                                    </Box>
+                                    <Box sx={{ p: 2 }}>
+                                        <Stack spacing={2}>
+                                            <Stack
+                                                alignItems="center"
+                                                direction="row"
+                                                justifyContent="space-between"
+                                            >
+                                                <Stack
+                                                    alignItems="center"
+                                                    direction="row"
+                                                    spacing={0.75}
+                                                >
+                                                    <AccessTimeIcon
+                                                        color="action"
+                                                        sx={{ fontSize: 18 }}
+                                                    />
+                                                    <Typography
+                                                        color="text.secondary"
+                                                        variant="body2"
+                                                    >
+                                                        {i18next.t('Semester', {
+                                                            ns: 'common'
+                                                        })}
+                                                    </Typography>
+                                                </Stack>
+                                                <Typography
+                                                    fontWeight="600"
+                                                    variant="body2"
+                                                >
+                                                    {thread.program_id.semester}
+                                                </Typography>
+                                            </Stack>
+                                            <Divider />
+                                            <Stack
+                                                alignItems="center"
+                                                direction="row"
+                                                justifyContent="space-between"
+                                            >
+                                                <Stack
+                                                    alignItems="center"
+                                                    direction="row"
+                                                    spacing={0.75}
+                                                >
+                                                    <LanguageIcon
+                                                        color="action"
+                                                        sx={{ fontSize: 18 }}
+                                                    />
+                                                    <Typography
+                                                        color="text.secondary"
+                                                        variant="body2"
+                                                    >
+                                                        {i18next.t(
+                                                            'Program Language',
+                                                            { ns: 'common' }
+                                                        )}
+                                                    </Typography>
+                                                </Stack>
+                                                <Typography
+                                                    fontWeight="600"
+                                                    variant="body2"
+                                                >
+                                                    {thread.program_id.lang}
+                                                </Typography>
+                                            </Stack>
+                                        </Stack>
+                                    </Box>
+                                </Card>
+                            )}
 
                             {/* Requirements Dialog */}
                             <Dialog
@@ -1625,19 +1618,30 @@ const InformationBlock = ({
 
                 {/* Main Content Area: Messages & Reply */}
                 <Grid item lg={9} md={9} xs={12}>
-                    {children}
+                    <Box
+                        sx={{
+                            position: { md: 'sticky' },
+                            top: { md: 8 },
+                            maxHeight: { md: 'calc(100vh - 188px)' },
+                            overflowY: { md: 'auto' },
+                            '&::-webkit-scrollbar': {
+                                width: '6px'
+                            },
+                            '&::-webkit-scrollbar-thumb': {
+                                backgroundColor: theme.palette.divider,
+                                borderRadius: '3px'
+                            }
+                        }}
+                    >
+                        {children}
+                    </Box>
                 </Grid>
             </Grid>
         </Box>
     );
 };
-const OriginAuthorStatementBar = ({
-    thread,
-    student_name,
-    docName,
-    theme,
-    user
-}) => {
+
+const OriginAuthorStatementBar = ({ thread, theme, user }) => {
     const [openOriginAuthorModal, setOpenOriginAuthorModal] = useState(false);
     const [originAuthorConfirmed, setOriginAuthorConfirmed] = useState(
         thread?.isOriginAuthorDeclarationConfirmedByStudent
@@ -1663,12 +1667,12 @@ const OriginAuthorStatementBar = ({
             () => {}
         );
     };
-
+    const student_name = `${thread.student_id.lastname}${thread.student_id.firstname}`;
     const student_name_zh = `${thread.student_id.lastname_chinese}${thread.student_id.firstname_chinese}`;
 
     return (
-        <Box className="sticky-top">
-            <Stack alignItems="center" direction="row" spacing={1}>
+        <Box>
+            <Stack alignItems="center" direction="row" mt={1} spacing={1}>
                 {originAuthorConfirmed ? (
                     <>
                         <CheckCircleIcon
@@ -1680,8 +1684,7 @@ const OriginAuthorStatementBar = ({
                             {i18next.t('confirmDocument', {
                                 ns: 'documents',
                                 studentName: student_name,
-                                studentNameZh: student_name_zh,
-                                docName
+                                studentNameZh: student_name_zh
                             })}
                             <span
                                 onClick={() =>
@@ -1705,8 +1708,7 @@ const OriginAuthorStatementBar = ({
                             {i18next.t('notConfirmDocument', {
                                 ns: 'documents',
                                 studentName: student_name,
-                                studentNameZh: student_name_zh,
-                                docName
+                                studentNameZh: student_name_zh
                             })}
                             &nbsp;
                             <span
@@ -1788,8 +1790,7 @@ const OriginAuthorStatementBar = ({
                                 'i-declare-without-help-of-ai',
                                 {
                                     ns: 'common',
-                                    studentFullName: `${student_name} ${student_name_zh}`,
-                                    docName: docName
+                                    studentFullName: `${student_name} ${student_name_zh}`
                                 }
                             )}`}
                             sx={{ my: 2 }}
@@ -2260,8 +2261,13 @@ const DocModificationThreadPage = ({
                     }));
                     setEditorModalhide();
                     setSeverity('success');
-                    setMessage('Essay Writer assigned successfully!');
-                    setOpenSnackbar(true);
+                    if (thread.file_type === 'Essay') {
+                        setMessage('Essay Writer assigned successfully!');
+                        setOpenSnackbar(true);
+                    } else {
+                        setMessage('Editor assigned successfully!');
+                        setOpenSnackbar(true);
+                    }
                 } else {
                     const { message } = resp.data;
                     setDocModificationThreadPageState((prevState) => ({
@@ -2358,15 +2364,6 @@ const DocModificationThreadPage = ({
     TabTitle(`${student_name} ${docName}`);
     return (
         <Box>
-            {thread?.file_type === 'Essay' ? (
-                <OriginAuthorStatementBar
-                    docName={docName}
-                    student_name={student_name}
-                    theme={theme}
-                    thread={thread}
-                    user={user}
-                />
-            ) : null}
             {/* TODO */}
             {/* {false ? <button onClick={generatePDF}>Generate PDF</button> : null} */}
 

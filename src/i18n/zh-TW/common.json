@@ -386,7 +386,7 @@
     "file-upload-notice": "每個檔案都有注意事項。請務必上傳文件前，點選各文件名稱旁的說明連結圖示，並查看文件要求，照著我們的要求上傳，顧問會再檢查文件是否沒問題。",
     "files": "檔案",
     "hello-students": "親愛的{{tenant}}同學您好",
-    "i-declare-without-help-of-ai": "我 {{studentFullName}} 確認 {{docName} 這份文件皆無用 AI 輔助完成，我同意此條款並對編修後的內容全權負責。",
+    "i-declare-without-help-of-ai": "我 {{studentFullName}} 確認這份文件皆無用 AI 輔助完成，我同意此條款並對編修後的內容全權負責。",
     "loading": "載入中",
     "open/offer/reject": "未送出/錄取/拒絕",
     "required-document-notice": "無論是申請大學部或是碩士班，高中文件、學測或統測成績單為必要文件。德國學校通常列為必要文件，此文件會因為您的背景況狀有所變動。請先填好個人檔案。",
