@@ -492,6 +492,7 @@ const InformationBlock = ({
                         }}
                     >
                         <Stack spacing={1}>
+                            {thread.isFinalVersion ? <TopBar /> : null}
                             {thread?.file_type === 'Essay' ? (
                                 <OriginAuthorStatementBar
                                     theme={theme}
@@ -862,7 +863,7 @@ const InformationBlock = ({
                                                 agents.map((agent, i) => (
                                                     <Tooltip
                                                         key={i}
-                                                        title={`${agent.firstname} ${agent.lastname}`}
+                                                        title={`${agent.firstname}`}
                                                     >
                                                         {is_TaiGer_role(
                                                             user
@@ -944,7 +945,7 @@ const InformationBlock = ({
                                                                         )}
                                                                     </Avatar>
                                                                 }
-                                                                label={`${agent.firstname} ${agent.lastname}`}
+                                                                label={`${agent.firstname}`}
                                                                 size="small"
                                                                 sx={{
                                                                     fontWeight: 500,
@@ -1093,7 +1094,7 @@ const InformationBlock = ({
                                                                                 )}
                                                                             </Avatar>
                                                                         }
-                                                                        label={`${outsourcer.firstname} ${outsourcer.lastname}`}
+                                                                        label={`${outsourcer.firstname}`}
                                                                         size="small"
                                                                         sx={{
                                                                             fontWeight: 500,
@@ -1176,7 +1177,7 @@ const InformationBlock = ({
                                                                 component={
                                                                     LinkDom
                                                                 }
-                                                                label={`${editor.firstname} ${editor.lastname}`}
+                                                                label={`${editor.firstname}`}
                                                                 size="small"
                                                                 sx={{
                                                                     fontWeight: 500,
@@ -2367,9 +2368,6 @@ const DocModificationThreadPage = ({
             {/* TODO */}
             {/* {false ? <button onClick={generatePDF}>Generate PDF</button> : null} */}
 
-            {docModificationThreadPageState.thread.isFinalVersion ? (
-                <TopBar />
-            ) : null}
             <Tabs
                 aria-label="basic tabs example"
                 indicatorColor="primary"
