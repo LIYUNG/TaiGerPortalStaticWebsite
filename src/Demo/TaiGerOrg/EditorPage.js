@@ -145,7 +145,7 @@ const EditorPage = () => {
                 open_task.latest_message_left_by_id === '- None - '
         );
 
-        const closedTasks = open_tasks_arr.filter(
+        const closedTasks = tasksWithMyEssay.filter(
             (open_task) => open_task.show && open_task.isFinalVersion
         );
 
