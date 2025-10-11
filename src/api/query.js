@@ -23,6 +23,7 @@ import {
     getActiveStudents,
     getActiveStudentsApplications,
     getInterviews,
+    getInterview,
     getAuditLog,
     getTasksOverview,
     getIsManager,
@@ -284,4 +285,10 @@ export const getCRMSalesRepsQuery = () => ({
     queryKey: ['crm/sales-reps'],
     queryFn: getCRMSalesReps,
     gcTime: 1000 * 60 * 15 // 15 minutes
+});
+
+export const getInterviewQuery = (interviewId) => ({
+    queryKey: ['interviews', interviewId],
+    queryFn: () => getInterview(interviewId),
+    staleTime: 1000 * 60 * 1 // 1 minute
 });
