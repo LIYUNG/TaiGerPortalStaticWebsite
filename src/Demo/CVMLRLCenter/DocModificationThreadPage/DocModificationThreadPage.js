@@ -480,7 +480,7 @@ const InformationBlock = ({
                         sx={{
                             position: { md: 'sticky' },
                             top: { md: 8 },
-                            maxHeight: { md: 'calc(100vh - 188px)' },
+                            maxHeight: { md: 'calc(100vh - 192px)' },
                             overflowY: { md: 'auto' },
                             '&::-webkit-scrollbar': {
                                 width: '6px'
@@ -1623,7 +1623,7 @@ const InformationBlock = ({
                         sx={{
                             position: { md: 'sticky' },
                             top: { md: 8 },
-                            maxHeight: { md: 'calc(100vh - 188px)' },
+                            maxHeight: { md: 'calc(100vh - 192px)' },
                             overflowY: { md: 'auto' },
                             '&::-webkit-scrollbar': {
                                 width: '6px'
