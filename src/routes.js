@@ -166,6 +166,12 @@ const ProgramList = React.lazy(() => import('./Demo/Program/ProgramList'));
 const ProgramsOverviewPage = React.lazy(
     () => import('./Demo/Program/ProgramsOverviewPage')
 );
+const ProgramDistributionDetailPage = React.lazy(
+    () => import('./Demo/Program/ProgramDistributionDetailPage')
+);
+const SchoolDistributionPage = React.lazy(
+    () => import('./Demo/Program/SchoolDistributionPage')
+);
 const ApplicationsOverview = React.lazy(
     () => import('./Demo/ApplicantsOverview/index')
 );
@@ -366,6 +372,20 @@ const routes = [
                 name: 'Programs Overview',
                 errorElement: <DefaultErrorPage />,
                 Component: ProgramsOverviewPage
+            },
+            {
+                path: 'distribution/:distributionType',
+                exact: true,
+                name: 'Program Distribution Detail',
+                errorElement: <DefaultErrorPage />,
+                Component: ProgramDistributionDetailPage
+            },
+            {
+                path: 'schools',
+                exact: true,
+                name: 'Schools Distribution',
+                errorElement: <DefaultErrorPage />,
+                Component: SchoolDistributionPage
             },
             {
                 path: ':programId/change-requests',

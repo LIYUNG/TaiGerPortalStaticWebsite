@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link as LinkDom, Navigate } from 'react-router-dom';
+import { Link as LinkDom, Navigate, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
     Alert,
@@ -7,6 +7,7 @@ import {
     Breadcrumbs,
     Button,
     Card,
+    CardActionArea,
     CardContent,
     Chip,
     Divider,
@@ -37,7 +38,8 @@ import {
     Update,
     Refresh,
     Assessment,
-    Info
+    Info,
+    Person
 } from '@mui/icons-material';
 import { is_TaiGer_role } from '@taiger-common/core';
 import { useQuery } from '@tanstack/react-query';
@@ -54,6 +56,7 @@ import ErrorPage from '../Utils/ErrorPage';
 const ProgramsOverviewPage = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
+    const navigate = useNavigate();
     const [refreshing, setRefreshing] = useState(false);
     const [cooldownSeconds, setCooldownSeconds] = useState(0);
     const [lastRefreshTime, setLastRefreshTime] = useState(null);
@@ -329,10 +332,12 @@ const ProgramsOverviewPage = () => {
                                         sx={{ opacity: 0.9 }}
                                         variant="body2"
                                     >
-                                        {t('Top Schools', { ns: 'common' })}
+                                        {t('Total Universities', {
+                                            ns: 'common'
+                                        })}
                                     </Typography>
                                     <Typography fontWeight="bold" variant="h3">
-                                        {overview.topSchools.length}
+                                        {overview.totalSchools}
                                     </Typography>
                                 </Box>
                                 <School sx={{ fontSize: 40, opacity: 0.7 }} />
@@ -386,187 +391,264 @@ const ProgramsOverviewPage = () => {
             <Grid container mb={4} spacing={3}>
                 {/* Programs by Country */}
                 <Grid item md={6} xs={12}>
-                    <Card sx={{ height: 450 }}>
-                        <CardContent
-                            sx={{
-                                height: '100%',
-                                display: 'flex',
-                                flexDirection: 'column'
-                            }}
-                        >
-                            <Box alignItems="center" display="flex" mb={2}>
-                                <Public sx={{ mr: 1 }} />
-                                <Typography variant="h6">
-                                    {t('Programs by Country', {
-                                        ns: 'common'
-                                    })}
-                                </Typography>
-                            </Box>
-                            <Divider sx={{ mb: 2 }} />
-                            <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
-                                <List dense>
-                                    {overview.byCountry
-                                        .slice(0, 8)
-                                        .map((item, index) => (
-                                            <ListItem key={index}>
-                                                <ListItemText
-                                                    primary={
-                                                        <Box
-                                                            alignItems="center"
-                                                            display="flex"
-                                                            justifyContent="space-between"
-                                                        >
-                                                            <Typography>
-                                                                {item.country}
-                                                            </Typography>
-                                                            <Chip
-                                                                color="primary"
-                                                                label={
-                                                                    item.count
+                    <Card
+                        onClick={() =>
+                            navigate('/programs/distribution/country')
+                        }
+                        sx={{ height: 450, cursor: 'pointer' }}
+                    >
+                        <CardActionArea sx={{ height: '100%' }}>
+                            <CardContent
+                                sx={{
+                                    height: '100%',
+                                    display: 'flex',
+                                    flexDirection: 'column'
+                                }}
+                            >
+                                <Box
+                                    alignItems="center"
+                                    display="flex"
+                                    justifyContent="space-between"
+                                    mb={2}
+                                >
+                                    <Box alignItems="center" display="flex">
+                                        <Public sx={{ mr: 1 }} />
+                                        <Typography variant="h6">
+                                            {t('Programs by Country', {
+                                                ns: 'common'
+                                            })}
+                                        </Typography>
+                                    </Box>
+                                    <Chip
+                                        label={t('Click for details', {
+                                            ns: 'common'
+                                        })}
+                                        size="small"
+                                        variant="outlined"
+                                    />
+                                </Box>
+                                <Divider sx={{ mb: 2 }} />
+                                <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
+                                    <List dense>
+                                        {overview.byCountry
+                                            .slice(0, 8)
+                                            .map((item, index) => (
+                                                <ListItem key={index}>
+                                                    <ListItemText
+                                                        primary={
+                                                            <Box
+                                                                alignItems="center"
+                                                                display="flex"
+                                                                justifyContent="space-between"
+                                                            >
+                                                                <Typography>
+                                                                    {
+                                                                        item.country
+                                                                    }
+                                                                </Typography>
+                                                                <Chip
+                                                                    color="primary"
+                                                                    label={
+                                                                        item.count
+                                                                    }
+                                                                    size="small"
+                                                                />
+                                                            </Box>
+                                                        }
+                                                        secondary={
+                                                            <LinearProgress
+                                                                sx={{ mt: 1 }}
+                                                                value={
+                                                                    (item.count /
+                                                                        overview.totalPrograms) *
+                                                                    100
                                                                 }
-                                                                size="small"
+                                                                variant="determinate"
                                                             />
-                                                        </Box>
-                                                    }
-                                                    secondary={
-                                                        <LinearProgress
-                                                            sx={{ mt: 1 }}
-                                                            value={
-                                                                (item.count /
-                                                                    overview.totalPrograms) *
-                                                                100
-                                                            }
-                                                            variant="determinate"
-                                                        />
-                                                    }
-                                                />
-                                            </ListItem>
-                                        ))}
-                                </List>
-                            </Box>
-                        </CardContent>
+                                                        }
+                                                    />
+                                                </ListItem>
+                                            ))}
+                                    </List>
+                                </Box>
+                            </CardContent>
+                        </CardActionArea>
                     </Card>
                 </Grid>
 
                 {/* Programs by Degree */}
                 <Grid item md={3} sm={6} xs={12}>
-                    <Card sx={{ height: 450 }}>
-                        <CardContent
-                            sx={{
-                                height: '100%',
-                                display: 'flex',
-                                flexDirection: 'column'
-                            }}
-                        >
-                            <Box alignItems="center" display="flex" mb={2}>
-                                <School sx={{ mr: 1 }} />
-                                <Typography variant="h6">
-                                    {t('Programs by Degree', {
-                                        ns: 'common'
-                                    })}
-                                </Typography>
-                            </Box>
-                            <Divider sx={{ mb: 2 }} />
-                            <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
-                                <List dense>
-                                    {overview.byDegree.map((item, index) => (
-                                        <ListItem key={index}>
-                                            <ListItemText
-                                                primary={
-                                                    <Box
-                                                        alignItems="center"
-                                                        display="flex"
-                                                        justifyContent="space-between"
-                                                    >
-                                                        <Typography>
-                                                            {item.degree}
-                                                        </Typography>
-                                                        <Chip
-                                                            color="secondary"
-                                                            label={item.count}
-                                                            size="small"
-                                                        />
-                                                    </Box>
-                                                }
-                                                secondary={
-                                                    <LinearProgress
-                                                        color="secondary"
-                                                        sx={{ mt: 1 }}
-                                                        value={
-                                                            (item.count /
-                                                                overview.totalPrograms) *
-                                                            100
+                    <Card
+                        onClick={() =>
+                            navigate('/programs/distribution/degree')
+                        }
+                        sx={{ height: 450, cursor: 'pointer' }}
+                    >
+                        <CardActionArea sx={{ height: '100%' }}>
+                            <CardContent
+                                sx={{
+                                    height: '100%',
+                                    display: 'flex',
+                                    flexDirection: 'column'
+                                }}
+                            >
+                                <Box
+                                    alignItems="center"
+                                    display="flex"
+                                    justifyContent="space-between"
+                                    mb={2}
+                                >
+                                    <Box alignItems="center" display="flex">
+                                        <School sx={{ mr: 1 }} />
+                                        <Typography variant="h6">
+                                            {t('Programs by Degree', {
+                                                ns: 'common'
+                                            })}
+                                        </Typography>
+                                    </Box>
+                                    <Chip
+                                        label={t('Click for details', {
+                                            ns: 'common'
+                                        })}
+                                        size="small"
+                                        variant="outlined"
+                                    />
+                                </Box>
+                                <Divider sx={{ mb: 2 }} />
+                                <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
+                                    <List dense>
+                                        {overview.byDegree.map(
+                                            (item, index) => (
+                                                <ListItem key={index}>
+                                                    <ListItemText
+                                                        primary={
+                                                            <Box
+                                                                alignItems="center"
+                                                                display="flex"
+                                                                justifyContent="space-between"
+                                                            >
+                                                                <Typography>
+                                                                    {
+                                                                        item.degree
+                                                                    }
+                                                                </Typography>
+                                                                <Chip
+                                                                    color="secondary"
+                                                                    label={
+                                                                        item.count
+                                                                    }
+                                                                    size="small"
+                                                                />
+                                                            </Box>
                                                         }
-                                                        variant="determinate"
+                                                        secondary={
+                                                            <LinearProgress
+                                                                color="secondary"
+                                                                sx={{ mt: 1 }}
+                                                                value={
+                                                                    (item.count /
+                                                                        overview.totalPrograms) *
+                                                                    100
+                                                                }
+                                                                variant="determinate"
+                                                            />
+                                                        }
                                                     />
-                                                }
-                                            />
-                                        </ListItem>
-                                    ))}
-                                </List>
-                            </Box>
-                        </CardContent>
+                                                </ListItem>
+                                            )
+                                        )}
+                                    </List>
+                                </Box>
+                            </CardContent>
+                        </CardActionArea>
                     </Card>
                 </Grid>
 
                 {/* Programs by Language */}
                 <Grid item md={3} sm={6} xs={12}>
-                    <Card sx={{ height: 450 }}>
-                        <CardContent
-                            sx={{
-                                height: '100%',
-                                display: 'flex',
-                                flexDirection: 'column'
-                            }}
-                        >
-                            <Box alignItems="center" display="flex" mb={2}>
-                                <Language sx={{ mr: 1 }} />
-                                <Typography variant="h6">
-                                    {t('Programs by Language', {
-                                        ns: 'common'
-                                    })}
-                                </Typography>
-                            </Box>
-                            <Divider sx={{ mb: 2 }} />
-                            <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
-                                <List dense>
-                                    {overview.byLanguage.map((item, index) => (
-                                        <ListItem key={index}>
-                                            <ListItemText
-                                                primary={
-                                                    <Box
-                                                        alignItems="center"
-                                                        display="flex"
-                                                        justifyContent="space-between"
-                                                    >
-                                                        <Typography>
-                                                            {item.language}
-                                                        </Typography>
-                                                        <Chip
-                                                            color="success"
-                                                            label={item.count}
-                                                            size="small"
-                                                        />
-                                                    </Box>
-                                                }
-                                                secondary={
-                                                    <LinearProgress
-                                                        color="success"
-                                                        sx={{ mt: 1 }}
-                                                        value={
-                                                            (item.count /
-                                                                overview.totalPrograms) *
-                                                            100
+                    <Card
+                        onClick={() =>
+                            navigate('/programs/distribution/language')
+                        }
+                        sx={{ height: 450, cursor: 'pointer' }}
+                    >
+                        <CardActionArea sx={{ height: '100%' }}>
+                            <CardContent
+                                sx={{
+                                    height: '100%',
+                                    display: 'flex',
+                                    flexDirection: 'column'
+                                }}
+                            >
+                                <Box
+                                    alignItems="center"
+                                    display="flex"
+                                    justifyContent="space-between"
+                                    mb={2}
+                                >
+                                    <Box alignItems="center" display="flex">
+                                        <Language sx={{ mr: 1 }} />
+                                        <Typography variant="h6">
+                                            {t('Programs by Language', {
+                                                ns: 'common'
+                                            })}
+                                        </Typography>
+                                    </Box>
+                                    <Chip
+                                        label={t('Click for details', {
+                                            ns: 'common'
+                                        })}
+                                        size="small"
+                                        variant="outlined"
+                                    />
+                                </Box>
+                                <Divider sx={{ mb: 2 }} />
+                                <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
+                                    <List dense>
+                                        {overview.byLanguage.map(
+                                            (item, index) => (
+                                                <ListItem key={index}>
+                                                    <ListItemText
+                                                        primary={
+                                                            <Box
+                                                                alignItems="center"
+                                                                display="flex"
+                                                                justifyContent="space-between"
+                                                            >
+                                                                <Typography>
+                                                                    {
+                                                                        item.language
+                                                                    }
+                                                                </Typography>
+                                                                <Chip
+                                                                    color="success"
+                                                                    label={
+                                                                        item.count
+                                                                    }
+                                                                    size="small"
+                                                                />
+                                                            </Box>
                                                         }
-                                                        variant="determinate"
+                                                        secondary={
+                                                            <LinearProgress
+                                                                color="success"
+                                                                sx={{ mt: 1 }}
+                                                                value={
+                                                                    (item.count /
+                                                                        overview.totalPrograms) *
+                                                                    100
+                                                                }
+                                                                variant="determinate"
+                                                            />
+                                                        }
                                                     />
-                                                }
-                                            />
-                                        </ListItem>
-                                    ))}
-                                </List>
-                            </Box>
-                        </CardContent>
+                                                </ListItem>
+                                            )
+                                        )}
+                                    </List>
+                                </Box>
+                            </CardContent>
+                        </CardActionArea>
                     </Card>
                 </Grid>
             </Grid>
@@ -578,73 +660,96 @@ const ProgramsOverviewPage = () => {
             <Grid container mb={4} spacing={3}>
                 {/* Top Schools Table */}
                 <Grid item md={6} xs={12}>
-                    <Card sx={{ height: 500 }}>
-                        <CardContent
-                            sx={{
-                                height: '100%',
-                                display: 'flex',
-                                flexDirection: 'column'
-                            }}
-                        >
-                            <Box alignItems="center" display="flex" mb={2}>
-                                <School sx={{ mr: 1 }} />
-                                <Typography variant="h6">
-                                    {t('Top Schools by Program Count', {
-                                        ns: 'common'
-                                    })}
-                                </Typography>
-                            </Box>
-                            <Divider sx={{ mb: 2 }} />
-                            <TableContainer
-                                component={Paper}
-                                style={{ maxHeight: 400 }}
+                    <Card
+                        onClick={() => navigate('/programs/schools')}
+                        sx={{ height: 500, cursor: 'pointer' }}
+                    >
+                        <CardActionArea sx={{ height: '100%' }}>
+                            <CardContent
+                                sx={{
+                                    height: '100%',
+                                    display: 'flex',
+                                    flexDirection: 'column'
+                                }}
                             >
-                                <Table size="small" stickyHeader>
-                                    <TableHead>
-                                        <TableRow>
-                                            <TableCell>
-                                                {t('School', {
-                                                    ns: 'common'
-                                                })}
-                                            </TableCell>
-                                            <TableCell>
-                                                {t('Country', {
-                                                    ns: 'common'
-                                                })}
-                                            </TableCell>
-                                            <TableCell>
-                                                {t('City', { ns: 'common' })}
-                                            </TableCell>
-                                            <TableCell align="right">
-                                                {t('Programs', {
-                                                    ns: 'common'
-                                                })}
-                                            </TableCell>
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {overview.topSchools.map(
-                                            (school, index) => (
-                                                <TableRow key={index}>
-                                                    <TableCell>
-                                                        {school.school}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        {school.country}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        {school.city}
-                                                    </TableCell>
-                                                    <TableCell align="right">
-                                                        {school.programCount}
-                                                    </TableCell>
-                                                </TableRow>
-                                            )
-                                        )}
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
-                        </CardContent>
+                                <Box
+                                    alignItems="center"
+                                    display="flex"
+                                    justifyContent="space-between"
+                                    mb={2}
+                                >
+                                    <Box alignItems="center" display="flex">
+                                        <School sx={{ mr: 1 }} />
+                                        <Typography variant="h6">
+                                            {t('Top Schools by Program Count', {
+                                                ns: 'common'
+                                            })}
+                                        </Typography>
+                                    </Box>
+                                    <Chip
+                                        label={t('Click for all schools', {
+                                            ns: 'common'
+                                        })}
+                                        size="small"
+                                        variant="outlined"
+                                    />
+                                </Box>
+                                <Divider sx={{ mb: 2 }} />
+                                <TableContainer
+                                    component={Paper}
+                                    style={{ maxHeight: 400 }}
+                                >
+                                    <Table size="small" stickyHeader>
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableCell>
+                                                    {t('School', {
+                                                        ns: 'common'
+                                                    })}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {t('Country', {
+                                                        ns: 'common'
+                                                    })}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {t('City', {
+                                                        ns: 'common'
+                                                    })}
+                                                </TableCell>
+                                                <TableCell align="right">
+                                                    {t('Programs', {
+                                                        ns: 'common'
+                                                    })}
+                                                </TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {overview.schools
+                                                ?.slice(0, 10)
+                                                .map((school, index) => (
+                                                    <TableRow key={index}>
+                                                        <TableCell>
+                                                            {school.school}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {school.country}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {school.city}
+                                                        </TableCell>
+                                                        <TableCell align="right">
+                                                            {
+                                                                school.programCount
+                                                            }
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+                            </CardContent>
+                        </CardActionArea>
                     </Card>
                 </Grid>
 
@@ -800,7 +905,9 @@ const ProgramsOverviewPage = () => {
 
             {/* Additional Insights Section */}
             {(overview.bySubject.length > 0 ||
-                overview.bySchoolType.length > 0) && (
+                overview.bySchoolType.length > 0 ||
+                (overview.topContributors &&
+                    overview.topContributors.length > 0)) && (
                 <>
                     <Typography gutterBottom sx={{ mt: 4, mb: 3 }} variant="h5">
                         {t('Additional Insights', { ns: 'common' })}
@@ -809,86 +916,114 @@ const ProgramsOverviewPage = () => {
                         {/* Programs by Subject */}
                         {overview.bySubject.length > 0 && (
                             <Grid item md={6} xs={12}>
-                                <Card sx={{ height: 450 }}>
-                                    <CardContent
-                                        sx={{
-                                            height: '100%',
-                                            display: 'flex',
-                                            flexDirection: 'column'
-                                        }}
-                                    >
-                                        <Box
-                                            alignItems="center"
-                                            display="flex"
-                                            mb={2}
-                                        >
-                                            <Category sx={{ mr: 1 }} />
-                                            <Typography variant="h6">
-                                                {t('Top Program Subjects', {
-                                                    ns: 'common'
-                                                })}
-                                            </Typography>
-                                        </Box>
-                                        <Divider sx={{ mb: 2 }} />
-                                        <Box
+                                <Card
+                                    onClick={() =>
+                                        navigate(
+                                            '/programs/distribution/subject'
+                                        )
+                                    }
+                                    sx={{ height: 450, cursor: 'pointer' }}
+                                >
+                                    <CardActionArea sx={{ height: '100%' }}>
+                                        <CardContent
                                             sx={{
-                                                flexGrow: 1,
-                                                overflow: 'auto'
+                                                height: '100%',
+                                                display: 'flex',
+                                                flexDirection: 'column'
                                             }}
                                         >
-                                            <List dense>
-                                                {overview.bySubject.map(
-                                                    (item, index) => (
-                                                        <ListItem key={index}>
-                                                            <ListItemText
-                                                                primary={
-                                                                    <Box
-                                                                        alignItems="center"
-                                                                        display="flex"
-                                                                        justifyContent="space-between"
-                                                                    >
-                                                                        <Typography>
-                                                                            {
-                                                                                item.subject
-                                                                            }
-                                                                        </Typography>
-                                                                        <Chip
+                                            <Box
+                                                alignItems="center"
+                                                display="flex"
+                                                justifyContent="space-between"
+                                                mb={2}
+                                            >
+                                                <Box
+                                                    alignItems="center"
+                                                    display="flex"
+                                                >
+                                                    <Category sx={{ mr: 1 }} />
+                                                    <Typography variant="h6">
+                                                        {t(
+                                                            'Top Program Subjects',
+                                                            {
+                                                                ns: 'common'
+                                                            }
+                                                        )}
+                                                    </Typography>
+                                                </Box>
+                                                <Chip
+                                                    label={t(
+                                                        'Click for details',
+                                                        { ns: 'common' }
+                                                    )}
+                                                    size="small"
+                                                    variant="outlined"
+                                                />
+                                            </Box>
+                                            <Divider sx={{ mb: 2 }} />
+                                            <Box
+                                                sx={{
+                                                    flexGrow: 1,
+                                                    overflow: 'auto'
+                                                }}
+                                            >
+                                                <List dense>
+                                                    {overview.bySubject.map(
+                                                        (item, index) => (
+                                                            <ListItem
+                                                                key={index}
+                                                            >
+                                                                <ListItemText
+                                                                    primary={
+                                                                        <Box
+                                                                            alignItems="center"
+                                                                            display="flex"
+                                                                            justifyContent="space-between"
+                                                                        >
+                                                                            <Typography>
+                                                                                {
+                                                                                    item.subject
+                                                                                }
+                                                                            </Typography>
+                                                                            <Chip
+                                                                                color="info"
+                                                                                label={
+                                                                                    item.count
+                                                                                }
+                                                                                size="small"
+                                                                            />
+                                                                        </Box>
+                                                                    }
+                                                                    secondary={
+                                                                        <LinearProgress
                                                                             color="info"
-                                                                            label={
-                                                                                item.count
+                                                                            sx={{
+                                                                                mt: 1
+                                                                            }}
+                                                                            value={
+                                                                                (item.count /
+                                                                                    Math.max(
+                                                                                        ...overview.bySubject.map(
+                                                                                            (
+                                                                                                s
+                                                                                            ) =>
+                                                                                                s.count
+                                                                                        )
+                                                                                    )) *
+                                                                                100
                                                                             }
-                                                                            size="small"
+                                                                            variant="determinate"
                                                                         />
-                                                                    </Box>
-                                                                }
-                                                                secondary={
-                                                                    <LinearProgress
-                                                                        color="info"
-                                                                        sx={{
-                                                                            mt: 1
-                                                                        }}
-                                                                        value={
-                                                                            (item.count /
-                                                                                Math.max(
-                                                                                    ...overview.bySubject.map(
-                                                                                        (
-                                                                                            s
-                                                                                        ) =>
-                                                                                            s.count
-                                                                                    )
-                                                                                )) *
-                                                                            100
-                                                                        }
-                                                                        variant="determinate"
-                                                                    />
-                                                                }
-                                                            />
-                                                        </ListItem>
-                                                    )
-                                                )}
-                                            </List>
-                                        </Box>
-                                    </CardContent>
+                                                                    }
+                                                                />
+                                                            </ListItem>
+                                                        )
+                                                    )}
+                                                </List>
+                                            </Box>
+                                        </CardContent>
+                                    </CardActionArea>
                                 </Card>
                             </Grid>
                         )}
@@ -981,6 +1116,114 @@ const ProgramsOverviewPage = () => {
                                 </Card>
                             </Grid>
                         )}
+
+                        {/* Top Contributors */}
+                        {overview.topContributors &&
+                            overview.topContributors.length > 0 && (
+                                <Grid item md={6} xs={12}>
+                                    <Card sx={{ height: 450 }}>
+                                        <CardContent
+                                            sx={{
+                                                height: '100%',
+                                                display: 'flex',
+                                                flexDirection: 'column'
+                                            }}
+                                        >
+                                            <Box
+                                                alignItems="center"
+                                                display="flex"
+                                                mb={2}
+                                            >
+                                                <Person sx={{ mr: 1 }} />
+                                                <Typography variant="h6">
+                                                    {t('Top Contributors', {
+                                                        ns: 'common'
+                                                    })}
+                                                </Typography>
+                                            </Box>
+                                            <Divider sx={{ mb: 2 }} />
+                                            <Box
+                                                sx={{
+                                                    flexGrow: 1,
+                                                    overflow: 'auto'
+                                                }}
+                                            >
+                                                <List dense>
+                                                    {overview.topContributors.map(
+                                                        (
+                                                            contributor,
+                                                            index
+                                                        ) => (
+                                                            <ListItem
+                                                                key={index}
+                                                            >
+                                                                <ListItemText
+                                                                    primary={
+                                                                        <Box
+                                                                            alignItems="center"
+                                                                            display="flex"
+                                                                            justifyContent="space-between"
+                                                                        >
+                                                                            <Box>
+                                                                                <Typography>
+                                                                                    {
+                                                                                        contributor.contributor
+                                                                                    }
+                                                                                </Typography>
+                                                                                <Typography
+                                                                                    color="textSecondary"
+                                                                                    variant="caption"
+                                                                                >
+                                                                                    {t(
+                                                                                        'Last update',
+                                                                                        {
+                                                                                            ns: 'common'
+                                                                                        }
+                                                                                    )}
+                                                                                    :{' '}
+                                                                                    {new Date(
+                                                                                        contributor.lastUpdate
+                                                                                    ).toLocaleDateString()}
+                                                                                </Typography>
+                                                                            </Box>
+                                                                            <Chip
+                                                                                color="warning"
+                                                                                label={`${contributor.updateCount} ${t('updates', { ns: 'common' })}`}
+                                                                                size="small"
+                                                                            />
+                                                                        </Box>
+                                                                    }
+                                                                    secondary={
+                                                                        <LinearProgress
+                                                                            color="warning"
+                                                                            sx={{
+                                                                                mt: 1
+                                                                            }}
+                                                                            value={
+                                                                                (contributor.updateCount /
+                                                                                    Math.max(
+                                                                                        ...overview.topContributors.map(
+                                                                                            (
+                                                                                                c
+                                                                                            ) =>
+                                                                                                c.updateCount
+                                                                                        )
+                                                                                    )) *
+                                                                                100
+                                                                            }
+                                                                            variant="determinate"
+                                                                        />
+                                                                    }
+                                                                />
+                                                            </ListItem>
+                                                        )
+                                                    )}
+                                                </List>
+                                            </Box>
+                                        </CardContent>
+                                    </Card>
+                                </Grid>
+                            )}
                     </Grid>
                 </>
             )}

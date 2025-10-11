@@ -180,9 +180,14 @@ export const getProgramsQuery = () => ({
     staleTime: 1000 * 60 // 1 minutes
 });
 
-export const getProgramsOverviewQuery = () => ({
-    queryKey: ['programs', 'overview'],
-    queryFn: getProgramsOverview,
+export const getProgramsOverviewQuery = (includeAllSchools = false) => ({
+    queryKey: [
+        'programs',
+        'overview',
+        includeAllSchools ? 'all-schools' : 'top-schools',
+        includeAllSchools
+    ],
+    queryFn: () => getProgramsOverview(includeAllSchools),
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
 
