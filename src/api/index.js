@@ -430,6 +430,7 @@ export const deleteInternalDocumentation = (doc_id) =>
 
 // Program APIs
 export const getProgramsV2 = () => getData('/api/programs');
+export const getProgramsOverview = () => getData('/api/programs/overview');
 export const getDistinctSchools = () => request.get('/api/programs/schools');
 export const updateSchoolAttributes = (schoolAttributes) =>
     request.put('/api/programs/schools', schoolAttributes);

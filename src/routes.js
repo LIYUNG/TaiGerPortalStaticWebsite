@@ -163,6 +163,9 @@ const OfficeHours = React.lazy(() => import('./Demo/OfficeHours/index'));
 const TaiGerOrgEditor = React.lazy(() => import('./Demo/TaiGerOrg/EditorPage'));
 const TaiGerOrgAdmin = React.lazy(() => import('./Demo/TaiGerOrg/AdminPage'));
 const ProgramList = React.lazy(() => import('./Demo/Program/ProgramList'));
+const ProgramsOverviewPage = React.lazy(
+    () => import('./Demo/Program/ProgramsOverviewPage')
+);
 const ApplicationsOverview = React.lazy(
     () => import('./Demo/ApplicantsOverview/index')
 );
@@ -356,6 +359,13 @@ const routes = [
                 exact: true,
                 name: 'Program Table',
                 Component: ProgramList
+            },
+            {
+                path: 'overview',
+                exact: true,
+                name: 'Programs Overview',
+                errorElement: <DefaultErrorPage />,
+                Component: ProgramsOverviewPage
             },
             {
                 path: ':programId/change-requests',
