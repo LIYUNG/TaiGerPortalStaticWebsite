@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link as LinkDom, Navigate, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -8,17 +8,25 @@ import {
     Card,
     CardContent,
     Chip,
-    LinearProgress,
+    FormControl,
+    Grid,
+    InputLabel,
     Link,
-    List,
-    ListItem,
-    ListItemButton,
-    ListItemText,
+    MenuItem,
+    Paper,
+    Select,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TablePagination,
+    TableRow,
     TextField,
     Typography,
     InputAdornment
 } from '@mui/material';
-import { ArrowBack, School, Search } from '@mui/icons-material';
+import { ArrowBack, School, Search, Public } from '@mui/icons-material';
 import { is_TaiGer_role } from '@taiger-common/core';
 import { useQuery } from '@tanstack/react-query';
 
@@ -26,7 +34,10 @@ import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '../../store/constant';
 import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';
-import { getProgramsOverviewQuery } from '../../api/query';
+import {
+    getSchoolsDistributionQuery,
+    getProgramsOverviewQuery
+} from '../../api/query';
 import Loading from '../../components/Loading/Loading';
 import ErrorPage from '../Utils/ErrorPage';
 
@@ -35,42 +46,101 @@ const SchoolDistributionPage = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(25);
+    const [filterCountry, setFilterCountry] = useState('all');
 
-    const { data, isLoading, isError, error } = useQuery(
-        getProgramsOverviewQuery(true) // Pass true to include all schools
+    // Fetch all schools from dedicated endpoint
+    const {
+        data: schoolsData,
+        isLoading: schoolsLoading,
+        isError: schoolsError,
+        error: schoolsErrorMsg
+    } = useQuery(getSchoolsDistributionQuery());
+
+    // Fetch overview for totalPrograms and totalSchools
+    const { data: overviewData, isLoading: overviewLoading } = useQuery(
+        getProgramsOverviewQuery()
     );
-    const overview = data?.data;
+
+    const allSchools = schoolsData?.data || [];
+    const overview = overviewData?.data;
+
+    // All hooks must be called before any conditional returns
+    // Get unique countries for filter
+    const countries = useMemo(() => {
+        const uniqueCountries = [
+            ...new Set(allSchools.map((s) => s.country).filter(Boolean))
+        ];
+        return uniqueCountries.sort();
+    }, [allSchools]);
+
+    // Filter and search schools
+    const filteredSchools = useMemo(() => {
+        return allSchools.filter((school) => {
+            const matchesSearch =
+                (school.school || '')
+                    .toLowerCase()
+                    .includes(searchTerm.toLowerCase()) ||
+                (school.country || '')
+                    .toLowerCase()
+                    .includes(searchTerm.toLowerCase()) ||
+                (school.city || '')
+                    .toLowerCase()
+                    .includes(searchTerm.toLowerCase());
+
+            const matchesCountry =
+                filterCountry === 'all' || school.country === filterCountry;
+
+            return matchesSearch && matchesCountry;
+        });
+    }, [allSchools, searchTerm, filterCountry]);
+
+    // Paginated schools
+    const paginatedSchools = useMemo(() => {
+        return filteredSchools.slice(
+            page * rowsPerPage,
+            page * rowsPerPage + rowsPerPage
+        );
+    }, [filteredSchools, page, rowsPerPage]);
+
+    const maxCount = useMemo(
+        () => Math.max(...allSchools.map((s) => s.programCount), 1),
+        [allSchools]
+    );
+
+    const totalPrograms = useMemo(
+        () => filteredSchools.reduce((sum, s) => sum + s.programCount, 0),
+        [filteredSchools]
+    );
 
     TabTitle(t('Schools Distribution', { ns: 'common' }));
 
+    // Conditional returns AFTER all hooks
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
-    if (isLoading) {
+    if (schoolsLoading || overviewLoading) {
         return <Loading />;
     }
 
-    if (isError) {
-        return <ErrorPage error={error} />;
+    if (schoolsError) {
+        return <ErrorPage error={schoolsErrorMsg} />;
     }
 
-    if (!overview) {
+    if (!overview || allSchools.length === 0) {
         return null;
     }
 
-    // Get all schools (already sorted by program count from backend)
-    const allSchools = overview.schools || [];
-    const maxCount = Math.max(...allSchools.map((s) => s.programCount), 1);
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
+    };
 
-    // Filter schools based on search term
-    const filteredSchools = allSchools.filter(
-        (school) =>
-            school.school.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            school.country.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (school.city &&
-                school.city.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+    };
 
     return (
         <Box sx={{ pb: 4 }}>
@@ -111,7 +181,7 @@ const SchoolDistributionPage = () => {
                     alignItems="center"
                     display="flex"
                     justifyContent="space-between"
-                    mb={2}
+                    mb={3}
                 >
                     <Box>
                         <Typography gutterBottom variant="h4">
@@ -119,12 +189,9 @@ const SchoolDistributionPage = () => {
                             {t('Schools Distribution', { ns: 'common' })}
                         </Typography>
                         <Typography color="textSecondary" variant="body2">
-                            {t('Top schools ranked by program count', {
+                            {t('Comprehensive list of all universities', {
                                 ns: 'common'
-                            })}{' '}
-                            • {t('Total', { ns: 'common' })}:{' '}
-                            {overview.totalSchools}{' '}
-                            {t('universities', { ns: 'common' })}
+                            })}
                         </Typography>
                     </Box>
                     <Button
@@ -136,116 +203,295 @@ const SchoolDistributionPage = () => {
                     </Button>
                 </Box>
 
-                {/* Search Bar */}
-                <TextField
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment position="start">
-                                <Search />
-                            </InputAdornment>
-                        )
-                    }}
-                    fullWidth
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder={t('Search schools, countries, or cities...', {
-                        ns: 'common'
-                    })}
-                    sx={{ mb: 2 }}
-                    value={searchTerm}
-                />
+                {/* Summary Stats */}
+                <Grid container mb={3} spacing={2}>
+                    <Grid item sm={4} xs={12}>
+                        <Card>
+                            <CardContent>
+                                <Typography
+                                    color="textSecondary"
+                                    variant="body2"
+                                >
+                                    {t('Total Universities', { ns: 'common' })}
+                                </Typography>
+                                <Typography variant="h4">
+                                    {overview.totalSchools}
+                                </Typography>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                    <Grid item sm={4} xs={12}>
+                        <Card>
+                            <CardContent>
+                                <Typography
+                                    color="textSecondary"
+                                    variant="body2"
+                                >
+                                    {t('Total Programs', { ns: 'common' })}
+                                </Typography>
+                                <Typography variant="h4">
+                                    {overview.totalPrograms}
+                                </Typography>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                    <Grid item sm={4} xs={12}>
+                        <Card>
+                            <CardContent>
+                                <Typography
+                                    color="textSecondary"
+                                    variant="body2"
+                                >
+                                    {t('Avg Programs per School', {
+                                        ns: 'common'
+                                    })}
+                                </Typography>
+                                <Typography variant="h4">
+                                    {(
+                                        overview.totalPrograms /
+                                        overview.totalSchools
+                                    ).toFixed(1)}
+                                </Typography>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                </Grid>
+
+                {/* Filters */}
+                <Grid container spacing={2}>
+                    <Grid item md={8} xs={12}>
+                        <TextField
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <Search />
+                                    </InputAdornment>
+                                )
+                            }}
+                            fullWidth
+                            onChange={(e) => {
+                                setSearchTerm(e.target.value);
+                                setPage(0);
+                            }}
+                            placeholder={t(
+                                'Search schools, countries, or cities...',
+                                { ns: 'common' }
+                            )}
+                            value={searchTerm}
+                        />
+                    </Grid>
+                    <Grid item md={4} xs={12}>
+                        <FormControl fullWidth>
+                            <InputLabel>
+                                {t('Filter by Country', { ns: 'common' })}
+                            </InputLabel>
+                            <Select
+                                label={t('Filter by Country', { ns: 'common' })}
+                                onChange={(e) => {
+                                    setFilterCountry(e.target.value);
+                                    setPage(0);
+                                }}
+                                startAdornment={
+                                    <InputAdornment position="start">
+                                        <Public sx={{ ml: 1 }} />
+                                    </InputAdornment>
+                                }
+                                value={filterCountry}
+                            >
+                                <MenuItem value="all">
+                                    {t('All Countries', { ns: 'common' })}
+                                </MenuItem>
+                                {countries.map((country) => (
+                                    <MenuItem key={country} value={country}>
+                                        {country}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                </Grid>
             </Box>
 
-            {/* Schools List */}
+            {/* Schools Table */}
             <Card>
                 <CardContent>
-                    <Typography
-                        color="textSecondary"
-                        gutterBottom
-                        variant="body2"
+                    <Box
+                        alignItems="center"
+                        display="flex"
+                        justifyContent="space-between"
+                        mb={2}
                     >
-                        {t('Showing', { ns: 'common' })}{' '}
-                        {filteredSchools.length} {t('of', { ns: 'common' })}{' '}
-                        {allSchools.length} {t('schools', { ns: 'common' })}
-                    </Typography>
-                    <List>
-                        {filteredSchools.map((school, index) => {
-                            const percentage = (
-                                (school.programCount / overview.totalPrograms) *
-                                100
-                            ).toFixed(1);
-                            const relativePercentage =
-                                (school.programCount / maxCount) * 100;
+                        <Typography color="textSecondary" variant="body2">
+                            {t('Showing', { ns: 'common' })}{' '}
+                            {filteredSchools.length}{' '}
+                            {t('schools', { ns: 'common' })}
+                            {filterCountry !== 'all' &&
+                                ` ${t('in', { ns: 'common' })} ${filterCountry}`}
+                            {' • '}
+                            {totalPrograms}{' '}
+                            {t('total programs', { ns: 'common' })}
+                        </Typography>
+                    </Box>
 
-                            return (
-                                <ListItem disablePadding key={index}>
-                                    <ListItemButton
-                                        sx={{
-                                            borderBottom:
-                                                index <
-                                                filteredSchools.length - 1
-                                                    ? '1px solid rgba(0,0,0,0.12)'
-                                                    : 'none',
-                                            py: 2
-                                        }}
-                                    >
-                                        <ListItemText
-                                            primary={
-                                                <Box
-                                                    alignItems="center"
-                                                    display="flex"
-                                                    justifyContent="space-between"
-                                                    mb={1}
-                                                >
-                                                    <Box>
-                                                        <Typography variant="h6">
-                                                            {school.school}
-                                                        </Typography>
-                                                        <Typography
-                                                            color="textSecondary"
-                                                            variant="caption"
-                                                        >
-                                                            {school.city &&
-                                                                `${school.city}, `}
-                                                            {school.country} •{' '}
-                                                            {percentage}%{' '}
-                                                            {t('of catalog', {
-                                                                ns: 'common'
-                                                            })}
-                                                        </Typography>
-                                                    </Box>
-                                                    <Chip
-                                                        color="secondary"
-                                                        label={`${school.programCount} ${t('programs', { ns: 'common' })}`}
-                                                        size="medium"
-                                                    />
-                                                </Box>
-                                            }
-                                            secondary={
-                                                <LinearProgress
-                                                    color="secondary"
-                                                    sx={{
-                                                        height: 8,
-                                                        borderRadius: 1
-                                                    }}
-                                                    value={relativePercentage}
-                                                    variant="determinate"
-                                                />
-                                            }
-                                        />
-                                    </ListItemButton>
-                                </ListItem>
-                            );
-                        })}
-                    </List>
-
-                    {filteredSchools.length === 0 && (
+                    {filteredSchools.length === 0 ? (
                         <Box py={4} textAlign="center">
                             <Typography color="textSecondary">
-                                {t('No schools found matching your search', {
+                                {t('No schools found matching your criteria', {
                                     ns: 'common'
                                 })}
                             </Typography>
                         </Box>
+                    ) : (
+                        <>
+                            <TableContainer component={Paper}>
+                                <Table size="small">
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell>
+                                                {t('Rank', { ns: 'common' })}
+                                            </TableCell>
+                                            <TableCell>
+                                                {t('School', { ns: 'common' })}
+                                            </TableCell>
+                                            <TableCell>
+                                                {t('Location', {
+                                                    ns: 'common'
+                                                })}
+                                            </TableCell>
+                                            <TableCell align="right">
+                                                {t('Programs', {
+                                                    ns: 'common'
+                                                })}
+                                            </TableCell>
+                                            <TableCell align="right">
+                                                {t('% of Catalog', {
+                                                    ns: 'common'
+                                                })}
+                                            </TableCell>
+                                            <TableCell align="center">
+                                                {t('Distribution', {
+                                                    ns: 'common'
+                                                })}
+                                            </TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {paginatedSchools.map(
+                                            (school, index) => {
+                                                const globalRank =
+                                                    page * rowsPerPage +
+                                                    index +
+                                                    1;
+                                                const percentage = (
+                                                    (school.programCount /
+                                                        overview.totalPrograms) *
+                                                    100
+                                                ).toFixed(1);
+                                                const relativePercentage =
+                                                    (school.programCount /
+                                                        maxCount) *
+                                                    100;
+
+                                                return (
+                                                    <TableRow hover key={index}>
+                                                        <TableCell>
+                                                            <Chip
+                                                                label={
+                                                                    globalRank
+                                                                }
+                                                                size="small"
+                                                                variant="outlined"
+                                                            />
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <Typography
+                                                                fontWeight="medium"
+                                                                variant="body1"
+                                                            >
+                                                                {school.school}
+                                                            </Typography>
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <Box>
+                                                                <Typography variant="body2">
+                                                                    {
+                                                                        school.country
+                                                                    }
+                                                                </Typography>
+                                                                {school.city && (
+                                                                    <Typography
+                                                                        color="textSecondary"
+                                                                        variant="caption"
+                                                                    >
+                                                                        {
+                                                                            school.city
+                                                                        }
+                                                                    </Typography>
+                                                                )}
+                                                            </Box>
+                                                        </TableCell>
+                                                        <TableCell align="right">
+                                                            <Chip
+                                                                color="primary"
+                                                                label={
+                                                                    school.programCount
+                                                                }
+                                                                size="small"
+                                                            />
+                                                        </TableCell>
+                                                        <TableCell align="right">
+                                                            <Typography variant="body2">
+                                                                {percentage}%
+                                                            </Typography>
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <Box
+                                                                sx={{
+                                                                    width: 100
+                                                                }}
+                                                            >
+                                                                <Box
+                                                                    alignItems="center"
+                                                                    display="flex"
+                                                                >
+                                                                    <Box
+                                                                        sx={{
+                                                                            width: '100%',
+                                                                            mr: 1
+                                                                        }}
+                                                                    >
+                                                                        <Box
+                                                                            sx={{
+                                                                                height: 8,
+                                                                                borderRadius: 1,
+                                                                                bgcolor:
+                                                                                    'primary.main',
+                                                                                width: `${relativePercentage}%`,
+                                                                                minWidth:
+                                                                                    '2%'
+                                                                            }}
+                                                                        />
+                                                                    </Box>
+                                                                </Box>
+                                                            </Box>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                );
+                                            }
+                                        )}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                            <TablePagination
+                                component="div"
+                                count={filteredSchools.length}
+                                onPageChange={handleChangePage}
+                                onRowsPerPageChange={handleChangeRowsPerPage}
+                                page={page}
+                                rowsPerPage={rowsPerPage}
+                                rowsPerPageOptions={[10, 25, 50, 100]}
+                            />
+                        </>
                     )}
                 </CardContent>
             </Card>

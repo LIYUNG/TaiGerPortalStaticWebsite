@@ -725,9 +725,8 @@ const ProgramsOverviewPage = () => {
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
-                                            {overview.schools
-                                                ?.slice(0, 10)
-                                                .map((school, index) => (
+                                            {overview.topSchools.map(
+                                                (school, index) => (
                                                     <TableRow key={index}>
                                                         <TableCell>
                                                             {school.school}
@@ -744,7 +743,8 @@ const ProgramsOverviewPage = () => {
                                                             }
                                                         </TableCell>
                                                     </TableRow>
-                                                ))}
+                                                )
+                                            )}
                                         </TableBody>
                                     </Table>
                                 </TableContainer>
@@ -1180,6 +1180,7 @@ const ProgramsOverviewPage = () => {
                                                                                             ns: 'common'
                                                                                         }
                                                                                     )}
+
                                                                                     :{' '}
                                                                                     {new Date(
                                                                                         contributor.lastUpdate

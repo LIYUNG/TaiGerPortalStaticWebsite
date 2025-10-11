@@ -4,6 +4,7 @@ import {
     verifyV2,
     getProgramsV2,
     getProgramsOverview,
+    getSchoolsDistribution,
     getProgramTicketsV2,
     getProgramV2,
     getStudentsAndDocLinks2,
@@ -180,14 +181,15 @@ export const getProgramsQuery = () => ({
     staleTime: 1000 * 60 // 1 minutes
 });
 
-export const getProgramsOverviewQuery = (includeAllSchools = false) => ({
-    queryKey: [
-        'programs',
-        'overview',
-        includeAllSchools ? 'all-schools' : 'top-schools',
-        includeAllSchools
-    ],
-    queryFn: () => getProgramsOverview(includeAllSchools),
+export const getProgramsOverviewQuery = () => ({
+    queryKey: ['programs', 'overview'],
+    queryFn: getProgramsOverview,
+    staleTime: 1000 * 60 * 5 // 5 minutes
+});
+
+export const getSchoolsDistributionQuery = () => ({
+    queryKey: ['programs', 'schools-distribution'],
+    queryFn: getSchoolsDistribution,
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
 
