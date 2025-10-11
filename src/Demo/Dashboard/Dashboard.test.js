@@ -88,11 +88,16 @@ describe('Dashboard', () => {
         useAuth.mockReturnValue({
             user: { role: 'Agent', _id: '639baebf8b84944b872cf648' }
         });
+        const testQueryClient = createTestQueryClient();
 
         const router = createMemoryRouter(routes, {
             initialEntries: ['/dashboard']
         });
-        renderWithQueryClient(<RouterProvider router={router} />);
+        renderWithQueryClient(
+            <QueryClientProvider client={testQueryClient}>
+                <RouterProvider router={router} />
+            </QueryClientProvider>
+        );
 
         expect(1).toBe(1);
         // await waitFor(() => {

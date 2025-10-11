@@ -2,7 +2,7 @@ import React from 'react';
 import { render, waitFor } from '@testing-library/react';
 import AssignAgents from './index';
 import 'react-i18next';
-import { getProgramTickets } from '../../../api';
+import { getProgramTickets, getStudentsV3 } from '../../../api';
 import { useAuth } from '../../../components/AuthProvider/index';
 import { createMemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -48,6 +48,9 @@ describe('Admin AssignAgents', () => {
         getProgramTickets.mockResolvedValue({
             data: { success: true, data: [] }
         });
+        getStudentsV3.mockResolvedValue({
+            data: { success: true, data: mockTwoNoAgentNoStudentsData }
+        });
         useAuth.mockReturnValue({
             user: { role: 'Admin', _id: '609c498ae2f954388837d2f9' }
         });
@@ -80,6 +83,9 @@ describe('Admin AssignAgents', () => {
     test('students rendered correctly', async () => {
         getProgramTickets.mockResolvedValue({
             data: { success: true, data: [] }
+        });
+        getStudentsV3.mockResolvedValue({
+            data: { success: true, data: mockTwoNoAgentNoStudentsData }
         });
         useAuth.mockReturnValue({
             user: { role: 'Admin', _id: '609c498ae2f954388837d2f9' }
