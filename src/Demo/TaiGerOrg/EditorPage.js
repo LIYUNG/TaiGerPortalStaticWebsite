@@ -91,7 +91,7 @@ const EditorPage = () => {
         }
 
         const open_tasks_arr = open_tasks_v2(myStudentsThreads.data.threads);
-
+        const editorUser = myStudentsThreads.data.user;
         const tasksWithMyEssay = open_tasks_arr.filter((open_task) =>
             [...AGENT_SUPPORT_DOCUMENTS_A, FILE_TYPE_E.essay_required].includes(
                 open_task.file_type
@@ -126,22 +126,22 @@ const EditorPage = () => {
         });
 
         const newMessages = openTasksWithMyEssay?.filter((open_task) =>
-            is_new_message_status(user, open_task)
+            is_new_message_status(editorUser, open_task)
         );
 
         const favMessages = openTasksWithMyEssay?.filter((open_task) =>
-            is_my_fav_message_status(user, open_task)
+            is_my_fav_message_status(editorUser, open_task)
         );
 
         const followups = openTasksWithMyEssay?.filter(
             (open_task) =>
-                is_pending_status(user, open_task) &&
+                is_pending_status(editorUser, open_task) &&
                 open_task.latest_message_left_by_id !== '- None - '
         );
 
         const pendingProgress = openTasksWithMyEssay?.filter(
             (open_task) =>
-                is_pending_status(user, open_task) &&
+                is_pending_status(editorUser, open_task) &&
                 open_task.latest_message_left_by_id === '- None - '
         );
 
@@ -173,7 +173,7 @@ const EditorPage = () => {
             pending_progress_tasks: pendingProgress,
             closed_tasks: closedTasks,
             stats: calculatedStats,
-            editorUser: myStudentsThreads.data.user
+            editorUser: editorUser
         };
     }, [myStudentsThreads, user, user_id]);
 
