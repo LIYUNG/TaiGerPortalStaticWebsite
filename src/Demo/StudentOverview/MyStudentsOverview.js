@@ -1,16 +1,14 @@
 import React, { useMemo } from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import { is_TaiGer_Editor, is_TaiGer_role } from '@taiger-common/core';
-import i18next from 'i18next';
 import queryString from 'query-string';
 
 import { TabTitle } from '../Utils/TabTitle';
 import { Navigate } from 'react-router-dom';
 import DEMO from '../../store/constant';
 import StudentOverviewTable from '../../components/StudentOverviewTable';
-import FinalDecisionOverview from '../../components/StudentOverviewTable/finalDecisionOverview';
 import { useAuth } from '../../components/AuthProvider';
-import { Box, Breadcrumbs, Link, Typography, Tabs, Tab } from '@mui/material';
+import { Box, Breadcrumbs, Link, Typography } from '@mui/material';
 import { appConfig } from '../../config';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -26,8 +24,6 @@ const MyStudentsOverview = () => {
             queryString.stringify({ [role]: user?._id, archiv: false })
         )
     );
-    const [tab, setTab] = React.useState(0);
-    const handleTabChange = (_e, newValue) => setTab(newValue);
     const students = data?.data;
     const userId = user?._id?.toString();
     const myStudents = useMemo(
@@ -66,36 +62,12 @@ const MyStudentsOverview = () => {
                 </Typography>
             </Breadcrumbs>
             <Box sx={{ mt: 2 }}>
-                <Tabs
-                    aria-label="my student overview tabs"
-                    onChange={handleTabChange}
-                    value={tab}
-                >
-                    <Tab
-                        label={i18next.t('All Active Students', {
-                            ns: 'common'
-                        })}
-                    />
-                    <Tab
-                        label={i18next.t('Students at Risk', { ns: 'common' })}
-                    />
-                    <Tab
-                        label={i18next.t('Final Decisions', { ns: 'common' })}
-                    />
-                </Tabs>
-                <Box sx={{ mt: 2 }}>
-                    {tab < 2 && (
-                        <StudentOverviewTable
-                            riskOnly={tab === 1}
-                            students={myStudents}
-                            title={tab === 1 ? 'Risk' : 'All'}
-                            user={user}
-                        />
-                    )}
-                    {tab === 2 && (
-                        <FinalDecisionOverview students={myStudents || []} />
-                    )}
-                </Box>
+                <StudentOverviewTable
+                    riskOnly={false}
+                    students={myStudents}
+                    title="All"
+                    user={user}
+                />
             </Box>
         </Box>
     );
