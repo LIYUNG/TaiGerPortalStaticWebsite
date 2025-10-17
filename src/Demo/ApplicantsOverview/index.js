@@ -38,9 +38,7 @@ const ApplicantsOverview = () => {
     const { data: myStudentsApplications, isLoading } = useQuery(
         getMyStudentsApplicationsV2Query({
             userId: user._id,
-            queryString: queryString.stringify({
-                decided: 'O'
-            })
+            queryString: queryString.stringify({})
         })
     );
 

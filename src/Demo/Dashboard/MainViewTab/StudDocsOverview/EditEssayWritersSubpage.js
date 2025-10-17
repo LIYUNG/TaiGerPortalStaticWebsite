@@ -102,14 +102,13 @@ const EditEssayWritersSubpage = (props) => {
                     <DialogTitle>
                         {props.actor} for {props.essayDocumentThread.file_type}-
                         {props.essayDocumentThread.program_id?.school}-
-                        {props.essayDocumentThread.program_id?.program_name}
-                        {props.essayDocumentThread.program_id?.degree}
-                        {props.essayDocumentThread.program_id?.semester}
+                        {props.essayDocumentThread.program_id?.program_name}{' '}
+                        {props.essayDocumentThread.program_id?.degree}{' '}
+                        {props.essayDocumentThread.program_id?.semester}{' '}
                         {props.essayDocumentThread.student_id?.firstname}
                         {props.essayDocumentThread.student_id?.lastname}
                     </DialogTitle>
                     <DialogContent>
-                        {t('Essay Writer')}
                         <Table size="small">
                             <TableBody>
                                 {checkboxState.editors ? (

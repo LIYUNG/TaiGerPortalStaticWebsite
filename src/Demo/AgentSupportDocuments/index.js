@@ -3,6 +3,7 @@ import { Link as LinkDom, Navigate } from 'react-router-dom';
 import { Box, Card, Link, Typography } from '@mui/material';
 import { is_TaiGer_role } from '@taiger-common/core';
 import { useTranslation } from 'react-i18next';
+import queryString from 'query-string';
 
 import CVMLRLOverview from '../CVMLRLCenter/CVMLRLOverview';
 import ErrorPage from '../Utils/ErrorPage';
@@ -10,6 +11,7 @@ import { getMyStudentsThreads, putThreadFavorite } from '../../api';
 import { TabTitle } from '../Utils/TabTitle';
 import {
     AGENT_SUPPORT_DOCUMENTS_A,
+    FILE_TYPE_E,
     open_tasks_v2,
     toogleItemInArray
 } from '../Utils/checking-functions';
@@ -45,7 +47,15 @@ const AgentSupportDocuments = () => {
     });
 
     useEffect(() => {
-        getMyStudentsThreads({ userId: user._id }).then(
+        getMyStudentsThreads({
+            userId: user._id,
+            queryString: queryString.stringify({
+                fileType: [
+                    FILE_TYPE_E.essay_required,
+                    ...AGENT_SUPPORT_DOCUMENTS_A
+                ]
+            })
+        }).then(
             (resp) => {
                 const { data, success } = resp;
                 const { status } = resp;

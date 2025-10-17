@@ -3,19 +3,33 @@ import { Navigate, Link as LinkDom } from 'react-router-dom';
 import {
     Box,
     Breadcrumbs,
-    Button,
     Card,
+    CardContent,
+    Chip,
+    IconButton,
     Link,
     Menu,
     MenuItem,
+    Paper,
     TableContainer,
     Table,
     TableBody,
     TableCell,
     TableHead,
     TableRow,
-    Typography
+    Tooltip,
+    Typography,
+    alpha
 } from '@mui/material';
+import {
+    CheckCircle as CheckCircleIcon,
+    Cancel as CancelIcon,
+    Edit as EditIcon,
+    Person as PersonIcon,
+    Shield as ShieldIcon,
+    SupervisorAccount as SupervisorAccountIcon,
+    AdminPanelSettings as AdminPanelSettingsIcon
+} from '@mui/icons-material';
 import { is_TaiGer_Admin, is_TaiGer_role, Role } from '@taiger-common/core';
 import i18next from 'i18next';
 
@@ -29,6 +43,25 @@ import { appConfig } from '../../config';
 import { useAuth } from '../../components/AuthProvider';
 import Loading from '../../components/Loading/Loading';
 
+const PermissionIcon = ({ hasPermission }) => {
+    if (hasPermission === null || hasPermission === undefined) {
+        return (
+            <Tooltip title="No permission data">
+                <CancelIcon sx={{ color: 'grey.400', fontSize: 20 }} />
+            </Tooltip>
+        );
+    }
+    return hasPermission ? (
+        <Tooltip title="Granted">
+            <CheckCircleIcon sx={{ color: 'success.main', fontSize: 20 }} />
+        </Tooltip>
+    ) : (
+        <Tooltip title="Denied">
+            <CancelIcon sx={{ color: 'error.main', fontSize: 20 }} />
+        </Tooltip>
+    );
+};
+
 const EditorRow = ({ editor, setModalShow, user }) => {
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
@@ -40,67 +73,74 @@ const EditorRow = ({ editor, setModalShow, user }) => {
         setAnchorEl(null);
     };
 
+    const permissions = editor.permissions?.[0];
+
     return (
-        <TableRow>
+        <TableRow
+            sx={{
+                '&:hover': {
+                    backgroundColor: (theme) =>
+                        alpha(theme.palette.primary.main, 0.05)
+                }
+            }}
+        >
             <TableCell>
-                <Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <PersonIcon sx={{ color: 'primary.main', fontSize: 20 }} />
                     <Link
                         component={LinkDom}
+                        sx={{
+                            textDecoration: 'none',
+                            fontWeight: 500,
+                            '&:hover': { textDecoration: 'underline' }
+                        }}
                         to={`${DEMO.TEAM_EDITOR_LINK(editor._id.toString())}`}
                     >
-                        {editor.firstname} {editor.lastname}{' '}
+                        {editor.firstname} {editor.lastname}
                     </Link>
-                </Typography>
+                </Box>
             </TableCell>
-            <TableCell>
-                {editor.permissions.length > 0
-                    ? editor.permissions[0].canAssignAgents
-                        ? 'O'
-                        : 'X'
-                    : 'x'}
+            <TableCell align="center">
+                <PermissionIcon hasPermission={permissions?.canAssignAgents} />
             </TableCell>
-            <TableCell>
-                {editor.permissions.length > 0
-                    ? editor.permissions[0].canAssignEditors
-                        ? 'O'
-                        : 'X'
-                    : 'x'}
+            <TableCell align="center">
+                <PermissionIcon hasPermission={permissions?.canAssignEditors} />
             </TableCell>
-            <TableCell>
-                {editor.permissions.length > 0
-                    ? editor.permissions[0].canModifyDocumentation
-                        ? 'O'
-                        : 'X'
-                    : 'x'}
+            <TableCell align="center">
+                <PermissionIcon
+                    hasPermission={permissions?.canModifyDocumentation}
+                />
             </TableCell>
-            <TableCell>
-                {editor.permissions.length > 0
-                    ? editor.permissions[0].canAccessStudentDatabase
-                        ? 'O'
-                        : 'X'
-                    : 'x'}
+            <TableCell align="center">
+                <PermissionIcon
+                    hasPermission={permissions?.canAccessStudentDatabase}
+                />
             </TableCell>
-            <TableCell>
-                {editor.permissions.length > 0
-                    ? editor.permissions[0].canUseTaiGerAI
-                        ? 'O'
-                        : 'X'
-                    : 'x'}
+            <TableCell align="center">
+                <PermissionIcon hasPermission={permissions?.canUseTaiGerAI} />
             </TableCell>
-            <TableCell>
-                <span>{editor.permissions[0]?.taigerAiQuota | 0}</span>
+            <TableCell align="center">
+                <Chip
+                    color="primary"
+                    label={permissions?.taigerAiQuota || 0}
+                    size="small"
+                    variant="outlined"
+                />
             </TableCell>
-            <TableCell>
-                <Button
-                    aria-controls={open ? `basic-menu` : undefined}
-                    aria-expanded={open ? 'true' : undefined}
-                    aria-haspopup="true"
-                    id="basic-button"
-                    onClick={handleClick}
-                    variant="contained"
-                >
-                    {i18next.t('Edit', { ns: 'common' })}
-                </Button>
+            <TableCell align="center">
+                <Tooltip title={i18next.t('Edit', { ns: 'common' })}>
+                    <IconButton
+                        aria-controls={open ? `basic-menu` : undefined}
+                        aria-expanded={open ? 'true' : undefined}
+                        aria-haspopup="true"
+                        color="primary"
+                        id="basic-button"
+                        onClick={handleClick}
+                        size="small"
+                    >
+                        <EditIcon />
+                    </IconButton>
+                </Tooltip>
                 <Menu
                     MenuListProps={{
                         'aria-labelledby': 'basic-button'
@@ -121,6 +161,7 @@ const EditorRow = ({ editor, setModalShow, user }) => {
                             )
                         }
                     >
+                        <EditIcon sx={{ mr: 1, fontSize: 20 }} />
                         Permission
                     </MenuItem>
                 </Menu>
@@ -136,95 +177,92 @@ const AgentRow = ({ agent, setModalShow, user }) => {
         setAnchorEl(event.currentTarget);
     };
 
+    const permissions = agent.permissions?.[0];
+
     return (
-        <TableRow>
+        <TableRow
+            sx={{
+                '&:hover': {
+                    backgroundColor: (theme) =>
+                        alpha(theme.palette.primary.main, 0.05)
+                }
+            }}
+        >
             <TableCell>
-                <Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <SupervisorAccountIcon
+                        sx={{ color: 'secondary.main', fontSize: 20 }}
+                    />
                     <Link
                         component={LinkDom}
+                        sx={{
+                            textDecoration: 'none',
+                            fontWeight: 500,
+                            '&:hover': { textDecoration: 'underline' }
+                        }}
                         to={`${DEMO.TEAM_AGENT_LINK(agent._id.toString())}`}
                     >
-                        {agent.firstname} {agent.lastname}{' '}
+                        {agent.firstname} {agent.lastname}
                     </Link>
-                </Typography>
+                </Box>
             </TableCell>
-            <TableCell>
-                {agent.permissions?.length > 0
-                    ? agent.permissions[0].canModifyProgramList
-                        ? 'O'
-                        : 'X'
-                    : 'x'}
+            <TableCell align="center">
+                <PermissionIcon
+                    hasPermission={permissions?.canModifyProgramList}
+                />
             </TableCell>
-            <TableCell>
-                {agent.permissions?.length > 0
-                    ? agent.permissions[0].canModifyAllBaseDocuments
-                        ? 'O'
-                        : 'X'
-                    : 'x'}
+            <TableCell align="center">
+                <PermissionIcon
+                    hasPermission={permissions?.canModifyAllBaseDocuments}
+                />
             </TableCell>
-            <TableCell>
-                {agent.permissions?.length > 0
-                    ? agent.permissions[0].canAccessAllChat
-                        ? 'O'
-                        : 'X'
-                    : 'x'}
+            <TableCell align="center">
+                <PermissionIcon hasPermission={permissions?.canAccessAllChat} />
             </TableCell>
-            <TableCell>
-                {agent.permissions?.length > 0
-                    ? agent.permissions[0].canAssignAgents
-                        ? 'O'
-                        : 'X'
-                    : 'x'}
+            <TableCell align="center">
+                <PermissionIcon hasPermission={permissions?.canAssignAgents} />
             </TableCell>
-            <TableCell>
-                {agent.permissions?.length > 0
-                    ? agent.permissions[0].canAssignEditors
-                        ? 'O'
-                        : 'X'
-                    : 'x'}
+            <TableCell align="center">
+                <PermissionIcon hasPermission={permissions?.canAssignEditors} />
             </TableCell>
-            <TableCell>
-                {agent.permissions?.length > 0
-                    ? agent.permissions[0].canModifyDocumentation
-                        ? 'O'
-                        : 'X'
-                    : 'x'}
+            <TableCell align="center">
+                <PermissionIcon
+                    hasPermission={permissions?.canModifyDocumentation}
+                />
             </TableCell>
-            <TableCell>
-                {agent.permissions?.length > 0
-                    ? agent.permissions[0].canAccessStudentDatabase
-                        ? 'O'
-                        : 'X'
-                    : 'x'}
+            <TableCell align="center">
+                <PermissionIcon
+                    hasPermission={permissions?.canAccessStudentDatabase}
+                />
             </TableCell>
-            <TableCell>
-                {agent.permissions?.length > 0
-                    ? agent.permissions[0].canAddUser
-                        ? 'O'
-                        : 'X'
-                    : 'x'}
+            <TableCell align="center">
+                <PermissionIcon hasPermission={permissions?.canAddUser} />
             </TableCell>
-            <TableCell>
-                {agent.permissions.length > 0
-                    ? agent.permissions[0].canUseTaiGerAI
-                        ? 'O'
-                        : 'X'
-                    : 'x'}
+            <TableCell align="center">
+                <PermissionIcon hasPermission={permissions?.canUseTaiGerAI} />
             </TableCell>
-            <TableCell>
-                <span>{agent.permissions[0]?.taigerAiQuota | 0}</span>
+            <TableCell align="center">
+                <Chip
+                    color="secondary"
+                    label={permissions?.taigerAiQuota || 0}
+                    size="small"
+                    variant="outlined"
+                />
             </TableCell>
-            <TableCell>
-                <Button
-                    aria-controls={open ? `basic-menu` : undefined}
-                    aria-expanded={open ? 'true' : undefined}
-                    aria-haspopup="true"
-                    id="basic-button"
-                    onClick={handleClick}
-                    variant="contained"
-                >
-                    {i18next.t('Edit', { ns: 'common' })}
-                </Button>
+            <TableCell align="center">
+                <Tooltip title={i18next.t('Edit', { ns: 'common' })}>
+                    <IconButton
+                        aria-controls={open ? `basic-menu` : undefined}
+                        aria-expanded={open ? 'true' : undefined}
+                        aria-haspopup="true"
+                        color="secondary"
+                        id="basic-button"
+                        onClick={handleClick}
+                        size="small"
+                    >
+                        <EditIcon />
+                    </IconButton>
+                </Tooltip>
                 <Menu
                     MenuListProps={{
                         'aria-labelledby': 'basic-button'
@@ -245,6 +283,7 @@ const AgentRow = ({ agent, setModalShow, user }) => {
                             )
                         }
                     >
+                        <EditIcon sx={{ mr: 1, fontSize: 20 }} />
                         Permission
                     </MenuItem>
                 </Menu>
@@ -405,88 +444,232 @@ const TaiGerOrg = () => {
     );
 
     return (
-        <Box>
-            <Breadcrumbs aria-label="breadcrumb">
+        <Box sx={{ p: 3 }}>
+            <Breadcrumbs
+                aria-label="breadcrumb"
+                sx={{
+                    mb: 3,
+                    p: 2,
+                    backgroundColor: 'background.paper',
+                    borderRadius: 1,
+                    boxShadow: 1
+                }}
+            >
                 <Link
                     color="inherit"
                     component={LinkDom}
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        '&:hover': { color: 'primary.main' }
+                    }}
                     to={`${DEMO.DASHBOARD_LINK}`}
                     underline="hover"
                 >
                     {appConfig.companyName}
                 </Link>
-                <Typography color="text.primary">
+                <Typography
+                    color="text.primary"
+                    sx={{ display: 'flex', alignItems: 'center' }}
+                >
                     {i18next.t('tenant-team', {
                         ns: 'common',
                         tenant: appConfig.companyName
                     })}
                 </Typography>
-                <Typography color="text.primary">
+                <Typography
+                    color="text.primary"
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        fontWeight: 600
+                    }}
+                >
+                    <ShieldIcon sx={{ mr: 0.5, fontSize: 20 }} />
                     {i18next.t('Permissions Management', { ns: 'common' })}
                 </Typography>
             </Breadcrumbs>
-            <Card>
-                {is_TaiGer_Admin(user) ? (
-                    <>
-                        <Typography variant="h5">Admin:</Typography>
-                        {admins.map((admin, i) => (
-                            <Typography key={i}>
-                                <b>
-                                    <Link
-                                        to={`${DEMO.TEAM_ADMIN_LINK(admin._id.toString())}`}
-                                    >
-                                        {admin.firstname} {admin.lastname}
-                                    </Link>
-                                </b>
+
+            {is_TaiGer_Admin(user) && admins.length > 0 && (
+                <Card
+                    sx={{
+                        mb: 3,
+                        boxShadow: 3,
+                        borderRadius: 2,
+                        overflow: 'hidden'
+                    }}
+                >
+                    <CardContent>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                mb: 2
+                            }}
+                        >
+                            <AdminPanelSettingsIcon
+                                sx={{
+                                    mr: 1,
+                                    color: 'error.main',
+                                    fontSize: 28
+                                }}
+                            />
+                            <Typography
+                                sx={{ fontWeight: 600, color: 'error.main' }}
+                                variant="h5"
+                            >
+                                Administrators
                             </Typography>
-                        ))}
-                    </>
-                ) : null}
-            </Card>
-            <Card>
-                <Typography variant="h5">
-                    {i18next.t('Agent', { ns: 'common' })}:
-                </Typography>
-                <TableContainer style={{ overflowX: 'auto' }}>
+                        </Box>
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                            {admins.map((admin, i) => (
+                                <Chip
+                                    clickable
+                                    color="error"
+                                    component={LinkDom}
+                                    icon={<AdminPanelSettingsIcon />}
+                                    key={i}
+                                    label={`${admin.firstname} ${admin.lastname}`}
+                                    sx={{ fontWeight: 500 }}
+                                    to={`${DEMO.TEAM_ADMIN_LINK(admin._id.toString())}`}
+                                    variant="outlined"
+                                />
+                            ))}
+                        </Box>
+                    </CardContent>
+                </Card>
+            )}
+
+            <Paper
+                elevation={3}
+                sx={{
+                    mb: 3,
+                    borderRadius: 2,
+                    overflow: 'hidden'
+                }}
+            >
+                <Box
+                    sx={{
+                        p: 2,
+                        background: (theme) =>
+                            `linear-gradient(135deg, ${alpha(theme.palette.secondary.main, 0.1)} 0%, ${alpha(theme.palette.secondary.main, 0.05)} 100%)`,
+                        borderBottom: (theme) =>
+                            `2px solid ${theme.palette.secondary.main}`
+                    }}
+                >
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <SupervisorAccountIcon
+                            sx={{
+                                mr: 1,
+                                color: 'secondary.main',
+                                fontSize: 28
+                            }}
+                        />
+                        <Typography
+                            sx={{ fontWeight: 600, color: 'secondary.main' }}
+                            variant="h5"
+                        >
+                            {i18next.t('Agent', { ns: 'common' })}s
+                        </Typography>
+                        <Chip
+                            color="secondary"
+                            label={agents.length}
+                            size="small"
+                            sx={{ ml: 1 }}
+                        />
+                    </Box>
+                </Box>
+                <TableContainer>
                     <Table size="small">
                         <TableHead>
-                            <TableRow>
-                                <TableCell>
+                            <TableRow
+                                sx={{
+                                    backgroundColor: (theme) =>
+                                        alpha(
+                                            theme.palette.secondary.main,
+                                            0.08
+                                        )
+                                }}
+                            >
+                                <TableCell sx={{ fontWeight: 600 }}>
                                     {i18next.t('Name', { ns: 'common' })}
                                 </TableCell>
-                                <TableCell>
-                                    Can modify
-                                    <br /> program list
+                                <TableCell
+                                    align="center"
+                                    sx={{ fontWeight: 600 }}
+                                >
+                                    Program
+                                    <br /> List
                                 </TableCell>
-                                <TableCell>
-                                    Can modify all
-                                    <br /> Base Documents
+                                <TableCell
+                                    align="center"
+                                    sx={{ fontWeight: 600 }}
+                                >
+                                    Base
+                                    <br /> Docs
                                 </TableCell>
-                                <TableCell>
-                                    Can Access <br /> AllChat
+                                <TableCell
+                                    align="center"
+                                    sx={{ fontWeight: 600 }}
+                                >
+                                    All
+                                    <br /> Chat
                                 </TableCell>
-                                <TableCell>
-                                    Can Assign <br /> Agents
+                                <TableCell
+                                    align="center"
+                                    sx={{ fontWeight: 600 }}
+                                >
+                                    Assign
+                                    <br /> Agents
                                 </TableCell>
-                                <TableCell>
-                                    Can Assign <br /> Editors
+                                <TableCell
+                                    align="center"
+                                    sx={{ fontWeight: 600 }}
+                                >
+                                    Assign
+                                    <br /> Editors
                                 </TableCell>
-                                <TableCell>
-                                    Can Modify <br /> Docs
+                                <TableCell
+                                    align="center"
+                                    sx={{ fontWeight: 600 }}
+                                >
+                                    Modify
+                                    <br /> Docs
                                 </TableCell>
-                                <TableCell>
-                                    Can Access <br /> Students
+                                <TableCell
+                                    align="center"
+                                    sx={{ fontWeight: 600 }}
+                                >
+                                    Student
+                                    <br /> DB
                                 </TableCell>
-                                <TableCell>
-                                    Can Add <br /> User
+                                <TableCell
+                                    align="center"
+                                    sx={{ fontWeight: 600 }}
+                                >
+                                    Add
+                                    <br /> User
                                 </TableCell>
-                                <TableCell>
-                                    Can User <br /> TaiGerAI
+                                <TableCell
+                                    align="center"
+                                    sx={{ fontWeight: 600 }}
+                                >
+                                    TaiGer
+                                    <br /> AI
                                 </TableCell>
-                                <TableCell>
-                                    TaiGerAI <br /> Quota
+                                <TableCell
+                                    align="center"
+                                    sx={{ fontWeight: 600 }}
+                                >
+                                    AI
+                                    <br /> Quota
                                 </TableCell>
-                                <TableCell>Permissions</TableCell>
+                                <TableCell
+                                    align="center"
+                                    sx={{ fontWeight: 600 }}
+                                >
+                                    Actions
+                                </TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -501,27 +684,103 @@ const TaiGerOrg = () => {
                         </TableBody>
                     </Table>
                 </TableContainer>
-            </Card>
-            <Card>
-                <Typography variant="h5">
-                    {i18next.t('Editor', { ns: 'common' })}:
-                </Typography>
-                <TableContainer style={{ overflowX: 'auto' }}>
+            </Paper>
+
+            <Paper
+                elevation={3}
+                sx={{
+                    mb: 3,
+                    borderRadius: 2,
+                    overflow: 'hidden'
+                }}
+            >
+                <Box
+                    sx={{
+                        p: 2,
+                        background: (theme) =>
+                            `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, ${alpha(theme.palette.primary.main, 0.05)} 100%)`,
+                        borderBottom: (theme) =>
+                            `2px solid ${theme.palette.primary.main}`
+                    }}
+                >
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <PersonIcon
+                            sx={{ mr: 1, color: 'primary.main', fontSize: 28 }}
+                        />
+                        <Typography
+                            sx={{ fontWeight: 600, color: 'primary.main' }}
+                            variant="h5"
+                        >
+                            {i18next.t('Editor', { ns: 'common' })}s
+                        </Typography>
+                        <Chip
+                            color="primary"
+                            label={editors.length}
+                            size="small"
+                            sx={{ ml: 1 }}
+                        />
+                    </Box>
+                </Box>
+                <TableContainer>
                     <Table size="small">
                         <TableHead>
-                            <TableRow>
-                                <TableCell>Name</TableCell>
-                                <TableCell>Can Assign Agents</TableCell>
-                                <TableCell>Can Assign Editors</TableCell>
-                                <TableCell>Can Modify Docs</TableCell>
-                                <TableCell>Can Access Students</TableCell>
-                                <TableCell>
-                                    Can User <br /> TaiGerAI
+                            <TableRow
+                                sx={{
+                                    backgroundColor: (theme) =>
+                                        alpha(theme.palette.primary.main, 0.08)
+                                }}
+                            >
+                                <TableCell sx={{ fontWeight: 600 }}>
+                                    {i18next.t('Name', { ns: 'common' })}
                                 </TableCell>
-                                <TableCell>
-                                    TaiGerAI <br /> Quota
+                                <TableCell
+                                    align="center"
+                                    sx={{ fontWeight: 600 }}
+                                >
+                                    Assign
+                                    <br /> Agents
                                 </TableCell>
-                                <TableCell>Permissions</TableCell>
+                                <TableCell
+                                    align="center"
+                                    sx={{ fontWeight: 600 }}
+                                >
+                                    Assign
+                                    <br /> Editors
+                                </TableCell>
+                                <TableCell
+                                    align="center"
+                                    sx={{ fontWeight: 600 }}
+                                >
+                                    Modify
+                                    <br /> Docs
+                                </TableCell>
+                                <TableCell
+                                    align="center"
+                                    sx={{ fontWeight: 600 }}
+                                >
+                                    Student
+                                    <br /> DB
+                                </TableCell>
+                                <TableCell
+                                    align="center"
+                                    sx={{ fontWeight: 600 }}
+                                >
+                                    TaiGer
+                                    <br /> AI
+                                </TableCell>
+                                <TableCell
+                                    align="center"
+                                    sx={{ fontWeight: 600 }}
+                                >
+                                    AI
+                                    <br /> Quota
+                                </TableCell>
+                                <TableCell
+                                    align="center"
+                                    sx={{ fontWeight: 600 }}
+                                >
+                                    Actions
+                                </TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -536,8 +795,9 @@ const TaiGerOrg = () => {
                         </TableBody>
                     </Table>
                 </TableContainer>
-            </Card>
-            {taiGerOrgState.modalShow ? (
+            </Paper>
+
+            {taiGerOrgState.modalShow && (
                 <GrantPermissionModal
                     firstname={taiGerOrgState.firstname}
                     lastname={taiGerOrgState.lastname}
@@ -546,8 +806,8 @@ const TaiGerOrg = () => {
                     setModalHide={setModalHide}
                     user_permissions={taiGerOrgState.user_permissions}
                 />
-            ) : null}
-            {taiGerOrgState.managerModalShow ? (
+            )}
+            {taiGerOrgState.managerModalShow && (
                 <GrantManagerModal
                     firstname={taiGerOrgState.firstname}
                     lastname={taiGerOrgState.lastname}
@@ -556,7 +816,7 @@ const TaiGerOrg = () => {
                     setManagerModalHide={setManagerModalHide}
                     user_permissions={taiGerOrgState.user_permissions}
                 />
-            ) : null}
+            )}
         </Box>
     );
 };

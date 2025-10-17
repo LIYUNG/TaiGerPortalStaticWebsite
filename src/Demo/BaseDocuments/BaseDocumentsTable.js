@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import {
     Box,
@@ -11,12 +11,28 @@ import {
     DialogTitle,
     DialogContent,
     DialogContentText,
-    DialogActions
+    DialogActions,
+    Card,
+    CardContent,
+    Typography,
+    Grid,
+    Avatar
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { DocumentStatusType, PROFILE_NAME } from '@taiger-common/core';
+import {
+    MaterialReactTable,
+    useMaterialReactTable
+} from 'material-react-table';
+import {
+    CheckCircleOutline as CheckCircleIcon,
+    HourglassEmpty as HourglassIcon,
+    Cancel as CancelIcon,
+    Description as DescriptionIcon,
+    Person as PersonIcon,
+    TrendingUp as TrendingUpIcon
+} from '@mui/icons-material';
 
-import { MuiDataGrid } from '../../components/MuiDataGrid';
 import {
     FILE_DONT_CARE_SYMBOL,
     FILE_MISSING_SYMBOL,
@@ -29,6 +45,8 @@ import DEMO from '../../store/constant';
 import AcceptProfileFileModel from './AcceptedFilePreviewModal';
 
 export const BaseDocumentsTable = ({ students }) => {
+    const { t } = useTranslation();
+
     const [baseDocumentsTableState, setBaseDocumentsTableState] = useState({
         students: students,
         isLoaded: true,
@@ -42,8 +60,6 @@ export const BaseDocumentsTable = ({ students }) => {
         category: '',
         feedback: ''
     });
-
-    const { t } = useTranslation();
 
     const onUpdateProfileFilefromstudent = (e) => {
         e.preventDefault();
@@ -82,11 +98,7 @@ export const BaseDocumentsTable = ({ students }) => {
                         isLoaded: true,
                         res_modal_status: status
                     }));
-                    setBaseDocumentsTableState((prevState) => ({
-                        ...prevState
-                    }));
                 } else {
-                    // TODO: redesign, modal ist better!
                     const { message } = resp.data;
                     setBaseDocumentsTableState((prevState) => ({
                         ...prevState,
@@ -96,9 +108,6 @@ export const BaseDocumentsTable = ({ students }) => {
                         isLoaded: true,
                         res_modal_message: message,
                         res_modal_status: status
-                    }));
-                    setBaseDocumentsTableState((prevState) => ({
-                        ...prevState
                     }));
                 }
             },
@@ -129,7 +138,8 @@ export const BaseDocumentsTable = ({ students }) => {
     const closeRejectWarningWindow = () => {
         setBaseDocumentsTableState((prevState) => ({
             ...prevState,
-            rejectProfileFileModel: false
+            rejectProfileFileModel: false,
+            feedback: ''
         }));
     };
 
@@ -174,8 +184,55 @@ export const BaseDocumentsTable = ({ students }) => {
         }
     };
 
-    const baseDocumentTransformed = (students) => {
-        return students.map((student) => ({
+    // Calculate statistics
+    const statistics = useMemo(() => {
+        const totalStudents = baseDocumentsTableState.students.length;
+        const profileKeys = Object.keys(PROFILE_NAME);
+        const totalDocuments = totalStudents * profileKeys.length;
+
+        let uploaded = 0;
+        let accepted = 0;
+        let rejected = 0;
+        let missing = 0;
+        let notNeeded = 0;
+
+        baseDocumentsTableState.students.forEach((student) => {
+            student.profile.forEach((doc) => {
+                if (doc.status === DocumentStatusType.Uploaded) {
+                    uploaded++;
+                } else if (doc.status === DocumentStatusType.Accepted) {
+                    accepted++;
+                } else if (doc.status === DocumentStatusType.Rejected) {
+                    rejected++;
+                } else if (doc.status === DocumentStatusType.NotNeeded) {
+                    notNeeded++;
+                } else {
+                    missing++;
+                }
+            });
+        });
+
+        const completionRate =
+            totalDocuments > 0
+                ? ((accepted / (totalDocuments - notNeeded)) * 100).toFixed(1)
+                : 0;
+
+        return {
+            totalStudents,
+            totalDocuments,
+            uploaded,
+            accepted,
+            rejected,
+            missing,
+            notNeeded,
+            completionRate,
+            needsReview: uploaded
+        };
+    }, [baseDocumentsTableState.students]);
+
+    // Transform students data for the table
+    const tableData = useMemo(() => {
+        return baseDocumentsTableState.students.map((student) => ({
             id: student._id.toString(),
             studentName: `${student?.lastname_chinese || ''}${
                 student?.firstname_chinese || ''
@@ -186,138 +243,457 @@ export const BaseDocumentsTable = ({ students }) => {
                 return acc;
             }, {})
         }));
+    }, [baseDocumentsTableState.students]);
+
+    // Helper function to render document status cell
+    const renderDocumentStatusCell = (params, profileKey) => {
+        const value = params.row.original[profileKey];
+
+        if (value?.status === DocumentStatusType.Uploaded) {
+            return (
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <IconButton size="small">{FILE_UPLOADED_SYMBOL}</IconButton>
+                    {`${value?.status || ''}`}
+                </Box>
+            );
+        } else if (value?.status === DocumentStatusType.Accepted) {
+            let document_split = value?.path.replace(/\\/g, '/');
+            let document_name = document_split.split('/')[1];
+            return (
+                <Box
+                    onClick={(e) => {
+                        showPreview(
+                            e,
+                            document_name,
+                            value?.name,
+                            document_name,
+                            params.row.original.id
+                        );
+                    }}
+                    style={{
+                        textDecoration: 'none',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center'
+                    }}
+                >
+                    <IconButton size="small">{FILE_OK_SYMBOL}</IconButton>{' '}
+                    {`${value?.status || ''}`}
+                </Box>
+            );
+        } else if (value?.status === DocumentStatusType.Rejected) {
+            return (
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <IconButton size="small">{FILE_NOT_OK_SYMBOL}</IconButton>{' '}
+                    {`${value?.status || ''}`}
+                </Box>
+            );
+        } else if (value?.status === DocumentStatusType.NotNeeded) {
+            return (
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <IconButton size="small">
+                        {FILE_DONT_CARE_SYMBOL}
+                    </IconButton>
+                    {`${value?.status || ''}`}
+                </Box>
+            );
+        } else {
+            return <IconButton size="small">{FILE_MISSING_SYMBOL}</IconButton>;
+        }
     };
 
-    const student_profile_transformed = baseDocumentTransformed(
-        baseDocumentsTableState.students
-    );
+    // Build profile document columns dynamically
+    const profileColumns = useMemo(() => {
+        const profileArray = Object.entries(PROFILE_NAME).map(
+            ([key, value]) => [key, value]
+        );
 
-    const profileArray = Object.entries(PROFILE_NAME).map(([key, value]) => [
-        key,
-        value
-    ]);
+        return profileArray.map((baseDoc) => ({
+            accessorKey: baseDoc[0],
+            header: t(baseDoc[1], { ns: 'common' }),
+            size: 150,
+            Cell: (params) => renderDocumentStatusCell(params, baseDoc[0])
+        }));
+    }, [t]);
 
-    const baseDocumentColumnsWithoutName = profileArray.map((basdDoc) => {
-        return {
-            field: basdDoc[0],
-            headerName: t(basdDoc[1], { ns: 'common' }),
-            minWidth: 100,
-            renderCell: (params) => {
-                if (params.value?.status === DocumentStatusType.Uploaded) {
+    // Define table columns
+    const columns = useMemo(
+        () => [
+            {
+                accessorKey: 'studentName',
+                header: t('First / Last Name', { ns: 'common' }),
+                size: 200,
+                Cell: (params) => {
+                    const linkUrl = `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
+                        params.row.original.id,
+                        DEMO.PROFILE_HASH
+                    )}`;
                     return (
                         <Link
                             component={LinkDom}
                             target="_blank"
-                            title={params.value?.status}
-                            to=""
+                            title={params.row.original.studentName}
+                            to={linkUrl}
                             underline="hover"
                         >
-                            <IconButton>{FILE_UPLOADED_SYMBOL}</IconButton>
-                            {`${params.value?.status || ''}`}
+                            {params.row.original.studentName}
                         </Link>
                     );
-                } else if (
-                    params.value?.status === DocumentStatusType.Accepted
-                ) {
-                    let document_split = params.value?.path.replace(/\\/g, '/');
-                    let document_name = document_split.split('/')[1];
-                    return (
-                        <Box
-                            onClick={(e) => {
-                                showPreview(
-                                    e,
-                                    document_name,
-                                    params.value?.name,
-                                    document_name,
-                                    params.row.id
-                                );
-                            }}
-                            style={{
-                                textDecoration: 'none',
-                                cursor: 'pointer',
-                                display: 'flex'
-                            }}
-                        >
-                            <IconButton>{FILE_OK_SYMBOL}</IconButton>{' '}
-                            {`${params.value?.status || ''}`}
-                        </Box>
-                    );
-                } else if (
-                    params.value?.status === DocumentStatusType.Rejected
-                ) {
-                    return (
-                        <>
-                            <IconButton>{FILE_NOT_OK_SYMBOL}</IconButton>{' '}
-                            {`${params.value?.status || ''}`}
-                        </>
-                    );
-                } else if (
-                    params.value?.status === DocumentStatusType.NotNeeded
-                ) {
-                    return (
-                        <>
-                            <IconButton>{FILE_DONT_CARE_SYMBOL}</IconButton>
-                            {`${params.value?.status || ''}`}
-                        </>
-                    );
-                } else {
-                    return <IconButton>{FILE_MISSING_SYMBOL}</IconButton>;
                 }
-            }
-        };
-    });
+            },
+            {
+                accessorKey: 'agents',
+                header: t('Agents', { ns: 'common' }),
+                size: 150,
+                accessorFn: (row) =>
+                    row.agents
+                        ?.map((agent) => `${agent.firstname} ${agent.lastname}`)
+                        .join(', ') || '',
+                Cell: (params) => {
+                    return params.row.original.agents?.map((agent, idx) => (
+                        <Link
+                            component={LinkDom}
+                            key={`${agent._id.toString()}-${idx}`}
+                            target="_blank"
+                            title={`${agent.firstname} ${agent.lastname}`}
+                            to={DEMO.TEAM_AGENT_LINK(agent._id.toString())}
+                            underline="hover"
+                        >
+                            {`${agent.firstname}${
+                                idx < params.row.original.agents.length - 1
+                                    ? ', '
+                                    : ''
+                            }`}
+                        </Link>
+                    ));
+                }
+            },
+            ...profileColumns
+        ],
+        [t, profileColumns]
+    );
 
-    const baseDocumentColumns = [
-        {
-            field: 'studentName',
-            headerName: t('First / Last Name', { ns: 'common' }),
-            minWidth: 100,
-            renderCell: (params) => {
-                const linkUrl = `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                    params.row.id,
-                    DEMO.PROFILE_HASH
-                )}`;
-                return (
-                    <Link
-                        component={LinkDom}
-                        target="_blank"
-                        title={params.value}
-                        to={linkUrl}
-                        underline="hover"
-                    >
-                        {params.value}
-                    </Link>
-                );
-            }
+    // Configure Material React Table
+    const table = useMaterialReactTable({
+        columns,
+        data: tableData,
+        enableColumnFilterModes: true,
+        enableColumnOrdering: true,
+        enableColumnPinning: true,
+        enableColumnResizing: true,
+        enableStickyHeader: true,
+        enableDensityToggle: true,
+        initialState: {
+            showColumnFilters: true,
+            showGlobalFilter: true,
+            density: 'compact',
+            columnPinning: {
+                left: ['studentName']
+            },
+            pagination: { pageSize: 10, pageIndex: 0 }
         },
-        {
-            field: 'agents',
-            headerName: t('Agents', { ns: 'common' }),
-            minWidth: 100,
-            renderCell: (params) => {
-                return params.value?.map((agent) => (
-                    <Link
-                        component={LinkDom}
-                        key={`${agent._id.toString()}`}
-                        target="_blank"
-                        title={agent.firstname}
-                        to={DEMO.TEAM_AGENT_LINK(agent._id.toString())}
-                        underline="hover"
-                    >
-                        {`${agent.firstname} `}
-                    </Link>
-                ));
-            }
+        paginationDisplayMode: 'pages',
+        muiSearchTextFieldProps: {
+            size: 'small',
+            variant: 'outlined',
+            placeholder: t('Search students...', { ns: 'common' })
         },
-        ...baseDocumentColumnsWithoutName
-    ];
+        muiPaginationProps: {
+            color: 'secondary',
+            rowsPerPageOptions: [10, 20, 50, 100],
+            shape: 'rounded',
+            variant: 'outlined'
+        }
+    });
 
     return (
         <Box>
-            <MuiDataGrid
-                columns={baseDocumentColumns}
-                rows={student_profile_transformed}
-            />
+            {/* Statistics Overview Cards */}
+            <Grid container spacing={2} sx={{ mb: 3 }}>
+                <Grid item lg={2} md={4} sm={6} xs={12}>
+                    <Card sx={{ height: '100%' }}>
+                        <CardContent sx={{ height: '100%' }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between'
+                                }}
+                            >
+                                <Box>
+                                    <Typography
+                                        color="textSecondary"
+                                        gutterBottom
+                                        variant="overline"
+                                    >
+                                        {t('Total Students')}
+                                    </Typography>
+                                    <Typography
+                                        sx={{ fontWeight: 'bold' }}
+                                        variant="h4"
+                                    >
+                                        {statistics.totalStudents}
+                                    </Typography>
+                                </Box>
+                                <Avatar
+                                    sx={{
+                                        bgcolor: '#e3f2fd',
+                                        color: '#1976d2',
+                                        width: 56,
+                                        height: 56
+                                    }}
+                                >
+                                    <PersonIcon />
+                                </Avatar>
+                            </Box>
+                        </CardContent>
+                    </Card>
+                </Grid>
+
+                <Grid item lg={2} md={4} sm={6} xs={12}>
+                    <Card sx={{ height: '100%' }}>
+                        <CardContent sx={{ height: '100%' }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    height: '100%'
+                                }}
+                            >
+                                <Box>
+                                    <Typography
+                                        color="textSecondary"
+                                        gutterBottom
+                                        variant="overline"
+                                    >
+                                        {t('Needs Review')}
+                                    </Typography>
+                                    <Typography
+                                        sx={{ fontWeight: 'bold' }}
+                                        variant="h4"
+                                    >
+                                        {statistics.needsReview}
+                                    </Typography>
+                                    <Typography
+                                        color="error.main"
+                                        sx={{ fontSize: '0.75rem' }}
+                                        variant="caption"
+                                    >
+                                        {t('Pending approval')}
+                                    </Typography>
+                                </Box>
+                                <Avatar
+                                    sx={{
+                                        bgcolor: '#fff3e0',
+                                        color: '#ff9800',
+                                        width: 56,
+                                        height: 56
+                                    }}
+                                >
+                                    <HourglassIcon />
+                                </Avatar>
+                            </Box>
+                        </CardContent>
+                    </Card>
+                </Grid>
+
+                <Grid item lg={2} md={4} sm={6} xs={12}>
+                    <Card sx={{ height: '100%' }}>
+                        <CardContent sx={{ height: '100%' }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    height: '100%'
+                                }}
+                            >
+                                <Box>
+                                    <Typography
+                                        color="textSecondary"
+                                        gutterBottom
+                                        variant="overline"
+                                    >
+                                        {t('Accepted')}
+                                    </Typography>
+                                    <Typography
+                                        sx={{ fontWeight: 'bold' }}
+                                        variant="h4"
+                                    >
+                                        {statistics.accepted}
+                                    </Typography>
+                                    <Typography
+                                        color="success.main"
+                                        sx={{ fontSize: '0.75rem' }}
+                                        variant="caption"
+                                    >
+                                        {t('Approved documents')}
+                                    </Typography>
+                                </Box>
+                                <Avatar
+                                    sx={{
+                                        bgcolor: '#e8f5e9',
+                                        color: '#4caf50',
+                                        width: 56,
+                                        height: 56
+                                    }}
+                                >
+                                    <CheckCircleIcon />
+                                </Avatar>
+                            </Box>
+                        </CardContent>
+                    </Card>
+                </Grid>
+
+                <Grid item lg={2} md={4} sm={6} xs={12}>
+                    <Card sx={{ height: '100%' }}>
+                        <CardContent sx={{ height: '100%' }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    height: '100%'
+                                }}
+                            >
+                                <Box>
+                                    <Typography
+                                        color="textSecondary"
+                                        gutterBottom
+                                        variant="overline"
+                                    >
+                                        {t('Rejected')}
+                                    </Typography>
+                                    <Typography
+                                        sx={{ fontWeight: 'bold' }}
+                                        variant="h4"
+                                    >
+                                        {statistics.rejected}
+                                    </Typography>
+                                    <Typography
+                                        color="error.main"
+                                        sx={{ fontSize: '0.75rem' }}
+                                        variant="caption"
+                                    >
+                                        {t('Needs resubmission')}
+                                    </Typography>
+                                </Box>
+                                <Avatar
+                                    sx={{
+                                        bgcolor: '#ffebee',
+                                        color: '#d32f2f',
+                                        width: 56,
+                                        height: 56
+                                    }}
+                                >
+                                    <CancelIcon />
+                                </Avatar>
+                            </Box>
+                        </CardContent>
+                    </Card>
+                </Grid>
+
+                <Grid item lg={2} md={4} sm={6} xs={12}>
+                    <Card sx={{ height: '100%' }}>
+                        <CardContent sx={{ height: '100%' }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    height: '100%'
+                                }}
+                            >
+                                <Box>
+                                    <Typography
+                                        color="textSecondary"
+                                        gutterBottom
+                                        variant="overline"
+                                    >
+                                        {t('Missing')}
+                                    </Typography>
+                                    <Typography
+                                        sx={{ fontWeight: 'bold' }}
+                                        variant="h4"
+                                    >
+                                        {statistics.missing}
+                                    </Typography>
+                                    <Typography
+                                        color="text.secondary"
+                                        sx={{ fontSize: '0.75rem' }}
+                                        variant="caption"
+                                    >
+                                        {t('Not yet uploaded')}
+                                    </Typography>
+                                </Box>
+                                <Avatar
+                                    sx={{
+                                        bgcolor: '#fafafa',
+                                        color: '#757575',
+                                        width: 56,
+                                        height: 56
+                                    }}
+                                >
+                                    <DescriptionIcon />
+                                </Avatar>
+                            </Box>
+                        </CardContent>
+                    </Card>
+                </Grid>
+
+                <Grid item lg={2} md={4} sm={6} xs={12}>
+                    <Card sx={{ height: '100%' }}>
+                        <CardContent sx={{ height: '100%' }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    height: '100%'
+                                }}
+                            >
+                                <Box>
+                                    <Typography
+                                        color="textSecondary"
+                                        gutterBottom
+                                        variant="overline"
+                                    >
+                                        {t('Completion')}
+                                    </Typography>
+                                    <Typography
+                                        sx={{ fontWeight: 'bold' }}
+                                        variant="h4"
+                                    >
+                                        {statistics.completionRate}%
+                                    </Typography>
+                                    <Typography
+                                        color="primary.main"
+                                        sx={{ fontSize: '0.75rem' }}
+                                        variant="caption"
+                                    >
+                                        {t('Overall progress')}
+                                    </Typography>
+                                </Box>
+                                <Avatar
+                                    sx={{
+                                        bgcolor: '#e8eaf6',
+                                        color: '#3f51b5',
+                                        width: 56,
+                                        height: 56
+                                    }}
+                                >
+                                    <TrendingUpIcon />
+                                </Avatar>
+                            </Box>
+                        </CardContent>
+                    </Card>
+                </Grid>
+            </Grid>
+
+            {/* Material React Table */}
+            <MaterialReactTable table={table} />
+
             <AcceptProfileFileModel
                 closePreviewWindow={closePreviewWindow}
                 isLoaded={baseDocumentsTableState.isLoaded}
@@ -328,6 +704,7 @@ export const BaseDocumentsTable = ({ students }) => {
                 showPreview={baseDocumentsTableState.showPreview}
                 student_id={baseDocumentsTableState.student_id}
             />
+
             <Dialog
                 aria-labelledby="contained-modal-title-vcenter"
                 onClose={closeRejectWarningWindow}
@@ -337,27 +714,40 @@ export const BaseDocumentsTable = ({ students }) => {
                 <DialogContent>
                     <DialogContentText>
                         Please give a reason why the uploaded{' '}
-                        {baseDocumentsTableState.category} is invalied?
+                        {baseDocumentsTableState.category} is invalid?
                     </DialogContentText>
                     <TextField
+                        fullWidth
+                        multiline
                         onChange={(e) => handleRejectMessage(e, e.target.value)}
                         placeholder="ex. Poor scanned quality."
+                        rows={3}
+                        sx={{ mt: 2 }}
                         type="text"
+                        value={baseDocumentsTableState.feedback}
                     />
                 </DialogContent>
                 <DialogActions>
                     <Button
-                        disabled={baseDocumentsTableState.feedback === ''}
+                        onClick={closeRejectWarningWindow}
+                        variant="outlined"
+                    >
+                        {t('No', { ns: 'common' })}
+                    </Button>
+                    <Button
+                        color="primary"
+                        disabled={
+                            baseDocumentsTableState.feedback === '' ||
+                            !baseDocumentsTableState.isLoaded
+                        }
                         onClick={(e) => onUpdateProfileFilefromstudent(e)}
+                        variant="contained"
                     >
                         {!baseDocumentsTableState.isLoaded ? (
                             <CircularProgress size={24} />
                         ) : (
                             t('Yes', { ns: 'common' })
                         )}
-                    </Button>
-                    <Button onClick={closeRejectWarningWindow}>
-                        {t('No', { ns: 'common' })}
                     </Button>
                 </DialogActions>
             </Dialog>

@@ -389,7 +389,7 @@
     "file-upload-notice": "Each document has specific requirements. Before uploading, click the description link icon next to each file name to view the requirements, and upload accordingly. Our agents will review the files.",
     "files": "Files",
     "hello-students": "Dear {{tenant}} customers,",
-    "i-declare-without-help-of-ai": "I {{studentFullName}} hereby declare that {{docName}} has been prepared without the assistance of generative AI. I accept the terms and conditions and take full responsibility for any decisions made by the admission committee.",
+    "i-declare-without-help-of-ai": "I {{studentFullName}} hereby declare that this document has been prepared without the assistance of generative AI. I accept the terms and conditions and take full responsibility for any decisions made by the admission committee.",
     "loading": "Loading, please wait...",
     "open/offer/reject": "open/offer/reject",
     "required-document-notice": "Whether applying for undergraduate or master's programs, high school documents and entrance exam scores are required. These requirements may vary based on your background. Please complete your profile first.",

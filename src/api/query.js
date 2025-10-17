@@ -3,6 +3,8 @@ import {
     getAdmissionsOverview,
     verifyV2,
     getProgramsV2,
+    getProgramsOverview,
+    getSchoolsDistribution,
     getProgramTicketsV2,
     getProgramV2,
     getStudentsAndDocLinks2,
@@ -23,6 +25,7 @@ import {
     getActiveStudents,
     getActiveStudentsApplications,
     getInterviews,
+    getInterview,
     getAuditLog,
     getTasksOverview,
     getIsManager,
@@ -36,7 +39,8 @@ import {
     getInterviewsByStudentId,
     getInterviewsByProgramId,
     getUsers,
-    getUsersCount
+    getUsersCount,
+    getActiveThreads
 } from '.';
 
 export const getMessagThreadQuery = (threadId) => ({
@@ -52,6 +56,13 @@ export const getMessagThreadQuery = (threadId) => ({
     },
     staleTime: 1000 * 60, // 1 minutes
     cacheTime: 60 * 1000 // 1 minutes
+});
+
+export const getActiveThreadsQuery = (queryString) => ({
+    queryKey: ['active-threads', queryString],
+    queryFn: () => getActiveThreads(queryString),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    select: (data) => data?.data || []
 });
 
 export const getProgramQuery = ({ programId }) => ({
@@ -170,6 +181,18 @@ export const getProgramsQuery = () => ({
     staleTime: 1000 * 60 // 1 minutes
 });
 
+export const getProgramsOverviewQuery = () => ({
+    queryKey: ['programs', 'overview'],
+    queryFn: getProgramsOverview,
+    staleTime: 1000 * 60 * 5 // 5 minutes
+});
+
+export const getSchoolsDistributionQuery = () => ({
+    queryKey: ['programs', 'schools-distribution'],
+    queryFn: getSchoolsDistribution,
+    staleTime: 1000 * 60 * 5 // 5 minutes
+});
+
 export const getVerifyQuery = () => ({
     queryKey: ['verify'],
     queryFn: verifyV2,
@@ -276,4 +299,10 @@ export const getCRMSalesRepsQuery = () => ({
     queryKey: ['crm/sales-reps'],
     queryFn: getCRMSalesReps,
     gcTime: 1000 * 60 * 15 // 15 minutes
+});
+
+export const getInterviewQuery = (interviewId) => ({
+    queryKey: ['interviews', interviewId],
+    queryFn: () => getInterview(interviewId),
+    staleTime: 1000 * 60 * 1 // 1 minute
 });

@@ -1,5 +1,4 @@
 import { defer, json } from 'react-router-dom';
-import queryString from 'query-string';
 import {
     getStudents,
     getArchivStudents,
@@ -15,8 +14,7 @@ import {
     getCommunicationThread,
     getProgram,
     getAllOpenInterviews,
-    getApplicationStudentV2,
-    getActiveThreads
+    getApplicationStudentV2
 } from '.';
 import { queryClient } from './client';
 import {
@@ -25,7 +23,6 @@ import {
     getCoursessQuery,
     getProgramRequirementsQuery
 } from './query';
-import { file_category_const } from '../Demo/Utils/checking-functions';
 
 export async function getStudentsLoader() {
     const response = await getStudents();
@@ -46,22 +43,6 @@ export async function getAllCoursesLoader() {
 export async function getCourseLoader({ params }) {
     const courseId = params.courseId;
     return queryClient.fetchQuery(getCoursessQuery(courseId));
-}
-
-export async function getActiveEssayThreadsLoader() {
-    const response = await getActiveThreads(
-        queryString.stringify({
-            file_type: file_category_const.essay_required
-        })
-    );
-    if (response.status >= 400) {
-        throw json(
-            { message: response.statusText },
-            { status: response.status }
-        );
-    } else {
-        return response;
-    }
 }
 
 //

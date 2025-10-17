@@ -20,9 +20,7 @@ const CVMLRLDashboard = (props) => {
     const memoizedColumnsMrt = useMemo(() => c1_mrt, []);
     const [cVMLRLDashboardState, setCVMLRLDashboardState] = useState({
         error: '',
-        isLoaded: props.isLoaded,
         data: null,
-        success: props.success,
         SetAsFinalFileModel: false,
         open_tasks_arr: props.open_tasks_arr,
         isFinalVersion: false,

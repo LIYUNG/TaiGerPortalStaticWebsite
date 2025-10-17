@@ -47,7 +47,6 @@ const UsersTable = () => {
     };
 
     const { data: usersCount } = useQuery(getUsersCountQuery());
-    console.log(usersCount);
 
     const { mutate: addUserMutation, isPending: isAddingUser } = useMutation({
         mutationFn: (user_information) => addUser(user_information),

@@ -21,7 +21,9 @@ import {
     DialogActions,
     Avatar,
     Card,
-    CircularProgress
+    CircularProgress,
+    Stack,
+    useTheme
 } from '@mui/material';
 import { is_TaiGer_role } from '@taiger-common/core';
 
@@ -42,6 +44,7 @@ import { TopBar } from '../../components/TopBar/TopBar';
 
 const CustomerTicketDetailPageBody = ({ complaintTicket }) => {
     const { t } = useTranslation();
+    const theme = useTheme();
     const { user } = useAuth();
     const [checkResult, setCheckResult] = useState([]);
     const [isDeleted, setIsDeleted] = useState(false);
@@ -509,62 +512,102 @@ const CustomerTicketDetailPageBody = ({ complaintTicket }) => {
                         {user.archiv !== true ? (
                             <Card
                                 sx={{
-                                    p: 2,
-                                    overflowWrap: 'break-word', // Add this line
-                                    maxWidth: window.innerWidth - 64,
-                                    marginTop: '1px',
-                                    '& .MuiAvatar-root': {
-                                        width: 32,
-                                        height: 32,
-                                        ml: -0.5,
-                                        mr: 1
+                                    borderRadius: 2,
+                                    border: `1px solid ${theme.palette.divider}`,
+                                    boxShadow: theme.shadows[1],
+                                    overflow: 'hidden',
+                                    mt: 1,
+                                    transition: 'all 0.3s',
+                                    '&:hover': {
+                                        boxShadow: theme.shadows[3],
+                                        borderColor: theme.palette.primary.main
                                     }
                                 }}
                             >
-                                <Avatar
-                                    {...stringAvatar(
-                                        `${user.firstname} ${user.lastname}`
-                                    )}
-                                    src={user?.pictureUrl}
-                                />
-                                <Typography
-                                    style={{ marginLeft: '10px', flex: 1 }}
-                                    sx={{ mt: 1 }}
-                                    variant="body1"
-                                >
-                                    <b>
-                                        {user.firstname} {user.lastname}
-                                    </b>
-                                </Typography>
                                 {customerTicketDetailPageBodyState.thread
-                                    .isFinalVersion ? (
-                                    <Typography>
+                                    .status === 'resolved' ? (
+                                    <Typography sx={{ p: 2 }}>
                                         This ticket is resolved.
                                     </Typography>
                                 ) : (
-                                    <DocThreadEditor
-                                        buttonDisabled={
-                                            customerTicketDetailPageBodyState.buttonDisabled
-                                        }
-                                        checkResult={checkResult}
-                                        doc_title="customerTicketDetailPageBodyState.doc_title"
-                                        editorState={
-                                            customerTicketDetailPageBodyState.editorState
-                                        }
-                                        file={
-                                            customerTicketDetailPageBodyState.file
-                                        }
-                                        handleClickSave={handleClickSave}
-                                        onFileChange={onFileChange}
-                                        thread={
-                                            customerTicketDetailPageBodyState.thread
-                                        }
-                                    />
+                                    <>
+                                        <Box
+                                            sx={{
+                                                background: `linear-gradient(135deg, ${theme.palette.primary.light} 0%, ${theme.palette.primary.main} 100%)`,
+                                                color: theme.palette.primary
+                                                    .contrastText,
+                                                p: 1.5
+                                            }}
+                                        >
+                                            <Stack
+                                                alignItems="center"
+                                                direction="row"
+                                                spacing={1.5}
+                                            >
+                                                <Avatar
+                                                    {...stringAvatar(
+                                                        `${user.firstname} ${user.lastname}`
+                                                    )}
+                                                    src={user?.pictureUrl}
+                                                    sx={{
+                                                        width: 36,
+                                                        height: 36,
+                                                        border: '2px solid white'
+                                                    }}
+                                                />
+                                                <Box>
+                                                    <Typography
+                                                        fontWeight="600"
+                                                        variant="body2"
+                                                    >
+                                                        {user.firstname}{' '}
+                                                        {user.lastname}
+                                                    </Typography>
+                                                    <Typography
+                                                        sx={{
+                                                            fontSize: '0.7rem',
+                                                            opacity: 0.9
+                                                        }}
+                                                        variant="caption"
+                                                    >
+                                                        Write a reply
+                                                    </Typography>
+                                                </Box>
+                                            </Stack>
+                                        </Box>
+                                        <Box
+                                            sx={{
+                                                p: 2,
+                                                overflowWrap: 'break-word'
+                                            }}
+                                        >
+                                            <DocThreadEditor
+                                                buttonDisabled={
+                                                    customerTicketDetailPageBodyState.buttonDisabled
+                                                }
+                                                checkResult={checkResult}
+                                                doc_title="customerTicketDetailPageBodyState.doc_title"
+                                                editorState={
+                                                    customerTicketDetailPageBodyState.editorState
+                                                }
+                                                file={
+                                                    customerTicketDetailPageBodyState.file
+                                                }
+                                                handleClickSave={
+                                                    handleClickSave
+                                                }
+                                                onFileChange={onFileChange}
+                                                thread={
+                                                    customerTicketDetailPageBodyState.thread
+                                                }
+                                            />
+                                        </Box>
+                                    </>
                                 )}
                             </Card>
                         ) : (
                             <Card>
-                                <Typography>
+                                <Typography sx={{ p: 2 }}>
                                     Your service is finished. Therefore, you are
                                     in read only mode.
                                 </Typography>

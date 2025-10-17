@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Box, Breadcrumbs, Link, Typography } from '@mui/material';
 import { Navigate, Link as LinkDom } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { is_TaiGer_role } from '@taiger-common/core';
 import queryString from 'query-string';
+import { useMutation, useQuery } from '@tanstack/react-query';
 
-import ErrorPage from '../Utils/ErrorPage';
-import { getActiveThreads, putThreadFavorite } from '../../api';
+import { putThreadFavorite } from '../../api';
 import { TabTitle } from '../Utils/TabTitle';
 import {
     file_category_const,
-    open_tasks_v2,
-    toogleItemInArray
+    open_tasks_v2
+    // toogleItemInArray
 } from '../Utils/checking-functions';
 import DEMO from '../../store/constant';
 import { useAuth } from '../../components/AuthProvider';
@@ -23,119 +23,51 @@ import {
     is_new_message_status,
     is_pending_status
 } from '../../utils/contants';
+import { getActiveThreadsQuery } from '../../api/query';
+import { queryClient } from '../../api/client';
 
 const EssayDashboard = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
-    const [essayDashboardState, setEssayDashboardState] = useState({
-        error: '',
-        isLoaded: false,
-        data: null,
-        success: false,
-        students: null,
-        SetAsFinalFileModel: false,
-        open_tasks_arr: null,
-        isFinalVersion: false,
-        status: '', //reject, accept... etc
-        res_status: 0,
-        res_modal_message: '',
-        res_modal_status: 0
-    });
 
-    useEffect(() => {
-        getActiveThreads(
+    const { data = [], isLoading } = useQuery(
+        getActiveThreadsQuery(
             queryString.stringify({
                 file_type: file_category_const.essay_required
             })
-        ).then(
-            (resp) => {
-                const { data, success } = resp.data;
-                const { status } = resp;
-                const tasksData = open_tasks_v2(data);
+        )
+    );
 
-                if (success) {
-                    setEssayDashboardState({
-                        ...essayDashboardState,
-                        isLoaded: true,
-                        students: data,
-                        open_tasks_arr: tasksData,
-                        success: success,
-                        res_status: status
-                    });
-                } else {
-                    setEssayDashboardState({
-                        ...essayDashboardState,
-                        isLoaded: true,
-                        res_status: status
-                    });
-                }
-            },
-            (error) => {
-                setEssayDashboardState({
-                    ...essayDashboardState,
-                    isLoaded: true,
-                    error,
-                    res_status: 500
-                });
-            }
-        );
-    }, []);
+    const { mutate: handleFavoriteToggleMutation } = useMutation({
+        mutationFn: (id) => putThreadFavorite(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: getActiveThreadsQuery(
+                    queryString.stringify({
+                        file_type: file_category_const.essay_required
+                    })
+                ).queryKey
+            });
+        }
+    });
+
+    const open_tasks_arr = open_tasks_v2(data);
 
     const handleFavoriteToggle = (id) => {
-        const updatedOpenTasksArr = essayDashboardState.open_tasks_arr?.map(
-            (row) =>
-                row.id === id
-                    ? {
-                          ...row,
-                          flag_by_user_id: toogleItemInArray(
-                              row.flag_by_user_id,
-                              user._id.toString()
-                          )
-                      }
-                    : row
-        );
-        setEssayDashboardState((prevState) => ({
-            ...prevState,
-            open_tasks_arr: updatedOpenTasksArr
-        }));
-        putThreadFavorite(id).then(
-            (resp) => {
-                const { success } = resp.data;
-                const { status } = resp;
-                if (!success) {
-                    setEssayDashboardState((prevState) => ({
-                        ...prevState,
-                        res_status: status
-                    }));
-                }
-            },
-            (error) => {
-                setEssayDashboardState((prevState) => ({
-                    ...prevState,
-                    error,
-                    res_status: 500
-                }));
-            }
-        );
+        handleFavoriteToggleMutation(id);
     };
 
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
-    const { res_status, isLoaded, open_tasks_arr } = essayDashboardState;
     TabTitle('Essay Dashboard');
-    if (!isLoaded && !open_tasks_arr) {
+    if (isLoading) {
         return <Loading />;
     }
 
-    if (res_status >= 400) {
-        return <ErrorPage res_status={res_status} />;
-    }
-
-    const open_tasks_withMyEssay_arr =
-        essayDashboardState.open_tasks_arr?.filter(
-            (open_task) => open_task.show && !open_task.isFinalVersion
-        );
+    const open_tasks_withMyEssay_arr = open_tasks_arr?.filter(
+        (open_task) => open_task.show && !open_task.isFinalVersion
+    );
     const no_essay_writer_tasks = open_tasks_withMyEssay_arr?.filter(
         (open_task) =>
             open_task.outsourced_user_id === undefined ||
@@ -162,11 +94,11 @@ const EssayDashboard = () => {
             open_task.latest_message_left_by_id === ''
     );
 
-    const closed_tasks = essayDashboardState.open_tasks_arr?.filter(
+    const closed_tasks = open_tasks_arr?.filter(
         (open_task) => open_task.show && open_task.isFinalVersion
     );
 
-    const all_active_message_tasks = essayDashboardState.open_tasks_arr?.filter(
+    const all_active_message_tasks = open_tasks_arr?.filter(
         (open_task) => open_task.show
     );
 
@@ -194,11 +126,10 @@ const EssayDashboard = () => {
                 fav_message_tasks={fav_message_tasks}
                 followup_tasks={followup_tasks}
                 handleFavoriteToggle={handleFavoriteToggle}
-                isLoaded={essayDashboardState.isLoaded}
+                isLoaded={isLoading}
                 new_message_tasks={new_message_tasks}
                 no_essay_writer_tasks={no_essay_writer_tasks}
                 pending_progress_tasks={pending_progress_tasks}
-                success={essayDashboardState.success}
             />
         </Box>
     );

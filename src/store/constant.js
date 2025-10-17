@@ -93,6 +93,7 @@ const DEMO = {
         return `/profile/${user_id}`;
     },
     PROGRAMS: '/programs',
+    PROGRAMS_OVERVIEW: '/programs/overview',
     SCHOOL_CONFIG: '/programs/config',
     NEW_PROGRAM: '/programs/create',
     PROGRAM_EDIT: (program_id) => `/programs/${program_id}/edit`,

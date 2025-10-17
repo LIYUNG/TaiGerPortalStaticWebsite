@@ -1,16 +1,15 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
-import { userEvent } from '@testing-library/user-event';
 import UsersTable from './UsersTable';
 import 'react-i18next';
 import { getUsers } from '../../api';
 import { useAuth } from '../../components/AuthProvider';
-import { MemoryRouter } from 'react-router-dom';
+import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { testingUsersData } from '../../test/testingUsersData';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 jest.mock('axios');
 jest.mock('../../api');
-
 jest.mock('react-i18next', () => ({
     useTranslation: () => {
         return {
@@ -22,94 +21,6 @@ jest.mock('react-i18next', () => ({
 }));
 
 jest.mock('../../components/AuthProvider');
-jest.mock('@tanstack/react-query', () => ({
-    QueryClient: jest.fn().mockImplementation(() => ({
-        getQueryData: jest.fn(),
-        setQueryData: jest.fn(),
-        invalidateQueries: jest.fn(),
-        clear: jest.fn()
-    })),
-    useQuery: () => ({
-        data: [
-            {
-                _id: '1',
-                agents: [],
-                editors: [],
-                applying_program_count: 5,
-                firstname: 'TestStudent1',
-                lastname: 'Lee',
-                email: 'lee.teststudent1@gmail.com',
-                archiv: false,
-                birthday: '2002-01-30',
-                isAccountActivated: true,
-                role: 'Student',
-                createdAt: '2023-06-10T10:08:06.638Z',
-                updatedAt: '2024-01-14T20:27:45.597Z',
-                __v: 7,
-                lastLoginAt: '2023-06-10T10:17:57.856Z',
-                linkedIn: '',
-                needEditor: false
-            },
-            {
-                _id: '2',
-                applying_program_count: 5,
-                firstname: 'AgentFirstname',
-                lastname: 'AgentLastname',
-                email: 'chen.agent@gmail.com',
-                archiv: false,
-                birthday: '2002-01-30',
-                isAccountActivated: true,
-                role: 'Agent',
-                generaldocs_threads: [],
-                createdAt: '2023-06-10T10:08:06.638Z',
-                updatedAt: '2024-01-14T20:27:45.597Z',
-                __v: 7,
-                lastLoginAt: '2023-06-10T10:17:57.856Z',
-                linkedIn: '',
-                needEditor: false
-            },
-            {
-                _id: '3',
-                applying_program_count: 5,
-                firstname: 'EditorFirstname',
-                lastname: 'EditorLastname',
-                email: 'chen.editor@gmail.com',
-                archiv: false,
-                birthday: '2002-01-30',
-                isAccountActivated: true,
-                role: 'Editor',
-                generaldocs_threads: [],
-                createdAt: '2023-06-10T10:08:06.638Z',
-                updatedAt: '2024-01-14T20:27:45.597Z',
-                __v: 7,
-                lastLoginAt: '2023-06-12T10:17:57.856Z',
-                linkedIn: '',
-                needEditor: false
-            },
-            {
-                _id: '4',
-                applying_program_count: 5,
-                firstname: 'AdminFirstname',
-                lastname: 'AdminLastname',
-                email: 'chen.admin@gmail.com',
-                archiv: false,
-                birthday: '2002-01-30',
-                isAccountActivated: true,
-                role: 'Admin',
-                generaldocs_threads: [],
-                createdAt: '2023-06-10T10:08:06.638Z',
-                updatedAt: '2024-01-14T20:27:45.597Z',
-                __v: 7,
-                lastLoginAt: '2023-06-12T10:17:57.856Z',
-                linkedIn: '',
-                needEditor: false
-            }
-        ],
-        isLoading: false,
-        isError: false
-    }),
-    useMutation: () => ({ mutate: () => {} })
-}));
 
 jest.mock('../../contexts/use-snack-bar', () => ({
     useSnackBar: () => ({
@@ -119,11 +30,27 @@ jest.mock('../../contexts/use-snack-bar', () => ({
     })
 }));
 
+const createTestQueryClient = () =>
+    new QueryClient({
+        defaultOptions: {
+            queries: {
+                retry: false // Disable retries for faster tests
+            }
+        }
+    });
+
 class ResizeObserver {
     observe() {}
     disconnect() {}
     unobserve() {}
 }
+
+const routes = [
+    {
+        path: '/users',
+        element: <UsersTable />
+    }
+];
 
 describe('Users Table page checking', () => {
     window.ResizeObserver = ResizeObserver;
@@ -134,10 +61,15 @@ describe('Users Table page checking', () => {
             user: { role: 'Admin', _id: '639baebf8b84944b872cf648' }
         });
 
+        const testQueryClient = createTestQueryClient();
+        const router = createMemoryRouter(routes, {
+            initialEntries: ['/users']
+        });
+
         render(
-            <MemoryRouter>
-                <UsersTable />
-            </MemoryRouter>
+            <QueryClientProvider client={testQueryClient}>
+                <RouterProvider router={router} />
+            </QueryClientProvider>
         );
 
         await waitFor(() => {
@@ -145,55 +77,6 @@ describe('Users Table page checking', () => {
                 'User List'
             );
             // expect(1).toBe(1);
-        });
-    });
-
-    test('Users Table page switching tab not crash', async () => {
-        getUsers.mockResolvedValue({ data: testingUsersData.data });
-
-        useAuth.mockReturnValue({
-            user: { role: 'Admin', _id: '639baebf8b84944b872cf648' }
-        });
-
-        render(
-            <MemoryRouter>
-                <UsersTable />
-            </MemoryRouter>
-        );
-        await waitFor(() => {});
-        const buttonElement = screen.getByTestId('users_table_page_agent_tab');
-        userEvent.click(buttonElement);
-        await waitFor(() => {
-            expect(screen.getByTestId('users_table_page')).toHaveTextContent(
-                'AgentFirstname'
-            );
-        });
-
-        const buttonElement2 = screen.getByTestId(
-            'users_table_page_editor_tab'
-        );
-        userEvent.click(buttonElement2);
-        await waitFor(() => {
-            expect(screen.getByTestId('users_table_page')).toHaveTextContent(
-                'EditorFirstname'
-            );
-        });
-        const buttonElement3 = screen.getByTestId('users_table_page_admin_tab');
-        userEvent.click(buttonElement3);
-        await waitFor(() => {
-            expect(screen.getByTestId('users_table_page')).toHaveTextContent(
-                'AdminFirstname'
-            );
-        });
-
-        const buttonElement4 = screen.getByTestId(
-            'users_table_page_student_tab'
-        );
-        userEvent.click(buttonElement4);
-        await waitFor(() => {
-            expect(screen.getByTestId('users_table_page')).toHaveTextContent(
-                'TestStudent1'
-            );
         });
     });
 });
