@@ -7,6 +7,7 @@ import { is_TaiGer_role } from '@taiger-common/core';
 import queryString from 'query-string';
 
 import AdmissionsTables from './AdmissionsTables';
+import Overview from './Overview';
 import StudentAdmissionsTables from './StudentAdmissionTables';
 import AdmissionsStat from './AdmissionsStat';
 
@@ -75,6 +76,12 @@ const Admissions = () => {
                             variant="scrollable"
                         >
                             <Tab
+                                label={`${t('Overview', {
+                                    ns: 'common'
+                                })}`}
+                                {...a11yProps(value, 0)}
+                            />
+                            <Tab
                                 label={`${t('Application', {
                                     ns: 'common'
                                 })}`}
@@ -91,12 +98,15 @@ const Admissions = () => {
                         </Tabs>
                     </Box>
                     <CustomTabPanel index={0} value={value}>
-                        <AdmissionsTables />
+                        <Overview />
                     </CustomTabPanel>
                     <CustomTabPanel index={1} value={value}>
-                        <StudentAdmissionsTables />
+                        <AdmissionsTables />
                     </CustomTabPanel>
                     <CustomTabPanel index={2} value={value}>
+                        <StudentAdmissionsTables />
+                    </CustomTabPanel>
+                    <CustomTabPanel index={3} value={value}>
                         <AdmissionsStat result={result} />
                     </CustomTabPanel>
                 </>
