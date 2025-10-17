@@ -75,13 +75,13 @@ const Admissions = () => {
                             variant="scrollable"
                         >
                             <Tab
-                                label={`${t('Admissions', {
-                                    ns: 'admissions'
+                                label={`${t('Application', {
+                                    ns: 'common'
                                 })}`}
                                 {...a11yProps(value, 0)}
                             />
                             <Tab
-                                label={`${t('Students', { ns: 'admissions' })}`}
+                                label={`${t('Student', { ns: 'common' })}`}
                                 {...a11yProps(value, 1)}
                             />
                             <Tab
