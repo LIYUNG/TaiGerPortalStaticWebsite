@@ -7,13 +7,15 @@ import { is_TaiGer_role } from '@taiger-common/core';
 import queryString from 'query-string';
 
 import AdmissionsTables from './AdmissionsTables';
+import StudentAdmissionsTables from './StudentAdmissionTables';
+import AdmissionsStat from './AdmissionsStat';
+
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '../../store/constant';
 import { appConfig } from '../../config';
 import { useAuth } from '../../components/AuthProvider';
 import Loading from '../../components/Loading/Loading';
 import { a11yProps, CustomTabPanel } from '../../components/Tabs';
-import AdmissionsStat from './AdmissionsStat';
 import { getAdmissionsQuery } from '../../api/query';
 import { BreadcrumbsNavigation } from '../../components/BreadcrumbsNavigation/BreadcrumbsNavigation';
 
@@ -79,8 +81,12 @@ const Admissions = () => {
                                 {...a11yProps(value, 0)}
                             />
                             <Tab
-                                label={`${t('Statistics', { ns: 'admissions' })}`}
+                                label={`${t('Students', { ns: 'admissions' })}`}
                                 {...a11yProps(value, 1)}
+                            />
+                            <Tab
+                                label={`${t('Statistics', { ns: 'admissions' })}`}
+                                {...a11yProps(value, 2)}
                             />
                         </Tabs>
                     </Box>
@@ -88,6 +94,9 @@ const Admissions = () => {
                         <AdmissionsTables />
                     </CustomTabPanel>
                     <CustomTabPanel index={1} value={value}>
+                        <StudentAdmissionsTables />
+                    </CustomTabPanel>
+                    <CustomTabPanel index={2} value={value}>
                         <AdmissionsStat result={result} />
                     </CustomTabPanel>
                 </>
