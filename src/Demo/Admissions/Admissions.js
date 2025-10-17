@@ -85,7 +85,7 @@ const Admissions = () => {
                                 {...a11yProps(value, 1)}
                             />
                             <Tab
-                                label={`${t('Statistics', { ns: 'admissions' })}`}
+                                label={`${t('Program', { ns: 'common' })}`}
                                 {...a11yProps(value, 2)}
                             />
                         </Tabs>
