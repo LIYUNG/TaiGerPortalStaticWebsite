@@ -89,6 +89,37 @@ describe('Admissions page checking', () => {
         });
     });
 
+    test('Deep-link to Student tab via ?tab=student selects the tab', async () => {
+        getAdmissions.mockResolvedValue({
+            data: mockAdmissionsData,
+            result: []
+        });
+        useAuth.mockReturnValue({
+            user: { role: 'Agent', _id: '639baebf8b84944b872cf648' }
+        });
+
+        renderWithQueryClient(
+            <MemoryRouter
+                initialEntries={[
+                    { pathname: '/admissions-overview', search: '?tab=student' }
+                ]}
+            >
+                <Admissions />
+            </MemoryRouter>
+        );
+
+        await waitFor(() => {
+            expect(screen.getByTestId('admissinos_page')).toBeInTheDocument();
+        });
+
+        // The Student tab panel renders its nested tablist
+        expect(
+            await screen.findByRole('tablist', {
+                name: /admissions students tables/i
+            })
+        ).toBeInTheDocument();
+    });
+
     test('Admissions page shows loading state', () => {
         getAdmissions.mockImplementation(() => new Promise(() => {})); // Never resolves
         useAuth.mockReturnValue({

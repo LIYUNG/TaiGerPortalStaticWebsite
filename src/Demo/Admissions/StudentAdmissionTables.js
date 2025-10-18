@@ -4,6 +4,7 @@ import { Box, Tabs, Tab } from '@mui/material';
 import i18next from 'i18next';
 import { useQuery } from '@tanstack/react-query';
 import queryString from 'query-string';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import StudentOverviewTable from '../../components/StudentOverviewTable';
 import FinalDecisionOverview from '../../components/StudentOverviewTable/finalDecisionOverview';
@@ -13,7 +14,25 @@ import { getActiveStudentsQuery } from '../../api/query';
 const StudentAdmissionsTables = () => {
     // const { t } = useTranslation();
     const [tab, setTab] = React.useState(0);
-    const handleTabChange = (_e, newValue) => setTab(newValue);
+    const location = useLocation();
+    const navigate = useNavigate();
+    const STUDENT_TAB_KEYS = ['risk', 'final'];
+
+    React.useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const key = (params.get('studentTab') || '').toLowerCase();
+        const idx = STUDENT_TAB_KEYS.indexOf(key);
+        setTab(idx >= 0 ? idx : 0);
+    }, [location.search]);
+
+    const handleTabChange = (_e, newValue) => {
+        setTab(newValue);
+        const params = new URLSearchParams(location.search);
+        params.set('studentTab', STUDENT_TAB_KEYS[newValue]);
+        // Ensure top-level tab reflects Student
+        params.set('tab', 'student');
+        navigate(`${location.pathname}?${params.toString()}`);
+    };
 
     // Fetch all active students (not archived)
     const { data, isLoading } = useQuery(
