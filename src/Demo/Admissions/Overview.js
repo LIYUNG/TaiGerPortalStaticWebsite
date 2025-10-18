@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Box, Card, CardHeader, Divider, Typography } from '@mui/material';
-import { BarChart, PieChart } from '@mui/x-charts';
+import { BarChart, PieChart, LineChart } from '@mui/x-charts';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import queryString from 'query-string';
@@ -23,7 +23,7 @@ const Overview = () => {
 
     // Fetch all active students (not archived)
     const { data, isLoading } = useQuery(
-        getActiveStudentsQuery(queryString.stringify({ archiv: false }))
+        getActiveStudentsQuery(queryString.stringify({}))
     );
 
     const students = data?.data || [];
@@ -75,8 +75,8 @@ const Overview = () => {
     // 1) Applications per year (offer/rejection/unknown)
     const byYearRows = useMemo(() => {
         const map = new Map();
-        for (const a of applications) {
-            const year = a.application_year || 'Unknown';
+        for (const app of applications) {
+            const year = app?.application_year || 'N/A';
             const key = year;
             if (!map.has(key))
                 map.set(key, {
@@ -88,8 +88,8 @@ const Overview = () => {
                 });
             const row = map.get(key);
             // Categorize by admission result
-            if (a.admission === 'O') row.offer += 1;
-            else if (a.admission === 'X') row.rejection += 1;
+            if (app.admission === 'O') row.offer += 1;
+            else if (app.admission === 'X') row.rejection += 1;
             else row.unknown += 1; // includes '-' and others
             row.total += 1;
         }
@@ -108,54 +108,106 @@ const Overview = () => {
     // Chart dataset for applications per year (stacked)
     const byYearChartDataset = useMemo(() => byYearRows, [byYearRows]);
 
-    // 2) Top 20 applied programs result per year (offer/rejection/unknown)
-    const { topProgramsRows, latestYear } = useMemo(() => {
-        const map = new Map();
-        for (const a of applications) {
-            const year = a.application_year || 'Unknown';
-            const pid = a.programId || a.program_name || 'Unknown';
-            const key = `${year}__${pid}`;
-            if (!map.has(key))
-                map.set(key, {
-                    key,
-                    year,
-                    programId: a.programId,
-                    school: a.school,
-                    program_name: a.program_name,
-                    degree: a.degree,
-                    offer: 0,
-                    rejection: 0,
-                    unknown: 0,
-                    total: 0
-                });
-            const row = map.get(key);
-            if (a.admission === 'O') row.offer += 1;
-            else if (a.admission === 'X') row.rejection += 1;
-            else row.unknown += 1;
-            row.total += 1;
-        }
-        const arr = Array.from(map.values());
-        // Determine the latest year among applications
+    // Latest year across all applications
+    const latestYear = useMemo(() => {
         const years = Array.from(
-            new Set(arr.map((r) => r.year).filter((y) => y && y !== 'Unknown'))
+            new Set(
+                applications
+                    .map((a) => a.application_year)
+                    .filter((y) => y && y !== 'Unknown')
+            )
         );
-        let latestYear = 'Unknown';
-        if (years.length > 0) {
-            years.sort((a, b) => String(b).localeCompare(String(a)));
-            latestYear = years[0];
-        }
-        // Focus on the latest year for the Top 20
-        const filtered = arr.filter((r) => r.year === latestYear);
-        filtered.sort((a, b) => b.total - a.total);
-        const top20 = filtered.slice(0, 20).map((r) => ({
-            id: r.key,
-            ...r,
-            offerRate: r.total
-                ? ((r.offer / r.total) * 100).toFixed(1) + '%'
-                : '-'
-        }));
-        return { topProgramsRows: top20, latestYear };
+        if (years.length === 0) return 'Unknown';
+        years.sort((a, b) => String(b).localeCompare(String(a)));
+        return years[0];
     }, [applications]);
+
+    // 2) Top 10 programs overall (by total applications), list per-year offer/rejection/unknown
+    const { topProgramsYearRows, topProgramKeys, programLabels } =
+        useMemo(() => {
+            // Group strictly by programId to represent a single program
+            const programTotals = new Map(); // programId -> total applications
+            const programInfo = new Map(); // programId -> { programId, school, program_name, degree }
+            const programYearAgg = new Map(); // programId__year -> row agg
+
+            for (const a of applications) {
+                const pid = a.programId;
+                if (!pid) continue; // skip entries without a proper program id
+                const year = a.application_year || 'Unknown';
+
+                programTotals.set(pid, (programTotals.get(pid) || 0) + 1);
+                if (!programInfo.has(pid))
+                    programInfo.set(pid, {
+                        programId: pid,
+                        school: a.school,
+                        program_name: a.program_name,
+                        degree: a.degree
+                    });
+
+                const aggKey = `${pid}__${year}`;
+                if (!programYearAgg.has(aggKey)) {
+                    const info = programInfo.get(pid);
+                    programYearAgg.set(aggKey, {
+                        id: aggKey,
+                        programKey: pid,
+                        year,
+                        programId: info.programId,
+                        school: info.school,
+                        program_name: info.program_name,
+                        degree: info.degree,
+                        offer: 0,
+                        rejection: 0,
+                        unknown: 0,
+                        total: 0
+                    });
+                }
+                const row = programYearAgg.get(aggKey);
+                if (a.admission === 'O') row.offer += 1;
+                else if (a.admission === 'X') row.rejection += 1;
+                else row.unknown += 1;
+                row.total += 1;
+            }
+
+            // Determine top 10 programs by total applications
+            const topProgramsKeys = Array.from(programTotals.entries())
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10)
+                .map(([key]) => key);
+
+            // Labels for chart/rows (include degree to disambiguate if names match)
+            const programLabels = new Map(
+                topProgramsKeys.map((k) => {
+                    const info = programInfo.get(k) || {};
+                    const deg = info.degree ? ` (${info.degree})` : '';
+                    return [
+                        k,
+                        `${info.school || ''} - ${info.program_name || ''}${deg}`.trim()
+                    ];
+                })
+            );
+
+            // Rows for table: one row per program per year for those top programs
+            const topProgramsYearRows = Array.from(programYearAgg.values())
+                .filter((r) => topProgramsKeys.includes(r.programKey))
+                .map((r) => ({
+                    ...r,
+                    offerRate: r.total
+                        ? ((r.offer / r.total) * 100).toFixed(1) + '%'
+                        : '-'
+                }))
+                .sort((a, b) =>
+                    a.school === b.school
+                        ? a.program_name.localeCompare(b.program_name) ||
+                          String(b.year).localeCompare(String(a.year))
+                        : a.school.localeCompare(b.school)
+                );
+
+            return {
+                topProgramsYearRows,
+                topProgramKeys: topProgramsKeys,
+                programLabels
+            };
+        }, [applications]);
 
     // Latest year KPIs
     const latestYearKPIs = useMemo(() => {
@@ -174,16 +226,46 @@ const Overview = () => {
         return { total, offer, offerRate };
     }, [applications, latestYear]);
 
-    // Chart dataset for top programs (latest year) horizontal stacked bars
-    const topProgramsChartDataset = useMemo(() => {
-        return topProgramsRows.map((r) => ({
-            label: `${r.school || ''} - ${r.program_name || ''}`.trim(),
-            offer: r.offer,
-            rejection: r.rejection,
-            unknown: r.unknown,
-            total: r.total
+    // Offer rate per year per top program (for chart)
+    const { offerRateDataset, offerRateSeries } = useMemo(() => {
+        if (!topProgramsYearRows || topProgramsYearRows.length === 0) {
+            return { offerRateDataset: [], offerRateSeries: [] };
+        }
+        // Gather valid numeric years present across top programs
+        const isValidYear = (y) => /^(19|20|21)\d{2}$/.test(String(y));
+        const yearsSet = new Set();
+        for (const r of topProgramsYearRows) {
+            if (isValidYear(r.year)) yearsSet.add(Number(r.year));
+        }
+        const yearsSorted = Array.from(yearsSet).sort((a, b) => a - b);
+
+        // Create alias for each top program key to keep series keys compact
+        const aliases = (topProgramKeys || []).map((_, i) => `p${i}`);
+        const aliasMap = new Map(
+            (topProgramKeys || []).map((k, i) => [k, aliases[i]])
+        );
+
+        // Build dataset rows per year with offer rate for each program
+        const dataset = yearsSorted.map((year) => {
+            const obj = { year };
+            for (const k of topProgramKeys || []) {
+                const row = topProgramsYearRows.find(
+                    (r) => r.programKey === k && String(r.year) === String(year)
+                );
+                const rate =
+                    row && row.total ? (row.offer / row.total) * 100 : null;
+                obj[aliasMap.get(k)] = rate != null ? +rate.toFixed(1) : null;
+            }
+            return obj;
+        });
+
+        const series = (topProgramKeys || []).map((k, i) => ({
+            dataKey: aliases[i],
+            label: programLabels?.get(k) || ''
         }));
-    }, [topProgramsRows]);
+
+        return { offerRateDataset: dataset, offerRateSeries: series };
+    }, [topProgramsYearRows, topProgramKeys, programLabels]);
 
     // 3) Final decision count by country
     const finalByCountryRows = useMemo(() => {
@@ -283,11 +365,6 @@ const Overview = () => {
     const topCols = useMemo(
         () => [
             {
-                field: 'year',
-                headerName: t('Year', { ns: 'common' }),
-                width: 90
-            },
-            {
                 field: 'school',
                 headerName: t('School', { ns: 'common' }),
                 width: 240
@@ -301,6 +378,16 @@ const Overview = () => {
                 field: 'degree',
                 headerName: t('Degree', { ns: 'common' }),
                 width: 90
+            },
+            {
+                field: 'year',
+                headerName: t('Year', { ns: 'common' }),
+                width: 90,
+                valueGetter: (params) => {
+                    const y = params?.row?.year;
+                    return /^(19|20|21)\d{2}$/.test(String(y)) ? Number(y) : '';
+                },
+                sortComparator: (a, b) => (a || 0) - (b || 0)
             },
             {
                 field: 'offer',
@@ -542,44 +629,29 @@ const Overview = () => {
 
             <Card sx={{ p: 2, gridColumn: '1 / -1' }}>
                 <CardHeader
-                    title={t(
-                        'Top 20 Applied Programs (Latest Year: {{year}})',
-                        {
-                            ns: 'common',
-                            year: latestYear
-                        }
-                    )}
+                    title={t('Top 10 Applied Programs — Offer Rate by Year', {
+                        ns: 'common'
+                    })}
                 />
                 <Divider sx={{ mb: 2 }} />
                 <Box sx={{ width: '100%', mb: 2 }}>
-                    <BarChart
-                        dataset={topProgramsChartDataset}
-                        height={Math.max(
-                            360,
-                            topProgramsChartDataset.length * 28
-                        )}
-                        layout="horizontal"
-                        series={[
+                    <LineChart
+                        dataset={offerRateDataset}
+                        height={420}
+                        series={offerRateSeries}
+                        xAxis={[{ dataKey: 'year', scaleType: 'band' }]}
+                        yAxis={[
                             {
-                                dataKey: 'offer',
-                                label: t('Offer', { ns: 'common' }),
-                                stack: 'result'
-                            },
-                            {
-                                dataKey: 'rejection',
-                                label: t('Rejection', { ns: 'common' }),
-                                stack: 'result'
-                            },
-                            {
-                                dataKey: 'unknown',
-                                label: t('Unknown', { ns: 'common' }),
-                                stack: 'result'
+                                label: t('Offer Rate %', { ns: 'common' }),
+                                min: 0,
+                                max: 100,
+                                valueFormatter: (v) =>
+                                    v == null ? '' : `${v}%`
                             }
                         ]}
-                        yAxis={[{ dataKey: 'label', scaleType: 'band' }]}
                     />
                 </Box>
-                <MuiDataGrid columns={topCols} rows={topProgramsRows} />
+                <MuiDataGrid columns={topCols} rows={topProgramsYearRows} />
             </Card>
 
             <Card sx={{ p: 2 }}>
