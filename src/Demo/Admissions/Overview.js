@@ -49,10 +49,11 @@ const Overview = () => {
             if (a.finalEnrolment) finalCount += 1;
         }
         const total = applications.length;
-        const offerRate = total
-            ? ((offer / total) * 100).toFixed(1) + '%'
+        const known = offer + rejection;
+        const acceptanceRate = known
+            ? ((offer / known) * 100).toFixed(1) + '%'
             : '-';
-        return { total, offer, rejection, unknown, finalCount, offerRate };
+        return { total, offer, rejection, unknown, finalCount, acceptanceRate };
     }, [applications]);
 
     // 1) Applications per year (offer/rejection/unknown)
@@ -82,9 +83,11 @@ const Overview = () => {
         return arr.map((r) => ({
             id: r.year,
             ...r,
-            offerRate: r.total
-                ? ((r.offer / r.total) * 100).toFixed(1) + '%'
-                : '-'
+            acceptanceRate:
+                r.offer + r.rejection > 0
+                    ? ((r.offer / (r.offer + r.rejection)) * 100).toFixed(1) +
+                      '%'
+                    : '-'
         }));
     }, [applications]);
 
@@ -179,9 +182,13 @@ const Overview = () => {
                 .filter((r) => topProgramsKeys.includes(r.programKey))
                 .map((r) => ({
                     ...r,
-                    offerRate: r.total
-                        ? ((r.offer / r.total) * 100).toFixed(1) + '%'
-                        : '-'
+                    acceptanceRate:
+                        r.offer + r.rejection > 0
+                            ? (
+                                  (r.offer / (r.offer + r.rejection)) *
+                                  100
+                              ).toFixed(1) + '%'
+                            : '-'
                 }))
                 .sort((a, b) =>
                     a.school === b.school
@@ -200,24 +207,27 @@ const Overview = () => {
     // Latest year KPIs
     const latestYearKPIs = useMemo(() => {
         if (!latestYear || latestYear === 'Unknown')
-            return { total: '-', offer: '-', offerRate: '-' };
+            return { total: '-', offer: '-', acceptanceRate: '-' };
         let offer = 0,
+            rejection = 0,
             total = 0;
         for (const a of applications) {
             if (a.application_year !== latestYear) continue;
             if (a.admission === 'O') offer += 1;
+            else if (a.admission === 'X') rejection += 1;
             total += 1;
         }
-        const offerRate = total
-            ? ((offer / total) * 100).toFixed(1) + '%'
+        const known = offer + rejection;
+        const acceptanceRate = known
+            ? ((offer / known) * 100).toFixed(1) + '%'
             : '-';
-        return { total, offer, offerRate };
+        return { total, offer, acceptanceRate };
     }, [applications, latestYear]);
 
-    // Offer rate per year per top program (for chart)
-    const { offerRateDataset, offerRateSeries } = useMemo(() => {
+    // Acceptance rate per year per top program (for chart)
+    const { acceptanceRateDataset, acceptanceRateSeries } = useMemo(() => {
         if (!topProgramsYearRows || topProgramsYearRows.length === 0) {
-            return { offerRateDataset: [], offerRateSeries: [] };
+            return { acceptanceRateDataset: [], acceptanceRateSeries: [] };
         }
         // Gather valid numeric years present across top programs
         const isValidYear = (y) => /^(19|20|21)\d{2}$/.test(String(y));
@@ -233,15 +243,15 @@ const Overview = () => {
             (topProgramKeys || []).map((k, i) => [k, aliases[i]])
         );
 
-        // Build dataset rows per year with offer rate for each program
+        // Build dataset rows per year with acceptance rate for each program
         const dataset = yearsSorted.map((year) => {
             const obj = { year };
             for (const k of topProgramKeys || []) {
                 const row = topProgramsYearRows.find(
                     (r) => r.programKey === k && String(r.year) === String(year)
                 );
-                const rate =
-                    row && row.total ? (row.offer / row.total) * 100 : null;
+                const denom = row ? row.offer + row.rejection : 0;
+                const rate = denom > 0 ? (row.offer / denom) * 100 : null;
                 obj[aliasMap.get(k)] = rate != null ? +rate.toFixed(1) : null;
             }
             return obj;
@@ -252,7 +262,7 @@ const Overview = () => {
             label: programLabels?.get(k) || ''
         }));
 
-        return { offerRateDataset: dataset, offerRateSeries: series };
+        return { acceptanceRateDataset: dataset, acceptanceRateSeries: series };
     }, [topProgramsYearRows, topProgramKeys, programLabels]);
 
     // 3) Final decision count by country
@@ -347,9 +357,9 @@ const Overview = () => {
                 width: 100
             },
             {
-                field: 'offerRate',
-                headerName: t('Offer Rate', { ns: 'common' }),
-                width: 120
+                field: 'acceptanceRate',
+                headerName: t('Acceptance Rate', { ns: 'common' }),
+                width: 140
             }
         ],
         [t]
@@ -403,9 +413,9 @@ const Overview = () => {
                 width: 90
             },
             {
-                field: 'offerRate',
-                headerName: t('Offer Rate', { ns: 'common' }),
-                width: 110
+                field: 'acceptanceRate',
+                headerName: t('Acceptance Rate', { ns: 'common' }),
+                width: 140
             }
         ],
         [t]
@@ -559,9 +569,11 @@ const Overview = () => {
                         }}
                     >
                         <Typography color="text.secondary" variant="caption">
-                            {t('Offer Rate', { ns: 'common' })}
+                            {t('Acceptance Rate', { ns: 'common' })}
                         </Typography>
-                        <Typography variant="h5">{kpis.offerRate}</Typography>
+                        <Typography variant="h5">
+                            {kpis.acceptanceRate}
+                        </Typography>
                         {latestYear && latestYear !== 'Unknown' ? (
                             <Typography
                                 color="text.secondary"
@@ -574,7 +586,7 @@ const Overview = () => {
                                         year: latestYear,
                                         offer: latestYearKPIs.offer,
                                         total: latestYearKPIs.total,
-                                        rate: latestYearKPIs.offerRate
+                                        rate: latestYearKPIs.acceptanceRate
                                     }
                                 )}
                             </Typography>
@@ -622,20 +634,23 @@ const Overview = () => {
 
             <Card sx={{ p: 2, gridColumn: '1 / -1' }}>
                 <CardHeader
-                    title={t('Top 10 Applied Programs — Offer Rate by Year', {
-                        ns: 'common'
-                    })}
+                    title={t(
+                        'Top 10 Applied Programs — Acceptance Rate by Year',
+                        {
+                            ns: 'common'
+                        }
+                    )}
                 />
                 <Divider sx={{ mb: 2 }} />
                 <Box sx={{ width: '100%', mb: 2 }}>
                     <LineChart
-                        dataset={offerRateDataset}
+                        dataset={acceptanceRateDataset}
                         height={420}
-                        series={offerRateSeries}
+                        series={acceptanceRateSeries}
                         xAxis={[{ dataKey: 'year', scaleType: 'band' }]}
                         yAxis={[
                             {
-                                label: t('Offer Rate %', { ns: 'common' }),
+                                label: t('Acceptance Rate %', { ns: 'common' }),
                                 min: 0,
                                 max: 100,
                                 valueFormatter: (v) =>
