@@ -20,6 +20,7 @@ import {
     getStudentsV3,
     getMyStudentsApplications,
     getMyStudentsThreads,
+    getApplications,
     getApplicationStudentV2,
     getStudentAndDocLinks,
     getActiveStudents,
@@ -197,6 +198,12 @@ export const getVerifyQuery = () => ({
     queryKey: ['verify'],
     queryFn: verifyV2,
     staleTime: 1000 * 60 * 10 // 10 minutes
+});
+
+export const getApplicationsQuery = (queryString) => ({
+    queryKey: ['applications', queryString],
+    queryFn: () => getApplications(queryString),
+    staleTime: 1000 * 60 * 5 // 5 minutes
 });
 
 export const getApplicationStudentV2Query = ({ studentId }) => ({

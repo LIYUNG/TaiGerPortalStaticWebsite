@@ -7,51 +7,34 @@ import queryString from 'query-string';
 
 import { MuiDataGrid } from '../../components/MuiDataGrid';
 import Loading from '../../components/Loading/Loading';
-import { getActiveStudentsQuery } from '../../api/query';
-
-// Helper to safely extract program object from an application
-const getProgram = (app) => {
-    if (!app) return null;
-    const prog = app.program;
-    if (prog && !Array.isArray(prog)) return prog; // object form
-    if (Array.isArray(prog) && prog.length > 0) return prog[0]; // array form
-    return null;
-};
+import { getApplicationsQuery } from '../../api/query';
 
 const Overview = () => {
     const { t } = useTranslation();
 
-    // Fetch all active students (not archived)
+    // Fetch all applications directly
     const { data, isLoading } = useQuery(
-        getActiveStudentsQuery(queryString.stringify({}))
+        getApplicationsQuery(queryString.stringify({}))
     );
 
-    const students = data?.data || [];
-
-    // Flatten all applications for simpler aggregation
+    // Normalize applications to the structure used by aggregations below
     const applications = useMemo(() => {
-        const apps = [];
-        for (const s of students) {
-            if (!Array.isArray(s?.applications)) continue;
-            for (const a of s.applications) {
-                const p = getProgram(a) || {};
-                apps.push({
-                    id: a?._id,
-                    application_year: a?.application_year || 'Unknown',
-                    decided: a?.decided || '-',
-                    closed: a?.closed || '-',
-                    admission: a?.admission || '-',
-                    finalEnrolment: !!a?.finalEnrolment,
-                    programId: a?.programId || p?._id,
-                    school: p?.school || '',
-                    program_name: p?.program_name || '',
-                    degree: p?.degree || '',
-                    country: (p?.country || '').toString().toUpperCase()
-                });
-            }
-        }
-        return apps;
-    }, [students]);
+        const items = data?.data || data?.result || [];
+        return (Array.isArray(items) ? items : []).map((a) => ({
+            id: a?._id,
+            application_year: a?.application_year || 'Unknown',
+            decided: a?.decided || '-',
+            closed: a?.closed || '-',
+            admission: a?.admission || '-',
+            finalEnrolment: !!a?.finalEnrolment,
+            programId: a?.programId,
+            // Program metadata may not be present on this endpoint; default gracefully
+            school: a?.school || '',
+            program_name: a?.program_name || '',
+            degree: a?.degree || '',
+            country: (a?.country || '').toString().toUpperCase()
+        }));
+    }, [data]);
 
     // Overall KPIs
     const kpis = useMemo(() => {
@@ -179,10 +162,15 @@ const Overview = () => {
                 topProgramsKeys.map((k) => {
                     const info = programInfo.get(k) || {};
                     const deg = info.degree ? ` (${info.degree})` : '';
-                    return [
-                        k,
-                        `${info.school || ''} - ${info.program_name || ''}${deg}`.trim()
-                    ];
+                    const name =
+                        info.program_name ||
+                        (info.programId ? `Program ${info.programId}` : '');
+                    const schoolPart = info.school || '';
+                    const label =
+                        schoolPart && name
+                            ? `${schoolPart} - ${name}${deg}`
+                            : name || schoolPart || info.programId || '';
+                    return [k, label.trim()];
                 })
             );
 
@@ -319,10 +307,15 @@ const Overview = () => {
     // Chart dataset for final decisions by program (top 20) horizontal bars
     const finalByProgramChartDataset = useMemo(() => {
         const top = [...finalByProgramRows].slice(0, 20);
-        return top.map((r) => ({
-            label: `${r.school || ''} - ${r.program_name || ''}`.trim(),
-            count: r.count
-        }));
+        return top.map((r) => {
+            const baseName =
+                r.program_name || (r.programId ? `Program ${r.programId}` : '');
+            const label =
+                r.school && baseName
+                    ? `${r.school} - ${baseName}`
+                    : baseName || r.school || r.programId || '';
+            return { label: label.trim(), count: r.count };
+        });
     }, [finalByProgramRows]);
 
     // Column definitions

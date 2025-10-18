@@ -68,6 +68,9 @@ export const getStudents = () => request.get(`/api/students`);
 export const getStudentsV3 = (queryString) =>
     getData(`/api/students/v3?${queryString}`);
 
+export const getApplications = (queryString) =>
+    getData(`/api/applications?${queryString}`);
+
 export const getMyStudentsApplications = ({ userId, queryString }) =>
     getData(`/api/applications/taiger-user/${userId}?${queryString}`);
 
