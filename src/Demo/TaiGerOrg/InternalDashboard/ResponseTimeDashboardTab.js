@@ -23,7 +23,7 @@ import {
 
 const { getResponseIntervalByStudent } = require('../../../api');
 
-const editorThreadTypes = ['CV', 'ML', 'RL_A', 'RL_B', 'RL_C', 'Essay'];
+const editorThreadTypes = ['CV', 'ML', 'RL_A', 'SOP', 'RL_B', 'RL_C', 'Essay'];
 const agentThreadTypes = ['communication', 'Supplementary_Form'];
 
 const getIntervalAvg = (intervals) => {

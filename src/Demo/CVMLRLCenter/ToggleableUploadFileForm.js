@@ -21,6 +21,7 @@ const GENERAL_FILTE_TYPE = [
 const PROGRAM_SPECIFIC_FILTE_TYPE = [
     { name: 'Please Select', value: '' },
     { name: 'ML', value: 'ML' },
+    { name: 'SOP', value: 'SOP' },
     { name: 'Essay', value: 'Essay' },
     { name: 'Portfolio', value: 'Portfolio' },
     { name: 'Internship Form', value: 'Internship_Form' },

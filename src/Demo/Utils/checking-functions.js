@@ -80,6 +80,7 @@ export const truncateText = (text, maxLength) => {
 export const file_category_const = {
     rl_required: 'RL',
     ml_required: 'ML',
+    sop_required: 'SOP',
     essay_required: 'Essay',
     portfolio_required: 'Portfolio',
     supplementary_form_required: 'Supplementary_Form',
@@ -142,6 +143,11 @@ export const getRequirement = (thread) => {
             type: 'ML',
             requiredKey: 'ml_required',
             requirementsKey: 'ml_requirements'
+        },
+        {
+            type: 'SOP',
+            requiredKey: 'sop_required',
+            requirementsKey: 'sop_requirements'
         },
         {
             type: 'Portfolio',

@@ -702,6 +702,51 @@ const NewProgramEdit = (props) => {
                     </Grid>
                     <Grid item md={6} xs={12}>
                         <Typography variant="body1">
+                            {t('SOP Required?', { ns: 'common' })}*
+                        </Typography>
+                    </Grid>
+                    <Grid item md={6} xs={12}>
+                        <FormControl fullWidth>
+                            <Select
+                                id="sop_required"
+                                labelId="sop_required"
+                                name="sop_required"
+                                onChange={(e) => handleChange(e)}
+                                size="small"
+                                value={program.sop_required || 'no'}
+                            >
+                                {BINARY_STATE_ARRAY_OPTIONS.map((option) => (
+                                    <MenuItem
+                                        key={option.value}
+                                        value={option.value}
+                                    >
+                                        {option.label}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                    <Grid item md={6} xs={12}>
+                        <Typography variant="body1">
+                            {t('SOP Requirements', { ns: 'common' })}?
+                        </Typography>
+                    </Grid>
+                    <Grid item md={6} xs={12}>
+                        <TextField
+                            fullWidth
+                            id="sop_requirements"
+                            multiline
+                            name="sop_requirements"
+                            onChange={(e) => handleChange(e)}
+                            placeholder="1200-1500words"
+                            rows={4}
+                            size="small"
+                            type="text"
+                            value={program.sop_requirements || ''}
+                        />
+                    </Grid>
+                    <Grid item md={6} xs={12}>
+                        <Typography variant="body1">
                             {t('RL Required?', { ns: 'common' })} *
                         </Typography>
                     </Grid>
