@@ -559,12 +559,9 @@ const Overview = () => {
 
             <Card sx={{ p: 2, gridColumn: '1 / -1' }}>
                 <CardHeader
-                    title={t(
-                        'Applications per Year (Offer / Rejection / Unknown)',
-                        {
-                            ns: 'common'
-                        }
-                    )}
+                    title={t('Applications per Year (Offer / Rejection)', {
+                        ns: 'common'
+                    })}
                 />
                 <Divider sx={{ mb: 2 }} />
                 <Box sx={{ width: '100%', mb: 2 }}>
@@ -580,11 +577,6 @@ const Overview = () => {
                             {
                                 dataKey: 'rejection',
                                 label: t('Rejection', { ns: 'common' }),
-                                stack: 'result'
-                            },
-                            {
-                                dataKey: 'unknown',
-                                label: t('Unknown', { ns: 'common' }),
                                 stack: 'result'
                             }
                         ]}
