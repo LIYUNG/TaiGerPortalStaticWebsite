@@ -68,7 +68,7 @@ const AdmissionsStat = ({ result }) => {
         },
         {
             field: 'finalEnrolmentCount',
-            headerName: t('Final Enrolment', { ns: 'common' }),
+            headerName: t('enrolment', { ns: 'common' }),
             width: 100
         },
         {
