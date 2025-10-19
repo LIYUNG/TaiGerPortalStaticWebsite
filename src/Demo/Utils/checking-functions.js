@@ -1599,6 +1599,9 @@ export const check_generaldocs = (student) => {
     if (
         student.generaldocs_threads.findIndex(
             (thread) => thread.doc_thread_id?.file_type === 'CV'
+        ) === -1 &&
+        student.generaldocs_threads.findIndex(
+            (thread) => thread.doc_thread_id?.file_type === 'CV_US'
         ) === -1
     ) {
         return true;
@@ -1724,6 +1727,7 @@ const prepTask = (student, thread) => {
 };
 
 const prepGeneralTaskV2 = (student, thread) => {
+    // TODO: CV application broken, need to fix it
     const { CVDeadline, daysLeftMin } = GetCVDeadlineV2([]);
     return {
         ...prepTaskV2(student, thread),

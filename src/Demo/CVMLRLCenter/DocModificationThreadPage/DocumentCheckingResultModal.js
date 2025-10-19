@@ -35,7 +35,11 @@ const DocumentCheckingResultModal = ({
     const [canProceed, setCanProceed] = useState(false);
     const [error, setError] = useState(null);
     useEffect(() => {
-        if (open && file_type === 'CV' && !isFinalVersion) {
+        if (
+            open &&
+            (file_type === 'CV' || file_type === 'CV_US') &&
+            !isFinalVersion
+        ) {
             fetchData();
         } else {
             // Reset state when the dialog closes

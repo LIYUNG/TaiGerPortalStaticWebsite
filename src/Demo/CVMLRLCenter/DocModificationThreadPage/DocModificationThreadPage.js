@@ -116,7 +116,8 @@ const DescriptionBlock = ({ thread, template_obj, documentsthreadId }) => {
                         }}
                     >
                         <Typography variant="body2">
-                            {thread.file_type === 'CV'
+                            {thread.file_type === 'CV' ||
+                            thread.file_type === 'CV_US'
                                 ? i18next.t('cv-instructions', { ns: 'cvmlrl' })
                                 : i18next.t('please-fill-template', {
                                       tenant: appConfig.companyName
@@ -259,7 +260,7 @@ const RequirementsBlock = ({ thread, template_obj }) => {
         );
     }
 
-    if (thread.file_type === 'CV') {
+    if (thread.file_type === 'CV' || thread.file_type === 'CV_US') {
         return (
             <Stack spacing={1.5}>
                 <Box

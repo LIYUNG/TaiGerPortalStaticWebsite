@@ -91,7 +91,9 @@ const ManualFiles = (props) => {
                                         props.student.generaldocs_threads.findIndex(
                                             (thread) =>
                                                 thread.doc_thread_id
-                                                    ?.file_type === 'CV'
+                                                    ?.file_type === 'CV' ||
+                                                thread.doc_thread_id
+                                                    ?.file_type === 'CV_US'
                                         ) === -1 ? (
                                             <li>
                                                 <b>{t('CV')}</b>

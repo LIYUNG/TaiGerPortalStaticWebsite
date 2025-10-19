@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 const GENERAL_FILTE_TYPE = [
     { name: 'Please Select', value: '' },
     { name: 'CV', value: 'CV' },
+    { name: 'CV (US)', value: 'CV_US' },
     { name: 'Recommendation Letter (A)', value: 'Recommendation_Letter_A' },
     { name: 'Recommendation Letter (B)', value: 'Recommendation_Letter_B' },
     { name: 'Recommendation Letter (C)', value: 'Recommendation_Letter_C' },
