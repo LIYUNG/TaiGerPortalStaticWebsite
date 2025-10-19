@@ -319,44 +319,6 @@ const Overview = () => {
         [finalByCountryRows]
     );
 
-    // 4) Final decision count by program
-    const finalByProgramRows = useMemo(() => {
-        const map = new Map();
-        for (const a of finalApplications) {
-            if (!a.finalEnrolment) continue;
-            const key =
-                a.programId || `${a.school}__${a.program_name}__${a.degree}`;
-            if (!map.has(key))
-                map.set(key, {
-                    key,
-                    programId: a.programId,
-                    school: a.school,
-                    program_name: a.program_name,
-                    degree: a.degree,
-                    country: a.country,
-                    count: 0
-                });
-            map.get(key).count += 1;
-        }
-        return Array.from(map.values())
-            .sort((a, b) => b.count - a.count)
-            .map((r) => ({ id: r.key, ...r }));
-    }, [finalApplications]);
-
-    // Chart dataset for final decisions by program (top 20) horizontal bars
-    const finalByProgramChartDataset = useMemo(() => {
-        const top = [...finalByProgramRows].slice(0, 20);
-        return top.map((r) => {
-            const baseName =
-                r.program_name || (r.programId ? `Program ${r.programId}` : '');
-            const label =
-                r.school && baseName
-                    ? `${r.school} - ${baseName}`
-                    : baseName || r.school || r.programId || '';
-            return { label: label.trim(), count: r.count };
-        });
-    }, [finalByProgramRows]);
-
     // Column definitions
     const yearCols = useMemo(
         () => [
@@ -466,36 +428,7 @@ const Overview = () => {
         [t]
     );
 
-    const byProgramCols = useMemo(
-        () => [
-            {
-                field: 'school',
-                headerName: t('School', { ns: 'common' }),
-                width: 240
-            },
-            {
-                field: 'program_name',
-                headerName: t('Program', { ns: 'common' }),
-                width: 280
-            },
-            {
-                field: 'degree',
-                headerName: t('Degree', { ns: 'common' }),
-                width: 90
-            },
-            {
-                field: 'country',
-                headerName: t('Country', { ns: 'common' }),
-                width: 100
-            },
-            {
-                field: 'count',
-                headerName: t('Final Decisions', { ns: 'common' }),
-                width: 150
-            }
-        ],
-        [t]
-    );
+    // Removed: Final decision count by program (chart and table)
 
     if (isLoading || isFinalLoading) return <Loading />;
 
@@ -717,35 +650,7 @@ const Overview = () => {
                 />
             </Card>
 
-            <Card sx={{ p: 2 }}>
-                <CardHeader
-                    title={t('Final Decision Count by Program', {
-                        ns: 'common'
-                    })}
-                />
-                <Divider sx={{ mb: 2 }} />
-                <Box sx={{ width: '100%', mb: 2 }}>
-                    <BarChart
-                        dataset={finalByProgramChartDataset}
-                        height={Math.max(
-                            360,
-                            finalByProgramChartDataset.length * 26
-                        )}
-                        layout="horizontal"
-                        series={[
-                            {
-                                dataKey: 'count',
-                                label: t('Final Decisions', { ns: 'common' })
-                            }
-                        ]}
-                        yAxis={[{ dataKey: 'label', scaleType: 'band' }]}
-                    />
-                </Box>
-                <MuiDataGrid
-                    columns={byProgramCols}
-                    rows={finalByProgramRows}
-                />
-            </Card>
+            {/* Removed: Final Decision Count by Program card */}
         </Box>
     );
 };
