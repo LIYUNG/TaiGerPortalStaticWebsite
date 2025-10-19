@@ -17,6 +17,35 @@ const Overview = () => {
         getApplicationsQuery(queryString.stringify({}))
     );
 
+    // get final decision applications and poplate program details
+    const { data: finalData, isLoading: isFinalLoading } = useQuery(
+        getApplicationsQuery(
+            queryString.stringify({ finalEnrolment: true, populate: true })
+        )
+    );
+
+    // Normalize final applications (populated program details)
+    const finalApplications = useMemo(() => {
+        const items = finalData?.data || finalData?.result || [];
+        return (Array.isArray(items) ? items : []).map((a) => {
+            const prog =
+                a && a.programId && typeof a.programId === 'object'
+                    ? a.programId
+                    : null;
+            return {
+                id: a?._id,
+                programId: prog?._id || a?.programId,
+                school: a?.school || prog?.school || '',
+                program_name: a?.program_name || prog?.program_name || '',
+                degree: a?.degree || prog?.degree || '',
+                country: (a?.country || prog?.country || '')
+                    .toString()
+                    .toUpperCase(),
+                finalEnrolment: true
+            };
+        });
+    }, [finalData]);
+
     // Normalize applications to the structure used by aggregations below
     const applications = useMemo(() => {
         const items = data?.data || data?.result || [];
@@ -268,7 +297,7 @@ const Overview = () => {
     // 3) Final decision count by country
     const finalByCountryRows = useMemo(() => {
         const map = new Map();
-        for (const a of applications) {
+        for (const a of finalApplications) {
             if (!a.finalEnrolment) continue;
             const country = a.country || 'UNKNOWN';
             if (!map.has(country)) map.set(country, { country, count: 0 });
@@ -277,7 +306,7 @@ const Overview = () => {
         return Array.from(map.values())
             .sort((a, b) => b.count - a.count)
             .map((r, idx) => ({ id: `${r.country}-${idx}`, ...r }));
-    }, [applications]);
+    }, [finalApplications]);
 
     // Chart data for final decisions by country (pie)
     const finalByCountryChartData = useMemo(
@@ -293,7 +322,7 @@ const Overview = () => {
     // 4) Final decision count by program
     const finalByProgramRows = useMemo(() => {
         const map = new Map();
-        for (const a of applications) {
+        for (const a of finalApplications) {
             if (!a.finalEnrolment) continue;
             const key =
                 a.programId || `${a.school}__${a.program_name}__${a.degree}`;
@@ -312,7 +341,7 @@ const Overview = () => {
         return Array.from(map.values())
             .sort((a, b) => b.count - a.count)
             .map((r) => ({ id: r.key, ...r }));
-    }, [applications]);
+    }, [finalApplications]);
 
     // Chart dataset for final decisions by program (top 20) horizontal bars
     const finalByProgramChartDataset = useMemo(() => {
@@ -468,7 +497,7 @@ const Overview = () => {
         [t]
     );
 
-    if (isLoading) return <Loading />;
+    if (isLoading || isFinalLoading) return <Loading />;
 
     return (
         <Box
