@@ -1917,6 +1917,7 @@ export const programs_refactor_v2 = (applications) => {
                 application.programId.semester
             }`,
             school: application.programId.school,
+            country: application.programId.country,
             application,
             student: application.studentId,
             firstname_lastname: `${application.studentId.firstname}, ${application.studentId.lastname}`,

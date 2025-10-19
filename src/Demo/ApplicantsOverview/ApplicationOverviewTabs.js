@@ -153,6 +153,11 @@ const ApplicationOverviewTabs = ({ students: stds, applications }) => {
             width: 180
         },
         {
+            field: 'country',
+            headerName: t('Country', { ns: 'common' }),
+            width: 180
+        },
+        {
             field: 'program',
             headerName: t('Program', { ns: 'common' }),
             width: 250,
