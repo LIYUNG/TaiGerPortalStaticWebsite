@@ -29,6 +29,7 @@ const editorThreadTypes = [
     'ML',
     'RL_A',
     'SOP',
+    'PHS',
     'RL_B',
     'RL_C',
     'Essay'

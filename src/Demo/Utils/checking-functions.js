@@ -81,6 +81,7 @@ export const file_category_const = {
     rl_required: 'RL',
     ml_required: 'ML',
     sop_required: 'SOP',
+    phs_required: 'PHS',
     essay_required: 'Essay',
     portfolio_required: 'Portfolio',
     supplementary_form_required: 'Supplementary_Form',
@@ -148,6 +149,11 @@ export const getRequirement = (thread) => {
             type: 'SOP',
             requiredKey: 'sop_required',
             requirementsKey: 'sop_requirements'
+        },
+        {
+            type: 'PHS',
+            requiredKey: 'phs_required',
+            requirementsKey: 'phs_requirements'
         },
         {
             type: 'Portfolio',

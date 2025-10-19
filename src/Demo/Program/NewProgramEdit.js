@@ -747,6 +747,51 @@ const NewProgramEdit = (props) => {
                     </Grid>
                     <Grid item md={6} xs={12}>
                         <Typography variant="body1">
+                            {t('PHS Required?', { ns: 'common' })}*
+                        </Typography>
+                    </Grid>
+                    <Grid item md={6} xs={12}>
+                        <FormControl fullWidth>
+                            <Select
+                                id="phs_required"
+                                labelId="phs_required"
+                                name="phs_required"
+                                onChange={(e) => handleChange(e)}
+                                size="small"
+                                value={program.phs_required || 'no'}
+                            >
+                                {BINARY_STATE_ARRAY_OPTIONS.map((option) => (
+                                    <MenuItem
+                                        key={option.value}
+                                        value={option.value}
+                                    >
+                                        {option.label}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                    <Grid item md={6} xs={12}>
+                        <Typography variant="body1">
+                            {t('PHS Requirements', { ns: 'common' })}?
+                        </Typography>
+                    </Grid>
+                    <Grid item md={6} xs={12}>
+                        <TextField
+                            fullWidth
+                            id="phs_requirements"
+                            multiline
+                            name="phs_requirements"
+                            onChange={(e) => handleChange(e)}
+                            placeholder="1200-1500words"
+                            rows={4}
+                            size="small"
+                            type="text"
+                            value={program.phs_requirements || ''}
+                        />
+                    </Grid>
+                    <Grid item md={6} xs={12}>
+                        <Typography variant="body1">
                             {t('RL Required?', { ns: 'common' })} *
                         </Typography>
                     </Grid>
