@@ -583,7 +583,7 @@ const Overview = () => {
                         xAxis={[{ dataKey: 'year', scaleType: 'band' }]}
                     />
                 </Box>
-                <MuiDataGrid columns={yearCols} rows={byYearRows} />
+                <MuiDataGrid columns={yearCols} rows={byYearRows} simple />
             </Card>
 
             <Card sx={{ p: 2, gridColumn: '1 / -1' }}>
@@ -613,7 +613,11 @@ const Overview = () => {
                         ]}
                     />
                 </Box>
-                <MuiDataGrid columns={topCols} rows={topProgramsYearRows} />
+                <MuiDataGrid
+                    columns={topCols}
+                    rows={topProgramsYearRows}
+                    simple
+                />
             </Card>
 
             <Card sx={{ p: 2 }}>
@@ -639,6 +643,7 @@ const Overview = () => {
                 <MuiDataGrid
                     columns={byCountryCols}
                     rows={finalByCountryRows}
+                    simple
                 />
             </Card>
 
