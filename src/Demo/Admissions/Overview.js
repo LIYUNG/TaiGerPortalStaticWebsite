@@ -1,12 +1,5 @@
 import React, { useMemo } from 'react';
-import {
-    Box,
-    Card,
-    CardHeader,
-    Divider,
-    Typography,
-    Grid
-} from '@mui/material';
+import { Box, Card, CardHeader, Divider, Typography } from '@mui/material';
 import { BarChart, PieChart, LineChart } from '@mui/x-charts';
 import { Chart } from 'react-google-charts';
 import { useTranslation } from 'react-i18next';
@@ -50,32 +43,10 @@ const formatNumber = (v) =>
           ? v
           : v;
 
-const KpiTile = ({ label, value, hint, valueVariant = 'h5' }) => (
-    <Box
-        sx={{
-            p: 2,
-            border: 1,
-            borderColor: 'divider',
-            borderRadius: 2,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 0.5
-        }}
-    >
-        <Typography color="text.secondary" variant="caption">
-            {label}
-        </Typography>
-        <Typography variant={valueVariant}>{formatNumber(value)}</Typography>
-        {hint ? (
-            <Typography color="text.secondary" variant="caption">
-                {hint}
-            </Typography>
-        ) : null}
-    </Box>
-);
+// KpiTile removed since KPI summary card was simplified
 
 // Compact stacked breakdown bar for Offer / Rejection / Unknown
-const ResultsBreakdown = ({ offer, rejection, unknown, t }) => {
+const ResultsBreakdown = ({ offer, rejection, unknown, acceptance, t }) => {
     const total = offer + rejection + unknown;
     const p = (n) => (total > 0 ? Math.round((n / total) * 1000) / 10 : 0);
     const parts = [
@@ -104,9 +75,26 @@ const ResultsBreakdown = ({ offer, rejection, unknown, t }) => {
 
     return (
         <Box sx={{ p: 2, border: 1, borderColor: 'divider', borderRadius: 2 }}>
-            <Typography color="text.secondary" sx={{ mb: 1 }} variant="caption">
-                {t('Results breakdown')}
-            </Typography>
+            <Box
+                sx={{
+                    display: 'flex',
+                    alignItems: 'baseline',
+                    justifyContent: 'space-between',
+                    mb: 1
+                }}
+            >
+                <Typography color="text.secondary" variant="caption">
+                    {t('Results breakdown')}
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                    <Typography color="text.secondary" variant="caption">
+                        {t('Acceptance Rate')}: {acceptance ?? '-'}
+                    </Typography>
+                    <Typography color="text.secondary" variant="caption">
+                        {t('Total')}: {formatNumber(total)}
+                    </Typography>
+                </Box>
+            </Box>
             <Box
                 sx={{
                     display: 'flex',
@@ -272,20 +260,6 @@ const Overview = () => {
     // Chart dataset for applications per year (stacked)
     const byYearChartDataset = useMemo(() => byYearRows, [byYearRows]);
 
-    // Latest year across all applications
-    const latestYear = useMemo(() => {
-        const years = Array.from(
-            new Set(
-                applications
-                    .map((a) => a.application_year)
-                    .filter((y) => y && y !== 'Unknown')
-            )
-        );
-        if (years.length === 0) return 'Unknown';
-        years.sort((a, b) => String(b).localeCompare(String(a)));
-        return years[0];
-    }, [applications]);
-
     // 2) Top 10 programs overall (by total applications), list per-year offer/rejection/unknown
     const { topProgramsYearRows, topProgramKeys, programLabels } =
         useMemo(() => {
@@ -366,23 +340,6 @@ const Overview = () => {
                 programLabels
             };
         }, [applications]);
-
-    // Latest year KPIs
-    const latestYearKPIs = useMemo(() => {
-        if (!latestYear || latestYear === 'Unknown')
-            return { total: '-', offer: '-', acceptanceRate: '-' };
-        let offer = 0,
-            rejection = 0,
-            total = 0;
-        for (const a of applications) {
-            if (a.application_year !== latestYear) continue;
-            if (a.admission === 'O') offer += 1;
-            else if (a.admission === 'X') rejection += 1;
-            total += 1;
-        }
-        const acceptanceRate = formatAcceptanceRate(offer, rejection);
-        return { total, offer, acceptanceRate };
-    }, [applications, latestYear]);
 
     // Acceptance rate per year per top program (for chart)
     const { acceptanceRateDataset, acceptanceRateSeries } = useMemo(() => {
@@ -503,18 +460,6 @@ const Overview = () => {
         rows.sort((a, b) => b[2] - a[2]);
         return [header, ...rows];
     }, [finalApplications]);
-
-    // Acceptance tile hint string (latest year context)
-    const acceptanceHint = useMemo(() => {
-        return latestYear && latestYear !== 'Unknown'
-            ? t('Latest {{year}}: {{offer}}/{{total}} ({{rate}})', {
-                  year: latestYear,
-                  offer: latestYearKPIs.offer,
-                  total: latestYearKPIs.total,
-                  rate: latestYearKPIs.acceptanceRate
-              })
-            : null;
-    }, [latestYear, latestYearKPIs, t]);
 
     const applicationsPerYearSeries = useMemo(
         () => [
@@ -662,47 +607,16 @@ const Overview = () => {
                 gridTemplateColumns: { xs: '1fr', lg: '1fr 1fr' }
             }}
         >
-            {/* KPI summary (redesigned) */}
-            <Card sx={{ p: 2, gridColumn: '1 / -1' }}>
-                <CardHeader title={t('Key Metrics')} />
-                <Divider />
-                <Box sx={{ mt: 2 }}>
-                    <Grid container spacing={2}>
-                        {/* Acceptance Rate — emphasized */}
-                        <Grid item md={6} xs={12}>
-                            <KpiTile
-                                hint={acceptanceHint}
-                                label={t('Acceptance Rate')}
-                                value={kpis.acceptanceRate}
-                                valueVariant="h3"
-                            />
-                        </Grid>
-                        {/* Applications */}
-                        <Grid item md={3} xs={6}>
-                            <KpiTile
-                                label={t('Applications')}
-                                value={kpis.total}
-                            />
-                        </Grid>
-                        {/* Final Decisions */}
-                        <Grid item md={3} xs={6}>
-                            <KpiTile
-                                label={t('Final Decisions')}
-                                value={kpis.finalCount}
-                            />
-                        </Grid>
-                        {/* Results breakdown stacked bar */}
-                        <Grid item xs={12}>
-                            <ResultsBreakdown
-                                offer={kpis.offer}
-                                rejection={kpis.rejection}
-                                t={t}
-                                unknown={kpis.unknown}
-                            />
-                        </Grid>
-                    </Grid>
-                </Box>
-            </Card>
+            {/* Results breakdown (no card) */}
+            <Box sx={{ gridColumn: '1 / -1' }}>
+                <ResultsBreakdown
+                    acceptance={kpis.acceptanceRate}
+                    offer={kpis.offer}
+                    rejection={kpis.rejection}
+                    t={t}
+                    unknown={kpis.unknown}
+                />
+            </Box>
 
             <Card sx={{ p: 2, gridColumn: { xs: '1 / -1', lg: '1 / 2' } }}>
                 <CardHeader
