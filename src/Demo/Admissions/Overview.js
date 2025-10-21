@@ -11,8 +11,33 @@ import Loading from '../../components/Loading/Loading';
 import { getApplicationsQuery } from '../../api/query';
 import cityCoord from './cityCoord.json';
 
+const YEAR_PATTERN = /^(19|20|21)\d{2}$/;
+
+const toUpperSafe = (value) => value?.toString().toUpperCase() || '';
+
+const formatAcceptanceRate = (offer, rejection) => {
+    const known = offer + rejection;
+    return known > 0 ? `${((offer / known) * 100).toFixed(1)}%` : '-';
+};
+
+const isValidCoordinate = (value) =>
+    typeof value === 'number' && !Number.isNaN(value);
+
+const buildProgramLabel = ({
+    degree,
+    programId,
+    program_name: name,
+    school
+}) => {
+    const degreeSuffix = degree ? ` (${degree})` : '';
+    if (school && name) return `${school} - ${name}${degreeSuffix}`.trim();
+    if (name) return `${name}${degreeSuffix}`.trim();
+    if (school) return school.trim();
+    return programId || '';
+};
+
 const Overview = () => {
-    const { t } = useTranslation();
+    const { t } = useTranslation('common');
 
     // Fetch all applications directly
     const { data, isLoading } = useQuery(
@@ -40,9 +65,7 @@ const Overview = () => {
                 school: a?.school || prog?.school || '',
                 program_name: a?.program_name || prog?.program_name || '',
                 degree: a?.degree || prog?.degree || '',
-                country: (a?.country || prog?.country || '')
-                    .toString()
-                    .toUpperCase(),
+                country: toUpperSafe(a?.country || prog?.country),
                 city: a?.city || prog?.city || '',
                 zipCode: a?.zipCode || prog?.zipCode || '',
                 finalEnrolment: true
@@ -59,13 +82,13 @@ const Overview = () => {
             decided: a?.decided || '-',
             closed: a?.closed || '-',
             admission: a?.admission || '-',
-            finalEnrolment: !!a?.finalEnrolment,
+            finalEnrolment: Boolean(a?.finalEnrolment),
             programId: a?.programId,
             // Program metadata may not be present on this endpoint; default gracefully
             school: a?.school || '',
             program_name: a?.program_name || '',
             degree: a?.degree || '',
-            country: (a?.country || '').toString().toUpperCase()
+            country: toUpperSafe(a?.country)
         }));
     }, [data]);
 
@@ -82,10 +105,7 @@ const Overview = () => {
             if (a.finalEnrolment) finalCount += 1;
         }
         const total = applications.length;
-        const known = offer + rejection;
-        const acceptanceRate = known
-            ? ((offer / known) * 100).toFixed(1) + '%'
-            : '-';
+        const acceptanceRate = formatAcceptanceRate(offer, rejection);
         return { total, offer, rejection, unknown, finalCount, acceptanceRate };
     }, [applications]);
 
@@ -116,11 +136,7 @@ const Overview = () => {
         return arr.map((r) => ({
             id: r.year,
             ...r,
-            acceptanceRate:
-                r.offer + r.rejection > 0
-                    ? ((r.offer / (r.offer + r.rejection)) * 100).toFixed(1) +
-                      '%'
-                    : '-'
+            acceptanceRate: formatAcceptanceRate(r.offer, r.rejection)
         }));
     }, [applications]);
 
@@ -197,16 +213,7 @@ const Overview = () => {
             const programLabels = new Map(
                 topProgramsKeys.map((k) => {
                     const info = programInfo.get(k) || {};
-                    const deg = info.degree ? ` (${info.degree})` : '';
-                    const name =
-                        info.program_name ||
-                        (info.programId ? `Program ${info.programId}` : '');
-                    const schoolPart = info.school || '';
-                    const label =
-                        schoolPart && name
-                            ? `${schoolPart} - ${name}${deg}`
-                            : name || schoolPart || info.programId || '';
-                    return [k, label.trim()];
+                    return [k, buildProgramLabel(info)];
                 })
             );
 
@@ -215,13 +222,7 @@ const Overview = () => {
                 .filter((r) => topProgramsKeys.includes(r.programKey))
                 .map((r) => ({
                     ...r,
-                    acceptanceRate:
-                        r.offer + r.rejection > 0
-                            ? (
-                                  (r.offer / (r.offer + r.rejection)) *
-                                  100
-                              ).toFixed(1) + '%'
-                            : '-'
+                    acceptanceRate: formatAcceptanceRate(r.offer, r.rejection)
                 }))
                 .sort((a, b) =>
                     a.school === b.school
@@ -250,10 +251,7 @@ const Overview = () => {
             else if (a.admission === 'X') rejection += 1;
             total += 1;
         }
-        const known = offer + rejection;
-        const acceptanceRate = known
-            ? ((offer / known) * 100).toFixed(1) + '%'
-            : '-';
+        const acceptanceRate = formatAcceptanceRate(offer, rejection);
         return { total, offer, acceptanceRate };
     }, [applications, latestYear]);
 
@@ -263,10 +261,9 @@ const Overview = () => {
             return { acceptanceRateDataset: [], acceptanceRateSeries: [] };
         }
         // Gather valid numeric years present across top programs
-        const isValidYear = (y) => /^(19|20|21)\d{2}$/.test(String(y));
         const yearsSet = new Set();
         for (const r of topProgramsYearRows) {
-            if (isValidYear(r.year)) yearsSet.add(Number(r.year));
+            if (YEAR_PATTERN.test(String(r.year))) yearsSet.add(Number(r.year));
         }
         const yearsSorted = Array.from(yearsSet).sort((a, b) => a - b);
 
@@ -284,8 +281,9 @@ const Overview = () => {
                     (r) => r.programKey === k && String(r.year) === String(year)
                 );
                 const denom = row ? row.offer + row.rejection : 0;
-                const rate = denom > 0 ? (row.offer / denom) * 100 : null;
-                obj[aliasMap.get(k)] = rate != null ? +rate.toFixed(1) : null;
+                const rate =
+                    denom > 0 ? +((row.offer / denom) * 100).toFixed(1) : null;
+                obj[aliasMap.get(k)] = rate != null ? rate : null;
             }
             return obj;
         });
@@ -329,7 +327,7 @@ const Overview = () => {
         const counts = new Map();
         for (const a of finalApplications) {
             if (!a.finalEnrolment) continue;
-            const country = (a.country || 'UNKNOWN').toString().toUpperCase();
+            const country = toUpperSafe(a.country) || 'UNKNOWN';
             const city = (a.city || '').toString().trim();
             const zip = (a.zipCode || '').toString().trim();
             if (!city && !zip && !country) continue;
@@ -362,13 +360,7 @@ const Overview = () => {
             const coords = city ? cityCoord[city] : null;
             if (!coords || !Array.isArray(coords)) continue; // skip if city not in mapping or null
             const [lat, lng] = coords;
-            if (
-                typeof lat !== 'number' ||
-                typeof lng !== 'number' ||
-                Number.isNaN(lat) ||
-                Number.isNaN(lng)
-            )
-                continue;
+            if (!isValidCoordinate(lat) || !isValidCoordinate(lng)) continue;
             const tooltip = `\n<div style="padding:6px 8px;line-height:1.2">\n  <div><strong>${
                 loc.city || loc.zip || loc.country
             }</strong></div>\n  <div>${loc.country}${
@@ -382,6 +374,77 @@ const Overview = () => {
         rows.sort((a, b) => b[2] - a[2]);
         return [header, ...rows];
     }, [finalApplications]);
+
+    // Prepare KPI tiles for summary grid for a consistent layout
+    const kpiTiles = useMemo(
+        () => [
+            {
+                key: 'applications',
+                label: t('Applications'),
+                value: kpis.total
+            },
+            {
+                key: 'offers',
+                label: t('Offers'),
+                value: kpis.offer
+            },
+            {
+                key: 'rejections',
+                label: t('Rejections'),
+                value: kpis.rejection
+            },
+            {
+                key: 'unknown',
+                label: t('Unknown'),
+                value: kpis.unknown
+            },
+            {
+                key: 'final-decisions',
+                label: t('Final Decisions'),
+                value: kpis.finalCount
+            },
+            {
+                key: 'acceptance',
+                label: t('Acceptance Rate'),
+                value: kpis.acceptanceRate,
+                hint:
+                    latestYear && latestYear !== 'Unknown'
+                        ? t('Latest {{year}}: {{offer}}/{{total}} ({{rate}})', {
+                              year: latestYear,
+                              offer: latestYearKPIs.offer,
+                              total: latestYearKPIs.total,
+                              rate: latestYearKPIs.acceptanceRate
+                          })
+                        : null
+            }
+        ],
+        [kpis, latestYear, latestYearKPIs, t]
+    );
+
+    const applicationsPerYearSeries = useMemo(
+        () => [
+            { dataKey: 'offer', label: t('Offer'), stack: 'result' },
+            { dataKey: 'rejection', label: t('Rejection'), stack: 'result' }
+        ],
+        [t]
+    );
+
+    const acceptanceYAxis = useMemo(
+        () => [
+            {
+                label: t('Acceptance Rate %'),
+                min: 0,
+                max: 100,
+                valueFormatter: (v) => (v == null ? '' : `${v}%`)
+            }
+        ],
+        [t]
+    );
+
+    const hasCityMarkers = useMemo(
+        () => (cityMarkersData?.length || 0) > 1,
+        [cityMarkersData]
+    );
 
     const cityGeoOptions = useMemo(
         () => ({
@@ -402,32 +465,32 @@ const Overview = () => {
         () => [
             {
                 field: 'year',
-                headerName: t('Year', { ns: 'common' }),
+                headerName: t('Year'),
                 width: 100
             },
             {
                 field: 'offer',
-                headerName: t('Offer', { ns: 'common' }),
+                headerName: t('Offer'),
                 width: 100
             },
             {
                 field: 'rejection',
-                headerName: t('Rejection', { ns: 'common' }),
+                headerName: t('Rejection'),
                 width: 110
             },
             {
                 field: 'unknown',
-                headerName: t('Unknown', { ns: 'common' }),
+                headerName: t('Unknown'),
                 width: 110
             },
             {
                 field: 'total',
-                headerName: t('Total', { ns: 'common' }),
+                headerName: t('Total'),
                 width: 100
             },
             {
                 field: 'acceptanceRate',
-                headerName: t('Acceptance Rate', { ns: 'common' }),
+                headerName: t('Acceptance Rate'),
                 width: 140
             }
         ],
@@ -438,52 +501,52 @@ const Overview = () => {
         () => [
             {
                 field: 'school',
-                headerName: t('School', { ns: 'common' }),
+                headerName: t('School'),
                 width: 240
             },
             {
                 field: 'program_name',
-                headerName: t('Program', { ns: 'common' }),
+                headerName: t('Program'),
                 width: 280
             },
             {
                 field: 'degree',
-                headerName: t('Degree', { ns: 'common' }),
+                headerName: t('Degree'),
                 width: 90
             },
             {
                 field: 'year',
-                headerName: t('Year', { ns: 'common' }),
+                headerName: t('Year'),
                 width: 90,
                 valueGetter: (params) => {
                     const y = params?.row?.year;
-                    return /^(19|20|21)\d{2}$/.test(String(y)) ? Number(y) : '';
+                    return YEAR_PATTERN.test(String(y)) ? Number(y) : '';
                 },
                 sortComparator: (a, b) => (a || 0) - (b || 0)
             },
             {
                 field: 'offer',
-                headerName: t('Offer', { ns: 'common' }),
+                headerName: t('Offer'),
                 width: 90
             },
             {
                 field: 'rejection',
-                headerName: t('Rejection', { ns: 'common' }),
+                headerName: t('Rejection'),
                 width: 110
             },
             {
                 field: 'unknown',
-                headerName: t('Unknown', { ns: 'common' }),
+                headerName: t('Unknown'),
                 width: 110
             },
             {
                 field: 'total',
-                headerName: t('Total', { ns: 'common' }),
+                headerName: t('Total'),
                 width: 90
             },
             {
                 field: 'acceptanceRate',
-                headerName: t('Acceptance Rate', { ns: 'common' }),
+                headerName: t('Acceptance Rate'),
                 width: 140
             }
         ],
@@ -494,12 +557,12 @@ const Overview = () => {
         () => [
             {
                 field: 'country',
-                headerName: t('Country', { ns: 'common' }),
+                headerName: t('Country'),
                 width: 140
             },
             {
                 field: 'count',
-                headerName: t('Final Decisions', { ns: 'common' }),
+                headerName: t('Final Decisions'),
                 width: 160
             }
         ],
@@ -520,7 +583,7 @@ const Overview = () => {
         >
             {/* KPI summary */}
             <Card sx={{ p: 2, gridColumn: '1 / -1' }}>
-                <CardHeader title={t('Key Metrics', { ns: 'common' })} />
+                <CardHeader title={t('Key Metrics')} />
                 <Divider />
                 <Box
                     sx={{
@@ -535,129 +598,46 @@ const Overview = () => {
                         mt: 2
                     }}
                 >
-                    <Box
-                        sx={{
-                            p: 2,
-                            border: 1,
-                            borderColor: 'divider',
-                            borderRadius: 2
-                        }}
-                    >
-                        <Typography color="text.secondary" variant="caption">
-                            {t('Applications', { ns: 'common' })}
-                        </Typography>
-                        <Typography variant="h5">{kpis.total}</Typography>
-                    </Box>
-                    <Box
-                        sx={{
-                            p: 2,
-                            border: 1,
-                            borderColor: 'divider',
-                            borderRadius: 2
-                        }}
-                    >
-                        <Typography color="text.secondary" variant="caption">
-                            {t('Offers', { ns: 'common' })}
-                        </Typography>
-                        <Typography variant="h5">{kpis.offer}</Typography>
-                    </Box>
-                    <Box
-                        sx={{
-                            p: 2,
-                            border: 1,
-                            borderColor: 'divider',
-                            borderRadius: 2
-                        }}
-                    >
-                        <Typography color="text.secondary" variant="caption">
-                            {t('Rejections', { ns: 'common' })}
-                        </Typography>
-                        <Typography variant="h5">{kpis.rejection}</Typography>
-                    </Box>
-                    <Box
-                        sx={{
-                            p: 2,
-                            border: 1,
-                            borderColor: 'divider',
-                            borderRadius: 2
-                        }}
-                    >
-                        <Typography color="text.secondary" variant="caption">
-                            {t('Unknown', { ns: 'common' })}
-                        </Typography>
-                        <Typography variant="h5">{kpis.unknown}</Typography>
-                    </Box>
-                    <Box
-                        sx={{
-                            p: 2,
-                            border: 1,
-                            borderColor: 'divider',
-                            borderRadius: 2
-                        }}
-                    >
-                        <Typography color="text.secondary" variant="caption">
-                            {t('Final Decisions', { ns: 'common' })}
-                        </Typography>
-                        <Typography variant="h5">{kpis.finalCount}</Typography>
-                    </Box>
-                    <Box
-                        sx={{
-                            p: 2,
-                            border: 1,
-                            borderColor: 'divider',
-                            borderRadius: 2
-                        }}
-                    >
-                        <Typography color="text.secondary" variant="caption">
-                            {t('Acceptance Rate', { ns: 'common' })}
-                        </Typography>
-                        <Typography variant="h5">
-                            {kpis.acceptanceRate}
-                        </Typography>
-                        {latestYear && latestYear !== 'Unknown' ? (
+                    {kpiTiles.map((tile) => (
+                        <Box
+                            key={tile.key}
+                            sx={{
+                                p: 2,
+                                border: 1,
+                                borderColor: 'divider',
+                                borderRadius: 2
+                            }}
+                        >
                             <Typography
                                 color="text.secondary"
                                 variant="caption"
                             >
-                                {t(
-                                    'Latest {{year}}: {{offer}}/{{total}} ({{rate}})',
-                                    {
-                                        ns: 'common',
-                                        year: latestYear,
-                                        offer: latestYearKPIs.offer,
-                                        total: latestYearKPIs.total,
-                                        rate: latestYearKPIs.acceptanceRate
-                                    }
-                                )}
+                                {tile.label}
                             </Typography>
-                        ) : null}
-                    </Box>
+                            <Typography variant="h5">{tile.value}</Typography>
+                            {tile.hint ? (
+                                <Typography
+                                    color="text.secondary"
+                                    variant="caption"
+                                >
+                                    {tile.hint}
+                                </Typography>
+                            ) : null}
+                        </Box>
+                    ))}
                 </Box>
             </Card>
 
             <Card sx={{ p: 2, gridColumn: '1 / -1' }}>
                 <CardHeader
-                    title={t('Applications per Year (Offer / Rejection)', {
-                        ns: 'common'
-                    })}
+                    title={t('Applications per Year (Offer / Rejection)')}
                 />
                 <Divider sx={{ mb: 2 }} />
                 <Box sx={{ width: '100%', mb: 2 }}>
                     <BarChart
                         dataset={byYearChartDataset}
                         height={320}
-                        series={[
-                            {
-                                dataKey: 'offer',
-                                label: t('Offer', { ns: 'common' }),
-                                stack: 'result'
-                            },
-                            {
-                                dataKey: 'rejection',
-                                label: t('Rejection', { ns: 'common' }),
-                                stack: 'result'
-                            }
-                        ]}
+                        series={applicationsPerYearSeries}
                         xAxis={[{ dataKey: 'year', scaleType: 'band' }]}
                     />
                 </Box>
@@ -667,10 +647,7 @@ const Overview = () => {
             <Card sx={{ p: 2, gridColumn: '1 / -1' }}>
                 <CardHeader
                     title={t(
-                        'Top 10 Applied Programs — Acceptance Rate by Year',
-                        {
-                            ns: 'common'
-                        }
+                        'Top 10 Applied Programs — Acceptance Rate by Year'
                     )}
                 />
                 <Divider sx={{ mb: 2 }} />
@@ -680,15 +657,7 @@ const Overview = () => {
                         height={420}
                         series={acceptanceRateSeries}
                         xAxis={[{ dataKey: 'year', scaleType: 'band' }]}
-                        yAxis={[
-                            {
-                                label: t('Acceptance Rate %', { ns: 'common' }),
-                                min: 0,
-                                max: 100,
-                                valueFormatter: (v) =>
-                                    v == null ? '' : `${v}%`
-                            }
-                        ]}
+                        yAxis={acceptanceYAxis}
                     />
                 </Box>
                 <MuiDataGrid
@@ -699,11 +668,7 @@ const Overview = () => {
             </Card>
 
             <Card sx={{ p: 2 }}>
-                <CardHeader
-                    title={t('Final Decision Count by Country', {
-                        ns: 'common'
-                    })}
-                />
+                <CardHeader title={t('Final Decision Count by Country')} />
                 <Divider sx={{ mb: 2 }} />
                 <Box sx={{ width: '100%', mb: 2 }}>
                     <PieChart
@@ -726,14 +691,10 @@ const Overview = () => {
             </Card>
 
             <Card sx={{ p: 2 }}>
-                <CardHeader
-                    title={t('Final Decisions Heatmap (Cities)', {
-                        ns: 'common'
-                    })}
-                />
+                <CardHeader title={t('Final Decisions Heatmap (Cities)')} />
                 <Divider sx={{ mb: 2 }} />
                 <Box sx={{ width: '100%', mb: 1 }}>
-                    {(cityMarkersData?.length || 0) > 1 ? (
+                    {hasCityMarkers ? (
                         <Chart
                             chartType="GeoChart"
                             data={cityMarkersData}
@@ -743,16 +704,13 @@ const Overview = () => {
                         />
                     ) : (
                         <Typography color="text.secondary" variant="body2">
-                            {t('No final decision locations to display yet.', {
-                                ns: 'common'
-                            })}
+                            {t('No final decision locations to display yet.')}
                         </Typography>
                     )}
                 </Box>
                 <Typography color="text.secondary" variant="caption">
                     {t(
-                        'Bubble size and color indicate final decision counts per city/zip.',
-                        { ns: 'common' }
+                        'Bubble size and color indicate final decision counts per city/zip.'
                     )}
                 </Typography>
             </Card>
