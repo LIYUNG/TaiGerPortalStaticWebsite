@@ -36,6 +36,37 @@ const buildProgramLabel = ({
     return programId || '';
 };
 
+const formatNumber = (v) =>
+    typeof v === 'number'
+        ? v.toLocaleString()
+        : typeof v === 'string' && /^\d+(,\d{3})*$/.test(v)
+          ? v
+          : v;
+
+const KpiTile = ({ label, value, hint }) => (
+    <Box
+        sx={{
+            p: 2,
+            border: 1,
+            borderColor: 'divider',
+            borderRadius: 2,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 0.5
+        }}
+    >
+        <Typography color="text.secondary" variant="caption">
+            {label}
+        </Typography>
+        <Typography variant="h5">{formatNumber(value)}</Typography>
+        {hint ? (
+            <Typography color="text.secondary" variant="caption">
+                {hint}
+            </Typography>
+        ) : null}
+    </Box>
+);
+
 const Overview = () => {
     const { t } = useTranslation('common');
 
@@ -376,50 +407,43 @@ const Overview = () => {
     }, [finalApplications]);
 
     // Prepare KPI tiles for summary grid for a consistent layout
-    const kpiTiles = useMemo(
-        () => [
+    const kpiTiles = useMemo(() => {
+        const acceptanceTile = {
+            key: 'acceptance',
+            label: t('Acceptance Rate'),
+            value: kpis.acceptanceRate,
+            hint:
+                latestYear && latestYear !== 'Unknown'
+                    ? t('Latest {{year}}: {{offer}}/{{total}} ({{rate}})', {
+                          year: latestYear,
+                          offer: latestYearKPIs.offer,
+                          total: latestYearKPIs.total,
+                          rate: latestYearKPIs.acceptanceRate
+                      })
+                    : null
+        };
+        // Order: Total, Acceptance Rate, Offers, Rejections, Final Decisions, Unknown
+        return [
             {
                 key: 'applications',
                 label: t('Applications'),
                 value: kpis.total
             },
-            {
-                key: 'offers',
-                label: t('Offers'),
-                value: kpis.offer
-            },
+            acceptanceTile,
+            { key: 'offers', label: t('Offers'), value: kpis.offer },
             {
                 key: 'rejections',
                 label: t('Rejections'),
                 value: kpis.rejection
             },
             {
-                key: 'unknown',
-                label: t('Unknown'),
-                value: kpis.unknown
-            },
-            {
                 key: 'final-decisions',
                 label: t('Final Decisions'),
                 value: kpis.finalCount
             },
-            {
-                key: 'acceptance',
-                label: t('Acceptance Rate'),
-                value: kpis.acceptanceRate,
-                hint:
-                    latestYear && latestYear !== 'Unknown'
-                        ? t('Latest {{year}}: {{offer}}/{{total}} ({{rate}})', {
-                              year: latestYear,
-                              offer: latestYearKPIs.offer,
-                              total: latestYearKPIs.total,
-                              rate: latestYearKPIs.acceptanceRate
-                          })
-                        : null
-            }
-        ],
-        [kpis, latestYear, latestYearKPIs, t]
-    );
+            { key: 'unknown', label: t('Unknown'), value: kpis.unknown }
+        ];
+    }, [kpis, latestYear, latestYearKPIs, t]);
 
     const applicationsPerYearSeries = useMemo(
         () => [
@@ -599,37 +623,21 @@ const Overview = () => {
                     }}
                 >
                     {kpiTiles.map((tile) => (
-                        <Box
+                        <KpiTile
+                            hint={tile.hint}
                             key={tile.key}
-                            sx={{
-                                p: 2,
-                                border: 1,
-                                borderColor: 'divider',
-                                borderRadius: 2
-                            }}
-                        >
-                            <Typography
-                                color="text.secondary"
-                                variant="caption"
-                            >
-                                {tile.label}
-                            </Typography>
-                            <Typography variant="h5">{tile.value}</Typography>
-                            {tile.hint ? (
-                                <Typography
-                                    color="text.secondary"
-                                    variant="caption"
-                                >
-                                    {tile.hint}
-                                </Typography>
-                            ) : null}
-                        </Box>
+                            label={tile.label}
+                            value={tile.value}
+                        />
                     ))}
                 </Box>
             </Card>
 
-            <Card sx={{ p: 2, gridColumn: '1 / -1' }}>
+            <Card sx={{ p: 2, gridColumn: { xs: '1 / -1', lg: '1 / 2' } }}>
                 <CardHeader
+                    subheader={t(
+                        'Track total applications and results by year'
+                    )}
                     title={t('Applications per Year (Offer / Rejection)')}
                 />
                 <Divider sx={{ mb: 2 }} />
@@ -644,31 +652,11 @@ const Overview = () => {
                 <MuiDataGrid columns={yearCols} rows={byYearRows} simple />
             </Card>
 
-            <Card sx={{ p: 2, gridColumn: '1 / -1' }}>
+            <Card sx={{ p: 2, gridColumn: { xs: '1 / -1', lg: '2 / 3' } }}>
                 <CardHeader
-                    title={t(
-                        'Top 10 Applied Programs — Acceptance Rate by Year'
-                    )}
+                    subheader={t('Distribution of final decisions by country')}
+                    title={t('Final Decision Count by Country')}
                 />
-                <Divider sx={{ mb: 2 }} />
-                <Box sx={{ width: '100%', mb: 2 }}>
-                    <LineChart
-                        dataset={acceptanceRateDataset}
-                        height={420}
-                        series={acceptanceRateSeries}
-                        xAxis={[{ dataKey: 'year', scaleType: 'band' }]}
-                        yAxis={acceptanceYAxis}
-                    />
-                </Box>
-                <MuiDataGrid
-                    columns={topCols}
-                    rows={topProgramsYearRows}
-                    simple
-                />
-            </Card>
-
-            <Card sx={{ p: 2 }}>
-                <CardHeader title={t('Final Decision Count by Country')} />
                 <Divider sx={{ mb: 2 }} />
                 <Box sx={{ width: '100%', mb: 2 }}>
                     <PieChart
@@ -686,6 +674,32 @@ const Overview = () => {
                 <MuiDataGrid
                     columns={byCountryCols}
                     rows={finalByCountryRows}
+                    simple
+                />
+            </Card>
+
+            <Card sx={{ p: 2, gridColumn: '1 / -1' }}>
+                <CardHeader
+                    subheader={t(
+                        'Acceptance rate trends across the most applied programs'
+                    )}
+                    title={t(
+                        'Top 10 Applied Programs — Acceptance Rate by Year'
+                    )}
+                />
+                <Divider sx={{ mb: 2 }} />
+                <Box sx={{ width: '100%', mb: 2 }}>
+                    <LineChart
+                        dataset={acceptanceRateDataset}
+                        height={420}
+                        series={acceptanceRateSeries}
+                        xAxis={[{ dataKey: 'year', scaleType: 'band' }]}
+                        yAxis={acceptanceYAxis}
+                    />
+                </Box>
+                <MuiDataGrid
+                    columns={topCols}
+                    rows={topProgramsYearRows}
                     simple
                 />
             </Card>
