@@ -1,5 +1,12 @@
 import React, { useMemo } from 'react';
-import { Box, Card, CardHeader, Divider, Typography } from '@mui/material';
+import {
+    Box,
+    Card,
+    CardHeader,
+    Divider,
+    Typography,
+    Grid
+} from '@mui/material';
 import { BarChart, PieChart, LineChart } from '@mui/x-charts';
 import { Chart } from 'react-google-charts';
 import { useTranslation } from 'react-i18next';
@@ -43,7 +50,7 @@ const formatNumber = (v) =>
           ? v
           : v;
 
-const KpiTile = ({ label, value, hint }) => (
+const KpiTile = ({ label, value, hint, valueVariant = 'h5' }) => (
     <Box
         sx={{
             p: 2,
@@ -58,7 +65,7 @@ const KpiTile = ({ label, value, hint }) => (
         <Typography color="text.secondary" variant="caption">
             {label}
         </Typography>
-        <Typography variant="h5">{formatNumber(value)}</Typography>
+        <Typography variant={valueVariant}>{formatNumber(value)}</Typography>
         {hint ? (
             <Typography color="text.secondary" variant="caption">
                 {hint}
@@ -66,6 +73,97 @@ const KpiTile = ({ label, value, hint }) => (
         ) : null}
     </Box>
 );
+
+// Compact stacked breakdown bar for Offer / Rejection / Unknown
+const ResultsBreakdown = ({ offer, rejection, unknown, t }) => {
+    const total = offer + rejection + unknown;
+    const p = (n) => (total > 0 ? Math.round((n / total) * 1000) / 10 : 0);
+    const parts = [
+        {
+            key: 'offer',
+            label: t('Offer'),
+            value: offer,
+            percent: p(offer),
+            color: 'success.main'
+        },
+        {
+            key: 'rejection',
+            label: t('Rejection'),
+            value: rejection,
+            percent: p(rejection),
+            color: 'error.main'
+        },
+        {
+            key: 'unknown',
+            label: t('Unknown'),
+            value: unknown,
+            percent: p(unknown),
+            color: 'grey.500'
+        }
+    ];
+
+    return (
+        <Box sx={{ p: 2, border: 1, borderColor: 'divider', borderRadius: 2 }}>
+            <Typography color="text.secondary" sx={{ mb: 1 }} variant="caption">
+                {t('Results breakdown')}
+            </Typography>
+            <Box
+                sx={{
+                    display: 'flex',
+                    height: 12,
+                    width: '100%',
+                    borderRadius: 6,
+                    overflow: 'hidden',
+                    mb: 1
+                }}
+            >
+                {parts.map((part) => (
+                    <Box
+                        key={part.key}
+                        sx={{
+                            width: `${part.percent}%`,
+                            bgcolor: part.color,
+                            transition: 'width 300ms ease'
+                        }}
+                    />
+                ))}
+            </Box>
+            {total === 0 ? (
+                <Typography color="text.secondary" variant="caption">
+                    {t('No data')}
+                </Typography>
+            ) : (
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                    {parts.map((part) => (
+                        <Box
+                            key={part.key}
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1
+                            }}
+                        >
+                            <Box
+                                sx={{
+                                    width: 10,
+                                    height: 10,
+                                    bgcolor: part.color,
+                                    borderRadius: 0.5
+                                }}
+                            />
+                            <Typography
+                                color="text.secondary"
+                                variant="caption"
+                            >
+                                {`${part.label}: ${formatNumber(part.value)} (${part.percent}%)`}
+                            </Typography>
+                        </Box>
+                    ))}
+                </Box>
+            )}
+        </Box>
+    );
+};
 
 const Overview = () => {
     const { t } = useTranslation('common');
@@ -406,44 +504,17 @@ const Overview = () => {
         return [header, ...rows];
     }, [finalApplications]);
 
-    // Prepare KPI tiles for summary grid for a consistent layout
-    const kpiTiles = useMemo(() => {
-        const acceptanceTile = {
-            key: 'acceptance',
-            label: t('Acceptance Rate'),
-            value: kpis.acceptanceRate,
-            hint:
-                latestYear && latestYear !== 'Unknown'
-                    ? t('Latest {{year}}: {{offer}}/{{total}} ({{rate}})', {
-                          year: latestYear,
-                          offer: latestYearKPIs.offer,
-                          total: latestYearKPIs.total,
-                          rate: latestYearKPIs.acceptanceRate
-                      })
-                    : null
-        };
-        // Order: Total, Acceptance Rate, Offers, Rejections, Final Decisions, Unknown
-        return [
-            {
-                key: 'applications',
-                label: t('Applications'),
-                value: kpis.total
-            },
-            acceptanceTile,
-            { key: 'offers', label: t('Offers'), value: kpis.offer },
-            {
-                key: 'rejections',
-                label: t('Rejections'),
-                value: kpis.rejection
-            },
-            {
-                key: 'final-decisions',
-                label: t('Final Decisions'),
-                value: kpis.finalCount
-            },
-            { key: 'unknown', label: t('Unknown'), value: kpis.unknown }
-        ];
-    }, [kpis, latestYear, latestYearKPIs, t]);
+    // Acceptance tile hint string (latest year context)
+    const acceptanceHint = useMemo(() => {
+        return latestYear && latestYear !== 'Unknown'
+            ? t('Latest {{year}}: {{offer}}/{{total}} ({{rate}})', {
+                  year: latestYear,
+                  offer: latestYearKPIs.offer,
+                  total: latestYearKPIs.total,
+                  rate: latestYearKPIs.acceptanceRate
+              })
+            : null;
+    }, [latestYear, latestYearKPIs, t]);
 
     const applicationsPerYearSeries = useMemo(
         () => [
@@ -577,21 +648,7 @@ const Overview = () => {
         [t]
     );
 
-    const byCountryCols = useMemo(
-        () => [
-            {
-                field: 'country',
-                headerName: t('Country'),
-                width: 140
-            },
-            {
-                field: 'count',
-                headerName: t('Final Decisions'),
-                width: 160
-            }
-        ],
-        [t]
-    );
+    // Removed byCountryCols since the country view is now a pie-only visualization next to the heatmap
 
     // Removed: Final decision count by program (chart and table)
 
@@ -605,31 +662,45 @@ const Overview = () => {
                 gridTemplateColumns: { xs: '1fr', lg: '1fr 1fr' }
             }}
         >
-            {/* KPI summary */}
+            {/* KPI summary (redesigned) */}
             <Card sx={{ p: 2, gridColumn: '1 / -1' }}>
                 <CardHeader title={t('Key Metrics')} />
                 <Divider />
-                <Box
-                    sx={{
-                        display: 'grid',
-                        gap: 2,
-                        gridTemplateColumns: {
-                            xs: '1fr 1fr',
-                            sm: '1fr 1fr 1fr',
-                            md: '1fr 1fr 1fr 1fr',
-                            lg: '1fr 1fr 1fr 1fr 1fr 1fr'
-                        },
-                        mt: 2
-                    }}
-                >
-                    {kpiTiles.map((tile) => (
-                        <KpiTile
-                            hint={tile.hint}
-                            key={tile.key}
-                            label={tile.label}
-                            value={tile.value}
-                        />
-                    ))}
+                <Box sx={{ mt: 2 }}>
+                    <Grid container spacing={2}>
+                        {/* Acceptance Rate — emphasized */}
+                        <Grid item md={6} xs={12}>
+                            <KpiTile
+                                hint={acceptanceHint}
+                                label={t('Acceptance Rate')}
+                                value={kpis.acceptanceRate}
+                                valueVariant="h3"
+                            />
+                        </Grid>
+                        {/* Applications */}
+                        <Grid item md={3} xs={6}>
+                            <KpiTile
+                                label={t('Applications')}
+                                value={kpis.total}
+                            />
+                        </Grid>
+                        {/* Final Decisions */}
+                        <Grid item md={3} xs={6}>
+                            <KpiTile
+                                label={t('Final Decisions')}
+                                value={kpis.finalCount}
+                            />
+                        </Grid>
+                        {/* Results breakdown stacked bar */}
+                        <Grid item xs={12}>
+                            <ResultsBreakdown
+                                offer={kpis.offer}
+                                rejection={kpis.rejection}
+                                t={t}
+                                unknown={kpis.unknown}
+                            />
+                        </Grid>
+                    </Grid>
                 </Box>
             </Card>
 
@@ -654,28 +725,56 @@ const Overview = () => {
 
             <Card sx={{ p: 2, gridColumn: { xs: '1 / -1', lg: '2 / 3' } }}>
                 <CardHeader
-                    subheader={t('Distribution of final decisions by country')}
-                    title={t('Final Decision Count by Country')}
+                    subheader={t('Country distribution and city heatmap')}
+                    title={t('Final Decisions by Geography')}
                 />
                 <Divider sx={{ mb: 2 }} />
-                <Box sx={{ width: '100%', mb: 2 }}>
-                    <PieChart
-                        height={320}
-                        series={[
-                            {
-                                data: finalByCountryChartData,
-                                innerRadius: 40,
-                                paddingAngle: 2,
-                                cornerRadius: 4
-                            }
-                        ]}
-                    />
+                <Box
+                    sx={{
+                        display: 'grid',
+                        gap: 2,
+                        gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }
+                    }}
+                >
+                    <Box sx={{ width: '100%' }}>
+                        <PieChart
+                            height={260}
+                            series={[
+                                {
+                                    data: finalByCountryChartData,
+                                    innerRadius: 40,
+                                    paddingAngle: 2,
+                                    cornerRadius: 4
+                                }
+                            ]}
+                        />
+                        <Typography color="text.secondary" variant="caption">
+                            {t('By country')}
+                        </Typography>
+                    </Box>
+                    <Box sx={{ width: '100%' }}>
+                        {hasCityMarkers ? (
+                            <Chart
+                                chartType="GeoChart"
+                                data={cityMarkersData}
+                                height="360px"
+                                options={cityGeoOptions}
+                                width="100%"
+                            />
+                        ) : (
+                            <Typography color="text.secondary" variant="body2">
+                                {t(
+                                    'No final decision locations to display yet.'
+                                )}
+                            </Typography>
+                        )}
+                        <Typography color="text.secondary" variant="caption">
+                            {t(
+                                'Bubble size and color indicate final decision counts per city/zip.'
+                            )}
+                        </Typography>
+                    </Box>
                 </Box>
-                <MuiDataGrid
-                    columns={byCountryCols}
-                    rows={finalByCountryRows}
-                    simple
-                />
             </Card>
 
             <Card sx={{ p: 2, gridColumn: '1 / -1' }}>
@@ -704,30 +803,7 @@ const Overview = () => {
                 />
             </Card>
 
-            <Card sx={{ p: 2 }}>
-                <CardHeader title={t('Final Decisions Heatmap (Cities)')} />
-                <Divider sx={{ mb: 2 }} />
-                <Box sx={{ width: '100%', mb: 1 }}>
-                    {hasCityMarkers ? (
-                        <Chart
-                            chartType="GeoChart"
-                            data={cityMarkersData}
-                            height="420px"
-                            options={cityGeoOptions}
-                            width="100%"
-                        />
-                    ) : (
-                        <Typography color="text.secondary" variant="body2">
-                            {t('No final decision locations to display yet.')}
-                        </Typography>
-                    )}
-                </Box>
-                <Typography color="text.secondary" variant="caption">
-                    {t(
-                        'Bubble size and color indicate final decision counts per city/zip.'
-                    )}
-                </Typography>
-            </Card>
+            {/* Heatmap merged with country pie chart above */}
 
             {/* Removed: Final Decision Count by Program card */}
         </Box>
