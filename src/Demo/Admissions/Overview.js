@@ -391,7 +391,8 @@ const Overview = () => {
             tooltip: { isHtml: true },
             backgroundColor: 'transparent',
             datalessRegionColor: '#E0E0E0',
-            defaultColor: '#F5F5F5'
+            defaultColor: '#F5F5F5',
+            region: '150' // Europe viewport
         }),
         []
     );
