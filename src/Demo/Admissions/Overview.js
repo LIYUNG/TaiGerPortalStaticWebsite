@@ -644,28 +644,9 @@ const Overview = () => {
                 />
                 <Divider sx={{ mb: 2 }} />
                 <Box
-                    sx={{
-                        display: 'grid',
-                        gap: 2,
-                        gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }
-                    }}
+                    sx={{ display: 'grid', gap: 2, gridTemplateColumns: '1fr' }}
                 >
-                    <Box sx={{ width: '100%' }}>
-                        <PieChart
-                            height={260}
-                            series={[
-                                {
-                                    data: finalByCountryChartData,
-                                    innerRadius: 40,
-                                    paddingAngle: 2,
-                                    cornerRadius: 4
-                                }
-                            ]}
-                        />
-                        <Typography color="text.secondary" variant="caption">
-                            {t('By country')}
-                        </Typography>
-                    </Box>
+                    {/* Map on top */}
                     <Box sx={{ width: '100%' }}>
                         {hasCityMarkers ? (
                             <Chart
@@ -686,6 +667,32 @@ const Overview = () => {
                             {t(
                                 'Bubble size and color indicate final decision counts per city/zip.'
                             )}
+                        </Typography>
+                    </Box>
+                    {/* Pie chart below the map */}
+                    <Box sx={{ width: '100%' }}>
+                        <PieChart
+                            height={260}
+                            series={[
+                                {
+                                    data: finalByCountryChartData,
+                                    innerRadius: 40,
+                                    paddingAngle: 2,
+                                    cornerRadius: 4
+                                }
+                            ]}
+                            slotProps={{
+                                legend: {
+                                    labelStyle: { fontSize: 11 },
+                                    itemMarkWidth: 10,
+                                    itemMarkHeight: 10,
+                                    markGap: 6,
+                                    itemGap: 10
+                                }
+                            }}
+                        />
+                        <Typography color="text.secondary" variant="caption">
+                            {t('By country')}
                         </Typography>
                     </Box>
                 </Box>
