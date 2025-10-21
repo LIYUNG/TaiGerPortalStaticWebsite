@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { Box, Card, CardHeader, Divider, Typography } from '@mui/material';
 import { BarChart, PieChart, LineChart } from '@mui/x-charts';
+import { Chart } from 'react-google-charts';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import queryString from 'query-string';
@@ -8,6 +9,7 @@ import queryString from 'query-string';
 import { MuiDataGrid } from '../../components/MuiDataGrid';
 import Loading from '../../components/Loading/Loading';
 import { getApplicationsQuery } from '../../api/query';
+import cityCoord from './cityCoord.json';
 
 const Overview = () => {
     const { t } = useTranslation();
@@ -41,6 +43,8 @@ const Overview = () => {
                 country: (a?.country || prog?.country || '')
                     .toString()
                     .toUpperCase(),
+                city: a?.city || prog?.city || '',
+                zipCode: a?.zipCode || prog?.zipCode || '',
                 finalEnrolment: true
             };
         });
@@ -317,6 +321,79 @@ const Overview = () => {
                 label: r.country
             })),
         [finalByCountryRows]
+    );
+
+    // Build heatmap markers using local cityCoord.json (no external geocoding)
+    const cityMarkersData = useMemo(() => {
+        // Aggregate counts per unique location key
+        const counts = new Map();
+        for (const a of finalApplications) {
+            if (!a.finalEnrolment) continue;
+            const country = (a.country || 'UNKNOWN').toString().toUpperCase();
+            const city = (a.city || '').toString().trim();
+            const zip = (a.zipCode || '').toString().trim();
+            if (!city && !zip && !country) continue;
+            const key = `${country}|${city}|${zip}`;
+            const label = [[city, zip].filter(Boolean).join(' '), country]
+                .filter(Boolean)
+                .join(', ');
+            const cur = counts.get(key) || {
+                key,
+                country,
+                city,
+                zip,
+                label,
+                count: 0
+            };
+            cur.count += 1;
+            counts.set(key, cur);
+        }
+
+        const header = [
+            'Latitude',
+            'Longitude',
+            'Final Decisions',
+            { type: 'string', role: 'tooltip', p: { html: true } }
+        ];
+        const rows = [];
+
+        for (const loc of counts.values()) {
+            const city = loc.city;
+            const coords = city ? cityCoord[city] : null;
+            if (!coords || !Array.isArray(coords)) continue; // skip if city not in mapping or null
+            const [lat, lng] = coords;
+            if (
+                typeof lat !== 'number' ||
+                typeof lng !== 'number' ||
+                Number.isNaN(lat) ||
+                Number.isNaN(lng)
+            )
+                continue;
+            const tooltip = `\n<div style="padding:6px 8px;line-height:1.2">\n  <div><strong>${
+                loc.city || loc.zip || loc.country
+            }</strong></div>\n  <div>${loc.country}${
+                loc.zip ? ` • ${loc.zip}` : ''
+            }</div>\n  <div>${loc.count} final decision${
+                loc.count > 1 ? 's' : ''
+            }</div>\n</div>`;
+            rows.push([lat, lng, loc.count, tooltip]);
+        }
+
+        rows.sort((a, b) => b[2] - a[2]);
+        return [header, ...rows];
+    }, [finalApplications]);
+
+    const cityGeoOptions = useMemo(
+        () => ({
+            displayMode: 'markers',
+            colorAxis: { colors: ['#BBDEFB', '#0D47A1'] },
+            legend: 'none',
+            tooltip: { isHtml: true },
+            backgroundColor: 'transparent',
+            datalessRegionColor: '#E0E0E0',
+            defaultColor: '#F5F5F5'
+        }),
+        []
     );
 
     // Column definitions
@@ -645,6 +722,38 @@ const Overview = () => {
                     rows={finalByCountryRows}
                     simple
                 />
+            </Card>
+
+            <Card sx={{ p: 2 }}>
+                <CardHeader
+                    title={t('Final Decisions Heatmap (Cities)', {
+                        ns: 'common'
+                    })}
+                />
+                <Divider sx={{ mb: 2 }} />
+                <Box sx={{ width: '100%', mb: 1 }}>
+                    {(cityMarkersData?.length || 0) > 1 ? (
+                        <Chart
+                            chartType="GeoChart"
+                            data={cityMarkersData}
+                            height="420px"
+                            options={cityGeoOptions}
+                            width="100%"
+                        />
+                    ) : (
+                        <Typography color="text.secondary" variant="body2">
+                            {t('No final decision locations to display yet.', {
+                                ns: 'common'
+                            })}
+                        </Typography>
+                    )}
+                </Box>
+                <Typography color="text.secondary" variant="caption">
+                    {t(
+                        'Bubble size and color indicate final decision counts per city/zip.',
+                        { ns: 'common' }
+                    )}
+                </Typography>
             </Card>
 
             {/* Removed: Final Decision Count by Program card */}
