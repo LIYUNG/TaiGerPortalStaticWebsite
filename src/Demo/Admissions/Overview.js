@@ -43,8 +43,6 @@ const formatNumber = (v) =>
           ? v
           : v;
 
-// KpiTile removed since KPI summary card was simplified
-
 // Compact stacked breakdown bar for Offer / Rejection / Unknown
 const ResultsBreakdown = ({ offer, rejection, unknown, acceptance, t }) => {
     const total = offer + rejection + unknown;
@@ -593,10 +591,6 @@ const Overview = () => {
         [t]
     );
 
-    // Removed byCountryCols since the country view is now a pie-only visualization next to the heatmap
-
-    // Removed: Final decision count by program (chart and table)
-
     if (isLoading || isFinalLoading) return <Loading />;
 
     return (
@@ -608,7 +602,7 @@ const Overview = () => {
             }}
         >
             {/* Results breakdown (no card) */}
-            <Box sx={{ gridColumn: '1 / -1' }}>
+            <Box sx={{ gridColumn: '1 / -1', mt: 2 }}>
                 <ResultsBreakdown
                     acceptance={kpis.acceptanceRate}
                     offer={kpis.offer}
@@ -723,10 +717,6 @@ const Overview = () => {
                     simple
                 />
             </Card>
-
-            {/* Heatmap merged with country pie chart above */}
-
-            {/* Removed: Final Decision Count by Program card */}
         </Box>
     );
 };
