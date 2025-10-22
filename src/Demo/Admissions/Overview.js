@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { Box, Card, CardHeader, Divider, Typography } from '@mui/material';
-import { BarChart, PieChart, LineChart } from '@mui/x-charts';
+import { useTheme } from '@mui/material/styles';
+import { BarChart, PieChart } from '@mui/x-charts';
 import { Chart } from 'react-google-charts';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -11,8 +12,6 @@ import Loading from '../../components/Loading/Loading';
 import { getApplicationsQuery } from '../../api/query';
 import cityCoord from './cityCoord.json';
 
-const YEAR_PATTERN = /^(19|20|21)\d{2}$/;
-
 const toUpperSafe = (value) => value?.toString().toUpperCase() || '';
 
 const formatAcceptanceRate = (offer, rejection) => {
@@ -22,19 +21,6 @@ const formatAcceptanceRate = (offer, rejection) => {
 
 const isValidCoordinate = (value) =>
     typeof value === 'number' && !Number.isNaN(value);
-
-const buildProgramLabel = ({
-    degree,
-    programId,
-    program_name: name,
-    school
-}) => {
-    const degreeSuffix = degree ? ` (${degree})` : '';
-    if (school && name) return `${school} - ${name}${degreeSuffix}`.trim();
-    if (name) return `${name}${degreeSuffix}`.trim();
-    if (school) return school.trim();
-    return programId || '';
-};
 
 const formatNumber = (v) =>
     typeof v === 'number'
@@ -153,6 +139,7 @@ const ResultsBreakdown = ({ offer, rejection, unknown, acceptance, t }) => {
 
 const Overview = () => {
     const { t } = useTranslation('common');
+    const theme = useTheme();
 
     // Fetch all applications directly
     const { data, isLoading } = useQuery(
@@ -258,128 +245,6 @@ const Overview = () => {
     // Chart dataset for applications per year (stacked)
     const byYearChartDataset = useMemo(() => byYearRows, [byYearRows]);
 
-    // 2) Top 10 programs overall (by total applications), list per-year offer/rejection/unknown
-    const { topProgramsYearRows, topProgramKeys, programLabels } =
-        useMemo(() => {
-            // Group strictly by programId to represent a single program
-            const programTotals = new Map(); // programId -> total applications
-            const programInfo = new Map(); // programId -> { programId, school, program_name, degree }
-            const programYearAgg = new Map(); // programId__year -> row agg
-
-            for (const a of applications) {
-                const pid = a.programId;
-                if (!pid) continue; // skip entries without a proper program id
-                const year = a.application_year || 'Unknown';
-
-                programTotals.set(pid, (programTotals.get(pid) || 0) + 1);
-                if (!programInfo.has(pid))
-                    programInfo.set(pid, {
-                        programId: pid,
-                        school: a.school,
-                        program_name: a.program_name,
-                        degree: a.degree
-                    });
-
-                const aggKey = `${pid}__${year}`;
-                if (!programYearAgg.has(aggKey)) {
-                    const info = programInfo.get(pid);
-                    programYearAgg.set(aggKey, {
-                        id: aggKey,
-                        programKey: pid,
-                        year,
-                        programId: info.programId,
-                        school: info.school,
-                        program_name: info.program_name,
-                        degree: info.degree,
-                        offer: 0,
-                        rejection: 0,
-                        unknown: 0,
-                        total: 0
-                    });
-                }
-                const row = programYearAgg.get(aggKey);
-                if (a.admission === 'O') row.offer += 1;
-                else if (a.admission === 'X') row.rejection += 1;
-                else row.unknown += 1;
-                row.total += 1;
-            }
-
-            // Determine top 10 programs by total applications
-            const topProgramsKeys = Array.from(programTotals.entries())
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, 10)
-                .map(([key]) => key);
-
-            // Labels for chart/rows (include degree to disambiguate if names match)
-            const programLabels = new Map(
-                topProgramsKeys.map((k) => {
-                    const info = programInfo.get(k) || {};
-                    return [k, buildProgramLabel(info)];
-                })
-            );
-
-            // Rows for table: one row per program per year for those top programs
-            const topProgramsYearRows = Array.from(programYearAgg.values())
-                .filter((r) => topProgramsKeys.includes(r.programKey))
-                .map((r) => ({
-                    ...r,
-                    acceptanceRate: formatAcceptanceRate(r.offer, r.rejection)
-                }))
-                .sort((a, b) =>
-                    a.school === b.school
-                        ? a.program_name.localeCompare(b.program_name) ||
-                          String(b.year).localeCompare(String(a.year))
-                        : a.school.localeCompare(b.school)
-                );
-
-            return {
-                topProgramsYearRows,
-                topProgramKeys: topProgramsKeys,
-                programLabels
-            };
-        }, [applications]);
-
-    // Acceptance rate per year per top program (for chart)
-    const { acceptanceRateDataset, acceptanceRateSeries } = useMemo(() => {
-        if (!topProgramsYearRows || topProgramsYearRows.length === 0) {
-            return { acceptanceRateDataset: [], acceptanceRateSeries: [] };
-        }
-        // Gather valid numeric years present across top programs
-        const yearsSet = new Set();
-        for (const r of topProgramsYearRows) {
-            if (YEAR_PATTERN.test(String(r.year))) yearsSet.add(Number(r.year));
-        }
-        const yearsSorted = Array.from(yearsSet).sort((a, b) => a - b);
-
-        // Create alias for each top program key to keep series keys compact
-        const aliases = (topProgramKeys || []).map((_, i) => `p${i}`);
-        const aliasMap = new Map(
-            (topProgramKeys || []).map((k, i) => [k, aliases[i]])
-        );
-
-        // Build dataset rows per year with acceptance rate for each program
-        const dataset = yearsSorted.map((year) => {
-            const obj = { year };
-            for (const k of topProgramKeys || []) {
-                const row = topProgramsYearRows.find(
-                    (r) => r.programKey === k && String(r.year) === String(year)
-                );
-                const denom = row ? row.offer + row.rejection : 0;
-                const rate =
-                    denom > 0 ? +((row.offer / denom) * 100).toFixed(1) : null;
-                obj[aliasMap.get(k)] = rate != null ? rate : null;
-            }
-            return obj;
-        });
-
-        const series = (topProgramKeys || []).map((k, i) => ({
-            dataKey: aliases[i],
-            label: programLabels?.get(k) || ''
-        }));
-
-        return { acceptanceRateDataset: dataset, acceptanceRateSeries: series };
-    }, [topProgramsYearRows, topProgramKeys, programLabels]);
-
     // 3) Final decision count by country
     const finalByCountryRows = useMemo(() => {
         const map = new Map();
@@ -461,22 +326,20 @@ const Overview = () => {
 
     const applicationsPerYearSeries = useMemo(
         () => [
-            { dataKey: 'offer', label: t('Offer'), stack: 'result' },
-            { dataKey: 'rejection', label: t('Rejection'), stack: 'result' }
-        ],
-        [t]
-    );
-
-    const acceptanceYAxis = useMemo(
-        () => [
             {
-                label: t('Acceptance Rate %'),
-                min: 0,
-                max: 100,
-                valueFormatter: (v) => (v == null ? '' : `${v}%`)
+                dataKey: 'offer',
+                label: t('Offer'),
+                stack: 'result',
+                color: theme.palette.success.main
+            },
+            {
+                dataKey: 'rejection',
+                label: t('Rejection'),
+                stack: 'result',
+                color: theme.palette.error.main
             }
         ],
-        [t]
+        [t, theme]
     );
 
     const hasCityMarkers = useMemo(
@@ -525,62 +388,6 @@ const Overview = () => {
                 field: 'total',
                 headerName: t('Total'),
                 width: 100
-            },
-            {
-                field: 'acceptanceRate',
-                headerName: t('Acceptance Rate'),
-                width: 140
-            }
-        ],
-        [t]
-    );
-
-    const topCols = useMemo(
-        () => [
-            {
-                field: 'school',
-                headerName: t('School'),
-                width: 240
-            },
-            {
-                field: 'program_name',
-                headerName: t('Program'),
-                width: 280
-            },
-            {
-                field: 'degree',
-                headerName: t('Degree'),
-                width: 90
-            },
-            {
-                field: 'year',
-                headerName: t('Year'),
-                width: 90,
-                valueGetter: (params) => {
-                    const y = params?.row?.year;
-                    return YEAR_PATTERN.test(String(y)) ? Number(y) : '';
-                },
-                sortComparator: (a, b) => (a || 0) - (b || 0)
-            },
-            {
-                field: 'offer',
-                headerName: t('Offer'),
-                width: 90
-            },
-            {
-                field: 'rejection',
-                headerName: t('Rejection'),
-                width: 110
-            },
-            {
-                field: 'unknown',
-                headerName: t('Unknown'),
-                width: 110
-            },
-            {
-                field: 'total',
-                headerName: t('Total'),
-                width: 90
             },
             {
                 field: 'acceptanceRate',
@@ -690,32 +497,6 @@ const Overview = () => {
                         </Typography>
                     </Box>
                 </Box>
-            </Card>
-
-            <Card sx={{ p: 2, gridColumn: '1 / -1' }}>
-                <CardHeader
-                    subheader={t(
-                        'Acceptance rate trends across the most applied programs'
-                    )}
-                    title={t(
-                        'Top 10 Applied Programs — Acceptance Rate by Year'
-                    )}
-                />
-                <Divider sx={{ mb: 2 }} />
-                <Box sx={{ width: '100%', mb: 2 }}>
-                    <LineChart
-                        dataset={acceptanceRateDataset}
-                        height={420}
-                        series={acceptanceRateSeries}
-                        xAxis={[{ dataKey: 'year', scaleType: 'band' }]}
-                        yAxis={acceptanceYAxis}
-                    />
-                </Box>
-                <MuiDataGrid
-                    columns={topCols}
-                    rows={topProgramsYearRows}
-                    simple
-                />
             </Card>
         </Box>
     );
