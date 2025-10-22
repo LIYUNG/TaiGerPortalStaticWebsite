@@ -1,5 +1,5 @@
 {
     "Reject": "Reject",
-    "confirmDocument": "{{studentName}} {{studentNameZh}} agreed terms and conditions.",
-    "notConfirmDocument": "{{studentName}} {{studentNameZh}} did not agree terms and conditions yet."
+    "confirmDocument": "{{studentName}} {{studentNameZh}} agreed to the terms and conditions.",
+    "notConfirmDocument": "{{studentName}} {{studentNameZh}} has not agreed to the terms and conditions yet."
 }
