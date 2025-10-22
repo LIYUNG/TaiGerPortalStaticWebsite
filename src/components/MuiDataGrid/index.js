@@ -3,7 +3,11 @@ import { Box, Typography, TextField, Tooltip } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 
 export const MuiDataGrid = (props) => {
-    const { simple = false } = props;
+    const {
+        simple = false,
+        noPagination = false,
+        autoHeight: propAutoHeight
+    } = props;
     const [filters, setFilters] = useState({});
     const handleFilterChange = (event, column) => {
         const { value } = event.target;
@@ -22,9 +26,19 @@ export const MuiDataGrid = (props) => {
         includeOutliers: true,
         expand: true
     };
+    const useAutoHeight =
+        propAutoHeight !== undefined ? propAutoHeight : simple || noPagination;
+    const showFooter = !(simple || noPagination);
+
     return (
-        <div style={{ height: '50%', width: '100%' }}>
+        <div
+            style={{
+                width: '100%',
+                ...(useAutoHeight ? {} : { height: '50%' })
+            }}
+        >
             <DataGrid
+                autoHeight={useAutoHeight}
                 autosizeOnMount={true}
                 autosizeOptions={autosizeOptions}
                 columnHeaderHeight={simple ? 56 : 130}
@@ -64,17 +78,24 @@ export const MuiDataGrid = (props) => {
                 disableColumnMenu
                 disableColumnResize={false}
                 disableDensitySelector
+                hideFooter={!showFooter}
+                hideFooterPagination={!showFooter}
+                hideFooterSelectedRowCount={!showFooter}
                 initialState={{
                     columns: {
                         columnVisibilityModel: {
                             ...props.columnVisibilityModel
                         }
                     },
-                    pagination: {
-                        paginationModel: { page: 0, pageSize: 20 }
-                    }
+                    ...(showFooter
+                        ? {
+                              pagination: {
+                                  paginationModel: { page: 0, pageSize: 20 }
+                              }
+                          }
+                        : {})
                 }}
-                pageSizeOptions={[10, 20, 50, 100]}
+                pageSizeOptions={showFooter ? [10, 20, 50, 100] : undefined}
                 rows={
                     simple
                         ? props.rows
