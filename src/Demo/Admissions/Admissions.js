@@ -110,15 +110,15 @@ const Admissions = () => {
                                 label={`${t('Application', {
                                     ns: 'common'
                                 })}`}
-                                {...a11yProps(value, 0)}
-                            />
-                            <Tab
-                                label={`${t('Student', { ns: 'common' })}`}
                                 {...a11yProps(value, 1)}
                             />
                             <Tab
-                                label={`${t('Program', { ns: 'common' })}`}
+                                label={`${t('Student', { ns: 'common' })}`}
                                 {...a11yProps(value, 2)}
+                            />
+                            <Tab
+                                label={`${t('Program', { ns: 'common' })}`}
+                                {...a11yProps(value, 3)}
                             />
                         </Tabs>
                     </Box>
