@@ -29,7 +29,8 @@ const transform = (students = []) => {
                     program_name: p?.program_name || '',
                     degree: p?.degree || '',
                     application_year: a?.application_year || '',
-                    country: p?.country || ''
+                    country: p?.country || '',
+                    city: p?.city || a?.city || ''
                 };
             });
 
@@ -57,7 +58,8 @@ const FinalDecisionOverview = ({ students }) => {
                 headerName: t('First-/ Last Name', { ns: 'common' }),
                 align: 'left',
                 headerAlign: 'left',
-                width: 220,
+                minWidth: 150,
+                flex: 0.4,
                 renderCell: (params) => {
                     const linkUrl = `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
                         params.row.studentId,
@@ -79,8 +81,8 @@ const FinalDecisionOverview = ({ students }) => {
             {
                 field: 'finalEnrolments',
                 headerName: t('Program / University', { ns: 'common' }),
-                flex: 1,
-                minWidth: 360,
+                flex: 1.2,
+                minWidth: 200,
                 sortable: false,
                 renderCell: (params) => {
                     const items = params.row?.finalEnrolments || [];
@@ -117,10 +119,9 @@ const FinalDecisionOverview = ({ students }) => {
                 }
             },
             {
-                field: 'countries',
-                headerName: t('Country', { ns: 'common' }),
-                minWidth: 100,
-                flex: 0.4,
+                field: 'cities',
+                headerName: t('City', { ns: 'common' }),
+                width: 80,
                 sortable: false,
                 renderCell: (params) => {
                     const items = params.row?.finalEnrolments || [];
@@ -133,13 +134,65 @@ const FinalDecisionOverview = ({ students }) => {
                                 gap: 4
                             }}
                         >
-                            {items.map((it) => (
-                                <span key={it.key}>
-                                    {(it.country || '')
+                            {items.map((it) => {
+                                const value = (it.city || '').toString() || '-';
+                                return (
+                                    <span
+                                        key={it.key}
+                                        style={{
+                                            display: 'inline-block',
+                                            maxWidth: '100%',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            whiteSpace: 'nowrap'
+                                        }}
+                                        title={value}
+                                    >
+                                        {value}
+                                    </span>
+                                );
+                            })}
+                        </div>
+                    );
+                }
+            },
+            {
+                field: 'countries',
+                headerName: t('Country', { ns: 'common' }),
+                width: 90,
+                sortable: false,
+                renderCell: (params) => {
+                    const items = params.row?.finalEnrolments || [];
+                    if (!items.length) return '-';
+                    return (
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 4
+                            }}
+                        >
+                            {items.map((it) => {
+                                const value =
+                                    (it.country || '')
                                         .toString()
-                                        .toUpperCase() || '-'}
-                                </span>
-                            ))}
+                                        .toUpperCase() || '-';
+                                return (
+                                    <span
+                                        key={it.key}
+                                        style={{
+                                            display: 'inline-block',
+                                            maxWidth: '100%',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            whiteSpace: 'nowrap'
+                                        }}
+                                        title={value}
+                                    >
+                                        {value}
+                                    </span>
+                                );
+                            })}
                         </div>
                     );
                 }
