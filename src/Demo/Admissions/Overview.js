@@ -1,5 +1,13 @@
-import React, { useMemo } from 'react';
-import { Box, Card, CardHeader, Divider, Typography } from '@mui/material';
+import React, { useMemo, useState } from 'react';
+import {
+    Box,
+    Card,
+    CardHeader,
+    Divider,
+    Tab,
+    Tabs,
+    Typography
+} from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { BarChart, PieChart } from '@mui/x-charts';
 import { Chart } from 'react-google-charts';
@@ -140,6 +148,11 @@ const ResultsBreakdown = ({ offer, rejection, unknown, acceptance, t }) => {
 const Overview = () => {
     const { t } = useTranslation('common');
     const theme = useTheme();
+    const [geoView, setGeoView] = useState('map');
+
+    const handleGeoViewChange = (event, newValue) => {
+        setGeoView(newValue);
+    };
 
     // Fetch all applications directly
     const { data, isLoading } = useQuery(
@@ -398,6 +411,14 @@ const Overview = () => {
         [t]
     );
 
+    const countryCols = useMemo(
+        () => [
+            { field: 'country', headerName: t('Country'), width: 200 },
+            { field: 'count', headerName: t('Final Decisions'), width: 150 }
+        ],
+        [t]
+    );
+
     if (isLoading || isFinalLoading) return <Loading />;
 
     return (
@@ -424,7 +445,7 @@ const Overview = () => {
                     subheader={t(
                         'Track total applications and results by year'
                     )}
-                    title={t('Applications per Year (Offer / Rejection)')}
+                    title={t('Applications per Year')}
                 />
                 <Divider sx={{ mb: 2 }} />
                 <Box sx={{ width: '100%', mb: 2 }}>
@@ -443,12 +464,26 @@ const Overview = () => {
                     subheader={t('Country distribution and city heatmap')}
                     title={t('Final Decisions by Geography')}
                 />
-                <Divider sx={{ mb: 2 }} />
                 <Box
-                    sx={{ display: 'grid', gap: 2, gridTemplateColumns: '1fr' }}
+                    sx={{
+                        width: '100%',
+                        borderBottom: 1,
+                        borderColor: 'divider'
+                    }}
                 >
-                    {/* Map on top */}
-                    <Box sx={{ width: '100%' }}>
+                    <Tabs
+                        aria-label="geography views"
+                        onChange={handleGeoViewChange}
+                        value={geoView}
+                    >
+                        <Tab label={t('Map View')} value="map" />
+                        <Tab label={t('Country Breakdown')} value="country" />
+                    </Tabs>
+                </Box>
+
+                {/* Map View */}
+                {geoView === 'map' && (
+                    <Box sx={{ pt: 2 }}>
                         {hasCityMarkers ? (
                             <Chart
                                 chartType="GeoChart"
@@ -470,8 +505,11 @@ const Overview = () => {
                             )}
                         </Typography>
                     </Box>
-                    {/* Pie chart below the map */}
-                    <Box sx={{ width: '100%' }}>
+                )}
+
+                {/* Country Breakdown View */}
+                {geoView === 'country' && (
+                    <Box sx={{ pt: 2 }}>
                         <PieChart
                             height={260}
                             series={[
@@ -492,11 +530,14 @@ const Overview = () => {
                                 }
                             }}
                         />
-                        <Typography color="text.secondary" variant="caption">
-                            {t('By country')}
-                        </Typography>
+                        <Divider sx={{ my: 2 }} />
+                        <MuiDataGrid
+                            columns={countryCols}
+                            rows={finalByCountryRows}
+                            simple
+                        />
                     </Box>
-                </Box>
+                )}
             </Card>
         </Box>
     );
