@@ -1,8 +1,9 @@
 /* eslint-disable react/prop-types */
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Tabs, Tab, Box } from '@mui/material';
 import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { CustomTabPanel, a11yProps } from '../../components/Tabs';
 import { useTranslation } from 'react-i18next';
@@ -17,9 +18,31 @@ CustomTabPanel.propTypes = {
 
 const AdmissionsTables = () => {
     const [value, setValue] = useState(0);
+    const location = useLocation();
+    const navigate = useNavigate();
+    const SUBTAB_KEYS = ['admission', 'rejection', 'pending', 'not-closed'];
+
+    const searchParams = useMemo(
+        () => new URLSearchParams(location.search),
+        [location.search]
+    );
+    const currentSubTab = (searchParams.get('subtab') || '').toLowerCase();
+    const initialIdx = useMemo(() => {
+        const idx = SUBTAB_KEYS.indexOf(currentSubTab);
+        return idx >= 0 ? idx : 0;
+    }, [currentSubTab]);
+
+    useEffect(() => {
+        setValue(initialIdx);
+    }, [initialIdx]);
     const { t } = useTranslation();
     const handleChange = (event, newValue) => {
         setValue(newValue);
+        const params = new URLSearchParams(location.search);
+        params.set('subtab', SUBTAB_KEYS[newValue]);
+        // Ensure top-level tab reflects Application for clarity
+        params.set('tab', 'application');
+        navigate(`${location.pathname}?${params.toString()}`);
     };
     const { data } = useQuery(getAdmissionsOverviewQuery());
     const result = data?.data || [];

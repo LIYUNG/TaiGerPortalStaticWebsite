@@ -8,7 +8,7 @@ import { Navigate } from 'react-router-dom';
 import DEMO from '../../store/constant';
 import StudentOverviewTable from '../../components/StudentOverviewTable';
 import { useAuth } from '../../components/AuthProvider';
-import { Box, Breadcrumbs, Link, Typography, Tabs, Tab } from '@mui/material';
+import { Box, Breadcrumbs, Link, Typography } from '@mui/material';
 import { appConfig } from '../../config';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -24,8 +24,6 @@ const MyStudentsOverview = () => {
             queryString.stringify({ [role]: user?._id, archiv: false })
         )
     );
-    const [tab, setTab] = React.useState(0);
-    const handleTabChange = (_e, newValue) => setTab(newValue);
     const students = data?.data;
     const userId = user?._id?.toString();
     const myStudents = useMemo(
@@ -64,22 +62,12 @@ const MyStudentsOverview = () => {
                 </Typography>
             </Breadcrumbs>
             <Box sx={{ mt: 2 }}>
-                <Tabs
-                    aria-label="my student overview tabs"
-                    onChange={handleTabChange}
-                    value={tab}
-                >
-                    <Tab label={t('All Active', { ns: 'common' })} />
-                    <Tab label={t('Risk', { ns: 'common' })} />
-                </Tabs>
-                <Box sx={{ mt: 2 }}>
-                    <StudentOverviewTable
-                        riskOnly={tab === 1}
-                        students={myStudents}
-                        title={tab === 1 ? 'Risk' : 'All'}
-                        user={user}
-                    />
-                </Box>
+                <StudentOverviewTable
+                    riskOnly={false}
+                    students={myStudents}
+                    title="All"
+                    user={user}
+                />
             </Box>
         </Box>
     );
