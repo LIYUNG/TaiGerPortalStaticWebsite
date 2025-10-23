@@ -7,8 +7,11 @@ import {
     Grid,
     Box,
     Card,
-    CardContent
+    CardContent,
+    Tooltip,
+    IconButton
 } from '@mui/material';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { useTranslation } from 'react-i18next';
 
@@ -108,6 +111,20 @@ const CRMDashboard = () => {
         if (rate === 0) return null;
         return Math.ceil(rate);
     });
+
+    const formatDays = (value) =>
+        value === null || isNaN(value) ? '-' : `${Number(value).toFixed(2)}d`;
+    const percentileLine = (p50, p95) => {
+        if (p50 === null && p95 === null) return null;
+        const parts = [];
+        if (p50 !== null) parts.push(`p50 ${Number(p50).toFixed(2)}d`);
+        if (p95 !== null) parts.push(`p95 ${Number(p95).toFixed(2)}d`);
+        return (
+            <Typography color="textSecondary" variant="caption">
+                {parts.join(' \u2022 ')}
+            </Typography>
+        );
+    };
 
     return (
         <>
@@ -243,24 +260,42 @@ const CRMDashboard = () => {
                             boxShadow: 1
                         }}
                     >
-                        <Typography color="textSecondary" variant="body2">
-                            {t('dashboard.avgResponseTime', {
-                                ns: 'crm',
-                                defaultValue: 'Avg Response Time'
-                            })}
-                        </Typography>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 0.5
+                            }}
+                        >
+                            <Typography color="textSecondary" variant="body2">
+                                {t('dashboard.avgResponseTime', {
+                                    ns: 'crm',
+                                    defaultValue: 'Avg Response Time'
+                                })}
+                            </Typography>
+                            <Tooltip
+                                arrow
+                                title={t('dashboard.avgResponseTimeDesc', {
+                                    ns: 'crm',
+                                    defaultValue:
+                                        'Average days between first contact and first meeting'
+                                })}
+                            >
+                                <IconButton
+                                    size="small"
+                                    sx={{ p: 0, color: 'text.secondary' }}
+                                >
+                                    <InfoOutlinedIcon fontSize="inherit" />
+                                </IconButton>
+                            </Tooltip>
+                        </Box>
                         <Typography component="div" variant="h5">
-                            {stats.avgResponseTimeDays != null
-                                ? `${Number(stats.avgResponseTimeDays).toFixed(2)} days`
-                                : '-'}
+                            {formatDays(stats.avgResponseTimeDays)}
                         </Typography>
-                        <Typography color="textSecondary" variant="caption">
-                            {t('dashboard.avgResponseTimeDesc', {
-                                ns: 'crm',
-                                defaultValue:
-                                    'Average days between first contact and first meeting'
-                            })}
-                        </Typography>
+                        {percentileLine(
+                            stats.p50ResponseTimeDays,
+                            stats.p95ResponseTimeDays
+                        )}
                     </Box>
                 </Grid>
                 {/* Follow-Up Rate Box */}
@@ -310,24 +345,42 @@ const CRMDashboard = () => {
                             boxShadow: 1
                         }}
                     >
-                        <Typography color="textSecondary" variant="body2">
-                            {t('dashboard.avgSalesCycle', {
-                                ns: 'crm',
-                                defaultValue: 'Avg Sales Cycle'
-                            })}
-                        </Typography>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 0.5
+                            }}
+                        >
+                            <Typography color="textSecondary" variant="body2">
+                                {t('dashboard.avgSalesCycle', {
+                                    ns: 'crm',
+                                    defaultValue: 'Avg Sales Cycle'
+                                })}
+                            </Typography>
+                            <Tooltip
+                                arrow
+                                title={t('dashboard.avgSalesCycleDesc', {
+                                    ns: 'crm',
+                                    defaultValue:
+                                        'Average days between first contact and conversion'
+                                })}
+                            >
+                                <IconButton
+                                    size="small"
+                                    sx={{ p: 0, color: 'text.secondary' }}
+                                >
+                                    <InfoOutlinedIcon fontSize="inherit" />
+                                </IconButton>
+                            </Tooltip>
+                        </Box>
                         <Typography component="div" variant="h5">
-                            {stats.avgSalesCycleDays != null
-                                ? `${Number(stats.avgSalesCycleDays).toFixed(2)} days`
-                                : '-'}
+                            {formatDays(stats.avgSalesCycleDays)}
                         </Typography>
-                        <Typography color="textSecondary" variant="caption">
-                            {t('dashboard.avgSalesCycleDesc', {
-                                ns: 'crm',
-                                defaultValue:
-                                    'Average days between first contact and conversion'
-                            })}
-                        </Typography>
+                        {percentileLine(
+                            stats.p50SalesCycleDays,
+                            stats.p95SalesCycleDays
+                        )}
                     </Box>
                 </Grid>
             </Grid>
