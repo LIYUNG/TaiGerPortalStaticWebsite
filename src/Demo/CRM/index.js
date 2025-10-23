@@ -113,12 +113,12 @@ const CRMDashboard = () => {
     });
 
     const formatDays = (value) =>
-        value == null || isNaN(value) ? '-' : `${Number(value).toFixed(2)}d`;
+        value === null || isNaN(value) ? '-' : `${Number(value).toFixed(2)}d`;
     const percentileLine = (p50, p95) => {
-        if (p50 == null && p95 == null) return null;
+        if (p50 === null && p95 === null) return null;
         const parts = [];
-        if (p50 != null) parts.push(`p50 ${Number(p50).toFixed(2)}d`);
-        if (p95 != null) parts.push(`p95 ${Number(p95).toFixed(2)}d`);
+        if (p50 !== null) parts.push(`p50 ${Number(p50).toFixed(2)}d`);
+        if (p95 !== null) parts.push(`p95 ${Number(p95).toFixed(2)}d`);
         return (
             <Typography color="textSecondary" variant="caption">
                 {parts.join(' \u2022 ')}
