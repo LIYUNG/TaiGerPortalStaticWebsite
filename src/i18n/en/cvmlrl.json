@@ -1,10 +1,10 @@
 {
-    "Note: if the documents are not closed but locate here, it is because the applications are already submitted. The documents can safely closed eventually.": "Note: if the documents are not closed but locate here, it is because the applications are already submitted. The documents can safely closed eventually.",
-    "cv-instructions": "Please fill out our template and upload it here in order to facilitate us obtaining complete information for CV editing.",
-    "cv-reminder-1": "Please note that if you decide not to fill out our template and upload your own original English CV, please ensure the 1. 2. points above.",
-    "cv-reminder-2": "If you use Canva to edit and generate your resume, please share editing permissions with us to facilitate modifications. Based on experience, CVs provided by oneself tend to lack information. Please cross-reference our template with your existing CV to avoid Editors being unable to proceed due to missing information.",
-    "cv-requirements-1": "1. Do not omit any important information; the CV should cover all periods since high school, including any job searches, preparation for study abroad exams, retakes, etc., and provide explanations where necessary.",
-    "cv-requirements-1.1": "In a CV, it is advisable to avoid any gaps exceeding three months.",
-    "cv-requirements-2": "2. Please do not upload only a PDF file; we need a Word file to assist you with editing.",
-    "rl-requirements-1": "1. The Email of the referee should be their institute. Gmail, Hotmail etc. are not acceptable."
+    "Note: if the documents are not closed but locate here, it is because the applications are already submitted. The documents can safely closed eventually.": "Note: If documents aren’t closed but appear here, it’s because the applications have already been submitted. These documents can be safely closed later.",
+    "cv-instructions": "Please complete our template and upload it here so we can collect all information needed for CV editing.",
+    "cv-reminder-1": "If you prefer to upload your own English CV instead of our template, please ensure the points above are fully covered.",
+    "cv-reminder-2": "If you use Canva to create your CV, please share editing access so we can make changes. Based on experience, self-provided CVs often miss information. Cross-check our template with your CV to avoid delays.",
+    "cv-requirements-1": "1. Don’t omit important information. Your CV should cover every period since high school, including job searches, exam preparation, retakes, etc., with explanations where needed.",
+    "cv-requirements-1.1": "Avoid gaps longer than three months in your CV.",
+    "cv-requirements-2": "2. Don’t upload only a PDF; please also provide a Word file so we can edit it.",
+    "rl-requirements-1": "1. The referee’s email should be their institutional address. Gmail, Hotmail, etc., are not acceptable."
 }
