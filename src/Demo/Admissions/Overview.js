@@ -1,13 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import {
-    Box,
-    Card,
-    CardHeader,
-    Divider,
-    Tab,
-    Tabs,
-    Typography
-} from '@mui/material';
+import { Box, Card, Divider, Tab, Tabs, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { BarChart, PieChart } from '@mui/x-charts';
 import { Chart } from 'react-google-charts';
@@ -453,13 +445,6 @@ const Overview = () => {
             </Box>
 
             <Card sx={{ p: 2, gridColumn: { xs: '1 / -1', lg: '1 / 2' } }}>
-                <CardHeader
-                    subheader={t(
-                        'Track total applications and results by year'
-                    )}
-                    title={t('Applications per Year')}
-                />
-                <Divider sx={{ mb: 2 }} />
                 <Box sx={{ width: '100%', mb: 2 }}>
                     <BarChart
                         dataset={byYearChartDataset}
@@ -472,10 +457,6 @@ const Overview = () => {
             </Card>
 
             <Card sx={{ p: 2, gridColumn: { xs: '1 / -1', lg: '2 / 3' } }}>
-                <CardHeader
-                    subheader={t('Country distribution and city heatmap')}
-                    title={t('Final Decisions by Geography')}
-                />
                 <Box
                     sx={{
                         width: '100%',
