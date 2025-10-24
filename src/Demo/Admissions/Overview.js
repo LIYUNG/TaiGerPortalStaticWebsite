@@ -500,7 +500,7 @@ const Overview = () => {
                             <Chart
                                 chartType="GeoChart"
                                 data={cityMarkersData}
-                                height="360px"
+                                height="420px"
                                 options={cityGeoOptions}
                                 width="100%"
                             />
