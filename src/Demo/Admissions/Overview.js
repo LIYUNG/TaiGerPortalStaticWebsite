@@ -327,15 +327,13 @@ const Overview = () => {
                 loc.city || loc.zip || loc.country
             }</strong></div>\n  <div>${loc.country}${
                 loc.zip ? ` • ${loc.zip}` : ''
-            }</div>\n  <div>${loc.count} final decision${
-                loc.count > 1 ? 's' : ''
-            }</div>\n</div>`;
+            }</div>\n  <div>${t('finalDecisionsWithCount', { count: loc.count })}</div>\n</div>`;
             rows.push([lat, lng, loc.count, tooltip]);
         }
 
         rows.sort((a, b) => b[2] - a[2]);
         return [header, ...rows];
-    }, [finalApplications]);
+    }, [finalApplications, t]);
 
     const applicationsPerYearSeries = useMemo(
         () => [
@@ -472,7 +470,7 @@ const Overview = () => {
                     }}
                 >
                     <Tabs
-                        aria-label="geography views"
+                        aria-label={t('Geography Views')}
                         onChange={handleGeoViewChange}
                         value={geoView}
                     >
@@ -495,13 +493,13 @@ const Overview = () => {
                         ) : (
                             <Typography color="text.secondary" variant="body2">
                                 {t(
-                                    'No final decision locations to display yet.'
+                                    'No final decision locations to display yet'
                                 )}
                             </Typography>
                         )}
                         <Typography color="text.secondary" variant="caption">
                             {t(
-                                'Bubble size and color indicate final decision counts per city/zip.'
+                                'Bubble size and color indicate final decision counts per city/zip'
                             )}
                         </Typography>
                     </Box>
