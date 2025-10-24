@@ -327,7 +327,7 @@ const Overview = () => {
                 loc.city || loc.zip || loc.country
             }</strong></div>\n  <div>${loc.country}${
                 loc.zip ? ` • ${loc.zip}` : ''
-            }</div>\n  <div>${t('finalDecisionsWithCount', { count: loc.count })}</div>\n</div>`;
+            }</div>\n  <div>${loc.count} ${t('Students')}</div>\n</div>`;
             rows.push([lat, lng, loc.count, tooltip]);
         }
 
@@ -367,7 +367,7 @@ const Overview = () => {
             backgroundColor: 'transparent',
             datalessRegionColor: '#E0E0E0',
             defaultColor: '#F5F5F5',
-            region: '150' // Europe viewport
+            region: 'DE' // Focus on Germany
         }),
         []
     );
