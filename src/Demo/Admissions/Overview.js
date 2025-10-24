@@ -358,18 +358,32 @@ const Overview = () => {
         [cityMarkersData]
     );
 
+    // Improve color scaling by deriving the maximum count for dynamic color axis
+    const maxCityCount = useMemo(() => {
+        const rows = Array.isArray(cityMarkersData)
+            ? cityMarkersData.slice(1)
+            : [];
+        if (rows.length === 0) return 0;
+        return rows.reduce((m, r) => Math.max(m, r?.[2] ?? 0), 0);
+    }, [cityMarkersData]);
+
     const cityGeoOptions = useMemo(
         () => ({
             displayMode: 'markers',
-            colorAxis: { colors: ['#BBDEFB', '#0D47A1'] },
-            legend: 'none',
+            // Use a high-contrast warm palette and scale to observed counts
+            colorAxis: {
+                colors: ['#FFF3E0', '#FFB74D', '#FB8C00', '#F4511E', '#B71C1C'],
+                minValue: hasCityMarkers ? 1 : 0,
+                maxValue: maxCityCount || undefined
+            },
+            legend: 'right',
             tooltip: { isHtml: true },
             backgroundColor: 'transparent',
             datalessRegionColor: '#E0E0E0',
             defaultColor: '#F5F5F5',
             region: 'DE' // Focus on Germany
         }),
-        []
+        [hasCityMarkers, maxCityCount]
     );
 
     // Column definitions
