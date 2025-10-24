@@ -156,7 +156,7 @@ const Overview = () => {
 
     // Fetch all applications directly
     const { data, isLoading } = useQuery(
-        getApplicationsQuery(queryString.stringify({}))
+        getApplicationsQuery(queryString.stringify({ decided: 'O' }))
     );
 
     // get final decision applications and poplate program details
