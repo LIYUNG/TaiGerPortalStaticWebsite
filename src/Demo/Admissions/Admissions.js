@@ -102,7 +102,7 @@ const Admissions = () => {
                         >
                             <Tab
                                 label={`${t('Overview', {
-                                    ns: 'common'
+                                    ns: 'translation'
                                 })}`}
                                 {...a11yProps(value, 0)}
                             />

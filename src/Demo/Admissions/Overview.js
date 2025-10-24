@@ -1,13 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import {
-    Box,
-    Card,
-    CardHeader,
-    Divider,
-    Tab,
-    Tabs,
-    Typography
-} from '@mui/material';
+import { Box, Card, Divider, Tab, Tabs, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { BarChart, PieChart } from '@mui/x-charts';
 import { Chart } from 'react-google-charts';
@@ -156,7 +148,7 @@ const Overview = () => {
 
     // Fetch all applications directly
     const { data, isLoading } = useQuery(
-        getApplicationsQuery(queryString.stringify({}))
+        getApplicationsQuery(queryString.stringify({ decided: 'O' }))
     );
 
     // get final decision applications and poplate program details
@@ -327,15 +319,13 @@ const Overview = () => {
                 loc.city || loc.zip || loc.country
             }</strong></div>\n  <div>${loc.country}${
                 loc.zip ? ` • ${loc.zip}` : ''
-            }</div>\n  <div>${loc.count} final decision${
-                loc.count > 1 ? 's' : ''
-            }</div>\n</div>`;
+            }</div>\n  <div>${loc.count} ${t('Students')}</div>\n</div>`;
             rows.push([lat, lng, loc.count, tooltip]);
         }
 
         rows.sort((a, b) => b[2] - a[2]);
         return [header, ...rows];
-    }, [finalApplications]);
+    }, [finalApplications, t]);
 
     const applicationsPerYearSeries = useMemo(
         () => [
@@ -360,18 +350,32 @@ const Overview = () => {
         [cityMarkersData]
     );
 
+    // Improve color scaling by deriving the maximum count for dynamic color axis
+    const maxCityCount = useMemo(() => {
+        const rows = Array.isArray(cityMarkersData)
+            ? cityMarkersData.slice(1)
+            : [];
+        if (rows.length === 0) return 0;
+        return rows.reduce((m, r) => Math.max(m, r?.[2] ?? 0), 0);
+    }, [cityMarkersData]);
+
     const cityGeoOptions = useMemo(
         () => ({
             displayMode: 'markers',
-            colorAxis: { colors: ['#BBDEFB', '#0D47A1'] },
-            legend: 'none',
+            // Use a high-contrast warm palette and scale to observed counts
+            colorAxis: {
+                colors: ['#FFF3E0', '#FFB74D', '#FB8C00', '#F4511E', '#B71C1C'],
+                minValue: hasCityMarkers ? 1 : 0,
+                maxValue: maxCityCount || undefined
+            },
+            legend: 'right',
             tooltip: { isHtml: true },
             backgroundColor: 'transparent',
             datalessRegionColor: '#E0E0E0',
             defaultColor: '#F5F5F5',
-            region: '150' // Europe viewport
+            region: 'DE' // Focus on Germany
         }),
-        []
+        [hasCityMarkers, maxCityCount]
     );
 
     // Column definitions
@@ -441,13 +445,6 @@ const Overview = () => {
             </Box>
 
             <Card sx={{ p: 2, gridColumn: { xs: '1 / -1', lg: '1 / 2' } }}>
-                <CardHeader
-                    subheader={t(
-                        'Track total applications and results by year'
-                    )}
-                    title={t('Applications per Year')}
-                />
-                <Divider sx={{ mb: 2 }} />
                 <Box sx={{ width: '100%', mb: 2 }}>
                     <BarChart
                         dataset={byYearChartDataset}
@@ -460,10 +457,6 @@ const Overview = () => {
             </Card>
 
             <Card sx={{ p: 2, gridColumn: { xs: '1 / -1', lg: '2 / 3' } }}>
-                <CardHeader
-                    subheader={t('Country distribution and city heatmap')}
-                    title={t('Final Decisions by Geography')}
-                />
                 <Box
                     sx={{
                         width: '100%',
@@ -472,7 +465,7 @@ const Overview = () => {
                     }}
                 >
                     <Tabs
-                        aria-label="geography views"
+                        aria-label={t('Geography Views')}
                         onChange={handleGeoViewChange}
                         value={geoView}
                     >
@@ -488,20 +481,20 @@ const Overview = () => {
                             <Chart
                                 chartType="GeoChart"
                                 data={cityMarkersData}
-                                height="360px"
+                                height="420px"
                                 options={cityGeoOptions}
                                 width="100%"
                             />
                         ) : (
                             <Typography color="text.secondary" variant="body2">
                                 {t(
-                                    'No final decision locations to display yet.'
+                                    'No final decision locations to display yet'
                                 )}
                             </Typography>
                         )}
                         <Typography color="text.secondary" variant="caption">
                             {t(
-                                'Bubble size and color indicate final decision counts per city/zip.'
+                                'Bubble size and color indicate final decision counts per city/zip'
                             )}
                         </Typography>
                     </Box>
