@@ -6,6 +6,7 @@ import {
     useLocation
 } from 'react-router-dom';
 import EditIcon from '@mui/icons-material/Edit';
+import LaunchIcon from '@mui/icons-material/Launch';
 import {
     Tabs,
     Tab,
@@ -396,6 +397,26 @@ export const SingleStudentPageMainContent = ({
                                     <b>{t('Message', { ns: 'common' })}</b>
                                 </Button>
                             </Link>
+                            {leadId ? (
+                                <Link
+                                    color="inherit"
+                                    component={LinkDom}
+                                    rel="noopener noreferrer"
+                                    sx={{ mr: 1 }}
+                                    target="_blank"
+                                    to={DEMO.CRM_LEAD_LINK(leadId)}
+                                    underline="hover"
+                                >
+                                    <Button
+                                        color="inherit"
+                                        size="small"
+                                        startIcon={<LaunchIcon />}
+                                        variant="outlined"
+                                    >
+                                        {t('CRM Lead', { ns: 'common' })}
+                                    </Button>
+                                </Link>
+                            ) : null}
                             {t('Last Login', { ns: 'auth' })}:&nbsp;
                             {convertDate(
                                 singleStudentPage.student.lastLoginAt
@@ -413,18 +434,6 @@ export const SingleStudentPageMainContent = ({
                 </Box>
             </Box>
             {singleStudentPage.student.archiv ? <TopBar /> : null}
-            {leadId && (
-                <Link
-                        color="inherit"
-                        component={LinkDom}
-                        to={DEMO.CRM_LEAD_LINK(leadId)}
-                        underline="hover"
-                    >
-                        <IconButton>
-                            <EditIcon fontSize="small" />
-                        </IconButton>
-                    </Link>
-            )}
             {singleStudentPage.taiger_view ? (
                 <>
                     {needGraduatedApplicantsButStudentNotGraduated(
