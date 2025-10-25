@@ -29,6 +29,8 @@ import {
 } from '@mui/material';
 import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
+import { getLeadIdByUserId } from '../../api';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import {
     is_TaiGer_Editor,
@@ -103,6 +105,13 @@ export const SingleStudentPageMainContent = ({
         res_status: 0,
         res_modal_message: '',
         res_modal_status: 0
+    });
+
+    const { data: leadId } = useQuery({
+        queryKey: ['studentId', singleStudentPage.student._id],
+        queryFn: () => getLeadIdByUserId(singleStudentPage.student._id),
+        select: (res) => res?.data?.data?.id ?? null,
+        enabled: !!singleStudentPage.student._id
     });
 
     const { hash } = useLocation();
@@ -404,6 +413,18 @@ export const SingleStudentPageMainContent = ({
                 </Box>
             </Box>
             {singleStudentPage.student.archiv ? <TopBar /> : null}
+            {leadId && (
+                <Link
+                        color="inherit"
+                        component={LinkDom}
+                        to={DEMO.CRM_LEAD_LINK(leadId)}
+                        underline="hover"
+                    >
+                        <IconButton>
+                            <EditIcon fontSize="small" />
+                        </IconButton>
+                    </Link>
+            )}
             {singleStudentPage.taiger_view ? (
                 <>
                     {needGraduatedApplicantsButStudentNotGraduated(

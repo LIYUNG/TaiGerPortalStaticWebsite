@@ -827,6 +827,8 @@ export const deleteAMessageinTicket = (ticketId, message_id) =>
 export const getCRMStats = () => request.get(`/api/crm/stats`);
 export const getCRMLeads = () => request.get(`/api/crm/leads`);
 export const getCRMLead = (leadId) => request.get(`/api/crm/leads/${leadId}`);
+export const getLeadIdByUserId = (userId) =>
+    request.get(`/api/crm/students/${userId}/lead`);
 export const getCRMMeetings = () => request.get(`/api/crm/meetings`);
 export const getCRMMeeting = (meetingId) =>
     request.get(`/api/crm/meetings/${meetingId}`);

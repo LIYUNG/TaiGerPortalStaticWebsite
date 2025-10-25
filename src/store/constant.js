@@ -149,6 +149,9 @@ const DEMO = {
     TEAM_MANAGER_LINK: (manager_id) => {
         return `/teams/managers/${manager_id}`;
     },
+    CRM_LEAD_LINK: (leadId) => {
+        return `/crm/leads/${leadId}`;
+    },
     TEAM_MEMBERS_LINK: '/teams/members',
     HOWTOSTART_DOCS_LINK: '/docs/howtostart',
     UNI_ASSIST_DOCS_LINK: '/docs/uniassist',
