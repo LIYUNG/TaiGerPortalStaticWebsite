@@ -251,7 +251,9 @@ const InternalDashboard = () => {
                         agentData={overviewData.agents_data}
                         documents={overviewData.documents}
                         editorData={overviewData.editors_data}
-                        studentDetails={overviewData.students_details}
+                        studentsCreationDates={
+                            overviewData.students_creation_dates
+                        }
                         studentsYearsPair={overviewData.students_years_pair}
                     />
                 )}

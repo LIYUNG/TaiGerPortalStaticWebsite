@@ -5,28 +5,10 @@ import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
 dayjs.extend(isoWeek);
 import { LineChart } from '@mui/x-charts/LineChart';
-import {
-    isProgramAdmitted,
-    isProgramDecided,
-    isProgramRejected,
-    isProgramSubmitted
-} from '@taiger-common/core';
 
 import SingleBarChart from '../../../components/Charts/SingleBarChart';
 import VerticalDistributionBarCharts from '../../../components/Charts/VerticalDistributionBarChart';
 import VerticalSingleBarChart from '../../../components/Charts/VerticalSingleChart';
-import { open_tasks_with_editors } from '../../Utils/checking-functions';
-
-const application_status = ['Open', 'Close'];
-const admission_status = ['Admission', 'Rejection', 'Pending'];
-
-const initialData = {
-    Open: 0,
-    Close: 0,
-    Admission: 0,
-    Rejection: 0,
-    Pending: 0
-};
 
 const cat = [
     'CURRICULUM_ANALYSIS',
@@ -44,7 +26,7 @@ const cat = [
 ];
 
 const OverviewDashboardTab = ({
-    studentDetails,
+    studentsCreationDates,
     agentData,
     editorData,
     studentsYearsPair,
@@ -53,75 +35,26 @@ const OverviewDashboardTab = ({
     const [viewMode, setViewMode] = useState('month');
     const { t } = useTranslation();
 
-    const data = studentDetails.reduce((acc, student) => {
-        student.applications.forEach((application) => {
-            if (
-                application.program_id !== '-' &&
-                isProgramDecided(application)
-            ) {
-                if (isProgramSubmitted(application)) {
-                    acc.Close += 1;
-                    if (isProgramAdmitted(application)) {
-                        acc.Admission += 1;
-                    } else if (isProgramRejected(application)) {
-                        acc.Rejection += 1;
-                    } else if (application.admission === '-') {
-                        acc.Pending += 1;
-                    }
-                } else {
-                    acc.Open += 1;
-                }
-            }
-        });
-        return acc;
-    }, initialData);
-
-    // Only open tasks. Closed tasks are excluded
-    const open_tasks_arr = open_tasks_with_editors(studentDetails);
+    // Process documents data
     const documents_data = [];
-    const editor_tasks_distribution_data = [];
-
     cat.forEach((ca) => {
         documents_data.push({
             name: `${ca}`,
             uv: documents[ca]?.count || 0
-            // color: colors[i]
-        });
-    });
-    editorData.forEach((editor) => {
-        editor_tasks_distribution_data.push({
-            name: `${editor.firstname}`,
-            active: open_tasks_arr.filter(
-                ({ editors, isFinalVersion, show }) =>
-                    editors.findIndex((ed) => ed._id === editor._id) !== -1 &&
-                    isFinalVersion !== true &&
-                    show
-            ).length,
-            potentials: open_tasks_arr.filter(
-                ({ editors, isFinalVersion, show, isPotentials }) =>
-                    editors.findIndex((ed) => ed._id == editor._id) !== -1 &&
-                    isFinalVersion !== true &&
-                    !show &&
-                    isPotentials
-            ).length
-            // color: colors[i]
         });
     });
 
-    const applications_data = application_status.map((status) => ({
-        name: status,
-        uv: data[status]
-    }));
-
-    const admissions_data = admission_status.map((status) => ({
-        name: status,
-        uv: data[status]
+    // Process editor tasks distribution data (now using pre-aggregated counts from backend)
+    const editor_tasks_distribution_data = editorData.map((editor) => ({
+        name: `${editor.firstname}`,
+        active: editor.task_counts?.active || 0,
+        potentials: editor.task_counts?.potentials || 0
     }));
 
     const groupedData =
         viewMode === 'month'
-            ? groupByMonth(studentDetails)
-            : groupByWeek(studentDetails);
+            ? groupByMonth(studentsCreationDates)
+            : groupByWeek(studentsCreationDates);
 
     function groupByMonth(data) {
         return data.reduce((acc, { createdAt }) => {
@@ -285,30 +218,6 @@ const OverviewDashboardTab = ({
                             value1="active"
                             value2="potentials"
                             xLabel="Tasks"
-                        />
-                    </Card>
-                </Grid>
-                <Grid item md={4} xs={12}>
-                    <Card sx={{ p: 2 }}>
-                        <Typography>
-                            {t('Applications')}: Number of Applications:
-                        </Typography>
-                        <SingleBarChart
-                            data={applications_data}
-                            label="Applications"
-                            yLabel="Applications"
-                        />
-                    </Card>
-                </Grid>
-                <Grid item md={4} xs={12}>
-                    <Card sx={{ p: 2 }}>
-                        <Typography>
-                            {t('Admissions')}: Number of Admissions
-                        </Typography>
-                        <SingleBarChart
-                            data={admissions_data}
-                            label="Applications"
-                            yLabel="Applications"
                         />
                     </Card>
                 </Grid>
