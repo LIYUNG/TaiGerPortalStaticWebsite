@@ -141,9 +141,14 @@ const Overview = () => {
     const { t } = useTranslation('common');
     const theme = useTheme();
     const [geoView, setGeoView] = useState('map');
+    const [mainView, setMainView] = useState('student');
 
     const handleGeoViewChange = (event, newValue) => {
         setGeoView(newValue);
+    };
+
+    const handleMainViewChange = (event, newValue) => {
+        setMainView(newValue);
     };
 
     // Fetch all applications directly
@@ -250,6 +255,89 @@ const Overview = () => {
     // Chart dataset for applications per year (stacked)
     const byYearChartDataset = useMemo(() => byYearRows, [byYearRows]);
 
+    // Student-level analysis: group by studentId and year
+    const byStudentRows = useMemo(() => {
+        const items = data?.data || data?.result || [];
+        const studentMap = new Map();
+
+        for (const app of Array.isArray(items) ? items : []) {
+            const studentId = app?.studentId?._id || app?.studentId;
+            if (!studentId) continue;
+
+            const year = app?.application_year || 'Unknown';
+
+            // Create a unique key for student + year
+            const key = `${studentId}_${year}`;
+
+            if (!studentMap.has(key)) {
+                studentMap.set(key, {
+                    studentId,
+                    year,
+                    hasOffer: false,
+                    hasRejection: false,
+                    hasPending: false,
+                    offers: 0,
+                    rejections: 0,
+                    pending: 0,
+                    total: 0
+                });
+            }
+
+            const studentRecord = studentMap.get(key);
+            studentRecord.total += 1;
+
+            if (app.admission === 'O') {
+                studentRecord.hasOffer = true;
+                studentRecord.offers += 1;
+            } else if (app.admission === 'X') {
+                studentRecord.hasRejection = true;
+                studentRecord.rejections += 1;
+            } else {
+                studentRecord.hasPending = true;
+                studentRecord.pending += 1;
+            }
+        }
+
+        // Categorize students by year: if at least one offer -> accepted, all rejected -> rejected, otherwise pending
+        const yearMap = new Map();
+        for (const record of studentMap.values()) {
+            const yearKey = record.year;
+            if (!yearMap.has(yearKey)) {
+                yearMap.set(yearKey, {
+                    year: yearKey,
+                    accepted: 0,
+                    rejected: 0,
+                    pending: 0,
+                    total: 0
+                });
+            }
+
+            const yearRow = yearMap.get(yearKey);
+            yearRow.total += 1;
+
+            if (record.hasOffer) {
+                yearRow.accepted += 1;
+            } else if (record.hasRejection && !record.hasPending) {
+                // All applications rejected
+                yearRow.rejected += 1;
+            } else {
+                // Has pending applications or no clear outcome
+                yearRow.pending += 1;
+            }
+        }
+
+        return Array.from(yearMap.values())
+            .sort((a, b) => String(a.year).localeCompare(String(b.year)))
+            .map((r) => ({
+                id: r.year,
+                ...r,
+                acceptanceRate: formatAcceptanceRate(r.accepted, r.rejected)
+            }));
+    }, [data]);
+
+    // Chart dataset for students by degree (stacked)
+    const byStudentChartDataset = useMemo(() => byStudentRows, [byStudentRows]);
+
     // 3) Final decision count by country
     const finalByCountryRows = useMemo(() => {
         const map = new Map();
@@ -345,6 +433,30 @@ const Overview = () => {
         [t, theme]
     );
 
+    const studentsByDegreeSeries = useMemo(
+        () => [
+            {
+                dataKey: 'accepted',
+                label: t('Accepted'),
+                stack: 'result',
+                color: theme.palette.success.main
+            },
+            {
+                dataKey: 'rejected',
+                label: t('Rejected'),
+                stack: 'result',
+                color: theme.palette.error.main
+            },
+            {
+                dataKey: 'pending',
+                label: t('Pending'),
+                stack: 'result',
+                color: theme.palette.grey[500]
+            }
+        ],
+        [t, theme]
+    );
+
     const hasCityMarkers = useMemo(
         () => (cityMarkersData?.length || 0) > 1,
         [cityMarkersData]
@@ -423,7 +535,43 @@ const Overview = () => {
         [t]
     );
 
-    if (isLoading || isFinalLoading) return <Loading />;
+    const studentCols = useMemo(
+        () => [
+            {
+                field: 'year',
+                headerName: t('Year'),
+                width: 120
+            },
+            {
+                field: 'accepted',
+                headerName: t('Accepted'),
+                width: 120
+            },
+            {
+                field: 'rejected',
+                headerName: t('Rejected'),
+                width: 120
+            },
+            {
+                field: 'pending',
+                headerName: t('Pending'),
+                width: 120
+            },
+            {
+                field: 'total',
+                headerName: t('Total'),
+                width: 100
+            },
+            {
+                field: 'acceptanceRate',
+                headerName: t('Acceptance Rate'),
+                width: 140
+            }
+        ],
+        [t]
+    );
+
+    if (isLoading || isFinalLoading || isLoading) return <Loading />;
 
     return (
         <Box
@@ -444,19 +592,79 @@ const Overview = () => {
                 />
             </Box>
 
-            <Card sx={{ p: 2, gridColumn: { xs: '1 / -1', lg: '1 / 2' } }}>
-                <Box sx={{ width: '100%', mb: 2 }}>
-                    <BarChart
-                        dataset={byYearChartDataset}
-                        height={320}
-                        series={applicationsPerYearSeries}
-                        xAxis={[{ dataKey: 'year', scaleType: 'band' }]}
-                    />
+            <Card sx={{ gridColumn: { xs: '1 / -1', lg: '1 / 2' } }}>
+                <Box
+                    sx={{
+                        width: '100%',
+                        borderBottom: 1,
+                        borderColor: 'divider'
+                    }}
+                >
+                    <Tabs
+                        aria-label={t('Analysis Views')}
+                        onChange={handleMainViewChange}
+                        value={mainView}
+                    >
+                        <Tab label={t('Student')} value="student" />
+                        <Tab label={t('Application')} value="application" />
+                    </Tabs>
                 </Box>
-                <MuiDataGrid columns={yearCols} rows={byYearRows} simple />
+
+                {mainView === 'student' && (
+                    <Box sx={{ p: 2 }}>
+                        <Box sx={{ width: '100%', mb: 2 }}>
+                            <BarChart
+                                dataset={byStudentChartDataset}
+                                height={320}
+                                series={studentsByDegreeSeries}
+                                slotProps={{
+                                    legend: {
+                                        position: {
+                                            vertical: 'middle',
+                                            horizontal: 'right'
+                                        },
+                                        direction: 'column'
+                                    }
+                                }}
+                                xAxis={[{ dataKey: 'year', scaleType: 'band' }]}
+                            />
+                        </Box>
+                        <MuiDataGrid
+                            columns={studentCols}
+                            rows={byStudentRows}
+                            simple
+                        />
+                    </Box>
+                )}
+                {mainView === 'application' && (
+                    <Box sx={{ p: 2 }}>
+                        <Box sx={{ width: '100%', mb: 2 }}>
+                            <BarChart
+                                dataset={byYearChartDataset}
+                                height={320}
+                                series={applicationsPerYearSeries}
+                                slotProps={{
+                                    legend: {
+                                        position: {
+                                            vertical: 'middle',
+                                            horizontal: 'right'
+                                        },
+                                        direction: 'column'
+                                    }
+                                }}
+                                xAxis={[{ dataKey: 'year', scaleType: 'band' }]}
+                            />
+                        </Box>
+                        <MuiDataGrid
+                            columns={yearCols}
+                            rows={byYearRows}
+                            simple
+                        />
+                    </Box>
+                )}
             </Card>
 
-            <Card sx={{ p: 2, gridColumn: { xs: '1 / -1', lg: '2 / 3' } }}>
+            <Card sx={{ gridColumn: { xs: '1 / -1', lg: '2 / 3' } }}>
                 <Box
                     sx={{
                         width: '100%',
