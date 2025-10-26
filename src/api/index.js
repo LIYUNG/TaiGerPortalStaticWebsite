@@ -668,6 +668,13 @@ export const updateOfficehours = (user_id, officehours, timezone) =>
 // Teams
 export const getTeamMembers = () => request.get('/api/teams');
 export const getStatisticsV2 = () => getData('/api/teams/statistics');
+export const getStatisticsOverviewV2 = () =>
+    getData('/api/teams/statistics/overview');
+export const getStatisticsAgentsV2 = () =>
+    getData('/api/teams/statistics/agents');
+export const getStatisticsKPIV2 = () => getData('/api/teams/statistics/kpi');
+export const getStatisticsResponseTimeV2 = () =>
+    getData('/api/teams/statistics/response-time');
 export const getTasksOverview = () => getData('/api/teams/tasks-overview');
 export const getIsManager = () => getData('/api/teams/is-manager');
 export const getResponseIntervalByStudent = (studentId) =>
