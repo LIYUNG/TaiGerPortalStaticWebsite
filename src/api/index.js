@@ -249,11 +249,6 @@ export const WidgetExportMessagePDF = (student_id) =>
         responseType: 'blob'
     });
 
-// export const transcriptanalyser_test = (studentId, category, language) =>
-//     request.post(
-//         `/api/courses/transcript/${studentId}/${category}/${language}`
-//     );
-
 export const transcriptanalyser_testV2 = ({
     language,
     studentId,
@@ -265,10 +260,6 @@ export const transcriptanalyser_testV2 = ({
         factor
     });
 
-// export const analyzedFileDownload_test = (studentId) =>
-//     request.get(`/api/courses/transcript/${studentId}`, {
-//         responseType: 'blob'
-//     });
 export const analyzedFileV2Download = (user_id) =>
     request.get(`/api/courses/transcript/v2/${user_id}`);
 

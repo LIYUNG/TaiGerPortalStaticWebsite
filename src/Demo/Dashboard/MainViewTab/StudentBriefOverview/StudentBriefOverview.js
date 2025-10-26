@@ -32,6 +32,7 @@ import DEMO from '../../../../store/constant';
 import { useAuth } from '../../../../components/AuthProvider';
 import EditAttributesSubpage from '../StudDocsOverview/EditAttributesSubpage';
 import { COLORS, stringAvatar } from '../../../../utils/contants';
+import { useDialog } from '../../../../hooks/useDialog';
 
 const StudentsAgentAvartar = ({ student }) => {
     return (
@@ -86,91 +87,33 @@ const StudentsEditorAvartar = ({ student }) => {
 const StudentBriefOverview = (props) => {
     const { user } = useAuth();
     const { t } = useTranslation();
-    const [studentBriefOverviewState, setStudentBriefOverviewState] = useState({
-        showAgentPage: false,
-        showEditorPage: false,
-        showAttributesPage: false,
-        showArchivModalPage: false
-    });
     const [isLoading, setIsLoading] = useState(false);
     const [shouldInform, setShouldInform] = useState(false);
+    const { open: openAgentsDialog, setOpen: setOpenAgentsDialog } =
+        useDialog(false);
+    const { open: openEditorsDialog, setOpen: setOpenEditorsDialog } =
+        useDialog(false);
+    const { open: openAttributesDialog, setOpen: setOpenAttributesDialog } =
+        useDialog(false);
+    const { open: openArchivDialog, setOpen: setOpenArchivDialog } =
+        useDialog(false);
 
     const updateStudentArchivStatus = (student_id, archiv, shouldInform) => {
         setIsLoading(true);
         props.updateStudentArchivStatus(student_id, archiv, shouldInform);
-        setArchivModalhide();
+        setOpenArchivDialog(false);
         setIsLoading(false);
         setShouldInform(false);
     };
 
-    const setAgentModalhide = () => {
-        setStudentBriefOverviewState((prevState) => ({
-            ...prevState,
-            showAgentPage: false
-        }));
-    };
-
-    const startEditingAgent = () => {
-        setStudentBriefOverviewState((prevState) => ({
-            ...prevState,
-            subpage: 1,
-            showAgentPage: true
-        }));
-    };
-
-    const setEditorModalhide = () => {
-        setStudentBriefOverviewState((prevState) => ({
-            ...prevState,
-            showEditorPage: false
-        }));
-    };
-
-    const setAttributeModalhide = () => {
-        setStudentBriefOverviewState((prevState) => ({
-            ...prevState,
-            showAttributesPage: false
-        }));
-    };
-
-    const setArchivModalOpen = () => {
-        setStudentBriefOverviewState((prevState) => ({
-            ...prevState,
-            subpage: 4,
-            showArchivModalPage: true
-        }));
-    };
-
-    const setArchivModalhide = () => {
-        setStudentBriefOverviewState((prevState) => ({
-            ...prevState,
-            showArchivModalPage: false
-        }));
-    };
-
-    const startEditingEditor = () => {
-        setStudentBriefOverviewState((prevState) => ({
-            ...prevState,
-            subpage: 2,
-            showEditorPage: true
-        }));
-    };
-
-    const startEditingAttributes = () => {
-        setStudentBriefOverviewState((prevState) => ({
-            ...prevState,
-            subpage: 3,
-            showAttributesPage: true
-        }));
-    };
-
     const submitUpdateAgentlist = (e, updateAgentList, student_id) => {
         props.submitUpdateAgentlist(e, updateAgentList, student_id);
-        setAgentModalhide();
+        setOpenAgentsDialog(false);
     };
 
     const submitUpdateEditorlist = (e, updateEditorList, student_id) => {
-        setEditorModalhide();
         props.submitUpdateEditorlist(e, updateEditorList, student_id);
+        setOpenEditorsDialog(false);
     };
 
     const submitUpdateAttributeslist = (
@@ -178,7 +121,7 @@ const StudentBriefOverview = (props) => {
         updateAttributesList,
         student_id
     ) => {
-        setAttributeModalhide();
+        setOpenAttributesDialog(false);
         props.submitUpdateAttributeslist(e, updateAttributesList, student_id);
     };
 
@@ -201,7 +144,9 @@ const StudentBriefOverview = (props) => {
                                         }
                                     >
                                         <IconButton
-                                            onClick={setArchivModalOpen}
+                                            onClick={() =>
+                                                setOpenArchivDialog(true)
+                                            }
                                         >
                                             {is_User_Archived(props.student) ? (
                                                 <ReplayIcon />
@@ -251,7 +196,9 @@ const StudentBriefOverview = (props) => {
                                       )
                                     : null}
                                 <ButtonBase
-                                    onClick={() => startEditingAttributes()}
+                                    onClick={() =>
+                                        setOpenAttributesDialog(true)
+                                    }
                                     sx={{
                                         borderRadius: '50%',
                                         overflow: 'hidden'
@@ -289,7 +236,9 @@ const StudentBriefOverview = (props) => {
                                         student={props.student}
                                     />
                                     <ButtonBase
-                                        onClick={startEditingAgent}
+                                        onClick={() =>
+                                            setOpenAgentsDialog(true)
+                                        }
                                         sx={{
                                             borderRadius: '50%',
                                             overflow: 'hidden'
@@ -313,7 +262,9 @@ const StudentBriefOverview = (props) => {
                                         student={props.student}
                                     />
                                     <ButtonBase
-                                        onClick={startEditingEditor}
+                                        onClick={() =>
+                                            setOpenEditorsDialog(true)
+                                        }
                                         sx={{
                                             borderRadius: '50%',
                                             overflow: 'hidden'
@@ -331,36 +282,36 @@ const StudentBriefOverview = (props) => {
             </Box>
             {is_TaiGer_role(user) ? (
                 <>
-                    {studentBriefOverviewState.showAgentPage ? (
+                    {openAgentsDialog ? (
                         <EditAgentsSubpage
-                            onHide={setAgentModalhide}
-                            show={studentBriefOverviewState.showAgentPage}
+                            onHide={() => setOpenAgentsDialog(false)}
+                            show={openAgentsDialog}
                             student={props.student}
                             submitUpdateAgentlist={submitUpdateAgentlist}
                         />
                     ) : null}
-                    {studentBriefOverviewState.showEditorPage ? (
+                    {openEditorsDialog ? (
                         <EditEditorsSubpage
-                            onHide={setEditorModalhide}
-                            show={studentBriefOverviewState.showEditorPage}
+                            onHide={() => setOpenEditorsDialog(false)}
+                            show={openEditorsDialog}
                             student={props.student}
                             submitUpdateEditorlist={submitUpdateEditorlist}
                         />
                     ) : null}
-                    {studentBriefOverviewState.showAttributesPage ? (
+                    {openAttributesDialog ? (
                         <EditAttributesSubpage
-                            onHide={setAttributeModalhide}
-                            show={studentBriefOverviewState.showAttributesPage}
+                            onHide={() => setOpenAttributesDialog(false)}
+                            show={openAttributesDialog}
                             student={props.student}
                             submitUpdateAttributeslist={
                                 submitUpdateAttributeslist
                             }
                         />
                     ) : null}
-                    {studentBriefOverviewState.showArchivModalPage ? (
+                    {openArchivDialog ? (
                         <Dialog
-                            onClose={setArchivModalhide}
-                            open={studentBriefOverviewState.showArchivModalPage}
+                            onClose={() => setOpenArchivDialog(false)}
+                            open={openArchivDialog}
                         >
                             <DialogTitle>
                                 {t('Move to archive statement', {
@@ -408,7 +359,9 @@ const StudentBriefOverview = (props) => {
                                         t('Submit', { ns: 'common' })
                                     )}
                                 </Button>
-                                <Button onClick={setArchivModalhide}>
+                                <Button
+                                    onClick={() => setOpenArchivDialog(false)}
+                                >
                                     {t('Cancel', { ns: 'common' })}
                                 </Button>
                             </DialogActions>
