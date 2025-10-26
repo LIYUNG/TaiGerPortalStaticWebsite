@@ -728,18 +728,6 @@ export const time_slots = [
     { value: '23:30', label: '11:30 PM' },
     { value: '00:00', label: '12:00 AM' }
 ];
-export const study_group = [
-    { key: 'boe', value: 'Biomedical Engineering' },
-    { key: 'cmy', value: 'Chemistry' },
-    { key: 'cs', value: 'Computer Science' },
-    { key: 'dsbi', value: 'Data Science/Business Intelligence' },
-    { key: 'ee', value: 'Eletrical/Electronics Engineering' },
-    { key: 'mgm', value: 'Business/Management' },
-    { key: 'phy', value: 'Physics' },
-    { key: 'psy', value: 'Psychology' },
-    { key: 'me', value: 'Mechanical Engineering' },
-    { key: 'mtl', value: 'Materials Science' }
-];
 
 const commonCategories = [
     { key: 'howtostart', value: 'How to Start' },

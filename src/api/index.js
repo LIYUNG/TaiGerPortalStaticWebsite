@@ -228,16 +228,7 @@ export const getTemplateDownload = (category) =>
     request.get(`/api/account/files/template/${category}`, {
         responseType: 'blob'
     });
-export const WidgetTranscriptanalyser = (
-    category,
-    language,
-    courses,
-    table_data_string_taiger_guided
-) =>
-    request.post(`/api/widgets/transcript/${category}/${language}`, {
-        courses,
-        table_data_string_taiger_guided
-    });
+
 export const WidgetTranscriptanalyserV2 = (
     language,
     courses,
@@ -248,11 +239,6 @@ export const WidgetTranscriptanalyserV2 = (
         courses,
         requirementIds,
         factor
-    });
-
-export const WidgetanalyzedFileDownload = (adminId) =>
-    request.get(`/api/widgets/transcript/${adminId}`, {
-        responseType: 'blob'
     });
 
 export const WidgetanalyzedFileV2Download = (adminId) =>

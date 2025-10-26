@@ -21,6 +21,6 @@
     "Student should access the analysed page in their course page.": "Students should open the ‘Analysed’ tab on their course page.",
     "Suggested Courses": "Suggested Courses",
     "The student will receive an email notification and the analysed course URL link.": "The student will receive an email notification with a link to the analysed courses page.",
-    "Update transcript successfully! Your agent will be notified and will analyse your courses as soon as possible.": "Transcript updated successfully! Your agent will be notified and will analyze your courses as soon as possible.",
+    "Update transcript successfully": "Transcript updated successfully! Your agent will be notified and will analyze your courses as soon as possible.",
     "View Online": "View Online"
 }

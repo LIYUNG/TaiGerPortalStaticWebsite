@@ -84,7 +84,6 @@ export default function MyCourses() {
         success: false,
         student: null,
         file: '',
-        study_group: '',
         analysis_language: '',
         analyzed_course: '',
         expand: true,
@@ -759,10 +758,7 @@ export default function MyCourses() {
                 <DialogTitle>{t('Confirmation', { ns: 'common' })}</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        {t(
-                            'Update transcript successfully! Your agent will be notified and will analyse your courses as soon as possible.',
-                            { ns: 'courses' }
-                        )}
+                        {t('Update transcript successfully', { ns: 'courses' })}
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
