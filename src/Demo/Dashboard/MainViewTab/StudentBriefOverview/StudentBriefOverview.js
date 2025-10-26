@@ -33,50 +33,24 @@ import { useAuth } from '../../../../components/AuthProvider';
 import EditAttributesSubpage from '../StudDocsOverview/EditAttributesSubpage';
 import { COLORS, stringAvatar } from '../../../../utils/contants';
 import { useDialog } from '../../../../hooks/useDialog';
+import { updateAgents, updateAttributes, updateEditors } from '../../../../api';
 
-const StudentsAgentAvartar = ({ student }) => {
+const TaiGerUsersAvartar = ({ users, link }) => {
     return (
-        student.agents?.map((agent) => (
+        users?.map((usr) => (
             <Tooltip
-                key={agent._id}
+                key={usr._id}
                 placement="bottom-start"
-                title={`${agent.firstname} ${agent.lastname}`}
+                title={`${usr.firstname} ${usr.lastname}`}
             >
                 <Link
                     component={LinkDom}
-                    to={`${DEMO.TEAM_AGENT_LINK(agent._id.toString())}`}
+                    to={`${link(usr._id.toString())}`}
                     underline="none"
                 >
                     <Avatar
-                        {...stringAvatar(
-                            `${agent.firstname} ${agent.lastname}`
-                        )}
-                        src={agent?.pictureUrl}
-                    />
-                </Link>
-            </Tooltip>
-        )) || null
-    );
-};
-
-const StudentsEditorAvartar = ({ student }) => {
-    return (
-        student.editors?.map((editor) => (
-            <Tooltip
-                key={editor._id}
-                placement="bottom-start"
-                title={`${editor.firstname} ${editor.lastname}`}
-            >
-                <Link
-                    component={LinkDom}
-                    to={`${DEMO.TEAM_EDITOR_LINK(editor._id.toString())}`}
-                    underline="none"
-                >
-                    <Avatar
-                        {...stringAvatar(
-                            `${editor.firstname} ${editor.lastname}`
-                        )}
-                        src={editor?.pictureUrl}
+                        {...stringAvatar(`${usr.firstname} ${usr.lastname}`)}
+                        src={usr?.pictureUrl}
                     />
                 </Link>
             </Tooltip>
@@ -86,6 +60,7 @@ const StudentsEditorAvartar = ({ student }) => {
 
 const StudentBriefOverview = (props) => {
     const { user } = useAuth();
+    const [student, setStudent] = useState(props.student);
     const { t } = useTranslation();
     const [isLoading, setIsLoading] = useState(false);
     const [shouldInform, setShouldInform] = useState(false);
@@ -107,13 +82,40 @@ const StudentBriefOverview = (props) => {
     };
 
     const submitUpdateAgentlist = (e, updateAgentList, student_id) => {
-        props.submitUpdateAgentlist(e, updateAgentList, student_id);
-        setOpenAgentsDialog(false);
+        updateAgents(updateAgentList, student_id).then(
+            (resp) => {
+                const { data, success } = resp.data;
+                if (success) {
+                    let students_temp = { ...student };
+                    students_temp.agents = data.agents; // datda is single student updated
+                    setOpenAgentsDialog(false);
+                    setStudent(students_temp);
+                }
+            },
+            (error) => {
+                console.error(error);
+            }
+        );
     };
 
     const submitUpdateEditorlist = (e, updateEditorList, student_id) => {
-        props.submitUpdateEditorlist(e, updateEditorList, student_id);
-        setOpenEditorsDialog(false);
+        updateEditors(updateEditorList, student_id).then(
+            (resp) => {
+                const { data, success } = resp.data;
+                if (success) {
+                    let students_temp = { ...student };
+                    students_temp.editors = data.editors; // datda is single student updated
+                    setStudent(students_temp);
+                    setOpenEditorsDialog(false);
+                } else {
+                    const { message } = resp.data;
+                    console.error(message);
+                }
+            },
+            (error) => {
+                console.error(error);
+            }
+        );
     };
 
     const submitUpdateAttributeslist = (
@@ -121,8 +123,23 @@ const StudentBriefOverview = (props) => {
         updateAttributesList,
         student_id
     ) => {
-        setOpenAttributesDialog(false);
-        props.submitUpdateAttributeslist(e, updateAttributesList, student_id);
+        e.preventDefault();
+        updateAttributes(updateAttributesList, student_id).then(
+            (resp) => {
+                const { data, success } = resp.data;
+                if (success) {
+                    let students_temp = { ...student };
+                    students_temp.attributes = data.attributes; // datda is single student updated
+                    setStudent(students_temp);
+                    setOpenAttributesDialog(false);
+                } else {
+                    console.error(resp.data.message);
+                }
+            },
+            (error) => {
+                console.error(error);
+            }
+        );
     };
 
     return (
@@ -182,18 +199,14 @@ const StudentBriefOverview = (props) => {
                                     {props.student.email}
                                 </Typography>
                                 {is_TaiGer_role(user)
-                                    ? props.student.attributes?.map(
-                                          (attribute) => (
-                                              <Chip
-                                                  color={
-                                                      COLORS[attribute.value]
-                                                  }
-                                                  key={attribute._id}
-                                                  label={attribute.name}
-                                                  size="small"
-                                              />
-                                          )
-                                      )
+                                    ? student.attributes?.map((attribute) => (
+                                          <Chip
+                                              color={COLORS[attribute.value]}
+                                              key={attribute._id}
+                                              label={attribute.name}
+                                              size="small"
+                                          />
+                                      ))
                                     : null}
                                 <ButtonBase
                                     onClick={() =>
@@ -229,11 +242,12 @@ const StudentBriefOverview = (props) => {
                                     color="textSecondary"
                                     variant="body2"
                                 >
-                                    Agents
+                                    {t('Agents', { ns: 'common' })}
                                 </Typography>
                                 <Box alignItems="center" display="flex" mt={1}>
-                                    <StudentsAgentAvartar
-                                        student={props.student}
+                                    <TaiGerUsersAvartar
+                                        link={DEMO.TEAM_AGENT_LINK}
+                                        users={student.agents}
                                     />
                                     <ButtonBase
                                         onClick={() =>
@@ -255,11 +269,12 @@ const StudentBriefOverview = (props) => {
                                     color="textSecondary"
                                     variant="body2"
                                 >
-                                    Editors
+                                    {t('Editors', { ns: 'common' })}
                                 </Typography>
                                 <Box alignItems="center" display="flex" mt={1}>
-                                    <StudentsEditorAvartar
-                                        student={props.student}
+                                    <TaiGerUsersAvartar
+                                        link={DEMO.TEAM_EDITOR_LINK}
+                                        users={student.editors}
                                     />
                                     <ButtonBase
                                         onClick={() =>
@@ -286,7 +301,7 @@ const StudentBriefOverview = (props) => {
                         <EditAgentsSubpage
                             onHide={() => setOpenAgentsDialog(false)}
                             show={openAgentsDialog}
-                            student={props.student}
+                            student={student}
                             submitUpdateAgentlist={submitUpdateAgentlist}
                         />
                     ) : null}
@@ -294,7 +309,7 @@ const StudentBriefOverview = (props) => {
                         <EditEditorsSubpage
                             onHide={() => setOpenEditorsDialog(false)}
                             show={openEditorsDialog}
-                            student={props.student}
+                            student={student}
                             submitUpdateEditorlist={submitUpdateEditorlist}
                         />
                     ) : null}
@@ -302,7 +317,7 @@ const StudentBriefOverview = (props) => {
                         <EditAttributesSubpage
                             onHide={() => setOpenAttributesDialog(false)}
                             show={openAttributesDialog}
-                            student={props.student}
+                            student={student}
                             submitUpdateAttributeslist={
                                 submitUpdateAttributeslist
                             }
