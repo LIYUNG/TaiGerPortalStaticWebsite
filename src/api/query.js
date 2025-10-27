@@ -45,7 +45,8 @@ import {
     getInterviewsByProgramId,
     getUsers,
     getUsersCount,
-    getActiveThreads
+    getActiveThreads,
+    getSameProgramStudents
 } from '.';
 
 export const getMessagThreadQuery = (threadId) => ({
@@ -206,6 +207,14 @@ export const getProgramRequirementsQuery = () => ({
     queryKey: ['program-requirements/all'],
     queryFn: () => getProgramRequirementsV2(),
     staleTime: 1000 * 60 * 5 // 5 minutes
+});
+
+export const getSameProgramStudentsQuery = ({ programId, enabled }) => ({
+    queryKey: ['same-program-students', programId],
+    queryFn: () => getSameProgramStudents({ programId }),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    select: (data) => data?.data || [],
+    enabled: enabled ?? false
 });
 
 export const getProgramsQuery = () => ({

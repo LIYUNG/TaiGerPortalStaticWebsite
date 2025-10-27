@@ -1,5 +1,5 @@
 import React, { Fragment, useState } from 'react';
-import { Link as LinkDom } from 'react-router-dom';
+import { Link as LinkDom, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
     Compare as CompareIcon,
@@ -22,11 +22,14 @@ import {
     Typography,
     Tabs,
     Tab,
-    Breadcrumbs
+    Breadcrumbs,
+    Skeleton
 } from '@mui/material';
 import {
     is_TaiGer_Admin,
     is_TaiGer_AdminAgent,
+    is_TaiGer_Agent,
+    is_TaiGer_Editor,
     is_TaiGer_role,
     isProgramWithdraw
 } from '@taiger-common/core';
@@ -58,14 +61,27 @@ import ProgramReport from './ProgramReport';
 import { appConfig } from '../../config';
 import { useAuth } from '../../components/AuthProvider';
 import { a11yProps, CustomTabPanel } from '../../components/Tabs';
+import { useQuery } from '@tanstack/react-query';
+import { getSameProgramStudentsQuery } from '../../api/query';
 
 const SingleProgramView = (props) => {
+    const { programId } = useParams();
     const { user } = useAuth();
     const { t } = useTranslation();
     const [value, setValue] = useState(0);
     const [studentsTabValue, setStudentsTabValue] = useState(0);
     const versions = props?.versions || {};
-
+    const { data, isLoading } = useQuery(
+        getSameProgramStudentsQuery({
+            programId,
+            enabled:
+                is_TaiGer_Admin(user) ||
+                is_TaiGer_Agent(user) ||
+                is_TaiGer_Editor(user)
+        })
+    );
+    const students = data || [];
+    console.log(JSON.stringify(students));
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
@@ -780,84 +796,98 @@ const SingleProgramView = (props) => {
                                                 </TableRow>
                                             </TableHead>
                                             <TableBody>
-                                                {props.students
-                                                    ?.filter((student) =>
-                                                        isApplicationOpen(
-                                                            student
+                                                {isLoading ? (
+                                                    <TableRow>
+                                                        <TableCell colSpan={3}>
+                                                            <Skeleton
+                                                                height={40}
+                                                                variant="text"
+                                                                width="100%"
+                                                            />
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ) : (
+                                                    students
+                                                        ?.filter((student) =>
+                                                            isApplicationOpen(
+                                                                student
+                                                            )
                                                         )
-                                                    )
-                                                    .map((student, i) => (
-                                                        <TableRow key={i}>
-                                                            <TableCell>
-                                                                <Link
-                                                                    component={
-                                                                        LinkDom
-                                                                    }
-                                                                    to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                                                                        student._id?.toString(),
-                                                                        DEMO.PROFILE_HASH
-                                                                    )}`}
-                                                                >
-                                                                    {
-                                                                        student.firstname
-                                                                    }{' '}
-                                                                    {
-                                                                        student.lastname
-                                                                    }
-                                                                </Link>
-                                                            </TableCell>
-                                                            <TableCell>
-                                                                {student.agents?.map(
-                                                                    (agent) => (
-                                                                        <Link
-                                                                            component={
-                                                                                LinkDom
-                                                                            }
-                                                                            key={
-                                                                                agent._id
-                                                                            }
-                                                                            sx={{
-                                                                                mr: 1
-                                                                            }}
-                                                                            to={`${DEMO.TEAM_AGENT_LINK(
-                                                                                agent._id?.toString()
-                                                                            )}`}
-                                                                        >
-                                                                            {
-                                                                                agent.firstname
-                                                                            }
-                                                                        </Link>
-                                                                    )
-                                                                )}
-                                                            </TableCell>
-                                                            <TableCell>
-                                                                {student.editors?.map(
-                                                                    (
-                                                                        editor
-                                                                    ) => (
-                                                                        <Link
-                                                                            component={
-                                                                                LinkDom
-                                                                            }
-                                                                            key={
-                                                                                editor._id
-                                                                            }
-                                                                            sx={{
-                                                                                mr: 1
-                                                                            }}
-                                                                            to={`${DEMO.TEAM_EDITOR_LINK(
-                                                                                editor._id?.toString()
-                                                                            )}`}
-                                                                        >
-                                                                            {
-                                                                                editor.firstname
-                                                                            }
-                                                                        </Link>
-                                                                    )
-                                                                )}
-                                                            </TableCell>
-                                                        </TableRow>
-                                                    ))}
+                                                        .map((student, i) => (
+                                                            <TableRow key={i}>
+                                                                <TableCell>
+                                                                    <Link
+                                                                        component={
+                                                                            LinkDom
+                                                                        }
+                                                                        to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
+                                                                            student._id?.toString(),
+                                                                            DEMO.PROFILE_HASH
+                                                                        )}`}
+                                                                    >
+                                                                        {
+                                                                            student.firstname
+                                                                        }{' '}
+                                                                        {
+                                                                            student.lastname
+                                                                        }
+                                                                    </Link>
+                                                                </TableCell>
+                                                                <TableCell>
+                                                                    {student.agents?.map(
+                                                                        (
+                                                                            agent
+                                                                        ) => (
+                                                                            <Link
+                                                                                component={
+                                                                                    LinkDom
+                                                                                }
+                                                                                key={
+                                                                                    agent._id
+                                                                                }
+                                                                                sx={{
+                                                                                    mr: 1
+                                                                                }}
+                                                                                to={`${DEMO.TEAM_AGENT_LINK(
+                                                                                    agent._id?.toString()
+                                                                                )}`}
+                                                                            >
+                                                                                {
+                                                                                    agent.firstname
+                                                                                }
+                                                                            </Link>
+                                                                        )
+                                                                    )}
+                                                                </TableCell>
+                                                                <TableCell>
+                                                                    {student.editors?.map(
+                                                                        (
+                                                                            editor
+                                                                        ) => (
+                                                                            <Link
+                                                                                component={
+                                                                                    LinkDom
+                                                                                }
+                                                                                key={
+                                                                                    editor._id
+                                                                                }
+                                                                                sx={{
+                                                                                    mr: 1
+                                                                                }}
+                                                                                to={`${DEMO.TEAM_EDITOR_LINK(
+                                                                                    editor._id?.toString()
+                                                                                )}`}
+                                                                            >
+                                                                                {
+                                                                                    editor.firstname
+                                                                                }
+                                                                            </Link>
+                                                                        )
+                                                                    )}
+                                                                </TableCell>
+                                                            </TableRow>
+                                                        ))
+                                                )}
                                             </TableBody>
                                         </Table>
                                     </CustomTabPanel>
@@ -886,47 +916,59 @@ const SingleProgramView = (props) => {
                                                 </TableRow>
                                             </TableHead>
                                             <TableBody>
-                                                {props.students
-                                                    ?.filter(
-                                                        (student) =>
-                                                            !isApplicationOpen(
-                                                                student
-                                                            )
-                                                    )
-                                                    .map((student, i) => (
-                                                        <TableRow key={i}>
-                                                            <TableCell>
-                                                                <Link
-                                                                    component={
-                                                                        LinkDom
-                                                                    }
-                                                                    to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                                                                        student._id?.toString(),
-                                                                        DEMO.PROFILE_HASH
-                                                                    )}`}
-                                                                >
-                                                                    {
-                                                                        student.firstname
-                                                                    }{' '}
-                                                                    {
-                                                                        student.lastname
-                                                                    }
-                                                                </Link>
-                                                            </TableCell>
-                                                            <TableCell>
-                                                                {student.application_year
-                                                                    ? student.application_year
-                                                                    : '-'}
-                                                            </TableCell>
-                                                            <TableCell>
-                                                                {isProgramWithdraw(
+                                                {isLoading ? (
+                                                    <TableRow>
+                                                        <TableCell colSpan={3}>
+                                                            <Skeleton
+                                                                height={40}
+                                                                variant="text"
+                                                                width="100%"
+                                                            />
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ) : (
+                                                    students
+                                                        ?.filter(
+                                                            (student) =>
+                                                                !isApplicationOpen(
                                                                     student
                                                                 )
-                                                                    ? 'WITHDREW'
-                                                                    : student.admission}
-                                                            </TableCell>
-                                                        </TableRow>
-                                                    ))}
+                                                        )
+                                                        .map((student, i) => (
+                                                            <TableRow key={i}>
+                                                                <TableCell>
+                                                                    <Link
+                                                                        component={
+                                                                            LinkDom
+                                                                        }
+                                                                        to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
+                                                                            student._id?.toString(),
+                                                                            DEMO.PROFILE_HASH
+                                                                        )}`}
+                                                                    >
+                                                                        {
+                                                                            student.firstname
+                                                                        }{' '}
+                                                                        {
+                                                                            student.lastname
+                                                                        }
+                                                                    </Link>
+                                                                </TableCell>
+                                                                <TableCell>
+                                                                    {student.application_year
+                                                                        ? student.application_year
+                                                                        : '-'}
+                                                                </TableCell>
+                                                                <TableCell>
+                                                                    {isProgramWithdraw(
+                                                                        student
+                                                                    )
+                                                                        ? 'WITHDREW'
+                                                                        : student.admission}
+                                                                </TableCell>
+                                                            </TableRow>
+                                                        ))
+                                                )}
                                             </TableBody>
                                         </Table>
                                         <Typography

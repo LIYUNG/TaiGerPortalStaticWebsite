@@ -290,6 +290,9 @@ export const getProgramRequirements = () =>
 export const getProgramRequirementsV2 = () =>
     getData(`/api/program-requirements`);
 
+export const getSameProgramStudents = ({ programId }) =>
+    getData(`/api/programs/same-program-students/${programId}`);
+
 export const postProgramRequirements = (payload) =>
     request.post(`/api/program-requirements/new`, payload);
 export const getProgramsAndCourseKeywordSets = () =>

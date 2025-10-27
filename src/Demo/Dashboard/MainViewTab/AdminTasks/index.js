@@ -50,7 +50,7 @@ const AdminTasks = (props) => {
                             component={LinkDom}
                             to={`${DEMO.ASSIGN_AGENT_LINK}`}
                         >
-                            {t('Assign Agents')}
+                            {t('Assign Agents', { ns: 'common' })}
                         </Link>
                     </TableCell>
                     <TableCell>
