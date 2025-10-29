@@ -260,6 +260,8 @@ const Overview = () => {
         const items = data?.data || data?.result || [];
         const studentMap = new Map();
 
+        // Track application outcomes at the student level (per student per year)
+        // This allows us to categorize each student's overall status
         for (const app of Array.isArray(items) ? items : []) {
             const studentId = app?.studentId?._id || app?.studentId;
             if (!studentId) continue;
@@ -275,7 +277,7 @@ const Overview = () => {
                     year,
                     hasOffer: false,
                     hasRejection: false,
-                    hasPending: false,
+                    hasPending: false, // Includes undecided ('-') and any non-O/X status
                     offers: 0,
                     rejections: 0,
                     pending: 0,
@@ -286,6 +288,10 @@ const Overview = () => {
             const studentRecord = studentMap.get(key);
             studentRecord.total += 1;
 
+            // Categorize each application by admission status:
+            // 'O' = Offer received
+            // 'X' = Rejection received
+            // Anything else (including '-') = Pending/undecided
             if (app.admission === 'O') {
                 studentRecord.hasOffer = true;
                 studentRecord.offers += 1;
@@ -293,12 +299,24 @@ const Overview = () => {
                 studentRecord.hasRejection = true;
                 studentRecord.rejections += 1;
             } else {
+                // This includes applications with no decision yet (admission = '-')
+                // or any other non-definitive status. We treat these as "pending"
+                // because the final outcome is unknown.
                 studentRecord.hasPending = true;
                 studentRecord.pending += 1;
             }
         }
 
-        // Categorize students by year: if at least one offer -> accepted, all rejected -> rejected, otherwise pending
+        // Aggregate students by year and categorize each student's overall status
+        //
+        // Student categorization logic:
+        // 1. "offer" - Student has at least one offer (regardless of other outcomes)
+        // 2. "rejected" - Student has ONLY rejections (no offers AND no pending/undecided)
+        // 3. "pending" - Student has at least one pending/undecided application OR no applications with outcomes
+        //
+        // Note: A student with rejections AND pending/undecided applications is categorized as "pending"
+        // because their final outcome is not yet determined. This is intentional - we only count a student
+        // as "rejected" when ALL their applications have received definitive rejections.
         const yearMap = new Map();
         for (const record of studentMap.values()) {
             const yearKey = record.year;
@@ -316,12 +334,13 @@ const Overview = () => {
             yearRow.total += 1;
 
             if (record.hasOffer) {
+                // At least one offer - student is successful
                 yearRow.offer += 1;
             } else if (record.hasRejection && !record.hasPending) {
-                // All applications rejected
+                // Only rejections, no pending/undecided - student is rejected
                 yearRow.rejected += 1;
             } else {
-                // Has pending applications or no clear outcome
+                // Has pending/undecided applications OR no definitive outcomes yet
                 yearRow.pending += 1;
             }
         }

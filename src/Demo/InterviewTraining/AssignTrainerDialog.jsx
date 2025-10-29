@@ -63,11 +63,7 @@ export const AssignTrainerDialog = ({
                 >
                     {t('Assign', { ns: 'common' })}
                 </Button>
-                <Button
-                    color="secondary"
-                    onClick={onClose}
-                    variant="contained"
-                >
+                <Button color="secondary" onClick={onClose} variant="contained">
                     {t('Close', { ns: 'common' })}
                 </Button>
             </DialogActions>
