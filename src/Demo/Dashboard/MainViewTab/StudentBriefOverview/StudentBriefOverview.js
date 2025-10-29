@@ -32,50 +32,25 @@ import DEMO from '../../../../store/constant';
 import { useAuth } from '../../../../components/AuthProvider';
 import EditAttributesSubpage from '../StudDocsOverview/EditAttributesSubpage';
 import { COLORS, stringAvatar } from '../../../../utils/contants';
+import { useDialog } from '../../../../hooks/useDialog';
+import { updateAgents, updateAttributes, updateEditors } from '../../../../api';
 
-const StudentsAgentAvartar = ({ student }) => {
+const TaiGerUsersAvartar = ({ users, link }) => {
     return (
-        student.agents?.map((agent) => (
+        users?.map((usr) => (
             <Tooltip
-                key={agent._id}
+                key={usr._id}
                 placement="bottom-start"
-                title={`${agent.firstname} ${agent.lastname}`}
+                title={`${usr.firstname} ${usr.lastname}`}
             >
                 <Link
                     component={LinkDom}
-                    to={`${DEMO.TEAM_AGENT_LINK(agent._id.toString())}`}
+                    to={`${link(usr._id.toString())}`}
                     underline="none"
                 >
                     <Avatar
-                        {...stringAvatar(
-                            `${agent.firstname} ${agent.lastname}`
-                        )}
-                        src={agent?.pictureUrl}
-                    />
-                </Link>
-            </Tooltip>
-        )) || null
-    );
-};
-
-const StudentsEditorAvartar = ({ student }) => {
-    return (
-        student.editors?.map((editor) => (
-            <Tooltip
-                key={editor._id}
-                placement="bottom-start"
-                title={`${editor.firstname} ${editor.lastname}`}
-            >
-                <Link
-                    component={LinkDom}
-                    to={`${DEMO.TEAM_EDITOR_LINK(editor._id.toString())}`}
-                    underline="none"
-                >
-                    <Avatar
-                        {...stringAvatar(
-                            `${editor.firstname} ${editor.lastname}`
-                        )}
-                        src={editor?.pictureUrl}
+                        {...stringAvatar(`${usr.firstname} ${usr.lastname}`)}
+                        src={usr?.pictureUrl}
                     />
                 </Link>
             </Tooltip>
@@ -85,92 +60,62 @@ const StudentsEditorAvartar = ({ student }) => {
 
 const StudentBriefOverview = (props) => {
     const { user } = useAuth();
+    const [student, setStudent] = useState(props.student);
     const { t } = useTranslation();
-    const [studentBriefOverviewState, setStudentBriefOverviewState] = useState({
-        showAgentPage: false,
-        showEditorPage: false,
-        showAttributesPage: false,
-        showArchivModalPage: false
-    });
     const [isLoading, setIsLoading] = useState(false);
     const [shouldInform, setShouldInform] = useState(false);
+    const { open: openAgentsDialog, setOpen: setOpenAgentsDialog } =
+        useDialog(false);
+    const { open: openEditorsDialog, setOpen: setOpenEditorsDialog } =
+        useDialog(false);
+    const { open: openAttributesDialog, setOpen: setOpenAttributesDialog } =
+        useDialog(false);
+    const { open: openArchivDialog, setOpen: setOpenArchivDialog } =
+        useDialog(false);
 
     const updateStudentArchivStatus = (student_id, archiv, shouldInform) => {
         setIsLoading(true);
         props.updateStudentArchivStatus(student_id, archiv, shouldInform);
-        setArchivModalhide();
+        setOpenArchivDialog(false);
         setIsLoading(false);
         setShouldInform(false);
     };
 
-    const setAgentModalhide = () => {
-        setStudentBriefOverviewState((prevState) => ({
-            ...prevState,
-            showAgentPage: false
-        }));
-    };
-
-    const startEditingAgent = () => {
-        setStudentBriefOverviewState((prevState) => ({
-            ...prevState,
-            subpage: 1,
-            showAgentPage: true
-        }));
-    };
-
-    const setEditorModalhide = () => {
-        setStudentBriefOverviewState((prevState) => ({
-            ...prevState,
-            showEditorPage: false
-        }));
-    };
-
-    const setAttributeModalhide = () => {
-        setStudentBriefOverviewState((prevState) => ({
-            ...prevState,
-            showAttributesPage: false
-        }));
-    };
-
-    const setArchivModalOpen = () => {
-        setStudentBriefOverviewState((prevState) => ({
-            ...prevState,
-            subpage: 4,
-            showArchivModalPage: true
-        }));
-    };
-
-    const setArchivModalhide = () => {
-        setStudentBriefOverviewState((prevState) => ({
-            ...prevState,
-            showArchivModalPage: false
-        }));
-    };
-
-    const startEditingEditor = () => {
-        setStudentBriefOverviewState((prevState) => ({
-            ...prevState,
-            subpage: 2,
-            showEditorPage: true
-        }));
-    };
-
-    const startEditingAttributes = () => {
-        setStudentBriefOverviewState((prevState) => ({
-            ...prevState,
-            subpage: 3,
-            showAttributesPage: true
-        }));
-    };
-
     const submitUpdateAgentlist = (e, updateAgentList, student_id) => {
-        props.submitUpdateAgentlist(e, updateAgentList, student_id);
-        setAgentModalhide();
+        updateAgents(updateAgentList, student_id).then(
+            (resp) => {
+                const { data, success } = resp.data;
+                if (success) {
+                    let students_temp = { ...student };
+                    students_temp.agents = data.agents; // datda is single student updated
+                    setOpenAgentsDialog(false);
+                    setStudent(students_temp);
+                }
+            },
+            (error) => {
+                console.error(error);
+            }
+        );
     };
 
     const submitUpdateEditorlist = (e, updateEditorList, student_id) => {
-        setEditorModalhide();
-        props.submitUpdateEditorlist(e, updateEditorList, student_id);
+        updateEditors(updateEditorList, student_id).then(
+            (resp) => {
+                const { data, success } = resp.data;
+                if (success) {
+                    let students_temp = { ...student };
+                    students_temp.editors = data.editors; // datda is single student updated
+                    setStudent(students_temp);
+                    setOpenEditorsDialog(false);
+                } else {
+                    const { message } = resp.data;
+                    console.error(message);
+                }
+            },
+            (error) => {
+                console.error(error);
+            }
+        );
     };
 
     const submitUpdateAttributeslist = (
@@ -178,8 +123,23 @@ const StudentBriefOverview = (props) => {
         updateAttributesList,
         student_id
     ) => {
-        setAttributeModalhide();
-        props.submitUpdateAttributeslist(e, updateAttributesList, student_id);
+        e.preventDefault();
+        updateAttributes(updateAttributesList, student_id).then(
+            (resp) => {
+                const { data, success } = resp.data;
+                if (success) {
+                    let students_temp = { ...student };
+                    students_temp.attributes = data.attributes; // datda is single student updated
+                    setStudent(students_temp);
+                    setOpenAttributesDialog(false);
+                } else {
+                    console.error(resp.data.message);
+                }
+            },
+            (error) => {
+                console.error(error);
+            }
+        );
     };
 
     return (
@@ -201,7 +161,9 @@ const StudentBriefOverview = (props) => {
                                         }
                                     >
                                         <IconButton
-                                            onClick={setArchivModalOpen}
+                                            onClick={() =>
+                                                setOpenArchivDialog(true)
+                                            }
                                         >
                                             {is_User_Archived(props.student) ? (
                                                 <ReplayIcon />
@@ -237,21 +199,19 @@ const StudentBriefOverview = (props) => {
                                     {props.student.email}
                                 </Typography>
                                 {is_TaiGer_role(user)
-                                    ? props.student.attributes?.map(
-                                          (attribute) => (
-                                              <Chip
-                                                  color={
-                                                      COLORS[attribute.value]
-                                                  }
-                                                  key={attribute._id}
-                                                  label={attribute.name}
-                                                  size="small"
-                                              />
-                                          )
-                                      )
+                                    ? student.attributes?.map((attribute) => (
+                                          <Chip
+                                              color={COLORS[attribute.value]}
+                                              key={attribute._id}
+                                              label={attribute.name}
+                                              size="small"
+                                          />
+                                      ))
                                     : null}
                                 <ButtonBase
-                                    onClick={() => startEditingAttributes()}
+                                    onClick={() =>
+                                        setOpenAttributesDialog(true)
+                                    }
                                     sx={{
                                         borderRadius: '50%',
                                         overflow: 'hidden'
@@ -282,14 +242,17 @@ const StudentBriefOverview = (props) => {
                                     color="textSecondary"
                                     variant="body2"
                                 >
-                                    Agents
+                                    {t('Agents', { ns: 'common' })}
                                 </Typography>
                                 <Box alignItems="center" display="flex" mt={1}>
-                                    <StudentsAgentAvartar
-                                        student={props.student}
+                                    <TaiGerUsersAvartar
+                                        link={DEMO.TEAM_AGENT_LINK}
+                                        users={student.agents}
                                     />
                                     <ButtonBase
-                                        onClick={startEditingAgent}
+                                        onClick={() =>
+                                            setOpenAgentsDialog(true)
+                                        }
                                         sx={{
                                             borderRadius: '50%',
                                             overflow: 'hidden'
@@ -306,14 +269,17 @@ const StudentBriefOverview = (props) => {
                                     color="textSecondary"
                                     variant="body2"
                                 >
-                                    Editors
+                                    {t('Editors', { ns: 'common' })}
                                 </Typography>
                                 <Box alignItems="center" display="flex" mt={1}>
-                                    <StudentsEditorAvartar
-                                        student={props.student}
+                                    <TaiGerUsersAvartar
+                                        link={DEMO.TEAM_EDITOR_LINK}
+                                        users={student.editors}
                                     />
                                     <ButtonBase
-                                        onClick={startEditingEditor}
+                                        onClick={() =>
+                                            setOpenEditorsDialog(true)
+                                        }
                                         sx={{
                                             borderRadius: '50%',
                                             overflow: 'hidden'
@@ -331,36 +297,36 @@ const StudentBriefOverview = (props) => {
             </Box>
             {is_TaiGer_role(user) ? (
                 <>
-                    {studentBriefOverviewState.showAgentPage ? (
+                    {openAgentsDialog ? (
                         <EditAgentsSubpage
-                            onHide={setAgentModalhide}
-                            show={studentBriefOverviewState.showAgentPage}
-                            student={props.student}
+                            onHide={() => setOpenAgentsDialog(false)}
+                            show={openAgentsDialog}
+                            student={student}
                             submitUpdateAgentlist={submitUpdateAgentlist}
                         />
                     ) : null}
-                    {studentBriefOverviewState.showEditorPage ? (
+                    {openEditorsDialog ? (
                         <EditEditorsSubpage
-                            onHide={setEditorModalhide}
-                            show={studentBriefOverviewState.showEditorPage}
-                            student={props.student}
+                            onHide={() => setOpenEditorsDialog(false)}
+                            show={openEditorsDialog}
+                            student={student}
                             submitUpdateEditorlist={submitUpdateEditorlist}
                         />
                     ) : null}
-                    {studentBriefOverviewState.showAttributesPage ? (
+                    {openAttributesDialog ? (
                         <EditAttributesSubpage
-                            onHide={setAttributeModalhide}
-                            show={studentBriefOverviewState.showAttributesPage}
-                            student={props.student}
+                            onHide={() => setOpenAttributesDialog(false)}
+                            show={openAttributesDialog}
+                            student={student}
                             submitUpdateAttributeslist={
                                 submitUpdateAttributeslist
                             }
                         />
                     ) : null}
-                    {studentBriefOverviewState.showArchivModalPage ? (
+                    {openArchivDialog ? (
                         <Dialog
-                            onClose={setArchivModalhide}
-                            open={studentBriefOverviewState.showArchivModalPage}
+                            onClose={() => setOpenArchivDialog(false)}
+                            open={openArchivDialog}
                         >
                             <DialogTitle>
                                 {t('Move to archive statement', {
@@ -408,7 +374,9 @@ const StudentBriefOverview = (props) => {
                                         t('Submit', { ns: 'common' })
                                     )}
                                 </Button>
-                                <Button onClick={setArchivModalhide}>
+                                <Button
+                                    onClick={() => setOpenArchivDialog(false)}
+                                >
                                     {t('Cancel', { ns: 'common' })}
                                 </Button>
                             </DialogActions>

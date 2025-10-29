@@ -9,6 +9,10 @@ import {
     getProgramV2,
     getStudentsAndDocLinks2,
     getStatisticsV2,
+    getStatisticsOverviewV2,
+    getStatisticsAgentsV2,
+    getStatisticsKPIV2,
+    getStatisticsResponseTimeV2,
     getStudentUniAssistV2,
     getProgramRequirementsV2,
     getAllCourses,
@@ -41,7 +45,8 @@ import {
     getInterviewsByProgramId,
     getUsers,
     getUsersCount,
-    getActiveThreads
+    getActiveThreads,
+    getSameProgramStudents
 } from '.';
 
 export const getMessagThreadQuery = (threadId) => ({
@@ -88,6 +93,34 @@ export const getStatisticsQuery = () => ({
     queryKey: ['statistics'],
     queryFn: getStatisticsV2,
     staleTime: 1000 * 60 * 5 // 5 minutes
+});
+
+export const getStatisticsOverviewQuery = () => ({
+    queryKey: ['statistics', 'overview'],
+    queryFn: getStatisticsOverviewV2,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    enabled: false // will be enabled only when the tab is active
+});
+
+export const getStatisticsAgentsQuery = () => ({
+    queryKey: ['statistics', 'agents'],
+    queryFn: getStatisticsAgentsV2,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    enabled: false // will be enabled only when the tab is active
+});
+
+export const getStatisticsKPIQuery = () => ({
+    queryKey: ['statistics', 'kpi'],
+    queryFn: getStatisticsKPIV2,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    enabled: false // will be enabled only when the tab is active
+});
+
+export const getStatisticsResponseTimeQuery = () => ({
+    queryKey: ['statistics', 'response-time'],
+    queryFn: getStatisticsResponseTimeV2,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    enabled: false // will be enabled only when the tab is active
 });
 
 export const getTasksOverviewQuery = () => ({
@@ -174,6 +207,14 @@ export const getProgramRequirementsQuery = () => ({
     queryKey: ['program-requirements/all'],
     queryFn: () => getProgramRequirementsV2(),
     staleTime: 1000 * 60 * 5 // 5 minutes
+});
+
+export const getSameProgramStudentsQuery = ({ programId, enabled }) => ({
+    queryKey: ['same-program-students', programId],
+    queryFn: () => getSameProgramStudents({ programId }),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    select: (data) => data?.data || [],
+    enabled: enabled ?? false
 });
 
 export const getProgramsQuery = () => ({

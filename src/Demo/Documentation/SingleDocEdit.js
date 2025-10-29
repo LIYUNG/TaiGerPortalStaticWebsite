@@ -7,6 +7,7 @@ import {
     MenuItem,
     TextField
 } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 import DocumentsListItemsEditor from './DocumentsListItemsEditor';
 import {
@@ -22,6 +23,7 @@ const SingleDocEdit = ({
     handleClickEditToggle,
     internal
 }) => {
+    const { t } = useTranslation();
     const [singleDocEditState, setSingleDocEdit] = useState({
         doc_title: document_title,
         category: category
@@ -69,7 +71,8 @@ const SingleDocEdit = ({
             {internal ? (
                 <>
                     <Typography variant="body1">
-                        Category:<b>Internal</b>
+                        {t('Category', { ns: 'common' })}:
+                        <b>{t('Internal', { ns: 'common' })}</b>
                     </Typography>
                     <FormControl fullWidth>
                         <Select
@@ -85,7 +88,7 @@ const SingleDocEdit = ({
                             </MenuItem>
                             {valid_internal_categories.map((cat, i) => (
                                 <MenuItem key={i} value={cat.key}>
-                                    {cat.value}
+                                    {t(cat.value, { ns: 'comon' })}
                                 </MenuItem>
                             ))}
                         </Select>

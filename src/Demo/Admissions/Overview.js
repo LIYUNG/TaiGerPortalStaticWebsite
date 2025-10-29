@@ -570,9 +570,7 @@ const Overview = () => {
         ],
         [t]
     );
-
-    if (isLoading || isFinalLoading || isLoading) return <Loading />;
-
+    if (isLoading || isFinalLoading) return <Loading />;
     return (
         <Box
             sx={{
@@ -591,8 +589,7 @@ const Overview = () => {
                     unknown={kpis.unknown}
                 />
             </Box>
-
-            <Card sx={{ gridColumn: { xs: '1 / -1', lg: '1 / 2' } }}>
+            <Card sx={{ p: 2, gridColumn: { xs: '1 / -1', lg: '1 / 2' } }}>
                 <Box
                     sx={{
                         width: '100%',
@@ -611,7 +608,7 @@ const Overview = () => {
                 </Box>
 
                 {mainView === 'student' && (
-                    <Box sx={{ p: 2 }}>
+                    <Box>
                         <Box sx={{ width: '100%', mb: 2 }}>
                             <BarChart
                                 dataset={byStudentChartDataset}
@@ -637,7 +634,7 @@ const Overview = () => {
                     </Box>
                 )}
                 {mainView === 'application' && (
-                    <Box sx={{ p: 2 }}>
+                    <Box>
                         <Box sx={{ width: '100%', mb: 2 }}>
                             <BarChart
                                 dataset={byYearChartDataset}

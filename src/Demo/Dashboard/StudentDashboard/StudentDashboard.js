@@ -56,7 +56,6 @@ const StudentDashboard = (props) => {
         res_status: 0
     });
     const { studentId: stdIdParam } = useParams();
-    console.log('stdIdParam', stdIdParam);
     const studentId = is_TaiGer_Student(user) ? user._id : stdIdParam;
     const { data: data, isLoading: isLoadingApplications } = useQuery(
         getApplicationStudentV2Query({ studentId })

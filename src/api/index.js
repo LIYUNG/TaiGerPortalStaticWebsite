@@ -228,16 +228,7 @@ export const getTemplateDownload = (category) =>
     request.get(`/api/account/files/template/${category}`, {
         responseType: 'blob'
     });
-export const WidgetTranscriptanalyser = (
-    category,
-    language,
-    courses,
-    table_data_string_taiger_guided
-) =>
-    request.post(`/api/widgets/transcript/${category}/${language}`, {
-        courses,
-        table_data_string_taiger_guided
-    });
+
 export const WidgetTranscriptanalyserV2 = (
     language,
     courses,
@@ -250,11 +241,6 @@ export const WidgetTranscriptanalyserV2 = (
         factor
     });
 
-export const WidgetanalyzedFileDownload = (adminId) =>
-    request.get(`/api/widgets/transcript/${adminId}`, {
-        responseType: 'blob'
-    });
-
 export const WidgetanalyzedFileV2Download = (adminId) =>
     request.get(`/api/widgets/transcript/v2/${adminId}`);
 
@@ -262,11 +248,6 @@ export const WidgetExportMessagePDF = (student_id) =>
     request.get(`/api/widgets/messages/export/${student_id}`, {
         responseType: 'blob'
     });
-
-// export const transcriptanalyser_test = (studentId, category, language) =>
-//     request.post(
-//         `/api/courses/transcript/${studentId}/${category}/${language}`
-//     );
 
 export const transcriptanalyser_testV2 = ({
     language,
@@ -279,10 +260,6 @@ export const transcriptanalyser_testV2 = ({
         factor
     });
 
-// export const analyzedFileDownload_test = (studentId) =>
-//     request.get(`/api/courses/transcript/${studentId}`, {
-//         responseType: 'blob'
-//     });
 export const analyzedFileV2Download = (user_id) =>
     request.get(`/api/courses/transcript/v2/${user_id}`);
 
@@ -312,6 +289,9 @@ export const getProgramRequirements = () =>
 
 export const getProgramRequirementsV2 = () =>
     getData(`/api/program-requirements`);
+
+export const getSameProgramStudents = ({ programId }) =>
+    getData(`/api/programs/same-program-students/${programId}`);
 
 export const postProgramRequirements = (payload) =>
     request.post(`/api/program-requirements/new`, payload);
@@ -668,6 +648,13 @@ export const updateOfficehours = (user_id, officehours, timezone) =>
 // Teams
 export const getTeamMembers = () => request.get('/api/teams');
 export const getStatisticsV2 = () => getData('/api/teams/statistics');
+export const getStatisticsOverviewV2 = () =>
+    getData('/api/teams/statistics/overview');
+export const getStatisticsAgentsV2 = () =>
+    getData('/api/teams/statistics/agents');
+export const getStatisticsKPIV2 = () => getData('/api/teams/statistics/kpi');
+export const getStatisticsResponseTimeV2 = () =>
+    getData('/api/teams/statistics/response-time');
 export const getTasksOverview = () => getData('/api/teams/tasks-overview');
 export const getIsManager = () => getData('/api/teams/is-manager');
 export const getResponseIntervalByStudent = (studentId) =>

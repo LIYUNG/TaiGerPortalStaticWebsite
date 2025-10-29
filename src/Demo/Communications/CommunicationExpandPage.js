@@ -46,8 +46,7 @@ const StudentDetailModal = ({
     open,
     anchorStudentDetailEl,
     dropdownId,
-    handleStudentDetailModalClose,
-    student_id
+    handleStudentDetailModalClose
 }) => (
     <Menu
         anchorEl={anchorStudentDetailEl}
@@ -68,7 +67,7 @@ const StudentDetailModal = ({
                 justifyContent="space-between"
             >
                 <Box>
-                    <FetchStudentLayer studentId={student_id} />
+                    <FetchStudentLayer />
                 </Box>
             </Box>
         </ListItem>
@@ -525,7 +524,6 @@ const CommunicationExpandPage = () => {
                             handleStudentDetailModalClose
                         }
                         open={isStudentDetailModalOpen}
-                        student_id={studentId}
                     />
                 </Box>
             </Grid>

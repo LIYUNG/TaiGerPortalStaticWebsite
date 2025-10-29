@@ -86,9 +86,6 @@ const AllBaseDocuments = React.lazy(
 );
 
 const MyCourses = React.lazy(() => import('./Demo/MyCourses/index'));
-const MyCoursesAnalysis = React.lazy(
-    () => import('./Demo/MyCourses/CourseAnalysis')
-);
 
 const MyCoursesAnalysisV2 = React.lazy(
     () => import('./Demo/MyCourses/CourseAnalysisV2')
@@ -528,12 +525,6 @@ const routes = [
                 Component: MyCourses
             },
             {
-                path: 'analysis/:user_id',
-                exact: true,
-                name: 'My Courses Analysis',
-                Component: MyCoursesAnalysis
-            },
-            {
                 path: 'analysis/v2/:user_id',
                 exact: true,
                 name: 'My Courses Analysis',
@@ -700,12 +691,6 @@ const routes = [
                 exact: true,
                 name: 'MyCourses Analysis',
                 Component: MyCoursesAnalysisV2
-            },
-            {
-                path: 'widgets/:user_id',
-                exact: true,
-                name: 'My MyCourses Analysis',
-                Component: MyCoursesAnalysis
             },
             {
                 path: 'database/public-docs',

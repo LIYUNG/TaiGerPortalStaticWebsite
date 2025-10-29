@@ -49,14 +49,6 @@ export const AllCoursesTable = ({ isLoading, data }) => {
         data: data || []
     });
 
-    const onDeleteClick = () => {
-        setOpenDeleteDialog(true);
-    };
-
-    const handleDialogClose = () => {
-        setOpenDeleteDialog(false);
-    };
-
     const handleOnSuccess = () => {
         table.resetRowSelection();
         setOpenDeleteDialog(false);
@@ -64,7 +56,7 @@ export const AllCoursesTable = ({ isLoading, data }) => {
 
     table.options.renderTopToolbar = (
         <TopToolbar
-            onDeleteClick={onDeleteClick}
+            onDeleteClick={() => setOpenDeleteDialog(true)}
             table={table}
             toolbarStyle={customTableStyles.toolbarStyle}
         />
@@ -90,7 +82,7 @@ export const AllCoursesTable = ({ isLoading, data }) => {
                         })
                     )}
                 handleOnSuccess={handleOnSuccess}
-                onClose={handleDialogClose}
+                onClose={() => setOpenDeleteDialog(false)}
                 open={openDeleteDialog}
             />
         </>

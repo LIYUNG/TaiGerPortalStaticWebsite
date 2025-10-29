@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { getStudentAndDocLinks } from '../../api';
 import { SingleStudentPageMainContent } from './SingleStudentPage';
 import { Box, CircularProgress } from '@mui/material';
 
-export const FetchStudentLayer = ({ studentId }) => {
+export const FetchStudentLayer = () => {
+    const { studentId } = useParams();
     const [studentData, setStudentData] = useState({});
     const [isLoaded, setIsLoaded] = useState(false);
     const [, setError] = useState(null);

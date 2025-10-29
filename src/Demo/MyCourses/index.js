@@ -40,8 +40,6 @@ import {
 
 import {
     getMycourses,
-    // analyzedFileDownload_test,
-    // transcriptanalyser_test,
     putMycourses,
     transcriptanalyser_testV2
 } from '../../api';
@@ -84,7 +82,6 @@ export default function MyCourses() {
         success: false,
         student: null,
         file: '',
-        study_group: '',
         analysis_language: '',
         analyzed_course: '',
         expand: true,
@@ -317,77 +314,6 @@ export default function MyCourses() {
             setOpenSnackbar(true);
         }
     };
-
-    // const onDownload = () => {
-    //     setStatedata((prevState) => ({
-    //         ...prevState,
-    //         isDownloading: true
-    //     }));
-    //     analyzedFileDownload_test(statedata.student._id.toString()).then(
-    //         (resp) => {
-    //             // TODO: timeout? success?
-    //             const { status } = resp;
-    //             if (status < 300) {
-    //                 const actualFileName = decodeURIComponent(
-    //                     resp.headers['content-disposition'].split('"')[1]
-    //                 ); //  檔名中文亂碼 solved
-    //                 const { data: blob } = resp;
-    //                 if (blob.size === 0) return;
-
-    //                 var filetype = actualFileName.split('.'); //split file name
-    //                 filetype = filetype.pop(); //get the file type
-
-    //                 if (filetype === 'pdf') {
-    //                     const url = window.URL.createObjectURL(
-    //                         new Blob([blob], { type: 'application/pdf' })
-    //                     );
-
-    //                     //Open the URL on new Window
-    //                     window.open(url); //TODO: having a reasonable file name, pdf viewer
-    //                 } else {
-    //                     //if not pdf, download instead.
-
-    //                     const url = window.URL.createObjectURL(
-    //                         new Blob([blob])
-    //                     );
-
-    //                     const link = document.createElement('a');
-    //                     link.href = url;
-    //                     link.setAttribute('download', actualFileName);
-    //                     // Append to html link element page
-    //                     document.body.appendChild(link);
-    //                     // Start download
-    //                     link.click();
-    //                     // Clean up and remove the link
-    //                     link.parentNode.removeChild(link);
-    //                     setStatedata((state) => ({
-    //                         ...state,
-    //                         isDownloading: false
-    //                     }));
-    //                 }
-    //             } else {
-    //                 const { statusText } = resp;
-    //                 setStatedata((state) => ({
-    //                     ...state,
-    //                     isLoaded: true,
-    //                     res_modal_status: status,
-    //                     res_modal_message: statusText,
-    //                     isDownloading: false
-    //                 }));
-    //             }
-    //         },
-    //         (error) => {
-    //             setStatedata((prevState) => ({
-    //                 ...prevState,
-    //                 isLoaded: true,
-    //                 error,
-    //                 res_modal_status: 500,
-    //                 res_modal_message: '',
-    //                 isDownloading: false
-    //             }));
-    //         }
-    //     );
-    // };
 
     const closeModal = () => {
         setStatedata((prevState) => ({
@@ -759,10 +685,7 @@ export default function MyCourses() {
                 <DialogTitle>{t('Confirmation', { ns: 'common' })}</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        {t(
-                            'Update transcript successfully! Your agent will be notified and will analyse your courses as soon as possible.',
-                            { ns: 'courses' }
-                        )}
+                        {t('Update transcript successfully', { ns: 'courses' })}
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>

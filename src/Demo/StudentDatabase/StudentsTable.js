@@ -190,7 +190,7 @@ export const StudentsTable = ({
         }),
 
         columnHelper.accessor('archiv', {
-            header: t('Archiv', { ns: 'common' }),
+            header: t('Archive', { ns: 'common' }),
             size: 90,
             Cell: (params) => {
                 return params.row.original.archiv ? 'true' : 'false';

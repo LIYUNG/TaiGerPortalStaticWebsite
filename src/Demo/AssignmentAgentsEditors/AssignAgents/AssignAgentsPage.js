@@ -63,7 +63,7 @@ const AssignAgentsPage = ({ students, submitUpdateAgentlist }) => {
             <BreadcrumbsNavigation
                 items={[
                     { label: appConfig.companyName, link: DEMO.DASHBOARD_LINK },
-                    { label: t('Assign Agents') }
+                    { label: t('Assign Agents', { ns: 'common' }) }
                 ]}
             />
             <NoAgentsTable

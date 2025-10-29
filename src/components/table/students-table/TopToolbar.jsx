@@ -45,7 +45,9 @@ export const TopToolbar = ({
                     sx={{ mr: 1 }}
                     variant="contained"
                 >
-                    {i18next.t('Archive')}
+                    {i18next.t('Archive', {
+                        ns: 'common'
+                    })}
                 </Button>
                 <Button
                     color="success"
@@ -54,7 +56,9 @@ export const TopToolbar = ({
                     sx={{ mr: 1 }}
                     variant="contained"
                 >
-                    {i18next.t('Attributes')}
+                    {i18next.t('Attributes', {
+                        ns: 'common'
+                    })}
                 </Button>
                 <Button
                     color="secondary"
@@ -64,7 +68,7 @@ export const TopToolbar = ({
                     sx={{ mr: 1 }}
                     variant="contained"
                 >
-                    {i18next.t('Assign Agents')}
+                    {i18next.t('Assign Agents', { ns: 'common' })}
                 </Button>
                 <Button
                     color="success"
@@ -74,7 +78,7 @@ export const TopToolbar = ({
                     sx={{ mr: 1 }}
                     variant="contained"
                 >
-                    {i18next.t('Assign Editors')}
+                    {i18next.t('Assign Editors', { ns: 'common' })}
                 </Button>
             </Stack>
         </Box>

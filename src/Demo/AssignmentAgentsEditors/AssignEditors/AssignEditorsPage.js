@@ -51,7 +51,7 @@ const AssignEditorsPage = ({ students, submitUpdateEditorlist }) => {
             <BreadcrumbsNavigation
                 items={[
                     { label: appConfig.companyName, link: DEMO.DASHBOARD_LINK },
-                    { label: t('Assign Editors') }
+                    { label: t('Assign Editors', { ns: 'common' }) }
                 ]}
             />
             <Card sx={{ p: 2 }}>

@@ -2,13 +2,8 @@ import React, { useState } from 'react';
 import {
     Box,
     Button,
-    CircularProgress,
     Card,
-    FormControl,
-    InputLabel,
     Link,
-    MenuItem,
-    Select,
     Typography,
     Badge,
     Tabs,
@@ -20,20 +15,16 @@ import { Navigate, Link as LinkDom, useParams } from 'react-router-dom';
 // import 'react-datasheet-grid/dist/style.css';
 import { is_TaiGer_role } from '@taiger-common/core';
 import './react-datasheet-customize.css';
+import i18next from 'i18next';
 
-import { convertDateUXFriendly, study_group } from '../../utils/contants';
+import { convertDateUXFriendly } from '../../utils/contants';
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
-import {
-    WidgetanalyzedFileDownload,
-    WidgetTranscriptanalyser,
-    WidgetTranscriptanalyserV2
-} from '../../api';
+import { WidgetTranscriptanalyserV2 } from '../../api';
 import DEMO from '../../store/constant';
 import { useAuth } from '../../components/AuthProvider';
 import { a11yProps, CustomTabPanel } from '../../components/Tabs';
 import { useSnackBar } from '../../contexts/use-snack-bar';
-import i18next from 'i18next';
 import { ProgramRequirementsTable } from '../../components/ProgramRequirementsTable/ProgramRequirementsTable';
 
 export default function CourseWidgetBody({ programRequirements }) {
@@ -54,7 +45,6 @@ export default function CourseWidgetBody({ programRequirements }) {
         analysis: {},
         success: false,
         student: null,
-        study_group: '',
         analysis_language: '',
         analyzed_course: '',
         isAnalysing: false,
@@ -77,156 +67,12 @@ export default function CourseWidgetBody({ programRequirements }) {
         }));
     };
 
-    const handleChange_study_group = (e) => {
-        e.preventDefault();
-        const { value } = e.target;
-        setStatedata((state) => ({
-            ...state,
-            study_group: value
-        }));
-    };
-
-    const handleChange_analysis_language = (e) => {
-        e.preventDefault();
-        const { value } = e.target;
-        setStatedata((state) => ({
-            ...state,
-            analysis_language: value
-        }));
-    };
-
     const ConfirmError = () => {
         setStatedata((state) => ({
             ...state,
             res_modal_status: 0,
             res_modal_message: ''
         }));
-    };
-
-    const onAnalyse = () => {
-        if (statedata.study_group === '') {
-            alert('Please select study group');
-            return;
-        }
-        setStatedata((state) => ({
-            ...state,
-            isAnalysing: true
-        }));
-        WidgetTranscriptanalyser(
-            statedata.study_group,
-            statedata.analysis_language,
-            statedata.coursesdata,
-            []
-        ).then(
-            (resp) => {
-                const { data, success } = resp.data;
-                const { status } = resp;
-                if (success) {
-                    setSeverity('success');
-                    setMessage(i18next.t('Transcript analysed successfully!'));
-                    setOpenSnackbar(true);
-                    setStatedata((state) => ({
-                        ...state,
-                        analysis: data,
-                        success: success,
-                        isAnalysing: false,
-                        res_modal_status: status
-                    }));
-                } else {
-                    setStatedata((state) => ({
-                        ...state,
-                        isAnalysing: false,
-                        res_modal_status: status,
-                        res_modal_message:
-                            'Make sure that you updated your courses and select the right target group and language!'
-                    }));
-                }
-            },
-            (error) => {
-                setSeverity('error');
-                setMessage(
-                    error.message || 'An error occurred. Please try again.'
-                );
-                setOpenSnackbar(true);
-                setStatedata((state) => ({
-                    ...state,
-                    isAnalysing: false,
-                    error,
-                    res_modal_status: 500,
-                    res_modal_message:
-                        'Make sure that you updated your courses and select the right target group and language!'
-                }));
-            }
-        );
-    };
-
-    const onDownload = () => {
-        setStatedata((state) => ({
-            ...state,
-            isDownloading: true
-        }));
-        WidgetanalyzedFileDownload(user._id.toString()).then(
-            (resp) => {
-                // TODO: timeout? success?
-                const { status } = resp;
-                if (status < 300) {
-                    const actualFileName = decodeURIComponent(
-                        resp.headers['content-disposition'].split('"')[1]
-                    ); //  檔名中文亂碼 solved
-                    const { data: blob } = resp;
-                    if (blob.size === 0) return;
-
-                    var filetype = actualFileName.split('.'); //split file name
-                    filetype = filetype.pop(); //get the file type
-
-                    if (filetype === 'pdf') {
-                        const url = window.URL.createObjectURL(
-                            new Blob([blob], { type: 'application/pdf' })
-                        );
-
-                        //Open the URL on new Window
-                        window.open(url); //TODO: having a reasonable file name, pdf viewer
-                    } else {
-                        //if not pdf, download instead.
-
-                        const url = window.URL.createObjectURL(
-                            new Blob([blob])
-                        );
-
-                        const link = document.createElement('a');
-                        link.href = url;
-                        link.setAttribute('download', actualFileName);
-                        // Append to html link element page
-                        document.body.appendChild(link);
-                        // Start download
-                        link.click();
-                        // Clean up and remove the link
-                        link.parentNode.removeChild(link);
-                        setStatedata((state) => ({
-                            ...state,
-                            isDownloading: false
-                        }));
-                    }
-                } else {
-                    const { statusText } = resp;
-                    setStatedata((state) => ({
-                        ...state,
-                        res_modal_status: status,
-                        res_modal_message: statusText,
-                        isDownloading: false
-                    }));
-                }
-            },
-            (error) => {
-                setStatedata((state) => ({
-                    ...state,
-                    error,
-                    res_modal_status: 500,
-                    res_modal_message: '',
-                    isDownloading: false
-                }));
-            }
-        );
     };
 
     const transformedData = programRequirements.map((row) => {
@@ -419,116 +265,18 @@ export default function CourseWidgetBody({ programRequirements }) {
                             value={value}
                             variant="scrollable"
                         >
-                            <Tab label="Default" {...a11yProps(value, 0)} />
                             <Tab
                                 label={
                                     <Badge badgeContent="V2" color="error">
                                         New Analyzer
                                     </Badge>
                                 }
-                                {...a11yProps(value, 1)}
+                                {...a11yProps(value, 0)}
                             />
                         </Tabs>
                     </Box>
+
                     <CustomTabPanel index={0} value={value}>
-                        <FormControl fullWidth>
-                            <InputLabel id="select-target-group">
-                                {i18next.t('Select Target Group', {
-                                    ns: 'courses'
-                                })}
-                            </InputLabel>
-                            <Select
-                                id="study_group"
-                                label="Select target group"
-                                labelId="study_group"
-                                name="study_group"
-                                onChange={(e) => handleChange_study_group(e)}
-                            >
-                                <MenuItem value="">Select Study Group</MenuItem>
-                                {study_group.map((cat, i) => (
-                                    <MenuItem key={i} value={cat.key}>
-                                        {cat.value}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                        <br />
-                        <br />
-                        <FormControl fullWidth>
-                            <InputLabel id="select-language">
-                                {i18next.t('Select language', {
-                                    ns: 'courses'
-                                })}
-                            </InputLabel>
-                            <Select
-                                id="analysis_language"
-                                label={i18next.t('Select language', {
-                                    ns: 'courses'
-                                })}
-                                labelId="analysis_language"
-                                name="analysis_language"
-                                onChange={(e) =>
-                                    handleChange_analysis_language(e)
-                                }
-                            >
-                                <MenuItem value="">
-                                    {i18next.t('Select language')}
-                                </MenuItem>
-                                <MenuItem value="zh">中文</MenuItem>
-                                <MenuItem value="en">
-                                    English (Beta Version)
-                                </MenuItem>
-                            </Select>
-                        </FormControl>
-                        <br />
-                        <br />
-                        <Button
-                            color="primary"
-                            disabled={
-                                statedata.isAnalysing ||
-                                statedata.study_group === '' ||
-                                statedata.analysis_language === ''
-                            }
-                            endIcon={
-                                statedata.isAnalysing ? (
-                                    <CircularProgress size={24} />
-                                ) : null
-                            }
-                            onClick={onAnalyse}
-                            variant="contained"
-                        >
-                            {statedata.isAnalysing
-                                ? i18next.t('Analysing', { ns: 'courses' })
-                                : i18next.t('Analyse', { ns: 'courses' })}
-                        </Button>
-                        <Typography>
-                            {statedata.analysis &&
-                            statedata.analysis.isAnalysed ? (
-                                <>
-                                    <Button
-                                        disabled={statedata.isDownloading}
-                                        onClick={onDownload}
-                                    >
-                                        {i18next.t('Download', {
-                                            ns: 'common'
-                                        })}
-                                    </Button>
-                                    <Link
-                                        component={LinkDom}
-                                        target="_blank"
-                                        to={`${DEMO.INTERNAL_WIDGET_LINK(user._id.toString())}`}
-                                    >
-                                        {i18next.t('View Online', {
-                                            ns: 'courses'
-                                        })}
-                                    </Link>
-                                </>
-                            ) : (
-                                i18next.t('No analysis yet', { ns: 'courses' })
-                            )}
-                        </Typography>
-                    </CustomTabPanel>
-                    <CustomTabPanel index={1} value={value}>
                         <Box
                             alignItems="center"
                             display="flex"
@@ -545,25 +293,15 @@ export default function CourseWidgetBody({ programRequirements }) {
                         <Typography>
                             {statedata.analysis &&
                             statedata.analysis.isAnalysedV2 ? (
-                                <>
-                                    <Button
-                                        disabled={statedata.isDownloading}
-                                        onClick={onDownload}
-                                    >
-                                        {i18next.t('Download', {
-                                            ns: 'common'
-                                        })}
-                                    </Button>
-                                    <Link
-                                        component={LinkDom}
-                                        target="_blank"
-                                        to={`${DEMO.INTERNAL_WIDGET_V2_LINK(user._id.toString())}`}
-                                    >
-                                        {i18next.t('View Online', {
-                                            ns: 'courses'
-                                        })}
-                                    </Link>
-                                </>
+                                <Link
+                                    component={LinkDom}
+                                    target="_blank"
+                                    to={`${DEMO.INTERNAL_WIDGET_V2_LINK(user._id.toString())}`}
+                                >
+                                    {i18next.t('View Online', {
+                                        ns: 'courses'
+                                    })}
+                                </Link>
                             ) : (
                                 i18next.t('No analysis yet', { ns: 'courses' })
                             )}
