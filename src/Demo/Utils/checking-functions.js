@@ -18,6 +18,10 @@ import {
 } from '@taiger-common/core';
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
+export const isProgramExpired = (application) => {
+    return application.closed === 'E';
+};
+
 export const is_User_Archived = (user) => user?.archiv === true;
 
 export const student_transform = (students) =>
@@ -813,6 +817,9 @@ export const application_date_calculator = (student, application) => {
 };
 
 export const application_deadline_V2_calculator = (application) => {
+    if (isProgramExpired(application)) {
+        return 'EXPIRED';
+    }
     if (isProgramWithdraw(application)) {
         return 'WITHDRAW';
     }

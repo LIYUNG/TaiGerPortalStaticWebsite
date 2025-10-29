@@ -50,7 +50,8 @@ import {
     is_program_ml_rl_essay_ready,
     is_the_uni_assist_vpd_uploaded,
     isCVFinished,
-    application_deadline_V2_calculator
+    application_deadline_V2_calculator,
+    isProgramExpired
 } from '../Utils/checking-functions';
 import OverlayButton from '../../components/Overlay/OverlayButton';
 import Banner from '../../components/Banner/Banner';
@@ -187,17 +188,24 @@ const StudentApplicationsTableTemplate = (props) => {
         ).then((resp) => {
             const { success, data } = resp.data;
             if (success) {
-                const applications_temp = [
+                const applicationNew = [
                     ...studentApplicationsTableTemplateState.student
                         .applications
                 ];
-                applications_temp[
-                    applications_temp.findIndex(
-                        (app) =>
-                            app._id ===
-                            studentApplicationsTableTemplateState.application_id
-                    )
-                ].application_year = data.application_year;
+                const appIndex = applicationNew.findIndex(
+                    (app) =>
+                        app._id ===
+                        studentApplicationsTableTemplateState.application_id
+                );
+                if (
+                    isProgramExpired(applicationNew[appIndex]) &&
+                    data.application_year > new Date().getFullYear()
+                ) {
+                    applicationNew[appIndex].closed = '-';
+                }
+
+                applicationNew[appIndex].application_year =
+                    data.application_year;
                 setStudentApplicationsTableTemplateState((prevState) => ({
                     ...prevState,
                     isLoaded: true,
@@ -205,7 +213,7 @@ const StudentApplicationsTableTemplate = (props) => {
                     modalEditApplication: false,
                     student: {
                         ...prevState.student,
-                        applications: applications_temp
+                        applications: applicationNew
                     }
                 }));
             } else {
@@ -593,7 +601,8 @@ const StudentApplicationsTableTemplate = (props) => {
                             </FormControl>
                         </TableCell>
                         {isProgramDecided(application) &&
-                        !isProgramWithdraw(application) ? (
+                        !isProgramWithdraw(application) &&
+                        !isProgramExpired(application) ? (
                             <TableCell>
                                 {/* When all thread finished */}
                                 {isProgramSubmitted(application) ||
@@ -655,9 +664,12 @@ const StudentApplicationsTableTemplate = (props) => {
                             </TableCell>
                         ) : (
                             <TableCell>
-                                {isProgramWithdraw(application) ? (
+                                {isProgramWithdraw(application) ||
+                                isProgramExpired(application) ? (
                                     <Typography color="error" fontWeight="bold">
-                                        WITHDRAW
+                                        {isProgramWithdraw(application)
+                                            ? 'WITHDRAW'
+                                            : 'EXPIRED'}
                                     </Typography>
                                 ) : (
                                     '-'
@@ -753,6 +765,7 @@ const StudentApplicationsTableTemplate = (props) => {
                             <TableCell>
                                 {isProgramDecided(application) &&
                                     !isProgramSubmitted(application) &&
+                                    !isProgramExpired(application) &&
                                     // only show withdraw/undo button when the program is decided but not submitted
                                     (isProgramWithdraw(application) ? (
                                         <Tooltip arrow title="Undo Withdraw">
