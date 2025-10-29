@@ -305,7 +305,7 @@ const Overview = () => {
             if (!yearMap.has(yearKey)) {
                 yearMap.set(yearKey, {
                     year: yearKey,
-                    accepted: 0,
+                    offer: 0,
                     rejected: 0,
                     pending: 0,
                     total: 0
@@ -316,7 +316,7 @@ const Overview = () => {
             yearRow.total += 1;
 
             if (record.hasOffer) {
-                yearRow.accepted += 1;
+                yearRow.offer += 1;
             } else if (record.hasRejection && !record.hasPending) {
                 // All applications rejected
                 yearRow.rejected += 1;
@@ -331,7 +331,7 @@ const Overview = () => {
             .map((r) => ({
                 id: r.year,
                 ...r,
-                acceptanceRate: formatAcceptanceRate(r.accepted, r.rejected)
+                acceptanceRate: formatAcceptanceRate(r.offer, r.rejected)
             }));
     }, [data]);
 
@@ -436,8 +436,8 @@ const Overview = () => {
     const studentsByDegreeSeries = useMemo(
         () => [
             {
-                dataKey: 'accepted',
-                label: t('Accepted'),
+                dataKey: 'offer',
+                label: t('Offer'),
                 stack: 'result',
                 color: theme.palette.success.main
             },
@@ -543,8 +543,8 @@ const Overview = () => {
                 width: 120
             },
             {
-                field: 'accepted',
-                headerName: t('Accepted'),
+                field: 'offer',
+                headerName: t('Offer'),
                 width: 120
             },
             {
