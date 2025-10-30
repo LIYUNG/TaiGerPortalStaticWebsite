@@ -12,7 +12,9 @@ import { MuiDataGrid } from '../../components/MuiDataGrid';
 
 export default function AdmissionTable({ query }) {
     const { t } = useTranslation();
-    const { data } = useQuery(getAdmissionsQuery(queryString.stringify(query)));
+    const { data, isLoading } = useQuery(
+        getAdmissionsQuery(queryString.stringify(query))
+    );
 
     const admisstionTableColumns = [
         {
@@ -186,6 +188,7 @@ export default function AdmissionTable({ query }) {
     return (
         <MuiDataGrid
             columns={memoizedColumns}
+            isLoading={isLoading}
             rows={
                 data?.data.map((application) => ({
                     ...application,

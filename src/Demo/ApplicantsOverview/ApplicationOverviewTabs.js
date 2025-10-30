@@ -1,14 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import {
-    Link,
-    Tabs,
-    Tab,
-    Box,
-    Typography,
-    TextField,
-    Popover,
-    Card
-} from '@mui/material';
+import { Link, Tabs, Tab, Box, Typography, Card, Popover } from '@mui/material';
 import PropTypes from 'prop-types';
 import { Link as LinkDom } from 'react-router-dom';
 import {
@@ -29,7 +20,7 @@ import { useAuth } from '../../components/AuthProvider';
 import { CustomTabPanel, a11yProps } from '../../components/Tabs';
 import { useTranslation } from 'react-i18next';
 import ProgramUpdateStatusTable from './ProgramUpdateStatusTable';
-import { DataGrid, GridToolbar } from '@mui/x-data-grid';
+import { MuiDataGrid } from '../../components/MuiDataGrid';
 import TasksDistributionBarChart from '../../components/Charts/TasksDistributionBarChart';
 import useStudents from '../../hooks/useStudents';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
@@ -46,8 +37,8 @@ const ApplicationOverviewTabs = ({ students: stds, applications }) => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const [value, setValue] = useState(0);
-    const [filters, setFilters] = useState({});
-    const [anchorEl, setAnchorEl] = useState(null);
+    const [popoverAnchorEl, setPopoverAnchorEl] = useState(null);
+    const [selectedRowData, setSelectedRowData] = useState(null);
     const {
         res_modal_status,
         res_modal_message,
@@ -60,21 +51,23 @@ const ApplicationOverviewTabs = ({ students: stds, applications }) => {
     } = useStudents({
         students: stds
     });
-    const [hoveredRowData, setClickedRowData] = useState(null);
+
     const handleChange = (event, newValue) => {
         setValue(newValue);
+    };
+
+    const handleRowClick = (row, event) => {
+        setPopoverAnchorEl(event.currentTarget);
+        setSelectedRowData(row);
+    };
+
+    const handlePopoverClose = () => {
+        setPopoverAnchorEl(null);
+        setSelectedRowData(null);
     };
     const open_applications_arr = useMemo(() => {
         return programs_refactor_v2(applications);
     }, [applications]);
-
-    const handleFilterChange = (event, column) => {
-        const { value } = event.target;
-        setFilters((prevFilters) => ({
-            ...prevFilters,
-            [column.field]: value.toLowerCase()
-        }));
-    };
 
     const applications_distribution = open_applications_arr.map(
         ({ closed, deadline, file_type, isPotentials, show }) => {
@@ -93,25 +86,6 @@ const ApplicationOverviewTabs = ({ students: stds, applications }) => {
             potentials: open_distr[date].potentials
         });
     });
-
-    const filteredRows = open_applications_arr.filter((row) => {
-        return Object.keys(filters).every((field) => {
-            const filterValue = filters[field];
-            return (
-                filterValue === '' ||
-                row[field]?.toString().toLowerCase().includes(filterValue)
-            );
-        });
-    });
-
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-    const handleRowClick = (event) => {
-        setAnchorEl(event);
-        const rowData = event.row;
-        setClickedRowData(rowData || null);
-    };
 
     const applicationFileOverviewMuiHeader = [
         {
@@ -216,12 +190,6 @@ const ApplicationOverviewTabs = ({ students: stds, applications }) => {
         }
     ];
 
-    const stopPropagation = (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-    };
-    const open = Boolean(anchorEl);
-
     const studentsTransformed = student_transform(
         students?.filter((student) => !student.archiv)
     );
@@ -299,80 +267,47 @@ const ApplicationOverviewTabs = ({ students: stds, applications }) => {
                     ) : null}
                 </CustomTabPanel>
                 <CustomTabPanel index={1} value={value}>
-                    <div style={{ height: '50%', width: '100%' }}>
-                        <DataGrid
-                            columnHeaderHeight={130}
-                            columns={applicationFileOverviewMuiHeader.map(
-                                (column) => ({
-                                    ...column,
-                                    renderHeader: () => (
-                                        <Box>
-                                            <Typography
-                                                sx={{ my: 1 }}
-                                            >{`${column.headerName}`}</Typography>
-                                            <TextField
-                                                onChange={(event) =>
-                                                    handleFilterChange(
-                                                        event,
-                                                        column
-                                                    )
-                                                }
-                                                onClick={stopPropagation}
-                                                placeholder={`${column.headerName}`}
-                                                size="small"
-                                                sx={{ mb: 1 }}
-                                                type="text"
-                                                value={
-                                                    filters[column.field] || ''
-                                                }
-                                            />
-                                        </Box>
-                                    )
-                                })
-                            )}
-                            density="compact"
-                            disableColumnFilter
-                            disableColumnMenu
-                            disableDensitySelector
-                            getRowId={(row) => row.id}
-                            initialState={{
-                                pagination: {
-                                    paginationModel: { page: 0, pageSize: 20 }
-                                }
-                            }}
-                            onRowClick={handleRowClick}
-                            pageSizeOptions={[10, 20, 50, 100]}
-                            rows={filteredRows}
-                            slotProps={{
-                                toolbar: {
-                                    showQuickFilter: true
-                                }
-                            }}
-                            slots={{ toolbar: GridToolbar }}
-                        />
-                        <Popover
-                            anchorEl={anchorEl}
-                            anchorOrigin={{
-                                vertical: 'center',
-                                horizontal: 'right'
-                            }}
-                            onClose={handleClose}
-                            open={open}
-                            transformOrigin={{
-                                vertical: 'top',
-                                horizontal: 'left'
-                            }}
-                        >
-                            <Typography>
-                                {hoveredRowData?.firstname_lastname}
+                    <MuiDataGrid
+                        columns={applicationFileOverviewMuiHeader}
+                        getRowId={(row) => row.id}
+                        onRowClick={handleRowClick}
+                        rows={open_applications_arr}
+                    />
+                    <Popover
+                        anchorEl={popoverAnchorEl}
+                        anchorOrigin={{
+                            vertical: 'center',
+                            horizontal: 'right'
+                        }}
+                        onClose={handlePopoverClose}
+                        open={Boolean(popoverAnchorEl)}
+                        transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'left'
+                        }}
+                    >
+                        <Box sx={{ p: 2, maxWidth: 400 }}>
+                            <Typography gutterBottom variant="h6">
+                                {selectedRowData?.firstname_lastname}
                             </Typography>
-                            <Typography>{hoveredRowData?.program}</Typography>
-                            <ApplicationProgressCardBody
-                                application={hoveredRowData?.application}
-                                student={hoveredRowData?.student}
-                            />
-                        </Popover>
-                    </div>
+                            <Typography
+                                color="text.secondary"
+                                gutterBottom
+                                variant="body2"
+                            >
+                                {selectedRowData?.program}
+                            </Typography>
+                            {selectedRowData?.application &&
+                                selectedRowData?.student && (
+                                    <ApplicationProgressCardBody
+                                        application={
+                                            selectedRowData.application
+                                        }
+                                        student={selectedRowData.student}
+                                    />
+                                )}
+                        </Box>
+                    </Popover>
                 </CustomTabPanel>
                 <CustomTabPanel index={2} value={value}>
                     <ProgramUpdateStatusTable data={open_applications_arr} />

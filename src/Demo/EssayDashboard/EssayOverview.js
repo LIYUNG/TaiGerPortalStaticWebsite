@@ -156,7 +156,7 @@ const EssayOverview = (props) => {
                 }
             },
             {
-                field: 'agentName',
+                field: 'agents_joined',
                 headerName: t('Agent', { ns: 'common' }),
                 minWidth: 120,
                 renderCell: (params) => {
@@ -327,6 +327,7 @@ const EssayOverview = (props) => {
                         number_input_from_student: false
                     }}
                     columns={memoizedColumns}
+                    isLoading={props.isLoading}
                     rows={props.no_essay_writer_tasks}
                 />
             </CustomTabPanel>
@@ -347,6 +348,7 @@ const EssayOverview = (props) => {
                         number_input_from_student: false
                     }}
                     columns={memoizedColumns}
+                    isLoading={props.isLoading}
                     rows={props.new_message_tasks}
                 />
             </CustomTabPanel>
@@ -367,6 +369,7 @@ const EssayOverview = (props) => {
                         number_input_from_student: false
                     }}
                     columns={memoizedColumns}
+                    isLoading={props.isLoading}
                     rows={props.fav_message_tasks}
                 />
             </CustomTabPanel>
@@ -387,6 +390,7 @@ const EssayOverview = (props) => {
                         number_input_from_student: false
                     }}
                     columns={memoizedColumns}
+                    isLoading={props.isLoading}
                     rows={props.followup_tasks}
                 />
             </CustomTabPanel>
@@ -411,6 +415,7 @@ const EssayOverview = (props) => {
                         number_input_from_student: false
                     }}
                     columns={memoizedColumns}
+                    isLoading={props.isLoading}
                     rows={props.pending_progress_tasks}
                 />
             </CustomTabPanel>
@@ -431,6 +436,7 @@ const EssayOverview = (props) => {
                         number_input_from_student: false
                     }}
                     columns={memoizedColumns}
+                    isLoading={props.isLoading}
                     rows={props.closed_tasks}
                 />
                 <Typography variant="body2">
@@ -457,6 +463,7 @@ const EssayOverview = (props) => {
                         number_input_from_student: false
                     }}
                     columns={memoizedColumns}
+                    isLoading={props.isLoading}
                     rows={props.all_active_message_tasks}
                 />
             </CustomTabPanel>

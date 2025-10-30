@@ -273,7 +273,7 @@ export const UniAssistProgramBlock = ({ application, student }) => {
                                         <Checkbox
                                             checked={
                                                 applicationState.uni_assist
-                                                    .isPaid
+                                                    ?.isPaid
                                             }
                                             disabled={isChecking}
                                             onChange={(e) =>
@@ -282,7 +282,7 @@ export const UniAssistProgramBlock = ({ application, student }) => {
                                                     student._id.toString(),
                                                     applicationState._id.toString(),
                                                     !applicationState.uni_assist
-                                                        .isPaid
+                                                        ?.isPaid
                                                 )
                                             }
                                         />

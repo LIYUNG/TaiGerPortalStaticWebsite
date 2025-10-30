@@ -126,7 +126,7 @@ const EssayDashboard = () => {
                 fav_message_tasks={fav_message_tasks}
                 followup_tasks={followup_tasks}
                 handleFavoriteToggle={handleFavoriteToggle}
-                isLoaded={isLoading}
+                isLoading={isLoading}
                 new_message_tasks={new_message_tasks}
                 no_essay_writer_tasks={no_essay_writer_tasks}
                 pending_progress_tasks={pending_progress_tasks}

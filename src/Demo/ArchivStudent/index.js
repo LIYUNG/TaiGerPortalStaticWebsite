@@ -148,9 +148,6 @@ const ArchivStudents = () => {
                     <StudentsTable
                         data={studentsTransformed}
                         isLoading={false}
-                        // submitUpdateAgentlist={submitUpdateAgentlist}
-                        // submitUpdateAttributeslist={submitUpdateAttributeslist}
-                        // submitUpdateEditorlist={submitUpdateEditorlist}
                         updateStudentArchivStatus={updateStudentArchivStatus}
                     />
                 </Box>
