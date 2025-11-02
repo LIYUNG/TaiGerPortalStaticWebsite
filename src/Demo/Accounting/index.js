@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useMemo } from 'react';
 import { Navigate, Link as LinkDom } from 'react-router-dom';
-import { Box, Card, Link, Typography } from '@mui/material';
+import { Box, Card, Typography } from '@mui/material';
 import { is_TaiGer_role } from '@taiger-common/core';
 import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
 
 import ErrorPage from '../Utils/ErrorPage';
-import { getTeamMembers } from '../../api';
+import { getTeamMembersQuery } from '../../api/query';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '../../store/constant';
 import { appConfig } from '../../config';
@@ -16,68 +17,40 @@ import { BreadcrumbsNavigation } from '../../components/BreadcrumbsNavigation/Br
 const Accounting = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
-    const [accountingState, setAccountingState] = useState({
-        error: '',
-        role: '',
-        isLoaded: false,
-        data: null,
-        success: false,
-        teams: null,
-        res_status: 0
-    });
 
-    useEffect(() => {
-        getTeamMembers().then(
-            (resp) => {
-                const { data, success } = resp.data;
-                const { status } = resp;
-                if (success) {
-                    setAccountingState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        teams: data,
-                        success: success,
-                        res_status: status
-                    }));
-                } else {
-                    setAccountingState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        res_status: status
-                    }));
-                }
-            },
-            (error) => {
-                setAccountingState((prevState) => ({
-                    ...prevState,
-                    isLoaded: true,
-                    error,
-                    res_status: 500
-                }));
-            }
-        );
-    }, []);
+    // Fetch team members using React Query
+    const {
+        data: response,
+        isLoading,
+        error,
+        isError
+    } = useQuery(getTeamMembersQuery());
+
+    // Memoize filtered lists
+    const agents = useMemo(() => {
+        if (!response?.data?.data) return [];
+        return response.data.data.filter((member) => member.role === 'Agent');
+    }, [response]);
+
+    const editors = useMemo(() => {
+        if (!response?.data?.data) return [];
+        return response.data.data.filter((member) => member.role === 'Editor');
+    }, [response]);
 
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
-    TabTitle(`${appConfig.companyName} Accounting`);
-    const { res_status, isLoaded } = accountingState;
 
-    if (!isLoaded && !accountingState.teams) {
+    TabTitle(`${appConfig.companyName} Accounting`);
+
+    if (isLoading) {
         return <Loading />;
     }
 
-    if (res_status >= 400) {
+    if (isError || !response?.data?.success) {
+        const res_status = response?.status || (error?.response?.status ?? 500);
         return <ErrorPage res_status={res_status} />;
     }
-
-    const agents = accountingState.teams.filter(
-        (member) => member.role === 'Agent'
-    );
-    const editors = accountingState.teams.filter(
-        (member) => member.role === 'Editor'
-    );
 
     return (
         <Box>
@@ -123,11 +96,11 @@ const Accounting = () => {
                 </Typography>
                 {editors.map((editor, i) => (
                     <Typography fontWeight="bold" key={i}>
-                        <Link
+                        <LinkDom
                             to={`${DEMO.ACCOUNTING_USER_ID_LINK(editor._id.toString())}`}
                         >
                             {editor.firstname} {editor.lastname}{' '}
-                        </Link>
+                        </LinkDom>
                     </Typography>
                 ))}
             </Card>

@@ -47,7 +47,10 @@ import {
     getUsersCount,
     getActiveThreads,
     getSameProgramStudents,
-    getArchivStudents
+    getArchivStudents,
+    getTeamMembers,
+    getExpense,
+    getApplicationConflicts
 } from '.';
 
 export const getMessagThreadQuery = (threadId) => ({
@@ -275,7 +278,8 @@ export const getMyStudentsApplicationsV2Query = ({ userId, queryString }) => ({
 export const getMyStudentsThreadsQuery = ({ userId, queryString }) => ({
     queryKey: ['document-threads/overview/taiger-user', userId, queryString],
     queryFn: () => getMyStudentsThreads({ userId, queryString }),
-    staleTime: 1000 * 60 * 5 // 5 minutes
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    select: (response) => response?.data || null
 });
 
 export const getStudentsAndDocLinks2Query = (queryString) => ({
@@ -359,5 +363,23 @@ export const getInterviewQuery = (interviewId) => ({
 export const getArchivStudentsQuery = (TaiGerStaffId) => ({
     queryKey: ['archiv-students', TaiGerStaffId],
     queryFn: () => getArchivStudents(TaiGerStaffId),
+    staleTime: 1000 * 60 * 5 // 5 minutes
+});
+
+export const getTeamMembersQuery = () => ({
+    queryKey: ['team-members'],
+    queryFn: getTeamMembers,
+    staleTime: 1000 * 60 * 5 // 5 minutes
+});
+
+export const getExpenseQuery = (taigerUserId) => ({
+    queryKey: ['expenses', 'user', taigerUserId],
+    queryFn: () => getExpense(taigerUserId),
+    staleTime: 1000 * 60 * 5 // 5 minutes
+});
+
+export const getApplicationConflictsQuery = () => ({
+    queryKey: ['application-conflicts'],
+    queryFn: getApplicationConflicts,
     staleTime: 1000 * 60 * 5 // 5 minutes
 });

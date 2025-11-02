@@ -19,15 +19,9 @@ const ProgramTaskDeltaDashboard = () => {
     const [ProgramTaskDeltaDashboardState, setProgramTaskDeltaDashboardState] =
         useState({
             error: '',
-            agent_list: [],
-            editor_list: [],
             isLoaded: false,
             data: [],
-            updateAgentList: {},
-            updateEditorList: {},
             success: false,
-            isDashboard: true,
-            file: '',
             res_status: 0,
             res_modal_message: '',
             res_modal_status: 0

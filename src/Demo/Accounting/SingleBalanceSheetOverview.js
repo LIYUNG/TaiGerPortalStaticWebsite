@@ -1,15 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { Navigate, useParams } from 'react-router-dom';
-import { Box, Card, Button, Link, Typography } from '@mui/material';
+import React from 'react';
+import { Navigate, useParams, Link as LinkDom } from 'react-router-dom';
+import { Box, Card, Button, Typography } from '@mui/material';
 import { is_TaiGer_role } from '@taiger-common/core';
 import i18next from 'i18next';
+import { useQuery } from '@tanstack/react-query';
 
 import ErrorPage from '../Utils/ErrorPage';
-import { getExpense } from '../../api';
-import {
-    frequencyDistribution,
-    programs_refactor
-} from '../Utils/checking-functions';
+import { getExpenseQuery } from '../../api/query';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '../../store/constant';
 import { ExtendableTable } from '../../components/ExtendableTable/ExtendableTable';
@@ -21,95 +18,32 @@ import { BreadcrumbsNavigation } from '../../components/BreadcrumbsNavigation/Br
 const SingleBalanceSheetOverview = () => {
     const { taiger_user_id } = useParams();
     const { user } = useAuth();
-    const [
-        singleBalanceSheetOverviewState,
-        setSingleBalanceSheetOverviewState
-    ] = useState({
-        error: '',
-        role: '',
-        isLoaded: false,
-        data: null,
-        success: false,
-        students: null,
-        the_user: null,
-        res_status: 0
-    });
 
-    useEffect(() => {
-        getExpense(taiger_user_id).then(
-            (resp) => {
-                const { data, success } = resp.data;
-                const { status } = resp;
-                if (success) {
-                    setSingleBalanceSheetOverviewState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        students: data.students,
-                        the_user: data.the_user,
-                        success: success,
-                        res_status: status
-                    }));
-                } else {
-                    setSingleBalanceSheetOverviewState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        res_status: status
-                    }));
-                }
-            },
-            (error) => {
-                setSingleBalanceSheetOverviewState((prevState) => ({
-                    ...prevState,
-                    isLoaded: true,
-                    error,
-                    res_status: 500
-                }));
-            }
-        );
-    }, []);
+    // Fetch expense data using React Query
+    const {
+        data: response,
+        isLoading,
+        error,
+        isError
+    } = useQuery(getExpenseQuery(taiger_user_id));
 
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
-    const { res_status, isLoaded } = singleBalanceSheetOverviewState;
-
-    if (
-        !isLoaded &&
-        !singleBalanceSheetOverviewState.students &&
-        !singleBalanceSheetOverviewState.the_user
-    ) {
+    if (isLoading) {
         return <Loading />;
     }
 
-    if (res_status >= 400) {
+    if (isError || !response?.data?.success) {
+        const res_status = response?.status || (error?.response?.status ?? 500);
         return <ErrorPage res_status={res_status} />;
     }
 
-    TabTitle(
-        `${singleBalanceSheetOverviewState.the_user.role}: ${singleBalanceSheetOverviewState.the_user.firstname}, ${singleBalanceSheetOverviewState.the_user.lastname}`
-    );
+    const students = response.data.data.students;
+    const the_user = response.data.data.the_user;
 
-    const open_applications_arr = programs_refactor(
-        singleBalanceSheetOverviewState.students
-    );
-    const applications_distribution = open_applications_arr
-        .filter(({ isFinalVersion }) => isFinalVersion !== true)
-        .map(({ deadline, file_type, show }) => {
-            return { deadline, file_type, show };
-        });
-    const open_distr = frequencyDistribution(applications_distribution);
-
-    const sort_date = Object.keys(open_distr).sort();
-
-    const sorted_date_freq_pair = [];
-    sort_date.forEach((date) => {
-        sorted_date_freq_pair.push({
-            name: `${date}`,
-            active: open_distr[date].show,
-            potentials: open_distr[date].potentials
-        });
-    });
+    TabTitle(`${the_user.role}: ${the_user.firstname}, ${the_user.lastname}`);
 
     return (
         <Box>
@@ -124,26 +58,22 @@ const SingleBalanceSheetOverview = () => {
                         link: DEMO.ACCOUNTING_LINK
                     },
                     {
-                        label: `${singleBalanceSheetOverviewState.the_user.firstname} ${singleBalanceSheetOverviewState.the_user.lastname}`
+                        label: `${the_user.firstname} ${the_user.lastname}`
                     }
                 ]}
             />
             <Card>
                 <Typography variant="h6">
-                    {singleBalanceSheetOverviewState.the_user.firstname}{' '}
-                    {singleBalanceSheetOverviewState.the_user.lastname} Salary
-                    Overview
+                    {the_user.firstname} {the_user.lastname} Salary Overview
                 </Typography>
             </Card>
-            <ExtendableTable data={singleBalanceSheetOverviewState.students} />
+            <ExtendableTable data={students} />
 
-            <Link
-                to={`${DEMO.TEAM_AGENT_ARCHIV_LINK(
-                    singleBalanceSheetOverviewState.the_user._id.toString()
-                )}`}
+            <LinkDom
+                to={`${DEMO.TEAM_AGENT_ARCHIV_LINK(the_user._id.toString())}`}
             >
                 <Button variant="contained">See Archiv Student</Button>
-            </Link>
+            </LinkDom>
         </Box>
     );
 };
