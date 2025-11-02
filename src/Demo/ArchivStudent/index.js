@@ -1,17 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import { Box } from '@mui/material';
 import { is_TaiGer_role } from '@taiger-common/core';
+import { useTranslation } from 'react-i18next';
+import { useMutation, useQuery } from '@tanstack/react-query';
 
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
-import { getArchivStudents, updateArchivStudents } from '../../api';
+import { updateArchivStudents } from '../../api';
+import { getArchivStudentsQuery } from '../../api/query';
+import { queryClient } from '../../api/client';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '../../store/constant';
 import { useAuth } from '../../components/AuthProvider';
 import Loading from '../../components/Loading/Loading';
 import { appConfig } from '../../config';
-import { useTranslation } from 'react-i18next';
 import { BreadcrumbsNavigation } from '../../components/BreadcrumbsNavigation/BreadcrumbsNavigation';
 import { StudentsTable } from '../StudentDatabase/StudentsTable';
 import { student_transform } from '../Utils/checking-functions';
@@ -20,140 +23,109 @@ const ArchivStudents = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const { user_id } = useParams();
-    const [archivStudentsState, setArchivStudentsState] = useState({
-        error: '',
-        isLoaded: false,
-        students: [],
-        success: false,
-        res_status: 0,
+    const [modalError, setModalError] = useState({
         res_modal_status: 0,
         res_modal_message: ''
     });
 
-    useEffect(() => {
-        const TaiGerStaffId = user_id || user._id.toString();
-        getArchivStudents(TaiGerStaffId).then(
-            (resp) => {
-                const { data, success } = resp.data;
-                const { status } = resp;
-                if (success) {
-                    setArchivStudentsState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        students: data,
-                        success: success,
-                        res_status: status
-                    }));
-                } else {
-                    setArchivStudentsState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        res_status: status
-                    }));
-                }
-            },
-            (error) => {
-                setArchivStudentsState((prevState) => ({
-                    ...prevState,
-                    isLoaded: true,
-                    error,
-                    res_status: 500
-                }));
-            }
-        );
-    }, [archivStudentsState.isLoaded]);
+    const TaiGerStaffId = user_id || user._id.toString();
 
-    const updateStudentArchivStatus = (studentId, isArchived) => {
-        updateArchivStudents(studentId, isArchived).then(
-            (resp) => {
-                const { data, success } = resp.data;
-                const { status } = resp;
-                if (success) {
-                    setArchivStudentsState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        students: data,
-                        success: success,
-                        res_modal_status: status
-                    }));
-                } else {
-                    const { message } = resp.data;
-                    setArchivStudentsState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        res_modal_status: status,
-                        res_modal_message: message
-                    }));
-                }
-            },
-            (error) => {
-                setArchivStudentsState((prevState) => ({
-                    ...prevState,
-                    isLoaded: true,
-                    error,
-                    res_modal_status: 500,
+    // Fetch archived students using React Query
+    const {
+        data: response,
+        isLoading,
+        error,
+        isError
+    } = useQuery(getArchivStudentsQuery(TaiGerStaffId));
+
+    // Mutation for updating student archive status
+    const { mutate: updateStudentArchivStatus } = useMutation({
+        mutationFn: ({ studentId, isArchived }) =>
+            updateArchivStudents(studentId, isArchived),
+        onSuccess: (resp) => {
+            const { success } = resp.data;
+            const { status } = resp;
+            if (success) {
+                // Invalidate and refetch archived students
+                queryClient.invalidateQueries({
+                    queryKey: getArchivStudentsQuery(TaiGerStaffId).queryKey
+                });
+                setModalError({
+                    res_modal_status: 0,
                     res_modal_message: ''
-                }));
+                });
+            } else {
+                const { message } = resp.data;
+                setModalError({
+                    res_modal_status: status,
+                    res_modal_message: message
+                });
             }
-        );
-    };
+        },
+        onError: () => {
+            setModalError({
+                res_modal_status: 500,
+                res_modal_message: ''
+            });
+        }
+    });
 
     const ConfirmError = () => {
-        setArchivStudentsState((prevState) => ({
-            ...prevState,
+        setModalError({
             res_modal_status: 0,
             res_modal_message: ''
-        }));
+        });
     };
 
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
-    TabTitle('Archiv Student');
-    const { res_status, isLoaded, res_modal_status, res_modal_message } =
-        archivStudentsState;
 
-    if (!isLoaded && !archivStudentsState.data) {
+    TabTitle('Archiv Student');
+
+    if (isLoading) {
         return <Loading />;
     }
 
-    if (res_status >= 400) {
+    if (isError || !response?.data?.success) {
+        const res_status = response?.status || (error?.response?.status ?? 500);
         return <ErrorPage res_status={res_status} />;
     }
 
-    const studentsTransformed = student_transform(archivStudentsState.students);
+    const students = response.data.data || [];
+    const studentsTransformed = student_transform(students);
 
-    if (archivStudentsState.success) {
-        return (
-            <Box data-testid="archiv_student_component">
-                <BreadcrumbsNavigation
-                    items={[
-                        {
-                            label: appConfig.companyName,
-                            link: DEMO.DASHBOARD_LINK
-                        },
-                        {
-                            label: `${t('My Archived Students', { ns: 'common' })} (${archivStudentsState.students.length})`
-                        }
-                    ]}
+    return (
+        <Box data-testid="archiv_student_component">
+            <BreadcrumbsNavigation
+                items={[
+                    {
+                        label: appConfig.companyName,
+                        link: DEMO.DASHBOARD_LINK
+                    },
+                    {
+                        label: `${t('My Archived Students', { ns: 'common' })} (${students.length})`
+                    }
+                ]}
+            />
+            {modalError.res_modal_status >= 400 ? (
+                <ModalMain
+                    ConfirmError={ConfirmError}
+                    res_modal_message={modalError.res_modal_message}
+                    res_modal_status={modalError.res_modal_status}
                 />
-                {res_modal_status >= 400 ? (
-                    <ModalMain
-                        ConfirmError={ConfirmError}
-                        res_modal_message={res_modal_message}
-                        res_modal_status={res_modal_status}
-                    />
-                ) : null}
-                <Box sx={{ mt: 2 }}>
-                    <StudentsTable
-                        data={studentsTransformed}
-                        isLoading={false}
-                        updateStudentArchivStatus={updateStudentArchivStatus}
-                    />
-                </Box>
+            ) : null}
+            <Box sx={{ mt: 2 }}>
+                <StudentsTable
+                    data={studentsTransformed}
+                    isLoading={false}
+                    updateStudentArchivStatus={(studentId, isArchived) =>
+                        updateStudentArchivStatus({ studentId, isArchived })
+                    }
+                />
             </Box>
-        );
-    }
+        </Box>
+    );
 };
 
 export default ArchivStudents;

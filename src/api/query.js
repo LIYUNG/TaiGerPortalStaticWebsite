@@ -46,7 +46,8 @@ import {
     getUsers,
     getUsersCount,
     getActiveThreads,
-    getSameProgramStudents
+    getSameProgramStudents,
+    getArchivStudents
 } from '.';
 
 export const getMessagThreadQuery = (threadId) => ({
@@ -353,4 +354,10 @@ export const getInterviewQuery = (interviewId) => ({
     queryKey: ['interviews', interviewId],
     queryFn: () => getInterview(interviewId),
     staleTime: 1000 * 60 * 1 // 1 minute
+});
+
+export const getArchivStudentsQuery = (TaiGerStaffId) => ({
+    queryKey: ['archiv-students', TaiGerStaffId],
+    queryFn: () => getArchivStudents(TaiGerStaffId),
+    staleTime: 1000 * 60 * 5 // 5 minutes
 });
