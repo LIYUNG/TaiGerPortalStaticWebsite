@@ -69,7 +69,7 @@ const EditorPage = () => {
         stats,
         editorUser
     } = useMemo(() => {
-        if (!myStudentsThreads?.data) {
+        if (!myStudentsThreads?.threads) {
             return {
                 sorted_date_freq_pair: [],
                 new_message_tasks: [],
@@ -90,8 +90,8 @@ const EditorPage = () => {
             };
         }
 
-        const open_tasks_arr = open_tasks_v2(myStudentsThreads.data.threads);
-        const editorUser = myStudentsThreads.data.user;
+        const open_tasks_arr = open_tasks_v2(myStudentsThreads.threads);
+        const editorUser = myStudentsThreads.user;
         const tasksWithMyEssay = open_tasks_arr.filter((open_task) =>
             [...AGENT_SUPPORT_DOCUMENTS_A, FILE_TYPE_E.essay_required].includes(
                 open_task.file_type

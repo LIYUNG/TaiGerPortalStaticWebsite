@@ -71,7 +71,7 @@ const EditorMainView = () => {
         return <Loading />;
     }
 
-    const refactored_threads = open_tasks_v2(myStudentsThreads.data.threads);
+    const refactored_threads = open_tasks_v2(myStudentsThreads.threads);
 
     const tasks_withMyEssay_arr = refactored_threads.filter((open_task) =>
         [...AGENT_SUPPORT_DOCUMENTS_A, FILE_TYPE_E.essay_required].includes(

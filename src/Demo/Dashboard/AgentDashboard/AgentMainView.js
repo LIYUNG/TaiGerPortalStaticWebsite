@@ -157,7 +157,7 @@ const AgentMainView = (props) => {
 
     const myStudents = fetchedMyStudents;
 
-    const refactored_threads = open_tasks_v2(myStudentsThreads.data.threads);
+    const refactored_threads = open_tasks_v2(myStudentsThreads.threads);
 
     const refactored_agent_threads = refactored_threads.filter(
         (open_task) =>
