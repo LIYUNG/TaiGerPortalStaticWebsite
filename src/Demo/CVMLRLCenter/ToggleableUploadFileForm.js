@@ -81,7 +81,7 @@ const ToggleableUploadFileForm = (props) => {
                             : props.handleCreateProgramSpecificMessageThread(
                                   e,
                                   props.student._id,
-                                  props.application.programId._id,
+                                  props.application._id,
                                   props.category
                               )
                     }

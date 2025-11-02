@@ -35,7 +35,7 @@ const ManualFiles = (props) => {
     const handleCreateProgramSpecificMessageThread = (
         e,
         studentId,
-        programId,
+        applicationId,
         fileCategory
     ) => {
         e.preventDefault();
@@ -45,7 +45,7 @@ const ManualFiles = (props) => {
             props.initProgramSpecificFileThread(
                 e,
                 studentId,
-                programId,
+                applicationId,
                 fileCategory
             );
             setCategory('');

@@ -527,11 +527,11 @@ const EditorDocsProgress = (props) => {
     const initProgramSpecificFileThread = (
         e,
         studentId,
-        programId,
+        applicationId,
         document_catgory
     ) => {
         e.preventDefault();
-        initApplicationMessageThread(studentId, programId, document_catgory)
+        initApplicationMessageThread(studentId, applicationId, document_catgory)
             .then((resp) => {
                 const { data, success } = resp.data;
                 const { status } = resp;
@@ -539,7 +539,7 @@ const EditorDocsProgress = (props) => {
                     let student_temp = { ...editorDocsProgressState.student };
                     let application_idx = student_temp.applications.findIndex(
                         (application) =>
-                            application.programId._id.toString() === programId
+                            application._id.toString() === applicationId
                     );
                     student_temp.applications[
                         application_idx
