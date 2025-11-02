@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import {
     Navigate,
     Link as LinkDom,
-    useLoaderData,
-    useLocation
+    useLocation,
+    useParams
 } from 'react-router-dom';
 import EditIcon from '@mui/icons-material/Edit';
 import LaunchIcon from '@mui/icons-material/Launch';
@@ -26,7 +26,8 @@ import {
     IconButton,
     ListItem,
     Grid,
-    Badge
+    Badge,
+    CircularProgress
 } from '@mui/material';
 import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
@@ -72,6 +73,7 @@ import StudentBriefOverview from '../Dashboard/MainViewTab/StudentBriefOverview/
 import ProgramLanguageNotMatchedBanner from '../../components/Banner/ProgramLanguageNotMatchedBanner';
 import Audit from '../Audit';
 import EnglishCertificateExpiredBeforeDeadlineBanner from '../../components/Banner/EnglishCertificateExpiredBeforeDeadlineBanner';
+import { getStudentAndDocLinksQuery } from '../../api/query';
 
 CustomTabPanel.propTypes = {
     children: PropTypes.node,
@@ -599,9 +601,21 @@ export const SingleStudentPageMainContent = ({
 };
 
 const SingleStudentPage = () => {
-    const {
-        data: { survey_link, base_docs_link, data, audit }
-    } = useLoaderData();
+    const { studentId } = useParams();
+    // Fetch student and doc links using React Query
+    const { data: response, isLoading } = useQuery(
+        getStudentAndDocLinksQuery({ studentId })
+    );
+
+    if (isLoading || !response?.data) {
+        return (
+            <Box>
+                <CircularProgress />
+            </Box>
+        );
+    }
+
+    const { survey_link, base_docs_link, data, audit } = response.data;
     return (
         <SingleStudentPageMainContent
             audit={audit}

@@ -2,7 +2,6 @@ import { defer, json } from 'react-router-dom';
 import {
     getStudents,
     getArchivStudents,
-    getStudentAndDocLinks,
     getMyAcademicBackground,
     getComplaintsTickets,
     getComplaintsTicket,
@@ -107,19 +106,6 @@ export function getAllComplaintTicketsLoader() {
 
 export async function getArchivStudentsLoader() {
     const response = await getArchivStudents();
-    if (response.status >= 400) {
-        throw json(
-            { message: response.statusText },
-            { status: response.status }
-        );
-    } else {
-        return response;
-    }
-}
-
-export async function getStudentAndDocLinksLoader({ params }) {
-    const studentId = params.studentId;
-    const response = await getStudentAndDocLinks(studentId);
     if (response.status >= 400) {
         throw json(
             { message: response.statusText },

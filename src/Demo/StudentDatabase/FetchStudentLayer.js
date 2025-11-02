@@ -1,30 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useParams } from 'react-router-dom';
-import { getStudentAndDocLinks } from '../../api';
+import { useQuery } from '@tanstack/react-query';
+import { getStudentAndDocLinksQuery } from '../../api/query';
 import { SingleStudentPageMainContent } from './SingleStudentPage';
 import { Box, CircularProgress } from '@mui/material';
 
 export const FetchStudentLayer = () => {
     const { studentId } = useParams();
-    const [studentData, setStudentData] = useState({});
-    const [isLoaded, setIsLoaded] = useState(false);
-    const [, setError] = useState(null);
-    useEffect(() => {
-        getStudentAndDocLinks(studentId).then(
-            (resp) => {
-                const {
-                    data: { survey_link, base_docs_link, data }
-                } = resp;
-                setStudentData({ survey_link, base_docs_link, data });
-                setIsLoaded(true);
-            },
-            (error) => {
-                setError(error);
-                setIsLoaded(true);
-            }
-        );
-    }, [studentId]);
-    if (!isLoaded || !studentData.data) {
+
+    // Fetch student and doc links using React Query
+    const { data: response, isLoading } = useQuery(
+        getStudentAndDocLinksQuery({ studentId })
+    );
+
+    if (isLoading || !response?.data) {
         return (
             <Box
                 sx={{
@@ -38,12 +27,15 @@ export const FetchStudentLayer = () => {
             </Box>
         );
     }
+
+    const { survey_link, base_docs_link, data, audit } = response.data;
     return (
         <Box sx={{ width: window.innerWidth - 60 }}>
             <SingleStudentPageMainContent
-                base_docs_link={studentData.base_docs_link}
-                data={studentData.data}
-                survey_link={studentData.survey_link}
+                audit={audit}
+                base_docs_link={base_docs_link}
+                data={data}
+                survey_link={survey_link}
             />
         </Box>
     );

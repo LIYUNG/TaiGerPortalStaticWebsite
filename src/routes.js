@@ -3,7 +3,6 @@ import { appConfig } from './config';
 import {
     getApplicationStudentLoader,
     getMyAcademicBackgroundLoader,
-    getStudentAndDocLinksLoader,
     getStudentsLoader,
     getAllComplaintTicketsLoader,
     getComplaintTicketLoader,
@@ -475,7 +474,6 @@ const routes = [
             {
                 path: ':studentId',
                 errorElement: <DefaultErrorPage />,
-                loader: getStudentAndDocLinksLoader,
                 element: <SingleStudentPage />
             }
         ]

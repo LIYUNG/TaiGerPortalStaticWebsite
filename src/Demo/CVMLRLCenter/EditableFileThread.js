@@ -6,12 +6,14 @@ import {
     IconButton,
     Tooltip,
     Stack,
-    Box
+    Box,
+    Chip
 } from '@mui/material';
 import { Link as LinkDom } from 'react-router-dom';
 import CheckIcon from '@mui/icons-material/Check';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ReplayIcon from '@mui/icons-material/Replay';
+import LabelImportantIcon from '@mui/icons-material/LabelImportant';
 import { useTranslation } from 'react-i18next';
 import { is_TaiGer_role } from '@taiger-common/core';
 
@@ -79,13 +81,44 @@ const EditableFileThread = (props) => {
                                 props.thread.doc_thread_id?._id
                             )}
                         >
-                            <Typography
-                                color={
-                                    props.decided === 'O' ? 'primary' : 'grey'
-                                }
+                            <Stack
+                                alignItems="center"
+                                direction="row"
+                                spacing={1}
                             >
-                                {documenName}
-                            </Typography>
+                                <Typography
+                                    color={
+                                        props.decided === 'O'
+                                            ? 'primary'
+                                            : 'grey'
+                                    }
+                                >
+                                    {documenName}{' '}
+                                </Typography>
+
+                                {props.thread.doc_thread_id?.file_type?.includes(
+                                    'RL'
+                                ) ? (
+                                    props.application?.programId
+                                        ?.is_rl_specific ? (
+                                        <Chip
+                                            color="error"
+                                            icon={<LabelImportantIcon />}
+                                            label="Specific"
+                                            size="small"
+                                            variant="filled"
+                                        />
+                                    ) : (
+                                        <Chip
+                                            color="primary"
+                                            icon={<LabelImportantIcon />}
+                                            label="General"
+                                            size="small"
+                                            variant="filled"
+                                        />
+                                    )
+                                ) : null}
+                            </Stack>
                         </Link>
                     </Stack>
                     <Typography color="textSecondary" variant="body2">

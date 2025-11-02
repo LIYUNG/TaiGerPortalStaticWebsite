@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import {
     Button,
     Card,
@@ -14,7 +15,9 @@ import {
     FormGroup,
     FormControlLabel,
     Checkbox,
-    Autocomplete
+    Autocomplete,
+    Tooltip,
+    IconButton
 } from '@mui/material';
 import { DIFFICULTY, is_TaiGer_Admin } from '@taiger-common/core';
 
@@ -813,8 +816,27 @@ const NewProgramEdit = (props) => {
                         </FormControl>
                     </Grid>
                     <Grid item md={6} xs={12}>
-                        <Typography variant="body1">
+                        <Typography
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 0.5
+                            }}
+                            variant="body1"
+                        >
                             {t('RL Program specific?', { ns: 'common' })} *
+                            <Tooltip
+                                arrow
+                                size="small"
+                                title="Mark YES, if the recommendation letter requirements are specific form, questionnaire, specific information needs to be included."
+                            >
+                                <IconButton size="body1" sx={{ padding: 0 }}>
+                                    <InfoOutlinedIcon
+                                        color="action"
+                                        fontSize="small"
+                                    />
+                                </IconButton>
+                            </Tooltip>
                         </Typography>
                     </Grid>
                     <Grid item md={6} xs={12}>
