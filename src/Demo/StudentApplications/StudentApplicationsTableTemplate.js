@@ -301,9 +301,17 @@ const StudentApplicationsTableTemplate = (props) => {
 
     const handleSubmit = (e, student_id) => {
         e.preventDefault();
-        let applications_temp = [
-            ...studentApplicationsTableTemplateState.student.applications
-        ];
+        let applications_temp =
+            studentApplicationsTableTemplateState.student.applications?.map(
+                (application) => ({
+                    _id: application._id,
+                    programId: application.programId._id,
+                    decided: application.decided,
+                    closed: application.closed,
+                    admission: application.admission,
+                    finalEnrolment: application.finalEnrolment
+                })
+            );
         let applying_program_count =
             studentApplicationsTableTemplateState.applying_program_count;
         setStudentApplicationsTableTemplateState((prevState) => ({
