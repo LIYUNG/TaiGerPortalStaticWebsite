@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, Link as LinkDom } from 'react-router-dom';
 import {
+    Avatar,
     Box,
     Breadcrumbs,
     Card,
@@ -42,6 +43,7 @@ import GrantManagerModal from './GrantManagerModal';
 import { appConfig } from '../../config';
 import { useAuth } from '../../components/AuthProvider';
 import Loading from '../../components/Loading/Loading';
+import { stringAvatar } from '../../utils/contants';
 
 const PermissionIcon = ({ hasPermission }) => {
     if (hasPermission === null || hasPermission === undefined) {
@@ -86,7 +88,22 @@ const EditorRow = ({ editor, setModalShow, user }) => {
         >
             <TableCell>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <PersonIcon sx={{ color: 'primary.main', fontSize: 20 }} />
+                    <Avatar
+                        alt={`${editor.firstname ?? ''} ${editor.lastname ?? ''}`.trim()}
+                        src={editor.pictureUrl}
+                        {...stringAvatar(
+                            `${editor.firstname} ${editor.lastname}`
+                        )}
+                        sx={{
+                            width: 32,
+                            height: 32,
+                            fontSize: 14
+                        }}
+                    >
+                        {`${editor.firstname?.[0] ?? ''}${
+                            editor.lastname?.[0] ?? ''
+                        }`.toUpperCase()}
+                    </Avatar>
                     <Link
                         component={LinkDom}
                         sx={{
@@ -99,6 +116,19 @@ const EditorRow = ({ editor, setModalShow, user }) => {
                         {editor.firstname} {editor.lastname}
                     </Link>
                 </Box>
+            </TableCell>
+            <TableCell align="center">
+                <PermissionIcon
+                    hasPermission={permissions?.canModifyProgramList}
+                />
+            </TableCell>
+            <TableCell align="center">
+                <PermissionIcon
+                    hasPermission={permissions?.canModifyAllBaseDocuments}
+                />
+            </TableCell>
+            <TableCell align="center">
+                <PermissionIcon hasPermission={permissions?.canAccessAllChat} />
             </TableCell>
             <TableCell align="center">
                 <PermissionIcon hasPermission={permissions?.canAssignAgents} />
@@ -190,9 +220,22 @@ const AgentRow = ({ agent, setModalShow, user }) => {
         >
             <TableCell>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <SupervisorAccountIcon
-                        sx={{ color: 'secondary.main', fontSize: 20 }}
-                    />
+                    <Avatar
+                        alt={`${agent.firstname ?? ''} ${agent.lastname ?? ''}`.trim()}
+                        src={agent.pictureUrl}
+                        {...stringAvatar(
+                            `${agent.firstname} ${agent.lastname}`
+                        )}
+                        sx={{
+                            width: 32,
+                            height: 32,
+                            fontSize: 14
+                        }}
+                    >
+                        {`${agent.firstname?.[0] ?? ''}${
+                            agent.lastname?.[0] ?? ''
+                        }`.toUpperCase()}
+                    </Avatar>
                     <Link
                         component={LinkDom}
                         sx={{
@@ -732,6 +775,27 @@ const TaiGerOrg = () => {
                             >
                                 <TableCell sx={{ fontWeight: 600 }}>
                                     {i18next.t('Name', { ns: 'common' })}
+                                </TableCell>
+                                <TableCell
+                                    align="center"
+                                    sx={{ fontWeight: 600 }}
+                                >
+                                    Program
+                                    <br /> List
+                                </TableCell>
+                                <TableCell
+                                    align="center"
+                                    sx={{ fontWeight: 600 }}
+                                >
+                                    Base
+                                    <br /> Docs
+                                </TableCell>
+                                <TableCell
+                                    align="center"
+                                    sx={{ fontWeight: 600 }}
+                                >
+                                    All
+                                    <br /> Chat
                                 </TableCell>
                                 <TableCell
                                     align="center"

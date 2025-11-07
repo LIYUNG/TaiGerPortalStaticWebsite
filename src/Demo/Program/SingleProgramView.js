@@ -33,7 +33,6 @@ import {
     is_TaiGer_role,
     isProgramWithdraw
 } from '@taiger-common/core';
-import { is_TaiGer_External } from '@taiger-common/core';
 
 import {
     isApplicationOpen,
@@ -684,7 +683,7 @@ const SingleProgramView = (props) => {
                     ) : null}
                 </Grid>
                 <Grid item md={4} xs={12}>
-                    {is_TaiGer_AdminAgent(user) || is_TaiGer_External(user) ? (
+                    {is_TaiGer_role(user) ? (
                         <Grid alignItems="center" container spacing={1}>
                             {is_TaiGer_AdminAgent(user) ? (
                                 <Grid item>
@@ -712,7 +711,6 @@ const SingleProgramView = (props) => {
                                     {t('Edit', { ns: 'common' })}
                                 </Button>
                             </Grid>
-
                             {is_TaiGer_Admin(user) ? (
                                 <Grid item>
                                     <Button
