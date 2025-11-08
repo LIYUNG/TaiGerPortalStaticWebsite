@@ -197,7 +197,7 @@ const DocThreadEditor = ({
                         fullWidth
                         inputProps={{
                             multiple: true,
-                            accept: '.pdf,.docx,.jpg,.jpeg,.png'
+                            accept: '.pdf,.docx,.jpg,.jpeg,.png,.xlsx'
                         }}
                         onChange={(e) => onFileChange(e)}
                         sx={{
@@ -240,7 +240,8 @@ const DocThreadEditor = ({
                     variant="outlined"
                 >
                     <Typography variant="caption">
-                        Max 3 files • Supported: PDF, DOCX, JPG • Max 2MB total
+                        Max 3 files • Supported: PDF, DOCX, JPG, XLSX • Max 2MB
+                        total
                     </Typography>
                 </Alert>
             </Box>
