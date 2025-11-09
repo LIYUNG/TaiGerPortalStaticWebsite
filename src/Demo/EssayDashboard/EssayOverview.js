@@ -322,6 +322,7 @@ const EssayOverview = (props) => {
                     title="warning"
                 />
                 <MuiDataGrid
+                    autoHeight={true}
                     columnVisibilityModel={{
                         number_input_from_editors: false,
                         number_input_from_student: false
@@ -343,6 +344,7 @@ const EssayOverview = (props) => {
                     title="warning"
                 />
                 <MuiDataGrid
+                    autoHeight={true}
                     columnVisibilityModel={{
                         number_input_from_editors: false,
                         number_input_from_student: false
@@ -364,6 +366,7 @@ const EssayOverview = (props) => {
                     title="info"
                 />
                 <MuiDataGrid
+                    autoHeight={true}
                     columnVisibilityModel={{
                         number_input_from_editors: false,
                         number_input_from_student: false
@@ -385,6 +388,7 @@ const EssayOverview = (props) => {
                     title="info"
                 />
                 <MuiDataGrid
+                    autoHeight={true}
                     columnVisibilityModel={{
                         number_input_from_editors: false,
                         number_input_from_student: false
@@ -410,6 +414,7 @@ const EssayOverview = (props) => {
                     title={is_TaiGer_role(user) ? 'info' : 'warning'}
                 />
                 <MuiDataGrid
+                    autoHeight={true}
                     columnVisibilityModel={{
                         number_input_from_editors: false,
                         number_input_from_student: false
@@ -431,6 +436,7 @@ const EssayOverview = (props) => {
                     title="success"
                 />
                 <MuiDataGrid
+                    autoHeight={true}
                     columnVisibilityModel={{
                         number_input_from_editors: false,
                         number_input_from_student: false
@@ -458,6 +464,7 @@ const EssayOverview = (props) => {
                     title="info"
                 />
                 <MuiDataGrid
+                    autoHeight={true}
                     columnVisibilityModel={{
                         number_input_from_editors: false,
                         number_input_from_student: false
