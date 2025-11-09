@@ -6,5 +6,7 @@
     "cv-requirements-1": "1. 不要遺漏任何重要資訊，履歷上需覆蓋自高中起的所有時段，有任何找工作、準備留學考試、重考等等經歷都必須提及並解釋",
     "cv-requirements-1.1": "履歷上忌諱有空白超過三格月以上時間",
     "cv-requirements-2": "2. 請不要只上傳pdf 檔案，我們需要word 檔案來幫助你編修",
-    "rl-requirements-1": "1. 推薦人的 Email 必須是他們的機構 Email。 Gmail, Hotmail 等，學校通常不會接受。"
+    "rl-requirements-1": "1. 推薦人的 Email 必須是他們的機構 Email。 Gmail, Hotmail 等，學校通常不會接受。",
+    "missingDocumentsWarning": "請為此申請指派以下缺少的文件：",
+    "extraDocumentsWarning": "以下文件不是此申請所需："
 }

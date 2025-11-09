@@ -6,5 +6,7 @@
     "cv-requirements-1": "1. Don’t omit important information. Your CV should cover every period since high school, including job searches, exam preparation, retakes, etc., with explanations where needed.",
     "cv-requirements-1.1": "Avoid gaps longer than three months in your CV.",
     "cv-requirements-2": "2. Don’t upload only a PDF; please also provide a Word file so we can edit it.",
-    "rl-requirements-1": "1. The referee’s email should be their institutional address. Gmail, Hotmail, etc., are not acceptable."
+    "rl-requirements-1": "1. The referee’s email should be their institutional address. Gmail, Hotmail, etc., are not acceptable.",
+    "missingDocumentsWarning": "Please assign the following missing document for this application:",
+    "extraDocumentsWarning": "The following document is not required for this application:"
 }

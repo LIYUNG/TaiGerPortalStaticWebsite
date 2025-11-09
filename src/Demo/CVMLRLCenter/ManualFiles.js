@@ -110,8 +110,9 @@ const ManualFiles = (props) => {
                                 {missingDocs.length > 0 ? (
                                     <Alert severity="error">
                                         <Typography variant="string">
-                                            Please assign the following missing
-                                            document for this application:
+                                            {t('missingDocumentsWarning', {
+                                                ns: 'cvmlrl'
+                                            })}
                                         </Typography>
 
                                         {missingDocs?.map((doc, i) => (
@@ -126,8 +127,9 @@ const ManualFiles = (props) => {
                                 {extraDocs.length > 0 ? (
                                     <Alert severity="warning">
                                         <Typography variant="string">
-                                            The following document is not
-                                            required for this application:
+                                            {t('extraDocumentsWarning', {
+                                                ns: 'cvmlrl'
+                                            })}
                                         </Typography>
 
                                         {extraDocs?.map((doc, i) => (
