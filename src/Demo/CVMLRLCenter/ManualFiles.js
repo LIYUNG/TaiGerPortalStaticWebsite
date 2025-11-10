@@ -9,6 +9,7 @@ import ToggleableUploadFileForm from './ToggleableUploadFileForm';
 import {
     check_generaldocs,
     file_category_const,
+    getGeneralMissingDocs,
     getMissingDocs,
     getExtraDocs,
     is_program_closed,
@@ -59,9 +60,15 @@ const ManualFiles = (props) => {
 
     let missingDocs = [];
     let extraDocs = [];
-    if (!props.filetype !== 'General') {
+    let generalMissingDocs = [];
+    if (props.filetype !== 'General') {
         missingDocs = getMissingDocs(props.application);
         extraDocs = getExtraDocs(props.application);
+    } else {
+        generalMissingDocs = getGeneralMissingDocs(
+            props?.student?.generaldocs_threads,
+            props?.applications
+        );
     }
 
     const create_generaldoc_reminder = check_generaldocs(props.student);
@@ -102,6 +109,22 @@ const ManualFiles = (props) => {
                                     </Typography>
                                 </Card>
                             ) : null}
+                            <Grid item xs={12}>
+                                {generalMissingDocs.length > 0 && (
+                                    <Alert severity="error">
+                                        <Typography variant="string">
+                                            {t('missingDocumentsWarning', {
+                                                ns: 'cvmlrl'
+                                            })}
+                                        </Typography>
+                                        {generalMissingDocs?.map((doc, i) => (
+                                            <li key={i}>
+                                                <b>{doc}</b>
+                                            </li>
+                                        ))}
+                                    </Alert>
+                                )}
+                            </Grid>
                         </Grid>
                     ) : null}
                     {props.filetype === 'ProgramSpecific' ? (

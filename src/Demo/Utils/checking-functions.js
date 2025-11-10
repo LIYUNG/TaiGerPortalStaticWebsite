@@ -2343,6 +2343,52 @@ export const getExtraDocs = (application) => {
     return extraDocs;
 };
 
+export const getGeneralMissingDocs = (generalDocs, applications) => {
+    if (!applications) {
+        return false;
+    }
+    let missingDocs = [];
+
+    let generalRLcount = 0;
+    generalRLcount = generalDocs.filter((doc) =>
+        doc?.doc_thread_id?.file_type?.includes('Recommendation_Letter_')
+    ).length;
+
+    let generalRLrequired = 0;
+    for (let app of applications) {
+        const rlRequired = app?.programId?.rl_required;
+        if (!rlRequired) {
+            continue;
+        } else {
+            const numRLrequired = parseInt(rlRequired);
+            if (!numRLrequired) {
+                continue;
+            }
+            generalRLrequired = Math.max(generalRLrequired, numRLrequired);
+        }
+    }
+
+    const missingRLCount = generalRLrequired - generalRLcount;
+
+    if (missingRLCount > 0) {
+        missingDocs.push(
+            `RL - ${generalRLrequired} needed, ${generalRLcount} provided (${
+                missingRLCount
+            } must be added)`
+        );
+    }
+
+    if (missingRLCount < 0) {
+        missingDocs.push(
+            `RL - ${generalRLrequired} needed, ${generalRLcount} provided (${
+                missingRLCount
+            } must be added)`
+        );
+    }
+
+    return missingDocs;
+};
+
 export const isDocumentsMissingAssign = (application) => {
     if (!application) {
         return false;
