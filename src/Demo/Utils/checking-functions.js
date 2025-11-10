@@ -2343,37 +2343,32 @@ export const getExtraDocs = (application) => {
     return extraDocs;
 };
 
-const getRLMinCount = (applications) => {
-    let generalRLrequired = 0;
-    for (let app of applications) {
-        const program = app?.programId;
-        const rlRequired = program?.rl_required;
-        const rlProgramSpecific = program?.is_rl_specific;
-        if (!rlRequired || rlProgramSpecific) {
-            continue;
-        } else {
-            const numRLrequired = parseInt(rlRequired);
-            if (!numRLrequired) {
-                continue;
-            }
-            generalRLrequired = Math.max(generalRLrequired, numRLrequired);
+export const getRLMinCount = (applications = []) =>
+    applications.reduce((max, { programId }) => {
+        const required = Number.parseInt(programId?.rl_required);
+        if (programId?.is_rl_specific || Number.isNaN(required)) {
+            return max;
         }
+        return Math.max(max, required);
+    }, 0);
+
+export const getGeneralRLCount = (generalDocs) => {
+    if (!generalDocs) {
+        return 0;
     }
-    return generalRLrequired;
+    return generalDocs.filter((doc) =>
+        doc?.doc_thread_id?.file_type?.includes('Recommendation_Letter_')
+    ).length;
 };
 
 export const getGeneralMissingDocs = (generalDocs, applications) => {
     if (!applications) {
         return false;
     }
+
     let missingDocs = [];
-
-    let generalRLcount = 0;
-    generalRLcount = generalDocs.filter((doc) =>
-        doc?.doc_thread_id?.file_type?.includes('Recommendation_Letter_')
-    ).length;
-
-    let generalRLrequired = getRLMinCount(applications);
+    const generalRLcount = getGeneralRLCount(generalDocs);
+    const generalRLrequired = getRLMinCount(applications);
     const missingRLCount = generalRLrequired - generalRLcount;
 
     if (missingRLCount > 0) {
@@ -2383,16 +2378,27 @@ export const getGeneralMissingDocs = (generalDocs, applications) => {
             } must be added)`
         );
     }
+    return missingDocs;
+};
 
-    if (missingRLCount < 0) {
-        missingDocs.push(
+export const getGeneralExtraDocs = (generalDocs, applications) => {
+    if (!applications) {
+        return false;
+    }
+
+    let extraDocs = [];
+    const generalRLcount = getGeneralRLCount(generalDocs);
+    const generalRLrequired = getRLMinCount(applications);
+    const extraRLCount = generalRLcount - generalRLrequired;
+
+    if (extraRLCount > 0) {
+        extraDocs.push(
             `RL - ${generalRLrequired} needed, ${generalRLcount} provided (${
-                missingRLCount
+                extraRLCount
             } must be added)`
         );
     }
-
-    return missingDocs;
+    return extraDocs;
 };
 
 export const isDocumentsMissingAssign = (application) => {

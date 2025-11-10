@@ -13,7 +13,8 @@ import {
     getMissingDocs,
     getExtraDocs,
     is_program_closed,
-    is_program_ml_rl_essay_finished
+    is_program_ml_rl_essay_finished,
+    getGeneralExtraDocs
 } from '../Utils/checking-functions';
 import { useAuth } from '../../components/AuthProvider';
 import DEMO from '../../store/constant';
@@ -61,11 +62,16 @@ const ManualFiles = (props) => {
     let missingDocs = [];
     let extraDocs = [];
     let generalMissingDocs = [];
+    let generalExtraDocs = [];
     if (props.filetype !== 'General') {
         missingDocs = getMissingDocs(props.application);
         extraDocs = getExtraDocs(props.application);
     } else {
         generalMissingDocs = getGeneralMissingDocs(
+            props?.student?.generaldocs_threads,
+            props?.applications
+        );
+        generalExtraDocs = getGeneralExtraDocs(
             props?.student?.generaldocs_threads,
             props?.applications
         );
@@ -124,6 +130,23 @@ const ManualFiles = (props) => {
                                         ))}
                                     </Alert>
                                 )}
+                            </Grid>
+                            <Grid item xs={12}>
+                                {generalExtraDocs.length > 0 ? (
+                                    <Alert severity="warning">
+                                        <Typography variant="string">
+                                            {t('extraDocumentsWarning', {
+                                                ns: 'cvmlrl'
+                                            })}
+                                        </Typography>
+
+                                        {generalExtraDocs?.map((doc, i) => (
+                                            <li key={i}>
+                                                <b>{doc}</b>
+                                            </li>
+                                        ))}
+                                    </Alert>
+                                ) : null}
                             </Grid>
                         </Grid>
                     ) : null}
