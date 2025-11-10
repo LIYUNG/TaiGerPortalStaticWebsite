@@ -2343,6 +2343,25 @@ export const getExtraDocs = (application) => {
     return extraDocs;
 };
 
+const getRLMinCount = (applications) => {
+    let generalRLrequired = 0;
+    for (let app of applications) {
+        const program = app?.programId;
+        const rlRequired = program?.rl_required;
+        const rlProgramSpecific = program?.is_rl_specific;
+        if (!rlRequired || rlProgramSpecific) {
+            continue;
+        } else {
+            const numRLrequired = parseInt(rlRequired);
+            if (!numRLrequired) {
+                continue;
+            }
+            generalRLrequired = Math.max(generalRLrequired, numRLrequired);
+        }
+    }
+    return generalRLrequired;
+};
+
 export const getGeneralMissingDocs = (generalDocs, applications) => {
     if (!applications) {
         return false;
@@ -2354,20 +2373,7 @@ export const getGeneralMissingDocs = (generalDocs, applications) => {
         doc?.doc_thread_id?.file_type?.includes('Recommendation_Letter_')
     ).length;
 
-    let generalRLrequired = 0;
-    for (let app of applications) {
-        const rlRequired = app?.programId?.rl_required;
-        if (!rlRequired) {
-            continue;
-        } else {
-            const numRLrequired = parseInt(rlRequired);
-            if (!numRLrequired) {
-                continue;
-            }
-            generalRLrequired = Math.max(generalRLrequired, numRLrequired);
-        }
-    }
-
+    let generalRLrequired = getRLMinCount(applications);
     const missingRLCount = generalRLrequired - generalRLcount;
 
     if (missingRLCount > 0) {
