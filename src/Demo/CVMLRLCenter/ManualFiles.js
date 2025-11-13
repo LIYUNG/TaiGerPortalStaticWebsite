@@ -7,13 +7,15 @@ import { is_TaiGer_role, isProgramDecided } from '@taiger-common/core';
 import ManualFilesList from './ManualFilesList';
 import ToggleableUploadFileForm from './ToggleableUploadFileForm';
 import {
-    check_generaldocs,
-    file_category_const,
-    getGeneralDocumentStatus,
-    getProgramDocumentStatus,
     is_program_closed,
     is_program_ml_rl_essay_finished
 } from '../Utils/checking-functions';
+import {
+    check_generaldocs,
+    file_category_const,
+    getGeneralDocumentStatus,
+    getProgramDocumentStatus
+} from '../Utils/document-status';
 import { useAuth } from '../../components/AuthProvider';
 import DEMO from '../../store/constant';
 

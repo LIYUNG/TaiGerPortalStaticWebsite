@@ -17,8 +17,6 @@ import {
     is_any_base_documents_uploaded,
     check_languages_filled,
     check_academic_background_filled,
-    getProgramDocumentStatus,
-    getGeneralDocumentStatus,
     is_program_ml_rl_essay_finished,
     num_uni_assist_vpd_needed,
     num_uni_assist_vpd_uploaded,
@@ -27,6 +25,10 @@ import {
     isUniAssistVPDNeeded,
     is_all_uni_assist_vpd_uploaded
 } from './checking-functions';
+import {
+    getProgramDocumentStatus,
+    getGeneralDocumentStatus
+} from './document-status';
 
 describe('Role checking', () => {
     test('is_cv_assigned', () => {
