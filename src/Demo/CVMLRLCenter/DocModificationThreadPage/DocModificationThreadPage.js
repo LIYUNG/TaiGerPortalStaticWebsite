@@ -242,7 +242,7 @@ const DescriptionBlock = ({ thread, template_obj, documentsthreadId }) => {
     );
 };
 
-const RequirementsBlock = ({ thread, template_obj }) => {
+const RequirementsBlock = ({ thread, isGeneralRL }) => {
     const theme = useTheme();
 
     if (thread.program_id) {
@@ -308,10 +308,7 @@ const RequirementsBlock = ({ thread, template_obj }) => {
         );
     }
 
-    if (
-        template_obj?.prop.includes('RL') ||
-        template_obj?.alias.includes('Recommendation')
-    ) {
+    if (isGeneralRL) {
         return (
             <Box
                 sx={{
@@ -370,6 +367,11 @@ const InformationBlock = ({
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return diffDays <= 7 && diffDays >= 0;
     };
+
+    const isGeneralRL =
+        !thread.program_id &
+        (template_obj?.prop.includes('RL') ||
+            template_obj?.alias.includes('Recommendation'));
 
     const urgent = isDeadlineUrgent();
 
@@ -726,7 +728,7 @@ const InformationBlock = ({
                                     }}
                                 >
                                     <RequirementsBlock
-                                        template_obj={template_obj}
+                                        isGeneralRL={isGeneralRL}
                                         thread={thread}
                                     />
                                 </Box>
