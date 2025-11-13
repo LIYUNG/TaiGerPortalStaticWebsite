@@ -21,12 +21,12 @@
     },
     "rlStatus": {
         "general": {
-            "missing": "一般推荐信需求：需 {{required}} 份，目前仅有 {{provided}} 份（仍需补上 {{difference}} 份）。",
-            "extra": "一般推荐信需求：需 {{required}} 份，目前已有 {{provided}} 份（可移除 {{difference}} 份）。"
+            "missing": "一般推荐信需要 {{required}} 份，目前仅建立 {{provided}} 个任务，请再建立 {{difference}} 个任务。",
+            "extra": "一般推荐信只需 {{required}} 份，目前已建立 {{provided}} 个任务，可移除 {{difference}} 个任务。"
         },
         "program": {
-            "missing": "该申请的推荐信需求：需 {{required}} 份，目前仅有 {{provided}} 份（仍需补上 {{difference}} 份）。",
-            "extra": "该申请的推荐信需求：需 {{required}} 份，目前已有 {{provided}} 份（可移除 {{difference}} 份）。"
+            "missing": "此申请需要 {{required}} 份推荐信，目前仅建立 {{provided}} 个任务，请再建立 {{difference}} 个任务。",
+            "extra": "此申请只需 {{required}} 份推荐信，目前已建立 {{provided}} 个任务，可移除 {{difference}} 个任务。"
         }
     }
 }

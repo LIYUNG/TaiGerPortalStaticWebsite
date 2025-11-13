@@ -21,12 +21,12 @@
     },
     "rlStatus": {
         "general": {
-            "missing": "一般推薦信需求：需 {{required}} 份，目前僅有 {{provided}} 份（仍需補上 {{difference}} 份）。",
-            "extra": "一般推薦信需求：需 {{required}} 份，目前已有 {{provided}} 份（可移除 {{difference}} 份）。"
+            "missing": "一般推薦信需 {{required}} 份，目前僅建立 {{provided}} 個任務，請再建立 {{difference}} 個任務。",
+            "extra": "一般推薦信只需 {{required}} 份，目前已建立 {{provided}} 個任務，可移除 {{difference}} 個任務。"
         },
         "program": {
-            "missing": "此申請的推薦信需求：需 {{required}} 份，目前僅有 {{provided}} 份（仍需補上 {{difference}} 份）。",
-            "extra": "此申請的推薦信需求：需 {{required}} 份，目前已有 {{provided}} 份（可移除 {{difference}} 份）。"
+            "missing": "此申請需 {{required}} 份推薦信，目前僅建立 {{provided}} 個任務，請再建立 {{difference}} 個任務。",
+            "extra": "此申請只需 {{required}} 份推薦信，目前已建立 {{provided}} 個任務，可移除 {{difference}} 個任務。"
         }
     }
 }

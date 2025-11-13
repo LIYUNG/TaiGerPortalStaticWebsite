@@ -21,12 +21,12 @@
     },
     "rlStatus": {
         "general": {
-            "missing": "General recommendation letters: {{required}} needed, {{provided}} provided ({{difference}} still required).",
-            "extra": "General recommendation letters: {{required}} needed, {{provided}} provided ({{difference}} can be removed)."
+            "missing": "You need {{required}} general recommendation letter task(s), but only {{provided}} are created. Please create {{difference}} more task(s).",
+            "extra": "You only need {{required}} general recommendation letter task(s), but {{provided}} are created. You can remove {{difference}} task(s)."
         },
         "program": {
-            "missing": "Program recommendation letters: {{required}} needed, {{provided}} provided ({{difference}} still required).",
-            "extra": "Program recommendation letters: {{required}} needed, {{provided}} provided ({{difference}} can be removed)."
+            "missing": "This application needs {{required}} program-specific letter task(s), but only {{provided}} are created. Please create {{difference}} more task(s).",
+            "extra": "This application needs {{required}} program-specific letter task(s), but {{provided}} are created. You can remove {{difference}} task(s)."
         }
     }
 }
