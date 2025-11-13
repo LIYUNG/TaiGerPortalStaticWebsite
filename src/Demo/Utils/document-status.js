@@ -1,25 +1,4 @@
-export const file_category_const = {
-    rl_required: 'RL',
-    ml_required: 'ML',
-    sop_required: 'SOP',
-    phs_required: 'PHS',
-    essay_required: 'Essay',
-    portfolio_required: 'Portfolio',
-    supplementary_form_required: 'Supplementary_Form',
-    scholarship_form_required: 'Scholarship_Form',
-    curriculum_analysis_required: 'Curriculum_Analysis'
-};
-
-export const FILE_TYPE_E = {
-    ...file_category_const,
-    others: 'Others'
-};
-
-export const AGENT_SUPPORT_DOCUMENTS_A = [
-    FILE_TYPE_E.curriculum_analysis_required,
-    FILE_TYPE_E.supplementary_form_required,
-    FILE_TYPE_E.others
-];
+import { file_category_const } from './checking-functions';
 
 export const checkIsRLspecific = (program) => {
     const isRLSpecific = program?.is_rl_specific;
@@ -158,7 +137,7 @@ export const getGeneralRLCount = (generalDocs) => {
     ).length;
 };
 
-const buildGeneralDocumentStatus = (generalDocs, applications) => {
+export const getGeneralDocumentStatus = (generalDocs, applications) => {
     if (!applications) {
         return { missing: [], extra: [] };
     }
@@ -195,9 +174,6 @@ const buildGeneralDocumentStatus = (generalDocs, applications) => {
 
     return { missing, extra };
 };
-
-export const getGeneralDocumentStatus = (generalDocs, applications) =>
-    buildGeneralDocumentStatus(generalDocs, applications);
 
 export const check_generaldocs = (student) => {
     if (!student.generaldocs_threads) {

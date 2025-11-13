@@ -18,18 +18,28 @@ import {
 } from '@taiger-common/core';
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
-export {
-    file_category_const,
-    FILE_TYPE_E,
-    AGENT_SUPPORT_DOCUMENTS_A,
-    check_generaldocs,
-    getProgramDocumentStatus,
-    getGeneralDocumentStatus,
-    getRLMinCount,
-    getGeneralRLCount,
-    checkIsRLspecific,
-    isDocumentsMissingAssign
-} from './document-status';
+export const file_category_const = {
+    rl_required: 'RL',
+    ml_required: 'ML',
+    sop_required: 'SOP',
+    phs_required: 'PHS',
+    essay_required: 'Essay',
+    portfolio_required: 'Portfolio',
+    supplementary_form_required: 'Supplementary_Form',
+    scholarship_form_required: 'Scholarship_Form',
+    curriculum_analysis_required: 'Curriculum_Analysis'
+};
+
+export const FILE_TYPE_E = {
+    ...file_category_const,
+    others: 'Others'
+};
+
+export const AGENT_SUPPORT_DOCUMENTS_A = [
+    FILE_TYPE_E.curriculum_analysis_required,
+    FILE_TYPE_E.supplementary_form_required,
+    FILE_TYPE_E.others
+];
 
 export const is_User_Archived = (user) => user?.archiv === true;
 

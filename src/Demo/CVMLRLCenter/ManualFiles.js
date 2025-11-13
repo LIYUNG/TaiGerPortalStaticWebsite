@@ -8,11 +8,11 @@ import ManualFilesList from './ManualFilesList';
 import ToggleableUploadFileForm from './ToggleableUploadFileForm';
 import {
     is_program_closed,
+    file_category_const,
     is_program_ml_rl_essay_finished
 } from '../Utils/checking-functions';
 import {
     check_generaldocs,
-    file_category_const,
     getGeneralDocumentStatus,
     getProgramDocumentStatus
 } from '../Utils/document-status';
