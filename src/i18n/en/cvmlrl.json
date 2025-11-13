@@ -8,5 +8,25 @@
     "cv-requirements-2": "2. Don’t upload only a PDF; please also provide a Word file so we can edit it.",
     "rl-requirements-1": "1. The referee’s email should be their institutional address. Gmail, Hotmail, etc., are not acceptable.",
     "missingDocumentsWarning": "Please assign the following missing document for this application:",
-    "extraDocumentsWarning": "The following document is not required for this application:"
+    "extraDocumentsWarning": "The following document is not required for this application:",
+    "documentTypes": {
+        "ml_required": "Motivation Letter",
+        "sop_required": "Statement of Purpose",
+        "phs_required": "Personal History Statement",
+        "essay_required": "Essay",
+        "portfolio_required": "Portfolio",
+        "supplementary_form_required": "Supplementary Form",
+        "scholarship_form_required": "Scholarship Form",
+        "curriculum_analysis_required": "Curriculum Analysis"
+    },
+    "rlStatus": {
+        "general": {
+            "missing": "General recommendation letters: {{required}} needed, {{provided}} provided ({{difference}} still required).",
+            "extra": "General recommendation letters: {{required}} needed, {{provided}} provided ({{difference}} can be removed)."
+        },
+        "program": {
+            "missing": "Program recommendation letters: {{required}} needed, {{provided}} provided ({{difference}} still required).",
+            "extra": "Program recommendation letters: {{required}} needed, {{provided}} provided ({{difference}} can be removed)."
+        }
+    }
 }

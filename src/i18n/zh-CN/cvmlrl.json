@@ -8,5 +8,25 @@
     "cv-requirements-2": "2. 请不要只上传pdf 档案，我们需要word 档案来帮助你编修",
     "rl-requirements-1": "1. 推荐人的 Email 必须是他们的机构 Email。 Gmail, Hotmail 等，学校通常不会接受。",
     "missingDocumentsWarning": "请为此申请分配以下缺少的文件：",
-    "extraDocumentsWarning": "以下文件不是此申请所需："
+    "extraDocumentsWarning": "以下文件不是此申请所需：",
+    "documentTypes": {
+        "ml_required": "动机信",
+        "sop_required": "读书计划",
+        "phs_required": "个人历史陈述",
+        "essay_required": "申请短文",
+        "portfolio_required": "作品集",
+        "supplementary_form_required": "补充表格",
+        "scholarship_form_required": "奖学金申请表",
+        "curriculum_analysis_required": "课程分析"
+    },
+    "rlStatus": {
+        "general": {
+            "missing": "一般推荐信需求：需 {{required}} 份，目前仅有 {{provided}} 份（仍需补上 {{difference}} 份）。",
+            "extra": "一般推荐信需求：需 {{required}} 份，目前已有 {{provided}} 份（可移除 {{difference}} 份）。"
+        },
+        "program": {
+            "missing": "该申请的推荐信需求：需 {{required}} 份，目前仅有 {{provided}} 份（仍需补上 {{difference}} 份）。",
+            "extra": "该申请的推荐信需求：需 {{required}} 份，目前已有 {{provided}} 份（可移除 {{difference}} 份）。"
+        }
+    }
 }
