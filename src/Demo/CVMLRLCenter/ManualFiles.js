@@ -10,11 +10,11 @@ import {
     check_generaldocs,
     file_category_const,
     getGeneralMissingDocs,
+    getGeneralExtraDocs,
     getMissingDocs,
     getExtraDocs,
     is_program_closed,
-    is_program_ml_rl_essay_finished,
-    getGeneralExtraDocs
+    is_program_ml_rl_essay_finished
 } from '../Utils/checking-functions';
 import { useAuth } from '../../components/AuthProvider';
 import DEMO from '../../store/constant';
@@ -23,6 +23,44 @@ const ManualFiles = (props) => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const [categoryState, setCategory] = useState('');
+
+    const formatDocumentMessage = (docEntry) => {
+        if (!docEntry) {
+            return '';
+        }
+
+        if (docEntry.docKey === 'rl_required' && docEntry.counts) {
+            const scope = docEntry.scope === 'general' ? 'general' : 'program';
+            const status = docEntry.status === 'extra' ? 'extra' : 'missing';
+            const translationKey = `rlStatus.${scope}.${status}`;
+            const defaultValue =
+                status === 'missing'
+                    ? `RL - ${docEntry.counts.required} needed, ${docEntry.counts.provided} provided (${docEntry.counts.delta} must be added)`
+                    : `RL - ${docEntry.counts.required} needed, ${docEntry.counts.provided} provided (${docEntry.counts.delta} can be removed)`;
+
+            return t(translationKey, {
+                ns: 'cvmlrl',
+                required: docEntry.counts.required,
+                provided: docEntry.counts.provided,
+                difference: docEntry.counts.delta,
+                defaultValue
+            });
+        }
+
+        return t(`documentTypes.${docEntry.docKey}`, {
+            ns: 'cvmlrl',
+            defaultValue: docEntry.docType ?? docEntry.docKey
+        });
+    };
+
+    const renderDocumentList = (docEntries = []) =>
+        docEntries.map((docEntry, index) => (
+            <li
+                key={`${docEntry.docKey}-${docEntry.scope}-${docEntry.status}-${index}`}
+            >
+                <b>{formatDocumentMessage(docEntry)}</b>
+            </li>
+        ));
 
     const handleCreateGeneralMessageThread = (e, studentId, fileCategory) => {
         e.preventDefault();
@@ -123,11 +161,7 @@ const ManualFiles = (props) => {
                                                 ns: 'cvmlrl'
                                             })}
                                         </Typography>
-                                        {generalMissingDocs?.map((doc, i) => (
-                                            <li key={i}>
-                                                <b>{doc}</b>
-                                            </li>
-                                        ))}
+                                        {renderDocumentList(generalMissingDocs)}
                                     </Alert>
                                 )}
                             </Grid>
@@ -140,11 +174,7 @@ const ManualFiles = (props) => {
                                             })}
                                         </Typography>
 
-                                        {generalExtraDocs?.map((doc, i) => (
-                                            <li key={i}>
-                                                <b>{doc}</b>
-                                            </li>
-                                        ))}
+                                        {renderDocumentList(generalExtraDocs)}
                                     </Alert>
                                 ) : null}
                             </Grid>
@@ -161,11 +191,7 @@ const ManualFiles = (props) => {
                                             })}
                                         </Typography>
 
-                                        {missingDocs?.map((doc, i) => (
-                                            <li key={i}>
-                                                <b>{doc}</b>
-                                            </li>
-                                        ))}
+                                        {renderDocumentList(missingDocs)}
                                     </Alert>
                                 ) : null}
                             </Grid>
@@ -178,11 +204,7 @@ const ManualFiles = (props) => {
                                             })}
                                         </Typography>
 
-                                        {extraDocs?.map((doc, i) => (
-                                            <li key={i}>
-                                                <b>{doc}</b>
-                                            </li>
-                                        ))}
+                                        {renderDocumentList(extraDocs)}
                                     </Alert>
                                 ) : null}
                             </Grid>

@@ -18,6 +18,7 @@ import {
     check_languages_filled,
     check_academic_background_filled,
     getMissingDocs,
+    getExtraDocs,
     is_program_ml_rl_essay_finished,
     num_uni_assist_vpd_needed,
     num_uni_assist_vpd_uploaded,
@@ -838,7 +839,7 @@ describe('getMissingDocs', () => {
     });
 
     // Test case 2: Missing some documents
-    it('returns an array of missing documents', () => {
+    it('returns structured data for missing documents', () => {
         const application = {
             programId: {
                 essay_required: 'yes',
@@ -848,11 +849,18 @@ describe('getMissingDocs', () => {
         };
 
         const result = getMissingDocs(application);
-        expect(result).toEqual(['ML']);
+        expect(result).toEqual([
+            {
+                docKey: 'ml_required',
+                docType: 'ML',
+                status: 'missing',
+                scope: 'program'
+            }
+        ]);
     });
 
     // Test case 3: Insufficient RL documents
-    it('returns a message for missing RL documents', () => {
+    it('returns structured RL information for missing documents', () => {
         const application = {
             programId: {
                 is_rl_specific: true,
@@ -862,7 +870,19 @@ describe('getMissingDocs', () => {
         };
 
         const result = getMissingDocs(application);
-        expect(result).toEqual(['RL - 3 needed, 1 provided (2 must be added)']);
+        expect(result).toEqual([
+            {
+                docKey: 'rl_required',
+                docType: 'RL',
+                status: 'missing',
+                scope: 'program',
+                counts: {
+                    required: 3,
+                    provided: 1,
+                    delta: 2
+                }
+            }
+        ]);
     });
 
     // Test case 4: Sufficient RL documents
@@ -878,7 +898,61 @@ describe('getMissingDocs', () => {
         };
 
         const result = getMissingDocs(application);
-        expect(result).not.toContain('RL -');
+        expect(result.some((doc) => doc.docKey === 'rl_required')).toBe(false);
+    });
+});
+
+describe('getExtraDocs', () => {
+    it('returns an empty array when no application is provided', () => {
+        const result = getExtraDocs(null);
+        expect(result).toEqual([]);
+    });
+
+    it('returns structured data for extra documents', () => {
+        const application = {
+            programId: {
+                ml_required: 'no'
+            },
+            doc_modification_thread: [{ doc_thread_id: { file_type: 'ML' } }]
+        };
+
+        const result = getExtraDocs(application);
+        expect(result).toEqual([
+            {
+                docKey: 'ml_required',
+                docType: 'ML',
+                status: 'extra',
+                scope: 'program'
+            }
+        ]);
+    });
+
+    it('returns structured RL data when there are extra recommendation letters', () => {
+        const application = {
+            programId: {
+                is_rl_specific: true,
+                rl_required: '1'
+            },
+            doc_modification_thread: [
+                { doc_thread_id: { file_type: 'RL_A' } },
+                { doc_thread_id: { file_type: 'RL_B' } }
+            ]
+        };
+
+        const result = getExtraDocs(application);
+        expect(result).toEqual([
+            {
+                docKey: 'rl_required',
+                docType: 'RL',
+                status: 'extra',
+                scope: 'program',
+                counts: {
+                    required: 1,
+                    provided: 2,
+                    delta: 1
+                }
+            }
+        ]);
     });
 });
 

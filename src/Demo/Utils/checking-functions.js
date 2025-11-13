@@ -2271,37 +2271,77 @@ export const checkIsRLspecific = (program) => {
 };
 
 // Tested
+const createDocumentEntry = ({ docKey, docType, status, scope, counts }) => ({
+    docKey,
+    docType,
+    status,
+    scope,
+    ...(counts ? { counts } : {})
+});
+
+const createRecommendationLetterEntry = ({
+    required,
+    provided,
+    status,
+    scope
+}) =>
+    createDocumentEntry({
+        docKey: 'rl_required',
+        docType: file_category_const.rl_required,
+        status,
+        scope,
+        counts: {
+            required,
+            provided,
+            delta: Math.abs(required - provided)
+        }
+    });
+
 export const getMissingDocs = (application) => {
     if (!application) {
         return [];
     }
 
-    let missingDocs = [];
-    for (let docName of Object.keys(file_category_const)) {
-        if (
-            application?.programId[docName] === 'yes' &&
-            !application?.doc_modification_thread?.some(
-                (thread) =>
-                    thread.doc_thread_id?.file_type ===
-                    file_category_const[docName]
-            )
-        )
-            missingDocs.push(file_category_const[docName]);
+    const missingDocs = [];
+    for (const docKey of Object.keys(file_category_const)) {
+        const isRequired = application?.programId?.[docKey] === 'yes';
+        const hasThread = application?.doc_modification_thread?.some(
+            (thread) =>
+                thread.doc_thread_id?.file_type === file_category_const[docKey]
+        );
+
+        if (isRequired && !hasThread) {
+            missingDocs.push(
+                createDocumentEntry({
+                    docKey,
+                    docType: file_category_const[docKey],
+                    status: 'missing',
+                    scope: 'program'
+                })
+            );
+        }
     }
 
-    const nrRLNeeded = parseInt(application.programId.rl_required);
-    const nrSpecificRL = application?.doc_modification_thread.filter((thread) =>
-        thread.doc_thread_id?.file_type?.startsWith('RL_')
-    ).length;
+    const rlRequiredRaw = application?.programId?.rl_required;
+    const nrRLNeeded = Number.parseInt(rlRequiredRaw, 10);
+    const specificRLThreads =
+        application?.doc_modification_thread?.filter((thread) =>
+            thread.doc_thread_id?.file_type?.startsWith('RL_')
+        ) || [];
+    const nrSpecificRL = specificRLThreads.length;
     if (
+        Number.isFinite(nrRLNeeded) &&
         nrRLNeeded > 0 &&
         checkIsRLspecific(application?.programId) &&
-        nrRLNeeded > nrSpecificRL
+        nrSpecificRL < nrRLNeeded
     ) {
         missingDocs.push(
-            `RL - ${nrRLNeeded} needed, ${nrSpecificRL} provided (${
-                nrRLNeeded - nrSpecificRL
-            } must be added)`
+            createRecommendationLetterEntry({
+                required: nrRLNeeded,
+                provided: nrSpecificRL,
+                status: 'missing',
+                scope: 'program'
+            })
         );
     }
 
@@ -2313,33 +2353,52 @@ export const getExtraDocs = (application) => {
         return [];
     }
 
-    let extraDocs = [];
-    for (let docName of Object.keys(file_category_const)) {
-        if (
-            application?.programId[docName] !== 'yes' &&
-            application?.doc_modification_thread?.some(
-                (thread) =>
-                    thread.doc_thread_id?.file_type ===
-                    file_category_const[docName]
-            )
-        )
-            extraDocs.push(file_category_const[docName]);
+    const extraDocs = [];
+    for (const docKey of Object.keys(file_category_const)) {
+        const isRequired = application?.programId?.[docKey] === 'yes';
+        const hasThread = application?.doc_modification_thread?.some(
+            (thread) =>
+                thread.doc_thread_id?.file_type === file_category_const[docKey]
+        );
+
+        if (!isRequired && hasThread) {
+            extraDocs.push(
+                createDocumentEntry({
+                    docKey,
+                    docType: file_category_const[docKey],
+                    status: 'extra',
+                    scope: 'program'
+                })
+            );
+        }
     }
 
-    const nrRLNeeded = parseInt(application.programId.rl_required);
-    const nrSpecificRL = application?.doc_modification_thread.filter((thread) =>
-        thread.doc_thread_id?.file_type?.startsWith('RL_')
-    ).length;
-    const nrSpecRLNeeded = !checkIsRLspecific(application?.programId)
-        ? 0
-        : nrRLNeeded;
-    if (nrSpecRLNeeded < nrSpecificRL) {
+    const rlRequiredRaw = application?.programId?.rl_required;
+    const nrRLNeeded = Number.parseInt(rlRequiredRaw, 10);
+    const specificRLThreads =
+        application?.doc_modification_thread?.filter((thread) =>
+            thread.doc_thread_id?.file_type?.startsWith('RL_')
+        ) || [];
+    const nrSpecificRL = specificRLThreads.length;
+    const nrSpecRLNeeded = checkIsRLspecific(application?.programId)
+        ? nrRLNeeded
+        : 0;
+
+    if (
+        Number.isFinite(nrSpecificRL) &&
+        Number.isFinite(nrSpecRLNeeded) &&
+        nrSpecificRL > nrSpecRLNeeded
+    ) {
         extraDocs.push(
-            `RL - ${nrSpecRLNeeded} needed, ${nrSpecificRL} provided (${
-                nrSpecificRL - nrSpecRLNeeded
-            } can be removed)`
+            createRecommendationLetterEntry({
+                required: nrSpecRLNeeded,
+                provided: nrSpecificRL,
+                status: 'extra',
+                scope: 'program'
+            })
         );
     }
+
     return extraDocs;
 };
 
@@ -2363,42 +2422,50 @@ export const getGeneralRLCount = (generalDocs) => {
 
 export const getGeneralMissingDocs = (generalDocs, applications) => {
     if (!applications) {
-        return false;
+        return [];
     }
 
-    let missingDocs = [];
+    const generalMissingDocs = [];
     const generalRLcount = getGeneralRLCount(generalDocs);
     const generalRLrequired = getRLMinCount(applications);
     const missingRLCount = generalRLrequired - generalRLcount;
 
     if (missingRLCount > 0) {
-        missingDocs.push(
-            `RL - ${generalRLrequired} needed, ${generalRLcount} provided (${
-                missingRLCount
-            } must be added)`
+        generalMissingDocs.push(
+            createRecommendationLetterEntry({
+                required: generalRLrequired,
+                provided: generalRLcount,
+                status: 'missing',
+                scope: 'general'
+            })
         );
     }
-    return missingDocs;
+
+    return generalMissingDocs;
 };
 
 export const getGeneralExtraDocs = (generalDocs, applications) => {
     if (!applications) {
-        return false;
+        return [];
     }
 
-    let extraDocs = [];
+    const generalExtraDocs = [];
     const generalRLcount = getGeneralRLCount(generalDocs);
     const generalRLrequired = getRLMinCount(applications);
     const extraRLCount = generalRLcount - generalRLrequired;
 
     if (extraRLCount > 0) {
-        extraDocs.push(
-            `RL - ${generalRLrequired} needed, ${generalRLcount} provided (${
-                extraRLCount
-            } must be added)`
+        generalExtraDocs.push(
+            createRecommendationLetterEntry({
+                required: generalRLrequired,
+                provided: generalRLcount,
+                status: 'extra',
+                scope: 'general'
+            })
         );
     }
-    return extraDocs;
+
+    return generalExtraDocs;
 };
 
 export const isDocumentsMissingAssign = (application) => {
