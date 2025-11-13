@@ -136,11 +136,11 @@ const buildProgramDocumentStatus = (application) => {
 };
 
 export const getProgramDocumentStatus = (application) => {
-    buildProgramDocumentStatus(application);
+    return buildProgramDocumentStatus(application);
 };
 
 export const getRLMinCount = (applications = []) => {
-    applications.reduce((max, { programId }) => {
+    return applications.reduce((max, { programId }) => {
         const required = Number.parseInt(programId?.rl_required, 10);
         if (programId?.is_rl_specific || Number.isNaN(required)) {
             return max;
