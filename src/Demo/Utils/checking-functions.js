@@ -2382,12 +2382,6 @@ const buildProgramDocumentStatus = (application) => {
 export const getProgramDocumentStatus = (application) =>
     buildProgramDocumentStatus(application);
 
-export const getMissingDocs = (application) =>
-    getProgramDocumentStatus(application).missing;
-
-export const getExtraDocs = (application) =>
-    getProgramDocumentStatus(application).extra;
-
 export const getRLMinCount = (applications = []) =>
     applications.reduce((max, { programId }) => {
         const required = Number.parseInt(programId?.rl_required);
@@ -2446,12 +2440,6 @@ const buildGeneralDocumentStatus = (generalDocs, applications) => {
 
 export const getGeneralDocumentStatus = (generalDocs, applications) =>
     buildGeneralDocumentStatus(generalDocs, applications);
-
-export const getGeneralMissingDocs = (generalDocs, applications) =>
-    getGeneralDocumentStatus(generalDocs, applications).missing;
-
-export const getGeneralExtraDocs = (generalDocs, applications) =>
-    getGeneralDocumentStatus(generalDocs, applications).extra;
 
 export const isDocumentsMissingAssign = (application) => {
     if (!application) {
