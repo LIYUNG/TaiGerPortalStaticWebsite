@@ -9,10 +9,8 @@ import ToggleableUploadFileForm from './ToggleableUploadFileForm';
 import {
     check_generaldocs,
     file_category_const,
-    getGeneralMissingDocs,
-    getGeneralExtraDocs,
-    getMissingDocs,
-    getExtraDocs,
+    getGeneralDocumentStatus,
+    getProgramDocumentStatus,
     is_program_closed,
     is_program_ml_rl_essay_finished
 } from '../Utils/checking-functions';
@@ -97,23 +95,21 @@ const ManualFiles = (props) => {
         setCategory(e.target.value);
     };
 
-    let missingDocs = [];
-    let extraDocs = [];
-    let generalMissingDocs = [];
-    let generalExtraDocs = [];
+    let programDocumentStatus = { missing: [], extra: [] };
+    let generalDocumentStatus = { missing: [], extra: [] };
     if (props.filetype !== 'General') {
-        missingDocs = getMissingDocs(props.application);
-        extraDocs = getExtraDocs(props.application);
+        programDocumentStatus = getProgramDocumentStatus(props.application);
     } else {
-        generalMissingDocs = getGeneralMissingDocs(
-            props?.student?.generaldocs_threads,
-            props?.applications
-        );
-        generalExtraDocs = getGeneralExtraDocs(
+        generalDocumentStatus = getGeneralDocumentStatus(
             props?.student?.generaldocs_threads,
             props?.applications
         );
     }
+
+    const missingDocs = programDocumentStatus.missing;
+    const extraDocs = programDocumentStatus.extra;
+    const generalMissingDocs = generalDocumentStatus.missing;
+    const generalExtraDocs = generalDocumentStatus.extra;
 
     const create_generaldoc_reminder = check_generaldocs(props.student);
     const required_doc_keys = Object.keys(file_category_const);

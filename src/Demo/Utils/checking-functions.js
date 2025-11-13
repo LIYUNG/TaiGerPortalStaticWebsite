@@ -2297,75 +2297,37 @@ const createRecommendationLetterEntry = ({
         }
     });
 
-export const getMissingDocs = (application) => {
+const buildProgramDocumentStatus = (application) => {
     if (!application) {
-        return [];
+        return { missing: [], extra: [] };
     }
 
-    const missingDocs = [];
+    const missing = [];
+    const extra = [];
+
     for (const docKey of Object.keys(file_category_const)) {
+        const docType = file_category_const[docKey];
         const isRequired = application?.programId?.[docKey] === 'yes';
         const hasThread = application?.doc_modification_thread?.some(
-            (thread) =>
-                thread.doc_thread_id?.file_type === file_category_const[docKey]
+            (thread) => thread.doc_thread_id?.file_type === docType
         );
 
         if (isRequired && !hasThread) {
-            missingDocs.push(
+            missing.push(
                 createDocumentEntry({
                     docKey,
-                    docType: file_category_const[docKey],
+                    docType,
                     status: 'missing',
                     scope: 'program'
                 })
             );
         }
-    }
-
-    const rlRequiredRaw = application?.programId?.rl_required;
-    const nrRLNeeded = Number.parseInt(rlRequiredRaw, 10);
-    const specificRLThreads =
-        application?.doc_modification_thread?.filter((thread) =>
-            thread.doc_thread_id?.file_type?.startsWith('RL_')
-        ) || [];
-    const nrSpecificRL = specificRLThreads.length;
-    if (
-        Number.isFinite(nrRLNeeded) &&
-        nrRLNeeded > 0 &&
-        checkIsRLspecific(application?.programId) &&
-        nrSpecificRL < nrRLNeeded
-    ) {
-        missingDocs.push(
-            createRecommendationLetterEntry({
-                required: nrRLNeeded,
-                provided: nrSpecificRL,
-                status: 'missing',
-                scope: 'program'
-            })
-        );
-    }
-
-    return missingDocs;
-};
-
-export const getExtraDocs = (application) => {
-    if (!application) {
-        return [];
-    }
-
-    const extraDocs = [];
-    for (const docKey of Object.keys(file_category_const)) {
-        const isRequired = application?.programId?.[docKey] === 'yes';
-        const hasThread = application?.doc_modification_thread?.some(
-            (thread) =>
-                thread.doc_thread_id?.file_type === file_category_const[docKey]
-        );
 
         if (!isRequired && hasThread) {
-            extraDocs.push(
+            extra.push(
                 createDocumentEntry({
                     docKey,
-                    docType: file_category_const[docKey],
+                    docType,
                     status: 'extra',
                     scope: 'program'
                 })
@@ -2380,16 +2342,31 @@ export const getExtraDocs = (application) => {
             thread.doc_thread_id?.file_type?.startsWith('RL_')
         ) || [];
     const nrSpecificRL = specificRLThreads.length;
-    const nrSpecRLNeeded = checkIsRLspecific(application?.programId)
-        ? nrRLNeeded
-        : 0;
+    const rlIsSpecific = checkIsRLspecific(application?.programId);
+    const nrSpecRLNeeded = rlIsSpecific ? nrRLNeeded : 0;
+
+    if (
+        rlIsSpecific &&
+        Number.isFinite(nrRLNeeded) &&
+        nrRLNeeded > 0 &&
+        nrSpecificRL < nrRLNeeded
+    ) {
+        missing.push(
+            createRecommendationLetterEntry({
+                required: nrRLNeeded,
+                provided: nrSpecificRL,
+                status: 'missing',
+                scope: 'program'
+            })
+        );
+    }
 
     if (
         Number.isFinite(nrSpecificRL) &&
         Number.isFinite(nrSpecRLNeeded) &&
         nrSpecificRL > nrSpecRLNeeded
     ) {
-        extraDocs.push(
+        extra.push(
             createRecommendationLetterEntry({
                 required: nrSpecRLNeeded,
                 provided: nrSpecificRL,
@@ -2399,8 +2376,17 @@ export const getExtraDocs = (application) => {
         );
     }
 
-    return extraDocs;
+    return { missing, extra };
 };
+
+export const getProgramDocumentStatus = (application) =>
+    buildProgramDocumentStatus(application);
+
+export const getMissingDocs = (application) =>
+    getProgramDocumentStatus(application).missing;
+
+export const getExtraDocs = (application) =>
+    getProgramDocumentStatus(application).extra;
 
 export const getRLMinCount = (applications = []) =>
     applications.reduce((max, { programId }) => {
@@ -2420,18 +2406,21 @@ export const getGeneralRLCount = (generalDocs) => {
     ).length;
 };
 
-export const getGeneralMissingDocs = (generalDocs, applications) => {
+const buildGeneralDocumentStatus = (generalDocs, applications) => {
     if (!applications) {
-        return [];
+        return { missing: [], extra: [] };
     }
 
-    const generalMissingDocs = [];
     const generalRLcount = getGeneralRLCount(generalDocs);
     const generalRLrequired = getRLMinCount(applications);
     const missingRLCount = generalRLrequired - generalRLcount;
+    const extraRLCount = generalRLcount - generalRLrequired;
+
+    const missing = [];
+    const extra = [];
 
     if (missingRLCount > 0) {
-        generalMissingDocs.push(
+        missing.push(
             createRecommendationLetterEntry({
                 required: generalRLrequired,
                 provided: generalRLcount,
@@ -2441,21 +2430,8 @@ export const getGeneralMissingDocs = (generalDocs, applications) => {
         );
     }
 
-    return generalMissingDocs;
-};
-
-export const getGeneralExtraDocs = (generalDocs, applications) => {
-    if (!applications) {
-        return [];
-    }
-
-    const generalExtraDocs = [];
-    const generalRLcount = getGeneralRLCount(generalDocs);
-    const generalRLrequired = getRLMinCount(applications);
-    const extraRLCount = generalRLcount - generalRLrequired;
-
     if (extraRLCount > 0) {
-        generalExtraDocs.push(
+        extra.push(
             createRecommendationLetterEntry({
                 required: generalRLrequired,
                 provided: generalRLcount,
@@ -2465,14 +2441,23 @@ export const getGeneralExtraDocs = (generalDocs, applications) => {
         );
     }
 
-    return generalExtraDocs;
+    return { missing, extra };
 };
+
+export const getGeneralDocumentStatus = (generalDocs, applications) =>
+    buildGeneralDocumentStatus(generalDocs, applications);
+
+export const getGeneralMissingDocs = (generalDocs, applications) =>
+    getGeneralDocumentStatus(generalDocs, applications).missing;
+
+export const getGeneralExtraDocs = (generalDocs, applications) =>
+    getGeneralDocumentStatus(generalDocs, applications).extra;
 
 export const isDocumentsMissingAssign = (application) => {
     if (!application) {
         return false;
     }
-    return getMissingDocs(application).length > 0;
+    return getProgramDocumentStatus(application).missing.length > 0;
 };
 
 export const extractTextFromDocx = async (arrayBuffer) => {
