@@ -12,7 +12,7 @@ import {
     is_program_ml_rl_essay_finished
 } from '../Utils/checking-functions';
 import {
-    check_generaldocs,
+    checkGeneralDocs,
     getGeneralDocumentStatus,
     getProgramDocumentStatus
 } from '../Utils/document-status';
@@ -113,7 +113,7 @@ const ManualFiles = (props) => {
     const generalMissingDocs = generalDocumentStatus.missing;
     const generalExtraDocs = generalDocumentStatus.extra;
 
-    const create_generaldoc_reminder = check_generaldocs(props.student);
+    const generalDocReminder = checkGeneralDocs(props.student);
     const required_doc_keys = Object.keys(file_category_const);
 
     return (
@@ -130,7 +130,7 @@ const ManualFiles = (props) => {
                                 })}
                                 )
                             </Typography>
-                            {create_generaldoc_reminder ? (
+                            {generalDocReminder ? (
                                 <Card sx={{ p: 2, mb: 2 }}>
                                     <Typography>
                                         The following general documents are not

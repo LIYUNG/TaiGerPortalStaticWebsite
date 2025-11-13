@@ -167,7 +167,7 @@ export const getGeneralDocumentStatus = (generalDocs, applications) => {
     return { missing, extra };
 };
 
-export const check_generaldocs = (student) => {
+export const checkGeneralDocs = (student) => {
     if (!student.generaldocs_threads) {
         return false;
     }
@@ -181,11 +181,4 @@ export const check_generaldocs = (student) => {
         ) >= 0;
 
     return !(hasCV || hasUSCV);
-};
-
-export const isDocumentsMissingAssign = (application) => {
-    if (!application) {
-        return false;
-    }
-    return getProgramDocumentStatus(application).missing.length > 0;
 };
