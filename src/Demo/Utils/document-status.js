@@ -32,7 +32,7 @@ const createRecommendationLetterEntry = ({
         }
     });
 
-const buildProgramDocumentStatus = (application) => {
+export const getProgramDocumentStatus = (application) => {
     if (!application) {
         return { missing: [], extra: [] };
     }
@@ -112,10 +112,6 @@ const buildProgramDocumentStatus = (application) => {
     }
 
     return { missing, extra };
-};
-
-export const getProgramDocumentStatus = (application) => {
-    return buildProgramDocumentStatus(application);
 };
 
 export const getRLMinCount = (applications = []) => {
