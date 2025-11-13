@@ -1,11 +1,5 @@
 import { file_category_const } from './checking-functions';
 
-export const checkIsRLspecific = (program) => {
-    const isRLSpecific = program?.is_rl_specific;
-    const noExplicitFlag = isRLSpecific === undefined || isRLSpecific === null;
-    return isRLSpecific || (noExplicitFlag && program?.rl_requirements);
-};
-
 const createDocumentEntry = ({ docKey, docType, status, scope, counts }) => ({
     docKey,
     docType,
@@ -39,11 +33,13 @@ export const getProgramDocumentStatus = (application) => {
 
     const missing = [];
     const extra = [];
+    const program = application?.programId;
+    const docThread = application?.doc_modification_thread;
 
     for (const docKey of Object.keys(file_category_const)) {
         const docType = file_category_const[docKey];
-        const isRequired = application?.programId?.[docKey] === 'yes';
-        const hasThread = application?.doc_modification_thread?.some(
+        const isRequired = program?.[docKey] === 'yes';
+        const hasThread = docThread?.some(
             (thread) => thread.doc_thread_id?.file_type === docType
         );
 
@@ -70,18 +66,18 @@ export const getProgramDocumentStatus = (application) => {
         }
     }
 
-    const rlRequiredRaw = application?.programId?.rl_required;
+    const rlRequiredRaw = program?.rl_required;
     const nrRLNeeded = Number.parseInt(rlRequiredRaw, 10);
     const specificRLThreads =
-        application?.doc_modification_thread?.filter((thread) =>
+        docThread?.filter((thread) =>
             thread.doc_thread_id?.file_type?.startsWith('RL_')
         ) || [];
     const nrSpecificRL = specificRLThreads.length;
-    const rlIsSpecific = checkIsRLspecific(application?.programId);
-    const nrSpecRLNeeded = rlIsSpecific ? nrRLNeeded : 0;
+    const isRLSpecific = program?.is_rl_specific;
+    const nrSpecRLNeeded = isRLSpecific ? nrRLNeeded : 0;
 
     if (
-        rlIsSpecific &&
+        isRLSpecific &&
         Number.isFinite(nrRLNeeded) &&
         nrRLNeeded > 0 &&
         nrSpecificRL < nrRLNeeded
@@ -114,7 +110,7 @@ export const getProgramDocumentStatus = (application) => {
     return { missing, extra };
 };
 
-export const getRLMinCount = (applications = []) => {
+const getRLMaxCount = (applications = []) => {
     return applications.reduce((max, { programId }) => {
         const required = Number.parseInt(programId?.rl_required, 10);
         if (programId?.is_rl_specific || Number.isNaN(required)) {
@@ -124,7 +120,7 @@ export const getRLMinCount = (applications = []) => {
     }, 0);
 };
 
-export const getGeneralRLCount = (generalDocs) => {
+const getGeneralRLCount = (generalDocs) => {
     if (!generalDocs) {
         return 0;
     }
@@ -139,7 +135,7 @@ export const getGeneralDocumentStatus = (generalDocs, applications) => {
     }
 
     const generalRLcount = getGeneralRLCount(generalDocs);
-    const generalRLrequired = getRLMinCount(applications);
+    const generalRLrequired = getRLMaxCount(applications);
     const missingRLCount = generalRLrequired - generalRLcount;
     const extraRLCount = generalRLcount - generalRLrequired;
 
