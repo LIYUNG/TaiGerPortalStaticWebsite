@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link as LinkDom, useLocation, useParams } from 'react-router-dom';
 import ArticleIcon from '@mui/icons-material/Article'; // Using Article icon for thread links
 
@@ -63,7 +63,6 @@ import ModalMain from '../../Utils/ModalHandler/ModalMain';
 import {
     stringAvatar,
     templatelist,
-    THREAD_REVERSED_TABS,
     THREAD_TABS
 } from '../../../utils/contants';
 import {
@@ -341,6 +340,7 @@ const InformationBlock = ({
     conflict_list,
     documentsthreadId,
     isFavorite,
+    isGeneralRL,
     template_obj,
     startEditingEditor,
     handleFavoriteToggle,
@@ -367,11 +367,6 @@ const InformationBlock = ({
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return diffDays <= 7 && diffDays >= 0;
     };
-
-    const isGeneralRL =
-        !thread.program_id &
-        (template_obj?.prop.includes('RL') ||
-            template_obj?.alias.includes('Recommendation'));
 
     const urgent = isDeadlineUrgent();
 
@@ -1894,7 +1889,8 @@ const DocModificationThreadPage = ({
         });
     const [checkResult, setCheckResult] = useState([]);
     const { hash } = useLocation();
-    const [value, setValue] = useState(THREAD_TABS[hash.replace('#', '')] || 0);
+    const hashKey = hash?.replace('#', '') || '';
+    const [value, setValue] = useState(THREAD_TABS[hashKey] ?? 0);
     useEffect(() => {
         setDocModificationThreadPageState((prevState) => ({
             ...prevState,
@@ -1917,11 +1913,6 @@ const DocModificationThreadPage = ({
             ...prevState,
             SetAsFinalFileModel: false
         }));
-    };
-
-    const handleChange = (event, newValue) => {
-        setValue(newValue);
-        window.location.hash = THREAD_REVERSED_TABS[newValue];
     };
 
     const onFileChange = (e) => {
@@ -2356,6 +2347,10 @@ const DocModificationThreadPage = ({
     );
     let docName;
     const student_name = `${thread.student_id.firstname} ${thread.student_id.lastname}`;
+    const isGeneralRL =
+        !thread.program_id &
+        (template_obj?.prop.includes('RL') ||
+            template_obj?.alias.includes('Recommendation'));
 
     if (thread.program_id) {
         const { school, degree, program_name } = thread.program_id;
@@ -2363,6 +2358,88 @@ const DocModificationThreadPage = ({
     } else {
         docName = thread.file_type;
     }
+
+    const isTaiGerUser = is_TaiGer_role(user);
+
+    const TAB_KEYS = {
+        discussion: 'communication',
+        generalRL: 'general-rl',
+        files: 'files',
+        database: 'database',
+        audit: 'audit'
+    };
+
+    const legacyHashKeyMap = {
+        communication: TAB_KEYS.discussion,
+        history: TAB_KEYS.files,
+        audit: TAB_KEYS.audit
+    };
+
+    const tabKeys = useMemo(() => {
+        const keys = [TAB_KEYS.discussion];
+        if (isGeneralRL) {
+            keys.push(TAB_KEYS.generalRL);
+        }
+        keys.push(TAB_KEYS.files);
+        if (isTaiGerUser) {
+            keys.push(TAB_KEYS.database);
+        }
+        keys.push(TAB_KEYS.audit);
+        return keys;
+    }, [isGeneralRL, isTaiGerUser]);
+
+    const tabIndexMap = useMemo(() => {
+        const map = {};
+        tabKeys.forEach((key, index) => {
+            map[key] = index;
+        });
+        return map;
+    }, [tabKeys]);
+
+    const tabKeyByIndex = useMemo(() => {
+        const map = {};
+        tabKeys.forEach((key, index) => {
+            map[index] = key;
+        });
+        return map;
+    }, [tabKeys]);
+
+    const discussionTabIndex = tabIndexMap[TAB_KEYS.discussion];
+    const rlTemplateTabIndex = tabIndexMap[TAB_KEYS.generalRL];
+    const filesTabIndex = tabIndexMap[TAB_KEYS.files];
+    const databaseTabIndex = tabIndexMap[TAB_KEYS.database];
+    const auditTabIndex = tabIndexMap[TAB_KEYS.audit];
+
+    const resolvedHashKey =
+        tabIndexMap[hashKey] !== undefined
+            ? hashKey
+            : legacyHashKeyMap[hashKey];
+    const desiredValueFromHash = tabIndexMap[resolvedHashKey];
+
+    useEffect(() => {
+        if (
+            typeof desiredValueFromHash === 'number' &&
+            desiredValueFromHash !== value
+        ) {
+            setValue(desiredValueFromHash);
+            return;
+        }
+
+        const maxIndex = tabKeys.length - 1;
+        if (value > maxIndex) {
+            setValue(maxIndex);
+        }
+    }, [desiredValueFromHash, tabKeys.length, value]);
+
+    const handleChange = (event, newValue) => {
+        setValue(newValue);
+        const nextHashKey = tabKeyByIndex[newValue];
+        if (nextHashKey) {
+            window.location.hash = nextHashKey;
+        } else {
+            window.location.hash = '';
+        }
+    };
 
     const isFavorite = thread.flag_by_user_id?.includes(user._id.toString());
     TabTitle(`${student_name} ${docName}`);
@@ -2382,42 +2459,55 @@ const DocModificationThreadPage = ({
                 <Tab
                     icon={<ChatIcon />}
                     label={i18next.t('discussion-thread', { ns: 'common' })}
-                    {...a11yProps(value, 0)}
+                    {...a11yProps(value, discussionTabIndex)}
                     sx={{
-                        fontWeight: value === 0 ? 'bold' : 'normal' // Bold for selected tab
+                        fontWeight:
+                            value === discussionTabIndex ? 'bold' : 'normal' // Bold for selected tab
                     }}
                 />
+                {isGeneralRL ? (
+                    <Tab
+                        icon={<InfoOutlinedIcon />}
+                        label={i18next.t('rl-template-tab', {
+                            ns: 'cvmlrl',
+                            defaultValue: 'RL Template'
+                        })}
+                        {...a11yProps(value, rlTemplateTabIndex)}
+                        sx={{
+                            fontWeight:
+                                value === rlTemplateTabIndex ? 'bold' : 'normal'
+                        }}
+                    />
+                ) : null}
                 <Tab
                     icon={<FolderIcon />}
                     label={i18next.t('files', { ns: 'common' })}
-                    {...a11yProps(value, 1)}
+                    {...a11yProps(value, filesTabIndex)}
                     sx={{
-                        fontWeight: value === 1 ? 'bold' : 'normal' // Bold for selected tab
+                        fontWeight: value === filesTabIndex ? 'bold' : 'normal' // Bold for selected tab
                     }}
                 />
-                {is_TaiGer_role(user) ? (
+                {isTaiGerUser ? (
                     <Tab
                         icon={<LibraryBooksIcon />}
                         label={`${i18next.t('Database', { ns: 'common' })} (${similarThreads?.length || 0})`}
-                        {...a11yProps(value, 2)}
+                        {...a11yProps(value, databaseTabIndex)}
                         sx={{
-                            fontWeight: value === 2 ? 'bold' : 'normal' // Bold for selected tab
+                            fontWeight:
+                                value === databaseTabIndex ? 'bold' : 'normal' // Bold for selected tab
                         }}
                     />
                 ) : null}
                 <Tab
                     icon={<HistoryIcon />}
                     label={i18next.t('Audit', { ns: 'common' })}
-                    {...a11yProps(value, is_TaiGer_role(user) ? 3 : 2)}
+                    {...a11yProps(value, auditTabIndex)}
                     sx={{
-                        fontWeight:
-                            value === (is_TaiGer_role(user) ? 3 : 2)
-                                ? 'bold'
-                                : 'normal' // Bold for selected tab
+                        fontWeight: value === auditTabIndex ? 'bold' : 'normal' // Bold for selected tab
                     }}
                 />
             </Tabs>
-            <CustomTabPanel index={0} value={value}>
+            <CustomTabPanel index={discussionTabIndex} value={value}>
                 <InformationBlock
                     agents={docModificationThreadPageState.agents}
                     conflict_list={conflict_list}
@@ -2426,6 +2516,7 @@ const DocModificationThreadPage = ({
                     editors={docModificationThreadPageState.editors}
                     handleFavoriteToggle={handleFavoriteToggle}
                     isFavorite={isFavorite}
+                    isGeneralRL={isGeneralRL}
                     startEditingEditor={startEditingEditor}
                     template_obj={template_obj}
                     thread={docModificationThreadPageState.thread}
@@ -2620,7 +2711,12 @@ const DocModificationThreadPage = ({
                     ) : null}
                 </InformationBlock>
             </CustomTabPanel>
-            <CustomTabPanel index={1} value={value}>
+            {isGeneralRL ? (
+                <CustomTabPanel index={rlTemplateTabIndex} value={value}>
+                    <Box sx={{ p: 2 }} />
+                </CustomTabPanel>
+            ) : null}
+            <CustomTabPanel index={filesTabIndex} value={value}>
                 <Box sx={{ px: 2, py: 1 }}>
                     <Typography sx={{ mb: 1 }} variant="h6">
                         {i18next.t('Files Overview', { ns: 'common' })}
@@ -2638,8 +2734,8 @@ const DocModificationThreadPage = ({
                 </Box>
                 <FilesList thread={thread} />
             </CustomTabPanel>
-            {is_TaiGer_role(user) ? (
-                <CustomTabPanel index={2} value={value}>
+            {isTaiGerUser ? (
+                <CustomTabPanel index={databaseTabIndex} value={value}>
                     {similarThreads && similarThreads?.length > 0 ? (
                         <Stack spacing={1.5} sx={{ mx: 2 }}>
                             {similarThreads.map((t) => (
@@ -2755,7 +2851,7 @@ const DocModificationThreadPage = ({
                     )}
                 </CustomTabPanel>
             ) : null}
-            <CustomTabPanel index={is_TaiGer_role(user) ? 3 : 2} value={value}>
+            <CustomTabPanel index={auditTabIndex} value={value}>
                 <Audit audit={threadAuditLog} />
             </CustomTabPanel>
 
