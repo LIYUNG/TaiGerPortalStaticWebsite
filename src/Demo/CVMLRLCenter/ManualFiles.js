@@ -114,8 +114,8 @@ const ManualFiles = (props) => {
     const generalExtraDocs = generalDocumentStatus.extra;
     const generalRLApplications = generalDocumentStatus.rlApplications || [];
 
-    const renderGeneralRLApplicationList = () => {
-        if (!generalRLApplications.length) {
+    const renderGeneralRLApplicationList = (applications = []) => {
+        if (!applications.length) {
             return null;
         }
 
@@ -125,7 +125,7 @@ const ManualFiles = (props) => {
                     {t('generalRLProgramsTitle', { ns: 'cvmlrl' })}
                 </Typography>
                 <ul>
-                    {generalRLApplications.map((application) => (
+                    {applications.map((application) => (
                         <li key={`general-rl-${application.programId}`}>
                             <Typography variant="body2">
                                 {t('generalRLProgramEntry', {
@@ -188,7 +188,9 @@ const ManualFiles = (props) => {
                                             })}
                                         </Typography>
                                         {renderDocumentList(generalMissingDocs)}
-                                        {renderGeneralRLApplicationList()}
+                                        {renderGeneralRLApplicationList(
+                                            generalRLApplications
+                                        )}
                                     </Alert>
                                 )}
                             </Grid>
@@ -202,7 +204,9 @@ const ManualFiles = (props) => {
                                         </Typography>
 
                                         {renderDocumentList(generalExtraDocs)}
-                                        {renderGeneralRLApplicationList()}
+                                        {renderGeneralRLApplicationList(
+                                            generalRLApplications
+                                        )}
                                     </Alert>
                                 ) : null}
                             </Grid>
