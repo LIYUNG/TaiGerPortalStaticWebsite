@@ -19,6 +19,8 @@
         "scholarship_form_required": "Scholarship Form",
         "curriculum_analysis_required": "Curriculum Analysis"
     },
+    "generalRLProgramsTitle": "Programs requiring general recommendation letters:",
+    "generalRLProgramEntry": "{{program}} ({{count}} letter(s) needed)",
     "rlStatus": {
         "general": {
             "missing": "You need {{required}} general recommendation letter task(s), but only {{provided}} are created. Please create {{difference}} more task(s).",

@@ -98,7 +98,7 @@ const ManualFiles = (props) => {
     };
 
     let programDocumentStatus = { missing: [], extra: [] };
-    let generalDocumentStatus = { missing: [], extra: [] };
+    let generalDocumentStatus = { missing: [], extra: [], rlApplications: [] };
     if (props.filetype !== 'General') {
         programDocumentStatus = getProgramDocumentStatus(props.application);
     } else {
@@ -112,6 +112,34 @@ const ManualFiles = (props) => {
     const extraDocs = programDocumentStatus.extra;
     const generalMissingDocs = generalDocumentStatus.missing;
     const generalExtraDocs = generalDocumentStatus.extra;
+    const generalRLApplications = generalDocumentStatus.rlApplications || [];
+
+    const renderGeneralRLApplicationList = () => {
+        if (!generalRLApplications.length) {
+            return null;
+        }
+
+        return (
+            <>
+                <Typography sx={{ mt: 1 }} variant="body2">
+                    {t('generalRLProgramsTitle', { ns: 'cvmlrl' })}
+                </Typography>
+                <ul>
+                    {generalRLApplications.map((application) => (
+                        <li key={`general-rl-${application.programId}`}>
+                            <Typography variant="body2">
+                                {t('generalRLProgramEntry', {
+                                    ns: 'cvmlrl',
+                                    program: application.programLabel,
+                                    count: application.required
+                                })}
+                            </Typography>
+                        </li>
+                    ))}
+                </ul>
+            </>
+        );
+    };
 
     const generalDocReminder = checkGeneralDocs(props.student);
     const required_doc_keys = Object.keys(file_category_const);
@@ -160,6 +188,7 @@ const ManualFiles = (props) => {
                                             })}
                                         </Typography>
                                         {renderDocumentList(generalMissingDocs)}
+                                        {renderGeneralRLApplicationList()}
                                     </Alert>
                                 )}
                             </Grid>
@@ -173,6 +202,7 @@ const ManualFiles = (props) => {
                                         </Typography>
 
                                         {renderDocumentList(generalExtraDocs)}
+                                        {renderGeneralRLApplicationList()}
                                     </Alert>
                                 ) : null}
                             </Grid>

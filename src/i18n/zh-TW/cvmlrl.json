@@ -19,6 +19,8 @@
         "scholarship_form_required": "獎學金申請表",
         "curriculum_analysis_required": "課程分析"
     },
+    "generalRLProgramsTitle": "需要一般推薦信的申請：",
+    "generalRLProgramEntry": "{{program}}（需 {{count}} 封）",
     "rlStatus": {
         "general": {
             "missing": "一般推薦信需 {{required}} 份，目前僅建立 {{provided}} 個任務，請再建立 {{difference}} 個任務。",

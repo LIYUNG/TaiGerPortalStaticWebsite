@@ -110,7 +110,7 @@ export const getProgramDocumentStatus = (application) => {
     return { missing, extra };
 };
 
-const getRLMaxCount = (applications = []) => {
+const getGeneralRLMaxCount = (applications = []) => {
     return applications.reduce((max, { programId }) => {
         const required = Number.parseInt(programId?.rl_required, 10);
         if (programId?.is_rl_specific || Number.isNaN(required)) {
@@ -131,16 +131,43 @@ const getGeneralRLCount = (generalDocs) => {
 
 export const getGeneralDocumentStatus = (generalDocs, applications) => {
     if (!applications) {
-        return { missing: [], extra: [] };
+        return { missing: [], extra: [], rlApplications: [] };
     }
 
     const generalRLcount = getGeneralRLCount(generalDocs);
-    const generalRLrequired = getRLMaxCount(applications);
+    const generalRLrequired = getGeneralRLMaxCount(applications);
     const missingRLCount = generalRLrequired - generalRLcount;
     const extraRLCount = generalRLcount - generalRLrequired;
 
     const missing = [];
     const extra = [];
+
+    const rlApplications = applications
+        .map(({ programId }) => {
+            const required = Number.parseInt(programId?.rl_required, 10);
+            if (
+                programId?.is_rl_specific ||
+                !Number.isFinite(required) ||
+                required <= 0
+            ) {
+                return null;
+            }
+            const school = programId?.school?.trim();
+            const programName = programId?.program_name?.trim();
+            const labelParts = [school, programName].filter(Boolean);
+            const label =
+                labelParts.join(' - ') || programName || school || 'Program';
+            const programKey =
+                programId?._id !== undefined && programId?._id !== null
+                    ? `${programId._id}`
+                    : label;
+            return {
+                programId: programKey,
+                programLabel: label,
+                required
+            };
+        })
+        .filter((entry) => entry !== null);
 
     if (missingRLCount > 0) {
         missing.push(
@@ -164,7 +191,7 @@ export const getGeneralDocumentStatus = (generalDocs, applications) => {
         );
     }
 
-    return { missing, extra };
+    return { missing, extra, rlApplications };
 };
 
 export const checkGeneralDocs = (student) => {

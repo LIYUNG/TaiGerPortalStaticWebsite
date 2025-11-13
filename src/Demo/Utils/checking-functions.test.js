@@ -943,12 +943,20 @@ describe('getGeneralDocumentStatus', () => {
 
     it('returns empty arrays when applications are not provided', () => {
         const result = getGeneralDocumentStatus([], null);
-        expect(result).toEqual({ missing: [], extra: [] });
+        expect(result).toEqual({ missing: [], extra: [], rlApplications: [] });
     });
 
     it('flags missing general recommendation letters', () => {
         const applications = [
-            { programId: { rl_required: '2', is_rl_specific: false } }
+            {
+                programId: {
+                    _id: 'program-1',
+                    rl_required: '2',
+                    is_rl_specific: false,
+                    school: 'School A',
+                    program_name: 'Program A'
+                }
+            }
         ];
 
         const result = getGeneralDocumentStatus([], applications);
@@ -966,11 +974,26 @@ describe('getGeneralDocumentStatus', () => {
             }
         ]);
         expect(result.extra).toEqual([]);
+        expect(result.rlApplications).toEqual([
+            {
+                programId: 'program-1',
+                programLabel: 'School A - Program A',
+                required: 2
+            }
+        ]);
     });
 
     it('flags extra general recommendation letters', () => {
         const applications = [
-            { programId: { rl_required: '1', is_rl_specific: false } }
+            {
+                programId: {
+                    _id: 'program-1',
+                    rl_required: '1',
+                    is_rl_specific: false,
+                    school: 'School A',
+                    program_name: 'Program A'
+                }
+            }
         ];
         const generalDocs = [
             buildGeneralDoc('Recommendation_Letter_1'),
@@ -992,6 +1015,54 @@ describe('getGeneralDocumentStatus', () => {
             }
         ]);
         expect(result.missing).toEqual([]);
+        expect(result.rlApplications).toEqual([
+            {
+                programId: 'program-1',
+                programLabel: 'School A - Program A',
+                required: 1
+            }
+        ]);
+    });
+
+    it('ignores RL-specific programs when collecting application metadata', () => {
+        const applications = [
+            {
+                programId: {
+                    _id: 'program-1',
+                    rl_required: '2',
+                    is_rl_specific: true,
+                    school: 'School A',
+                    program_name: 'Program A'
+                }
+            },
+            {
+                programId: {
+                    _id: 'program-2',
+                    rl_required: '0',
+                    is_rl_specific: false,
+                    school: 'School B',
+                    program_name: 'Program B'
+                }
+            },
+            {
+                programId: {
+                    _id: 'program-3',
+                    rl_required: '1',
+                    is_rl_specific: false,
+                    school: 'School C',
+                    program_name: 'Program C'
+                }
+            }
+        ];
+
+        const result = getGeneralDocumentStatus([], applications);
+        expect(result.rlApplications).toEqual([
+            {
+                programId: 'program-3',
+                programLabel: 'School C - Program C',
+                required: 1
+            }
+        ]);
     });
 });
 

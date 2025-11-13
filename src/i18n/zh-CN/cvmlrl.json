@@ -19,6 +19,8 @@
         "scholarship_form_required": "奖学金申请表",
         "curriculum_analysis_required": "课程分析"
     },
+    "generalRLProgramsTitle": "需要一般推荐信的申请：",
+    "generalRLProgramEntry": "{{program}}（需 {{count}} 封）",
     "rlStatus": {
         "general": {
             "missing": "一般推荐信需要 {{required}} 份，目前仅建立 {{provided}} 个任务，请再建立 {{difference}} 个任务。",
