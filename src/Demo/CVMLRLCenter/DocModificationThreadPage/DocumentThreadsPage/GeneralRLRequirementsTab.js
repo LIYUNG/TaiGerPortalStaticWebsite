@@ -2,13 +2,17 @@ import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import {
+    Alert,
+    Box,
+    Paper,
+    Stack,
     Table,
+    TableBody,
+    TableCell,
     TableContainer,
     TableHead,
     TableRow,
-    TableCell,
-    TableBody,
-    Paper
+    Typography
 } from '@mui/material';
 import { getStudentAndDocLinksQuery } from '../../../../api/query';
 
@@ -20,7 +24,9 @@ export const GeneralRLRequirementsTab = ({ studentId }) => {
 
     if (!studentId)
         return (
-            <div style={errorStyle}>{t('generalRLTable.missingStudentId')}</div>
+            <Alert severity="error" sx={statusAlertSx}>
+                {t('generalRLTable.missingStudentId')}
+            </Alert>
         );
     const student = response?.data?.data || null;
     const apps = student?.applications || [];
@@ -73,108 +79,97 @@ export const GeneralRLRequirementsTab = ({ studentId }) => {
     }, [relevantApplications]);
 
     if (isLoading)
-        return <div style={infoStyle}>{t('generalRLTable.loading')}</div>;
+        return (
+            <Alert severity="info" sx={statusAlertSx}>
+                {t('generalRLTable.loading')}
+            </Alert>
+        );
 
     if (!relevantApplications.length) {
         console.log(relevantApplications);
         return (
-            <div style={infoStyle}>{t('generalRLTable.noApplications')}</div>
+            <Alert severity="info" sx={statusAlertSx}>
+                {t('generalRLTable.noApplications')}
+            </Alert>
         );
     }
 
     return (
-        <div style={containerStyle}>
-            <div style={headerStyle}>
-                <h3 style={titleStyle}>{t('generalRLTable.title')}</h3>
-                <p style={subtitleStyle}>{t('generalRLTable.subtitle')}</p>
-            </div>
-            <div style={tableWrapperStyle}>
-                <TableContainer component={Paper}>
-                    <Table sx={tableStyle}>
-                        <TableHead>
-                            <TableRow>
+        <Paper sx={containerSx}>
+            <Box sx={headerSx}>
+                <Typography sx={titleSx} variant="h6">
+                    {t('generalRLTable.title')}
+                </Typography>
+                <Typography sx={subtitleSx} variant="body2">
+                    {t('generalRLTable.subtitle')}
+                </Typography>
+            </Box>
+            <TableContainer sx={tableContainerSx}>
+                <Table sx={tableSx}>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell sx={{ ...thSx, ...columnSx.deadline }}>
+                                {t('generalRLTable.columns.deadline')}
+                            </TableCell>
+                            <TableCell sx={{ ...thSx, ...columnSx.count }}>
+                                {t('generalRLTable.columns.count')}
+                            </TableCell>
+                            <TableCell sx={{ ...thSx, ...columnSx.program }}>
+                                {t('generalRLTable.columns.programWithSchool')}
+                            </TableCell>
+                            <TableCell sx={{ ...thSx, ...columnSx.notes }}>
+                                {t('generalRLTable.columns.notes')}
+                            </TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {rlRows.map((r) => (
+                            <TableRow
+                                key={r.key}
+                                sx={
+                                    r.decided === 'O'
+                                        ? undefined
+                                        : rowStatusSx.undecided
+                                }
+                            >
                                 <TableCell
-                                    sx={{ ...th, width: columnWidths.deadline }}
+                                    sx={{ ...tdSx, ...columnSx.deadline }}
                                 >
-                                    {t('generalRLTable.columns.deadline')}
+                                    {r.deadline}
+                                </TableCell>
+                                <TableCell sx={{ ...tdSx, ...columnSx.count }}>
+                                    {r.count_required}
                                 </TableCell>
                                 <TableCell
-                                    sx={{ ...th, width: columnWidths.count }}
+                                    sx={{ ...tdSx, ...columnSx.program }}
                                 >
-                                    {t('generalRLTable.columns.count')}
+                                    <Stack spacing={0.5}>
+                                        <Typography
+                                            color="text.secondary"
+                                            variant="caption"
+                                        >
+                                            {r.school ||
+                                                t(
+                                                    'generalRLTable.unknownSchool'
+                                                )}
+                                        </Typography>
+                                        <Typography variant="body2">
+                                            {r.program_name}
+                                        </Typography>
+                                    </Stack>
                                 </TableCell>
-                                <TableCell
-                                    sx={{ ...th, width: columnWidths.program }}
-                                >
-                                    {t(
-                                        'generalRLTable.columns.programWithSchool'
-                                    )}
-                                </TableCell>
-                                <TableCell
-                                    sx={{ ...th, width: columnWidths.notes }}
-                                >
-                                    {t('generalRLTable.columns.notes')}
+                                <TableCell sx={{ ...tdSx, ...columnSx.notes }}>
+                                    {r.requirement_text}
                                 </TableCell>
                             </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {rlRows.map((r) => (
-                                <TableRow
-                                    key={r.key}
-                                    sx={
-                                        r.decided === 'O'
-                                            ? undefined
-                                            : rowStatusStyles.undecided
-                                    }
-                                >
-                                    <TableCell
-                                        sx={{
-                                            ...td,
-                                            width: columnWidths.deadline
-                                        }}
-                                    >
-                                        {r.deadline}
-                                    </TableCell>
-                                    <TableCell
-                                        sx={{
-                                            ...td,
-                                            width: columnWidths.count
-                                        }}
-                                    >
-                                        {r.count_required}
-                                    </TableCell>
-                                    <TableCell
-                                        sx={{
-                                            ...td,
-                                            width: columnWidths.program
-                                        }}
-                                    >
-                                        <div style={combinedCellStyle}>
-                                            <span style={schoolLabelStyle}>
-                                                {r.school ||
-                                                    t(
-                                                        'generalRLTable.unknownSchool'
-                                                    )}
-                                            </span>
-                                            <span>{r.program_name}</span>
-                                        </div>
-                                    </TableCell>
-                                    <TableCell
-                                        sx={{
-                                            ...td,
-                                            width: columnWidths.notes
-                                        }}
-                                    >
-                                        {r.requirement_text}
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-                <div style={legendStyle}>{t('generalRLTable.legend')}</div>
-            </div>
-        </div>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            <Typography sx={legendSx} variant="caption">
+                {t('generalRLTable.legend')}
+            </Typography>
+        </Paper>
     );
 };
 
@@ -194,103 +189,85 @@ function buildDeadlineDisplay(year, deadline, t) {
     return t('generalRLTable.deadline.na');
 }
 
-const containerStyle = {
-    padding: '1.5rem',
-    background: '#fff',
-    borderRadius: '12px',
+const containerSx = {
+    p: 3,
+    borderRadius: 3,
     boxShadow: '0 6px 20px rgba(15, 23, 42, 0.08)',
-    border: '1px solid #edf2f7'
+    border: '1px solid',
+    borderColor: 'divider',
+    backgroundColor: 'background.paper'
 };
 
-const headerStyle = {
-    marginBottom: '1rem'
+const headerSx = {
+    mb: 2
 };
 
-const titleStyle = {
-    margin: 0,
-    fontSize: '1.25rem',
-    color: '#1a202c'
+const titleSx = {
+    fontWeight: 600,
+    color: 'text.primary'
 };
 
-const subtitleStyle = {
-    margin: '0.25rem 0 0',
-    color: '#4a5568',
-    fontSize: '0.9rem'
+const subtitleSx = {
+    color: 'text.secondary',
+    mt: 0.5
 };
 
-const tableWrapperStyle = {
+const tableContainerSx = {
+    borderRadius: 2,
+    border: '1px solid',
+    borderColor: 'divider',
     overflowX: 'auto'
 };
 
-const tableStyle = {
+const tableSx = {
     width: '100%',
-    borderCollapse: 'collapse',
-    fontSize: '14px',
     tableLayout: 'fixed'
 };
 
-const columnWidths = {
-    deadline: '15%',
-    count: '10%',
-    program: '35%',
-    notes: '40%'
+const columnSx = {
+    deadline: { width: { xs: '25%', md: '18%' } },
+    count: { width: { xs: '15%', md: '10%' } },
+    program: { width: { xs: '30%', md: '32%' } },
+    notes: { width: { xs: '30%', md: '40%' } }
 };
 
-const th = {
-    borderBottom: '2px solid #e2e8f0',
+const thSx = {
+    borderBottom: '2px solid',
+    borderColor: 'divider',
     textAlign: 'left',
-    padding: '10px',
-    background: '#f8fafc',
-    color: '#2d3748',
-    fontSize: '13px',
-    textTransform: 'uppercase',
-    letterSpacing: '0.05em'
+    py: 1.25,
+    px: 1.5,
+    backgroundColor: 'grey.50',
+    color: 'text.secondary',
+    fontSize: 13,
+    fontWeight: 600,
+    letterSpacing: '0.05em',
+    textTransform: 'uppercase'
 };
 
-const td = {
-    borderBottom: '1px solid #edf2f7',
-    padding: '10px',
+const tdSx = {
+    borderBottom: '1px solid',
+    borderColor: 'divider',
+    py: 1.5,
+    px: 1.5,
     verticalAlign: 'top',
-    color: '#2d3748'
+    color: 'text.primary',
+    fontSize: 14
 };
 
-const rowStatusStyles = {
+const rowStatusSx = {
     undecided: {
-        background: '#f7f7f7'
+        backgroundColor: 'grey.50'
     }
 };
 
-const combinedCellStyle = {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '4px'
+const legendSx = {
+    mt: 1.5,
+    color: 'text.secondary'
 };
 
-const schoolLabelStyle = {
-    fontSize: '12px',
-    color: '#4a5568'
-};
-
-const infoStyle = {
-    padding: '0.75rem 1rem',
-    background: '#ebf8ff',
-    color: '#2b6cb0',
-    borderRadius: '8px',
-    fontSize: '0.95rem'
-};
-
-const errorStyle = {
-    padding: '0.75rem 1rem',
-    background: '#fff5f5',
-    color: '#c53030',
-    borderRadius: '8px',
-    fontSize: '0.95rem'
-};
-
-const legendStyle = {
-    marginTop: '0.75rem',
-    fontSize: '12px',
-    color: '#4a5568'
+const statusAlertSx = {
+    borderRadius: 2
 };
 
 export default GeneralRLRequirementsTab;
