@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import {
     Alert,
     Box,
+    IconButton,
+    Link,
     Paper,
     Stack,
     Table,
@@ -14,7 +16,10 @@ import {
     TableRow,
     Typography
 } from '@mui/material';
+import LaunchIcon from '@mui/icons-material/Launch';
+import { Link as LinkDom } from 'react-router-dom';
 import { getStudentAndDocLinksQuery } from '../../../../api/query';
+import DEMO from '../../../../store/constant';
 
 export const GeneralRLRequirementsTab = ({ studentId }) => {
     const { t } = useTranslation('cvmlrl');
@@ -70,18 +75,26 @@ export const GeneralRLRequirementsTab = ({ studentId }) => {
                 programDeadline,
                 t
             );
+            const programLinkTarget = program?._id
+                ? DEMO.SINGLE_PROGRAM_LINK(
+                      typeof program._id === 'string'
+                          ? program._id
+                          : program._id?.toString?.() || ''
+                  )
+                : null;
 
             return {
                 key: app._id,
                 school,
                 program_name: programName,
+                program_link: programLinkTarget,
                 count_required: rlRequired || '',
                 requirement_text: rlText || 'No specific instructions provided',
                 decided,
                 deadline: deadlineDisplay
             };
         });
-    }, [relevantApplications]);
+    }, [relevantApplications, t]);
 
     const legendDescription = t('generalRLTable.legendDescription', {
         defaultValue: 'Green rows = decided, Grey rows = pending/undecided.'
@@ -162,9 +175,37 @@ export const GeneralRLRequirementsTab = ({ studentId }) => {
                                                     'generalRLTable.unknownSchool'
                                                 )}
                                         </Typography>
-                                        <Typography variant="body2">
-                                            {r.program_name}
-                                        </Typography>
+                                        {r.program_link ? (
+                                            <Link
+                                                component={LinkDom}
+                                                onClick={(e) =>
+                                                    e.stopPropagation()
+                                                }
+                                                rel="noopener noreferrer"
+                                                sx={programLinkSx}
+                                                target="_blank"
+                                                to={r.program_link}
+                                                underline="hover"
+                                            >
+                                                <Typography
+                                                    component="span"
+                                                    variant="body2"
+                                                >
+                                                    {r.program_name}
+                                                </Typography>
+                                                <IconButton
+                                                    aria-label="Open program details"
+                                                    size="small"
+                                                    sx={programLinkIconSx}
+                                                >
+                                                    <LaunchIcon fontSize="inherit" />
+                                                </IconButton>
+                                            </Link>
+                                        ) : (
+                                            <Typography variant="body2">
+                                                {r.program_name}
+                                            </Typography>
+                                        )}
                                     </Stack>
                                 </TableCell>
                                 <TableCell sx={{ ...tdSx, ...columnSx.notes }}>
@@ -243,6 +284,18 @@ const columnSx = {
     notes: { width: { xs: '30%', md: '40%' } }
 };
 
+const programLinkSx = {
+    fontWeight: 600,
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 0.25
+};
+
+const programLinkIconSx = {
+    ml: 0.25,
+    p: 0.25
+};
+
 const thSx = {
     borderBottom: '2px solid',
     borderColor: 'divider',
@@ -264,7 +317,9 @@ const tdSx = {
     px: 1.5,
     verticalAlign: 'top',
     color: 'text.primary',
-    fontSize: 14
+    fontSize: 14,
+    whiteSpace: 'normal',
+    wordBreak: 'break-word'
 };
 
 const rowStatusSx = {
