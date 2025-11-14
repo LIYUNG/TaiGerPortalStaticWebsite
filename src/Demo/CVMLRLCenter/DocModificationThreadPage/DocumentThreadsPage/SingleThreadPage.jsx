@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link as LinkDom, useParams } from 'react-router-dom';
 import { Box, Button } from '@mui/material';
 import { is_TaiGer_Student } from '@taiger-common/core';
-import i18next from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 import { getMessagThreadQuery } from '../../../../api/query';
 import Loading from '../../../../components/Loading/Loading';
@@ -16,6 +16,7 @@ import { useAuth } from '../../../../components/AuthProvider';
 const SingleThreadPage = () => {
     const { documentsthreadId } = useParams();
     const { user } = useAuth();
+    const { t } = useTranslation();
     const { data, isLoading, error } = useQuery(
         getMessagThreadQuery(documentsthreadId)
     );
@@ -66,7 +67,7 @@ const SingleThreadPage = () => {
                                 )
                             },
                             {
-                                label: `${docName} ${i18next.t('discussion-thread', { ns: 'common' })}`
+                                label: `${docName} ${t('discussion-thread', { ns: 'common' })}`
                             }
                         ]}
                     />
@@ -80,7 +81,7 @@ const SingleThreadPage = () => {
                             to={`/doc-communications/${documentsthreadId}`}
                             variant="contained"
                         >
-                            {i18next.t('Switch View', { ns: 'common' })}
+                            {t('Switch View', { ns: 'common' })}
                         </Button>
                     </Box>
                 ) : null}

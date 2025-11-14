@@ -20,7 +20,7 @@ import ErrorPage from '../../../Utils/ErrorPage';
 import DocModificationThreadPage from '../DocModificationThreadPage';
 import { APP_BAR_HEIGHT, stringAvatar } from '../../../../utils/contants';
 import DEMO from '../../../../store/constant';
-import i18next from 'i18next';
+import { useTranslation } from 'react-i18next';
 import ChildLoading from '../../../../components/Loading/ChildLoading';
 import { useRef } from 'react';
 
@@ -29,6 +29,7 @@ export const EmbeddedThreadComponent = ({ setThreadId }) => {
     const theme = useTheme();
     const ismobile = useMediaQuery(theme.breakpoints.down('md'));
     const scrollableRef = useRef(null);
+    const { t } = useTranslation();
 
     const { data, isLoading, error } = useQuery(
         getMessagThreadQuery(documentsthreadId)
@@ -149,7 +150,7 @@ export const EmbeddedThreadComponent = ({ setThreadId }) => {
                         to={`/document-modification/${documentsthreadId}`}
                         variant="contained"
                     >
-                        {i18next.t('Switch View', { ns: 'common' })}
+                        {t('Switch View', { ns: 'common' })}
                     </Button>
                 </Stack>
             </Box>

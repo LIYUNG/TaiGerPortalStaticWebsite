@@ -95,7 +95,7 @@ import MessageList from '../../../components/Message/MessageList';
 import DocumentCheckingResultModal from './DocumentCheckingResultModal';
 import { a11yProps, CustomTabPanel } from '../../../components/Tabs';
 import Audit from '../../Audit';
-import i18next from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { useSnackBar } from '../../../contexts/use-snack-bar';
 
 import GeneralRLRequirementsTab from './DocumentThreadsPage/GeneralRLRequirementsTab';
@@ -103,6 +103,7 @@ import GeneralRLRequirementsTab from './DocumentThreadsPage/GeneralRLRequirement
 const DescriptionBlock = ({ thread, template_obj, documentsthreadId }) => {
     const { user } = useAuth();
     const theme = useTheme();
+    const { t } = useTranslation();
 
     return (
         <Stack spacing={2}>
@@ -119,8 +120,8 @@ const DescriptionBlock = ({ thread, template_obj, documentsthreadId }) => {
                         <Typography variant="body2">
                             {thread.file_type === 'CV' ||
                             thread.file_type === 'CV_US'
-                                ? i18next.t('cv-instructions', { ns: 'cvmlrl' })
-                                : i18next.t('please-fill-template', {
+                                ? t('cv-instructions', { ns: 'cvmlrl' })
+                                : t('please-fill-template', {
                                       tenant: appConfig.companyName
                                   })}
                         </Typography>
@@ -151,7 +152,7 @@ const DescriptionBlock = ({ thread, template_obj, documentsthreadId }) => {
                             }}
                             variant="overline"
                         >
-                            {i18next.t('Download template')}
+                            {t('Download template')}
                         </Typography>
                         <Stack spacing={1}>
                             {template_obj.prop.includes('RL') ||
@@ -169,7 +170,7 @@ const DescriptionBlock = ({ thread, template_obj, documentsthreadId }) => {
                                         target="_blank"
                                         variant="contained"
                                     >
-                                        {i18next.t('Professor')} Template
+                                        {t('Professor')} Template
                                     </Button>
                                     {/* Supervisor Template */}
                                     <Button
@@ -183,7 +184,7 @@ const DescriptionBlock = ({ thread, template_obj, documentsthreadId }) => {
                                         target="_blank"
                                         variant="contained"
                                     >
-                                        {i18next.t('Supervisor')} Template
+                                        {t('Supervisor')} Template
                                     </Button>
                                 </>
                             ) : (
@@ -245,6 +246,7 @@ const DescriptionBlock = ({ thread, template_obj, documentsthreadId }) => {
 
 const RequirementsBlock = ({ thread, isGeneralRL }) => {
     const theme = useTheme();
+    const { t } = useTranslation();
 
     if (thread.program_id) {
         return (
@@ -272,11 +274,9 @@ const RequirementsBlock = ({ thread, isGeneralRL }) => {
                     }}
                 >
                     <Typography variant="body2">
-                        {i18next.t('cv-requirements-1', { ns: 'cvmlrl' })}
+                        {t('cv-requirements-1', { ns: 'cvmlrl' })}
                         {` `}
-                        <b>
-                            {i18next.t('cv-requirements-1.1', { ns: 'cvmlrl' })}
-                        </b>
+                        <b>{t('cv-requirements-1.1', { ns: 'cvmlrl' })}</b>
                     </Typography>
                 </Box>
 
@@ -288,10 +288,10 @@ const RequirementsBlock = ({ thread, isGeneralRL }) => {
                     }}
                 >
                     <Typography variant="body2">
-                        {i18next.t('cv-requirements-2', { ns: 'cvmlrl' })}
+                        {t('cv-requirements-2', { ns: 'cvmlrl' })}
                     </Typography>
                     <Typography variant="body2">
-                        {i18next.t('cv-reminder-1', { ns: 'cvmlrl' })}
+                        {t('cv-reminder-1', { ns: 'cvmlrl' })}
                     </Typography>
                 </Box>
                 <Box
@@ -302,7 +302,7 @@ const RequirementsBlock = ({ thread, isGeneralRL }) => {
                     }}
                 >
                     <Typography variant="body2">
-                        {i18next.t('cv-reminder-2', { ns: 'cvmlrl' })}
+                        {t('cv-reminder-2', { ns: 'cvmlrl' })}
                     </Typography>
                 </Box>
             </Stack>
@@ -320,7 +320,7 @@ const RequirementsBlock = ({ thread, isGeneralRL }) => {
                 }}
             >
                 <Typography variant="body2">
-                    {i18next.t('rl-requirements-1', { ns: 'cvmlrl' })}
+                    {t('rl-requirements-1', { ns: 'cvmlrl' })}
                 </Typography>
             </Box>
         );
@@ -329,7 +329,7 @@ const RequirementsBlock = ({ thread, isGeneralRL }) => {
     return (
         <Box sx={{ textAlign: 'center', py: 2 }}>
             <Typography color="text.secondary" variant="body2">
-                {i18next.t('No', { ns: 'common' })}
+                {t('No', { ns: 'common' })}
             </Typography>
         </Box>
     );
@@ -352,6 +352,7 @@ const InformationBlock = ({
 }) => {
     const theme = useTheme();
     const isDarkMode = theme.palette.mode === 'dark';
+    const { t } = useTranslation();
     const [requirementsDialogOpen, setRequirementsDialogOpen] = useState(false);
     const [instructionsDialogOpen, setInstructionsDialogOpen] = useState(false);
 
@@ -543,7 +544,7 @@ const InformationBlock = ({
                                                     <span>URGENT</span>
                                                 </Stack>
                                             ) : (
-                                                i18next.t('Deadline', {
+                                                t('Deadline', {
                                                     ns: 'common'
                                                 })
                                             )}
@@ -650,7 +651,7 @@ const InformationBlock = ({
                                                 fontWeight="700"
                                                 variant="body1"
                                             >
-                                                {i18next.t('Requirements')}
+                                                {t('Requirements')}
                                             </Typography>
                                         </Stack>
                                         <Stack direction="row" spacing={0.5}>
@@ -764,7 +765,7 @@ const InformationBlock = ({
                                                 fontWeight="600"
                                                 variant="body2"
                                             >
-                                                {i18next.t('Instructions')}
+                                                {t('Instructions')}
                                             </Typography>
                                         </Stack>
                                         <Button
@@ -850,7 +851,7 @@ const InformationBlock = ({
                                             }}
                                             variant="overline"
                                         >
-                                            {i18next.t('Agent', {
+                                            {t('Agent', {
                                                 ns: 'common'
                                             })}
                                         </Typography>
@@ -985,10 +986,10 @@ const InformationBlock = ({
                                             variant="overline"
                                         >
                                             {thread.file_type === 'Essay'
-                                                ? i18next.t('Essay Writer', {
+                                                ? t('Essay Writer', {
                                                       ns: 'common'
                                                   })
-                                                : i18next.t('Editor', {
+                                                : t('Editor', {
                                                       ns: 'common'
                                                   })}
                                         </Typography>
@@ -1280,7 +1281,7 @@ const InformationBlock = ({
                                                 fontWeight="600"
                                                 variant="subtitle1"
                                             >
-                                                {i18next.t('Program Details')}
+                                                {t('Program Details')}
                                             </Typography>
                                         </Stack>
                                     </Box>
@@ -1304,7 +1305,7 @@ const InformationBlock = ({
                                                         color="text.secondary"
                                                         variant="body2"
                                                     >
-                                                        {i18next.t('Semester', {
+                                                        {t('Semester', {
                                                             ns: 'common'
                                                         })}
                                                     </Typography>
@@ -1335,10 +1336,9 @@ const InformationBlock = ({
                                                         color="text.secondary"
                                                         variant="body2"
                                                     >
-                                                        {i18next.t(
-                                                            'Program Language',
-                                                            { ns: 'common' }
-                                                        )}
+                                                        {t('Program Language', {
+                                                            ns: 'common'
+                                                        })}
                                                     </Typography>
                                                 </Stack>
                                                 <Typography
@@ -1374,7 +1374,7 @@ const InformationBlock = ({
                                             fontWeight="700"
                                             variant="h5"
                                         >
-                                            {i18next.t('Requirements')}
+                                            {t('Requirements')}
                                         </Typography>
                                     </Stack>
                                 </DialogTitle>
@@ -1417,7 +1417,7 @@ const InformationBlock = ({
                                             fontWeight="700"
                                             variant="h5"
                                         >
-                                            {i18next.t('Instructions')}
+                                            {t('Instructions')}
                                         </Typography>
                                     </Stack>
                                 </DialogTitle>
@@ -1550,7 +1550,7 @@ const InformationBlock = ({
                                                 fontWeight="600"
                                                 variant="body2"
                                             >
-                                                {i18next.t('Conflict')}
+                                                {t('Conflict')}
                                             </Typography>
                                         </Stack>
                                     </Box>
@@ -1650,6 +1650,7 @@ const OriginAuthorStatementBar = ({ thread, theme, user }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [originAuthorCheckboxConfirmed, setOriginAuthorCheckboxConfirmed] =
         useState(false);
+    const { t } = useTranslation();
 
     const postOriginAuthorConfirmed = (checked) => {
         setOriginAuthorConfirmed(checked);
@@ -1682,7 +1683,7 @@ const OriginAuthorStatementBar = ({ thread, theme, user }) => {
                             title="Agree"
                         />
                         <Typography variant="body1">
-                            {i18next.t('confirmDocument', {
+                            {t('confirmDocument', {
                                 ns: 'documents',
                                 studentName: student_name,
                                 studentNameZh: student_name_zh
@@ -1698,7 +1699,7 @@ const OriginAuthorStatementBar = ({ thread, theme, user }) => {
                                     cursor: 'pointer'
                                 }}
                             >
-                                {i18next.t('Read More')}
+                                {t('Read More')}
                             </span>
                         </Typography>
                     </>
@@ -1706,7 +1707,7 @@ const OriginAuthorStatementBar = ({ thread, theme, user }) => {
                     <>
                         <HelpIcon size={18} style={{ color: grey[400] }} />
                         <Typography variant="body1">
-                            {i18next.t('notConfirmDocument', {
+                            {t('notConfirmDocument', {
                                 ns: 'documents',
                                 studentName: student_name,
                                 studentNameZh: student_name_zh
@@ -1723,7 +1724,7 @@ const OriginAuthorStatementBar = ({ thread, theme, user }) => {
                                     cursor: 'pointer'
                                 }}
                             >
-                                {i18next.t('Read More')}
+                                {t('Read More')}
                             </span>
                         </Typography>
                     </>
@@ -1739,34 +1740,26 @@ const OriginAuthorStatementBar = ({ thread, theme, user }) => {
                     openOriginAuthorModal
                 }
             >
-                <DialogTitle>
-                    {i18next.t('Warning', { ns: 'common' })}
-                </DialogTitle>
+                <DialogTitle>{t('Warning', { ns: 'common' })}</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
                         <Typography sx={{ my: 2 }} variant="body1">
-                            {i18next.t('hello-students', {
+                            {t('hello-students', {
                                 ns: 'common',
                                 tenant: appConfig.companyName
                             })}
                         </Typography>
                         <Typography sx={{ my: 2 }} variant="body1">
-                            {i18next.t(
-                                'essay-responsibility-declaration-content',
-                                {
-                                    ns: 'common',
-                                    tenant: appConfig.companyFullName
-                                }
-                            )}
+                            {t('essay-responsibility-declaration-content', {
+                                ns: 'common',
+                                tenant: appConfig.companyFullName
+                            })}
                         </Typography>
                         <Typography sx={{ my: 2 }} variant="body1">
-                            {i18next.t(
-                                'essay-responsibility-declaration-signature',
-                                {
-                                    ns: 'common',
-                                    tenant: appConfig.companyFullName
-                                }
-                            )}
+                            {t('essay-responsibility-declaration-signature', {
+                                ns: 'common',
+                                tenant: appConfig.companyFullName
+                            })}
                         </Typography>
                     </DialogContentText>
                     {is_TaiGer_Student(user) ? (
@@ -1787,13 +1780,10 @@ const OriginAuthorStatementBar = ({ thread, theme, user }) => {
                                     }
                                 />
                             }
-                            label={`${i18next.t(
-                                'i-declare-without-help-of-ai',
-                                {
-                                    ns: 'common',
-                                    studentFullName: `${student_name} ${student_name_zh}`
-                                }
-                            )}`}
+                            label={`${t('i-declare-without-help-of-ai', {
+                                ns: 'common',
+                                studentFullName: `${student_name} ${student_name_zh}`
+                            })}`}
                             sx={{ my: 2 }}
                         />
                     ) : null}
@@ -1811,7 +1801,7 @@ const OriginAuthorStatementBar = ({ thread, theme, user }) => {
                                 sx={{ mr: 2 }}
                                 variant="contained"
                             >
-                                {i18next.t('Close', { ns: 'common' })}
+                                {t('Close', { ns: 'common' })}
                             </Button>
                         ) : (
                             <Button
@@ -1829,7 +1819,7 @@ const OriginAuthorStatementBar = ({ thread, theme, user }) => {
                                 {isLoading ? (
                                     <CircularProgress />
                                 ) : (
-                                    i18next.t('I Agree', { ns: 'common' })
+                                    t('I Agree', { ns: 'common' })
                                 )}
                             </Button>
                         )
@@ -1843,7 +1833,7 @@ const OriginAuthorStatementBar = ({ thread, theme, user }) => {
                             sx={{ mr: 2 }}
                             variant="contained"
                         >
-                            {i18next.t('Close', { ns: 'common' })}
+                            {t('Close', { ns: 'common' })}
                         </Button>
                     )}
                 </DialogContent>
@@ -1866,6 +1856,7 @@ const DocModificationThreadPage = ({
     const theme = useTheme();
     const { documentsthreadId } = useParams();
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
+    const { t } = useTranslation();
     const [docModificationThreadPageState, setDocModificationThreadPageState] =
         useState({
             error: '',
@@ -2460,7 +2451,7 @@ const DocModificationThreadPage = ({
             >
                 <Tab
                     icon={<ChatIcon />}
-                    label={i18next.t('discussion-thread', { ns: 'common' })}
+                    label={t('discussion-thread', { ns: 'common' })}
                     {...a11yProps(value, discussionTabIndex)}
                     sx={{
                         fontWeight:
@@ -2470,7 +2461,7 @@ const DocModificationThreadPage = ({
                 {isGeneralRL ? (
                     <Tab
                         icon={<InfoOutlinedIcon />}
-                        label={i18next.t('rl-requirement-tab', {
+                        label={t('rl-requirement-tab', {
                             ns: 'cvmlrl',
                             defaultValue: 'Requirements'
                         })}
@@ -2483,7 +2474,7 @@ const DocModificationThreadPage = ({
                 ) : null}
                 <Tab
                     icon={<FolderIcon />}
-                    label={i18next.t('files', { ns: 'common' })}
+                    label={t('files', { ns: 'common' })}
                     {...a11yProps(value, filesTabIndex)}
                     sx={{
                         fontWeight: value === filesTabIndex ? 'bold' : 'normal' // Bold for selected tab
@@ -2492,7 +2483,7 @@ const DocModificationThreadPage = ({
                 {isTaiGerUser ? (
                     <Tab
                         icon={<LibraryBooksIcon />}
-                        label={`${i18next.t('Database', { ns: 'common' })} (${similarThreads?.length || 0})`}
+                        label={`${t('Database', { ns: 'common' })} (${similarThreads?.length || 0})`}
                         {...a11yProps(value, databaseTabIndex)}
                         sx={{
                             fontWeight:
@@ -2502,7 +2493,7 @@ const DocModificationThreadPage = ({
                 ) : null}
                 <Tab
                     icon={<HistoryIcon />}
-                    label={i18next.t('Audit', { ns: 'common' })}
+                    label={t('Audit', { ns: 'common' })}
                     {...a11yProps(value, auditTabIndex)}
                     sx={{
                         fontWeight: value === auditTabIndex ? 'bold' : 'normal' // Bold for selected tab
@@ -2565,7 +2556,7 @@ const DocModificationThreadPage = ({
                                         color="text.secondary"
                                         variant="body1"
                                     >
-                                        {i18next.t('thread-close')}
+                                        {t('thread-close')}
                                     </Typography>
                                 </Box>
                             ) : (
@@ -2682,7 +2673,7 @@ const DocModificationThreadPage = ({
                                 variant="contained"
                             >
                                 {isSubmissionLoaded ? (
-                                    i18next.t('Mark as finished')
+                                    t('Mark as finished')
                                 ) : (
                                     <CircularProgress />
                                 )}
@@ -2704,7 +2695,7 @@ const DocModificationThreadPage = ({
                                 variant="outlined"
                             >
                                 {isSubmissionLoaded ? (
-                                    i18next.t('Mark as open')
+                                    t('Mark as open')
                                 ) : (
                                     <CircularProgress />
                                 )}
@@ -2723,14 +2714,14 @@ const DocModificationThreadPage = ({
             <CustomTabPanel index={filesTabIndex} value={value}>
                 <Box sx={{ px: 2, py: 1 }}>
                     <Typography sx={{ mb: 1 }} variant="h6">
-                        {i18next.t('Files Overview', { ns: 'common' })}
+                        {t('Files Overview', { ns: 'common' })}
                     </Typography>
                     <Typography
                         color="text.secondary"
                         sx={{ mb: 2 }}
                         variant="body2"
                     >
-                        {i18next.t(
+                        {t(
                             'All files shared in this thread are listed below.',
                             { ns: 'common' }
                         )}
@@ -2848,7 +2839,7 @@ const DocModificationThreadPage = ({
                         </Stack>
                     ) : (
                         <Typography sx={{ m: 2 }} variant="text.secondary">
-                            {i18next.t('No similar threads found', {
+                            {t('No similar threads found', {
                                 ns: 'common'
                             })}
                         </Typography>
@@ -2871,7 +2862,7 @@ const DocModificationThreadPage = ({
                 open={docModificationThreadPageState.SetAsFinalFileModel}
                 student_name={student_name}
                 thread_id={thread._id}
-                title={i18next.t('Warning', { ns: 'common' })}
+                title={t('Warning', { ns: 'common' })}
             />
             {is_TaiGer_role(user) &&
             docModificationThreadPageState.showEditorPage ? (
