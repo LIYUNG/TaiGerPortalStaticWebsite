@@ -651,7 +651,9 @@ const InformationBlock = ({
                                                 fontWeight="700"
                                                 variant="body1"
                                             >
-                                                {t('Requirements')}
+                                                {t('Requirements', {
+                                                    ns: 'translation'
+                                                })}
                                             </Typography>
                                         </Stack>
                                         <Stack direction="row" spacing={0.5}>
@@ -1374,7 +1376,9 @@ const InformationBlock = ({
                                             fontWeight="700"
                                             variant="h5"
                                         >
-                                            {t('Requirements')}
+                                            {t('Requirements', {
+                                                ns: 'translation'
+                                            })}
                                         </Typography>
                                     </Stack>
                                 </DialogTitle>
@@ -2461,9 +2465,8 @@ const DocModificationThreadPage = ({
                 {isGeneralRL ? (
                     <Tab
                         icon={<InfoOutlinedIcon />}
-                        label={t('rl-requirement-tab', {
-                            ns: 'cvmlrl',
-                            defaultValue: 'Requirements'
+                        label={t('Requirements', {
+                            ns: 'translation'
                         })}
                         {...a11yProps(value, rlReqTabIndex)}
                         sx={{
