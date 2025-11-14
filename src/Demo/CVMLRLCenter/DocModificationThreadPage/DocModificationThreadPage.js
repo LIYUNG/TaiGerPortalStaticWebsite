@@ -494,13 +494,6 @@ const InformationBlock = ({
                     >
                         <Stack spacing={1}>
                             {thread.isFinalVersion ? <TopBar /> : null}
-                            {thread?.file_type === 'Essay' ? (
-                                <OriginAuthorStatementBar
-                                    theme={theme}
-                                    thread={thread}
-                                    user={user}
-                                />
-                            ) : null}
                             {/* Deadline & Favorite Card */}
                             <Card
                                 elevation={urgent ? 4 : 2}
@@ -619,7 +612,13 @@ const InformationBlock = ({
                                     </Stack>
                                 </Box>
                             </Card>
-
+                            {thread?.file_type === 'Essay' ? (
+                                <OriginAuthorStatementBar
+                                    theme={theme}
+                                    thread={thread}
+                                    user={user}
+                                />
+                            ) : null}
                             {/* Requirements Card - MOST IMPORTANT */}
                             <Card
                                 sx={{
