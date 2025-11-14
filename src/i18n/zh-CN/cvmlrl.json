@@ -39,10 +39,11 @@
         "noApplications": "暂无申请。",
         "columns": {
             "school": "学校",
-            "program": "项目",
+            "program": "科系",
             "deadline": "申请截止日",
             "count": "所需推荐信数量",
-            "notes": "推荐信说明 / 注意事项"
+            "notes": "推荐信说明 / 注意事项",
+            "programWithSchool": "学校 / 科系"
         },
         "status": {
             "decided": "已决定",
@@ -51,6 +52,7 @@
         "deadline": {
             "na": "N/A"
         },
+        "unknownSchool": "未知学校",
         "legend": "灰色底色代表尚未决定的申请。"
     }
 }

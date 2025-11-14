@@ -39,10 +39,11 @@
         "noApplications": "暫無申請。",
         "columns": {
             "school": "學校",
-            "program": "項目",
+            "program": "科系",
             "deadline": "申請截止日",
             "count": "所需推薦信數量",
-            "notes": "推薦信說明 / 注意事項"
+            "notes": "推薦信說明 / 注意事項",
+            "programWithSchool": "學校 / 科系"
         },
         "status": {
             "decided": "已決定",
@@ -51,6 +52,7 @@
         "deadline": {
             "na": "N/A"
         },
+        "unknownSchool": "未知學校",
         "legend": "灰色底色代表尚未決定的申請。"
     }
 }

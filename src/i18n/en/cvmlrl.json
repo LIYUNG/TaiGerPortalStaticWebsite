@@ -42,7 +42,8 @@
             "program": "Program",
             "deadline": "Application Deadline",
             "count": "RL Count Required",
-            "notes": "RL Requirements / Notes"
+            "notes": "RL Requirements / Notes",
+            "programWithSchool": "School / Program"
         },
         "status": {
             "decided": "Decided",
@@ -51,6 +52,7 @@
         "deadline": {
             "na": "N/A"
         },
+        "unknownSchool": "Unknown school",
         "legend": "Rows shaded in gray represent pending / undecided applications."
     }
 }

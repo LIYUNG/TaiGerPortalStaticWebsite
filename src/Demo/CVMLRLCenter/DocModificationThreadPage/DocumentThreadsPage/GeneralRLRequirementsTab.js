@@ -84,16 +84,13 @@ export const GeneralRLRequirementsTab = ({ studentId }) => {
                     <thead>
                         <tr>
                             <th style={th}>
-                                {t('generalRLTable.columns.school')}
-                            </th>
-                            <th style={th}>
-                                {t('generalRLTable.columns.program')}
-                            </th>
-                            <th style={th}>
                                 {t('generalRLTable.columns.deadline')}
                             </th>
                             <th style={th}>
                                 {t('generalRLTable.columns.count')}
+                            </th>
+                            <th style={th}>
+                                {t('generalRLTable.columns.programWithSchool')}
                             </th>
                             <th style={th}>
                                 {t('generalRLTable.columns.notes')}
@@ -110,10 +107,19 @@ export const GeneralRLRequirementsTab = ({ studentId }) => {
                                         : rowStatusStyles.undecided
                                 }
                             >
-                                <td style={td}>{r.school}</td>
-                                <td style={td}>{r.program_name}</td>
                                 <td style={td}>{r.deadline}</td>
                                 <td style={td}>{r.count_required}</td>
+                                <td style={td}>
+                                    <div style={combinedCellStyle}>
+                                        <span style={schoolLabelStyle}>
+                                            {r.school ||
+                                                t(
+                                                    'generalRLTable.unknownSchool'
+                                                )}
+                                        </span>
+                                        <span>{r.program_name}</span>
+                                    </div>
+                                </td>
                                 <td style={td}>{r.requirement_text}</td>
                             </tr>
                         ))}
@@ -197,6 +203,17 @@ const rowStatusStyles = {
     undecided: {
         background: '#f7f7f7'
     }
+};
+
+const combinedCellStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '4px'
+};
+
+const schoolLabelStyle = {
+    fontSize: '12px',
+    color: '#4a5568'
 };
 
 const infoStyle = {
