@@ -41,7 +41,7 @@ export const GeneralRLRequirementsTab = ({ studentId }) => {
                 !program.rl_required ||
                 program.rl_required === '0' ||
                 program.is_rl_specific;
-            return !generalRLNotRequired;
+            return !generalRLNotRequired && app.decided !== 'X';
         });
         copy.sort((a, b) => {
             const da = (a?.decided || '').toUpperCase();
@@ -82,6 +82,10 @@ export const GeneralRLRequirementsTab = ({ studentId }) => {
             };
         });
     }, [relevantApplications]);
+
+    const legendDescription = t('generalRLTable.legendDescription', {
+        defaultValue: 'Green rows = decided, Grey rows = pending/undecided.'
+    });
 
     if (isLoading)
         return (
@@ -133,7 +137,7 @@ export const GeneralRLRequirementsTab = ({ studentId }) => {
                                 key={r.key}
                                 sx={
                                     r.decided === 'O'
-                                        ? undefined
+                                        ? rowStatusSx.decided
                                         : rowStatusSx.undecided
                                 }
                             >
@@ -173,6 +177,9 @@ export const GeneralRLRequirementsTab = ({ studentId }) => {
             </TableContainer>
             <Typography sx={legendSx} variant="caption">
                 {t('generalRLTable.legend')}
+            </Typography>
+            <Typography sx={{ ...legendSx, mt: 0.5 }} variant="caption">
+                {legendDescription}
             </Typography>
         </Paper>
     );
@@ -261,6 +268,13 @@ const tdSx = {
 };
 
 const rowStatusSx = {
+    decided: {
+        backgroundColor: '#edf7ed',
+        boxShadow: 'inset 3px 0 0 #2e7d32',
+        '& td': {
+            borderColor: '#c8e6c9'
+        }
+    },
     undecided: {
         backgroundColor: 'grey.50'
     }

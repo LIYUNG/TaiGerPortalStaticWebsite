@@ -33,7 +33,7 @@
     },
     "generalRLTable": {
         "title": "推荐信需求总览",
-        "subtitle": "已决定的申请会优先显示，未决定的申请以灰色底色区分。",
+        "subtitle": "已决定的申请以绿色优先显示，未决定的申请保持灰色，方便快速浏览。",
         "loading": "正在加载推荐信需求…",
         "missingStudentId": "缺少学生 ID",
         "noApplications": "暂无申请。",
@@ -53,6 +53,7 @@
             "na": "N/A"
         },
         "unknownSchool": "未知学校",
-        "legend": "灰色底色代表尚未决定的申请。"
+        "legend": "颜色说明：",
+        "legendDescription": "绿色＝已决定，灰色＝待定 / 未决定。"
     }
 }

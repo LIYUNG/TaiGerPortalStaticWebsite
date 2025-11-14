@@ -33,7 +33,7 @@
     },
     "generalRLTable": {
         "title": "Recommendation Letter Requirements",
-        "subtitle": "Decided applications are listed first; pending entries are shaded in gray for quick scanning.",
+        "subtitle": "Decided applications appear first and highlight in green, while pending entries remain gray for quick scanning.",
         "loading": "Loading recommendation letter requirements...",
         "missingStudentId": "Missing student ID",
         "noApplications": "No applications available.",
@@ -53,6 +53,7 @@
             "na": "N/A"
         },
         "unknownSchool": "Unknown school",
-        "legend": "Rows shaded in gray represent pending / undecided applications."
+        "legend": "Row color legend:",
+        "legendDescription": "Green = decided, Grey = pending / undecided."
     }
 }

@@ -33,7 +33,7 @@
     },
     "generalRLTable": {
         "title": "推薦信需求總覽",
-        "subtitle": "已決定的申請會優先顯示，未決定的申請以灰色底色區分。",
+        "subtitle": "已決定的申請以綠色優先顯示，未決定的申請維持灰色，方便快速瀏覽。",
         "loading": "正在載入推薦信需求…",
         "missingStudentId": "缺少學生 ID",
         "noApplications": "暫無申請。",
@@ -53,6 +53,7 @@
             "na": "N/A"
         },
         "unknownSchool": "未知學校",
-        "legend": "灰色底色代表尚未決定的申請。"
+        "legend": "顏色說明：",
+        "legendDescription": "綠色＝已決定，灰色＝待定 / 未決定。"
     }
 }
