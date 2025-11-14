@@ -34,9 +34,14 @@ export const GeneralRLRequirementsTab = ({ studentId }) => {
     // decided field in sample data: "-" = pending/undecided, "O" = decided, "X" = excluded
     const relevantApplications = useMemo(() => {
         const copy = (apps || []).filter((app) => {
-            if (!app) return false;
-            const d = (app.decided || '').toUpperCase();
-            return d !== 'X';
+            const program = app.programId || null;
+            const generalRLNotRequired =
+                !app ||
+                !program ||
+                !program.rl_required ||
+                program.rl_required === '0' ||
+                program.is_rl_specific;
+            return !generalRLNotRequired;
         });
         copy.sort((a, b) => {
             const da = (a?.decided || '').toUpperCase();
