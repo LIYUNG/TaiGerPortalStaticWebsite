@@ -98,6 +98,8 @@ import Audit from '../../Audit';
 import i18next from 'i18next';
 import { useSnackBar } from '../../../contexts/use-snack-bar';
 
+import GeneralRLRequirementsTab from './DocumentThreadsPage/GeneralRLRequirementsTab';
+
 const DescriptionBlock = ({ thread, template_obj, documentsthreadId }) => {
     const { user } = useAuth();
     const theme = useTheme();
@@ -2405,7 +2407,7 @@ const DocModificationThreadPage = ({
     }, [tabKeys]);
 
     const discussionTabIndex = tabIndexMap[TAB_KEYS.discussion];
-    const rlTemplateTabIndex = tabIndexMap[TAB_KEYS.generalRL];
+    const rlReqTabIndex = tabIndexMap[TAB_KEYS.generalRL];
     const filesTabIndex = tabIndexMap[TAB_KEYS.files];
     const databaseTabIndex = tabIndexMap[TAB_KEYS.database];
     const auditTabIndex = tabIndexMap[TAB_KEYS.audit];
@@ -2468,14 +2470,14 @@ const DocModificationThreadPage = ({
                 {isGeneralRL ? (
                     <Tab
                         icon={<InfoOutlinedIcon />}
-                        label={i18next.t('rl-template-tab', {
+                        label={i18next.t('rl-requirement-tab', {
                             ns: 'cvmlrl',
-                            defaultValue: 'RL Template'
+                            defaultValue: 'Requirements'
                         })}
-                        {...a11yProps(value, rlTemplateTabIndex)}
+                        {...a11yProps(value, rlReqTabIndex)}
                         sx={{
                             fontWeight:
-                                value === rlTemplateTabIndex ? 'bold' : 'normal'
+                                value === rlReqTabIndex ? 'bold' : 'normal'
                         }}
                     />
                 ) : null}
@@ -2712,8 +2714,10 @@ const DocModificationThreadPage = ({
                 </InformationBlock>
             </CustomTabPanel>
             {isGeneralRL ? (
-                <CustomTabPanel index={rlTemplateTabIndex} value={value}>
-                    <Box sx={{ p: 2 }} />
+                <CustomTabPanel index={rlReqTabIndex} value={value}>
+                    <GeneralRLRequirementsTab
+                        studentId={thread?.student_id?._id}
+                    />
                 </CustomTabPanel>
             ) : null}
             <CustomTabPanel index={filesTabIndex} value={value}>
