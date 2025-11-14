@@ -13,44 +13,55 @@ export const GeneralRLRequirementsTab = ({ studentId }) => {
     const apps = student?.applications || [];
     console.log(`studentData ${studentId}: `, response);
 
-    // decided field in sample data: "-" = undecided, "O" = decided
-    const decidedApplications = useMemo(() => {
-        return apps.filter((app) => {
+    // decided field in sample data: "-" = pending/undecided, "O" = decided, "X" = excluded
+    const relevantApplications = useMemo(() => {
+        const copy = (apps || []).filter((app) => {
             if (!app) return false;
             const d = (app.decided || '').toUpperCase();
-            return d === 'O';
+            return d !== 'X';
         });
+        copy.sort((a, b) => {
+            const da = (a?.decided || '').toUpperCase();
+            const db = (b?.decided || '').toUpperCase();
+            if (da === db) return 0;
+            if (da === 'O') return -1;
+            if (db === 'O') return 1;
+            return 0;
+        });
+        return copy;
     }, [apps]);
 
     const rlRows = useMemo(() => {
-        return decidedApplications.map((app) => {
+        return relevantApplications.map((app) => {
             const program = app.programId || {};
             const school = program.school || '';
             const programName = program.program_name || '';
             const rlRequiredRaw = program.rl_required; // "0","1","2"
             const rlRequired = normalizeCount(rlRequiredRaw);
             const rlText = (program.rl_requirements || '').trim();
+            const decided = (app.decided || '-').toUpperCase();
 
             return {
                 key: app._id,
                 school,
                 program_name: programName,
                 count_required: rlRequired || '',
-                requirement_text: rlText || 'No specific instructions provided'
+                requirement_text: rlText || 'No specific instructions provided',
+                decided
             };
         });
-    }, [decidedApplications]);
+    }, [relevantApplications]);
 
     if (isLoading) return <div>Loading RL requirements...</div>;
 
-    if (!decidedApplications.length) {
-        console.log(decidedApplications);
-        return <div>No decided applications available.</div>;
+    if (!relevantApplications.length) {
+        console.log(relevantApplications);
+        return <div>No applications available.</div>;
     }
 
     return (
         <div style={{ padding: '1rem' }}>
-            <h3>Recommendation Letter Requirements for Decided Applications</h3>
+            <h3>Recommendation Letter Requirements</h3>
             <table
                 style={{
                     width: '100%',
@@ -68,7 +79,14 @@ export const GeneralRLRequirementsTab = ({ studentId }) => {
                 </thead>
                 <tbody>
                     {rlRows.map((r) => (
-                        <tr key={r.key}>
+                        <tr
+                            key={r.key}
+                            style={
+                                r.decided === 'O'
+                                    ? undefined
+                                    : rowStatusStyles.undecided
+                            }
+                        >
                             <td style={td}>{r.school}</td>
                             <td style={td}>{r.program_name}</td>
                             <td style={td}>{r.count_required}</td>
@@ -98,6 +116,12 @@ const td = {
     borderBottom: '1px solid #eee',
     padding: '6px',
     verticalAlign: 'top'
+};
+
+const rowStatusStyles = {
+    undecided: {
+        background: '#f4f4f4'
+    }
 };
 
 export default GeneralRLRequirementsTab;
