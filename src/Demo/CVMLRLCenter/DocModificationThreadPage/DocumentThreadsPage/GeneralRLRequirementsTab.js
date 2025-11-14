@@ -39,6 +39,12 @@ export const GeneralRLRequirementsTab = ({ studentId }) => {
             const rlRequired = normalizeCount(rlRequiredRaw);
             const rlText = (program.rl_requirements || '').trim();
             const decided = (app.decided || '-').toUpperCase();
+            const applicationYear = (app.application_year || '').trim();
+            const programDeadline = (program.application_deadline || '').trim();
+            const deadlineDisplay = buildDeadlineDisplay(
+                applicationYear,
+                programDeadline
+            );
 
             return {
                 key: app._id,
@@ -46,7 +52,8 @@ export const GeneralRLRequirementsTab = ({ studentId }) => {
                 program_name: programName,
                 count_required: rlRequired || '',
                 requirement_text: rlText || 'No specific instructions provided',
-                decided
+                decided,
+                deadline: deadlineDisplay
             };
         });
     }, [relevantApplications]);
@@ -72,6 +79,7 @@ export const GeneralRLRequirementsTab = ({ studentId }) => {
                     <tr>
                         <th style={th}>School</th>
                         <th style={th}>Program</th>
+                        <th style={th}>Application Deadline</th>
                         <th style={th}>RL Count Required</th>
                         <th style={th}>RL Requirements / Notes</th>
                     </tr>
@@ -88,6 +96,7 @@ export const GeneralRLRequirementsTab = ({ studentId }) => {
                         >
                             <td style={td}>{r.school}</td>
                             <td style={td}>{r.program_name}</td>
+                            <td style={td}>{r.deadline}</td>
                             <td style={td}>{r.count_required}</td>
                             <td style={td}>{r.requirement_text}</td>
                         </tr>
@@ -102,6 +111,16 @@ function normalizeCount(v) {
     if (v == null) return '';
     const n = parseInt(String(v).trim(), 10);
     return Number.isNaN(n) ? '' : n;
+}
+
+function buildDeadlineDisplay(year, deadline) {
+    const cleanYear = year || '';
+    const cleanDeadline = deadline || '';
+
+    if (cleanYear && cleanDeadline) return `${cleanYear}-${cleanDeadline}`;
+    if (cleanYear) return cleanYear;
+    if (cleanDeadline) return cleanDeadline;
+    return 'N/A';
 }
 
 const th = {
