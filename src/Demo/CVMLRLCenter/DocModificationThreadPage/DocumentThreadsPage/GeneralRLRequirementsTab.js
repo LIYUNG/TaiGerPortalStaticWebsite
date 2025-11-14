@@ -11,7 +11,6 @@ export const GeneralRLRequirementsTab = ({ studentId }) => {
         return <div style={{ color: 'red' }}>Missing studentId</div>;
     const student = response?.data?.data || null;
     const apps = student?.applications || [];
-    console.log(`studentData ${studentId}: `, response);
 
     // decided field in sample data: "-" = pending/undecided, "O" = decided, "X" = excluded
     const relevantApplications = useMemo(() => {
