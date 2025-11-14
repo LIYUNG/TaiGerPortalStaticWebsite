@@ -30,5 +30,27 @@
             "missing": "This application needs {{required}} program-specific letter task(s), but only {{provided}} are created. Please create {{difference}} more task(s).",
             "extra": "This application needs {{required}} program-specific letter task(s), but {{provided}} are created. You can remove {{difference}} task(s)."
         }
+    },
+    "generalRLTable": {
+        "title": "Recommendation Letter Requirements",
+        "subtitle": "Decided applications are listed first; pending entries are shaded in gray for quick scanning.",
+        "loading": "Loading recommendation letter requirements...",
+        "missingStudentId": "Missing student ID",
+        "noApplications": "No applications available.",
+        "columns": {
+            "school": "School",
+            "program": "Program",
+            "deadline": "Application Deadline",
+            "count": "RL Count Required",
+            "notes": "RL Requirements / Notes"
+        },
+        "status": {
+            "decided": "Decided",
+            "pending": "Pending"
+        },
+        "deadline": {
+            "na": "N/A"
+        },
+        "legend": "Rows shaded in gray represent pending / undecided applications."
     }
 }

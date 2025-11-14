@@ -30,5 +30,27 @@
             "missing": "此申請需 {{required}} 份推薦信，目前僅建立 {{provided}} 個任務，請再建立 {{difference}} 個任務。",
             "extra": "此申請只需 {{required}} 份推薦信，目前已建立 {{provided}} 個任務，可移除 {{difference}} 個任務。"
         }
+    },
+    "generalRLTable": {
+        "title": "推薦信需求總覽",
+        "subtitle": "已決定的申請會優先顯示，未決定的申請以灰色底色區分。",
+        "loading": "正在載入推薦信需求…",
+        "missingStudentId": "缺少學生 ID",
+        "noApplications": "暫無申請。",
+        "columns": {
+            "school": "學校",
+            "program": "項目",
+            "deadline": "申請截止日",
+            "count": "所需推薦信數量",
+            "notes": "推薦信說明 / 注意事項"
+        },
+        "status": {
+            "decided": "已決定",
+            "pending": "未決定"
+        },
+        "deadline": {
+            "na": "N/A"
+        },
+        "legend": "灰色底色代表尚未決定的申請。"
     }
 }

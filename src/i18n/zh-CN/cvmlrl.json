@@ -30,5 +30,27 @@
             "missing": "此申请需要 {{required}} 份推荐信，目前仅建立 {{provided}} 个任务，请再建立 {{difference}} 个任务。",
             "extra": "此申请只需 {{required}} 份推荐信，目前已建立 {{provided}} 个任务，可移除 {{difference}} 个任务。"
         }
+    },
+    "generalRLTable": {
+        "title": "推荐信需求总览",
+        "subtitle": "已决定的申请会优先显示，未决定的申请以灰色底色区分。",
+        "loading": "正在加载推荐信需求…",
+        "missingStudentId": "缺少学生 ID",
+        "noApplications": "暂无申请。",
+        "columns": {
+            "school": "学校",
+            "program": "项目",
+            "deadline": "申请截止日",
+            "count": "所需推荐信数量",
+            "notes": "推荐信说明 / 注意事项"
+        },
+        "status": {
+            "decided": "已决定",
+            "pending": "未决定"
+        },
+        "deadline": {
+            "na": "N/A"
+        },
+        "legend": "灰色底色代表尚未决定的申请。"
     }
 }
