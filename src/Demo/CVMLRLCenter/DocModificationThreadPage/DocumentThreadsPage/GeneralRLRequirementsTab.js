@@ -1,6 +1,15 @@
 import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import {
+    Table,
+    TableContainer,
+    TableHead,
+    TableRow,
+    TableCell,
+    TableBody,
+    Paper
+} from '@mui/material';
 import { getStudentAndDocLinksQuery } from '../../../../api/query';
 
 export const GeneralRLRequirementsTab = ({ studentId }) => {
@@ -80,51 +89,89 @@ export const GeneralRLRequirementsTab = ({ studentId }) => {
                 <p style={subtitleStyle}>{t('generalRLTable.subtitle')}</p>
             </div>
             <div style={tableWrapperStyle}>
-                <table style={tableStyle}>
-                    <thead>
-                        <tr>
-                            <th style={th}>
-                                {t('generalRLTable.columns.deadline')}
-                            </th>
-                            <th style={th}>
-                                {t('generalRLTable.columns.count')}
-                            </th>
-                            <th style={th}>
-                                {t('generalRLTable.columns.programWithSchool')}
-                            </th>
-                            <th style={th}>
-                                {t('generalRLTable.columns.notes')}
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {rlRows.map((r) => (
-                            <tr
-                                key={r.key}
-                                style={
-                                    r.decided === 'O'
-                                        ? undefined
-                                        : rowStatusStyles.undecided
-                                }
-                            >
-                                <td style={td}>{r.deadline}</td>
-                                <td style={td}>{r.count_required}</td>
-                                <td style={td}>
-                                    <div style={combinedCellStyle}>
-                                        <span style={schoolLabelStyle}>
-                                            {r.school ||
-                                                t(
-                                                    'generalRLTable.unknownSchool'
-                                                )}
-                                        </span>
-                                        <span>{r.program_name}</span>
-                                    </div>
-                                </td>
-                                <td style={td}>{r.requirement_text}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                <TableContainer component={Paper}>
+                    <Table sx={tableStyle}>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell
+                                    sx={{ ...th, width: columnWidths.deadline }}
+                                >
+                                    {t('generalRLTable.columns.deadline')}
+                                </TableCell>
+                                <TableCell
+                                    sx={{ ...th, width: columnWidths.count }}
+                                >
+                                    {t('generalRLTable.columns.count')}
+                                </TableCell>
+                                <TableCell
+                                    sx={{ ...th, width: columnWidths.program }}
+                                >
+                                    {t(
+                                        'generalRLTable.columns.programWithSchool'
+                                    )}
+                                </TableCell>
+                                <TableCell
+                                    sx={{ ...th, width: columnWidths.notes }}
+                                >
+                                    {t('generalRLTable.columns.notes')}
+                                </TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {rlRows.map((r) => (
+                                <TableRow
+                                    key={r.key}
+                                    sx={
+                                        r.decided === 'O'
+                                            ? undefined
+                                            : rowStatusStyles.undecided
+                                    }
+                                >
+                                    <TableCell
+                                        sx={{
+                                            ...td,
+                                            width: columnWidths.deadline
+                                        }}
+                                    >
+                                        {r.deadline}
+                                    </TableCell>
+                                    <TableCell
+                                        sx={{
+                                            ...td,
+                                            width: columnWidths.count
+                                        }}
+                                    >
+                                        {r.count_required}
+                                    </TableCell>
+                                    <TableCell
+                                        sx={{
+                                            ...td,
+                                            width: columnWidths.program
+                                        }}
+                                    >
+                                        <div style={combinedCellStyle}>
+                                            <span style={schoolLabelStyle}>
+                                                {r.school ||
+                                                    t(
+                                                        'generalRLTable.unknownSchool'
+                                                    )}
+                                            </span>
+                                            <span>{r.program_name}</span>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell
+                                        sx={{
+                                            ...td,
+                                            width: columnWidths.notes
+                                        }}
+                                    >
+                                        {r.requirement_text}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
                 <div style={legendStyle}>{t('generalRLTable.legend')}</div>
             </div>
         </div>
@@ -178,7 +225,15 @@ const tableWrapperStyle = {
 const tableStyle = {
     width: '100%',
     borderCollapse: 'collapse',
-    fontSize: '14px'
+    fontSize: '14px',
+    tableLayout: 'fixed'
+};
+
+const columnWidths = {
+    deadline: '15%',
+    count: '10%',
+    program: '35%',
+    notes: '40%'
 };
 
 const th = {
