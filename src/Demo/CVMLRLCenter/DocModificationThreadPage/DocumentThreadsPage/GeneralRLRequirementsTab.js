@@ -18,7 +18,9 @@ import {
 } from '@mui/material';
 import LaunchIcon from '@mui/icons-material/Launch';
 import { Link as LinkDom } from 'react-router-dom';
+
 import { getStudentAndDocLinksQuery } from '../../../../api/query';
+import { application_deadline_V2_calculator } from '../../../Utils/checking-functions';
 import DEMO from '../../../../store/constant';
 
 export const GeneralRLRequirementsTab = ({ studentId }) => {
@@ -38,7 +40,7 @@ export const GeneralRLRequirementsTab = ({ studentId }) => {
 
     // decided field in sample data: "-" = pending/undecided, "O" = decided, "X" = excluded
     const relevantApplications = useMemo(() => {
-        const copy = (apps || []).filter((app) => {
+        return (apps || []).filter((app) => {
             const program = app.programId || null;
             const generalRLNotRequired =
                 !app ||
@@ -48,19 +50,10 @@ export const GeneralRLRequirementsTab = ({ studentId }) => {
                 program.is_rl_specific;
             return !generalRLNotRequired && app.decided !== 'X';
         });
-        copy.sort((a, b) => {
-            const da = (a?.decided || '').toUpperCase();
-            const db = (b?.decided || '').toUpperCase();
-            if (da === db) return 0;
-            if (da === 'O') return -1;
-            if (db === 'O') return 1;
-            return 0;
-        });
-        return copy;
     }, [apps]);
 
     const rlRows = useMemo(() => {
-        return relevantApplications.map((app) => {
+        const rowsWithMeta = relevantApplications.map((app) => {
             const program = app.programId || {};
             const school = program.school || '';
             const programName = program.program_name || '';
@@ -68,13 +61,7 @@ export const GeneralRLRequirementsTab = ({ studentId }) => {
             const rlRequired = normalizeCount(rlRequiredRaw);
             const rlText = (program.rl_requirements || '').trim();
             const decided = (app.decided || '-').toUpperCase();
-            const applicationYear = (app.application_year || '').trim();
-            const programDeadline = (program.application_deadline || '').trim();
-            const deadlineDisplay = buildDeadlineDisplay(
-                applicationYear,
-                programDeadline,
-                t
-            );
+            const deadlineDisplay = application_deadline_V2_calculator(app);
             const programLinkTarget = program?._id
                 ? DEMO.SINGLE_PROGRAM_LINK(
                       typeof program._id === 'string'
@@ -91,10 +78,27 @@ export const GeneralRLRequirementsTab = ({ studentId }) => {
                 count_required: rlRequired || '',
                 requirement_text: rlText || 'No specific instructions provided',
                 decided,
-                deadline: deadlineDisplay
+                deadline: deadlineDisplay,
+                deadlineSortValue: getDeadlineSortValue(deadlineDisplay)
             };
         });
-    }, [relevantApplications, t]);
+
+        rowsWithMeta.sort((a, b) => {
+            const decidedCompare = compareDecidedStatus(a.decided, b.decided);
+            if (decidedCompare !== 0) return decidedCompare;
+
+            const deadlineCompare = a.deadlineSortValue - b.deadlineSortValue;
+            if (deadlineCompare !== 0) return deadlineCompare;
+
+            return a.program_name.localeCompare(b.program_name);
+        });
+
+        rowsWithMeta.forEach((row) => {
+            delete row.deadlineSortValue;
+        });
+
+        return rowsWithMeta;
+    }, [relevantApplications]);
 
     const legendDescription = t('generalRLTable.legendDescription', {
         defaultValue: 'Green rows = decided, Grey rows = pending/undecided.'
@@ -232,14 +236,38 @@ function normalizeCount(v) {
     return Number.isNaN(n) ? '' : n;
 }
 
-function buildDeadlineDisplay(year, deadline, t) {
-    const cleanYear = year || '';
-    const cleanDeadline = deadline || '';
+// Large sentinel keeps undated/rolling entries after concrete deadlines.
+const DEADLINE_FALLBACK_SORT_VALUE = Number.MAX_SAFE_INTEGER;
 
-    if (cleanYear && cleanDeadline) return `${cleanYear}-${cleanDeadline}`;
-    if (cleanYear) return cleanYear;
-    if (cleanDeadline) return cleanDeadline;
-    return t('generalRLTable.deadline.na');
+function compareDecidedStatus(a, b) {
+    const da = (a || '').toUpperCase();
+    const db = (b || '').toUpperCase();
+    if (da === db) return 0;
+    if (da === 'O') return -1;
+    if (db === 'O') return 1;
+    return 0;
+}
+
+function getDeadlineSortValue(deadlineText) {
+    if (!deadlineText) return DEADLINE_FALLBACK_SORT_VALUE;
+    const normalized = String(deadlineText).trim();
+    if (!normalized) return DEADLINE_FALLBACK_SORT_VALUE;
+
+    const normalizedLower = normalized.toLowerCase();
+    if (normalizedLower === 'withdraw') return DEADLINE_FALLBACK_SORT_VALUE;
+    if (normalizedLower === 'no data') return DEADLINE_FALLBACK_SORT_VALUE;
+    if (normalized.includes('<TBD>')) return DEADLINE_FALLBACK_SORT_VALUE;
+    if (normalizedLower.includes('rolling')) {
+        return DEADLINE_FALLBACK_SORT_VALUE - 1;
+    }
+    if (normalized.includes('/')) {
+        const timestamp = new Date(normalized).getTime();
+        return Number.isNaN(timestamp)
+            ? DEADLINE_FALLBACK_SORT_VALUE
+            : timestamp;
+    }
+
+    return DEADLINE_FALLBACK_SORT_VALUE;
 }
 
 const containerSx = {
