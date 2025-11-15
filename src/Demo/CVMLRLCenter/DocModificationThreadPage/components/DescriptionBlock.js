@@ -138,7 +138,7 @@ const DescriptionBlock = ({ thread, template_obj, documentsthreadId }) => {
                         {thread.file_type === 'Portfolio'
                             ? 'Please upload the portfolio in Microsoft Word form here so that your Editor can help you for the text modification'
                             : thread.file_type === 'Supplementary_Form'
-                              ? '請填好這個 program 的 Supplementory Form，並在這討論串夾帶該檔案 (通常為 .xls, xlsm, .pdf 檔) 上傳。'
+                              ? '請填好這個 program 的 Supplementary Form，並在這討論串夾帶該檔案 (通常為 .xls, xlsm, .pdf 檔) 上傳。'
                               : thread.file_type === 'Curriculum_Analysis'
                                 ? '請填好這個 program 的 Curriculum Analysis，並在這討論串夾帶該檔案 (通常為 .xls, xlsm, .pdf 檔) 上傳。'
                                 : '-'}

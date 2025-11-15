@@ -112,7 +112,6 @@ export const GeneralRLRequirementsTab = ({ studentId }) => {
         );
 
     if (!relevantApplications.length) {
-        console.log(relevantApplications);
         return (
             <Alert severity="info" sx={statusAlertSx}>
                 {t('generalRLTable.noApplications')}

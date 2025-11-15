@@ -563,7 +563,7 @@ const DocModificationThreadPage = ({
     let docName;
     const student_name = `${thread.student_id.firstname} ${thread.student_id.lastname}`;
     const isGeneralRL =
-        !thread.program_id &
+        !thread.program_id &&
         (template_obj?.prop.includes('RL') ||
             template_obj?.alias.includes('Recommendation'));
 
