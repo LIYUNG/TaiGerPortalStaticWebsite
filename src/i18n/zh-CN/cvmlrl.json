@@ -6,5 +6,54 @@
     "cv-requirements-1": "1. 不要遗漏任何重要资讯，履历上需覆盖自高中起的所有时段，有任何找工作、准备留学考试、重考等等经历都必须提及并解释",
     "cv-requirements-1.1": "履历上忌讳有空白超过三格月以上时间",
     "cv-requirements-2": "2. 请不要只上传pdf 档案，我们需要word 档案来帮助你编修",
-    "rl-requirements-1": "1. 推荐人的 Email 必须是他们的机构 Email。 Gmail, Hotmail 等，学校通常不会接受。"
+    "rl-requirements-1": "1. 推荐人的 Email 必须是他们的机构 Email。 Gmail, Hotmail 等，学校通常不会接受。",
+    "missingDocumentsWarning": "请为此申请分配以下缺少的文件：",
+    "extraDocumentsWarning": "以下文件不是此申请所需：",
+    "documentTypes": {
+        "ml_required": "动机信",
+        "sop_required": "读书计划",
+        "phs_required": "个人历史陈述",
+        "essay_required": "申请短文",
+        "portfolio_required": "作品集",
+        "supplementary_form_required": "补充表格",
+        "scholarship_form_required": "奖学金申请表",
+        "curriculum_analysis_required": "课程分析"
+    },
+    "generalRLProgramsTitle": "需要一般推荐信的申请：",
+    "generalRLProgramEntry": "{{program}}（需 {{count}} 封）",
+    "rlStatus": {
+        "general": {
+            "missing": "一般推荐信需要 {{required}} 份，目前仅建立 {{provided}} 个任务，请再建立 {{difference}} 个任务。",
+            "extra": "一般推荐信只需 {{required}} 份，目前已建立 {{provided}} 个任务，可移除 {{difference}} 个任务。"
+        },
+        "program": {
+            "missing": "此申请需要 {{required}} 份推荐信，目前仅建立 {{provided}} 个任务，请再建立 {{difference}} 个任务。",
+            "extra": "此申请只需 {{required}} 份推荐信，目前已建立 {{provided}} 个任务，可移除 {{difference}} 个任务。"
+        }
+    },
+    "generalRLTable": {
+        "title": "推荐信需求总览",
+        "subtitle": "已决定的申请以绿色优先显示，未决定的申请保持灰色，方便快速浏览。",
+        "loading": "正在加载推荐信需求…",
+        "missingStudentId": "缺少学生 ID",
+        "noApplications": "暂无申请。",
+        "columns": {
+            "school": "学校",
+            "program": "科系",
+            "deadline": "申请截止日",
+            "count": "所需推荐信数量",
+            "notes": "推荐信说明 / 注意事项",
+            "programWithSchool": "学校 / 科系"
+        },
+        "status": {
+            "decided": "已决定",
+            "pending": "未决定"
+        },
+        "deadline": {
+            "na": "N/A"
+        },
+        "unknownSchool": "未知学校",
+        "legend": "颜色说明：",
+        "legendDescription": "绿色＝已决定，灰色＝待定 / 未决定。"
+    }
 }

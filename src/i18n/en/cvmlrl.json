@@ -6,5 +6,54 @@
     "cv-requirements-1": "1. Don’t omit important information. Your CV should cover every period since high school, including job searches, exam preparation, retakes, etc., with explanations where needed.",
     "cv-requirements-1.1": "Avoid gaps longer than three months in your CV.",
     "cv-requirements-2": "2. Don’t upload only a PDF; please also provide a Word file so we can edit it.",
-    "rl-requirements-1": "1. The referee’s email should be their institutional address. Gmail, Hotmail, etc., are not acceptable."
+    "rl-requirements-1": "1. The referee’s email should be their institutional address. Gmail, Hotmail, etc., are not acceptable.",
+    "missingDocumentsWarning": "Please assign the following missing document for this application:",
+    "extraDocumentsWarning": "The following document is not required for this application:",
+    "documentTypes": {
+        "ml_required": "Motivation Letter",
+        "sop_required": "Statement of Purpose",
+        "phs_required": "Personal History Statement",
+        "essay_required": "Essay",
+        "portfolio_required": "Portfolio",
+        "supplementary_form_required": "Supplementary Form",
+        "scholarship_form_required": "Scholarship Form",
+        "curriculum_analysis_required": "Curriculum Analysis"
+    },
+    "generalRLProgramsTitle": "Programs requiring general recommendation letters:",
+    "generalRLProgramEntry": "{{program}} ({{count}} letter(s) needed)",
+    "rlStatus": {
+        "general": {
+            "missing": "You need {{required}} general recommendation letter task(s), but only {{provided}} are created. Please create {{difference}} more task(s).",
+            "extra": "You only need {{required}} general recommendation letter task(s), but {{provided}} are created. You can remove {{difference}} task(s)."
+        },
+        "program": {
+            "missing": "This application needs {{required}} program-specific letter task(s), but only {{provided}} are created. Please create {{difference}} more task(s).",
+            "extra": "This application needs {{required}} program-specific letter task(s), but {{provided}} are created. You can remove {{difference}} task(s)."
+        }
+    },
+    "generalRLTable": {
+        "title": "Recommendation Letter Requirements",
+        "subtitle": "Decided applications appear first and highlight in green, while pending entries remain gray for quick scanning.",
+        "loading": "Loading recommendation letter requirements...",
+        "missingStudentId": "Missing student ID",
+        "noApplications": "No applications available.",
+        "columns": {
+            "school": "School",
+            "program": "Program",
+            "deadline": "Application Deadline",
+            "count": "RL Count Required",
+            "notes": "RL Requirements / Notes",
+            "programWithSchool": "School / Program"
+        },
+        "status": {
+            "decided": "Decided",
+            "pending": "Pending"
+        },
+        "deadline": {
+            "na": "N/A"
+        },
+        "unknownSchool": "Unknown school",
+        "legend": "Row color legend:",
+        "legendDescription": "Green = decided, Grey = pending / undecided."
+    }
 }

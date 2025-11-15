@@ -17,7 +17,6 @@ import {
     is_any_base_documents_uploaded,
     check_languages_filled,
     check_academic_background_filled,
-    getMissingDocs,
     is_program_ml_rl_essay_finished,
     num_uni_assist_vpd_needed,
     num_uni_assist_vpd_uploaded,
@@ -26,6 +25,10 @@ import {
     isUniAssistVPDNeeded,
     is_all_uni_assist_vpd_uploaded
 } from './checking-functions';
+import {
+    getProgramDocumentStatus,
+    getGeneralDocumentStatus
+} from './document-status';
 
 describe('Role checking', () => {
     test('is_cv_assigned', () => {
@@ -830,15 +833,13 @@ describe('check_academic_background_filled', () => {
     // Add more test cases as needed to cover other scenarios
 });
 
-describe('getMissingDocs', () => {
-    // Test case 1: No application provided
-    it('returns an empty array when no application is provided', () => {
-        const result = getMissingDocs(null);
-        expect(result).toEqual([]);
+describe('getProgramDocumentStatus', () => {
+    it('returns empty arrays when no application is provided', () => {
+        const result = getProgramDocumentStatus(null);
+        expect(result).toEqual({ missing: [], extra: [] });
     });
 
-    // Test case 2: Missing some documents
-    it('returns an array of missing documents', () => {
+    it('flags missing program-specific documents', () => {
         const application = {
             programId: {
                 essay_required: 'yes',
@@ -847,12 +848,39 @@ describe('getMissingDocs', () => {
             doc_modification_thread: [{ doc_thread_id: { file_type: 'Essay' } }]
         };
 
-        const result = getMissingDocs(application);
-        expect(result).toEqual(['ML']);
+        const result = getProgramDocumentStatus(application);
+        expect(result.missing).toEqual([
+            {
+                docKey: 'ml_required',
+                docType: 'ML',
+                status: 'missing',
+                scope: 'program'
+            }
+        ]);
+        expect(result.extra).toEqual([]);
     });
 
-    // Test case 3: Insufficient RL documents
-    it('returns a message for missing RL documents', () => {
+    it('flags extra program-specific documents', () => {
+        const application = {
+            programId: {
+                ml_required: 'no'
+            },
+            doc_modification_thread: [{ doc_thread_id: { file_type: 'ML' } }]
+        };
+
+        const result = getProgramDocumentStatus(application);
+        expect(result.missing).toEqual([]);
+        expect(result.extra).toEqual([
+            {
+                docKey: 'ml_required',
+                docType: 'ML',
+                status: 'extra',
+                scope: 'program'
+            }
+        ]);
+    });
+
+    it('returns structured RL info for missing recommendation letters', () => {
         const application = {
             programId: {
                 is_rl_specific: true,
@@ -861,24 +889,180 @@ describe('getMissingDocs', () => {
             doc_modification_thread: [{ doc_thread_id: { file_type: 'RL_A' } }]
         };
 
-        const result = getMissingDocs(application);
-        expect(result).toEqual(['RL - 3 needed, 1 provided (2 must be added)']);
+        const result = getProgramDocumentStatus(application);
+        expect(result.missing).toEqual([
+            {
+                docKey: 'rl_required',
+                docType: 'RL',
+                status: 'missing',
+                scope: 'program',
+                counts: {
+                    required: 3,
+                    provided: 1,
+                    delta: 2
+                }
+            }
+        ]);
+        expect(result.extra).toEqual([]);
     });
 
-    // Test case 4: Sufficient RL documents
-    it('does not return RL message when sufficient RL documents are provided', () => {
+    it('returns structured RL info for extra recommendation letters', () => {
         const application = {
             programId: {
-                rl_required: '2'
+                is_rl_specific: true,
+                rl_required: '1'
             },
             doc_modification_thread: [
-                { doc_thread_id: { file_type: 'RL_Transcript_1' } },
-                { doc_thread_id: { file_type: 'RL_Transcript_2' } }
+                { doc_thread_id: { file_type: 'RL_A' } },
+                { doc_thread_id: { file_type: 'RL_B' } }
             ]
         };
 
-        const result = getMissingDocs(application);
-        expect(result).not.toContain('RL -');
+        const result = getProgramDocumentStatus(application);
+        expect(result.extra).toEqual([
+            {
+                docKey: 'rl_required',
+                docType: 'RL',
+                status: 'extra',
+                scope: 'program',
+                counts: {
+                    required: 1,
+                    provided: 2,
+                    delta: 1
+                }
+            }
+        ]);
+        expect(result.missing).toEqual([]);
+    });
+});
+
+describe('getGeneralDocumentStatus', () => {
+    const buildGeneralDoc = (fileType) => ({
+        doc_thread_id: { file_type: fileType }
+    });
+
+    it('returns empty arrays when applications are not provided', () => {
+        const result = getGeneralDocumentStatus([], null);
+        expect(result).toEqual({ missing: [], extra: [], rlApplications: [] });
+    });
+
+    it('flags missing general recommendation letters', () => {
+        const applications = [
+            {
+                programId: {
+                    _id: 'program-1',
+                    rl_required: '2',
+                    is_rl_specific: false,
+                    school: 'School A',
+                    program_name: 'Program A'
+                }
+            }
+        ];
+
+        const result = getGeneralDocumentStatus([], applications);
+        expect(result.missing).toEqual([
+            {
+                docKey: 'rl_required',
+                docType: 'RL',
+                status: 'missing',
+                scope: 'general',
+                counts: {
+                    required: 2,
+                    provided: 0,
+                    delta: 2
+                }
+            }
+        ]);
+        expect(result.extra).toEqual([]);
+        expect(result.rlApplications).toEqual([
+            {
+                programId: 'program-1',
+                programLabel: 'School A - Program A',
+                required: 2
+            }
+        ]);
+    });
+
+    it('flags extra general recommendation letters', () => {
+        const applications = [
+            {
+                programId: {
+                    _id: 'program-1',
+                    rl_required: '1',
+                    is_rl_specific: false,
+                    school: 'School A',
+                    program_name: 'Program A'
+                }
+            }
+        ];
+        const generalDocs = [
+            buildGeneralDoc('Recommendation_Letter_1'),
+            buildGeneralDoc('Recommendation_Letter_2')
+        ];
+
+        const result = getGeneralDocumentStatus(generalDocs, applications);
+        expect(result.extra).toEqual([
+            {
+                docKey: 'rl_required',
+                docType: 'RL',
+                status: 'extra',
+                scope: 'general',
+                counts: {
+                    required: 1,
+                    provided: 2,
+                    delta: 1
+                }
+            }
+        ]);
+        expect(result.missing).toEqual([]);
+        expect(result.rlApplications).toEqual([
+            {
+                programId: 'program-1',
+                programLabel: 'School A - Program A',
+                required: 1
+            }
+        ]);
+    });
+
+    it('ignores RL-specific programs when collecting application metadata', () => {
+        const applications = [
+            {
+                programId: {
+                    _id: 'program-1',
+                    rl_required: '2',
+                    is_rl_specific: true,
+                    school: 'School A',
+                    program_name: 'Program A'
+                }
+            },
+            {
+                programId: {
+                    _id: 'program-2',
+                    rl_required: '0',
+                    is_rl_specific: false,
+                    school: 'School B',
+                    program_name: 'Program B'
+                }
+            },
+            {
+                programId: {
+                    _id: 'program-3',
+                    rl_required: '1',
+                    is_rl_specific: false,
+                    school: 'School C',
+                    program_name: 'Program C'
+                }
+            }
+        ];
+
+        const result = getGeneralDocumentStatus([], applications);
+        expect(result.rlApplications).toEqual([
+            {
+                programId: 'program-3',
+                programLabel: 'School C - Program C',
+                required: 1
+            }
+        ]);
     });
 });
 

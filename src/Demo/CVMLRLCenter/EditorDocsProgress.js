@@ -651,6 +651,9 @@ const EditorDocsProgress = (props) => {
             ) : null}
             <ManualFiles
                 application={null}
+                applications={editorDocsProgressState.student.applications?.filter(
+                    (app) => isProgramDecided(app)
+                )}
                 filetype="General"
                 handleAsFinalFile={handleAsFinalFile}
                 initGeneralFileThread={initGeneralFileThread}
