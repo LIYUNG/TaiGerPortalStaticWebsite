@@ -1,8 +1,5 @@
 import React from 'react';
 
-// const SignUp1 = React.lazy(() =>
-//   import('./Demo/Authentication/SignUp/SignUp1')
-// );
 const SignIn = React.lazy(() => import('./Demo/Authentication/SignIn/SignIn'));
 const GoogleOAuthCallback = React.lazy(
     () => import('./Demo/Authentication/GoogleOauthCallback/index')
@@ -24,8 +21,6 @@ const AccountActivation = React.lazy(
 );
 
 const route = [
-    // activate when ready
-    // { path: '/sign-up', exact: true, name: 'Signup 1', component: SignUp1 },
     {
         path: '/account/activation',
         exact: true,
