@@ -16,6 +16,7 @@ import {
     TableRow,
     Typography
 } from '@mui/material';
+import { alpha, useTheme } from '@mui/material/styles';
 import LaunchIcon from '@mui/icons-material/Launch';
 import { Link as LinkDom } from 'react-router-dom';
 
@@ -25,6 +26,11 @@ import DEMO from '../../../../store/constant';
 
 export const GeneralRLRequirementsTab = ({ studentId }) => {
     const { t } = useTranslation('cvmlrl');
+    const theme = useTheme();
+    const paperSx = useMemo(() => containerSx(theme), [theme]);
+    const rowStyles = useMemo(() => rowStatusSx(theme), [theme]);
+    const headCellSx = useMemo(() => thSx(theme), [theme]);
+    const bodyCellSx = useMemo(() => tdSx(theme), [theme]);
     const { data: response, isLoading } = useQuery(
         getStudentAndDocLinksQuery({ studentId })
     );
@@ -120,7 +126,7 @@ export const GeneralRLRequirementsTab = ({ studentId }) => {
     }
 
     return (
-        <Paper sx={containerSx}>
+        <Paper sx={paperSx}>
             <Box sx={headerSx}>
                 <Typography sx={titleSx} variant="h6">
                     {t('generalRLTable.title')}
@@ -133,16 +139,24 @@ export const GeneralRLRequirementsTab = ({ studentId }) => {
                 <Table sx={tableSx}>
                     <TableHead>
                         <TableRow>
-                            <TableCell sx={{ ...thSx, ...columnSx.deadline }}>
+                            <TableCell
+                                sx={{ ...headCellSx, ...columnSx.deadline }}
+                            >
                                 {t('generalRLTable.columns.deadline')}
                             </TableCell>
-                            <TableCell sx={{ ...thSx, ...columnSx.count }}>
+                            <TableCell
+                                sx={{ ...headCellSx, ...columnSx.count }}
+                            >
                                 {t('generalRLTable.columns.count')}
                             </TableCell>
-                            <TableCell sx={{ ...thSx, ...columnSx.program }}>
+                            <TableCell
+                                sx={{ ...headCellSx, ...columnSx.program }}
+                            >
                                 {t('generalRLTable.columns.programWithSchool')}
                             </TableCell>
-                            <TableCell sx={{ ...thSx, ...columnSx.notes }}>
+                            <TableCell
+                                sx={{ ...headCellSx, ...columnSx.notes }}
+                            >
                                 {t('generalRLTable.columns.notes')}
                             </TableCell>
                         </TableRow>
@@ -153,20 +167,22 @@ export const GeneralRLRequirementsTab = ({ studentId }) => {
                                 key={r.key}
                                 sx={
                                     r.decided === 'O'
-                                        ? rowStatusSx.decided
-                                        : rowStatusSx.undecided
+                                        ? rowStyles.decided
+                                        : rowStyles.undecided
                                 }
                             >
                                 <TableCell
-                                    sx={{ ...tdSx, ...columnSx.deadline }}
+                                    sx={{ ...bodyCellSx, ...columnSx.deadline }}
                                 >
                                     {r.deadline}
                                 </TableCell>
-                                <TableCell sx={{ ...tdSx, ...columnSx.count }}>
+                                <TableCell
+                                    sx={{ ...bodyCellSx, ...columnSx.count }}
+                                >
                                     {r.count_required}
                                 </TableCell>
                                 <TableCell
-                                    sx={{ ...tdSx, ...columnSx.program }}
+                                    sx={{ ...bodyCellSx, ...columnSx.program }}
                                 >
                                     <Stack spacing={0.5}>
                                         <Typography
@@ -211,7 +227,9 @@ export const GeneralRLRequirementsTab = ({ studentId }) => {
                                         )}
                                     </Stack>
                                 </TableCell>
-                                <TableCell sx={{ ...tdSx, ...columnSx.notes }}>
+                                <TableCell
+                                    sx={{ ...bodyCellSx, ...columnSx.notes }}
+                                >
                                     {r.requirement_text}
                                 </TableCell>
                             </TableRow>
@@ -269,14 +287,17 @@ function getDeadlineSortValue(deadlineText) {
     return DEADLINE_FALLBACK_SORT_VALUE;
 }
 
-const containerSx = {
+const containerSx = (theme) => ({
     p: 3,
     borderRadius: 3,
-    boxShadow: '0 6px 20px rgba(15, 23, 42, 0.08)',
+    boxShadow:
+        theme.palette.mode === 'dark'
+            ? '0 6px 20px rgba(0, 0, 0, 0.5)'
+            : '0 6px 20px rgba(15, 23, 42, 0.08)',
     border: '1px solid',
     borderColor: 'divider',
-    backgroundColor: 'background.paper'
-};
+    backgroundColor: theme.palette.background.paper
+});
 
 const headerSx = {
     mb: 2
@@ -323,43 +344,53 @@ const programLinkIconSx = {
     p: 0.25
 };
 
-const thSx = {
+const thSx = (theme) => ({
     borderBottom: '2px solid',
     borderColor: 'divider',
     textAlign: 'left',
     py: 1.25,
     px: 1.5,
-    backgroundColor: 'grey.50',
-    color: 'text.secondary',
+    backgroundColor:
+        theme.palette.mode === 'dark'
+            ? alpha(theme.palette.background.paper, 0.8)
+            : theme.palette.grey[50],
+    color: theme.palette.text.secondary,
     fontSize: 13,
     fontWeight: 600,
     letterSpacing: '0.05em',
     textTransform: 'uppercase'
-};
+});
 
-const tdSx = {
+const tdSx = (theme) => ({
     borderBottom: '1px solid',
     borderColor: 'divider',
     py: 1.5,
     px: 1.5,
     verticalAlign: 'top',
-    color: 'text.primary',
+    color: theme.palette.text.primary,
     fontSize: 14,
     whiteSpace: 'normal',
     wordBreak: 'break-word'
-};
+});
 
-const rowStatusSx = {
-    decided: {
-        backgroundColor: '#edf7ed',
-        boxShadow: 'inset 3px 0 0 #2e7d32',
-        '& td': {
-            borderColor: '#c8e6c9'
+const rowStatusSx = (theme) => {
+    const isDark = theme.palette.mode === 'dark';
+    const successColor = theme.palette.success.main;
+
+    return {
+        decided: {
+            backgroundColor: isDark ? alpha(successColor, 0.18) : '#edf7ed',
+            boxShadow: `inset 3px 0 0 ${successColor}`,
+            '& td': {
+                borderColor: isDark ? alpha(successColor, 0.45) : '#c8e6c9'
+            }
+        },
+        undecided: {
+            backgroundColor: isDark
+                ? alpha(theme.palette.common.white, 0.05)
+                : theme.palette.grey[50]
         }
-    },
-    undecided: {
-        backgroundColor: 'grey.50'
-    }
+    };
 };
 
 const legendSx = {
