@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import {
     Alert,
     Box,
+    CircularProgress,
     IconButton,
     Link,
     Paper,
@@ -112,9 +113,12 @@ export const GeneralRLRequirementsTab = ({ studentId }) => {
 
     if (isLoading)
         return (
-            <Alert severity="info" sx={statusAlertSx}>
-                {t('generalRLTable.loading')}
-            </Alert>
+            <Box sx={loadingContainerSx}>
+                <CircularProgress size={32} thickness={4} />
+                <Typography color="text.secondary" mt={1} variant="body2">
+                    {t('generalRLTable.loading')}
+                </Typography>
+            </Box>
         );
 
     if (!relevantApplications.length) {
@@ -406,6 +410,19 @@ const legendSx = {
 
 const statusAlertSx = {
     borderRadius: 2
+};
+
+const loadingContainerSx = {
+    p: 4,
+    borderRadius: 3,
+    border: '1px solid',
+    borderColor: 'divider',
+    backgroundColor: 'background.paper',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 200
 };
 
 export default GeneralRLRequirementsTab;
