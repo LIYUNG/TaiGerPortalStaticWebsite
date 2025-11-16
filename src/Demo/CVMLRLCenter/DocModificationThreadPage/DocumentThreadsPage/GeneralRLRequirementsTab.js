@@ -376,13 +376,19 @@ const tdSx = (theme) => ({
 const rowStatusSx = (theme) => {
     const isDark = theme.palette.mode === 'dark';
     const successColor = theme.palette.success.main;
+    const decidedBg = isDark
+        ? alpha(successColor, 0.18)
+        : alpha(successColor, 0.2);
+    const decidedBorder = isDark
+        ? alpha(successColor, 0.45)
+        : alpha(successColor, 0.5);
 
     return {
         decided: {
-            backgroundColor: isDark ? alpha(successColor, 0.18) : '#edf7ed',
+            backgroundColor: decidedBg,
             boxShadow: `inset 3px 0 0 ${successColor}`,
             '& td': {
-                borderColor: isDark ? alpha(successColor, 0.45) : '#c8e6c9'
+                borderColor: decidedBorder
             }
         },
         undecided: {
