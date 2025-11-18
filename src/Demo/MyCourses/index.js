@@ -21,6 +21,8 @@ import {
 import { DataSheetGrid, keyColumn, textColumn } from 'react-datasheet-grid';
 import { Navigate, Link as LinkDom, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import MessageIcon from '@mui/icons-material/Message';
+
 // import 'react-datasheet-grid/dist/style.css';
 import './react-datasheet-customize.css';
 
@@ -29,6 +31,7 @@ import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import {
     is_TaiGer_AdminAgent,
+    is_TaiGer_Agent,
     is_TaiGer_Guest,
     is_TaiGer_role
 } from '@taiger-common/core';
@@ -380,9 +383,32 @@ export default function MyCourses() {
                 </Typography>
             </Breadcrumbs>
             {/* <Card sx={{ mt: 2, padding: 2, minWidth: '450px' }}> */}
-            <Typography sx={{ pt: 2 }} variant="h6">
-                請把大學及碩士成績單 上面出現的所有課程填入這個表單內
-            </Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Typography sx={{ pt: 2 }} variant="h6">
+                    請把大學及碩士成績單 上面出現的所有課程填入這個表單內
+                </Typography>
+                {is_TaiGer_Agent(user) ? (
+                    <Link
+                        color="inherit"
+                        component={LinkDom}
+                        sx={{ mr: 1 }}
+                        to={`${DEMO.COMMUNICATIONS_TAIGER_MODE_LINK(
+                            statedata.student._id.toString()
+                        )}`}
+                        underline="hover"
+                    >
+                        <Button
+                            color="primary"
+                            size="small"
+                            startIcon={<MessageIcon />}
+                            variant="contained"
+                        >
+                            <b>{t('Message', { ns: 'common' })}</b>
+                        </Button>
+                    </Link>
+                ) : null}
+            </Box>
+
             <Box>
                 <Typography variant="h6">
                     Please fill{' '}

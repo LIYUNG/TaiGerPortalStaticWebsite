@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
-import { Link as LinkDom, useParams } from 'react-router-dom';
+import { Link, Link as LinkDom, useParams } from 'react-router-dom';
 import { Box, Button } from '@mui/material';
-import { is_TaiGer_Student } from '@taiger-common/core';
+import { is_TaiGer_Agent, is_TaiGer_Student } from '@taiger-common/core';
 import { useTranslation } from 'react-i18next';
+import MessageIcon from '@mui/icons-material/Message';
 
 import { getMessagThreadQuery } from '../../../../api/query';
 import Loading from '../../../../components/Loading/Loading';
@@ -74,6 +75,26 @@ const SingleThreadPage = () => {
                 </Box>
                 {!is_TaiGer_Student(user) ? (
                     <Box style={{ textAlign: 'left' }}>
+                        {is_TaiGer_Agent(user) ? (
+                            <Link
+                                color="inherit"
+                                component={LinkDom}
+                                sx={{ mr: 1 }}
+                                to={`${DEMO.COMMUNICATIONS_TAIGER_MODE_LINK(
+                                    thread.student_id._id
+                                )}`}
+                                underline="hover"
+                            >
+                                <Button
+                                    color="primary"
+                                    size="small"
+                                    startIcon={<MessageIcon />}
+                                    variant="contained"
+                                >
+                                    <b>{t('Message', { ns: 'common' })}</b>
+                                </Button>
+                            </Link>
+                        ) : null}
                         <Button
                             color="primary"
                             component={LinkDom}
