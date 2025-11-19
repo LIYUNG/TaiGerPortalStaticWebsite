@@ -2,7 +2,9 @@ import React, { useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import {
+    Alert,
     Box,
+    Button,
     Card,
     CardContent,
     Typography,
@@ -408,18 +410,32 @@ const StudentCardSkeleton = () => (
 const SimilarStudents = ({ leadId, similarUsers = [] }) => {
     // Reference to the scrollable container
     const scrollContainerRef = useRef(null);
+    const { t } = useTranslation();
+    const defaultErrorCopy = t('common.similarStudentsErrorFallback', {
+        ns: 'crm',
+        defaultValue:
+            'We were unable to load similar students. Please try again later.'
+    });
     // Fetch similar students if not provided directly
     const {
         data: similarStudentsData,
         isLoading: isLoadingSimilarStudents,
         isFetching: isFetchingSimilarStudents,
-        refetch: refetchSimilarStudents
+        refetch: refetchSimilarStudents,
+        error: similarStudentsError
     } = useQuery({
         queryKey: ['similar-students', leadId],
         queryFn: async () => {
             const response = await request.get(
                 `/crm-api/similar-students?leadId=${leadId}`
             );
+            if (response?.status >= 400) {
+                const error = new Error(
+                    response?.data?.message || defaultErrorCopy
+                );
+                error.response = response;
+                throw error;
+            }
             return response?.data;
         },
         enabled: !!leadId && similarUsers.length === 0,
@@ -455,7 +471,8 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
         data: userDetails,
         isLoading: isLoadingUserDetails,
         isFetching: isFetchingUserDetails,
-        refetch: refetchUserDetails
+        refetch: refetchUserDetails,
+        error: userDetailsError
     } = useQuery({
         queryKey: ['similar-user-details', studentIds],
         queryFn: async () => {
@@ -463,6 +480,13 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
             const response = await request.get(
                 `/api/students/batch?ids=${studentIds.join(',')}`
             );
+            if (response?.status >= 400) {
+                const error = new Error(
+                    response?.data?.message || defaultErrorCopy
+                );
+                error.response = response;
+                throw error;
+            }
             const data = response.data.data;
             return data;
         },
@@ -532,15 +556,41 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
         });
     }, [userDetails]);
 
+    const queryError = similarStudentsError || userDetailsError;
+    const hasError = Boolean(queryError);
     const isLoading = isLoadingSimilarStudents || isLoadingUserDetails;
     const isRefreshing = isFetchingSimilarStudents || isFetchingUserDetails;
     const handleRefetch = async () => {
-        await refetchSimilarStudents();
-        await refetchUserDetails();
+        try {
+            if (similarUsers.length === 0) {
+                await refetchSimilarStudents();
+            }
+            await refetchUserDetails();
+        } catch (error) {
+            console.error('Failed to refetch similar students', error);
+        }
     };
     const studentCount = sortedStudents?.length || 0;
 
-    const { t } = useTranslation();
+    const responseStatus = queryError?.response?.status;
+    const responseStatusText = queryError?.response?.statusText;
+    const serverErrorMessage =
+        queryError?.response?.data?.message ||
+        queryError?.message ||
+        defaultErrorCopy;
+    const statusLabel = responseStatusText
+        ? `${responseStatus} ${responseStatusText}`
+        : responseStatus;
+    const errorMessage = statusLabel
+        ? `${t('common.errorLabel', {
+              ns: 'crm',
+              defaultValue: 'Error'
+          })} ${statusLabel}: ${serverErrorMessage}`
+        : serverErrorMessage;
+    const retryLabel = t('actions.retry', {
+        ns: 'crm',
+        defaultValue: 'Retry'
+    });
 
     // Render loading state
     if (isLoading) {
@@ -687,6 +737,70 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
                             </Box>
                         </Box>
                     </Box>
+                </CardContent>
+            </Card>
+        );
+    }
+
+    if (hasError) {
+        return (
+            <Card sx={{ mb: 3 }}>
+                <CardContent>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            mb: 2
+                        }}
+                    >
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1
+                            }}
+                        >
+                            <PersonIcon color="primary" />
+                            <Typography variant="h6">
+                                {t('common.similarStudents', { ns: 'crm' })}
+                            </Typography>
+                        </Box>
+                        <Tooltip title={t('actions.regenerate', { ns: 'crm' })}>
+                            <span>
+                                <IconButton
+                                    aria-label={t('actions.regenerate', {
+                                        ns: 'crm'
+                                    })}
+                                    disabled={isRefreshing}
+                                    onClick={handleRefetch}
+                                    size="small"
+                                >
+                                    {isRefreshing ? (
+                                        <CircularProgress size={16} />
+                                    ) : (
+                                        <ReplayIcon />
+                                    )}
+                                </IconButton>
+                            </span>
+                        </Tooltip>
+                    </Box>
+                    <Alert
+                        action={
+                            <Button
+                                color="inherit"
+                                disabled={isRefreshing}
+                                onClick={handleRefetch}
+                                size="small"
+                            >
+                                {retryLabel}
+                            </Button>
+                        }
+                        severity="error"
+                        sx={{ alignItems: 'center' }}
+                    >
+                        {errorMessage}
+                    </Alert>
                 </CardContent>
             </Card>
         );
