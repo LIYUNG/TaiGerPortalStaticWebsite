@@ -81,7 +81,11 @@ export const InterviewFeedback = ({ interview }) => {
                                                     display="block"
                                                     key={programInterview._id}
                                                     mb={0.5}
-                                                    sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
+                                                    sx={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: 0.5
+                                                    }}
                                                     target="_blank"
                                                     to={`${DEMO.INTERVIEW_SINGLE_SURVEY_LINK(
                                                         programInterview._id.toString()
@@ -89,23 +93,29 @@ export const InterviewFeedback = ({ interview }) => {
                                                     underline="hover"
                                                 >
                                                     {`${convertDate(programInterview.interview_date)} - ${programInterview.student_id.firstname} ${programInterview.student_id.lastname}`}
-                                                    {programInterview.surveyResponses?.length > 0 && (
-                                                        programInterview.surveyResponses.some(response => response.isFinal) ? (
-                                                            <CheckCircleIcon 
-                                                                sx={{ 
+                                                    {programInterview
+                                                        .surveyResponses
+                                                        ?.length > 0 &&
+                                                        (programInterview.surveyResponses.some(
+                                                            (response) =>
+                                                                response.isFinal
+                                                        ) ? (
+                                                            <CheckCircleIcon
+                                                                sx={{
                                                                     color: 'success.main',
-                                                                    fontSize: '16px'
-                                                                }} 
+                                                                    fontSize:
+                                                                        '16px'
+                                                                }}
                                                             />
                                                         ) : (
-                                                            <WarningIcon 
-                                                                sx={{ 
+                                                            <WarningIcon
+                                                                sx={{
                                                                     color: 'warning.main',
-                                                                    fontSize: '16px'
-                                                                }} 
+                                                                    fontSize:
+                                                                        '16px'
+                                                                }}
                                                             />
-                                                        )
-                                                    )}
+                                                        ))}
                                                 </Link>
                                             )
                                     )}

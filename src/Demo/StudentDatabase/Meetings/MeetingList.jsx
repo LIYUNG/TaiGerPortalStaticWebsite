@@ -1,0 +1,99 @@
+import React from 'react';
+import { Box, Typography, Divider } from '@mui/material';
+import { useTranslation } from 'react-i18next';
+import { MeetingCard } from './MeetingCard';
+import PropTypes from 'prop-types';
+
+export const MeetingList = ({
+    meetings = [],
+    onEdit,
+    onDelete,
+    onConfirm,
+    showActions = true
+}) => {
+    const { t } = useTranslation();
+
+    if (!meetings || meetings.length === 0) {
+        return (
+            <Box
+                sx={{
+                    p: 3,
+                    textAlign: 'center',
+                    color: 'text.secondary'
+                }}
+            >
+                <Typography variant="body1">
+                    {t('No meetings found', { ns: 'common' })}
+                </Typography>
+            </Box>
+        );
+    }
+
+    // Separate past and future meetings
+    const now = new Date();
+    const pastMeetings = meetings.filter(
+        (meeting) => meeting.dateTime && new Date(meeting.dateTime) < now
+    );
+    const upcomingMeetings = meetings.filter(
+        (meeting) => !meeting.dateTime || new Date(meeting.dateTime) >= now
+    );
+
+    // Sort past meetings by date (most recent first)
+    pastMeetings.sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime));
+
+    // Sort upcoming meetings by date (soonest first)
+    upcomingMeetings.sort(
+        (a, b) => new Date(a.dateTime || 0) - new Date(b.dateTime || 0)
+    );
+
+    return (
+        <Box>
+            {upcomingMeetings.length > 0 && (
+                <Box sx={{ mb: 4 }}>
+                    <Typography sx={{ mb: 2 }} variant="h6">
+                        {t('Upcoming Meetings', { ns: 'common' })}
+                    </Typography>
+                    {upcomingMeetings.map((meeting) => (
+                        <MeetingCard
+                            isPast={false}
+                            key={meeting._id}
+                            meeting={meeting}
+                            onConfirm={onConfirm}
+                            onDelete={onDelete}
+                            onEdit={onEdit}
+                            showActions={showActions}
+                        />
+                    ))}
+                </Box>
+            )}
+
+            {pastMeetings.length > 0 && (
+                <Box>
+                    {upcomingMeetings.length > 0 && <Divider sx={{ my: 3 }} />}
+                    <Typography sx={{ mb: 2 }} variant="h6">
+                        {t('Past Meetings', { ns: 'common' })}
+                    </Typography>
+                    {pastMeetings.map((meeting) => (
+                        <MeetingCard
+                            isPast={true}
+                            key={meeting._id}
+                            meeting={meeting}
+                            onConfirm={onConfirm}
+                            onDelete={onDelete}
+                            onEdit={onEdit}
+                            showActions={false}
+                        />
+                    ))}
+                </Box>
+            )}
+        </Box>
+    );
+};
+
+MeetingList.propTypes = {
+    meetings: PropTypes.array,
+    onEdit: PropTypes.func,
+    onDelete: PropTypes.func,
+    onConfirm: PropTypes.func,
+    showActions: PropTypes.bool
+};

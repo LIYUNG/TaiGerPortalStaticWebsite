@@ -104,6 +104,7 @@ const OfficeHours = () => {
         handleSelectSlot,
         handleNewEventModalClose,
         switchCalendarAndMyBookedEvents,
+        showBookedEvents,
         res_modal_message,
         res_modal_status,
         ConfirmError
@@ -243,7 +244,7 @@ const OfficeHours = () => {
                     {t('Office Hours', { ns: 'interviews' })}
                 </Typography>
             </Breadcrumbs>
-            {hasEvents ? (
+            {hasEvents && showBookedEvents ? (
                 <>
                     <Button
                         color="primary"

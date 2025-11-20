@@ -31,7 +31,6 @@ import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import {
     is_TaiGer_AdminAgent,
-    is_TaiGer_Agent,
     is_TaiGer_Guest,
     is_TaiGer_role
 } from '@taiger-common/core';
@@ -387,7 +386,7 @@ export default function MyCourses() {
                 <Typography sx={{ pt: 2 }} variant="h6">
                     請把大學及碩士成績單 上面出現的所有課程填入這個表單內
                 </Typography>
-                {is_TaiGer_Agent(user) ? (
+                {is_TaiGer_AdminAgent(user) ? (
                     <Link
                         color="inherit"
                         component={LinkDom}

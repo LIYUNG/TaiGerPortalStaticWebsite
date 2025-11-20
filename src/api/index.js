@@ -827,3 +827,15 @@ export const createCRMDeal = (payload) =>
 export const updateCRMDeal = (dealId, payload) =>
     request.put(`/api/crm/deals/${dealId}`, payload);
 export const getCRMSalesReps = () => request.get(`/api/crm/sales-reps`);
+
+// Student Meetings APIs
+export const getStudentMeetings = (studentId) =>
+    getData(`/api/students/${studentId}/meetings`);
+export const getStudentMeeting = (studentId, meetingId) =>
+    getData(`/api/students/${studentId}/meetings/${meetingId}`);
+export const createStudentMeeting = (studentId, payload) =>
+    postData(`/api/students/${studentId}/meetings`, payload);
+export const updateStudentMeeting = (studentId, meetingId, payload) =>
+    putData(`/api/students/${studentId}/meetings/${meetingId}`, payload);
+export const deleteStudentMeeting = (studentId, meetingId) =>
+    deleteData(`/api/students/${studentId}/meetings/${meetingId}`);
