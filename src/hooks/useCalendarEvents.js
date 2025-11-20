@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { confirmEvent, deleteEvent, postEvent, updateEvent } from '../api';
-import { getAllEventsQuery, getEventsQuery } from '../api/query';
+import {
+    getAllEventsQuery,
+    getEventsQuery,
+    getBookedEventsQuery
+} from '../api/query';
 import { is_TaiGer_Agent, is_TaiGer_Student } from '@taiger-common/core';
 import { useAuth } from '../components/AuthProvider';
 import { getUTCWithDST, time_slots } from '../utils/contants';
@@ -20,13 +24,22 @@ function useCalendarEvents(props) {
               })
     );
 
+    // Query for fetching booked events (only for students)
+    const bookedEventsQuery = useQuery({
+        ...getBookedEventsQuery({
+            startTime: props.startTime,
+            endTime: props.endTime
+        }),
+        enabled: !props.isAll && is_TaiGer_Student(user)
+    });
+
     // Extract data from query response
     const eventsResponse = eventsQuery.data?.data || {};
     const events = eventsResponse.data || [];
     const agents = eventsResponse.agents || {};
     const students = eventsResponse.students || [];
     const hasEvents = eventsResponse.hasEvents || false;
-    const booked_events = eventsResponse.booked_events || [];
+    const booked_events = bookedEventsQuery.data?.data?.data || [];
     const res_status = eventsQuery.data?.status || 0;
     const success = eventsResponse.success || false;
 
@@ -61,6 +74,10 @@ function useCalendarEvents(props) {
             const { status } = resp;
             await queryClient.invalidateQueries({
                 queryKey: ['events'],
+                exact: false
+            });
+            await queryClient.invalidateQueries({
+                queryKey: ['events', 'booked'],
                 exact: false
             });
             if (success) {
@@ -145,6 +162,10 @@ function useCalendarEvents(props) {
                 queryKey: ['events'],
                 exact: false
             });
+            await queryClient.invalidateQueries({
+                queryKey: ['events', 'booked'],
+                exact: false
+            });
             if (success) {
                 setCalendarEventsState((prevState) => ({
                     ...prevState,
@@ -198,6 +219,10 @@ function useCalendarEvents(props) {
                 queryKey: ['events'],
                 exact: false
             });
+            await queryClient.invalidateQueries({
+                queryKey: ['events', 'booked'],
+                exact: false
+            });
             if (success) {
                 setCalendarEventsState((prevState) => ({
                     ...prevState,
@@ -246,6 +271,10 @@ function useCalendarEvents(props) {
             const { status } = resp;
             await queryClient.invalidateQueries({
                 queryKey: ['events'],
+                exact: false
+            });
+            await queryClient.invalidateQueries({
+                queryKey: ['events', 'booked'],
                 exact: false
             });
             if (success) {

@@ -54,7 +54,8 @@ import {
     getMycourses,
     getStudentMeetings,
     getAllEvents,
-    getEvents
+    getEvents,
+    getBookedEvents
 } from '.';
 
 export const getMessagThreadQuery = (threadId) => ({
@@ -409,5 +410,11 @@ export const getAllEventsQuery = () => ({
 export const getEventsQuery = ({ startTime, endTime }) => ({
     queryKey: ['events', { startTime, endTime }],
     queryFn: () => getEvents({ startTime, endTime }),
+    staleTime: 1000 * 60 * 2 // 2 minutes
+});
+
+export const getBookedEventsQuery = ({ startTime, endTime }) => ({
+    queryKey: ['events', 'booked', { startTime, endTime }],
+    queryFn: () => getBookedEvents({ startTime, endTime }),
     staleTime: 1000 * 60 * 2 // 2 minutes
 });
