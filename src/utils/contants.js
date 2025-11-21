@@ -10,6 +10,8 @@ import WarningIcon from '@mui/icons-material/Warning';
 import HelpIcon from '@mui/icons-material/Help';
 import RemoveIcon from '@mui/icons-material/Remove';
 import QueryBuilderIcon from '@mui/icons-material/QueryBuilder';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { PROGRAM_SUBJECTS, SCHOOL_TAGS } from '@taiger-common/core';
 import {
     green,
@@ -1775,6 +1777,40 @@ export const c1_mrt = [
         }
     },
     {
+        accessorKey: 'status',
+        header: 'Status',
+        size: 110,
+        filterVariant: 'select',
+        filterSelectOptions: [
+            { value: 'Locked', label: 'Locked' },
+            { value: 'Unlocked', label: 'Unlocked' }
+        ],
+        filterFn: (row, columnId, filterValue) => {
+            const isLocked = row.original?.isProgramLocked === true;
+            const status = isLocked ? 'Locked' : 'Unlocked';
+            return status === filterValue;
+        },
+        Cell: (params) => {
+            const { row } = params;
+            const isLocked = row.original?.isProgramLocked === true;
+            return isLocked ? (
+                <Chip
+                    color="warning"
+                    icon={<LockOutlinedIcon fontSize="small" />}
+                    label="Locked"
+                    size="small"
+                />
+            ) : (
+                <Chip
+                    icon={<LockOpenIcon fontSize="small" />}
+                    label="Unlocked"
+                    size="small"
+                    variant="outlined"
+                />
+            );
+        }
+    },
+    {
         accessorKey: 'document_name',
         header: 'Document name',
         filterFn: 'contains',
@@ -1784,6 +1820,7 @@ export const c1_mrt = [
             const linkUrl = `${DEMO.DOCUMENT_MODIFICATION_LINK(
                 row.original.thread_id
             )}`;
+            const isLocked = row.original?.isProgramLocked;
             return (
                 <Box
                     sx={{
@@ -1811,15 +1848,37 @@ export const c1_mrt = [
                                 </Tooltip>
                             )
                     )}
-                    <Link
-                        component={LinkDom}
-                        target="_blank"
-                        title={row.original.document_name}
-                        to={linkUrl}
-                        underline="hover"
-                    >
-                        {row.original.document_name}
-                    </Link>
+                    {isLocked ? (
+                        <Tooltip
+                            title={i18next.t(
+                                'Program is locked. Contact an agent to unlock this task.',
+                                { ns: 'common' }
+                            )}
+                        >
+                            <Box
+                                component="span"
+                                sx={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: 0.5,
+                                    color: 'text.disabled'
+                                }}
+                            >
+                                <LockOutlinedIcon fontSize="inherit" />
+                                <span>{row.original.document_name}</span>
+                            </Box>
+                        </Tooltip>
+                    ) : (
+                        <Link
+                            component={LinkDom}
+                            target="_blank"
+                            title={row.original.document_name}
+                            to={linkUrl}
+                            underline="hover"
+                        >
+                            {row.original.document_name}
+                        </Link>
+                    )}
                 </Box>
             );
         }
@@ -1961,6 +2020,21 @@ export const c1 = [
             const linkUrl = `${DEMO.DOCUMENT_MODIFICATION_LINK(
                 params.row.thread_id
             )}`;
+            const isLocked = params.row?.isProgramLocked;
+            const content = (
+                <Box
+                    component="span"
+                    sx={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 0.5,
+                        color: isLocked ? 'text.disabled' : 'inherit'
+                    }}
+                >
+                    {isLocked ? <LockOutlinedIcon fontSize="inherit" /> : null}
+                    <span>{params.value}</span>
+                </Box>
+            );
             return (
                 <>
                     {params.row?.attributes?.map(
@@ -1981,15 +2055,26 @@ export const c1 = [
                                 </Tooltip>
                             )
                     )}
-                    <Link
-                        component={LinkDom}
-                        target="_blank"
-                        title={params.value}
-                        to={linkUrl}
-                        underline="hover"
-                    >
-                        {params.value}
-                    </Link>
+                    {isLocked ? (
+                        <Tooltip
+                            title={i18next.t(
+                                'Program is locked. Contact an agent to unlock this task.',
+                                { ns: 'common' }
+                            )}
+                        >
+                            <span>{content}</span>
+                        </Tooltip>
+                    ) : (
+                        <Link
+                            component={LinkDom}
+                            target="_blank"
+                            title={params.value}
+                            to={linkUrl}
+                            underline="hover"
+                        >
+                            {content}
+                        </Link>
+                    )}
                 </>
             );
         }

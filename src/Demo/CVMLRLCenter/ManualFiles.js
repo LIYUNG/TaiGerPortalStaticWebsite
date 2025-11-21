@@ -12,7 +12,8 @@ import {
     getMissingDocs,
     getExtraDocs,
     is_program_closed,
-    is_program_ml_rl_essay_finished
+    is_program_ml_rl_essay_finished,
+    calculateProgramLockStatus
 } from '../Utils/checking-functions';
 import { useAuth } from '../../components/AuthProvider';
 import DEMO from '../../store/constant';
@@ -21,6 +22,12 @@ const ManualFiles = (props) => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const [categoryState, setCategory] = useState('');
+    const lockStatus = calculateProgramLockStatus(props.application?.programId);
+    const isProgramLocked = lockStatus.isLocked;
+    const lockTooltip = t(
+        'Program is locked. Contact an agent to unlock this task.',
+        { ns: 'common' }
+    );
 
     const handleCreateGeneralMessageThread = (e, studentId, fileCategory) => {
         e.preventDefault();
@@ -106,6 +113,13 @@ const ManualFiles = (props) => {
                     ) : null}
                     {props.filetype === 'ProgramSpecific' ? (
                         <>
+                            {isProgramLocked ? (
+                                <Grid item xs={12}>
+                                    <Alert severity="warning">
+                                        {lockTooltip}
+                                    </Alert>
+                                </Grid>
+                            ) : null}
                             <Grid item xs={12}>
                                 {missingDocs.length > 0 ? (
                                     <Alert severity="error">
@@ -168,6 +182,7 @@ const ManualFiles = (props) => {
                         <ManualFilesList
                             application={props.application}
                             handleAsFinalFile={props.handleAsFinalFile}
+                            isProgramLocked={isProgramLocked}
                             onDeleteFileThread={props.onDeleteFileThread}
                             student={props.student}
                         />
@@ -188,6 +203,7 @@ const ManualFiles = (props) => {
                                     handleCreateProgramSpecificMessageThread
                                 }
                                 handleSelect={handleSelect}
+                                isProgramLocked={isProgramLocked}
                                 student={props.student}
                                 user={user}
                             />

@@ -1,9 +1,14 @@
 import React, { Suspense, useState } from 'react';
 import { Box } from '@mui/material';
-import { Await, useLoaderData, useNavigate } from 'react-router-dom';
+import {
+    Await,
+    useLoaderData,
+    useNavigate,
+    useRevalidator
+} from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 
-import { deleteProgramV2, processProgramListAi } from '../../api';
+import { deleteProgramV2, processProgramList, refreshProgram } from '../../api';
 import SingleProgramView from './SingleProgramView';
 import ProgramDeleteWarning from './ProgramDeleteWarning';
 import { useAuth } from '../../components/AuthProvider';
@@ -18,6 +23,7 @@ const SingleProgram = () => {
     const { data } = useLoaderData();
     const { user } = useAuth();
     const navigate = useNavigate();
+    const revalidator = useRevalidator();
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
 
     const { mutate, isPending } = useMutation({
@@ -35,6 +41,27 @@ const SingleProgram = () => {
             setOpenSnackbar(true);
         }
     });
+
+    const { mutate: refreshProgramMutation, isPending: isRefreshing } =
+        useMutation({
+            mutationFn: ({ programId }) => refreshProgram(programId),
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ['programs'] });
+                queryClient.invalidateQueries({ queryKey: ['program'] });
+                // Revalidate the route loader to refresh the program data
+                revalidator.revalidate();
+                setSeverity('success');
+                setMessage('Program refreshed successfully!');
+                setOpenSnackbar(true);
+            },
+            onError: (error) => {
+                setSeverity('error');
+                setMessage(
+                    error.message || 'An error occurred. Please try again.'
+                );
+                setOpenSnackbar(true);
+            }
+        });
 
     const [deleteProgramWarningOpen, setDeleteProgramWarningOpen] =
         useState(false);
@@ -66,7 +93,7 @@ const SingleProgram = () => {
     };
 
     const programListAssistant = () => {
-        processProgramListAi('TODO').then(
+        processProgramList('TODO').then(
             () => {},
             () => {}
         );
@@ -76,52 +103,67 @@ const SingleProgram = () => {
         <Box data-testid="single_program_page">
             <Suspense fallback={<Loading />}>
                 <Await resolve={data}>
-                    {(loadedData) => (
-                        <>
-                            <SingleProgramView
-                                program={loadedData.data}
-                                programListAssistant={programListAssistant}
-                                setDeleteProgramWarningOpen={
-                                    setDeleteProgramWarningOpen
-                                }
-                                setDiffModalShow={setDiffModal(true)}
-                                setModalShowAssignWindow={
-                                    setModalShowAssignWindow
-                                }
-                                students={loadedData.students}
-                                user={user}
-                                versions={loadedData.vc}
-                            />
-                            <ProgramDeleteWarning
-                                RemoveProgramHandler={RemoveProgramHandlerV2}
-                                deleteProgramWarning={deleteProgramWarningOpen}
-                                isPending={isPending}
-                                program_id={loadedData.data._id?.toString()}
-                                program_name={loadedData.data.program_name}
-                                setDeleteProgramWarningOpen={
-                                    setDeleteProgramWarningOpen
-                                }
-                                uni_name={loadedData.data.school}
-                            />
-                            <AssignProgramsToStudentDialog
-                                handleOnSuccess={() =>
-                                    setModalShowAssignWindow(false)
-                                }
-                                onClose={() => setModalShowAssignWindow(false)}
-                                open={modalShowAssignWindowOpen}
-                                programs={[loadedData.data]}
-                            />
-                            {singleProgramState.modalShowDiffWindow ? (
-                                <ProgramDiffModal
-                                    open={
-                                        singleProgramState.modalShowDiffWindow
+                    {(loadedData) => {
+                        return (
+                            <>
+                                <SingleProgramView
+                                    isRefreshing={isRefreshing}
+                                    onRefreshProgram={() =>
+                                        refreshProgramMutation({
+                                            programId:
+                                                loadedData.data._id?.toString()
+                                        })
                                     }
-                                    originalProgram={loadedData.data}
-                                    setModalHide={setDiffModal(false)}
+                                    program={loadedData.data}
+                                    programListAssistant={programListAssistant}
+                                    setDeleteProgramWarningOpen={
+                                        setDeleteProgramWarningOpen
+                                    }
+                                    setDiffModalShow={setDiffModal(true)}
+                                    setModalShowAssignWindow={
+                                        setModalShowAssignWindow
+                                    }
+                                    students={loadedData.students}
+                                    user={user}
+                                    versions={loadedData.vc}
                                 />
-                            ) : null}
-                        </>
-                    )}
+                                <ProgramDeleteWarning
+                                    RemoveProgramHandler={
+                                        RemoveProgramHandlerV2
+                                    }
+                                    deleteProgramWarning={
+                                        deleteProgramWarningOpen
+                                    }
+                                    isPending={isPending}
+                                    program_id={loadedData.data._id?.toString()}
+                                    program_name={loadedData.data.program_name}
+                                    setDeleteProgramWarningOpen={
+                                        setDeleteProgramWarningOpen
+                                    }
+                                    uni_name={loadedData.data.school}
+                                />
+                                <AssignProgramsToStudentDialog
+                                    handleOnSuccess={() =>
+                                        setModalShowAssignWindow(false)
+                                    }
+                                    onClose={() =>
+                                        setModalShowAssignWindow(false)
+                                    }
+                                    open={modalShowAssignWindowOpen}
+                                    programs={[loadedData.data]}
+                                />
+                                {singleProgramState.modalShowDiffWindow ? (
+                                    <ProgramDiffModal
+                                        open={
+                                            singleProgramState.modalShowDiffWindow
+                                        }
+                                        originalProgram={loadedData.data}
+                                        setModalHide={setDiffModal(false)}
+                                    />
+                                ) : null}
+                            </>
+                        );
+                    }}
                 </Await>
             </Suspense>
         </Box>
