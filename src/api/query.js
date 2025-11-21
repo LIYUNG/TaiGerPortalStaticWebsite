@@ -50,7 +50,8 @@ import {
     getArchivStudents,
     getTeamMembers,
     getExpense,
-    getApplicationConflicts
+    getApplicationConflicts,
+    getMycourses
 } from '.';
 
 export const getMessagThreadQuery = (threadId) => ({
@@ -381,5 +382,11 @@ export const getExpenseQuery = (taigerUserId) => ({
 export const getApplicationConflictsQuery = () => ({
     queryKey: ['application-conflicts'],
     queryFn: getApplicationConflicts,
+    staleTime: 1000 * 60 * 5 // 5 minutes
+});
+
+export const getMycoursesQuery = (studentId) => ({
+    queryKey: ['mycourses', studentId],
+    queryFn: () => getMycourses(studentId),
     staleTime: 1000 * 60 * 5 // 5 minutes
 });

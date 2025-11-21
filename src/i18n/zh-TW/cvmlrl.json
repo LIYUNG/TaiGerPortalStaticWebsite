@@ -6,5 +6,54 @@
     "cv-requirements-1": "1. 不要遺漏任何重要資訊，履歷上需覆蓋自高中起的所有時段，有任何找工作、準備留學考試、重考等等經歷都必須提及並解釋",
     "cv-requirements-1.1": "履歷上忌諱有空白超過三格月以上時間",
     "cv-requirements-2": "2. 請不要只上傳pdf 檔案，我們需要word 檔案來幫助你編修",
-    "rl-requirements-1": "1. 推薦人的 Email 必須是他們的機構 Email。 Gmail, Hotmail 等，學校通常不會接受。"
+    "rl-requirements-1": "1. 推薦人的 Email 必須是他們的機構 Email。 Gmail, Hotmail 等，學校通常不會接受。",
+    "missingDocumentsWarning": "請為此申請指派以下缺少的文件：",
+    "extraDocumentsWarning": "以下文件不是此申請所需：",
+    "documentTypes": {
+        "ml_required": "動機信",
+        "sop_required": "讀書計畫",
+        "phs_required": "個人歷史陳述",
+        "essay_required": "申請短文",
+        "portfolio_required": "作品集",
+        "supplementary_form_required": "補充表格",
+        "scholarship_form_required": "獎學金申請表",
+        "curriculum_analysis_required": "課程分析"
+    },
+    "generalRLProgramsTitle": "需要一般推薦信的申請：",
+    "generalRLProgramEntry": "{{program}}（需 {{count}} 封）",
+    "rlStatus": {
+        "general": {
+            "missing": "一般推薦信需 {{required}} 份，目前僅建立 {{provided}} 個任務，請再建立 {{difference}} 個任務。",
+            "extra": "一般推薦信只需 {{required}} 份，目前已建立 {{provided}} 個任務，可移除 {{difference}} 個任務。"
+        },
+        "program": {
+            "missing": "此申請需 {{required}} 份推薦信，目前僅建立 {{provided}} 個任務，請再建立 {{difference}} 個任務。",
+            "extra": "此申請只需 {{required}} 份推薦信，目前已建立 {{provided}} 個任務，可移除 {{difference}} 個任務。"
+        }
+    },
+    "generalRLTable": {
+        "title": "推薦信需求總覽",
+        "subtitle": "已決定的申請以綠色優先顯示，未決定的申請維持灰色，方便快速瀏覽。",
+        "loading": "正在載入推薦信需求…",
+        "missingStudentId": "缺少學生 ID",
+        "noApplications": "暫無申請。",
+        "columns": {
+            "school": "學校",
+            "program": "科系",
+            "deadline": "申請截止日",
+            "count": "所需推薦信數量",
+            "notes": "推薦信說明 / 注意事項",
+            "programWithSchool": "學校 / 科系"
+        },
+        "status": {
+            "decided": "已決定",
+            "pending": "未決定"
+        },
+        "deadline": {
+            "na": "N/A"
+        },
+        "unknownSchool": "未知學校",
+        "legend": "顏色說明：",
+        "legendDescription": "綠色＝已決定，灰色＝待定 / 未決定。"
+    }
 }

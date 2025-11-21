@@ -5,6 +5,7 @@ import EditableFileThread from './EditableFileThread';
 const ManualFilesList = (props) => {
     let message_threads;
     if (props.application === null) {
+        // general
         message_threads = props.student.generaldocs_threads
             ? props.student.generaldocs_threads.map((thread) => (
                   <EditableFileThread
@@ -25,6 +26,7 @@ const ManualFilesList = (props) => {
               ))
             : '';
     } else {
+        // program specific
         message_threads =
             props.application && props.application.doc_modification_thread
                 ? props.application.doc_modification_thread.map((thread) => (

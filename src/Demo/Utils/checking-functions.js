@@ -18,6 +18,29 @@ import {
 } from '@taiger-common/core';
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
+export const file_category_const = {
+    rl_required: 'RL',
+    ml_required: 'ML',
+    sop_required: 'SOP',
+    phs_required: 'PHS',
+    essay_required: 'Essay',
+    portfolio_required: 'Portfolio',
+    supplementary_form_required: 'Supplementary_Form',
+    scholarship_form_required: 'Scholarship_Form',
+    curriculum_analysis_required: 'Curriculum_Analysis'
+};
+
+export const FILE_TYPE_E = {
+    ...file_category_const,
+    others: 'Others'
+};
+
+export const AGENT_SUPPORT_DOCUMENTS_A = [
+    FILE_TYPE_E.curriculum_analysis_required,
+    FILE_TYPE_E.supplementary_form_required,
+    FILE_TYPE_E.others
+];
+
 export const is_User_Archived = (user) => user?.archiv === true;
 
 export const student_transform = (students) =>
@@ -76,29 +99,6 @@ export const truncateText = (text, maxLength) => {
     }
     return truncatedText;
 };
-
-export const file_category_const = {
-    rl_required: 'RL',
-    ml_required: 'ML',
-    sop_required: 'SOP',
-    phs_required: 'PHS',
-    essay_required: 'Essay',
-    portfolio_required: 'Portfolio',
-    supplementary_form_required: 'Supplementary_Form',
-    scholarship_form_required: 'Scholarship_Form',
-    curriculum_analysis_required: 'Curriculum_Analysis'
-};
-
-export const FILE_TYPE_E = {
-    ...file_category_const,
-    others: 'Others'
-};
-
-export const AGENT_SUPPORT_DOCUMENTS_A = [
-    FILE_TYPE_E.curriculum_analysis_required,
-    FILE_TYPE_E.supplementary_form_required,
-    FILE_TYPE_E.others
-];
 
 // TODO test
 export const LinkableNewlineText = ({ text }) => {
@@ -1598,24 +1598,6 @@ export const is_all_uni_assist_vpd_uploaded = (student) => {
     return true;
 };
 
-export const check_generaldocs = (student) => {
-    if (!student.generaldocs_threads) {
-        return false;
-    }
-    if (
-        student.generaldocs_threads.findIndex(
-            (thread) => thread.doc_thread_id?.file_type === 'CV'
-        ) === -1 &&
-        student.generaldocs_threads.findIndex(
-            (thread) => thread.doc_thread_id?.file_type === 'CV_US'
-        ) === -1
-    ) {
-        return true;
-    } else {
-        return false;
-    }
-};
-
 export const getNumberOfFilesByStudent = (messages, student_id) => {
     if (!messages) {
         return 0;
@@ -2269,93 +2251,6 @@ export const frequencyDistribution = (tasks) => {
         )
     );
     return filteredMap;
-};
-
-export const checkIsRLspecific = (program) => {
-    const isRLSpecific = program?.is_rl_specific;
-    const NoRLSpecificFlag =
-        isRLSpecific === undefined || isRLSpecific === null;
-    return isRLSpecific || (NoRLSpecificFlag && program?.rl_requirements);
-};
-
-// Tested
-export const getMissingDocs = (application) => {
-    if (!application) {
-        return [];
-    }
-
-    let missingDocs = [];
-    for (let docName of Object.keys(file_category_const)) {
-        if (
-            application?.programId[docName] === 'yes' &&
-            !application?.doc_modification_thread?.some(
-                (thread) =>
-                    thread.doc_thread_id?.file_type ===
-                    file_category_const[docName]
-            )
-        )
-            missingDocs.push(file_category_const[docName]);
-    }
-
-    const nrRLNeeded = parseInt(application.programId.rl_required);
-    const nrSpecificRL = application?.doc_modification_thread.filter((thread) =>
-        thread.doc_thread_id?.file_type?.startsWith('RL_')
-    ).length;
-    if (
-        nrRLNeeded > 0 &&
-        checkIsRLspecific(application?.programId) &&
-        nrRLNeeded > nrSpecificRL
-    ) {
-        missingDocs.push(
-            `RL - ${nrRLNeeded} needed, ${nrSpecificRL} provided (${
-                nrRLNeeded - nrSpecificRL
-            } must be added)`
-        );
-    }
-
-    return missingDocs;
-};
-
-export const getExtraDocs = (application) => {
-    if (!application) {
-        return [];
-    }
-
-    let extraDocs = [];
-    for (let docName of Object.keys(file_category_const)) {
-        if (
-            application?.programId[docName] !== 'yes' &&
-            application?.doc_modification_thread?.some(
-                (thread) =>
-                    thread.doc_thread_id?.file_type ===
-                    file_category_const[docName]
-            )
-        )
-            extraDocs.push(file_category_const[docName]);
-    }
-
-    const nrRLNeeded = parseInt(application.programId.rl_required);
-    const nrSpecificRL = application?.doc_modification_thread.filter((thread) =>
-        thread.doc_thread_id?.file_type?.startsWith('RL_')
-    ).length;
-    const nrSpecRLNeeded = !checkIsRLspecific(application?.programId)
-        ? 0
-        : nrRLNeeded;
-    if (nrSpecRLNeeded < nrSpecificRL) {
-        extraDocs.push(
-            `RL - ${nrSpecRLNeeded} needed, ${nrSpecificRL} provided (${
-                nrSpecificRL - nrSpecRLNeeded
-            } can be removed)`
-        );
-    }
-    return extraDocs;
-};
-
-export const isDocumentsMissingAssign = (application) => {
-    if (!application) {
-        return false;
-    }
-    return getMissingDocs(application).length > 0;
 };
 
 export const extractTextFromDocx = async (arrayBuffer) => {

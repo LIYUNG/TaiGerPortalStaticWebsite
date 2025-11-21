@@ -64,7 +64,103 @@ const PermissionIcon = ({ hasPermission }) => {
     );
 };
 
-const EditorRow = ({ editor, setModalShow, user }) => {
+const PERMISSION_COLUMN_DEFINITIONS = {
+    canModifyProgramList: {
+        labelLines: ['Program', 'List']
+    },
+    canModifyAllBaseDocuments: {
+        labelLines: ['Base', 'Docs']
+    },
+    canAccessAllChat: {
+        labelLines: ['All', 'Chat']
+    },
+    canAssignAgents: {
+        labelLines: ['Assign', 'Agents']
+    },
+    canAssignEditors: {
+        labelLines: ['Assign', 'Editors']
+    },
+    canModifyDocumentation: {
+        labelLines: ['Modify', 'Docs']
+    },
+    canAccessStudentDatabase: {
+        labelLines: ['Student', 'DB']
+    },
+    canAddUser: {
+        labelLines: ['Add', 'User']
+    },
+    canUseTaiGerAI: {
+        labelLines: ['TaiGer', 'AI']
+    }
+};
+
+const PERMISSION_COLUMNS = [
+    'canModifyProgramList',
+    'canModifyAllBaseDocuments',
+    'canAccessAllChat',
+    'canAssignAgents',
+    'canAssignEditors',
+    'canModifyDocumentation',
+    'canAccessStudentDatabase',
+    'canAddUser',
+    'canUseTaiGerAI'
+];
+
+const createTeamConfig = ({
+    icon,
+    paletteColor,
+    getMemberLink,
+    permissionColumns = PERMISSION_COLUMNS
+}) => ({
+    icon,
+    paletteColor,
+    chipColor: paletteColor,
+    actionButtonColor: paletteColor,
+    quotaChipColor: paletteColor,
+    permissionColumns,
+    getMemberLink
+});
+
+const TEAM_CONFIG = {
+    [Role.Agent]: createTeamConfig({
+        icon: SupervisorAccountIcon,
+        paletteColor: 'secondary',
+        getMemberLink: (member) => DEMO.TEAM_AGENT_LINK(member._id.toString())
+    }),
+    [Role.Editor]: createTeamConfig({
+        icon: PersonIcon,
+        paletteColor: 'primary',
+        getMemberLink: (member) => DEMO.TEAM_EDITOR_LINK(member._id.toString())
+    })
+};
+
+const TEAM_SECTIONS = [
+    {
+        role: Role.Agent,
+        titleKey: 'Agent'
+    },
+    {
+        role: Role.Editor,
+        titleKey: 'Editor'
+    }
+];
+
+const renderColumnLabel = (columnKey) => {
+    const column = PERMISSION_COLUMN_DEFINITIONS[columnKey];
+
+    if (!column) {
+        return columnKey;
+    }
+
+    return column.labelLines.map((line, index) => (
+        <React.Fragment key={`${columnKey}-${line}`}>
+            {line}
+            {index !== column.labelLines.length - 1 && <br />}
+        </React.Fragment>
+    ));
+};
+
+const TeamMemberRow = ({ member, config, setModalShow, user }) => {
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
@@ -75,34 +171,37 @@ const EditorRow = ({ editor, setModalShow, user }) => {
         setAnchorEl(null);
     };
 
-    const permissions = editor.permissions?.[0];
+    const permissions = member.permissions?.[0] ?? {};
+    const firstName = member.firstname ?? '';
+    const lastName = member.lastname ?? '';
+    const fullName = `${firstName} ${lastName}`.trim();
+    const initials =
+        `${firstName?.[0] ?? ''}${lastName?.[0] ?? ''}`.toUpperCase();
+    const avatarColors =
+        firstName && lastName ? stringAvatar(`${firstName} ${lastName}`) : {};
 
     return (
         <TableRow
             sx={{
                 '&:hover': {
                     backgroundColor: (theme) =>
-                        alpha(theme.palette.primary.main, 0.05)
+                        alpha(theme.palette[config.paletteColor].main, 0.05)
                 }
             }}
         >
             <TableCell>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Avatar
-                        alt={`${editor.firstname ?? ''} ${editor.lastname ?? ''}`.trim()}
-                        src={editor.pictureUrl}
-                        {...stringAvatar(
-                            `${editor.firstname} ${editor.lastname}`
-                        )}
+                        alt={fullName}
+                        src={member.pictureUrl}
                         sx={{
                             width: 32,
                             height: 32,
-                            fontSize: 14
+                            fontSize: 14,
+                            ...(avatarColors?.sx ?? {})
                         }}
                     >
-                        {`${editor.firstname?.[0] ?? ''}${
-                            editor.lastname?.[0] ?? ''
-                        }`.toUpperCase()}
+                        {avatarColors?.children ?? initials}
                     </Avatar>
                     <Link
                         component={LinkDom}
@@ -111,47 +210,20 @@ const EditorRow = ({ editor, setModalShow, user }) => {
                             fontWeight: 500,
                             '&:hover': { textDecoration: 'underline' }
                         }}
-                        to={`${DEMO.TEAM_EDITOR_LINK(editor._id.toString())}`}
+                        to={config.getMemberLink(member)}
                     >
-                        {editor.firstname} {editor.lastname}
+                        {firstName} {lastName}
                     </Link>
                 </Box>
             </TableCell>
-            <TableCell align="center">
-                <PermissionIcon
-                    hasPermission={permissions?.canModifyProgramList}
-                />
-            </TableCell>
-            <TableCell align="center">
-                <PermissionIcon
-                    hasPermission={permissions?.canModifyAllBaseDocuments}
-                />
-            </TableCell>
-            <TableCell align="center">
-                <PermissionIcon hasPermission={permissions?.canAccessAllChat} />
-            </TableCell>
-            <TableCell align="center">
-                <PermissionIcon hasPermission={permissions?.canAssignAgents} />
-            </TableCell>
-            <TableCell align="center">
-                <PermissionIcon hasPermission={permissions?.canAssignEditors} />
-            </TableCell>
-            <TableCell align="center">
-                <PermissionIcon
-                    hasPermission={permissions?.canModifyDocumentation}
-                />
-            </TableCell>
-            <TableCell align="center">
-                <PermissionIcon
-                    hasPermission={permissions?.canAccessStudentDatabase}
-                />
-            </TableCell>
-            <TableCell align="center">
-                <PermissionIcon hasPermission={permissions?.canUseTaiGerAI} />
-            </TableCell>
+            {config.permissionColumns.map((columnKey) => (
+                <TableCell align="center" key={columnKey}>
+                    <PermissionIcon hasPermission={permissions?.[columnKey]} />
+                </TableCell>
+            ))}
             <TableCell align="center">
                 <Chip
-                    color="primary"
+                    color={config.quotaChipColor}
                     label={permissions?.taigerAiQuota || 0}
                     size="small"
                     variant="outlined"
@@ -163,7 +235,7 @@ const EditorRow = ({ editor, setModalShow, user }) => {
                         aria-controls={open ? `basic-menu` : undefined}
                         aria-expanded={open ? 'true' : undefined}
                         aria-haspopup="true"
-                        color="primary"
+                        color={config.actionButtonColor}
                         id="basic-button"
                         onClick={handleClick}
                         size="small"
@@ -184,10 +256,10 @@ const EditorRow = ({ editor, setModalShow, user }) => {
                     <MenuItem
                         onClick={() =>
                             setModalShow(
-                                editor.firstname,
-                                editor.lastname,
-                                editor._id.toString(),
-                                editor.permissions
+                                member.firstname,
+                                member.lastname,
+                                member._id.toString(),
+                                member.permissions
                             )
                         }
                     >
@@ -200,138 +272,106 @@ const EditorRow = ({ editor, setModalShow, user }) => {
     );
 };
 
-const AgentRow = ({ agent, setModalShow, user }) => {
-    const [anchorEl, setAnchorEl] = useState(null);
-    const open = Boolean(anchorEl);
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const permissions = agent.permissions?.[0];
+const TeamSection = ({
+    config,
+    members,
+    setModalShow,
+    user,
+    title,
+    memberCount
+}) => {
+    const IconComponent = config.icon;
 
     return (
-        <TableRow
+        <Paper
+            elevation={3}
             sx={{
-                '&:hover': {
-                    backgroundColor: (theme) =>
-                        alpha(theme.palette.primary.main, 0.05)
-                }
+                mb: 3,
+                borderRadius: 2,
+                overflow: 'hidden'
             }}
         >
-            <TableCell>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Avatar
-                        alt={`${agent.firstname ?? ''} ${agent.lastname ?? ''}`.trim()}
-                        src={agent.pictureUrl}
-                        {...stringAvatar(
-                            `${agent.firstname} ${agent.lastname}`
-                        )}
+            <Box
+                sx={{
+                    p: 2,
+                    background: (theme) =>
+                        `linear-gradient(135deg, ${alpha(theme.palette[config.paletteColor].main, 0.1)} 0%, ${alpha(theme.palette[config.paletteColor].main, 0.05)} 100%)`,
+                    borderBottom: (theme) =>
+                        `2px solid ${theme.palette[config.paletteColor].main}`
+                }}
+            >
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <IconComponent
                         sx={{
-                            width: 32,
-                            height: 32,
-                            fontSize: 14
+                            mr: 1,
+                            color: `${config.paletteColor}.main`,
+                            fontSize: 28
                         }}
-                    >
-                        {`${agent.firstname?.[0] ?? ''}${
-                            agent.lastname?.[0] ?? ''
-                        }`.toUpperCase()}
-                    </Avatar>
-                    <Link
-                        component={LinkDom}
+                    />
+                    <Typography
                         sx={{
-                            textDecoration: 'none',
-                            fontWeight: 500,
-                            '&:hover': { textDecoration: 'underline' }
+                            fontWeight: 600,
+                            color: `${config.paletteColor}.main`
                         }}
-                        to={`${DEMO.TEAM_AGENT_LINK(agent._id.toString())}`}
+                        variant="h5"
                     >
-                        {agent.firstname} {agent.lastname}
-                    </Link>
-                </Box>
-            </TableCell>
-            <TableCell align="center">
-                <PermissionIcon
-                    hasPermission={permissions?.canModifyProgramList}
-                />
-            </TableCell>
-            <TableCell align="center">
-                <PermissionIcon
-                    hasPermission={permissions?.canModifyAllBaseDocuments}
-                />
-            </TableCell>
-            <TableCell align="center">
-                <PermissionIcon hasPermission={permissions?.canAccessAllChat} />
-            </TableCell>
-            <TableCell align="center">
-                <PermissionIcon hasPermission={permissions?.canAssignAgents} />
-            </TableCell>
-            <TableCell align="center">
-                <PermissionIcon hasPermission={permissions?.canAssignEditors} />
-            </TableCell>
-            <TableCell align="center">
-                <PermissionIcon
-                    hasPermission={permissions?.canModifyDocumentation}
-                />
-            </TableCell>
-            <TableCell align="center">
-                <PermissionIcon
-                    hasPermission={permissions?.canAccessStudentDatabase}
-                />
-            </TableCell>
-            <TableCell align="center">
-                <PermissionIcon hasPermission={permissions?.canAddUser} />
-            </TableCell>
-            <TableCell align="center">
-                <PermissionIcon hasPermission={permissions?.canUseTaiGerAI} />
-            </TableCell>
-            <TableCell align="center">
-                <Chip
-                    color="secondary"
-                    label={permissions?.taigerAiQuota || 0}
-                    size="small"
-                    variant="outlined"
-                />
-            </TableCell>
-            <TableCell align="center">
-                <Tooltip title={i18next.t('Edit', { ns: 'common' })}>
-                    <IconButton
-                        aria-controls={open ? `basic-menu` : undefined}
-                        aria-expanded={open ? 'true' : undefined}
-                        aria-haspopup="true"
-                        color="secondary"
-                        id="basic-button"
-                        onClick={handleClick}
+                        {title}
+                    </Typography>
+                    <Chip
+                        color={config.chipColor}
+                        label={memberCount}
                         size="small"
-                    >
-                        <EditIcon />
-                    </IconButton>
-                </Tooltip>
-                <Menu
-                    MenuListProps={{
-                        'aria-labelledby': 'basic-button'
-                    }}
-                    anchorEl={anchorEl}
-                    disabled={!is_TaiGer_Admin(user)}
-                    id="basic-menu"
-                    onClose={() => setAnchorEl(null)}
-                    open={open}
-                >
-                    <MenuItem
-                        onClick={() =>
-                            setModalShow(
-                                agent.firstname,
-                                agent.lastname,
-                                agent._id.toString(),
-                                agent.permissions
-                            )
-                        }
-                    >
-                        <EditIcon sx={{ mr: 1, fontSize: 20 }} />
-                        Permission
-                    </MenuItem>
-                </Menu>
-            </TableCell>
-        </TableRow>
+                        sx={{ ml: 1 }}
+                    />
+                </Box>
+            </Box>
+            <TableContainer>
+                <Table size="small">
+                    <TableHead>
+                        <TableRow
+                            sx={{
+                                backgroundColor: (theme) =>
+                                    alpha(
+                                        theme.palette[config.paletteColor].main,
+                                        0.08
+                                    )
+                            }}
+                        >
+                            <TableCell sx={{ fontWeight: 600 }}>
+                                {i18next.t('Name', { ns: 'common' })}
+                            </TableCell>
+                            {config.permissionColumns.map((columnKey) => (
+                                <TableCell
+                                    align="center"
+                                    key={`header-${columnKey}`}
+                                    sx={{ fontWeight: 600 }}
+                                >
+                                    {renderColumnLabel(columnKey)}
+                                </TableCell>
+                            ))}
+                            <TableCell align="center" sx={{ fontWeight: 600 }}>
+                                AI
+                                <br /> Quota
+                            </TableCell>
+                            <TableCell align="center" sx={{ fontWeight: 600 }}>
+                                Actions
+                            </TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {members.map((member) => (
+                            <TeamMemberRow
+                                config={config}
+                                key={member._id.toString()}
+                                member={member}
+                                setModalShow={setModalShow}
+                                user={user}
+                            />
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+        </Paper>
     );
 };
 
@@ -476,15 +516,13 @@ const TaiGerOrg = () => {
     const admins = taiGerOrgState.teams.filter(
         (member) => member.role === Role.Admin
     );
-    const agents = taiGerOrgState.teams.filter(
-        (member) => member.role === Role.Agent
-    );
-    // const managers = taiGerOrgState.teams.filter(
-    //   (member) => member.role === 'Manager'
-    // );
-    const editors = taiGerOrgState.teams.filter(
-        (member) => member.role === Role.Editor
-    );
+    const membersByRole = taiGerOrgState.teams.reduce((acc, member) => {
+        if (!acc[member.role]) {
+            acc[member.role] = [];
+        }
+        acc[member.role].push(member);
+        return acc;
+    }, {});
 
     return (
         <Box sx={{ p: 3 }}>
@@ -583,283 +621,25 @@ const TaiGerOrg = () => {
                 </Card>
             )}
 
-            <Paper
-                elevation={3}
-                sx={{
-                    mb: 3,
-                    borderRadius: 2,
-                    overflow: 'hidden'
-                }}
-            >
-                <Box
-                    sx={{
-                        p: 2,
-                        background: (theme) =>
-                            `linear-gradient(135deg, ${alpha(theme.palette.secondary.main, 0.1)} 0%, ${alpha(theme.palette.secondary.main, 0.05)} 100%)`,
-                        borderBottom: (theme) =>
-                            `2px solid ${theme.palette.secondary.main}`
-                    }}
-                >
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <SupervisorAccountIcon
-                            sx={{
-                                mr: 1,
-                                color: 'secondary.main',
-                                fontSize: 28
-                            }}
-                        />
-                        <Typography
-                            sx={{ fontWeight: 600, color: 'secondary.main' }}
-                            variant="h5"
-                        >
-                            {i18next.t('Agent', { ns: 'common' })}s
-                        </Typography>
-                        <Chip
-                            color="secondary"
-                            label={agents.length}
-                            size="small"
-                            sx={{ ml: 1 }}
-                        />
-                    </Box>
-                </Box>
-                <TableContainer>
-                    <Table size="small">
-                        <TableHead>
-                            <TableRow
-                                sx={{
-                                    backgroundColor: (theme) =>
-                                        alpha(
-                                            theme.palette.secondary.main,
-                                            0.08
-                                        )
-                                }}
-                            >
-                                <TableCell sx={{ fontWeight: 600 }}>
-                                    {i18next.t('Name', { ns: 'common' })}
-                                </TableCell>
-                                <TableCell
-                                    align="center"
-                                    sx={{ fontWeight: 600 }}
-                                >
-                                    Program
-                                    <br /> List
-                                </TableCell>
-                                <TableCell
-                                    align="center"
-                                    sx={{ fontWeight: 600 }}
-                                >
-                                    Base
-                                    <br /> Docs
-                                </TableCell>
-                                <TableCell
-                                    align="center"
-                                    sx={{ fontWeight: 600 }}
-                                >
-                                    All
-                                    <br /> Chat
-                                </TableCell>
-                                <TableCell
-                                    align="center"
-                                    sx={{ fontWeight: 600 }}
-                                >
-                                    Assign
-                                    <br /> Agents
-                                </TableCell>
-                                <TableCell
-                                    align="center"
-                                    sx={{ fontWeight: 600 }}
-                                >
-                                    Assign
-                                    <br /> Editors
-                                </TableCell>
-                                <TableCell
-                                    align="center"
-                                    sx={{ fontWeight: 600 }}
-                                >
-                                    Modify
-                                    <br /> Docs
-                                </TableCell>
-                                <TableCell
-                                    align="center"
-                                    sx={{ fontWeight: 600 }}
-                                >
-                                    Student
-                                    <br /> DB
-                                </TableCell>
-                                <TableCell
-                                    align="center"
-                                    sx={{ fontWeight: 600 }}
-                                >
-                                    Add
-                                    <br /> User
-                                </TableCell>
-                                <TableCell
-                                    align="center"
-                                    sx={{ fontWeight: 600 }}
-                                >
-                                    TaiGer
-                                    <br /> AI
-                                </TableCell>
-                                <TableCell
-                                    align="center"
-                                    sx={{ fontWeight: 600 }}
-                                >
-                                    AI
-                                    <br /> Quota
-                                </TableCell>
-                                <TableCell
-                                    align="center"
-                                    sx={{ fontWeight: 600 }}
-                                >
-                                    Actions
-                                </TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {agents.map((agent, i) => (
-                                <AgentRow
-                                    agent={agent}
-                                    key={i}
-                                    setModalShow={setModalShow}
-                                    user={user}
-                                />
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            </Paper>
+            {TEAM_SECTIONS.map(({ role, titleKey }) => {
+                const config = TEAM_CONFIG[role];
+                if (!config) {
+                    return null;
+                }
+                const members = membersByRole[role] ?? [];
 
-            <Paper
-                elevation={3}
-                sx={{
-                    mb: 3,
-                    borderRadius: 2,
-                    overflow: 'hidden'
-                }}
-            >
-                <Box
-                    sx={{
-                        p: 2,
-                        background: (theme) =>
-                            `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, ${alpha(theme.palette.primary.main, 0.05)} 100%)`,
-                        borderBottom: (theme) =>
-                            `2px solid ${theme.palette.primary.main}`
-                    }}
-                >
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <PersonIcon
-                            sx={{ mr: 1, color: 'primary.main', fontSize: 28 }}
-                        />
-                        <Typography
-                            sx={{ fontWeight: 600, color: 'primary.main' }}
-                            variant="h5"
-                        >
-                            {i18next.t('Editor', { ns: 'common' })}s
-                        </Typography>
-                        <Chip
-                            color="primary"
-                            label={editors.length}
-                            size="small"
-                            sx={{ ml: 1 }}
-                        />
-                    </Box>
-                </Box>
-                <TableContainer>
-                    <Table size="small">
-                        <TableHead>
-                            <TableRow
-                                sx={{
-                                    backgroundColor: (theme) =>
-                                        alpha(theme.palette.primary.main, 0.08)
-                                }}
-                            >
-                                <TableCell sx={{ fontWeight: 600 }}>
-                                    {i18next.t('Name', { ns: 'common' })}
-                                </TableCell>
-                                <TableCell
-                                    align="center"
-                                    sx={{ fontWeight: 600 }}
-                                >
-                                    Program
-                                    <br /> List
-                                </TableCell>
-                                <TableCell
-                                    align="center"
-                                    sx={{ fontWeight: 600 }}
-                                >
-                                    Base
-                                    <br /> Docs
-                                </TableCell>
-                                <TableCell
-                                    align="center"
-                                    sx={{ fontWeight: 600 }}
-                                >
-                                    All
-                                    <br /> Chat
-                                </TableCell>
-                                <TableCell
-                                    align="center"
-                                    sx={{ fontWeight: 600 }}
-                                >
-                                    Assign
-                                    <br /> Agents
-                                </TableCell>
-                                <TableCell
-                                    align="center"
-                                    sx={{ fontWeight: 600 }}
-                                >
-                                    Assign
-                                    <br /> Editors
-                                </TableCell>
-                                <TableCell
-                                    align="center"
-                                    sx={{ fontWeight: 600 }}
-                                >
-                                    Modify
-                                    <br /> Docs
-                                </TableCell>
-                                <TableCell
-                                    align="center"
-                                    sx={{ fontWeight: 600 }}
-                                >
-                                    Student
-                                    <br /> DB
-                                </TableCell>
-                                <TableCell
-                                    align="center"
-                                    sx={{ fontWeight: 600 }}
-                                >
-                                    TaiGer
-                                    <br /> AI
-                                </TableCell>
-                                <TableCell
-                                    align="center"
-                                    sx={{ fontWeight: 600 }}
-                                >
-                                    AI
-                                    <br /> Quota
-                                </TableCell>
-                                <TableCell
-                                    align="center"
-                                    sx={{ fontWeight: 600 }}
-                                >
-                                    Actions
-                                </TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {editors.map((editor, i) => (
-                                <EditorRow
-                                    editor={editor}
-                                    key={i}
-                                    setModalShow={setModalShow}
-                                    user={user}
-                                />
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            </Paper>
+                return (
+                    <TeamSection
+                        config={config}
+                        key={role}
+                        memberCount={members.length}
+                        members={members}
+                        setModalShow={setModalShow}
+                        title={`${i18next.t(titleKey, { ns: 'common' })}s`}
+                        user={user}
+                    />
+                );
+            })}
 
             {taiGerOrgState.modalShow && (
                 <GrantPermissionModal

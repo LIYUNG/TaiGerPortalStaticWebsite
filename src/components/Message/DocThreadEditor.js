@@ -207,7 +207,7 @@ const DocThreadEditor = ({
                         fullWidth
                         inputProps={{
                             multiple: true,
-                            accept: '.pdf,.docx,.jpg,.jpeg,.png'
+                            accept: '.pdf,.docx,.jpg,.jpeg,.png,.xlsx'
                         }}
                         onChange={(e) => onFileChange(e)}
                         sx={{

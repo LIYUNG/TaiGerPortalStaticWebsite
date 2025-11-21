@@ -290,7 +290,7 @@ const transform = (stds, riskOnly = false) => {
     return transformedStudents;
 };
 
-const StudentOverviewTable = ({ students, riskOnly = false }) => {
+const StudentOverviewTable = ({ isLoading, students, riskOnly = false }) => {
     const { t } = useTranslation();
 
     const memoizedColumns = useMemo(() => {
@@ -738,7 +738,12 @@ const StudentOverviewTable = ({ students, riskOnly = false }) => {
     const rows = transform(students, riskOnly);
     return (
         <Card>
-            <MuiDataGrid columns={memoizedColumns} rows={rows} />
+            <MuiDataGrid
+                autoHeight={true}
+                columns={memoizedColumns}
+                isLoading={isLoading}
+                rows={rows}
+            />
         </Card>
     );
 };

@@ -1,309 +1,56 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Link as LinkDom, useLocation, useParams } from 'react-router-dom';
-import ArticleIcon from '@mui/icons-material/Article';
-import ChatIcon from '@mui/icons-material/Chat';
-import FolderIcon from '@mui/icons-material/Folder';
-import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
-import HistoryIcon from '@mui/icons-material/History';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
-import HelpIcon from '@mui/icons-material/Help';
+import React, { useMemo, useState } from 'react';
+import { Link as LinkDom } from 'react-router-dom';
 import {
     Typography,
     Button,
     Card,
     Link,
     Box,
-    CircularProgress,
+    Grid,
     useTheme,
     Avatar,
+    IconButton,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
     Stack,
-    Tabs,
-    Tab,
-    Chip,
     Divider,
-    Tooltip,
-    Alert
+    Chip,
+    Tooltip
 } from '@mui/material';
-import { pdfjs } from 'react-pdf';
-import { is_TaiGer_role } from '@taiger-common/core';
+import EventIcon from '@mui/icons-material/Event';
+import PersonIcon from '@mui/icons-material/Person';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import LanguageIcon from '@mui/icons-material/Language';
+import SchoolIcon from '@mui/icons-material/School';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import LaunchIcon from '@mui/icons-material/Launch';
+import StarBorderRoundedIcon from '@mui/icons-material/StarBorderRounded';
+import StarRoundedIcon from '@mui/icons-material/StarRounded';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
-import DocThreadEditor from '../../../components/Message/DocThreadEditor';
-import ErrorPage from '../../Utils/ErrorPage';
-import ModalMain from '../../Utils/ModalHandler/ModalMain';
 import {
-    stringAvatar,
-    templatelist,
-    THREAD_TABS
-} from '../../../utils/contants';
-import {
-    FILE_TYPE_E,
-    readDOCX,
-    readPDF,
-    readXLSX,
-    toogleItemInArray,
-    calculateProgramLockStatus
-} from '../../Utils/checking-functions';
-import {
-    SubmitMessageWithAttachment,
-    deleteAMessageInThread,
-    SetFileAsFinal,
-    updateEssayWriter,
-    putThreadFavorite
-} from '../../../api';
-import { TabTitle } from '../../Utils/TabTitle';
-import DEMO from '../../../store/constant';
-import FilesList from './FilesList';
-import { useAuth } from '../../../components/AuthProvider';
-import EditEssayWritersSubpage from '../../Dashboard/MainViewTab/StudDocsOverview/EditEssayWritersSubpage';
-import MessageList from '../../../components/Message/MessageList';
-import DocumentCheckingResultModal from './DocumentCheckingResultModal';
-import { a11yProps, CustomTabPanel } from '../../../components/Tabs';
-import Audit from '../../Audit';
+    is_TaiGer_AdminAgent,
+    is_TaiGer_Student,
+    is_TaiGer_role
+} from '@taiger-common/core';
 import { useTranslation } from 'react-i18next';
-import { useSnackBar } from '../../../contexts/use-snack-bar';
-import GeneralRLRequirementsTab from './DocumentThreadsPage/GeneralRLRequirementsTab';
-import InformationBlock from './components/InformationBlock';
 
-
-const DescriptionBlock = ({ thread, template_obj, documentsthreadId }) => {
-    const { user } = useAuth();
-    const theme = useTheme();
-
-    return (
-        <Stack spacing={2}>
-            {template_obj ? (
-                <>
-                    {/* Main Instruction */}
-                    <Box
-                        sx={{
-                            p: 1.5,
-                            bgcolor: theme.palette.info.lighter || 'info.50',
-                            borderLeft: `3px solid ${theme.palette.info.main}`
-                        }}
-                    >
-                        <Typography variant="body2">
-                            {thread.file_type === 'CV' ||
-                            thread.file_type === 'CV_US'
-                                ? i18next.t('cv-instructions', { ns: 'cvmlrl' })
-                                : i18next.t('please-fill-template', {
-                                      tenant: appConfig.companyName
-                                  })}
-                        </Typography>
-                    </Box>
-
-                    {/* Documentation Link */}
-                    <Button
-                        color="info"
-                        component={LinkDom}
-                        fullWidth
-                        size="small"
-                        startIcon={<ArticleIcon />}
-                        to={`${DEMO.CV_ML_RL_DOCS_LINK}`}
-                        variant="outlined"
-                    >
-                        View Documentation
-                    </Button>
-
-                    {/* Template Downloads */}
-                    <Box>
-                        <Typography
-                            color="text.secondary"
-                            gutterBottom
-                            sx={{
-                                fontSize: '0.75rem',
-                                textTransform: 'uppercase',
-                                letterSpacing: 0.5
-                            }}
-                            variant="overline"
-                        >
-                            {i18next.t('Download template')}
-                        </Typography>
-                        <Stack spacing={1}>
-                            {template_obj.prop.includes('RL') ||
-                            template_obj.alias.includes('Recommendation') ? (
-                                <>
-                                    {/* Professor Template */}
-                                    <Button
-                                        color="secondary"
-                                        component="a"
-                                        fullWidth
-                                        href={`${BASE_URL}/api/account/files/template/${'RL_academic_survey_lock'}`}
-                                        rel="noopener noreferrer"
-                                        size="small"
-                                        startIcon={<DownloadIcon />}
-                                        target="_blank"
-                                        variant="contained"
-                                    >
-                                        {i18next.t('Professor')} Template
-                                    </Button>
-                                    {/* Supervisor Template */}
-                                    <Button
-                                        color="secondary"
-                                        component="a"
-                                        fullWidth
-                                        href={`${BASE_URL}/api/account/files/template/${`RL_employer_survey_lock`}`}
-                                        rel="noopener noreferrer"
-                                        size="small"
-                                        startIcon={<DownloadIcon />}
-                                        target="_blank"
-                                        variant="contained"
-                                    >
-                                        {i18next.t('Supervisor')} Template
-                                    </Button>
-                                </>
-                            ) : (
-                                <>
-                                    <Button
-                                        color="secondary"
-                                        component="a"
-                                        fullWidth
-                                        href={`${BASE_URL}/api/account/files/template/${template_obj.prop}`}
-                                        rel="noopener noreferrer"
-                                        size="small"
-                                        startIcon={<DownloadIcon />}
-                                        target="_blank"
-                                        variant="contained"
-                                    >
-                                        Download Template
-                                    </Button>
-                                    {/* Editor Helper (TaiGer roles only) */}
-                                    {is_TaiGer_role(user) && (
-                                        <Button
-                                            color="info"
-                                            component={LinkDom}
-                                            fullWidth
-                                            size="small"
-                                            to={`${DEMO.DOCUMENT_MODIFICATION_INPUT_LINK(
-                                                documentsthreadId
-                                            )}`}
-                                            variant="outlined"
-                                        >
-                                            Editor Helper
-                                        </Button>
-                                    )}
-                                </>
-                            )}
-                        </Stack>
-                    </Box>
-                </>
-            ) : (
-                <Box
-                    sx={{
-                        p: 1.5,
-                        borderLeft: `3px solid ${theme.palette.grey[400]}`
-                    }}
-                >
-                    <Typography variant="body2">
-                        {thread.file_type === 'Portfolio'
-                            ? 'Please upload the portfolio in Microsoft Word form here so that your Editor can help you for the text modification'
-                            : thread.file_type === 'Supplementary_Form'
-                              ? '請填好這個 program 的 Supplementory Form，並在這討論串夾帶該檔案 (通常為 .xls, xlsm, .pdf 檔) 上傳。'
-                              : thread.file_type === 'Curriculum_Analysis'
-                                ? '請填好這個 program 的 Curriculum Analysis，並在這討論串夾帶該檔案 (通常為 .xls, xlsm, .pdf 檔) 上傳。'
-                                : '-'}
-                    </Typography>
-                </Box>
-            )}
-        </Stack>
-    );
-};
-
-const RequirementsBlock = ({ thread, template_obj }) => {
-    const theme = useTheme();
-
-    if (thread.program_id) {
-        return (
-            <Box
-                sx={{
-                    '& a': {
-                        color: theme.palette.primary.main,
-                        fontWeight: 500
-                    }
-                }}
-            >
-                <LinkableNewlineText text={getRequirement(thread)} />
-            </Box>
-        );
-    }
-
-    if (thread.file_type === 'CV' || thread.file_type === 'CV_US') {
-        return (
-            <Stack spacing={1.5}>
-                <Box
-                    sx={{
-                        p: 1.5,
-                        bgcolor: theme.palette.warning.lighter || 'warning.50',
-                        borderLeft: `3px solid ${theme.palette.warning.main}`
-                    }}
-                >
-                    <Typography variant="body2">
-                        {i18next.t('cv-requirements-1', { ns: 'cvmlrl' })}
-                        {` `}
-                        <b>
-                            {i18next.t('cv-requirements-1.1', { ns: 'cvmlrl' })}
-                        </b>
-                    </Typography>
-                </Box>
-
-                <Box
-                    sx={{
-                        p: 1.5,
-                        bgcolor: theme.palette.info.lighter || 'info.50',
-                        borderLeft: `3px solid ${theme.palette.warning.main}`
-                    }}
-                >
-                    <Typography variant="body2">
-                        {i18next.t('cv-requirements-2', { ns: 'cvmlrl' })}
-                    </Typography>
-                    <Typography variant="body2">
-                        {i18next.t('cv-reminder-1', { ns: 'cvmlrl' })}
-                    </Typography>
-                </Box>
-                <Box
-                    sx={{
-                        p: 1.5,
-                        bgcolor: theme.palette.info.lighter || 'info.50',
-                        borderRadius: 1
-                    }}
-                >
-                    <Typography variant="body2">
-                        {i18next.t('cv-reminder-2', { ns: 'cvmlrl' })}
-                    </Typography>
-                </Box>
-            </Stack>
-        );
-    }
-
-    if (
-        template_obj?.prop.includes('RL') ||
-        template_obj?.alias.includes('Recommendation')
-    ) {
-        return (
-            <Box
-                sx={{
-                    p: 1.5,
-                    bgcolor: theme.palette.warning.lighter || 'warning.50',
-                    borderRadius: 1,
-                    borderLeft: `3px solid ${theme.palette.warning.main}`
-                }}
-            >
-                <Typography variant="body2">
-                    {i18next.t('rl-requirements-1', { ns: 'cvmlrl' })}
-                </Typography>
-            </Box>
-        );
-    }
-
-    return (
-        <Box sx={{ textAlign: 'center', py: 2 }}>
-            <Typography color="text.secondary" variant="body2">
-                {i18next.t('No', { ns: 'common' })}
-            </Typography>
-        </Box>
-    );
-};
+import DEMO from '../../../../store/constant';
+import { stringAvatar } from '../../../../utils/contants';
+import {
+    AGENT_SUPPORT_DOCUMENTS_A,
+    FILE_TYPE_E
+} from '../../../Utils/checking-functions';
+import { BASE_URL } from '../../../../api/request';
+import { TopBar } from '../../../../components/TopBar/TopBar';
+import DescriptionBlock from './DescriptionBlock';
+import RequirementsBlock from './RequirementsBlock';
+import OriginAuthorStatementBar from './OriginAuthorStatementBar';
 
 const InformationBlock = ({
     agents,
@@ -312,26 +59,24 @@ const InformationBlock = ({
     conflict_list,
     documentsthreadId,
     isFavorite,
+    isGeneralRL,
     template_obj,
     startEditingEditor,
     handleFavoriteToggle,
     thread,
     user,
-    children,
-    isProgramLocked,
-    programLockTooltip
+    children
 }) => {
     const theme = useTheme();
     const isDarkMode = theme.palette.mode === 'dark';
+    const { t } = useTranslation();
     const [requirementsDialogOpen, setRequirementsDialogOpen] = useState(false);
     const [instructionsDialogOpen, setInstructionsDialogOpen] = useState(false);
 
-    // Helper function to get initials for avatar
     const getInitials = (firstname, lastname) => {
         return `${firstname?.charAt(0) || ''}${lastname?.charAt(0) || ''}`.toUpperCase();
     };
 
-    // Calculate if deadline is approaching (within 7 days)
     const isDeadlineUrgent = () => {
         if (!deadline || deadline === 'No' || deadline === '-') return false;
         const deadlineDate = new Date(deadline);
@@ -343,52 +88,52 @@ const InformationBlock = ({
 
     const urgent = isDeadlineUrgent();
 
-    // Theme-aware gradient colors
-    const getGradientColors = (colorType) => {
-        if (isDarkMode) {
-            switch (colorType) {
-                case 'urgent':
-                    return {
-                        start: theme.palette.error.dark,
-                        end: theme.palette.error.main
-                    };
-                case 'deadline':
-                    return {
-                        start: theme.palette.primary.dark,
-                        end: theme.palette.primary.main
-                    };
-                case 'team':
-                    return {
-                        start: theme.palette.primary.dark,
-                        end: theme.palette.primary.main
-                    };
-                case 'program':
-                    return {
-                        start: theme.palette.secondary.dark,
-                        end: theme.palette.secondary.main
-                    };
-                case 'profile':
-                    return {
-                        start: theme.palette.info.dark,
-                        end: theme.palette.info.main
-                    };
-                case 'conflict':
-                    return {
-                        start: theme.palette.warning.dark,
-                        end: theme.palette.warning.main
-                    };
-                case 'noConflict':
-                    return {
-                        start: theme.palette.success.dark,
-                        end: theme.palette.success.main
-                    };
-                default:
-                    return {
-                        start: theme.palette.primary.dark,
-                        end: theme.palette.primary.main
-                    };
+    const getGradientColors = useMemo(() => {
+        const resolveColors = (colorType) => {
+            if (isDarkMode) {
+                switch (colorType) {
+                    case 'urgent':
+                        return {
+                            start: theme.palette.error.dark,
+                            end: theme.palette.error.main
+                        };
+                    case 'deadline':
+                        return {
+                            start: theme.palette.primary.dark,
+                            end: theme.palette.primary.main
+                        };
+                    case 'team':
+                        return {
+                            start: theme.palette.primary.dark,
+                            end: theme.palette.primary.main
+                        };
+                    case 'program':
+                        return {
+                            start: theme.palette.secondary.dark,
+                            end: theme.palette.secondary.main
+                        };
+                    case 'profile':
+                        return {
+                            start: theme.palette.info.dark,
+                            end: theme.palette.info.main
+                        };
+                    case 'conflict':
+                        return {
+                            start: theme.palette.warning.dark,
+                            end: theme.palette.warning.main
+                        };
+                    case 'noConflict':
+                        return {
+                            start: theme.palette.success.dark,
+                            end: theme.palette.success.main
+                        };
+                    default:
+                        return {
+                            start: theme.palette.primary.dark,
+                            end: theme.palette.primary.main
+                        };
+                }
             }
-        } else {
             switch (colorType) {
                 case 'urgent':
                     return {
@@ -431,8 +176,9 @@ const InformationBlock = ({
                         end: theme.palette.primary.main
                     };
             }
-        }
-    };
+        };
+        return resolveColors;
+    }, [isDarkMode, theme.palette]);
 
     const deadlineGradient = getGradientColors(urgent ? 'urgent' : 'deadline');
     const teamGradient = getGradientColors('team');
@@ -445,7 +191,6 @@ const InformationBlock = ({
     return (
         <Box>
             <Grid container spacing={2.5}>
-                {/* Left Sidebar: All Metadata - Sticky */}
                 <Grid item lg={3} md={3} xs={12}>
                     <Box
                         sx={{
@@ -464,14 +209,6 @@ const InformationBlock = ({
                     >
                         <Stack spacing={1}>
                             {thread.isFinalVersion ? <TopBar /> : null}
-                            {thread?.file_type === 'Essay' ? (
-                                <OriginAuthorStatementBar
-                                    theme={theme}
-                                    thread={thread}
-                                    user={user}
-                                />
-                            ) : null}
-                            {/* Deadline & Favorite Card */}
                             <Card
                                 elevation={urgent ? 4 : 2}
                                 sx={{
@@ -514,7 +251,7 @@ const InformationBlock = ({
                                                     <span>URGENT</span>
                                                 </Stack>
                                             ) : (
-                                                i18next.t('Deadline', {
+                                                t('Deadline', {
                                                     ns: 'common'
                                                 })
                                             )}
@@ -589,8 +326,13 @@ const InformationBlock = ({
                                     </Stack>
                                 </Box>
                             </Card>
-
-                            {/* Requirements Card - MOST IMPORTANT */}
+                            {thread?.file_type === 'Essay' ? (
+                                <OriginAuthorStatementBar
+                                    theme={theme}
+                                    thread={thread}
+                                    user={user}
+                                />
+                            ) : null}
                             <Card
                                 sx={{
                                     borderRadius: 2,
@@ -621,7 +363,9 @@ const InformationBlock = ({
                                                 fontWeight="700"
                                                 variant="body1"
                                             >
-                                                {i18next.t('Requirements')}
+                                                {t('Requirements', {
+                                                    ns: 'translation'
+                                                })}
                                             </Typography>
                                         </Stack>
                                         <Stack direction="row" spacing={0.5}>
@@ -696,13 +440,12 @@ const InformationBlock = ({
                                     }}
                                 >
                                     <RequirementsBlock
-                                        template_obj={template_obj}
+                                        isGeneralRL={isGeneralRL}
                                         thread={thread}
                                     />
                                 </Box>
                             </Card>
 
-                            {/* Instructions Card */}
                             <Card
                                 sx={{
                                     borderRadius: 2,
@@ -735,7 +478,7 @@ const InformationBlock = ({
                                                 fontWeight="600"
                                                 variant="body2"
                                             >
-                                                {i18next.t('Instructions')}
+                                                {t('Instructions')}
                                             </Typography>
                                         </Stack>
                                         <Button
@@ -778,7 +521,6 @@ const InformationBlock = ({
                                 </Box>
                             </Card>
 
-                            {/* Team Card */}
                             <Card
                                 sx={{
                                     borderRadius: 2,
@@ -809,7 +551,6 @@ const InformationBlock = ({
                                 </Box>
 
                                 <Box sx={{ p: 2 }}>
-                                    {/* Agents */}
                                     <Box sx={{ mb: 2 }}>
                                         <Typography
                                             color="text.secondary"
@@ -821,7 +562,7 @@ const InformationBlock = ({
                                             }}
                                             variant="overline"
                                         >
-                                            {i18next.t('Agent', {
+                                            {t('Agent', {
                                                 ns: 'common'
                                             })}
                                         </Typography>
@@ -943,7 +684,6 @@ const InformationBlock = ({
 
                                     <Divider sx={{ my: 1.5 }} />
 
-                                    {/* Editors */}
                                     <Box>
                                         <Typography
                                             color="text.secondary"
@@ -956,10 +696,10 @@ const InformationBlock = ({
                                             variant="overline"
                                         >
                                             {thread.file_type === 'Essay'
-                                                ? i18next.t('Essay Writer', {
+                                                ? t('Essay Writer', {
                                                       ns: 'common'
                                                   })
-                                                : i18next.t('Editor', {
+                                                : t('Editor', {
                                                       ns: 'common'
                                                   })}
                                         </Typography>
@@ -1225,7 +965,6 @@ const InformationBlock = ({
                                 </Box>
                             </Card>
 
-                            {/* Program Details Card */}
                             {thread.program_id && (
                                 <Card
                                     sx={{
@@ -1251,7 +990,7 @@ const InformationBlock = ({
                                                 fontWeight="600"
                                                 variant="subtitle1"
                                             >
-                                                {i18next.t('Program Details')}
+                                                {t('Program Details')}
                                             </Typography>
                                         </Stack>
                                     </Box>
@@ -1275,7 +1014,7 @@ const InformationBlock = ({
                                                         color="text.secondary"
                                                         variant="body2"
                                                     >
-                                                        {i18next.t('Semester', {
+                                                        {t('Semester', {
                                                             ns: 'common'
                                                         })}
                                                     </Typography>
@@ -1306,10 +1045,9 @@ const InformationBlock = ({
                                                         color="text.secondary"
                                                         variant="body2"
                                                     >
-                                                        {i18next.t(
-                                                            'Program Language',
-                                                            { ns: 'common' }
-                                                        )}
+                                                        {t('Program Language', {
+                                                            ns: 'common'
+                                                        })}
                                                     </Typography>
                                                 </Stack>
                                                 <Typography
@@ -1324,7 +1062,6 @@ const InformationBlock = ({
                                 </Card>
                             )}
 
-                            {/* Requirements Dialog */}
                             <Dialog
                                 maxWidth="md"
                                 onClose={() => setRequirementsDialogOpen(false)}
@@ -1345,7 +1082,9 @@ const InformationBlock = ({
                                             fontWeight="700"
                                             variant="h5"
                                         >
-                                            {i18next.t('Requirements')}
+                                            {t('Requirements', {
+                                                ns: 'translation'
+                                            })}
                                         </Typography>
                                     </Stack>
                                 </DialogTitle>
@@ -1367,7 +1106,6 @@ const InformationBlock = ({
                                 </DialogActions>
                             </Dialog>
 
-                            {/* Instructions Dialog */}
                             <Dialog
                                 maxWidth="md"
                                 onClose={() => setInstructionsDialogOpen(false)}
@@ -1388,7 +1126,7 @@ const InformationBlock = ({
                                             fontWeight="700"
                                             variant="h5"
                                         >
-                                            {i18next.t('Instructions')}
+                                            {t('Instructions')}
                                         </Typography>
                                     </Stack>
                                 </DialogTitle>
@@ -1411,7 +1149,6 @@ const InformationBlock = ({
                                 </DialogActions>
                             </Dialog>
 
-                            {/* Profile Photo (CV only) - Compact */}
                             {thread.file_type === 'CV' && (
                                 <Card
                                     sx={{
@@ -1491,7 +1228,6 @@ const InformationBlock = ({
                                 </Card>
                             )}
 
-                            {/* Conflicts in Sidebar (for non-students) */}
                             {!is_TaiGer_Student(user) && (
                                 <Card
                                     sx={{
@@ -1521,7 +1257,7 @@ const InformationBlock = ({
                                                 fontWeight="600"
                                                 variant="body2"
                                             >
-                                                {i18next.t('Conflict')}
+                                                {t('Conflict')}
                                             </Typography>
                                         </Stack>
                                     </Box>
@@ -1588,7 +1324,6 @@ const InformationBlock = ({
                     </Box>
                 </Grid>
 
-                {/* Main Content Area: Messages & Reply */}
                 <Grid item lg={9} md={9} xs={12}>
                     <Box
                         sx={{
@@ -1605,11 +1340,6 @@ const InformationBlock = ({
                             }
                         }}
                     >
-                        {isProgramLocked ? (
-                            <Alert severity="warning" sx={{ mb: 2 }}>
-                                {programLockTooltip}
-                            </Alert>
-                        ) : null}
                         {children}
                     </Box>
                 </Grid>
@@ -1618,1331 +1348,4 @@ const InformationBlock = ({
     );
 };
 
-const OriginAuthorStatementBar = ({ thread, theme, user }) => {
-    const [openOriginAuthorModal, setOpenOriginAuthorModal] = useState(false);
-    const [originAuthorConfirmed, setOriginAuthorConfirmed] = useState(
-        thread?.isOriginAuthorDeclarationConfirmedByStudent
-    );
-    const [isLoading, setIsLoading] = useState(false);
-    const [originAuthorCheckboxConfirmed, setOriginAuthorCheckboxConfirmed] =
-        useState(false);
-
-    const postOriginAuthorConfirmed = (checked) => {
-        setOriginAuthorConfirmed(checked);
-        setIsLoading(true);
-        putOriginAuthorConfirmedByStudent(
-            thread._id,
-            thread.student_id._id,
-            originAuthorCheckboxConfirmed
-        ).then(
-            (resp) => {
-                const { success } = resp.data;
-                if (success) {
-                    setOriginAuthorConfirmed(true);
-                }
-            },
-            () => {}
-        );
-    };
-    const student_name = `${thread.student_id.lastname}${thread.student_id.firstname}`;
-    const student_name_zh = `${thread.student_id.lastname_chinese}${thread.student_id.firstname_chinese}`;
-
-    return (
-        <Box>
-            <Stack alignItems="center" direction="row" mt={1} spacing={1}>
-                {originAuthorConfirmed ? (
-                    <>
-                        <CheckCircleIcon
-                            size={18}
-                            style={{ color: green[500] }}
-                            title="Agree"
-                        />
-                        <Typography variant="body1">
-                            {i18next.t('confirmDocument', {
-                                ns: 'documents',
-                                studentName: student_name,
-                                studentNameZh: student_name_zh
-                            })}
-                            <span
-                                onClick={() =>
-                                    setOpenOriginAuthorModal(
-                                        !openOriginAuthorModal
-                                    )
-                                }
-                                style={{
-                                    color: theme.palette.primary.main,
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                {i18next.t('Read More')}
-                            </span>
-                        </Typography>
-                    </>
-                ) : (
-                    <>
-                        <HelpIcon size={18} style={{ color: grey[400] }} />
-                        <Typography variant="body1">
-                            {i18next.t('notConfirmDocument', {
-                                ns: 'documents',
-                                studentName: student_name,
-                                studentNameZh: student_name_zh
-                            })}
-                            &nbsp;
-                            <span
-                                onClick={() =>
-                                    setOpenOriginAuthorModal(
-                                        !openOriginAuthorModal
-                                    )
-                                }
-                                style={{
-                                    color: theme.palette.primary.main,
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                {i18next.t('Read More')}
-                            </span>
-                        </Typography>
-                    </>
-                )}
-            </Stack>
-            <Dialog
-                aria-labelledby="modal-orginal-declaration"
-                onClose={() => {}}
-                open={
-                    (thread.file_type === 'Essay' &&
-                        is_TaiGer_Student(user) &&
-                        !originAuthorConfirmed) ||
-                    openOriginAuthorModal
-                }
-            >
-                <DialogTitle>
-                    {i18next.t('Warning', { ns: 'common' })}
-                </DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
-                        <Typography sx={{ my: 2 }} variant="body1">
-                            {i18next.t('hello-students', {
-                                ns: 'common',
-                                tenant: appConfig.companyName
-                            })}
-                        </Typography>
-                        <Typography sx={{ my: 2 }} variant="body1">
-                            {i18next.t(
-                                'essay-responsibility-declaration-content',
-                                {
-                                    ns: 'common',
-                                    tenant: appConfig.companyFullName
-                                }
-                            )}
-                        </Typography>
-                        <Typography sx={{ my: 2 }} variant="body1">
-                            {i18next.t(
-                                'essay-responsibility-declaration-signature',
-                                {
-                                    ns: 'common',
-                                    tenant: appConfig.companyFullName
-                                }
-                            )}
-                        </Typography>
-                    </DialogContentText>
-                    {is_TaiGer_Student(user) ? (
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={
-                                        originAuthorCheckboxConfirmed ||
-                                        thread.isOriginAuthorDeclarationConfirmedByStudent
-                                    }
-                                    disabled={
-                                        thread.isOriginAuthorDeclarationConfirmedByStudent
-                                    }
-                                    onChange={() =>
-                                        setOriginAuthorCheckboxConfirmed(
-                                            !originAuthorCheckboxConfirmed
-                                        )
-                                    }
-                                />
-                            }
-                            label={`${i18next.t(
-                                'i-declare-without-help-of-ai',
-                                {
-                                    ns: 'common',
-                                    studentFullName: `${student_name} ${student_name_zh}`
-                                }
-                            )}`}
-                            sx={{ my: 2 }}
-                        />
-                    ) : null}
-                    <br />
-                    {is_TaiGer_Student(user) ? (
-                        thread?.isOriginAuthorDeclarationConfirmedByStudent ? (
-                            <Button
-                                color="primary"
-                                fullWidth
-                                onClick={() =>
-                                    setOpenOriginAuthorModal(
-                                        !openOriginAuthorModal
-                                    )
-                                }
-                                sx={{ mr: 2 }}
-                                variant="contained"
-                            >
-                                {i18next.t('Close', { ns: 'common' })}
-                            </Button>
-                        ) : (
-                            <Button
-                                color="primary"
-                                disabled={!originAuthorCheckboxConfirmed}
-                                fullWidth
-                                onClick={() =>
-                                    postOriginAuthorConfirmed(
-                                        originAuthorCheckboxConfirmed
-                                    )
-                                }
-                                sx={{ mr: 2 }}
-                                variant="contained"
-                            >
-                                {isLoading ? (
-                                    <CircularProgress />
-                                ) : (
-                                    i18next.t('I Agree', { ns: 'common' })
-                                )}
-                            </Button>
-                        )
-                    ) : (
-                        <Button
-                            color="primary"
-                            fullWidth
-                            onClick={() =>
-                                setOpenOriginAuthorModal(!openOriginAuthorModal)
-                            }
-                            sx={{ mr: 2 }}
-                            variant="contained"
-                        >
-                            {i18next.t('Close', { ns: 'common' })}
-                        </Button>
-                    )}
-                </DialogContent>
-            </Dialog>
-        </Box>
-    );
-};
-
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
-
-const DocModificationThreadPage = ({
-    agents,
-    conflictList,
-    deadline,
-    editors,
-    threadProps,
-    similarThreads,
-    scrollableRef,
-    threadauditLog
-}) => {
-    const { user } = useAuth();
-    const theme = useTheme();
-    const { documentsthreadId } = useParams();
-    const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
-    const { t } = useTranslation();
-    const [docModificationThreadPageState, setDocModificationThreadPageState] =
-        useState({
-            error: '',
-            file: null,
-            threadAuditLog: threadauditLog,
-            showEditorPage: false,
-            isSubmissionLoaded: true,
-            isLoaded: true,
-            thread: threadProps,
-            buttonDisabled: false,
-            editorState: {},
-            expand: true,
-            editors: editors,
-            isSubmitting: false,
-            agents: agents,
-            conflict_list: conflictList,
-            deadline: deadline,
-            SetAsFinalFileModel: false,
-            accordionKeys: [0], // to expand all]
-            res_status: 0,
-            res_modal_status: 0,
-            res_modal_message: ''
-        });
-    const [checkResult, setCheckResult] = useState([]);
-    const { hash } = useLocation();
-    const [value, setValue] = useState(THREAD_TABS[hash.replace('#', '')] || 0);
-    const thread = docModificationThreadPageState.thread || {};
-    const lockStatus = calculateProgramLockStatus(thread?.program_id);
-    const isProgramLocked = lockStatus.isLocked;
-    const programLockTooltip = i18next.t(
-        'Program is locked. Contact an agent to unlock this task.',
-        { ns: 'common' }
-    );
-    const isThreadClosed = thread?.isFinalVersion === true;
-    const isReadOnlyThread = isProgramLocked || isThreadClosed;
-    const hashKey = hash?.replace('#', '') || '';
-    const [value, setValue] = useState(THREAD_TABS[hashKey] ?? 0);
-    useEffect(() => {
-        setDocModificationThreadPageState((prevState) => ({
-            ...prevState,
-            thread: threadProps
-        }));
-    }, [documentsthreadId]);
-    useEffect(() => {
-        if (scrollableRef?.current) {
-            setTimeout(() => {
-                scrollableRef.current.scrollTo({
-                    top: scrollableRef.current.scrollHeight,
-                    behavior: 'smooth'
-                });
-            }, 100);
-        }
-    }, []);
-
-    const closeSetAsFinalFileModelWindow = () => {
-        setDocModificationThreadPageState((prevState) => ({
-            ...prevState,
-            SetAsFinalFileModel: false
-        }));
-    };
-
-    const onFileChange = (e) => {
-        e.preventDefault();
-        if (isProgramLocked) {
-            setSeverity('warning');
-            setMessage(programLockTooltip);
-            setOpenSnackbar(true);
-            return;
-        }
-        const file_num = e.target.files.length;
-        if (file_num <= 3) {
-            if (!e.target.files) {
-                return;
-            }
-            if (!is_TaiGer_role(user)) {
-                setDocModificationThreadPageState((prevState) => ({
-                    ...prevState,
-                    file: Array.from(e.target.files)
-                }));
-                return;
-            }
-            // Ensure a file is selected
-            // TODO: make array
-            const checkPromises = Array.from(e.target.files).map((file) => {
-                const extension = file.name.split('.').pop().toLowerCase();
-                const studentName =
-                    docModificationThreadPageState.thread.student_id.firstname;
-
-                if (extension === 'pdf') {
-                    return readPDF(file, studentName);
-                } else if (extension === 'docx') {
-                    return readDOCX(file, studentName);
-                } else if (extension === 'xlsx') {
-                    return readXLSX(file, studentName);
-                } else {
-                    return Promise.resolve({});
-                }
-            });
-            Promise.all(checkPromises)
-                .then((results) => {
-                    setCheckResult(results);
-                    setDocModificationThreadPageState((prevState) => ({
-                        ...prevState,
-                        file: Array.from(e.target.files)
-                    }));
-                })
-                .catch((error) => {
-                    setDocModificationThreadPageState((prevState) => ({
-                        ...prevState,
-                        res_modal_message: error,
-                        res_modal_status: 500
-                    }));
-                });
-        } else {
-            setDocModificationThreadPageState((prevState) => ({
-                ...prevState,
-                res_modal_message: 'You can only select up to 3 files.',
-                res_modal_status: 423
-            }));
-        }
-    };
-
-    const ConfirmError = () => {
-        setDocModificationThreadPageState((prevState) => ({
-            ...prevState,
-            res_modal_status: 0,
-            res_modal_message: ''
-        }));
-    };
-
-    const handleClickSave = (e, editorState) => {
-        e.preventDefault();
-        if (isProgramLocked) {
-            setSeverity('warning');
-            setMessage(programLockTooltip);
-            setOpenSnackbar(true);
-            return;
-        }
-        setDocModificationThreadPageState((prevState) => ({
-            ...prevState,
-            buttonDisabled: true
-        }));
-        var message = JSON.stringify(editorState);
-        const formData = new FormData();
-
-        if (docModificationThreadPageState.file) {
-            docModificationThreadPageState.file.forEach((file) => {
-                formData.append('files', file);
-            });
-        }
-
-        formData.append('message', message);
-
-        SubmitMessageWithAttachment(
-            documentsthreadId,
-            docModificationThreadPageState.thread.student_id._id,
-            formData
-        ).then(
-            (resp) => {
-                const { success, data } = resp.data;
-                const { status } = resp;
-                if (success) {
-                    setDocModificationThreadPageState((prevState) => ({
-                        ...prevState,
-                        success,
-                        file: null,
-                        editorState: {},
-                        thread: {
-                            ...docModificationThreadPageState.thread,
-                            messages: data?.messages
-                        },
-                        isLoaded: true,
-                        buttonDisabled: false,
-                        accordionKeys: [
-                            ...docModificationThreadPageState.accordionKeys,
-                            data.messages.length - 1
-                        ],
-                        res_modal_status: status
-                    }));
-                } else {
-                    // TODO: what if data is oversize? data type not match?
-                    const { message } = resp.data;
-                    setDocModificationThreadPageState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        buttonDisabled: false,
-                        res_modal_message: message,
-                        res_modal_status: status
-                    }));
-                }
-            },
-            (error) => {
-                setDocModificationThreadPageState((prevState) => ({
-                    ...prevState,
-                    isLoaded: true,
-                    error,
-                    res_modal_status: 500,
-                    res_modal_message: ''
-                }));
-            }
-        );
-        setDocModificationThreadPageState((prevState) => ({
-            ...prevState,
-            in_edit_mode: false
-        }));
-    };
-
-    // function generatePDF() {
-    //     const doc = new jsPDF();
-
-    //     // Styled text
-    //     doc.setFont('times');
-    //     // doc.setFontStyle('italic');
-    //     doc.setFontSize(16);
-    //     doc.text('Styled Text Content', 10, 20);
-
-    //     // Timestamp
-    //     const timestamp = new Date().toLocaleString();
-    //     doc.setFontSize(12);
-    //     doc.text(`Timestamp: ${timestamp}`, 10, 40);
-
-    //     // Signature
-    //     doc.setFontSize(14);
-    //     doc.text('Signature:', 10, 60);
-
-    //     // Output
-    //     doc.save('document.pdf');
-    // }
-
-    const handleAsFinalFile = (
-        doc_thread_id,
-        student_id,
-        program_id,
-        isFinalVersion,
-        application_id
-    ) => {
-        if (isProgramLocked) {
-            setSeverity('warning');
-            setMessage(programLockTooltip);
-            setOpenSnackbar(true);
-            return;
-        }
-        setDocModificationThreadPageState((prevState) => ({
-            ...prevState,
-            doc_thread_id,
-            student_id,
-            program_id,
-            application_id,
-            isFinalVersion,
-            SetAsFinalFileModel: true
-        }));
-    };
-
-    const ConfirmSetAsFinalFileHandler = (e) => {
-        e.preventDefault();
-        if (isProgramLocked) {
-            setSeverity('warning');
-            setMessage(programLockTooltip);
-            setOpenSnackbar(true);
-            return;
-        }
-        setDocModificationThreadPageState((prevState) => ({
-            ...prevState,
-            isSubmissionLoaded: false // false to reload everything
-        }));
-
-        SetFileAsFinal(
-            docModificationThreadPageState.doc_thread_id,
-            docModificationThreadPageState.student_id,
-            docModificationThreadPageState.application_id
-        ).then(
-            (resp) => {
-                const { data, success } = resp.data;
-                const { status } = resp;
-                if (success) {
-                    setDocModificationThreadPageState((prevState) => ({
-                        ...prevState,
-                        isSubmissionLoaded: true,
-                        thread: {
-                            ...prevState.thread,
-                            isFinalVersion: data.isFinalVersion,
-                            updatedAt: data.updatedAt
-                        },
-                        success: success,
-                        SetAsFinalFileModel: false,
-                        res_modal_status: status
-                    }));
-                    setSeverity('success');
-                    setMessage(
-                        data.isFinalVersion
-                            ? 'Thread closed successfully!'
-                            : 'Thread opened successfully!'
-                    );
-                    setOpenSnackbar(true);
-                } else {
-                    const { message } = resp.data;
-                    setDocModificationThreadPageState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        isSubmissionLoaded: true,
-                        res_modal_message: message,
-                        res_modal_status: status
-                    }));
-                }
-            },
-            (error) => {
-                setDocModificationThreadPageState((prevState) => ({
-                    ...prevState,
-                    isLoaded: true,
-                    error,
-                    res_modal_status: 500,
-                    res_modal_message: ''
-                }));
-            }
-        );
-    };
-
-    const onDeleteSingleMessage = (e, message_id) => {
-        e.preventDefault();
-        setDocModificationThreadPageState((prevState) => ({
-            ...prevState,
-            isLoaded: false
-        }));
-        deleteAMessageInThread(documentsthreadId, message_id).then(
-            (resp) => {
-                const { success } = resp.data;
-                const { status } = resp;
-                if (success) {
-                    // TODO: remove that message
-                    var new_messages = [
-                        ...docModificationThreadPageState.thread.messages
-                    ];
-                    let idx =
-                        docModificationThreadPageState.thread.messages.findIndex(
-                            (message) => message._id.toString() === message_id
-                        );
-                    if (idx !== -1) {
-                        new_messages.splice(idx, 1);
-                    }
-                    setDocModificationThreadPageState((prevState) => ({
-                        ...prevState,
-                        success,
-                        isLoaded: true,
-                        thread: {
-                            ...docModificationThreadPageState.thread,
-                            messages: new_messages
-                        },
-                        buttonDisabled: false,
-                        res_modal_status: status
-                    }));
-                    setSeverity('success');
-                    setMessage('Message deleted successfully!');
-                    setOpenSnackbar(true);
-                } else {
-                    // TODO: what if data is oversize? data type not match?
-                    const { message } = resp.data;
-                    setDocModificationThreadPageState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        buttonDisabled: false,
-                        res_modal_message: message,
-                        res_modal_status: status
-                    }));
-                }
-            },
-            (error) => {
-                setDocModificationThreadPageState((prevState) => ({
-                    ...prevState,
-                    isLoaded: true,
-                    error,
-                    res_modal_status: 500,
-                    res_modal_message: ''
-                }));
-            }
-        );
-        setDocModificationThreadPageState((prevState) => ({
-            ...prevState,
-            in_edit_mode: false
-        }));
-    };
-
-    const setEditorModalhide = () => {
-        setDocModificationThreadPageState((prevState) => ({
-            ...prevState,
-            showEditorPage: false
-        }));
-    };
-
-    const startEditingEditor = () => {
-        setDocModificationThreadPageState((prevState) => ({
-            ...prevState,
-            subpage: 2,
-            showEditorPage: true
-        }));
-    };
-
-    const submitUpdateEssayWriterlist = (
-        e,
-        updateEssayWriterList,
-        essayDocumentThread_id
-    ) => {
-        e.preventDefault();
-        setDocModificationThreadPageState((prevState) => ({
-            ...prevState,
-            isSubmitting: true
-        }));
-        updateEssayWriter(updateEssayWriterList, essayDocumentThread_id).then(
-            (resp) => {
-                const { data, success } = resp.data;
-                const { status } = resp;
-                if (success) {
-                    let essays_temp = {
-                        ...docModificationThreadPageState.thread
-                    };
-                    essays_temp.outsourced_user_id = data.outsourced_user_id; // data is single student updated
-                    setDocModificationThreadPageState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true, //false to reload everything
-                        isSubmitting: false,
-                        thread: essays_temp,
-                        success: success,
-                        updateEditorList: [],
-                        res_modal_status: status
-                    }));
-                    setEditorModalhide();
-                    setSeverity('success');
-                    if (thread.file_type === 'Essay') {
-                        setMessage('Essay Writer assigned successfully!');
-                        setOpenSnackbar(true);
-                    } else {
-                        setMessage('Editor assigned successfully!');
-                        setOpenSnackbar(true);
-                    }
-                } else {
-                    const { message } = resp.data;
-                    setDocModificationThreadPageState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        res_modal_message: message,
-                        res_modal_status: status
-                    }));
-                }
-            },
-            (error) => {
-                setSeverity('error');
-                setMessage(
-                    error.message || 'An error occurred. Please try again.'
-                );
-                setOpenSnackbar(true);
-            }
-        );
-    };
-
-    const handleFavoriteToggle = (id) => {
-        // Make sure flag_by_user_id is an array
-
-        setDocModificationThreadPageState((prevState) => ({
-            ...prevState,
-            thread: {
-                ...prevState.thread,
-                flag_by_user_id: toogleItemInArray(
-                    docModificationThreadPageState.thread?.flag_by_user_id,
-                    user._id.toString()
-                )
-            }
-        }));
-        putThreadFavorite(id).then(
-            (resp) => {
-                const { success } = resp.data;
-                const { status } = resp;
-                if (success) {
-                    setSeverity('success');
-                    setMessage(
-                        isFavorite
-                            ? 'Removed from favorite successfully!'
-                            : 'Added to favorite successfully!'
-                    );
-                    setOpenSnackbar(true);
-                } else {
-                    setDocModificationThreadPageState((prevState) => ({
-                        ...prevState,
-                        res_status: status
-                    }));
-                }
-            },
-            (error) => {
-                setDocModificationThreadPageState((prevState) => ({
-                    ...prevState,
-                    error,
-                    res_status: 500
-                }));
-            }
-        );
-    };
-
-    const {
-        isSubmissionLoaded,
-        conflict_list,
-        threadAuditLog,
-        res_status,
-        res_modal_status,
-        res_modal_message
-    } = docModificationThreadPageState;
-
-    if (res_status >= 400) {
-        return <ErrorPage res_status={res_status} />;
-    }
-
-    // Only CV, ML RL has instructions and template.
-    let template_obj = templatelist.find(
-        ({ prop, alias }) =>
-            prop.includes(thread.file_type.split('_')[0]) ||
-            alias.includes(thread.file_type.split('_')[0])
-    );
-    let docName;
-    const student_name = `${thread.student_id.firstname} ${thread.student_id.lastname}`;
-    const isGeneralRL =
-        !thread.program_id &&
-        (template_obj?.prop.includes('RL') ||
-            template_obj?.alias.includes('Recommendation'));
-
-    if (thread.program_id) {
-        const { school, degree, program_name } = thread.program_id;
-        docName = `${school} - ${degree} - ${program_name} ${thread.file_type}`;
-    } else {
-        docName = thread.file_type;
-    }
-
-    const isTaiGerUser = is_TaiGer_role(user);
-
-    const TAB_KEYS = {
-        discussion: 'communication',
-        generalRL: 'general-rl',
-        files: 'files',
-        database: 'database',
-        audit: 'audit'
-    };
-
-    const legacyHashKeyMap = {
-        communication: TAB_KEYS.discussion,
-        history: TAB_KEYS.files,
-        audit: TAB_KEYS.audit
-    };
-
-    const tabKeys = useMemo(() => {
-        const keys = [TAB_KEYS.discussion];
-        if (isGeneralRL) {
-            keys.push(TAB_KEYS.generalRL);
-        }
-        keys.push(TAB_KEYS.files);
-        if (isTaiGerUser) {
-            keys.push(TAB_KEYS.database);
-        }
-        keys.push(TAB_KEYS.audit);
-        return keys;
-    }, [isGeneralRL, isTaiGerUser]);
-
-    const tabIndexMap = useMemo(() => {
-        const map = {};
-        tabKeys.forEach((key, index) => {
-            map[key] = index;
-        });
-        return map;
-    }, [tabKeys]);
-
-    const tabKeyByIndex = useMemo(() => {
-        const map = {};
-        tabKeys.forEach((key, index) => {
-            map[index] = key;
-        });
-        return map;
-    }, [tabKeys]);
-
-    const discussionTabIndex = tabIndexMap[TAB_KEYS.discussion];
-    const rlReqTabIndex = tabIndexMap[TAB_KEYS.generalRL];
-    const filesTabIndex = tabIndexMap[TAB_KEYS.files];
-    const databaseTabIndex = tabIndexMap[TAB_KEYS.database];
-    const auditTabIndex = tabIndexMap[TAB_KEYS.audit];
-
-    const resolvedHashKey =
-        tabIndexMap[hashKey] !== undefined
-            ? hashKey
-            : legacyHashKeyMap[hashKey];
-    const desiredValueFromHash = tabIndexMap[resolvedHashKey];
-
-    useEffect(() => {
-        if (
-            typeof desiredValueFromHash === 'number' &&
-            desiredValueFromHash !== value
-        ) {
-            setValue(desiredValueFromHash);
-            return;
-        }
-
-        const maxIndex = tabKeys.length - 1;
-        if (value > maxIndex) {
-            setValue(maxIndex);
-        }
-    }, [desiredValueFromHash, tabKeys.length, value]);
-
-    const handleChange = (event, newValue) => {
-        setValue(newValue);
-        const nextHashKey = tabKeyByIndex[newValue];
-        if (nextHashKey) {
-            window.location.hash = nextHashKey;
-        } else {
-            window.location.hash = '';
-        }
-    };
-
-    const isFavorite = thread.flag_by_user_id?.includes(user._id.toString());
-    TabTitle(`${student_name} ${docName}`);
-    return (
-        <Box>
-            {/* TODO */}
-            {/* {false ? <button onClick={generatePDF}>Generate PDF</button> : null} */}
-
-            <Tabs
-                aria-label="basic tabs example"
-                indicatorColor="primary"
-                onChange={handleChange}
-                scrollButtons="auto"
-                value={value}
-                variant="scrollable"
-            >
-                <Tab
-                    icon={<ChatIcon />}
-                    label={t('discussion-thread', { ns: 'common' })}
-                    {...a11yProps(value, discussionTabIndex)}
-                    sx={{
-                        fontWeight:
-                            value === discussionTabIndex ? 'bold' : 'normal' // Bold for selected tab
-                    }}
-                />
-                {isGeneralRL ? (
-                    <Tab
-                        icon={<InfoOutlinedIcon />}
-                        label={t('Requirements', {
-                            ns: 'translation'
-                        })}
-                        {...a11yProps(value, rlReqTabIndex)}
-                        sx={{
-                            fontWeight:
-                                value === rlReqTabIndex ? 'bold' : 'normal'
-                        }}
-                    />
-                ) : null}
-                <Tab
-                    icon={<FolderIcon />}
-                    label={t('files', { ns: 'common' })}
-                    {...a11yProps(value, filesTabIndex)}
-                    sx={{
-                        fontWeight: value === filesTabIndex ? 'bold' : 'normal' // Bold for selected tab
-                    }}
-                />
-                {isTaiGerUser ? (
-                    <Tab
-                        icon={<LibraryBooksIcon />}
-                        label={`${t('Database', { ns: 'common' })} (${similarThreads?.length || 0})`}
-                        {...a11yProps(value, databaseTabIndex)}
-                        sx={{
-                            fontWeight:
-                                value === databaseTabIndex ? 'bold' : 'normal' // Bold for selected tab
-                        }}
-                    />
-                ) : null}
-                <Tab
-                    icon={<HistoryIcon />}
-                    label={t('Audit', { ns: 'common' })}
-                    {...a11yProps(value, auditTabIndex)}
-                    sx={{
-                        fontWeight: value === auditTabIndex ? 'bold' : 'normal' // Bold for selected tab
-                    }}
-                />
-            </Tabs>
-            <CustomTabPanel index={discussionTabIndex} value={value}>
-                <InformationBlock
-                    agents={docModificationThreadPageState.agents}
-                    conflict_list={conflict_list}
-                    deadline={docModificationThreadPageState.deadline}
-                    documentsthreadId={documentsthreadId}
-                    editors={docModificationThreadPageState.editors}
-                    handleFavoriteToggle={handleFavoriteToggle}
-                    isFavorite={isFavorite}
-                    isProgramLocked={isProgramLocked}
-                    programLockTooltip={programLockTooltip}
-                    isGeneralRL={isGeneralRL}
-                    startEditingEditor={startEditingEditor}
-                    template_obj={template_obj}
-                    thread={docModificationThreadPageState.thread}
-                    user={user}
-                >
-                    <MessageList
-                        accordionKeys={
-                            docModificationThreadPageState.accordionKeys
-                        }
-                        apiPrefix="/api/document-threads"
-                        documentsthreadId={documentsthreadId}
-                        isLoaded={docModificationThreadPageState.isLoaded}
-                        onDeleteSingleMessage={onDeleteSingleMessage}
-                        thread={thread}
-                        user={user}
-                    />
-                    {user.archiv !== true ? (
-                        <Card
-                            sx={{
-                                borderRadius: 2,
-                                border: `1px solid ${theme.palette.divider}`,
-                                boxShadow: theme.shadows[1],
-                                overflow: 'hidden',
-                                mt: 1,
-                                transition: 'all 0.3s',
-                                '&:hover': {
-                                    boxShadow: theme.shadows[3],
-                                    borderColor: theme.palette.primary.main
-                                }
-                            }}
-                        >
-                            {isReadOnlyThread ? (
-                                <Box
-                                    sx={{
-                                        p: 3,
-                                        textAlign: 'center'
-                                    }}
-                                >
-                                    {isProgramLocked ? (
-                                        <WarningAmberIcon
-                                            color="warning"
-                                            sx={{ fontSize: 48, mb: 1 }}
-                                        />
-                                    ) : (
-                                        <CheckCircleIcon
-                                            color="success"
-                                            sx={{ fontSize: 48, mb: 1 }}
-                                        />
-                                    )}
-                                    <Typography
-                                        color="text.secondary"
-                                        variant="body1"
-                                    >
-                                        {isProgramLocked
-                                            ? programLockTooltip
-                                            : i18next.t('thread-close')}
-                                    </Typography>
-                                </Box>
-                            ) : (
-                                <>
-                                    {/* Header */}
-                                    <Box
-                                        sx={{
-                                            background: `linear-gradient(135deg, ${theme.palette.primary.light} 0%, ${theme.palette.primary.main} 100%)`,
-                                            color: theme.palette.primary
-                                                .contrastText,
-                                            p: 1.5
-                                        }}
-                                    >
-                                        <Stack
-                                            alignItems="center"
-                                            direction="row"
-                                            spacing={1.5}
-                                        >
-                                            <Avatar
-                                                {...stringAvatar(
-                                                    `${user.firstname} ${user.lastname}`
-                                                )}
-                                                src={user?.pictureUrl}
-                                                sx={{
-                                                    width: 36,
-                                                    height: 36,
-                                                    border: '2px solid white'
-                                                }}
-                                            />
-                                            <Box>
-                                                <Typography
-                                                    fontWeight="600"
-                                                    variant="body2"
-                                                >
-                                                    {user.firstname}{' '}
-                                                    {user.lastname}
-                                                </Typography>
-                                                <Typography
-                                                    sx={{
-                                                        fontSize: '0.7rem',
-                                                        opacity: 0.9
-                                                    }}
-                                                    variant="caption"
-                                                >
-                                                    Write a reply
-                                                </Typography>
-                                            </Box>
-                                        </Stack>
-                                    </Box>
-
-                                    {/* Editor Content */}
-                                    <Box
-                                        sx={{
-                                            p: 2,
-                                            overflowWrap: 'break-word'
-                                        }}
-                                    >
-                                        <DocThreadEditor
-                                            buttonDisabled={
-                                                docModificationThreadPageState.buttonDisabled
-                                            }
-                                            checkResult={checkResult}
-                                            doc_title="docModificationThreadPageState.doc_title"
-                                            editorState={
-                                                docModificationThreadPageState.editorState
-                                            }
-                                            file={
-                                                docModificationThreadPageState.file
-                                            }
-                                            handleClickSave={handleClickSave}
-                                            onFileChange={onFileChange}
-                                            readOnly={isProgramLocked}
-                                            readOnlyTooltip={programLockTooltip}
-                                            thread={thread}
-                                        />
-                                    </Box>
-                                </>
-                            )}
-                        </Card>
-                    ) : (
-                        <Card
-                            sx={{
-                                borderRadius: 2,
-                                border: `1px solid ${theme.palette.divider}`,
-                                mt: 2,
-                                p: 3,
-                                textAlign: 'center',
-                                bgcolor: 'grey.50'
-                            }}
-                        >
-                            <CancelOutlinedIcon
-                                color="disabled"
-                                sx={{ fontSize: 48, mb: 1 }}
-                            />
-                            <Typography color="text.secondary" variant="body1">
-                                Your service is finished. Therefore, you are in
-                                read-only mode.
-                            </Typography>
-                        </Card>
-                    )}
-                    {is_TaiGer_role(user) ? (
-                        isProgramLocked ? (
-                            <Tooltip title={programLockTooltip}>
-                                <span>
-                                    <Button
-                                        color="success"
-                                        disabled
-                                        fullWidth
-                                        sx={{ mt: 2 }}
-                                        variant={
-                                            thread.isFinalVersion
-                                                ? 'outlined'
-                                                : 'contained'
-                                        }
-                                    >
-                                        {thread.isFinalVersion
-                                            ? i18next.t('Mark as open')
-                                            : i18next.t('Mark as finished')}
-                                    </Button>
-                                </span>
-                            </Tooltip>
-                        ) : !thread.isFinalVersion ? (
-                            <Button
-                                color="success"
-                                fullWidth
-                                onClick={() =>
-                                    handleAsFinalFile(
-                                        thread._id,
-                                        thread.student_id._id,
-                                        thread.program_id,
-                                        thread.isFinalVersion,
-                                        thread.application_id
-                                    )
-                                }
-                                sx={{ mt: 2 }}
-                                variant="contained"
-                            >
-                                {isSubmissionLoaded ? (
-                                    t('Mark as finished')
-                                ) : (
-                                    <CircularProgress />
-                                )}
-                            </Button>
-                        ) : (
-                            <Button
-                                color="secondary"
-                                fullWidth
-                                onClick={() =>
-                                    handleAsFinalFile(
-                                        thread._id,
-                                        thread.student_id._id,
-                                        thread.program_id,
-                                        thread.isFinalVersion,
-                                        thread.application_id
-                                    )
-                                }
-                                sx={{ mt: 2 }}
-                                variant="outlined"
-                            >
-                                {isSubmissionLoaded ? (
-                                    t('Mark as open')
-                                ) : (
-                                    <CircularProgress />
-                                )}
-                            </Button>
-                        )
-                    ) : null}
-                </InformationBlock>
-            </CustomTabPanel>
-            {isGeneralRL ? (
-                <CustomTabPanel index={rlReqTabIndex} value={value}>
-                    <GeneralRLRequirementsTab
-                        studentId={thread?.student_id?._id}
-                    />
-                </CustomTabPanel>
-            ) : null}
-            <CustomTabPanel index={filesTabIndex} value={value}>
-                <Box sx={{ px: 2, py: 1 }}>
-                    <Typography sx={{ mb: 1 }} variant="h6">
-                        {t('Files Overview', { ns: 'common' })}
-                    </Typography>
-                    <Typography
-                        color="text.secondary"
-                        sx={{ mb: 2 }}
-                        variant="body2"
-                    >
-                        {t(
-                            'All files shared in this thread are listed below.',
-                            { ns: 'common' }
-                        )}
-                    </Typography>
-                </Box>
-                <FilesList thread={thread} />
-            </CustomTabPanel>
-            {isTaiGerUser ? (
-                <CustomTabPanel index={databaseTabIndex} value={value}>
-                    {similarThreads && similarThreads?.length > 0 ? (
-                        <Stack spacing={1.5} sx={{ mx: 2 }}>
-                            {similarThreads.map((t) => (
-                                <Card
-                                    key={t._id}
-                                    sx={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                        gap: 2,
-                                        p: 2,
-                                        borderRadius: 2,
-                                        transition: 'all 0.2s',
-                                        '&:hover': {
-                                            backgroundColor: 'action.hover'
-                                        }
-                                    }}
-                                >
-                                    <Link
-                                        component={LinkDom}
-                                        sx={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: 1.5,
-                                            flex: 1,
-                                            textDecoration: 'none'
-                                        }}
-                                        target="_blank"
-                                        to={DEMO.DOCUMENT_MODIFICATION_LINK(
-                                            t._id
-                                        )}
-                                    >
-                                        <ArticleIcon
-                                            sx={{ color: 'primary.main' }}
-                                        />
-                                        <Box sx={{ flex: 1 }}>
-                                            <Typography
-                                                fontWeight="bold"
-                                                variant="subtitle1"
-                                            >
-                                                {`${t.student_id?.firstname} ${t.student_id?.lastname}`}
-                                            </Typography>
-                                            <Typography
-                                                color="text.secondary"
-                                                variant="body2"
-                                            >
-                                                {`${t.application_id?.application_year} - ${t.file_type}`}
-                                            </Typography>
-                                        </Box>
-                                    </Link>
-                                    {t.application_id?.admission === 'O' ? (
-                                        <Chip
-                                            color="success"
-                                            icon={
-                                                <CheckCircleIcon
-                                                    sx={{
-                                                        color: 'inherit !important'
-                                                    }}
-                                                />
-                                            }
-                                            label="Admitted"
-                                            size="small"
-                                            sx={{
-                                                fontWeight: 'bold',
-                                                minWidth: 100
-                                            }}
-                                        />
-                                    ) : t.application_id?.admission === 'X' ? (
-                                        <Chip
-                                            color="error"
-                                            icon={
-                                                <CancelOutlinedIcon
-                                                    sx={{
-                                                        color: 'inherit !important'
-                                                    }}
-                                                />
-                                            }
-                                            label="Rejected"
-                                            size="small"
-                                            sx={{
-                                                fontWeight: 'bold',
-                                                minWidth: 100
-                                            }}
-                                        />
-                                    ) : (
-                                        <Chip
-                                            color="default"
-                                            icon={
-                                                <HelpIcon
-                                                    sx={{
-                                                        color: 'inherit !important'
-                                                    }}
-                                                />
-                                            }
-                                            label="Pending"
-                                            size="small"
-                                            sx={{
-                                                fontWeight: 'bold',
-                                                minWidth: 100
-                                            }}
-                                            variant="outlined"
-                                        />
-                                    )}
-                                </Card>
-                            ))}
-                        </Stack>
-                    ) : (
-                        <Typography sx={{ m: 2 }} variant="text.secondary">
-                            {t('No similar threads found', {
-                                ns: 'common'
-                            })}
-                        </Typography>
-                    )}
-                </CustomTabPanel>
-            ) : null}
-            <CustomTabPanel index={auditTabIndex} value={value}>
-                <Audit audit={threadAuditLog} />
-            </CustomTabPanel>
-
-            <DocumentCheckingResultModal
-                docName={docName}
-                file_type={thread.file_type}
-                isFinalVersion={thread.isFinalVersion}
-                isSubmissionLoaded={
-                    docModificationThreadPageState.isSubmissionLoaded
-                }
-                onClose={closeSetAsFinalFileModelWindow}
-                onConfirm={(e) => ConfirmSetAsFinalFileHandler(e)}
-                open={docModificationThreadPageState.SetAsFinalFileModel}
-                student_name={student_name}
-                thread_id={thread._id}
-                title={t('Warning', { ns: 'common' })}
-            />
-            {is_TaiGer_role(user) &&
-            docModificationThreadPageState.showEditorPage ? (
-                <EditEssayWritersSubpage
-                    actor={
-                        [FILE_TYPE_E.essay_required].includes(thread.file_type)
-                            ? 'Essay Writer'
-                            : 'Editor'
-                    }
-                    editors={docModificationThreadPageState.editors}
-                    essayDocumentThread={thread}
-                    isSubmitting={docModificationThreadPageState.isSubmitting}
-                    onHide={setEditorModalhide}
-                    setmodalhide={setEditorModalhide}
-                    show={docModificationThreadPageState.showEditorPage}
-                    submitUpdateEssayWriterlist={submitUpdateEssayWriterlist}
-                />
-            ) : null}
-            {res_modal_status >= 400 ? (
-                <ModalMain
-                    ConfirmError={ConfirmError}
-                    res_modal_message={res_modal_message}
-                    res_modal_status={res_modal_status}
-                />
-            ) : null}
-        </Box>
-    );
-};
-
-export default DocModificationThreadPage;
+export default InformationBlock;

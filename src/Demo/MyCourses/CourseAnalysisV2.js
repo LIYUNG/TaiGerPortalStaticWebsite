@@ -44,7 +44,11 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { useTranslation } from 'react-i18next';
 import { Link as LinkDom, useParams } from 'react-router-dom';
 import 'react-datasheet-grid/dist/style.css';
-import { Bayerische_Formel, is_TaiGer_role } from '@taiger-common/core';
+import {
+    Bayerische_Formel,
+    is_TaiGer_Agent,
+    is_TaiGer_role
+} from '@taiger-common/core';
 import WarningIcon from '@mui/icons-material/Warning';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import FlagIcon from '@mui/icons-material/Flag';
@@ -59,6 +63,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import TableViewIcon from '@mui/icons-material/TableView';
 import SearchIcon from '@mui/icons-material/Search';
+import MessageIcon from '@mui/icons-material/Message';
 
 import {
     convertDate,
@@ -1818,9 +1823,34 @@ export default function CourseAnalysisV2() {
                     </Link>
                 ) : null}
                 <Typography color="text.primary">
-                    {t('Courses Analysis')} Beta
+                    {t('Courses Analysis')}
                 </Typography>
             </Breadcrumbs>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Typography color="text.primary" sx={{ pt: 2 }} variant="h6">
+                    {t('Courses Analysis')}
+                </Typography>
+                {is_TaiGer_Agent(user) ? (
+                    <Link
+                        color="inherit"
+                        component={LinkDom}
+                        sx={{ mr: 1 }}
+                        to={`${DEMO.COMMUNICATIONS_TAIGER_MODE_LINK(
+                            statedata.student._id.toString()
+                        )}`}
+                        underline="hover"
+                    >
+                        <Button
+                            color="primary"
+                            size="small"
+                            startIcon={<MessageIcon />}
+                            variant="contained"
+                        >
+                            <b>{t('Message', { ns: 'common' })}</b>
+                        </Button>
+                    </Link>
+                ) : null}
+            </Box>
             {sheetName === 'General' ? (
                 <GeneralCourseAnalysisComponent
                     onProgramSelect={handleProgramSelect}

@@ -7,14 +7,16 @@ import { is_TaiGer_role, isProgramDecided } from '@taiger-common/core';
 import ManualFilesList from './ManualFilesList';
 import ToggleableUploadFileForm from './ToggleableUploadFileForm';
 import {
-    check_generaldocs,
-    file_category_const,
-    getMissingDocs,
-    getExtraDocs,
     is_program_closed,
     is_program_ml_rl_essay_finished,
     calculateProgramLockStatus
+    file_category_const,
 } from '../Utils/checking-functions';
+import {
+    checkGeneralDocs,
+    getGeneralDocumentStatus,
+    getProgramDocumentStatus
+} from '../Utils/document-status';
 import { useAuth } from '../../components/AuthProvider';
 import DEMO from '../../store/constant';
 
@@ -28,6 +30,44 @@ const ManualFiles = (props) => {
         'Program is locked. Contact an agent to unlock this task.',
         { ns: 'common' }
     );
+
+    const formatDocumentMessage = (docEntry) => {
+        if (!docEntry) {
+            return '';
+        }
+
+        if (docEntry.docKey === 'rl_required' && docEntry.counts) {
+            const scope = docEntry.scope === 'general' ? 'general' : 'program';
+            const status = docEntry.status === 'extra' ? 'extra' : 'missing';
+            const translationKey = `rlStatus.${scope}.${status}`;
+            const defaultValue =
+                status === 'missing'
+                    ? `RL - ${docEntry.counts.required} needed, ${docEntry.counts.provided} provided (${docEntry.counts.delta} must be added)`
+                    : `RL - ${docEntry.counts.required} needed, ${docEntry.counts.provided} provided (${docEntry.counts.delta} can be removed)`;
+
+            return t(translationKey, {
+                ns: 'cvmlrl',
+                required: docEntry.counts.required,
+                provided: docEntry.counts.provided,
+                difference: docEntry.counts.delta,
+                defaultValue
+            });
+        }
+
+        return t(`documentTypes.${docEntry.docKey}`, {
+            ns: 'cvmlrl',
+            defaultValue: docEntry.docType ?? docEntry.docKey
+        });
+    };
+
+    const renderDocumentList = (docEntries = []) =>
+        docEntries.map((docEntry, index) => (
+            <li
+                key={`${docEntry.docKey}-${docEntry.scope}-${docEntry.status}-${index}`}
+            >
+                <b>{formatDocumentMessage(docEntry)}</b>
+            </li>
+        ));
 
     const handleCreateGeneralMessageThread = (e, studentId, fileCategory) => {
         e.preventDefault();
@@ -64,14 +104,51 @@ const ManualFiles = (props) => {
         setCategory(e.target.value);
     };
 
-    let missingDocs = [];
-    let extraDocs = [];
-    if (!props.filetype !== 'General') {
-        missingDocs = getMissingDocs(props.application);
-        extraDocs = getExtraDocs(props.application);
+    let programDocumentStatus = { missing: [], extra: [] };
+    let generalDocumentStatus = { missing: [], extra: [], rlApplications: [] };
+    if (props.filetype !== 'General') {
+        programDocumentStatus = getProgramDocumentStatus(props.application);
+    } else {
+        generalDocumentStatus = getGeneralDocumentStatus(
+            props?.student?.generaldocs_threads,
+            props?.applications
+        );
     }
 
-    const create_generaldoc_reminder = check_generaldocs(props.student);
+    const missingDocs = programDocumentStatus.missing;
+    const extraDocs = programDocumentStatus.extra;
+    const generalMissingDocs = generalDocumentStatus.missing;
+    const generalExtraDocs = generalDocumentStatus.extra;
+    const generalRLApplications = generalDocumentStatus.rlApplications || [];
+
+    const renderGeneralRLApplicationList = (applications = []) => {
+        if (!applications.length) {
+            return null;
+        }
+
+        return (
+            <>
+                <Typography sx={{ mt: 1 }} variant="body2">
+                    {t('generalRLProgramsTitle', { ns: 'cvmlrl' })}
+                </Typography>
+                <ul>
+                    {applications.map((application) => (
+                        <li key={`general-rl-${application.programId}`}>
+                            <Typography variant="body2">
+                                {t('generalRLProgramEntry', {
+                                    ns: 'cvmlrl',
+                                    program: application.programLabel,
+                                    count: application.required
+                                })}
+                            </Typography>
+                        </li>
+                    ))}
+                </ul>
+            </>
+        );
+    };
+
+    const generalDocReminder = checkGeneralDocs(props.student);
     const required_doc_keys = Object.keys(file_category_const);
 
     return (
@@ -88,7 +165,7 @@ const ManualFiles = (props) => {
                                 })}
                                 )
                             </Typography>
-                            {create_generaldoc_reminder ? (
+                            {generalDocReminder ? (
                                 <Card sx={{ p: 2, mb: 2 }}>
                                     <Typography>
                                         The following general documents are not
@@ -109,6 +186,37 @@ const ManualFiles = (props) => {
                                     </Typography>
                                 </Card>
                             ) : null}
+                            <Grid item xs={12}>
+                                {generalMissingDocs.length > 0 && (
+                                    <Alert severity="error">
+                                        <Typography variant="string">
+                                            {t('missingDocumentsWarning', {
+                                                ns: 'cvmlrl'
+                                            })}
+                                        </Typography>
+                                        {renderDocumentList(generalMissingDocs)}
+                                        {renderGeneralRLApplicationList(
+                                            generalRLApplications
+                                        )}
+                                    </Alert>
+                                )}
+                            </Grid>
+                            <Grid item xs={12}>
+                                {generalExtraDocs.length > 0 ? (
+                                    <Alert severity="warning">
+                                        <Typography variant="string">
+                                            {t('extraDocumentsWarning', {
+                                                ns: 'cvmlrl'
+                                            })}
+                                        </Typography>
+
+                                        {renderDocumentList(generalExtraDocs)}
+                                        {renderGeneralRLApplicationList(
+                                            generalRLApplications
+                                        )}
+                                    </Alert>
+                                ) : null}
+                            </Grid>
                         </Grid>
                     ) : null}
                     {props.filetype === 'ProgramSpecific' ? (
@@ -124,15 +232,12 @@ const ManualFiles = (props) => {
                                 {missingDocs.length > 0 ? (
                                     <Alert severity="error">
                                         <Typography variant="string">
-                                            Please assign the following missing
-                                            document for this application:
+                                            {t('missingDocumentsWarning', {
+                                                ns: 'cvmlrl'
+                                            })}
                                         </Typography>
 
-                                        {missingDocs?.map((doc, i) => (
-                                            <li key={i}>
-                                                <b>{doc}</b>
-                                            </li>
-                                        ))}
+                                        {renderDocumentList(missingDocs)}
                                     </Alert>
                                 ) : null}
                             </Grid>
@@ -140,15 +245,12 @@ const ManualFiles = (props) => {
                                 {extraDocs.length > 0 ? (
                                     <Alert severity="warning">
                                         <Typography variant="string">
-                                            The following document is not
-                                            required for this application:
+                                            {t('extraDocumentsWarning', {
+                                                ns: 'cvmlrl'
+                                            })}
                                         </Typography>
 
-                                        {extraDocs?.map((doc, i) => (
-                                            <li key={i}>
-                                                <b>{doc}</b>
-                                            </li>
-                                        ))}
+                                        {renderDocumentList(extraDocs)}
                                     </Alert>
                                 ) : null}
                             </Grid>

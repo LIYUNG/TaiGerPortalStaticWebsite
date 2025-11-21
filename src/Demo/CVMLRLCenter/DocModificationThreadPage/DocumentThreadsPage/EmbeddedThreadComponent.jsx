@@ -14,21 +14,26 @@ import {
     useTheme
 } from '@mui/material';
 import { Link as LinkDom } from 'react-router-dom';
+import MessageIcon from '@mui/icons-material/Message';
+import { is_TaiGer_Agent } from '@taiger-common/core';
 
 import { getMessagThreadQuery } from '../../../../api/query';
 import ErrorPage from '../../../Utils/ErrorPage';
 import DocModificationThreadPage from '../DocModificationThreadPage';
 import { APP_BAR_HEIGHT, stringAvatar } from '../../../../utils/contants';
 import DEMO from '../../../../store/constant';
-import i18next from 'i18next';
+import { useTranslation } from 'react-i18next';
 import ChildLoading from '../../../../components/Loading/ChildLoading';
 import { useRef } from 'react';
+import { useAuth } from '../../../../components/AuthProvider';
 
 export const EmbeddedThreadComponent = ({ setThreadId }) => {
     const { documentsthreadId } = useParams();
     const theme = useTheme();
+    const { user } = useAuth();
     const ismobile = useMediaQuery(theme.breakpoints.down('md'));
     const scrollableRef = useRef(null);
+    const { t } = useTranslation();
 
     const { data, isLoading, error } = useQuery(
         getMessagThreadQuery(documentsthreadId)
@@ -142,6 +147,26 @@ export const EmbeddedThreadComponent = ({ setThreadId }) => {
                     )}
                 </Stack>
                 <Stack alignItems="center" direction="row" spacing={2}>
+                    {is_TaiGer_Agent(user) ? (
+                        <Link
+                            color="inherit"
+                            component={LinkDom}
+                            sx={{ mr: 1 }}
+                            to={`${DEMO.COMMUNICATIONS_TAIGER_MODE_LINK(
+                                thread.student_id._id
+                            )}`}
+                            underline="hover"
+                        >
+                            <Button
+                                color="primary"
+                                size="small"
+                                startIcon={<MessageIcon />}
+                                variant="contained"
+                            >
+                                <b>{t('Message', { ns: 'common' })}</b>
+                            </Button>
+                        </Link>
+                    ) : null}
                     <Button
                         color="primary"
                         component={LinkDom}
@@ -149,7 +174,7 @@ export const EmbeddedThreadComponent = ({ setThreadId }) => {
                         to={`/document-modification/${documentsthreadId}`}
                         variant="contained"
                     >
-                        {i18next.t('Switch View', { ns: 'common' })}
+                        {t('Switch View', { ns: 'common' })}
                     </Button>
                 </Stack>
             </Box>

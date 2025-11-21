@@ -7,11 +7,6 @@ import {
     Card,
     Checkbox,
     CircularProgress,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
     FormControlLabel,
     Grid,
     Link,
@@ -26,6 +21,8 @@ import {
 import { DataSheetGrid, keyColumn, textColumn } from 'react-datasheet-grid';
 import { Navigate, Link as LinkDom, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import MessageIcon from '@mui/icons-material/Message';
+
 // import 'react-datasheet-grid/dist/style.css';
 import './react-datasheet-customize.css';
 
@@ -34,6 +31,7 @@ import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import {
     is_TaiGer_AdminAgent,
+    is_TaiGer_Agent,
     is_TaiGer_Guest,
     is_TaiGer_role
 } from '@taiger-common/core';
@@ -43,6 +41,9 @@ import {
     putMycourses,
     transcriptanalyser_testV2
 } from '../../api';
+import { useMutation } from '@tanstack/react-query';
+import { queryClient } from '../../api/client';
+import { getMycoursesQuery } from '../../api/query';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '../../store/constant';
 import { appConfig } from '../../config';
@@ -77,8 +78,6 @@ export default function MyCourses() {
             }
         ],
         analysis: {},
-        confirmModalWindowOpen: false,
-        analysisSuccessModalWindowOpen: false,
         success: false,
         student: null,
         file: '',
@@ -176,99 +175,91 @@ export default function MyCourses() {
         }));
     };
 
+    const { mutate: mutateLockTable } = useMutation({
+        mutationFn: ({ studentId, table_data_string_locked }) =>
+            putMycourses(studentId, { table_data_string_locked }),
+        onSuccess: (resp, variables) => {
+            setSeverity('success');
+            setMessage(i18next.t('Locked updated successfully!'));
+            setOpenSnackbar(true);
+            setStatedata((prevState) => ({
+                ...prevState,
+                table_data_string_locked: variables.table_data_string_locked
+            }));
+            queryClient.invalidateQueries({
+                queryKey: getMycoursesQuery(variables.studentId).queryKey
+            });
+        },
+        onError: (error) => {
+            setSeverity('error');
+            setMessage(
+                error.message || 'Locked Update failed. Please try it later.'
+            );
+            setOpenSnackbar(true);
+        }
+    });
+
     const handleLockTable = (e) => {
         e.preventDefault();
         const table_data_string_locked_temp =
             statedata.table_data_string_locked;
-        putMycourses(statedata.student._id.toString(), {
+        mutateLockTable({
+            studentId: statedata.student._id.toString(),
             table_data_string_locked: !table_data_string_locked_temp
-        }).then(
-            (resp) => {
-                const { success } = resp.data;
-                const { status } = resp;
-                if (!success) {
-                    setStatedata((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        table_data_string_locked: table_data_string_locked_temp,
-                        res_modal_status: status
-                    }));
-                } else {
-                    setStatedata((prevState) => ({
-                        ...prevState,
-                        table_data_string_locked: !table_data_string_locked_temp
-                    }));
-                }
-            },
-            (error) => {
-                setStatedata((prevState) => ({
-                    ...prevState,
-                    isLoaded: true,
-                    error,
-                    res_modal_status: 500,
-                    res_modal_message: '',
-                    isUpdating: false
-                }));
-                alert('Locked Update failed. Please try it later.');
-            }
-        );
+        });
     };
+
+    const { mutate: mutateSubmit, isPending: isSubmitting } = useMutation({
+        mutationFn: ({
+            studentId,
+            student,
+            coursesdata_string,
+            coursesdata_taiger_guided_string
+        }) =>
+            putMycourses(studentId, {
+                student_id: studentId,
+                name: student.firstname,
+                table_data_string: coursesdata_string,
+                table_data_string_taiger_guided:
+                    coursesdata_taiger_guided_string
+            }),
+        onSuccess: (resp, variables) => {
+            const { data, success } = resp.data;
+            const { status } = resp;
+            const course_from_database = JSON.parse(data.table_data_string);
+            setStatedata((prevState) => ({
+                ...prevState,
+                isLoaded: true,
+                updatedAt: data.updatedAt,
+                coursesdata: course_from_database,
+                success: success,
+                res_modal_status: status
+            }));
+            queryClient.invalidateQueries({
+                queryKey: getMycoursesQuery(variables.studentId).queryKey
+            });
+            setSeverity('success');
+            setMessage(i18next.t('Course updated successfully!'));
+            setOpenSnackbar(true);
+        },
+        onError: (error) => {
+            setSeverity('error');
+            setMessage(error.message || 'An error occurred. Please try again.');
+            setOpenSnackbar(true);
+        }
+    });
 
     const onSubmit = () => {
         const coursesdata_string = JSON.stringify(statedata.coursesdata);
         const coursesdata_taiger_guided_string = JSON.stringify(
             statedata.coursesdata_taiger_guided
         );
-        setStatedata((prevState) => ({
-            ...prevState,
-            isUpdating: true
-        }));
-        putMycourses(statedata.student._id.toString(), {
-            student_id: statedata.student._id.toString(),
-            name: statedata.student.firstname,
-            table_data_string: coursesdata_string,
-            table_data_string_taiger_guided: coursesdata_taiger_guided_string
-        }).then(
-            (resp) => {
-                const { data, success } = resp.data;
-                const { status } = resp;
-                if (success) {
-                    const course_from_database = JSON.parse(
-                        data.table_data_string
-                    );
-                    setStatedata((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        updatedAt: data.updatedAt,
-                        coursesdata: course_from_database,
-                        confirmModalWindowOpen: true,
-                        success: success,
-                        isUpdating: false,
-                        res_modal_status: status
-                    }));
-                } else {
-                    const { message } = resp.data;
-                    setStatedata((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        isUpdating: false,
-                        res_modal_status: status,
-                        res_modal_message: message
-                    }));
-                }
-            },
-            (error) => {
-                setStatedata((prevState) => ({
-                    ...prevState,
-                    isLoaded: true,
-                    error,
-                    res_modal_status: 500,
-                    res_modal_message: '',
-                    isUpdating: false
-                }));
-                alert('Course Update failed. Please try later.');
-            }
-        );
+        mutateSubmit({
+            studentId: statedata.student._id.toString(),
+            student: statedata.student,
+            coursesdata_string,
+            coursesdata_taiger_guided_string
+        });
     };
 
     const ConfirmError = () => {
@@ -313,20 +304,6 @@ export default function MyCourses() {
             setMessage(error.message || 'An error occurred. Please try again.');
             setOpenSnackbar(true);
         }
-    };
-
-    const closeModal = () => {
-        setStatedata((prevState) => ({
-            ...prevState,
-            confirmModalWindowOpen: false
-        }));
-    };
-
-    const closeanalysisSuccessModal = () => {
-        setStatedata((prevState) => ({
-            ...prevState,
-            analysisSuccessModalWindowOpen: false
-        }));
     };
 
     const columns = [
@@ -406,9 +383,32 @@ export default function MyCourses() {
                 </Typography>
             </Breadcrumbs>
             {/* <Card sx={{ mt: 2, padding: 2, minWidth: '450px' }}> */}
-            <Typography sx={{ pt: 2 }} variant="h6">
-                請把大學及碩士成績單 上面出現的所有課程填入這個表單內
-            </Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Typography sx={{ pt: 2 }} variant="h6">
+                    請把大學及碩士成績單 上面出現的所有課程填入這個表單內
+                </Typography>
+                {is_TaiGer_Agent(user) ? (
+                    <Link
+                        color="inherit"
+                        component={LinkDom}
+                        sx={{ mr: 1 }}
+                        to={`${DEMO.COMMUNICATIONS_TAIGER_MODE_LINK(
+                            statedata.student._id.toString()
+                        )}`}
+                        underline="hover"
+                    >
+                        <Button
+                            color="primary"
+                            size="small"
+                            startIcon={<MessageIcon />}
+                            variant="contained"
+                        >
+                            <b>{t('Message', { ns: 'common' })}</b>
+                        </Button>
+                    </Link>
+                ) : null}
+            </Box>
+
             <Box>
                 <Typography variant="h6">
                     Please fill{' '}
@@ -554,16 +554,18 @@ export default function MyCourses() {
             </Typography>
             <Button
                 color="primary"
-                disabled={statedata.isUpdating}
+                disabled={statedata.isUpdating || isSubmitting}
                 onClick={onSubmit}
                 size="small"
                 startIcon={
-                    statedata.isUpdating ? <CircularProgress size={20} /> : null
+                    statedata.isUpdating || isSubmitting ? (
+                        <CircularProgress size={20} />
+                    ) : null
                 }
                 sx={{ mb: 2 }}
                 variant="contained"
             >
-                {statedata.isUpdating
+                {statedata.isUpdating || isSubmitting
                     ? t('Updating', { ns: 'common' })
                     : t('Update', { ns: 'common' })}
             </Button>
@@ -677,61 +679,6 @@ export default function MyCourses() {
                     </Grid>
                 ) : null}
             </Card>
-
-            <Dialog
-                onClose={closeModal}
-                open={statedata.confirmModalWindowOpen}
-            >
-                <DialogTitle>{t('Confirmation', { ns: 'common' })}</DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
-                        {t('Update transcript successfully', { ns: 'courses' })}
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button
-                        color="primary"
-                        onClick={closeModal}
-                        variant="contained"
-                    >
-                        {t('Close', { ns: 'common' })}
-                    </Button>
-                </DialogActions>
-            </Dialog>
-            <Dialog
-                onClose={closeanalysisSuccessModal}
-                open={statedata.analysisSuccessModalWindowOpen}
-            >
-                <DialogTitle>
-                    {t('Success', { ns: 'common' }, { ns: 'common' })}
-                </DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
-                        {t('Courses analysed successfully!', { ns: 'courses' })}
-                        <b>
-                            {t(
-                                'The student will receive an email notification and the analysed course URL link.',
-                                { ns: 'courses' }
-                            )}
-                        </b>{' '}
-                        {t(
-                            'Student should access the analysed page in their course page.',
-                            {
-                                ns: 'courses'
-                            }
-                        )}
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button
-                        color="primary"
-                        onClick={closeanalysisSuccessModal}
-                        variant="contained"
-                    >
-                        {t('Close', { ns: 'common' })}
-                    </Button>
-                </DialogActions>
-            </Dialog>
         </Box>
     );
 }
