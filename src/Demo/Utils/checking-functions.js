@@ -2485,7 +2485,7 @@ export const readXLSX = async (file, studentName) => {
     return result;
 };
 
-export const APPROVAL_COUNTRIES = ['de', 'nl', 'uk', 'aus', 'ch', 'se', 'at'];
+export const APPROVAL_COUNTRIES = ['de', 'nl', 'uk', 'ch', 'se', 'at'];
 
 export const LOCK_REASON = {
     NON_APPROVAL_COUNTRY: 'NON_APPROVAL_COUNTRY',
