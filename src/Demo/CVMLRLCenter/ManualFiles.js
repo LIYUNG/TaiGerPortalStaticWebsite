@@ -9,8 +9,8 @@ import ToggleableUploadFileForm from './ToggleableUploadFileForm';
 import {
     is_program_closed,
     is_program_ml_rl_essay_finished,
-    calculateProgramLockStatus
-    file_category_const,
+    calculateProgramLockStatus,
+    file_category_const
 } from '../Utils/checking-functions';
 import {
     checkGeneralDocs,
