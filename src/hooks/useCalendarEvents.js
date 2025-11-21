@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import queryString from 'query-string';
 
 import { confirmEvent, deleteEvent, postEvent, updateEvent } from '../api';
@@ -11,10 +11,12 @@ import {
 import { is_TaiGer_Agent, is_TaiGer_Student } from '@taiger-common/core';
 import { useAuth } from '../components/AuthProvider';
 import { getUTCWithDST, time_slots } from '../utils/contants';
+import { useSnackBar } from '../contexts/use-snack-bar';
+import { queryClient } from '../api/client';
 
 function useCalendarEvents(props) {
     const { user } = useAuth();
-    const queryClient = useQueryClient();
+    const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
 
     // Query for fetching events
     const eventsQuery = useQuery(
@@ -80,7 +82,6 @@ function useCalendarEvents(props) {
     const createEventMutation = useMutation({
         mutationFn: (eventData) => postEvent(eventData),
         onSuccess: async (resp) => {
-            const { success } = resp.data;
             const { status } = resp;
             await queryClient.invalidateQueries({
                 queryKey: ['events'],
@@ -94,41 +95,26 @@ function useCalendarEvents(props) {
                 queryKey: ['students/v3'],
                 exact: false
             });
-            if (success) {
-                setCalendarEventsState((prevState) => ({
-                    ...prevState,
-                    newDescription: '',
-                    newReceiver: '',
-                    selectedEvent: {},
-                    student_id: '',
-                    showBookedEvents: true,
-                    isNewEventModalOpen: false,
-                    BookButtonDisable: false,
-                    res_modal_status: status
-                }));
-            } else {
-                const { message } = resp.data;
-                setCalendarEventsState((prevState) => ({
-                    ...prevState,
-                    newDescription: '',
-                    newReceiver: '',
-                    selectedEvent: {},
-                    isNewEventModalOpen: false,
-                    BookButtonDisable: false,
-                    res_modal_message: message,
-                    res_modal_status: status
-                }));
-            }
-        },
-        onError: () => {
+
             setCalendarEventsState((prevState) => ({
                 ...prevState,
                 newDescription: '',
                 newReceiver: '',
-                isNewEventModalOpen: false,
                 selectedEvent: {},
-                BookButtonDisable: false
+                student_id: '',
+                showBookedEvents: true,
+                isNewEventModalOpen: false,
+                BookButtonDisable: false,
+                res_modal_status: status
             }));
+            setSeverity('success');
+            setMessage('Meeting created successfully!');
+            setOpenSnackbar(true);
+        },
+        onError: (error) => {
+            setSeverity('error');
+            setMessage(error.message || 'An error occurred. Please try again.');
+            setOpenSnackbar(true);
         },
         onMutate: () => {
             setCalendarEventsState((prevState) => ({
@@ -199,7 +185,6 @@ function useCalendarEvents(props) {
         mutationFn: ({ eventId, updatedEvent }) =>
             confirmEvent(eventId, updatedEvent),
         onSuccess: async (resp) => {
-            const { success } = resp.data;
             const { status } = resp;
             await queryClient.invalidateQueries({
                 queryKey: ['events'],
@@ -213,30 +198,26 @@ function useCalendarEvents(props) {
                 queryKey: ['students/v3'],
                 exact: false
             });
-            if (success) {
-                setCalendarEventsState((prevState) => ({
-                    ...prevState,
-                    isConfirmModalOpen: false,
-                    event_temp: {},
-                    event_id: '',
-                    BookButtonDisable: false,
-                    res_status: status
-                }));
-            } else {
-                setCalendarEventsState((prevState) => ({
-                    ...prevState,
-                    event_temp: {},
-                    event_id: '',
-                    BookButtonDisable: false,
-                    res_status: status
-                }));
-            }
-        },
-        onError: () => {
+
+            setSeverity('success');
+            setMessage('Meeting confirmed successfully!');
+            setOpenSnackbar(true);
             setCalendarEventsState((prevState) => ({
                 ...prevState,
+                isConfirmModalOpen: false,
+                event_temp: {},
+                event_id: '',
                 BookButtonDisable: false,
-                res_status: 500
+                res_status: status
+            }));
+        },
+        onError: (error) => {
+            setSeverity('error');
+            setMessage(error.message || 'An error occurred. Please try again.');
+            setOpenSnackbar(true);
+            setCalendarEventsState((prevState) => ({
+                ...prevState,
+                BookButtonDisable: false
             }));
         },
         onMutate: () => {
@@ -259,9 +240,7 @@ function useCalendarEvents(props) {
     const updateEventMutation = useMutation({
         mutationFn: ({ eventId, updatedEvent }) =>
             updateEvent(eventId, updatedEvent),
-        onSuccess: async (resp) => {
-            const { success } = resp.data;
-            const { status } = resp;
+        onSuccess: async () => {
             await queryClient.invalidateQueries({
                 queryKey: ['events'],
                 exact: false
@@ -274,28 +253,24 @@ function useCalendarEvents(props) {
                 queryKey: ['students/v3'],
                 exact: false
             });
-            if (success) {
-                setCalendarEventsState((prevState) => ({
-                    ...prevState,
-                    isEditModalOpen: false,
-                    BookButtonDisable: false,
-                    event_id: '',
-                    res_status: status
-                }));
-            } else {
-                setCalendarEventsState((prevState) => ({
-                    ...prevState,
-                    BookButtonDisable: false,
-                    event_id: '',
-                    res_status: status
-                }));
-            }
-        },
-        onError: () => {
+
+            setSeverity('success');
+            setMessage('Meeting updated successfully!');
+            setOpenSnackbar(true);
             setCalendarEventsState((prevState) => ({
                 ...prevState,
+                isEditModalOpen: false,
                 BookButtonDisable: false,
-                res_status: 500
+                event_id: ''
+            }));
+        },
+        onError: (error) => {
+            setSeverity('error');
+            setMessage(error.message || 'An error occurred. Please try again.');
+            setOpenSnackbar(true);
+            setCalendarEventsState((prevState) => ({
+                ...prevState,
+                BookButtonDisable: false
             }));
         },
         onMutate: () => {
@@ -317,9 +292,7 @@ function useCalendarEvents(props) {
     // Mutation for deleting events
     const deleteEventMutation = useMutation({
         mutationFn: (eventId) => deleteEvent(eventId),
-        onSuccess: async (resp) => {
-            const { success } = resp.data;
-            const { status } = resp;
+        onSuccess: async () => {
             await queryClient.invalidateQueries({
                 queryKey: ['events'],
                 exact: false
@@ -332,28 +305,24 @@ function useCalendarEvents(props) {
                 queryKey: ['students/v3'],
                 exact: false
             });
-            if (success) {
-                setCalendarEventsState((prevState) => ({
-                    ...prevState,
-                    event_id: '',
-                    BookButtonDisable: false,
-                    isDeleteModalOpen: false,
-                    res_status: status
-                }));
-            } else {
-                setCalendarEventsState((prevState) => ({
-                    ...prevState,
-                    event_id: '',
-                    BookButtonDisable: false,
-                    res_status: status
-                }));
-            }
-        },
-        onError: () => {
+
             setCalendarEventsState((prevState) => ({
                 ...prevState,
+                event_id: '',
                 BookButtonDisable: false,
-                res_status: 500
+                isDeleteModalOpen: false
+            }));
+            setSeverity('success');
+            setMessage('Meeting deleted successfully!');
+            setOpenSnackbar(true);
+        },
+        onError: (error) => {
+            setSeverity('error');
+            setMessage(error.message || 'An error occurred. Please try again.');
+            setOpenSnackbar(true);
+            setCalendarEventsState((prevState) => ({
+                ...prevState,
+                BookButtonDisable: false
             }));
         },
         onMutate: () => {
