@@ -39,9 +39,9 @@ const AllOfficeHours = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const [value, setValue] = useState(0);
+    const [showCalendar, setShowCalendar] = useState(false);
     const {
         events,
-        hasEvents,
         res_status,
         isLoaded,
         isConfirmModalOpen,
@@ -136,12 +136,11 @@ const AllOfficeHours = () => {
                     {t('Calendar Events', { ns: 'common' })}
                 </Typography>
             </Breadcrumbs>
-            {hasEvents ? (
+            {!showCalendar ? (
                 <>
                     <Button
                         color="secondary"
-                        onClick={switchCalendarAndMyBookedEvents}
-                        size="small"
+                        onClick={() => setShowCalendar(!showCalendar)}
                         variant="contained"
                     >
                         {t('To Calendar', { ns: 'common' })}

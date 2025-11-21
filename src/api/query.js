@@ -53,7 +53,6 @@ import {
     getApplicationConflicts,
     getMycourses,
     getStudentMeetings,
-    getAllEvents,
     getEvents,
     getBookedEvents
 } from '.';
@@ -401,15 +400,9 @@ export const getStudentMeetingsQuery = (studentId) => ({
     staleTime: 1000 * 60 * 2 // 2 minutes
 });
 
-export const getAllEventsQuery = () => ({
-    queryKey: ['events', 'all'],
-    queryFn: () => getAllEvents(),
-    staleTime: 1000 * 60 * 2 // 2 minutes
-});
-
-export const getEventsQuery = ({ startTime, endTime }) => ({
-    queryKey: ['events', { startTime, endTime }],
-    queryFn: () => getEvents({ startTime, endTime }),
+export const getEventsQuery = (queryString) => ({
+    queryKey: ['events', queryString],
+    queryFn: () => getEvents(queryString),
     staleTime: 1000 * 60 * 2 // 2 minutes
 });
 

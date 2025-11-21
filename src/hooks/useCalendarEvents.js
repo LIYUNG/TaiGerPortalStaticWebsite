@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import queryString from 'query-string';
+
 import { confirmEvent, deleteEvent, postEvent, updateEvent } from '../api';
 import {
-    getAllEventsQuery,
     getEventsQuery,
     getBookedEventsQuery,
     getStudentsV3Query
@@ -17,12 +18,14 @@ function useCalendarEvents(props) {
 
     // Query for fetching events
     const eventsQuery = useQuery(
-        props.isAll
-            ? getAllEventsQuery()
-            : getEventsQuery({
-                  startTime: props.startTime,
-                  endTime: props.endTime
-              })
+        getEventsQuery(
+            queryString.stringify({
+                startTime: props.startTime,
+                endTime: props.endTime,
+                requester_id: props.requester_id,
+                receiver_id: props.receiver_id
+            })
+        )
     );
 
     // Query for fetching booked events (only for students)
@@ -153,7 +156,36 @@ function useCalendarEvents(props) {
 
     const handleModalBook = (e) => {
         e.preventDefault();
-        const eventWrapper = { ...calendarEventsState.selectedEvent };
+        let eventWrapper = {};
+
+        // If booking from available time slots, create event from newEventStart/newEventEnd
+        if (calendarEventsState.newEventStart) {
+            // Ensure we have Date objects
+            const startDate =
+                calendarEventsState.newEventStart instanceof Date
+                    ? calendarEventsState.newEventStart
+                    : new Date(calendarEventsState.newEventStart);
+
+            const endDate =
+                calendarEventsState.newEventEnd instanceof Date
+                    ? calendarEventsState.newEventEnd
+                    : calendarEventsState.newEventEnd
+                      ? new Date(calendarEventsState.newEventEnd)
+                      : (() => {
+                            const end = new Date(startDate);
+                            end.setMinutes(end.getMinutes() + 30);
+                            return end;
+                        })();
+
+            eventWrapper = {
+                start: startDate.toISOString(),
+                end: endDate.toISOString()
+            };
+        } else {
+            // Otherwise, use selectedEvent (for calendar slot booking)
+            eventWrapper = { ...calendarEventsState.selectedEvent };
+        }
+
         if (is_TaiGer_Student(user)) {
             eventWrapper.requester_id = user._id.toString();
             eventWrapper.description = calendarEventsState.newDescription;
@@ -372,9 +404,14 @@ function useCalendarEvents(props) {
 
     const handleUpdateTimeSlot = (e) => {
         const new_timeslot_temp = e.target.value;
+        const startDate = new Date(new_timeslot_temp);
+        const endDate = new Date(startDate);
+        endDate.setMinutes(endDate.getMinutes() + 30);
         setCalendarEventsState((prevState) => ({
             ...prevState,
-            event_temp: { ...prevState.event_temp, start: new_timeslot_temp }
+            event_temp: { ...prevState.event_temp, start: new_timeslot_temp },
+            newEventStart: startDate,
+            newEventEnd: endDate
         }));
     };
 
@@ -474,6 +511,39 @@ function useCalendarEvents(props) {
             ...prevState,
             newEventStart: slotInfo.start,
             newEventEnd: slotInfo.end,
+            isNewEventModalOpen: true,
+            selected_year: year,
+            selected_month: month,
+            selected_day: day
+        }));
+    };
+
+    // Handler for clicking on an available time slot (termin) to book a meeting
+    const handleSelectAvailableTermin = (timeSlot) => {
+        const startDate = new Date(timeSlot.start);
+        const endDate = new Date(timeSlot.end);
+        const year = startDate.getFullYear();
+        const month = startDate.getMonth() + 1;
+        const day = startDate.getDate();
+
+        // Auto-select the provider agent if available
+        const receiverId =
+            timeSlot.provider?._id?.toString() || timeSlot.provider?._id || '';
+
+        // Set event_temp to match the structure expected by the dialog
+        setCalendarEventsState((prevState) => ({
+            ...prevState,
+            newEventStart: startDate,
+            newEventEnd: endDate,
+            newReceiver: receiverId,
+            event_temp: {
+                ...prevState.event_temp,
+                start: startDate,
+                end: endDate,
+                receiver_id: timeSlot.provider
+                    ? [timeSlot.provider]
+                    : prevState.event_temp.receiver_id
+            },
             isNewEventModalOpen: true,
             selected_year: year,
             selected_month: month,
@@ -598,6 +668,7 @@ function useCalendarEvents(props) {
         handleChange: handleChange,
         handleSelectSlot: handleSelectSlot,
         handleSelectSlotAgent: handleSelectSlotAgent,
+        handleSelectAvailableTermin: handleSelectAvailableTermin,
         handleNewEventModalClose: handleNewEventModalClose,
         switchCalendarAndMyBookedEvents: switchCalendarAndMyBookedEvents,
         handleModalCreateEvent: handleModalCreateEvent,

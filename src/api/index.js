@@ -629,9 +629,8 @@ export const updateStudentNotes = (student_id, notes) =>
 
 // Time Slot events:
 export const getActiveEventsNumber = () => request.get(`/api/events/ping`);
-export const getAllEvents = () => request.get(`/api/events/all`);
-export const getEvents = ({ startTime, endTime }) =>
-    request.get(`/api/events?startTime=${startTime}&endTime=${endTime}`);
+export const getEvents = (queryString) =>
+    request.get(`/api/events?${queryString}`);
 export const getBookedEvents = ({ startTime, endTime }) =>
     request.get(`/api/events/booked?startTime=${startTime}&endTime=${endTime}`);
 export const postEvent = (event) => request.post(`/api/events`, event);

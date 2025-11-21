@@ -235,7 +235,8 @@ const TaiGerOfficeHours = () => {
     } = useCalendarEvents({
         user_id,
         startTime: startTime || new Date().toISOString().slice(0, 16) + 'Z',
-        endTime: endTime || ''
+        endTime: endTime || '',
+        receiver_id: user_id
     });
 
     const [showCalendar, setShowCalendar] = useState(false);

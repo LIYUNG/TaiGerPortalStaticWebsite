@@ -16,6 +16,8 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import queryString from 'query-string';
+
 import { useAuth } from '../../components/AuthProvider';
 import {
     getEvents,
@@ -72,19 +74,6 @@ const transformEventToMeeting = (event) => {
     };
 };
 
-// Filter events for a specific student
-const filterEventsForStudent = (events, studentId) => {
-    return events.filter((event) => {
-        const requesterId =
-            event.requester_id?._id ||
-            event.requester_id ||
-            (Array.isArray(event.requester_id)
-                ? event.requester_id[0]?._id || event.requester_id[0]
-                : null);
-        return requesterId?.toString() === studentId?.toString();
-    });
-};
-
 export const MeetingTab = ({ studentId, student }) => {
     const { t } = useTranslation();
     const { user } = useAuth();
@@ -108,14 +97,21 @@ export const MeetingTab = ({ studentId, student }) => {
         error,
         refetch
     } = useQuery({
-        queryKey: ['events', { startTime, endTime }],
-        queryFn: () => getEvents({ startTime, endTime }),
+        queryKey: ['events', { startTime, endTime, requester_id: studentId }],
+        queryFn: () =>
+            getEvents(
+                queryString.stringify({
+                    startTime,
+                    endTime,
+                    requester_id: studentId
+                })
+            ),
         staleTime: 1000 * 60 * 2 // 2 minutes
     });
 
     // Transform and filter events for this student
     const allEvents = eventsResponse?.data?.data || [];
-    const studentEvents = filterEventsForStudent(allEvents, studentId);
+    const studentEvents = allEvents;
     const meetings = studentEvents.map(transformEventToMeeting);
 
     // Check if agent has ever had a meeting with the student
