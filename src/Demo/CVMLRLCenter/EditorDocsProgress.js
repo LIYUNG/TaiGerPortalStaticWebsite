@@ -56,6 +56,10 @@ const ApplicationAccordionSummary = ({ application }) => {
     const isLocked = lockStatus.isLocked;
 
     const statusNode = (() => {
+        if (isProgramSubmitted(application)) {
+            return <IconButton>{FILE_OK_SYMBOL}</IconButton>;
+        }
+
         if (isLocked) {
             return (
                 <Tooltip
@@ -91,10 +95,6 @@ const ApplicationAccordionSummary = ({ application }) => {
                     Not wanted
                 </Typography>
             );
-        }
-
-        if (isProgramSubmitted(application)) {
-            return <IconButton>{FILE_OK_SYMBOL}</IconButton>;
         }
 
         if (isProgramWithdraw(application)) {
