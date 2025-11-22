@@ -45,6 +45,7 @@ import {
     getInterviewsByProgramId,
     getUsers,
     getUsersCount,
+    getUsersOverview,
     getActiveThreads,
     getSameProgramStudents,
     getArchivStudents,
@@ -155,6 +156,12 @@ export const getUsersCountQuery = () => ({
     queryFn: () => getUsersCount(),
     staleTime: 1000 * 60 * 5, // 5 minutes
     select: (data) => data.data?.data || []
+});
+
+export const getUsersOverviewQuery = () => ({
+    queryKey: ['users', 'overview'],
+    queryFn: getUsersOverview,
+    staleTime: 1000 * 60 * 5 // 5 minutes
 });
 
 export const getActiveStudentsQuery = (queryString) => ({
