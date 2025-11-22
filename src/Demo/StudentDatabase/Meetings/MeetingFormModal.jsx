@@ -232,9 +232,7 @@ export const MeetingFormModal = ({
                                 `${t('Timezone', { ns: 'common' })}: ${timezoneDisplay}`
                             }
                             inputProps={{
-                                min: isEdit
-                                    ? undefined
-                                    : new Date().toISOString().slice(0, 16)
+                                min: new Date().toISOString().slice(0, 16)
                             }}
                             label={t('Date & Time', { ns: 'common' })}
                             onChange={(e) =>
@@ -245,19 +243,6 @@ export const MeetingFormModal = ({
                             value={formData.dateTime}
                         />
                     </Box>
-
-                    <TextField
-                        fullWidth
-                        label={t('Location', { ns: 'common' })}
-                        onChange={(e) =>
-                            handleChange('location', e.target.value)
-                        }
-                        placeholder={t('e.g., Zoom, Office, etc.', {
-                            ns: 'common'
-                        })}
-                        value={formData.location}
-                    />
-
                     <TextField
                         fullWidth
                         label={t('Description', { ns: 'common' })}
@@ -271,22 +256,6 @@ export const MeetingFormModal = ({
                         rows={3}
                         value={formData.description}
                     />
-
-                    {isEdit && (
-                        <TextField
-                            fullWidth
-                            label={t('Notes', { ns: 'common' })}
-                            multiline
-                            onChange={(e) =>
-                                handleChange('notes', e.target.value)
-                            }
-                            placeholder={t('Meeting notes...', {
-                                ns: 'common'
-                            })}
-                            rows={3}
-                            value={formData.notes}
-                        />
-                    )}
                 </Box>
             </DialogContent>
             <DialogActions>
