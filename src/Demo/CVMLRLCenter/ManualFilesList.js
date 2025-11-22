@@ -12,6 +12,7 @@ const ManualFilesList = (props) => {
                       application={props.application}
                       decided="O"
                       handleAsFinalFile={props.handleAsFinalFile}
+                      isProgramLocked={false}
                       key={thread._id}
                       onDeleteFileThread={props.onDeleteFileThread}
                       onDeleteProgramSpecificThread={
@@ -33,6 +34,7 @@ const ManualFilesList = (props) => {
                           application={props.application}
                           decided={props.application.decided}
                           handleAsFinalFile={props.handleAsFinalFile}
+                          isProgramLocked={props.isProgramLocked}
                           key={thread._id}
                           onDeleteFileThread={props.onDeleteFileThread}
                           onDeleteProgramSpecificThread={

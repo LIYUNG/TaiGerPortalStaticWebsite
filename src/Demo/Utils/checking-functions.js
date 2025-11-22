@@ -1743,10 +1743,14 @@ const prepGeneralTask = (student, thread) => {
 };
 
 const prepApplicationTaskV2 = (student, application, program, thread) => {
+    const lockStatus = calculateProgramLockStatus(program);
     return {
         ...prepTaskV2(student, thread),
         thread_id: thread?._id.toString(),
         program_id: program?._id.toString(),
+        program,
+        isProgramLocked: lockStatus.isLocked,
+        lockReason: lockStatus.reason,
         deadline: application_deadline_V2_calculator({
             ...application,
             programId: program
@@ -1767,10 +1771,14 @@ const prepApplicationTaskV2 = (student, application, program, thread) => {
 
 // student.applications -> application.doc_modification_thread
 const prepApplicationTask = (student, application, thread) => {
+    const lockStatus = calculateProgramLockStatus(application.programId);
     return {
         ...prepTask(student, thread),
         thread_id: thread.doc_thread_id?._id?.toString(),
         program_id: application.programId?._id.toString(),
+        program: application.programId,
+        isProgramLocked: lockStatus.isLocked,
+        lockReason: lockStatus.reason,
         deadline: application_deadline_V2_calculator(application),
         show: isProgramDecided(application) ? true : false,
         document_name: `${thread?.doc_thread_id?.file_type} - ${application?.programId?.school} - ${application?.programId?.degree} -${application?.programId?.program_name}`,
@@ -2370,4 +2378,68 @@ export const readXLSX = async (file, studentName) => {
         reader.readAsArrayBuffer(file);
     });
     return result;
+};
+
+export const APPROVAL_COUNTRIES = ['de', 'nl', 'uk', 'ch', 'se', 'at'];
+
+export const LOCK_REASON = {
+    NON_APPROVAL_COUNTRY: 'NON_APPROVAL_COUNTRY',
+    NO_ACTIVE_STUDENTS: 'NO_ACTIVE_STUDENTS',
+    STALE_DATA: 'STALE_DATA'
+};
+
+export const calculateProgramLockStatus = (program) => {
+    if (!program) {
+        return { isLocked: true, reason: null };
+    }
+
+    const countryCode = program.country
+        ? String(program.country).toLowerCase()
+        : null;
+    const lastUpdated = program.updatedAt ? new Date(program.updatedAt) : null;
+    const hasActiveApplications = program.hasActiveApplications === true;
+
+    // Check if country is in approval list (case-insensitive comparison)
+    const isInApprovalCountry = countryCode
+        ? APPROVAL_COUNTRIES.includes(countryCode)
+        : false;
+
+    // Calculate if data is stale (6 months = 180 days)
+    const SIX_MONTHS_IN_MS = 180 * 24 * 60 * 60 * 1000;
+    const isStale = lastUpdated
+        ? Date.now() - lastUpdated.getTime() >= SIX_MONTHS_IN_MS
+        : true; // If no updatedAt, consider stale
+
+    // TOP PRIORITY: If updatedAt is over 6 months, lock no matter what (applies to all programs)
+    if (isStale) {
+        return { isLocked: true, reason: LOCK_REASON.STALE_DATA };
+    }
+
+    // Business logic for non-approval countries
+    if (!isInApprovalCountry) {
+        const ONE_MINUTE_IN_MS = 60 * 1000;
+        const wasUpdatedVeryRecently = lastUpdated
+            ? Date.now() - lastUpdated.getTime() < ONE_MINUTE_IN_MS
+            : false;
+
+        // If updated very recently (within 1 minute), unlock (handles manual unlock)
+        if (wasUpdatedVeryRecently) {
+            return { isLocked: false, reason: null };
+        }
+
+        // If has active applications, unlock
+        if (hasActiveApplications) {
+            return { isLocked: false, reason: null };
+        }
+
+        // If no active applications, lock
+        if (!hasActiveApplications) {
+            return { isLocked: true, reason: LOCK_REASON.NO_ACTIVE_STUDENTS };
+        }
+
+        return { isLocked: true, reason: LOCK_REASON.NON_APPROVAL_COUNTRY };
+    }
+
+    // Business logic for approval countries
+    return { isLocked: false, reason: null };
 };

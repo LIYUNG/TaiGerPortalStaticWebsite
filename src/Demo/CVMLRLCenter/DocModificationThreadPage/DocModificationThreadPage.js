@@ -21,7 +21,8 @@ import {
     Stack,
     Tabs,
     Tab,
-    Chip
+    Chip,
+    Tooltip
 } from '@mui/material';
 import { pdfjs } from 'react-pdf';
 import { is_TaiGer_role } from '@taiger-common/core';
@@ -39,7 +40,8 @@ import {
     readDOCX,
     readPDF,
     readXLSX,
-    toogleItemInArray
+    toogleItemInArray,
+    calculateProgramLockStatus
 } from '../../Utils/checking-functions';
 import {
     SubmitMessageWithAttachment,
@@ -58,9 +60,11 @@ import DocumentCheckingResultModal from './DocumentCheckingResultModal';
 import { a11yProps, CustomTabPanel } from '../../../components/Tabs';
 import Audit from '../../Audit';
 import { useTranslation } from 'react-i18next';
+import i18next from 'i18next';
 import { useSnackBar } from '../../../contexts/use-snack-bar';
 import GeneralRLRequirementsTab from './DocumentThreadsPage/GeneralRLRequirementsTab';
 import InformationBlock from './components/InformationBlock';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 
@@ -104,6 +108,15 @@ const DocModificationThreadPage = ({
         });
     const [checkResult, setCheckResult] = useState([]);
     const { hash } = useLocation();
+    const thread = docModificationThreadPageState.thread || {};
+    const lockStatus = calculateProgramLockStatus(thread?.program_id);
+    const isProgramLocked = lockStatus.isLocked;
+    const programLockTooltip = i18next.t(
+        'Program is locked. Contact an agent to unlock this task.',
+        { ns: 'common' }
+    );
+    const isThreadClosed = thread?.isFinalVersion === true;
+    const isReadOnlyThread = isProgramLocked || isThreadClosed;
     const hashKey = hash?.replace('#', '') || '';
     const [value, setValue] = useState(THREAD_TABS[hashKey] ?? 0);
     useEffect(() => {
@@ -132,6 +145,12 @@ const DocModificationThreadPage = ({
 
     const onFileChange = (e) => {
         e.preventDefault();
+        if (isProgramLocked) {
+            setSeverity('warning');
+            setMessage(programLockTooltip);
+            setOpenSnackbar(true);
+            return;
+        }
         const file_num = e.target.files.length;
         if (file_num <= 3) {
             if (!e.target.files) {
@@ -195,6 +214,12 @@ const DocModificationThreadPage = ({
 
     const handleClickSave = (e, editorState) => {
         e.preventDefault();
+        if (isProgramLocked) {
+            setSeverity('warning');
+            setMessage(programLockTooltip);
+            setOpenSnackbar(true);
+            return;
+        }
         setDocModificationThreadPageState((prevState) => ({
             ...prevState,
             buttonDisabled: true
@@ -293,6 +318,12 @@ const DocModificationThreadPage = ({
         isFinalVersion,
         application_id
     ) => {
+        if (isProgramLocked) {
+            setSeverity('warning');
+            setMessage(programLockTooltip);
+            setOpenSnackbar(true);
+            return;
+        }
         setDocModificationThreadPageState((prevState) => ({
             ...prevState,
             doc_thread_id,
@@ -306,6 +337,12 @@ const DocModificationThreadPage = ({
 
     const ConfirmSetAsFinalFileHandler = (e) => {
         e.preventDefault();
+        if (isProgramLocked) {
+            setSeverity('warning');
+            setMessage(programLockTooltip);
+            setOpenSnackbar(true);
+            return;
+        }
         setDocModificationThreadPageState((prevState) => ({
             ...prevState,
             isSubmissionLoaded: false // false to reload everything
@@ -544,7 +581,6 @@ const DocModificationThreadPage = ({
         isSubmissionLoaded,
         conflict_list,
         threadAuditLog,
-        thread,
         res_status,
         res_modal_status,
         res_modal_message
@@ -731,6 +767,8 @@ const DocModificationThreadPage = ({
                     handleFavoriteToggle={handleFavoriteToggle}
                     isFavorite={isFavorite}
                     isGeneralRL={isGeneralRL}
+                    isProgramLocked={isProgramLocked}
+                    programLockTooltip={programLockTooltip}
                     startEditingEditor={startEditingEditor}
                     template_obj={template_obj}
                     thread={docModificationThreadPageState.thread}
@@ -762,22 +800,31 @@ const DocModificationThreadPage = ({
                                 }
                             }}
                         >
-                            {thread.isFinalVersion ? (
+                            {isReadOnlyThread ? (
                                 <Box
                                     sx={{
                                         p: 3,
                                         textAlign: 'center'
                                     }}
                                 >
-                                    <CheckCircleIcon
-                                        color="success"
-                                        sx={{ fontSize: 48, mb: 1 }}
-                                    />
+                                    {isProgramLocked ? (
+                                        <WarningAmberIcon
+                                            color="warning"
+                                            sx={{ fontSize: 48, mb: 1 }}
+                                        />
+                                    ) : (
+                                        <CheckCircleIcon
+                                            color="success"
+                                            sx={{ fontSize: 48, mb: 1 }}
+                                        />
+                                    )}
                                     <Typography
                                         color="text.secondary"
                                         variant="body1"
                                     >
-                                        {t('thread-close')}
+                                        {isProgramLocked
+                                            ? programLockTooltip
+                                            : i18next.t('thread-close')}
                                     </Typography>
                                 </Box>
                             ) : (
@@ -849,6 +896,8 @@ const DocModificationThreadPage = ({
                                             }
                                             handleClickSave={handleClickSave}
                                             onFileChange={onFileChange}
+                                            readOnly={isProgramLocked}
+                                            readOnlyTooltip={programLockTooltip}
                                             thread={thread}
                                         />
                                     </Box>
@@ -877,7 +926,27 @@ const DocModificationThreadPage = ({
                         </Card>
                     )}
                     {is_TaiGer_role(user) ? (
-                        !thread.isFinalVersion ? (
+                        isProgramLocked ? (
+                            <Tooltip title={programLockTooltip}>
+                                <span>
+                                    <Button
+                                        color="success"
+                                        disabled
+                                        fullWidth
+                                        sx={{ mt: 2 }}
+                                        variant={
+                                            thread.isFinalVersion
+                                                ? 'outlined'
+                                                : 'contained'
+                                        }
+                                    >
+                                        {thread.isFinalVersion
+                                            ? i18next.t('Mark as open')
+                                            : i18next.t('Mark as finished')}
+                                    </Button>
+                                </span>
+                            </Tooltip>
+                        ) : !thread.isFinalVersion ? (
                             <Button
                                 color="success"
                                 fullWidth

@@ -18,10 +18,12 @@ import {
     DialogTitle,
     DialogContent,
     DialogContentText,
-    DialogActions
+    DialogActions,
+    Tooltip
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import LaunchIcon from '@mui/icons-material/Launch';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import {
     isProgramDecided,
     isProgramSubmitted,
@@ -31,7 +33,8 @@ import {
 import ManualFiles from './ManualFiles';
 import {
     LinkableNewlineText,
-    application_deadline_V2_calculator
+    application_deadline_V2_calculator,
+    calculateProgramLockStatus
 } from '../Utils/checking-functions';
 import { FILE_OK_SYMBOL, spinner_style2 } from '../../utils/contants';
 import ErrorPage from '../Utils/ErrorPage';
@@ -49,39 +52,104 @@ import Loading from '../../components/Loading/Loading';
 import i18next from 'i18next';
 
 const ApplicationAccordionSummary = ({ application }) => {
+    const lockStatus = calculateProgramLockStatus(application?.programId);
+    const isLocked = lockStatus.isLocked;
+
+    // Determine status text
+    const getStatusText = () => {
+        if (isProgramSubmitted(application)) {
+            return null; // Will show FILE_OK_SYMBOL instead
+        }
+
+        if (application.decided === '-') {
+            return (
+                <Typography color="grey" variant="body1">
+                    Undecided
+                </Typography>
+            );
+        }
+
+        if (application.decided === 'X') {
+            return (
+                <Typography color="grey" variant="body1">
+                    Not wanted
+                </Typography>
+            );
+        }
+
+        if (isProgramWithdraw(application)) {
+            return (
+                <Typography fontWeight="bold">
+                    {i18next.t('WITHDRAW', { ns: 'common' })}
+                </Typography>
+            );
+        }
+
+        return (
+            <Typography fontWeight="bold">
+                {i18next.t('In Progress', { ns: 'common' })}
+            </Typography>
+        );
+    };
+
+    const statusNode = (() => {
+        if (isProgramSubmitted(application)) {
+            return <IconButton>{FILE_OK_SYMBOL}</IconButton>;
+        }
+
+        const statusText = getStatusText();
+        const lockIcon = isLocked ? (
+            <Tooltip
+                title={i18next.t(
+                    'Program is locked. Contact your agent to unlock this task.',
+                    { ns: 'common' }
+                )}
+            >
+                <Box
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        color: 'warning.main',
+                        mb: 0.5
+                    }}
+                >
+                    <LockOutlinedIcon fontSize="small" />
+                </Box>
+            </Tooltip>
+        ) : null;
+
+        return (
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                }}
+            >
+                {lockIcon}
+                {statusText}
+            </Box>
+        );
+    })();
+
+    const progressColor = isLocked
+        ? 'text.disabled'
+        : isProgramDecided(application)
+          ? isProgramSubmitted(application)
+              ? 'success.light'
+              : 'error.main'
+          : 'grey';
+
     return (
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <Grid container spacing={2}>
                 <Grid item md={1} xs={1}>
-                    {application.decided === '-' ? (
-                        <Typography color="grey" sx={{ mr: 2 }} variant="body1">
-                            Undecided
-                        </Typography>
-                    ) : application.decided === 'X' ? (
-                        <Typography color="grey" sx={{ mr: 2 }} variant="body1">
-                            Not wanted
-                        </Typography>
-                    ) : isProgramSubmitted(application) ? (
-                        <IconButton>{FILE_OK_SYMBOL}</IconButton>
-                    ) : isProgramWithdraw(application) ? (
-                        <Typography fontWeight="bold">
-                            {i18next.t('WITHDRAW', { ns: 'common' })}
-                        </Typography>
-                    ) : (
-                        <Typography fontWeight="bold">
-                            {i18next.t('In Progress', { ns: 'common' })}
-                        </Typography>
-                    )}
+                    {statusNode}
                 </Grid>
                 <Grid item md={1} xs={1}>
                     <Typography
-                        color={
-                            isProgramDecided(application)
-                                ? isProgramSubmitted(application)
-                                    ? 'success.light'
-                                    : 'error.main'
-                                : 'grey'
-                        }
+                        color={progressColor}
                         sx={{ mr: 2 }}
                         variant="body1"
                     >
@@ -96,13 +164,7 @@ const ApplicationAccordionSummary = ({ application }) => {
                 <Grid item md={8} xs={8}>
                     <Box sx={{ display: 'flex' }}>
                         <Typography
-                            color={
-                                isProgramDecided(application)
-                                    ? isProgramSubmitted(application)
-                                        ? 'success.light'
-                                        : 'error.main'
-                                    : 'grey'
-                            }
+                            color={progressColor}
                             sx={{ mr: 2 }}
                             variant="body1"
                         >

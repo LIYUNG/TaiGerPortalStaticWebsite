@@ -29,7 +29,9 @@ const DocThreadEditor = ({
     buttonDisabled,
     handleClickSave,
     checkResult,
-    onFileChange
+    onFileChange,
+    readOnly = false,
+    readOnlyTooltip
 }) => {
     const { user } = useAuth();
     let [statedata, setStatedata] = useState({
@@ -53,7 +55,7 @@ const DocThreadEditor = ({
     const isDarkMode = theme.palette.mode === 'dark';
     const hasContent =
         statedata.editorState.blocks && statedata.editorState.blocks.length > 0;
-    const canSend = hasContent && !buttonDisabled;
+    const canSend = hasContent && !buttonDisabled && !readOnly;
 
     const getValidationIcon = (value) => {
         if (value === undefined) {
@@ -88,8 +90,8 @@ const DocThreadEditor = ({
                         editorState={editorState}
                         handleEditorChange={handleEditorChange}
                         holder="editorjs"
-                        imageEnable={true}
-                        readOnly={false}
+                        imageEnable={!readOnly}
+                        readOnly={readOnly}
                         setStatedata={setStatedata}
                         thread={thread}
                     />
@@ -97,7 +99,7 @@ const DocThreadEditor = ({
             </Box>
 
             {/* File Validation Results (TaiGer roles only) */}
-            {is_TaiGer_role(user) && file?.length > 0 && (
+            {is_TaiGer_role(user) && file?.length > 0 && !readOnly && (
                 <Box>
                     <Typography
                         color="text.secondary"
@@ -184,16 +186,24 @@ const DocThreadEditor = ({
                             ? 'rgba(255,255,255,0.05)'
                             : 'grey.50',
                         transition: 'all 0.2s',
-                        '&:hover': {
-                            borderColor: theme.palette.primary.main,
-                            bgcolor: isDarkMode
-                                ? 'rgba(144, 202, 249, 0.08)'
-                                : 'primary.lighter',
-                            borderStyle: 'solid'
-                        }
+                        ...(readOnly
+                            ? {
+                                  opacity: 0.6,
+                                  pointerEvents: 'none'
+                              }
+                            : {
+                                  '&:hover': {
+                                      borderColor: theme.palette.primary.main,
+                                      bgcolor: isDarkMode
+                                          ? 'rgba(144, 202, 249, 0.08)'
+                                          : 'primary.lighter',
+                                      borderStyle: 'solid'
+                                  }
+                              })
                     }}
                 >
                     <TextField
+                        disabled={readOnly}
                         fullWidth
                         inputProps={{
                             multiple: true,
@@ -208,7 +218,7 @@ const DocThreadEditor = ({
                         type="file"
                         variant="standard"
                     />
-                    {!file?.length && (
+                    {!file?.length && !readOnly && (
                         <Stack
                             alignItems="center"
                             spacing={1}
@@ -233,17 +243,19 @@ const DocThreadEditor = ({
                 </Box>
 
                 {/* File Restrictions Info */}
-                <Alert
-                    icon={<InfoOutlinedIcon fontSize="small" />}
-                    severity="info"
-                    sx={{ mt: 1 }}
-                    variant="outlined"
-                >
-                    <Typography variant="caption">
-                        Max 3 files • Supported: PDF, DOCX, JPG, XLSX • Max 2MB
-                        total
-                    </Typography>
-                </Alert>
+                {!readOnly ? (
+                    <Alert
+                        icon={<InfoOutlinedIcon fontSize="small" />}
+                        severity="info"
+                        sx={{ mt: 1 }}
+                        variant="outlined"
+                    >
+                        <Typography variant="caption">
+                            Max 3 files • Supported: PDF, DOCX, JPG • Max 2MB
+                            total
+                        </Typography>
+                    </Alert>
+                ) : null}
             </Box>
 
             {/* Send Button */}
@@ -259,9 +271,17 @@ const DocThreadEditor = ({
                 {!canSend ? (
                     <Tooltip
                         placement="top"
-                        title={i18next.t(
-                            'Please write some text to improve the communication and understanding.'
-                        )}
+                        title={
+                            readOnly
+                                ? readOnlyTooltip ||
+                                  i18next.t(
+                                      'Program is locked. Contact an agent to unlock this task.',
+                                      { ns: 'common' }
+                                  )
+                                : i18next.t(
+                                      'Please write some text to improve the communication and understanding.'
+                                  )
+                        }
                     >
                         <span>
                             <Button

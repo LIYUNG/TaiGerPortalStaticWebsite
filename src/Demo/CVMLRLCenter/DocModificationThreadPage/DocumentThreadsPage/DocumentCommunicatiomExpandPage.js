@@ -18,7 +18,8 @@ import {
     useTheme,
     useMediaQuery,
     Drawer,
-    IconButton
+    IconButton,
+    Chip
 } from '@mui/material';
 import {
     Search as SearchIcon,
@@ -40,6 +41,8 @@ import {
 } from '../../../../api';
 import { EmbeddedThreadComponent } from './EmbeddedThreadComponent';
 import ChildLoading from '../../../../components/Loading/ChildLoading';
+import { APPROVAL_COUNTRIES } from '../../../Utils/checking-functions';
+import { useTranslation } from 'react-i18next';
 
 const categories = {
     General: [
@@ -73,14 +76,8 @@ const getCategory = (fileType) => {
 const getStudentMetricsQuery = () => ({
     queryKey: ['myStudentThreadMetrics'],
     queryFn: async () => {
-        try {
-            // await new Promise((resolve) => setTimeout(resolve, 10000));
-            const response = await getMyStudentThreadMetrics();
-            return response;
-        } catch (error) {
-            console.log(error);
-            throw error;
-        }
+        // await new Promise((resolve) => setTimeout(resolve, 10000));
+        return await getMyStudentThreadMetrics();
     },
     staleTime: 1000 * 60, // 1 minutes
     cacheTime: 10 * 60 * 1000 // 10 minutes
@@ -89,15 +86,8 @@ const getStudentMetricsQuery = () => ({
 const getThreadByStudentQuery = (studentId) => ({
     queryKey: ['threadsByStudent', studentId],
     queryFn: async () => {
-        try {
-            // await new Promise((resolve) => setTimeout(resolve, 10000));
-            console.log('Fetching threads for student:', studentId);
-            const response = await getThreadsByStudent(studentId);
-            return response;
-        } catch (error) {
-            console.log(error);
-            throw error;
-        }
+        // await new Promise((resolve) => setTimeout(resolve, 10000));
+        return await getThreadsByStudent(studentId);
     },
     enabled: !!studentId,
     staleTime: 1000 * 60, // 1 minutes
@@ -169,6 +159,7 @@ const StudentItem = ({ student, selectedStudentId, onClick }) => {
 
 const ThreadItem = ({ thread, onClick }) => {
     const theme = useTheme();
+    const { t } = useTranslation();
     const isFinal = thread?.isFinalVersion;
     const programName = thread?.program_id
         ? `${thread?.program_id?.school} - ${thread?.program_id?.program_name}`
@@ -176,6 +167,13 @@ const ThreadItem = ({ thread, onClick }) => {
     const notRepliedByUser =
         thread.messages?.[0]?.user_id?._id === thread?.student_id;
     const highlightItem = !isFinal && notRepliedByUser;
+
+    // Check if program is from non-approval country
+    const programCountry = thread?.program_id?.country;
+    const isNonApprovalCountry = programCountry
+        ? !APPROVAL_COUNTRIES.includes(String(programCountry).toLowerCase())
+        : false;
+
     return (
         <ListItem
             disablePadding
@@ -219,18 +217,34 @@ const ThreadItem = ({ thread, onClick }) => {
                             </Typography>
                         }
                         secondary={
-                            thread?.program_id ? (
-                                <Typography
-                                    sx={{
-                                        whiteSpace: 'nowrap',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis'
-                                    }}
-                                    variant="body2"
-                                >
-                                    {programName}
-                                </Typography>
-                            ) : null
+                            <Stack
+                                alignItems="center"
+                                direction="row"
+                                spacing={0.5}
+                            >
+                                {thread?.program_id ? (
+                                    <Typography
+                                        sx={{
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis'
+                                        }}
+                                        variant="body2"
+                                    >
+                                        {programName}
+                                    </Typography>
+                                ) : null}
+                                {isNonApprovalCountry ? (
+                                    <Chip
+                                        color="warning"
+                                        label={t('Lack of experience country', {
+                                            ns: 'common'
+                                        })}
+                                        size="small"
+                                        variant="outlined"
+                                    />
+                                ) : null}
+                            </Stack>
                         }
                     />
 

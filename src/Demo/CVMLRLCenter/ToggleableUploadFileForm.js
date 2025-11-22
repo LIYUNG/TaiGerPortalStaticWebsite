@@ -4,7 +4,8 @@ import {
     Grid,
     InputLabel,
     MenuItem,
-    Select
+    Select,
+    Tooltip
 } from '@mui/material';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -63,32 +64,50 @@ const ToggleableUploadFileForm = (props) => {
         </FormControl>
     );
 
+    const isLocked =
+        props.isProgramLocked === true && props.filetype !== 'General';
+    const button = (
+        <Button
+            color="primary"
+            disabled={isLocked}
+            onClick={(e) =>
+                props.filetype === 'General'
+                    ? props.handleCreateGeneralMessageThread(
+                          e,
+                          props.student._id,
+                          props.category
+                      )
+                    : props.handleCreateProgramSpecificMessageThread(
+                          e,
+                          props.student._id,
+                          props.application._id,
+                          props.category
+                      )
+            }
+            variant="contained"
+        >
+            {t('Add Task', { ns: 'common' })}
+        </Button>
+    );
+
     return (
         <Grid container spacing={2}>
             <Grid item md={8} xs={12}>
                 {drop_list}
             </Grid>
             <Grid item md={4} xs={12}>
-                <Button
-                    color="primary"
-                    onClick={(e) =>
-                        props.filetype === 'General'
-                            ? props.handleCreateGeneralMessageThread(
-                                  e,
-                                  props.student._id,
-                                  props.category
-                              )
-                            : props.handleCreateProgramSpecificMessageThread(
-                                  e,
-                                  props.student._id,
-                                  props.application._id,
-                                  props.category
-                              )
-                    }
-                    variant="contained"
-                >
-                    {t('Add Task', { ns: 'common' })}
-                </Button>
+                {isLocked ? (
+                    <Tooltip
+                        title={t(
+                            'Program is locked. Contact an agent to unlock this task.',
+                            { ns: 'common' }
+                        )}
+                    >
+                        <span>{button}</span>
+                    </Tooltip>
+                ) : (
+                    button
+                )}
             </Grid>
         </Grid>
     );
