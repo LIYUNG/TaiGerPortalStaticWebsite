@@ -545,15 +545,6 @@ function useCalendarEvents(props) {
         }));
     };
 
-    // View management: Toggle between calendar view and booked events view
-    // This is placed after all handler functions for better organization
-    const switchCalendarAndMyBookedEvents = () => {
-        setCalendarEventsState((prevState) => ({
-            ...prevState,
-            showBookedEvents: !prevState.showBookedEvents
-        }));
-    };
-
     let available_termins_full = [];
     function getAvailableTermins({
         selected_day,
@@ -639,7 +630,6 @@ function useCalendarEvents(props) {
         handleSelectSlotAgent: handleSelectSlotAgent,
         handleSelectAvailableTermin: handleSelectAvailableTermin,
         handleNewEventModalClose: handleNewEventModalClose,
-        switchCalendarAndMyBookedEvents: switchCalendarAndMyBookedEvents,
         handleModalCreateEvent: handleModalCreateEvent,
         handleSelectStudent: handleSelectStudent,
         res_modal_message: calendarEventsState.res_modal_message,
