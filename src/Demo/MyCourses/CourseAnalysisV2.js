@@ -46,7 +46,7 @@ import { Link as LinkDom, useParams } from 'react-router-dom';
 import 'react-datasheet-grid/dist/style.css';
 import {
     Bayerische_Formel,
-    is_TaiGer_Agent,
+    is_TaiGer_AdminAgent,
     is_TaiGer_role
 } from '@taiger-common/core';
 import WarningIcon from '@mui/icons-material/Warning';
@@ -1830,7 +1830,7 @@ export default function CourseAnalysisV2() {
                 <Typography color="text.primary" sx={{ pt: 2 }} variant="h6">
                     {t('Courses Analysis')}
                 </Typography>
-                {is_TaiGer_Agent(user) ? (
+                {is_TaiGer_AdminAgent(user) ? (
                     <Link
                         color="inherit"
                         component={LinkDom}

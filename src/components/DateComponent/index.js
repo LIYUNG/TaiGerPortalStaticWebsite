@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import './index.css'; // Import a separate CSS file for styling
+import { Box, Typography, useTheme } from '@mui/material';
 
 const EventDateComponent = ({ eventDate }) => {
+    const theme = useTheme();
     const [formattedDate, setFormattedDate] = useState({
         month: '',
         day: '',
@@ -33,11 +34,92 @@ const EventDateComponent = ({ eventDate }) => {
     }, [eventDate]);
 
     return (
-        <div className="event-date">
-            <div className="month">{formattedDate.month}</div>
-            <div className="day">{formattedDate.day}</div>
-            <div className="week-day">{formattedDate.weekDay}</div>
-        </div>
+        <Box
+            sx={{
+                alignItems: 'center',
+                backgroundColor: theme.palette.background.default,
+                border: `1px solid ${theme.palette.divider}`,
+                borderRadius: '4px',
+                boxShadow: theme.shadows[1],
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden',
+                width: 100
+            }}
+        >
+            {/* Month Header */}
+            <Box
+                sx={{
+                    alignItems: 'center',
+                    backgroundColor: theme.palette.primary.main,
+                    color: theme.palette.primary.contrastText,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    padding: theme.spacing(0.75, 0),
+                    width: '100%'
+                }}
+            >
+                <Typography
+                    sx={{
+                        fontSize: '0.875rem',
+                        fontWeight: 600,
+                        letterSpacing: 0.5,
+                        textTransform: 'uppercase'
+                    }}
+                    variant="body2"
+                >
+                    {formattedDate.month}
+                </Typography>
+            </Box>
+
+            {/* Day */}
+            <Box
+                sx={{
+                    alignItems: 'center',
+                    display: 'flex',
+                    flex: 1,
+                    justifyContent: 'center',
+                    minHeight: 60,
+                    padding: theme.spacing(1, 0)
+                }}
+            >
+                <Typography
+                    sx={{
+                        color: theme.palette.text.primary,
+                        fontSize: '2rem',
+                        fontWeight: 700,
+                        lineHeight: 1
+                    }}
+                    variant="h4"
+                >
+                    {formattedDate.day}
+                </Typography>
+            </Box>
+
+            {/* Weekday */}
+            <Box
+                sx={{
+                    alignItems: 'center',
+                    borderTop: `1px solid ${theme.palette.divider}`,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    padding: theme.spacing(0.5, 0),
+                    width: '100%'
+                }}
+            >
+                <Typography
+                    sx={{
+                        color: theme.palette.text.secondary,
+                        fontSize: '0.75rem',
+                        fontWeight: 500,
+                        textTransform: 'uppercase'
+                    }}
+                    variant="caption"
+                >
+                    {formattedDate.weekDay}
+                </Typography>
+            </Box>
+        </Box>
     );
 };
 

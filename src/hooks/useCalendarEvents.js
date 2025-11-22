@@ -1,32 +1,68 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import queryString from 'query-string';
+
+import { confirmEvent, deleteEvent, postEvent, updateEvent } from '../api';
 import {
-    confirmEvent,
-    deleteEvent,
-    getAllEvents,
-    getEvents,
-    postEvent,
-    updateEvent
-} from '../api';
+    getEventsQuery,
+    getBookedEventsQuery,
+    getStudentsV3Query
+} from '../api/query';
 import { is_TaiGer_Agent, is_TaiGer_Student } from '@taiger-common/core';
 import { useAuth } from '../components/AuthProvider';
 import { getUTCWithDST, time_slots } from '../utils/contants';
+import { useSnackBar } from '../contexts/use-snack-bar';
+import { queryClient } from '../api/client';
 
 function useCalendarEvents(props) {
     const { user } = useAuth();
+    const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
+
+    // Query for fetching events
+    const eventsQuery = useQuery(
+        getEventsQuery(
+            queryString.stringify({
+                startTime: props.startTime,
+                endTime: props.endTime,
+                requester_id: props.requester_id,
+                receiver_id: props.receiver_id
+            })
+        )
+    );
+
+    // Query for fetching booked events (only for students)
+    const bookedEventsQuery = useQuery({
+        ...getBookedEventsQuery({
+            startTime: props.startTime,
+            endTime: props.endTime
+        }),
+        enabled: !props.isAll && is_TaiGer_Student(user)
+    });
+
+    // Query for fetching students (only for agents)
+    const studentsQuery = useQuery({
+        ...getStudentsV3Query(`agents=${user?._id}&archiv=false`),
+        enabled: !props.isAll && is_TaiGer_Agent(user) && !!user?._id
+    });
+
+    // Extract data from query response
+    const eventsResponse = eventsQuery.data?.data || {};
+    const events = eventsResponse.data || [];
+    const agents = eventsResponse.agents || {};
+    const students = studentsQuery.data?.data || [];
+    const hasEvents = eventsResponse.hasEvents || false;
+    const booked_events = bookedEventsQuery.data?.data?.data || [];
+    const res_status = eventsQuery.data?.status || 0;
+    const success = eventsResponse.success || false;
+
+    // UI state management
     const [calendarEventsState, setCalendarEventsState] = useState({
-        error: '',
-        isLoaded: false,
-        data: null,
-        success: false,
-        agents: {},
         student_id: '',
-        hasEvents: false,
         isDeleteModalOpen: false,
         isEditModalOpen: false,
         isConfirmModalOpen: false,
         event_temp: {},
         event_id: '',
-        booked_events: [],
         selectedEvent: {},
         newReceiver: '',
         BookButtonDisable: false,
@@ -34,382 +70,272 @@ function useCalendarEvents(props) {
         newEventStart: null,
         newEventEnd: null,
         isNewEventModalOpen: false,
-        res_status: 0,
         res_modal_message: '',
-        res_modal_status: 0
+        res_modal_status: 0,
+        selected_year: null,
+        selected_month: null,
+        selected_day: null,
+        showBookedEvents: false // View state: false = calendar view, true = booked events view
     });
 
-    useEffect(() => {
-        setCalendarEventsState((prevState) => ({
-            ...prevState,
-            isLoaded: false
-        }));
-        if (props.isAll) {
-            getAllEvents().then(
-                (resp) => {
-                    const { data, agents, hasEvents, students, success } =
-                        resp.data;
-                    const { status } = resp;
-                    if (success) {
-                        setCalendarEventsState((prevState) => ({
-                            ...prevState,
-                            isLoaded: true,
-                            agents,
-                            hasEvents,
-                            events: data,
-                            students,
-                            success: success,
-                            res_status: status
-                        }));
-                    } else {
-                        setCalendarEventsState((prevState) => ({
-                            ...prevState,
-                            isLoaded: true,
-                            res_status: status
-                        }));
-                    }
-                },
-                (error) => {
-                    setCalendarEventsState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        error,
-                        res_status: 500
-                    }));
-                }
-            );
-        } else {
-            getEvents({
-                startTime: props.startTime,
-                endTime: props.endTime
-            }).then(
-                (resp) => {
-                    const {
-                        data,
-                        agents,
-                        booked_events,
-                        students,
-                        hasEvents,
-                        success
-                    } = resp.data;
-                    const { status } = resp;
-                    if (success) {
-                        setCalendarEventsState((prevState) => ({
-                            ...prevState,
-                            isLoaded: true,
-                            agents,
-                            hasEvents,
-                            students,
-                            events: data,
-                            booked_events,
-                            success: success,
-                            res_status: status
-                        }));
-                    } else {
-                        setCalendarEventsState((prevState) => ({
-                            ...prevState,
-                            isLoaded: true,
-                            res_status: status
-                        }));
-                    }
-                },
-                (error) => {
-                    setCalendarEventsState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        error,
-                        res_status: 500
-                    }));
-                }
-            );
+    // Mutation for creating events
+    const createEventMutation = useMutation({
+        mutationFn: (eventData) => postEvent(eventData),
+        onSuccess: async (resp) => {
+            const { status } = resp;
+            await queryClient.invalidateQueries({
+                queryKey: ['events'],
+                exact: false
+            });
+            await queryClient.invalidateQueries({
+                queryKey: ['events', 'booked'],
+                exact: false
+            });
+            await queryClient.invalidateQueries({
+                queryKey: ['students/v3'],
+                exact: false
+            });
+
+            setCalendarEventsState((prevState) => ({
+                ...prevState,
+                newDescription: '',
+                newReceiver: '',
+                selectedEvent: {},
+                student_id: '',
+                showBookedEvents: true,
+                isNewEventModalOpen: false,
+                BookButtonDisable: false,
+                res_modal_status: status
+            }));
+            setSeverity('success');
+            setMessage('Meeting created successfully!');
+            setOpenSnackbar(true);
+        },
+        onError: (error) => {
+            setSeverity('error');
+            setMessage(error.message || 'An error occurred. Please try again.');
+            setOpenSnackbar(true);
+        },
+        onMutate: () => {
+            setCalendarEventsState((prevState) => ({
+                ...prevState,
+                BookButtonDisable: true
+            }));
         }
-    }, [props.user_id, props.startTime, props.endTime, props.isAll]);
+    });
 
     // Only Agent can request
     const handleModalCreateEvent = (newEvent) => {
         const eventWrapper = { ...newEvent };
         if (is_TaiGer_Agent(user)) {
-            const temp_std = calendarEventsState.students.find(
+            const temp_std = students.find(
                 (std) => std._id.toString() === calendarEventsState.student_id
             );
-            eventWrapper.title = `${temp_std.firstname} ${temp_std.lastname} ${temp_std.firstname_chinese} ${temp_std.lastname_chinese}`;
-            eventWrapper.requester_id = calendarEventsState.student_id;
-            eventWrapper.receiver_id = user._id.toString();
-        }
-        // e.preventDefault();
-        setCalendarEventsState((prevState) => ({
-            ...prevState,
-            BookButtonDisable: true
-        }));
-        postEvent(eventWrapper).then(
-            (resp) => {
-                const { success, data } = resp.data;
-                const { status } = resp;
-                const events_temp = [...calendarEventsState.events];
-                events_temp.push(data);
-                if (success) {
-                    setCalendarEventsState((prevState) => ({
-                        ...prevState,
-                        success,
-                        isLoaded: true,
-                        newDescription: '',
-                        newReceiver: '',
-                        selectedEvent: {},
-                        student_id: '',
-                        isNewEventModalOpen: false,
-                        events: data,
-                        newEvent: {},
-                        BookButtonDisable: false,
-                        hasEvents: true,
-                        isDeleteModalOpen: false,
-                        res_modal_status: status
-                    }));
-                } else {
-                    // TODO: what if data is oversize? data type not match?
-                    const { message } = resp.data;
-                    setCalendarEventsState((prevState) => ({
-                        ...prevState,
-                        success,
-                        isLoaded: true,
-                        newDescription: '',
-                        newReceiver: '',
-                        selectedEvent: {},
-                        isNewEventModalOpen: false,
-                        isDeleteModalOpen: false,
-                        BookButtonDisable: false,
-                        res_modal_message: message,
-                        res_modal_status: status
-                    }));
-                }
-            },
-            (error) => {
-                setCalendarEventsState((prevState) => ({
-                    ...prevState,
-                    error,
-                    isLoaded: true,
-                    newDescription: '',
-                    newReceiver: '',
-                    isNewEventModalOpen: false,
-                    selectedEvent: {},
-                    isDeleteModalOpen: false,
-                    BookButtonDisable: false
-                }));
+            if (temp_std) {
+                eventWrapper.title = `${temp_std.firstname} ${temp_std.lastname} ${temp_std.firstname_chinese} ${temp_std.lastname_chinese}`;
+                eventWrapper.requester_id = calendarEventsState.student_id;
+                eventWrapper.receiver_id = user._id.toString();
             }
-        );
+        }
+        createEventMutation.mutate(eventWrapper);
     };
 
     const handleModalBook = (e) => {
         e.preventDefault();
-        setCalendarEventsState((prevState) => ({
-            ...prevState,
-            BookButtonDisable: true
-        }));
-        const eventWrapper = { ...calendarEventsState.selectedEvent };
+        let eventWrapper = {};
+
+        // If booking from available time slots, create event from newEventStart/newEventEnd
+        if (calendarEventsState.newEventStart) {
+            // Ensure we have Date objects
+            const startDate =
+                calendarEventsState.newEventStart instanceof Date
+                    ? calendarEventsState.newEventStart
+                    : new Date(calendarEventsState.newEventStart);
+
+            const endDate =
+                calendarEventsState.newEventEnd instanceof Date
+                    ? calendarEventsState.newEventEnd
+                    : calendarEventsState.newEventEnd
+                      ? new Date(calendarEventsState.newEventEnd)
+                      : (() => {
+                            const end = new Date(startDate);
+                            end.setMinutes(end.getMinutes() + 30);
+                            return end;
+                        })();
+
+            eventWrapper = {
+                start: startDate.toISOString(),
+                end: endDate.toISOString()
+            };
+        } else {
+            // Otherwise, use selectedEvent (for calendar slot booking)
+            eventWrapper = { ...calendarEventsState.selectedEvent };
+        }
+
         if (is_TaiGer_Student(user)) {
             eventWrapper.requester_id = user._id.toString();
             eventWrapper.description = calendarEventsState.newDescription;
             eventWrapper.receiver_id = calendarEventsState.newReceiver;
         }
-        postEvent(eventWrapper).then(
-            (resp) => {
-                const { success, data } = resp.data;
-                const { status } = resp;
-                const events_temp = [...calendarEventsState.events];
-                events_temp.push(data);
-                if (success) {
-                    setCalendarEventsState((prevState) => ({
-                        ...prevState,
-                        success,
-                        isLoaded: true,
-                        newDescription: '',
-                        newReceiver: '',
-                        BookButtonDisable: false,
-                        selectedEvent: {},
-                        events: data,
-                        hasEvents: true,
-                        isDeleteModalOpen: false,
-                        res_modal_status: status
-                    }));
-                } else {
-                    // TODO: what if data is oversize? data type not match?
-                    const { message } = resp.data;
-                    setCalendarEventsState((prevState) => ({
-                        ...prevState,
-                        success,
-                        isLoaded: true,
-                        newDescription: '',
-                        newReceiver: '',
-                        BookButtonDisable: false,
-                        selectedEvent: {},
-                        isDeleteModalOpen: false,
-                        res_modal_message: message,
-                        res_modal_status: status
-                    }));
-                }
-            },
-            (error) => {
-                setCalendarEventsState((prevState) => ({
-                    ...prevState,
-                    error,
-                    isLoaded: true,
-                    newDescription: '',
-                    newReceiver: '',
-                    BookButtonDisable: false,
-                    selectedEvent: {},
-                    isDeleteModalOpen: false,
-                    res_modal_status: status
-                }));
-            }
-        );
+        createEventMutation.mutate(eventWrapper);
     };
+
+    // Mutation for confirming events
+    const confirmEventMutation = useMutation({
+        mutationFn: ({ eventId, updatedEvent }) =>
+            confirmEvent(eventId, updatedEvent),
+        onSuccess: async (resp) => {
+            const { status } = resp;
+            await queryClient.invalidateQueries({
+                queryKey: ['events'],
+                exact: false
+            });
+            await queryClient.invalidateQueries({
+                queryKey: ['events', 'booked'],
+                exact: false
+            });
+            await queryClient.invalidateQueries({
+                queryKey: ['students/v3'],
+                exact: false
+            });
+
+            setSeverity('success');
+            setMessage('Meeting confirmed successfully!');
+            setOpenSnackbar(true);
+            setCalendarEventsState((prevState) => ({
+                ...prevState,
+                isConfirmModalOpen: false,
+                event_temp: {},
+                event_id: '',
+                BookButtonDisable: false,
+                res_status: status
+            }));
+        },
+        onError: (error) => {
+            setSeverity('error');
+            setMessage(error.message || 'An error occurred. Please try again.');
+            setOpenSnackbar(true);
+            setCalendarEventsState((prevState) => ({
+                ...prevState,
+                BookButtonDisable: false
+            }));
+        },
+        onMutate: () => {
+            setCalendarEventsState((prevState) => ({
+                ...prevState,
+                BookButtonDisable: true
+            }));
+        }
+    });
 
     const handleConfirmAppointmentModal = (e, event_id, updated_event) => {
         e.preventDefault();
-        setCalendarEventsState((prevState) => ({
-            ...prevState,
-            BookButtonDisable: true
-        }));
-        confirmEvent(event_id, updated_event).then(
-            (resp) => {
-                const { data, success } = resp.data;
-                const { status } = resp;
-                const temp_events = [...calendarEventsState.events];
-                let found_event_idx = temp_events.findIndex(
-                    (temp_event) => temp_event._id.toString() === event_id
-                );
-                if (found_event_idx >= 0) {
-                    temp_events[found_event_idx] = data;
-                }
-                if (success) {
-                    setCalendarEventsState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        isConfirmModalOpen: false,
-                        events: temp_events,
-                        event_temp: {},
-                        event_id: '',
-                        BookButtonDisable: false,
-                        isDeleteModalOpen: false,
-                        success: success,
-                        res_status: status
-                    }));
-                } else {
-                    setCalendarEventsState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        event_temp: {},
-                        event_id: '',
-                        BookButtonDisable: false,
-                        res_status: status
-                    }));
-                }
-            },
-            (error) => {
-                setCalendarEventsState((prevState) => ({
-                    ...prevState,
-                    isLoaded: true,
-                    BookButtonDisable: false,
-                    error,
-                    res_status: 500
-                }));
-            }
-        );
+        confirmEventMutation.mutate({
+            eventId: event_id,
+            updatedEvent: updated_event
+        });
     };
+
+    // Mutation for updating events
+    const updateEventMutation = useMutation({
+        mutationFn: ({ eventId, updatedEvent }) =>
+            updateEvent(eventId, updatedEvent),
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({
+                queryKey: ['events'],
+                exact: false
+            });
+            await queryClient.invalidateQueries({
+                queryKey: ['events', 'booked'],
+                exact: false
+            });
+            await queryClient.invalidateQueries({
+                queryKey: ['students/v3'],
+                exact: false
+            });
+
+            setSeverity('success');
+            setMessage('Meeting updated successfully!');
+            setOpenSnackbar(true);
+            setCalendarEventsState((prevState) => ({
+                ...prevState,
+                isEditModalOpen: false,
+                BookButtonDisable: false,
+                event_id: ''
+            }));
+        },
+        onError: (error) => {
+            setSeverity('error');
+            setMessage(error.message || 'An error occurred. Please try again.');
+            setOpenSnackbar(true);
+            setCalendarEventsState((prevState) => ({
+                ...prevState,
+                BookButtonDisable: false
+            }));
+        },
+        onMutate: () => {
+            setCalendarEventsState((prevState) => ({
+                ...prevState,
+                BookButtonDisable: true
+            }));
+        }
+    });
 
     const handleEditAppointmentModal = (e, event_id, updated_event) => {
         e.preventDefault();
-        setCalendarEventsState((prevState) => ({
-            ...prevState,
-            BookButtonDisable: true
-        }));
-        updateEvent(event_id, updated_event).then(
-            (resp) => {
-                const { data, success } = resp.data;
-                const { status } = resp;
-                const temp_events = [...calendarEventsState.events];
-                let found_event_idx = temp_events.findIndex(
-                    (temp_event) => temp_event._id.toString() === event_id
-                );
-                if (found_event_idx >= 0) {
-                    temp_events[found_event_idx] = data;
-                }
-                if (success) {
-                    setCalendarEventsState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        isEditModalOpen: false,
-                        BookButtonDisable: false,
-                        events: temp_events,
-                        event_id: '',
-                        isDeleteModalOpen: false,
-                        success: success,
-                        res_status: status
-                    }));
-                } else {
-                    setCalendarEventsState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        BookButtonDisable: false,
-                        event_id: '',
-                        res_status: status
-                    }));
-                }
-            },
-            (error) => {
-                setCalendarEventsState((prevState) => ({
-                    ...prevState,
-                    isLoaded: true,
-                    BookButtonDisable: false,
-                    error,
-                    res_status: 500
-                }));
-            }
-        );
+        updateEventMutation.mutate({
+            eventId: event_id,
+            updatedEvent: updated_event
+        });
     };
+
+    // Mutation for deleting events
+    const deleteEventMutation = useMutation({
+        mutationFn: (eventId) => deleteEvent(eventId),
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({
+                queryKey: ['events'],
+                exact: false
+            });
+            await queryClient.invalidateQueries({
+                queryKey: ['events', 'booked'],
+                exact: false
+            });
+            await queryClient.invalidateQueries({
+                queryKey: ['students/v3'],
+                exact: false
+            });
+
+            setCalendarEventsState((prevState) => ({
+                ...prevState,
+                event_id: '',
+                BookButtonDisable: false,
+                isDeleteModalOpen: false
+            }));
+            setSeverity('success');
+            setMessage('Meeting deleted successfully!');
+            setOpenSnackbar(true);
+        },
+        onError: (error) => {
+            setSeverity('error');
+            setMessage(error.message || 'An error occurred. Please try again.');
+            setOpenSnackbar(true);
+            setCalendarEventsState((prevState) => ({
+                ...prevState,
+                BookButtonDisable: false
+            }));
+        },
+        onMutate: () => {
+            setCalendarEventsState((prevState) => ({
+                ...prevState,
+                BookButtonDisable: true
+            }));
+        }
+    });
 
     const handleDeleteAppointmentModal = (e, event_id) => {
         e.preventDefault();
-        setCalendarEventsState((prevState) => ({
-            ...prevState,
-            BookButtonDisable: true
-        }));
-        deleteEvent(event_id).then(
-            (resp) => {
-                const { data, agents, hasEvents, success } = resp.data;
-                const { status } = resp;
-                if (success) {
-                    setCalendarEventsState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        agents,
-                        hasEvents,
-                        events: data,
-                        event_id: '',
-                        BookButtonDisable: false,
-                        isDeleteModalOpen: false,
-                        success: success,
-                        res_status: status
-                    }));
-                } else {
-                    setCalendarEventsState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        event_id: '',
-                        BookButtonDisable: false,
-                        res_status: status
-                    }));
-                }
-            },
-            (error) => {
-                setCalendarEventsState((prevState) => ({
-                    ...prevState,
-                    isLoaded: true,
-                    BookButtonDisable: false,
-                    error,
-                    res_status: 500
-                }));
-            }
-        );
+        deleteEventMutation.mutate(event_id);
     };
 
     const handleConfirmAppointmentModalOpen = (e, event) => {
@@ -447,9 +373,14 @@ function useCalendarEvents(props) {
 
     const handleUpdateTimeSlot = (e) => {
         const new_timeslot_temp = e.target.value;
+        const startDate = new Date(new_timeslot_temp);
+        const endDate = new Date(startDate);
+        endDate.setMinutes(endDate.getMinutes() + 30);
         setCalendarEventsState((prevState) => ({
             ...prevState,
-            event_temp: { ...prevState.event_temp, start: new_timeslot_temp }
+            event_temp: { ...prevState.event_temp, start: new_timeslot_temp },
+            newEventStart: startDate,
+            newEventEnd: endDate
         }));
     };
 
@@ -556,19 +487,45 @@ function useCalendarEvents(props) {
         }));
     };
 
+    // Handler for clicking on an available time slot (termin) to book a meeting
+    const handleSelectAvailableTermin = (timeSlot) => {
+        const startDate = new Date(timeSlot.start);
+        const endDate = new Date(timeSlot.end);
+        const year = startDate.getFullYear();
+        const month = startDate.getMonth() + 1;
+        const day = startDate.getDate();
+
+        // Auto-select the provider agent if available
+        const receiverId =
+            timeSlot.provider?._id?.toString() || timeSlot.provider?._id || '';
+
+        // Set event_temp to match the structure expected by the dialog
+        setCalendarEventsState((prevState) => ({
+            ...prevState,
+            newEventStart: startDate,
+            newEventEnd: endDate,
+            newReceiver: receiverId,
+            event_temp: {
+                ...prevState.event_temp,
+                start: startDate,
+                end: endDate,
+                receiver_id: timeSlot.provider
+                    ? [timeSlot.provider]
+                    : prevState.event_temp.receiver_id
+            },
+            isNewEventModalOpen: true,
+            selected_year: year,
+            selected_month: month,
+            selected_day: day
+        }));
+    };
+
     const handleNewEventModalClose = () => {
         // Close the modal for creating a new event
         setCalendarEventsState((prevState) => ({
             ...prevState,
             isNewEventModalOpen: false,
             newDescription: ''
-        }));
-    };
-
-    const switchCalendarAndMyBookedEvents = () => {
-        setCalendarEventsState((prevState) => ({
-            ...prevState,
-            hasEvents: !prevState.hasEvents
         }));
     };
 
@@ -585,6 +542,15 @@ function useCalendarEvents(props) {
         setCalendarEventsState((prevState) => ({
             ...prevState,
             student_id: student_id
+        }));
+    };
+
+    // View management: Toggle between calendar view and booked events view
+    // This is placed after all handler functions for better organization
+    const switchCalendarAndMyBookedEvents = () => {
+        setCalendarEventsState((prevState) => ({
+            ...prevState,
+            showBookedEvents: !prevState.showBookedEvents
         }));
     };
 
@@ -627,12 +593,16 @@ function useCalendarEvents(props) {
     }
 
     return {
-        events: calendarEventsState.events,
-        agents: calendarEventsState.agents,
-        hasEvents: calendarEventsState.hasEvents,
-        booked_events: calendarEventsState.booked_events,
-        isLoaded: calendarEventsState.isLoaded,
-        res_status: calendarEventsState.res_status,
+        events: events,
+        agents: agents,
+        hasEvents: hasEvents, // Data flag: whether there are events from API
+        showBookedEvents: calendarEventsState.showBookedEvents, // View state: which view to show
+        booked_events: booked_events,
+        isLoaded: eventsQuery.isLoading === false,
+        isLoading: eventsQuery.isLoading,
+        error: eventsQuery.error,
+        res_status: res_status,
+        success: success,
         isConfirmModalOpen: calendarEventsState.isConfirmModalOpen,
         event_id: calendarEventsState.event_id,
         event_temp: calendarEventsState.event_temp,
@@ -645,7 +615,7 @@ function useCalendarEvents(props) {
         newEventEnd: calendarEventsState.newEventEnd,
         isNewEventModalOpen: calendarEventsState.isNewEventModalOpen,
         isDeleteModalOpen: calendarEventsState.isDeleteModalOpen,
-        students: calendarEventsState.students,
+        students: students,
         student_id: calendarEventsState.student_id,
         available_termins_full: available_termins_full,
         handleConfirmAppointmentModalOpen: handleConfirmAppointmentModalOpen,
@@ -667,13 +637,15 @@ function useCalendarEvents(props) {
         handleChange: handleChange,
         handleSelectSlot: handleSelectSlot,
         handleSelectSlotAgent: handleSelectSlotAgent,
+        handleSelectAvailableTermin: handleSelectAvailableTermin,
         handleNewEventModalClose: handleNewEventModalClose,
         switchCalendarAndMyBookedEvents: switchCalendarAndMyBookedEvents,
         handleModalCreateEvent: handleModalCreateEvent,
         handleSelectStudent: handleSelectStudent,
         res_modal_message: calendarEventsState.res_modal_message,
         res_modal_status: calendarEventsState.res_modal_status,
-        ConfirmError
+        ConfirmError,
+        refetch: eventsQuery.refetch
     };
 }
 
