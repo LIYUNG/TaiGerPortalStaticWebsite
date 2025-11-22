@@ -235,46 +235,29 @@ const AllOfficeHours = () => {
                 </Tabs>
             </Box>
             <CustomTabPanel index={0} value={value}>
-                <Card>
-                    <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                        <Tabs
-                            aria-label="basic tabs example"
-                            indicatorColor="primary"
-                            onChange={handleChangeValue}
-                            scrollButtons="auto"
-                            value={value}
-                            variant="scrollable"
-                        >
-                            <Tab
-                                label={t('Calendar')}
-                                {...a11yProps(value, 0)}
-                            />
-                        </Tabs>
-                    </Box>
-                    <CustomTabPanel index={0} value={value}>
-                        <MyCalendar
-                            events={[...booked_events]}
-                            handleChange={handleChange}
-                            handleChangeReceiver={handleChangeReceiver}
-                            handleModalBook={handleModalBook}
-                            handleModalClose={handleModalClose}
-                            handleModalCreateEvent={handleModalCreateEvent}
-                            handleNewEventModalClose={handleNewEventModalClose}
-                            handleSelectEvent={handleSelectEvent}
-                            handleSelectSlot={handleSelectSlot}
-                            handleSelectStudent={handleSelectStudent}
-                            handleUpdateTimeSlot={handleUpdateTimeSlotAgent}
-                            isNewEventModalOpen={isNewEventModalOpen}
-                            newDescription={newDescription}
-                            newEventEnd={newEventEnd}
-                            newEventStart={newEventStart}
-                            newReceiver={newReceiver}
-                            selectedEvent={selectedEvent}
-                            student_id={student_id}
-                            students={students}
-                        />
-                    </CustomTabPanel>
-                </Card>
+                <CustomTabPanel index={0} value={value}>
+                    <MyCalendar
+                        events={[...booked_events]}
+                        handleChange={handleChange}
+                        handleChangeReceiver={handleChangeReceiver}
+                        handleModalBook={handleModalBook}
+                        handleModalClose={handleModalClose}
+                        handleModalCreateEvent={handleModalCreateEvent}
+                        handleNewEventModalClose={handleNewEventModalClose}
+                        handleSelectEvent={handleSelectEvent}
+                        handleSelectSlot={handleSelectSlot}
+                        handleSelectStudent={handleSelectStudent}
+                        handleUpdateTimeSlot={handleUpdateTimeSlotAgent}
+                        isNewEventModalOpen={isNewEventModalOpen}
+                        newDescription={newDescription}
+                        newEventEnd={newEventEnd}
+                        newEventStart={newEventStart}
+                        newReceiver={newReceiver}
+                        selectedEvent={selectedEvent}
+                        student_id={student_id}
+                        students={students}
+                    />
+                </CustomTabPanel>
             </CustomTabPanel>
             <CustomTabPanel index={1} value={value}>
                 <>
