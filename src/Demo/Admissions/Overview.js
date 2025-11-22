@@ -9,17 +9,8 @@ import queryString from 'query-string';
 
 import { MuiDataGrid } from '../../components/MuiDataGrid';
 import Loading from '../../components/Loading/Loading';
-import { getApplicationsQuery, getUsersOverviewQuery } from '../../api/query';
+import { getApplicationsQuery } from '../../api/query';
 import cityCoord from './cityCoord.json';
-import {
-    CardContent,
-    Chip,
-    List,
-    ListItem,
-    ListItemText,
-    LinearProgress
-} from '@mui/material';
-import { School } from '@mui/icons-material';
 
 const toUpperSafe = (value) => value?.toString().toUpperCase() || '';
 
@@ -171,13 +162,6 @@ const Overview = () => {
             queryString.stringify({ finalEnrolment: true, populate: true })
         )
     );
-
-    // Fetch users overview for university distribution
-    const { data: usersOverviewData, isLoading: isUsersOverviewLoading } =
-        useQuery(getUsersOverviewQuery());
-    const usersOverview = usersOverviewData?.data;
-    const totalStudents =
-        usersOverview?.byRole?.find((r) => r.role === 'Student')?.count || 0;
 
     // Normalize final applications (populated program details)
     const finalApplications = useMemo(() => {
@@ -771,80 +755,6 @@ const Overview = () => {
                     )}
                 </Card>
             </Box>
-
-            {/* University Distribution */}
-            {!isUsersOverviewLoading &&
-                usersOverview?.byUniversity &&
-                usersOverview.byUniversity.length > 0 && (
-                    <Box sx={{ mt: 2 }}>
-                        <Typography gutterBottom variant="h5">
-                            {t('University Distribution', { ns: 'common' })}
-                        </Typography>
-                        <Card sx={{ height: 450 }}>
-                            <CardContent
-                                sx={{
-                                    height: '100%',
-                                    display: 'flex',
-                                    flexDirection: 'column'
-                                }}
-                            >
-                                <Box alignItems="center" display="flex" mb={2}>
-                                    <School sx={{ mr: 1 }} />
-                                    <Typography variant="h6">
-                                        {t('Students by University', {
-                                            ns: 'common'
-                                        })}
-                                    </Typography>
-                                </Box>
-                                <Divider sx={{ mb: 2 }} />
-                                <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
-                                    <List dense>
-                                        {usersOverview.byUniversity.map(
-                                            (item, index) => (
-                                                <ListItem key={index}>
-                                                    <ListItemText
-                                                        primary={
-                                                            <Box
-                                                                alignItems="center"
-                                                                display="flex"
-                                                                justifyContent="space-between"
-                                                            >
-                                                                <Typography>
-                                                                    {
-                                                                        item.university
-                                                                    }
-                                                                </Typography>
-                                                                <Chip
-                                                                    color="info"
-                                                                    label={
-                                                                        item.count
-                                                                    }
-                                                                    size="small"
-                                                                />
-                                                            </Box>
-                                                        }
-                                                        secondary={
-                                                            <LinearProgress
-                                                                color="info"
-                                                                sx={{ mt: 1 }}
-                                                                value={
-                                                                    (item.count /
-                                                                        totalStudents) *
-                                                                    100
-                                                                }
-                                                                variant="determinate"
-                                                            />
-                                                        }
-                                                    />
-                                                </ListItem>
-                                            )
-                                        )}
-                                    </List>
-                                </Box>
-                            </CardContent>
-                        </Card>
-                    </Box>
-                )}
         </Box>
     );
 };
