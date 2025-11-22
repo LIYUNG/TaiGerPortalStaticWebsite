@@ -1,30 +1,33 @@
 import React, { useState } from 'react';
 import {
+    Avatar,
+    Badge,
     Box,
+    Breadcrumbs,
     Button,
     Card,
     CircularProgress,
-    Tabs,
-    Tab,
-    Typography,
-    Link,
-    Breadcrumbs,
-    TextField,
-    Badge,
-    FormControl,
-    Select,
-    MenuItem,
-    InputLabel,
     Dialog,
-    DialogTitle,
+    DialogActions,
     DialogContent,
-    DialogActions
+    DialogTitle,
+    FormControl,
+    InputLabel,
+    Link,
+    MenuItem,
+    Select,
+    Tab,
+    Tabs,
+    TextField,
+    Typography,
+    useTheme
 } from '@mui/material';
 import moment from 'moment-timezone';
 import { Navigate, useParams, Link as LinkDom } from 'react-router-dom';
 import CheckIcon from '@mui/icons-material/Check';
 import PersonIcon from '@mui/icons-material/Person';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { is_TaiGer_Student } from '@taiger-common/core';
@@ -64,6 +67,7 @@ const OfficeHours = () => {
     const { user } = useAuth();
     const { user_id } = useParams();
     const { t } = useTranslation();
+    const theme = useTheme();
     const query = new URLSearchParams(window.location.search);
     const startTime = query.get('startTime');
     const endTime = query.get('endTime');
@@ -642,21 +646,104 @@ const OfficeHours = () => {
                                     p: 2
                                 }}
                             >
-                                <Box sx={{ flex: 1 }}>
-                                    <Typography variant="h6">
-                                        {time_slot.start?.toLocaleString()} to{' '}
-                                        {time_slot.end?.toLocaleString()}
-                                    </Typography>
-                                    {time_slot.provider && (
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        flex: 1,
+                                        flexDirection: 'column',
+                                        gap: 1.5
+                                    }}
+                                >
+                                    <Box
+                                        sx={{
+                                            alignItems: 'center',
+                                            display: 'flex',
+                                            flexWrap: 'wrap',
+                                            gap: 1
+                                        }}
+                                    >
+                                        <AccessTimeIcon
+                                            color="primary"
+                                            fontSize="small"
+                                            sx={{ opacity: 0.8 }}
+                                        />
+                                        <Typography
+                                            sx={{ fontWeight: 600 }}
+                                            variant="h6"
+                                        >
+                                            {time_slot.start?.toLocaleString()}
+                                        </Typography>
                                         <Typography
                                             color="text.secondary"
-                                            sx={{ mt: 0.5 }}
                                             variant="body2"
                                         >
-                                            {t('With', { ns: 'common' })}{' '}
-                                            {time_slot.provider.firstname}{' '}
-                                            {time_slot.provider.lastname}
+                                            →
                                         </Typography>
+                                        <Typography
+                                            sx={{ fontWeight: 600 }}
+                                            variant="h6"
+                                        >
+                                            {time_slot.end?.toLocaleString()}
+                                        </Typography>
+                                    </Box>
+                                    {time_slot.provider && (
+                                        <Box
+                                            sx={{
+                                                alignItems: 'center',
+                                                display: 'flex',
+                                                gap: 1.5
+                                            }}
+                                        >
+                                            <Avatar
+                                                src={
+                                                    time_slot.provider
+                                                        .pictureUrl
+                                                }
+                                                sx={{
+                                                    height: 36,
+                                                    width: 36,
+                                                    border: `2px solid ${theme.palette.divider}`
+                                                }}
+                                            />
+                                            <Box
+                                                sx={{
+                                                    display: 'flex',
+                                                    flexDirection: 'column'
+                                                }}
+                                            >
+                                                <Typography
+                                                    sx={{
+                                                        fontWeight: 500,
+                                                        lineHeight: 1.3
+                                                    }}
+                                                    variant="body2"
+                                                >
+                                                    {
+                                                        time_slot.provider
+                                                            .firstname
+                                                    }{' '}
+                                                    {
+                                                        time_slot.provider
+                                                            .lastname
+                                                    }
+                                                </Typography>
+                                                {time_slot.provider.email && (
+                                                    <Typography
+                                                        color="text.secondary"
+                                                        sx={{
+                                                            fontSize: '0.75rem',
+                                                            lineHeight: 1.2
+                                                        }}
+                                                        variant="caption"
+                                                    >
+                                                        {
+                                                            time_slot.provider
+                                                                .email
+                                                        }
+                                                    </Typography>
+                                                )}
+                                            </Box>
+                                        </Box>
                                     )}
                                 </Box>
                                 <Button
