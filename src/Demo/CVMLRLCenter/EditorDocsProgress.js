@@ -55,35 +55,15 @@ const ApplicationAccordionSummary = ({ application }) => {
     const lockStatus = calculateProgramLockStatus(application?.programId);
     const isLocked = lockStatus.isLocked;
 
-    const statusNode = (() => {
+    // Determine status text
+    const getStatusText = () => {
         if (isProgramSubmitted(application)) {
-            return <IconButton>{FILE_OK_SYMBOL}</IconButton>;
-        }
-
-        if (isLocked) {
-            return (
-                <Tooltip
-                    title={i18next.t(
-                        'Program is locked. Contact your agent to unlock this task.',
-                        { ns: 'common' }
-                    )}
-                >
-                    <Box
-                        sx={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            color: 'warning.main'
-                        }}
-                    >
-                        <LockOutlinedIcon fontSize="small" />
-                    </Box>
-                </Tooltip>
-            );
+            return null; // Will show FILE_OK_SYMBOL instead
         }
 
         if (application.decided === '-') {
             return (
-                <Typography color="grey" sx={{ mr: 2 }} variant="body1">
+                <Typography color="grey" variant="body1">
                     Undecided
                 </Typography>
             );
@@ -91,7 +71,7 @@ const ApplicationAccordionSummary = ({ application }) => {
 
         if (application.decided === 'X') {
             return (
-                <Typography color="grey" sx={{ mr: 2 }} variant="body1">
+                <Typography color="grey" variant="body1">
                     Not wanted
                 </Typography>
             );
@@ -109,6 +89,47 @@ const ApplicationAccordionSummary = ({ application }) => {
             <Typography fontWeight="bold">
                 {i18next.t('In Progress', { ns: 'common' })}
             </Typography>
+        );
+    };
+
+    const statusNode = (() => {
+        if (isProgramSubmitted(application)) {
+            return <IconButton>{FILE_OK_SYMBOL}</IconButton>;
+        }
+
+        const statusText = getStatusText();
+        const lockIcon = isLocked ? (
+            <Tooltip
+                title={i18next.t(
+                    'Program is locked. Contact your agent to unlock this task.',
+                    { ns: 'common' }
+                )}
+            >
+                <Box
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        color: 'warning.main',
+                        mb: 0.5
+                    }}
+                >
+                    <LockOutlinedIcon fontSize="small" />
+                </Box>
+            </Tooltip>
+        ) : null;
+
+        return (
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                }}
+            >
+                {lockIcon}
+                {statusText}
+            </Box>
         );
     })();
 

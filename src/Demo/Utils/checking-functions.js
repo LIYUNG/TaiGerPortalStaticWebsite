@@ -2417,10 +2417,22 @@ export const calculateProgramLockStatus = (program) => {
 
     // Business logic for non-approval countries
     if (!isInApprovalCountry) {
+        const ONE_MINUTE_IN_MS = 60 * 1000;
+        const wasUpdatedVeryRecently = lastUpdated
+            ? Date.now() - lastUpdated.getTime() < ONE_MINUTE_IN_MS
+            : false;
+
+        // If updated very recently (within 1 minute), unlock (handles manual unlock)
+        if (wasUpdatedVeryRecently) {
+            return { isLocked: false, reason: null };
+        }
+
+        // If has active applications, unlock
         if (hasActiveApplications) {
             return { isLocked: false, reason: null };
         }
 
+        // If no active applications, lock
         if (!hasActiveApplications) {
             return { isLocked: true, reason: LOCK_REASON.NO_ACTIVE_STUDENTS };
         }
