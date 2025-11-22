@@ -2417,12 +2417,7 @@ export const calculateProgramLockStatus = (program) => {
 
     // Business logic for non-approval countries
     if (!isInApprovalCountry) {
-        const ONE_MINUTE_IN_MS = 60 * 1000;
-        const wasUpdatedVeryRecently = lastUpdated
-            ? Date.now() - lastUpdated.getTime() < ONE_MINUTE_IN_MS
-            : false;
-
-        if (wasUpdatedVeryRecently && hasActiveApplications) {
+        if (hasActiveApplications) {
             return { isLocked: false, reason: null };
         }
 
