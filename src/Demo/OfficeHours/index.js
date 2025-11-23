@@ -137,12 +137,13 @@ const OfficeHours = () => {
         return <ErrorPage res_status={res_status} />;
     }
 
-    let available_termins = [];
-    available_termins = [0, 1, 2, 3, 4, 5].flatMap((iter, x) =>
-        [...agents, ...editors].flatMap((agent) =>
-            agent.timezone && moment.tz.zone(agent.timezone)
-                ? getReorderWeekday(getTodayAsWeekday(agent.timezone)).flatMap(
-                      (weekday, i) => {
+    const available_termins_func = (users) => {
+        return [0, 1, 2, 3, 4, 5].flatMap((iter, x) =>
+            users.flatMap((agent) =>
+                agent.timezone && moment.tz.zone(agent.timezone)
+                    ? getReorderWeekday(
+                          getTodayAsWeekday(agent.timezone)
+                      ).flatMap((weekday, i) => {
                           const timeSlots =
                               agent.officehours &&
                               agent.officehours[weekday]?.active &&
@@ -220,10 +221,21 @@ const OfficeHours = () => {
                                   }
                               );
                           return timeSlots || [];
-                      }
-                  )
-                : []
-        )
+                      })
+                    : []
+            )
+        );
+    };
+
+    let available_termins = [];
+    available_termins = available_termins_func([...agents, ...editors]);
+
+    const receiver = event_temp.receiver_id?.[0];
+    const agent_or_editor = [...agents, ...editors].find(
+        (user) => user.email === receiver?.email
+    );
+    const single_agent_editor_available_termins = available_termins_func(
+        receiver ? [agent_or_editor] : []
     );
 
     const has_officehours = available_termins?.length !== 0 ? true : false;
@@ -502,9 +514,14 @@ const OfficeHours = () => {
                             open={isEditModalOpen}
                         >
                             <DialogTitle>
-                                {t(
-                                    'Please write down the topic you want to discuss'
-                                )}
+                                <Typography variant="h6">
+                                    {t('Update Meeting', { ns: 'common' })}
+                                </Typography>
+                                <Typography>
+                                    {t(
+                                        'Please write down the topic you want to discuss'
+                                    )}
+                                </Typography>
                             </DialogTitle>
                             <DialogContent>
                                 <TextField
@@ -556,7 +573,7 @@ const OfficeHours = () => {
                                         size="small"
                                         value={new Date(event_temp.start)}
                                     >
-                                        {available_termins
+                                        {single_agent_editor_available_termins
                                             .sort((a, b) =>
                                                 a.start < b.start ? -1 : 1
                                             )
@@ -830,6 +847,7 @@ const OfficeHours = () => {
                                 <Select
                                     id="time_slot"
                                     onChange={(e) => handleUpdateTimeSlot(e)}
+                                    readOnly={true}
                                     size="small"
                                     value={
                                         newEventStart

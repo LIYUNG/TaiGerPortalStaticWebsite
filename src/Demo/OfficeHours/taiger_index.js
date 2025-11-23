@@ -23,6 +23,7 @@ import {
     ButtonGroup
 } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
 import {
     Navigate,
     useParams,
@@ -189,8 +190,6 @@ const TaiGerOfficeHours = () => {
     const [value, setValue] = useState(0);
     const {
         events,
-        agents,
-        editors,
         booked_events,
         res_status,
         isLoaded,
@@ -259,7 +258,7 @@ const TaiGerOfficeHours = () => {
 
     let available_termins = [];
     available_termins = [0, 1, 2, 3, 4, 5].flatMap((iter, x) =>
-        [...agents, ...editors].flatMap((agent) =>
+        [user].flatMap((agent) =>
             agent.timezone && moment.tz.zone(agent.timezone)
                 ? getReorderWeekday(getTodayAsWeekday(agent.timezone)).flatMap(
                       (weekday, i) => {
@@ -712,7 +711,7 @@ const TaiGerOfficeHours = () => {
 
                 <DialogActions>
                     <Button
-                        color="secondary"
+                        color="primary"
                         disabled={
                             event_id === '' ||
                             event_temp?.description?.length === 0 ||
@@ -722,13 +721,29 @@ const TaiGerOfficeHours = () => {
                             handleEditAppointmentModal(e, event_id, event_temp)
                         }
                         size="small"
-                        variant="outlined"
+                        startIcon={
+                            BookButtonDisable ? (
+                                <CircularProgress size={16} />
+                            ) : (
+                                <CheckIcon />
+                            )
+                        }
+                        variant="contained"
                     >
                         {BookButtonDisable ? (
                             <CircularProgress size={16} />
                         ) : (
                             t('Update', { ns: 'common' })
                         )}
+                    </Button>
+                    <Button
+                        color="primary"
+                        onClick={handleEditAppointmentModalClose}
+                        size="small"
+                        startIcon={<CloseIcon />}
+                        variant="outlined"
+                    >
+                        {t('Close', { ns: 'common' })}
                     </Button>
                 </DialogActions>
             </Dialog>
