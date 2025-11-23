@@ -32,8 +32,10 @@ import {
     ThumbDown as ThumbDownIcon,
     HelpOutline as HelpOutlineIcon,
     Send as SendIcon,
-    Info as InfoIcon
+    Info as InfoIcon,
+    AccessTime as AccessTimeIcon
 } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 
 import ApplicationOverviewTabs from '../ApplicantsOverview/ApplicationOverviewTabs';
 
@@ -45,11 +47,13 @@ import {
     getMyStudentsApplicationsV2Query,
     getStudentsV3Query
 } from '../../api/query';
+import { formatDate } from '../Utils/checking-functions';
 
 // TODO TEST_CASE
 const AgentPage = () => {
     const { user_id } = useParams();
     const { user } = useAuth();
+    const { t } = useTranslation();
 
     const {
         data: { data: fetchedMyStudents } = { data: [] },
@@ -166,107 +170,167 @@ const AgentPage = () => {
                 }}
             >
                 <CardContent>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <Avatar
-                            src={agentUser?.pictureUrl}
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            gap: 2
+                        }}
+                    >
+                        <Box
                             sx={{
-                                width: 80,
-                                height: 80,
-                                bgcolor: 'white',
-                                color: '#667eea',
-                                fontSize: '2rem',
-                                fontWeight: 'bold'
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 2
                             }}
                         >
-                            {agentUser?.firstname?.[0]}
-                            {agentUser?.lastname?.[0]}
-                        </Avatar>
-                        <Box sx={{ flex: 1 }}>
+                            <Avatar
+                                src={agentUser?.pictureUrl}
+                                sx={{
+                                    width: 80,
+                                    height: 80,
+                                    bgcolor: 'white',
+                                    color: '#667eea',
+                                    fontSize: '2rem',
+                                    fontWeight: 'bold'
+                                }}
+                            >
+                                {agentUser?.firstname?.[0]}
+                                {agentUser?.lastname?.[0]}
+                            </Avatar>
+                            <Box sx={{ flex: 1 }}>
+                                <Typography
+                                    sx={{
+                                        color: 'white',
+                                        fontWeight: 'bold',
+                                        mb: 1
+                                    }}
+                                    variant="h4"
+                                >
+                                    {agentUser?.firstname} {agentUser?.lastname}
+                                </Typography>
+                                <Stack
+                                    direction="row"
+                                    flexWrap="wrap"
+                                    spacing={1}
+                                    useFlexGap
+                                >
+                                    <Tooltip title="Number of active students assigned to this agent">
+                                        <Chip
+                                            icon={
+                                                <PersonIcon
+                                                    sx={{
+                                                        color: 'white !important'
+                                                    }}
+                                                />
+                                            }
+                                            label={`${stats.totalStudents} Students`}
+                                            sx={{
+                                                bgcolor:
+                                                    'rgba(255,255,255,0.2)',
+                                                color: 'white',
+                                                fontWeight: 'bold'
+                                            }}
+                                        />
+                                    </Tooltip>
+                                    <Tooltip title="Total number of applications being managed">
+                                        <Chip
+                                            icon={
+                                                <AssignmentIcon
+                                                    sx={{
+                                                        color: 'white !important'
+                                                    }}
+                                                />
+                                            }
+                                            label={`${stats.totalApplications} Apps`}
+                                            sx={{
+                                                bgcolor:
+                                                    'rgba(255,255,255,0.2)',
+                                                color: 'white',
+                                                fontWeight: 'bold'
+                                            }}
+                                        />
+                                    </Tooltip>
+                                    <Tooltip title="Decision status breakdown: Yes (Student will apply) / No (Student won't apply) / Undecided (Not yet decided)">
+                                        <Chip
+                                            icon={
+                                                <InfoIcon
+                                                    sx={{
+                                                        color: 'white !important'
+                                                    }}
+                                                />
+                                            }
+                                            label={`${stats.decidedYesApplications} Yes / ${stats.decidedNoApplications} No / ${stats.undecidedApplications} TBD`}
+                                            sx={{
+                                                bgcolor:
+                                                    'rgba(255,255,255,0.2)',
+                                                color: 'white',
+                                                fontWeight: 'bold'
+                                            }}
+                                        />
+                                    </Tooltip>
+                                    <Tooltip title="Percentage of decided applications that have been submitted">
+                                        <Chip
+                                            icon={
+                                                <SendIcon
+                                                    sx={{
+                                                        color: 'white !important'
+                                                    }}
+                                                />
+                                            }
+                                            label={`${stats.submissionRate}% Submitted`}
+                                            sx={{
+                                                bgcolor:
+                                                    'rgba(255,255,255,0.2)',
+                                                color: 'white',
+                                                fontWeight: 'bold'
+                                            }}
+                                        />
+                                    </Tooltip>
+                                </Stack>
+                            </Box>
+                        </Box>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'flex-end',
+                                gap: 0.5
+                            }}
+                        >
                             <Typography
                                 sx={{
-                                    color: 'white',
-                                    fontWeight: 'bold',
-                                    mb: 1
+                                    color: 'rgba(255,255,255,0.8)',
+                                    fontSize: '0.875rem',
+                                    fontWeight: 500
                                 }}
-                                variant="h4"
                             >
-                                {agentUser?.firstname} {agentUser?.lastname}
+                                {t('Last Login', { ns: 'common' })}
                             </Typography>
-                            <Stack
-                                direction="row"
-                                flexWrap="wrap"
-                                spacing={1}
-                                useFlexGap
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 0.5
+                                }}
                             >
-                                <Tooltip title="Number of active students assigned to this agent">
-                                    <Chip
-                                        icon={
-                                            <PersonIcon
-                                                sx={{
-                                                    color: 'white !important'
-                                                }}
-                                            />
-                                        }
-                                        label={`${stats.totalStudents} Students`}
-                                        sx={{
-                                            bgcolor: 'rgba(255,255,255,0.2)',
-                                            color: 'white',
-                                            fontWeight: 'bold'
-                                        }}
-                                    />
-                                </Tooltip>
-                                <Tooltip title="Total number of applications being managed">
-                                    <Chip
-                                        icon={
-                                            <AssignmentIcon
-                                                sx={{
-                                                    color: 'white !important'
-                                                }}
-                                            />
-                                        }
-                                        label={`${stats.totalApplications} Apps`}
-                                        sx={{
-                                            bgcolor: 'rgba(255,255,255,0.2)',
-                                            color: 'white',
-                                            fontWeight: 'bold'
-                                        }}
-                                    />
-                                </Tooltip>
-                                <Tooltip title="Decision status breakdown: Yes (Student will apply) / No (Student won't apply) / Undecided (Not yet decided)">
-                                    <Chip
-                                        icon={
-                                            <InfoIcon
-                                                sx={{
-                                                    color: 'white !important'
-                                                }}
-                                            />
-                                        }
-                                        label={`${stats.decidedYesApplications} Yes / ${stats.decidedNoApplications} No / ${stats.undecidedApplications} TBD`}
-                                        sx={{
-                                            bgcolor: 'rgba(255,255,255,0.2)',
-                                            color: 'white',
-                                            fontWeight: 'bold'
-                                        }}
-                                    />
-                                </Tooltip>
-                                <Tooltip title="Percentage of decided applications that have been submitted">
-                                    <Chip
-                                        icon={
-                                            <SendIcon
-                                                sx={{
-                                                    color: 'white !important'
-                                                }}
-                                            />
-                                        }
-                                        label={`${stats.submissionRate}% Submitted`}
-                                        sx={{
-                                            bgcolor: 'rgba(255,255,255,0.2)',
-                                            color: 'white',
-                                            fontWeight: 'bold'
-                                        }}
-                                    />
-                                </Tooltip>
-                            </Stack>
+                                <AccessTimeIcon
+                                    sx={{
+                                        color: 'white',
+                                        fontSize: '1rem'
+                                    }}
+                                />
+                                <Typography
+                                    sx={{
+                                        color: 'white',
+                                        fontSize: '0.875rem',
+                                        fontWeight: 'bold'
+                                    }}
+                                >
+                                    {formatDate(agentUser?.lastLoginAt)}
+                                </Typography>
+                            </Box>
                         </Box>
                     </Box>
                 </CardContent>

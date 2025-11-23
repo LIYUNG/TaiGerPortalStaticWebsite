@@ -2374,3 +2374,17 @@ export const readXLSX = async (file, studentName) => {
     });
     return result;
 };
+
+// Format date for display (e.g., "Mar 4, 2024")
+export const formatDate = (date) => {
+    if (!date) return '-';
+    const d = new Date(date);
+    return d.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
+};
