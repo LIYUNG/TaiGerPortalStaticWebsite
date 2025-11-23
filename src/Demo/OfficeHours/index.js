@@ -495,7 +495,11 @@ const OfficeHours = () => {
                             onClose={handleEditAppointmentModalClose}
                             open={isEditModalOpen}
                         >
-                            <DialogTitle>請寫下想討論的主題</DialogTitle>
+                            <DialogTitle>
+                                {t(
+                                    'Please write down the topic you want to discuss'
+                                )}
+                            </DialogTitle>
                             <DialogContent>
                                 <TextField
                                     fullWidth
@@ -521,7 +525,8 @@ const OfficeHours = () => {
                                 </Badge>
                                 <Typography>
                                     <PersonIcon fontSize="small" />
-                                    Agent:{' '}
+                                    {t('Agent', { ns: 'common' })} or{' '}
+                                    {t('Editor', { ns: 'common' })}:{' '}
                                     {event_temp.receiver_id?.map(
                                         (receiver, x) => (
                                             <span key={x}>
@@ -765,7 +770,9 @@ const OfficeHours = () => {
                     onClose={handleNewEventModalClose}
                     open={isNewEventModalOpen}
                 >
-                    <DialogTitle>請寫下想討論的主題</DialogTitle>
+                    <DialogTitle>
+                        {t('Please write down the topic you want to discuss')}
+                    </DialogTitle>
                     <DialogContent>
                         <TextField
                             fullWidth
@@ -787,25 +794,28 @@ const OfficeHours = () => {
                         >
                             {newDescription?.length || 0}/2000
                         </Badge>
-                        {newReceiver && agents && Array.isArray(agents) && (
-                            <Typography sx={{ mt: 2 }}>
-                                <PersonIcon fontSize="small" />
-                                Agent:{' '}
-                                {agents
-                                    .filter(
-                                        (agent) =>
-                                            agent._id?.toString() ===
-                                            newReceiver.toString()
-                                    )
-                                    .map((agent, x) => (
-                                        <span key={x}>
-                                            {agent.firstname} {agent.lastname}{' '}
-                                            <MailOutlineIcon fontSize="small" />{' '}
-                                            {agent.email}
-                                        </span>
-                                    ))}
-                            </Typography>
-                        )}
+                        {newReceiver && [...agents, ...editors] &&
+                            Array.isArray([...agents, ...editors]) && (
+                                <Typography sx={{ mt: 2 }}>
+                                    <PersonIcon fontSize="small" />
+                                    {t('Agent', { ns: 'common' })} or{' '}
+                                    {t('Editor', { ns: 'common' })} :{' '}
+                                    {[...agents, ...editors]
+                                        .filter(
+                                            (agent) =>
+                                                agent._id?.toString() ===
+                                                newReceiver.toString()
+                                        )
+                                        .map((agent, x) => (
+                                            <span key={x}>
+                                                {agent.firstname}{' '}
+                                                {agent.lastname}{' '}
+                                                <MailOutlineIcon fontSize="small" />{' '}
+                                                {agent.email}
+                                            </span>
+                                        ))}
+                                </Typography>
+                            )}
                         {newEventStart && (
                             <FormControl fullWidth sx={{ my: 2 }}>
                                 <InputLabel id="Time_Slot">

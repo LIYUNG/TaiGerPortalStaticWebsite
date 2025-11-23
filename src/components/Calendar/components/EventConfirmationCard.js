@@ -320,7 +320,7 @@ export default function EventConfirmationCard(props) {
                                             >
                                                 Will be available after the
                                                 appointment is confirmed by the
-                                                Agent.
+                                                Agent or Editor.
                                             </Typography>
                                         )
                                     ) : (
@@ -441,7 +441,7 @@ export default function EventConfirmationCard(props) {
                     {/* Participants & Details Section */}
                     <Grid item md={8} xs={12}>
                         <Stack spacing={2}>
-                            {/* Agent Section */}
+                            {/* Agent or Editor Section */}
                             <Paper
                                 sx={{ borderRadius: '4px', p: 2 }}
                                 variant="outlined"
@@ -462,7 +462,8 @@ export default function EventConfirmationCard(props) {
                                         sx={{ fontWeight: 600 }}
                                         variant="subtitle1"
                                     >
-                                        {t('Agent', { ns: 'common' })}
+                                        {t('Agent', { ns: 'common' })} or{' '}
+                                        {t('Editor', { ns: 'common' })}
                                     </Typography>
                                 </Box>
                                 {props.event.receiver_id?.map((receiver, x) => (
