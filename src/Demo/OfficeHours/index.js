@@ -271,10 +271,16 @@ const OfficeHours = () => {
                         value={value}
                         variant="scrollable"
                     >
-                        <Tab label="Calender" {...a11yProps(value, 0)} />
-                        <Tab label="My Events" {...a11yProps(value, 1)} />
                         <Tab
-                            label="Available Timeslots"
+                            label={t('Calendar', { ns: 'common' })}
+                            {...a11yProps(value, 0)}
+                        />
+                        <Tab
+                            label={t('My Events', { ns: 'common' })}
+                            {...a11yProps(value, 1)}
+                        />
+                        <Tab
+                            label={t('Available Timeslots', { ns: 'common' })}
                             {...a11yProps(value, 2)}
                         />
                     </Tabs>

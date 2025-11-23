@@ -13,7 +13,11 @@ import {
     Select,
     TextField
 } from '@mui/material';
-import { is_TaiGer_Agent, is_TaiGer_Student } from '@taiger-common/core';
+import {
+    is_TaiGer_Agent,
+    is_TaiGer_Editor,
+    is_TaiGer_Student
+} from '@taiger-common/core';
 
 import '../style/model.scss';
 import {
@@ -71,7 +75,8 @@ const Popping = ({
                         </Badge>
                         <FormControl fullWidth>
                             <InputLabel id="Agent">
-                                {t('Agent', { ns: 'common' })}
+                                {t('Agent', { ns: 'common' })} or{' '}
+                                {t('Editor', { ns: 'common' })}
                             </InputLabel>
                             <Select
                                 id="Agent"
@@ -88,7 +93,9 @@ const Popping = ({
                                 }
                             >
                                 {is_TaiGer_Student(user) ? (
-                                    <MenuItem value="">Please Select</MenuItem>
+                                    <MenuItem value="">
+                                        {t('Please Select', { ns: 'common' })}
+                                    </MenuItem>
                                 ) : null}
                                 {is_TaiGer_Student(user) ? (
                                     <MenuItem
@@ -97,7 +104,8 @@ const Popping = ({
                                         {event.provider.firstname}{' '}
                                         {event.provider.lastname}
                                     </MenuItem>
-                                ) : is_TaiGer_Agent(user) ? (
+                                ) : is_TaiGer_Agent(user) ||
+                                  is_TaiGer_Editor(user) ? (
                                     <MenuItem value={user._id.toString()}>
                                         {user.firstname}
                                         {user.lastname}

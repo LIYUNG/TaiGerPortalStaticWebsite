@@ -230,8 +230,14 @@ const AllOfficeHours = () => {
                     value={value}
                     variant="scrollable"
                 >
-                    <Tab label="Calender" {...a11yProps(value, 0)} />
-                    <Tab label="Events" {...a11yProps(value, 1)} />
+                    <Tab
+                        label={t('Calendar', { ns: 'common' })}
+                        {...a11yProps(value, 0)}
+                    />
+                    <Tab
+                        label={t('Events', { ns: 'common' })}
+                        {...a11yProps(value, 1)}
+                    />
                 </Tabs>
             </Box>
             <CustomTabPanel index={0} value={value}>
