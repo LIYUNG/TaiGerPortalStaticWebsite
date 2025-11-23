@@ -31,7 +31,7 @@ import TimezoneSelect from 'react-timezone-select';
 import { useTranslation } from 'react-i18next';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
-import { is_TaiGer_Agent } from '@taiger-common/core';
+import { is_TaiGer_Agent, is_TaiGer_Editor } from '@taiger-common/core';
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
@@ -61,7 +61,10 @@ const Profile = () => {
         selectedTimezone:
             user.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
         changed_personaldata: false,
-        officehours: is_TaiGer_Agent(user) ? user.officehours : {},
+        officehours:
+            is_TaiGer_Agent(user) || is_TaiGer_Editor(user)
+                ? user.officehours
+                : {},
         personaldata: user_id
             ? {
                   firstname: '',
@@ -489,7 +492,7 @@ const Profile = () => {
                     {t('Update', { ns: 'common' })}
                 </Button>
             </Box>
-            {!user_id && is_TaiGer_Agent(user) ? (
+            {!user_id && (is_TaiGer_Agent(user) || is_TaiGer_Editor(user)) ? (
                 <>
                     <Card sx={{ padding: 2, mb: 2 }}>
                         <Typography>
@@ -500,7 +503,8 @@ const Profile = () => {
                         </Typography>
                         <Typography>{user.selfIntroduction}</Typography>
                     </Card>
-                    {is_TaiGer_Agent(profileState.personaldata) ? (
+                    {is_TaiGer_Agent(profileState.personaldata) ||
+                    is_TaiGer_Editor(profileState.personaldata) ? (
                         <Card sx={{ padding: 2, mb: 2 }}>
                             <Typography variant="h6">
                                 {t('Office Hours', { ns: 'common' })}
@@ -524,7 +528,7 @@ const Profile = () => {
                                         control={
                                             <Checkbox
                                                 checked={
-                                                    profileState.officehours[
+                                                    profileState.officehours?.[
                                                         day
                                                     ]?.active
                                                 }

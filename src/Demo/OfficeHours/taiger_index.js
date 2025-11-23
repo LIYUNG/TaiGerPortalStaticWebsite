@@ -33,7 +33,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import moment from 'moment-timezone';
 import { useTranslation } from 'react-i18next';
 import _ from 'lodash';
-import { is_TaiGer_Agent } from '@taiger-common/core';
+import { is_TaiGer_Agent, is_TaiGer_Editor } from '@taiger-common/core';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
@@ -190,6 +190,7 @@ const TaiGerOfficeHours = () => {
     const {
         events,
         agents,
+        editors,
         booked_events,
         res_status,
         isLoaded,
@@ -244,7 +245,7 @@ const TaiGerOfficeHours = () => {
         setValue(newValue);
     };
 
-    if (!is_TaiGer_Agent(user)) {
+    if (!is_TaiGer_Agent(user) && !is_TaiGer_Editor(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
@@ -258,7 +259,7 @@ const TaiGerOfficeHours = () => {
 
     let available_termins = [];
     available_termins = [0, 1, 2, 3, 4, 5].flatMap((iter, x) =>
-        agents.flatMap((agent) =>
+        [...agents, ...editors].flatMap((agent) =>
             agent.timezone && moment.tz.zone(agent.timezone)
                 ? getReorderWeekday(getTodayAsWeekday(agent.timezone)).flatMap(
                       (weekday, i) => {
@@ -731,7 +732,7 @@ const TaiGerOfficeHours = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
-            {is_TaiGer_Agent(user) ? (
+            {is_TaiGer_Agent(user) || is_TaiGer_Editor(user) ? (
                 <CreateNewEventModal
                     // {...props}
                     BookButtonDisable={BookButtonDisable}

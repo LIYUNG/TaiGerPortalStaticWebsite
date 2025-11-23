@@ -634,7 +634,7 @@ export const getEvents = (queryString) =>
     request.get(`/api/events?${queryString}`);
 export const getBookedEvents = ({ startTime, endTime }) =>
     request.get(`/api/events/booked?startTime=${startTime}&endTime=${endTime}`);
-export const postEvent = (event) => request.post(`/api/events`, event);
+export const postEvent = (event) => postData(`/api/events`, event);
 export const confirmEvent = (event_id, updated_event) =>
     request.put(`/api/events/${event_id}/confirm`, updated_event);
 export const updateEvent = (event_id, updated_event) =>

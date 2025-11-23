@@ -9,7 +9,11 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import Popping from './Popping';
 import { useTheme } from '@mui/material';
 import { NoonNightLabel, stringToColor } from '../../../utils/contants';
-import { is_TaiGer_Agent, is_TaiGer_Student } from '@taiger-common/core';
+import {
+    is_TaiGer_Agent,
+    is_TaiGer_Editor,
+    is_TaiGer_Student
+} from '@taiger-common/core';
 import { useAuth } from '../../AuthProvider';
 
 const localizer = momentLocalizer(moment);
@@ -417,7 +421,9 @@ const MyCalendar = ({
                 localizer={localizer}
                 onSelectEvent={handleSelectEvent}
                 onSelectSlot={
-                    is_TaiGer_Agent(user) ? handleSelectSlot : () => {}
+                    is_TaiGer_Agent(user) || is_TaiGer_Editor(user)
+                        ? handleSelectSlot
+                        : () => {}
                 }
                 popup
                 selectable={true}

@@ -74,6 +74,7 @@ const OfficeHours = () => {
     const {
         events,
         agents,
+        editors,
         booked_events,
         res_status,
         isLoaded,
@@ -138,7 +139,7 @@ const OfficeHours = () => {
 
     let available_termins = [];
     available_termins = [0, 1, 2, 3, 4, 5].flatMap((iter, x) =>
-        agents.flatMap((agent) =>
+        [...agents, ...editors].flatMap((agent) =>
             agent.timezone && moment.tz.zone(agent.timezone)
                 ? getReorderWeekday(getTodayAsWeekday(agent.timezone)).flatMap(
                       (weekday, i) => {

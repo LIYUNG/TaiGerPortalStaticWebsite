@@ -8,7 +8,11 @@ import {
     getBookedEventsQuery,
     getStudentsV3Query
 } from '../api/query';
-import { is_TaiGer_Agent, is_TaiGer_Student } from '@taiger-common/core';
+import {
+    is_TaiGer_Agent,
+    is_TaiGer_Editor,
+    is_TaiGer_Student
+} from '@taiger-common/core';
 import { useAuth } from '../components/AuthProvider';
 import { getUTCWithDST, time_slots } from '../utils/contants';
 import { useSnackBar } from '../contexts/use-snack-bar';
@@ -38,17 +42,31 @@ function useCalendarEvents(props) {
         }),
         enabled: !props.isAll && is_TaiGer_Student(user)
     });
-
+    const query_string = queryString.stringify(
+        is_TaiGer_Agent(user)
+            ? {
+                  agents: user?._id,
+                  archiv: false
+              }
+            : {
+                  editors: user?._id,
+                  archiv: false
+              }
+    );
     // Query for fetching students (only for agents)
     const studentsQuery = useQuery({
-        ...getStudentsV3Query(`agents=${user?._id}&archiv=false`),
-        enabled: !props.isAll && is_TaiGer_Agent(user) && !!user?._id
+        ...getStudentsV3Query(query_string),
+        enabled:
+            !props.isAll &&
+            (is_TaiGer_Agent(user) || is_TaiGer_Editor(user)) &&
+            !!user?._id
     });
 
     // Extract data from query response
     const eventsResponse = eventsQuery.data?.data || {};
     const events = eventsResponse.data || [];
     const agents = eventsResponse.agents || {};
+    const editors = eventsResponse.editors || [];
     const students = studentsQuery.data?.data || [];
     const hasEvents = eventsResponse.hasEvents || false;
     const booked_events = bookedEventsQuery.data?.data?.data || [];
@@ -81,8 +99,7 @@ function useCalendarEvents(props) {
     // Mutation for creating events
     const createEventMutation = useMutation({
         mutationFn: (eventData) => postEvent(eventData),
-        onSuccess: async (resp) => {
-            const { status } = resp;
+        onSuccess: async () => {
             await queryClient.invalidateQueries({
                 queryKey: ['events'],
                 exact: false
@@ -104,8 +121,7 @@ function useCalendarEvents(props) {
                 student_id: '',
                 showBookedEvents: true,
                 isNewEventModalOpen: false,
-                BookButtonDisable: false,
-                res_modal_status: status
+                BookButtonDisable: false
             }));
             setSeverity('success');
             setMessage('Meeting created successfully!');
@@ -115,6 +131,10 @@ function useCalendarEvents(props) {
             setSeverity('error');
             setMessage(error.message || 'An error occurred. Please try again.');
             setOpenSnackbar(true);
+            setCalendarEventsState((prevState) => ({
+                ...prevState,
+                BookButtonDisable: false
+            }));
         },
         onMutate: () => {
             setCalendarEventsState((prevState) => ({
@@ -127,7 +147,7 @@ function useCalendarEvents(props) {
     // Only Agent can request
     const handleModalCreateEvent = (newEvent) => {
         const eventWrapper = { ...newEvent };
-        if (is_TaiGer_Agent(user)) {
+        if (is_TaiGer_Agent(user) || is_TaiGer_Editor(user)) {
             const temp_std = students.find(
                 (std) => std._id.toString() === calendarEventsState.student_id
             );
@@ -575,7 +595,10 @@ function useCalendarEvents(props) {
             };
         });
     }
-    if (is_TaiGer_Agent(user) && calendarEventsState.selected_year) {
+    if (
+        (is_TaiGer_Agent(user) || is_TaiGer_Editor(user)) &&
+        calendarEventsState.selected_year
+    ) {
         available_termins_full = getAvailableTermins({
             selected_day: calendarEventsState.selected_day,
             selected_month: calendarEventsState.selected_month,
@@ -586,6 +609,7 @@ function useCalendarEvents(props) {
     return {
         events: events,
         agents: agents,
+        editors: editors,
         hasEvents: hasEvents, // Data flag: whether there are events from API
         showBookedEvents: calendarEventsState.showBookedEvents, // View state: which view to show
         booked_events: booked_events,

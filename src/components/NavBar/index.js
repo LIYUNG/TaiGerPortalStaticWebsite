@@ -201,7 +201,11 @@ const NavBar = (props) => {
 
     useEffect(() => {
         // Start the periodic polling after the component is mounted
-        if (is_TaiGer_AdminAgent(user) || is_TaiGer_Student(user)) {
+        if (
+            is_TaiGer_Editor(user) ||
+            is_TaiGer_AdminAgent(user) ||
+            is_TaiGer_Student(user)
+        ) {
             getActiveEventsNumber()
                 .then((resp) => {
                     // Assuming the backend returns JSON data, update the state with the received data
@@ -229,7 +233,7 @@ const NavBar = (props) => {
         if (is_TaiGer_Student(user)) {
             setMobileMoreAnchorEl(null);
             navigate(DEMO.EVENT_STUDENT_STUDENTID_LINK(user._id.toString()));
-        } else if (is_TaiGer_Agent(user)) {
+        } else if (is_TaiGer_Agent(user) || is_TaiGer_Editor(user)) {
             setMobileMoreAnchorEl(null);
             navigate(DEMO.EVENT_TAIGER_LINK(user._id.toString()));
         }
@@ -336,7 +340,9 @@ const NavBar = (props) => {
                 horizontal: 'right'
             }}
         >
-            {is_TaiGer_Agent(user) || is_TaiGer_Student(user) ? (
+            {is_TaiGer_Agent(user) ||
+            is_TaiGer_Editor(user) ||
+            is_TaiGer_Student(user) ? (
                 <MenuItem onClick={handleNavigateCalendar}>
                     <IconButton
                         aria-label="show upcoming meeting event"
@@ -449,7 +455,9 @@ const NavBar = (props) => {
                     ) : null}
                     <Box sx={{ flexGrow: 1 }} />
                     <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-                        {is_TaiGer_Agent(user) || is_TaiGer_Student(user) ? (
+                        {is_TaiGer_Agent(user) ||
+                        is_TaiGer_Editor(user) ||
+                        is_TaiGer_Student(user) ? (
                             <IconButton
                                 aria-label="show active event"
                                 color="inherit"
@@ -507,7 +515,9 @@ const NavBar = (props) => {
                         </Tooltip>
                     </Box>
                     <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
-                        {is_TaiGer_Agent(user) || is_TaiGer_Student(user) ? (
+                        {is_TaiGer_Agent(user) ||
+                        is_TaiGer_Editor(user) ||
+                        is_TaiGer_Student(user) ? (
                             <IconButton
                                 aria-label="show active event"
                                 color="inherit"
