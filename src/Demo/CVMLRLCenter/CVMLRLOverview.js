@@ -159,7 +159,7 @@ const CVMLRLOverview = (props) => {
                     params.row.thread_id
                 )}`;
                 return (
-                    <>
+                    <Box>
                         {params.row?.attributes?.map(
                             (attribute) =>
                                 [1, 3, 9, 10, 11].includes(attribute.value) && (
@@ -186,9 +186,22 @@ const CVMLRLOverview = (props) => {
                             to={linkUrl}
                             underline="hover"
                         >
-                            {params.value}
+                            {params.row.file_type}{' '}
+                            {params.row.program_id
+                                ? ' - ' +
+                                  params.row.program_name +
+                                  ' - ' +
+                                  params.row.degree
+                                : ''}
                         </Link>
-                    </>
+                        <Typography
+                            color="text.secondary"
+                            sx={{ display: 'block', mt: 0.25 }}
+                            variant="caption"
+                        >
+                            {params.row.school}
+                        </Typography>
+                    </Box>
                 );
             }
         },
@@ -246,15 +259,30 @@ const CVMLRLOverview = (props) => {
                     params.row.thread_id
                 )}`;
                 return (
-                    <Link
-                        component={LinkDom}
-                        target="_blank"
-                        title={params.value}
-                        to={linkUrl}
-                        underline="hover"
-                    >
-                        {params.value}
-                    </Link>
+                    <Box>
+                        <Link
+                            component={LinkDom}
+                            target="_blank"
+                            title={params.value}
+                            to={linkUrl}
+                            underline="hover"
+                        >
+                            {params.row.file_type}{' '}
+                            {params.row.program_id
+                                ? ' - ' +
+                                  params.row.program_name +
+                                  ' - ' +
+                                  params.row.degree
+                                : ''}
+                        </Link>
+                        <Typography
+                            color="text.secondary"
+                            sx={{ display: 'block', mt: 0.25 }}
+                            variant="caption"
+                        >
+                            {params.row.school}
+                        </Typography>
+                    </Box>
                 );
             }
         },

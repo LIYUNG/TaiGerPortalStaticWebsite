@@ -1753,6 +1753,9 @@ const prepApplicationTaskV2 = (student, application, program, thread) => {
         }),
         show: isProgramDecided(application) ? true : false,
         document_name: `${thread.file_type} - ${program?.school} - ${program?.degree} -${program?.program_name}`,
+        school: program?.school,
+        program_name: program?.program_name,
+        degree: program?.degree,
         lang: `${program?.lang}`,
         days_left:
             differenceInDays(

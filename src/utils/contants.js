@@ -1787,13 +1787,7 @@ export const c1_mrt = [
                 row.original.thread_id
             )}`;
             return (
-                <Box
-                    sx={{
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden'
-                        // textOverflow: 'ellipsis'
-                    }}
-                >
+                <Box>
                     {row.original?.attributes?.map(
                         (attribute) =>
                             [1, 3, 9, 10, 11].includes(attribute.value) && (
@@ -1816,12 +1810,25 @@ export const c1_mrt = [
                     <Link
                         component={LinkDom}
                         target="_blank"
-                        title={row.original.document_name}
+                        title={params.value}
                         to={linkUrl}
                         underline="hover"
                     >
-                        {row.original.document_name}
+                        {row.original.file_type}{' '}
+                        {row.original.program_id
+                            ? ' - ' +
+                              row.original.program_name +
+                              ' - ' +
+                              row.original.degree
+                            : ''}
                     </Link>
+                    <Typography
+                        color="text.secondary"
+                        sx={{ display: 'block', mt: 0.25 }}
+                        variant="caption"
+                    >
+                        {row.original.school}
+                    </Typography>
                 </Box>
             );
         }
