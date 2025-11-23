@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
 import { Navigate, Link as LinkDom } from 'react-router-dom';
-import { Tabs, Tab, Box, Link, Typography, Breadcrumbs } from '@mui/material';
+import {
+    Tabs,
+    Tab,
+    Box,
+    Link,
+    Typography,
+    Breadcrumbs,
+    Button
+} from '@mui/material';
 import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 import queryString from 'query-string';
@@ -110,6 +118,34 @@ const UsersTable = () => {
                     {t('User List', { ns: 'common' })}
                 </Typography>
             </Breadcrumbs>
+            {/* Header Section */}
+            <Box
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                    mb: 1
+                }}
+            >
+                <Box sx={{ mt: 1 }}>
+                    <Typography variant="h5">
+                        {t('User management', { ns: 'common' })}
+                    </Typography>
+                    <Typography color="text.secondary" variant="body2">
+                        {t('Manage your team members here.', { ns: 'common' })}
+                    </Typography>
+                </Box>
+                <Box>
+                    <Button
+                        color="primary"
+                        onClick={openAddUserModal}
+                        sx={{ mt: 1 }}
+                        variant="contained"
+                    >
+                        {t('Add New User')}
+                    </Button>
+                </Box>
+            </Box>
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                 <Tabs
                     aria-label="basic tabs example"

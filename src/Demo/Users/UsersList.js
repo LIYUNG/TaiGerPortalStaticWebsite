@@ -1,25 +1,30 @@
-import React, { useState } from 'react';
-import { Link } from '@mui/material';
+import React, { useState, useMemo } from 'react';
+import { Box, Typography, Avatar, Chip, Link } from '@mui/material';
 import { Link as LinkDom } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-
-import UsersListSubpage from './UsersListSubpage';
-import UserDeleteWarning from './UserDeleteWarning';
-import { deleteUser, changeUserRole, updateArchivUser } from '../../api';
-import { convertDate, getDate } from '../../utils/contants';
-import UserArchivWarning from './UserArchivWarning';
-import { getUsersQuery } from '../../api/query';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { useTableStyles } from '../../components/table/users-table/styles';
-import { getTableConfig } from '../../components/table/users-table/table-config';
 import {
     MaterialReactTable,
     useMaterialReactTable
 } from 'material-react-table';
+import {
+    is_TaiGer_Agent,
+    is_TaiGer_Editor,
+    is_TaiGer_Student
+} from '@taiger-common/core';
+
+import UsersListSubpage from './UsersListSubpage';
+import UserDeleteWarning from './UserDeleteWarning';
+import { deleteUser, changeUserRole, updateArchivUser } from '../../api';
+import { stringAvatar } from '../../utils/contants';
+import UserArchivWarning from './UserArchivWarning';
+import { getUsersQuery } from '../../api/query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import DEMO from '../../store/constant';
-import { TopToolbar } from '../../components/table/users-table/TopToolbar';
 import { queryClient } from '../../api/client';
 import { useSnackBar } from '../../contexts/use-snack-bar';
+import { useTableStyles } from '../../components/table/users-table/styles';
+import { getTableConfig } from '../../components/table/users-table/table-config';
+import { TopToolbar } from '../../components/table/users-table/TopToolbar';
 
 const UsersList = (props) => {
     const { t } = useTranslation();
@@ -29,7 +34,6 @@ const UsersList = (props) => {
     const customTableStyles = useTableStyles();
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
 
-    const tableConfig = getTableConfig(customTableStyles, isLoading);
     const [usersListState, setUsersListState] = useState({
         error: '',
         modalShow: false,
@@ -50,101 +54,241 @@ const UsersList = (props) => {
         res_modal_status: 0
     });
 
-    const columns = [
-        {
-            accessorKey: 'firstname',
-            header: t('First Name', { ns: 'common' }),
-            size: 100,
-            Cell: (params) => {
-                const linkUrl = `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(params.row.original._id)}`;
-                return (
-                    <Link
-                        component={LinkDom}
-                        target="_blank"
-                        to={linkUrl}
-                        underline="hover"
-                    >
-                        {params.row.original.firstname}
-                    </Link>
-                );
-            }
-        },
-        {
-            accessorKey: 'lastname',
-            header: t('Last Name', { ns: 'common' }),
-            //   filterVariant: 'autocomplete',
-            filterFn: 'contains',
-            size: 100,
-            Cell: (params) => {
-                const linkUrl = `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(params.row.original._id)}`;
-                return (
-                    <Link
-                        component={LinkDom}
-                        target="_blank"
-                        to={linkUrl}
-                        underline="hover"
-                    >
-                        {params.row.original.lastname}
-                    </Link>
-                );
-            }
-        },
-        {
-            accessorKey: 'birthday',
-            header: t('Birthday', { ns: 'common' }),
-            size: 100
-        },
-        {
-            accessorKey: 'email',
-            header: t('Email', { ns: 'common' }),
-            size: 100
-        },
-        {
-            accessorKey: 'isAccountActivated',
-            header: t('Activated', { ns: 'common' }),
-            size: 100,
-            Cell: (params) => {
-                return params.row.original.isAccountActivated
-                    ? t('Yes', { ns: 'common' })
-                    : t('No', { ns: 'common' });
-            }
-        },
-        {
-            accessorKey: 'archiv',
-            header: t('Archived', { ns: 'common' }),
-            size: 100,
-            Cell: (params) => {
-                return params.row.original.archiv
-                    ? t('Yes', { ns: 'common' })
-                    : t('No', { ns: 'common' });
-            }
-        },
-        {
-            accessorKey: 'createdAt',
-            header: t('Created At', { ns: 'common' }),
-            size: 100,
-            Cell: (params) => {
-                return <>{getDate(params.row.original.createdAt)}</>;
-            }
-        },
-        {
-            accessorKey: 'lastLoginAt',
-            header: t('Last Login', { ns: 'auth' }),
-            size: 100,
-            Cell: (params) => {
-                return <>{convertDate(params.row.original.lastLoginAt)}</>;
-            }
-        }
-    ];
+    // Format date for display (e.g., "Mar 4, 2024")
+    const formatDate = (date) => {
+        if (!date) return '-';
+        const d = new Date(date);
+        return d.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+    };
 
-    const table = useMaterialReactTable({
-        ...tableConfig,
-        enableRowSelection: !props.readOnly,
-        enableMultiRowSelection: !props.readOnly,
-        columns,
-        state: { isLoading },
-        data: usersList || []
-    });
+    const link = (user) => {
+        if (is_TaiGer_Student(user)) {
+            return `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(user._id)}`;
+        } else if (is_TaiGer_Agent(user)) {
+            return `${DEMO.TEAM_AGENT_LINK(user._id)}`;
+        } else if (is_TaiGer_Editor(user)) {
+            return `${DEMO.TEAM_EDITOR_LINK(user._id)}`;
+        }
+        return ``;
+    };
+
+    const columns = useMemo(
+        () => [
+            {
+                accessorKey: 'user',
+                header: t('User name', { ns: 'common' }),
+                size: 300,
+                // Return searchable string for global filter
+                accessorFn: (row) => {
+                    const fullName =
+                        `${row.firstname || ''} ${row.lastname || ''}`.trim();
+                    const email = row.email || '';
+                    return `${fullName} ${email}`.toLowerCase();
+                },
+                Cell: ({ row }) => {
+                    const user = row.original;
+                    const fullName =
+                        `${user.firstname || ''} ${user.lastname || ''}`.trim();
+                    const linkUrl = link(user);
+
+                    return (
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 2
+                            }}
+                        >
+                            <Avatar
+                                {...stringAvatar(fullName)}
+                                src={user.pictureUrl}
+                                sx={{ width: 40, height: 40 }}
+                            />
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column'
+                                }}
+                            >
+                                <Link
+                                    component={LinkDom}
+                                    sx={{
+                                        textDecoration: 'none',
+                                        color: 'text.primary',
+                                        fontWeight: 500,
+                                        fontSize: '0.875rem',
+                                        '&:hover': {
+                                            textDecoration: 'underline'
+                                        }
+                                    }}
+                                    to={linkUrl}
+                                >
+                                    {fullName || t('Unnamed', { ns: 'common' })}
+                                </Link>
+                                <Typography
+                                    color="text.secondary"
+                                    sx={{ display: 'block', mt: 0.25 }}
+                                    variant="caption"
+                                >
+                                    {user.email || '-'}
+                                </Typography>
+                            </Box>
+                        </Box>
+                    );
+                },
+                enableSorting: true,
+                sortingFn: (rowA, rowB) => {
+                    const nameA =
+                        `${rowA.original.firstname || ''} ${rowA.original.lastname || ''}`
+                            .trim()
+                            .toLowerCase();
+                    const nameB =
+                        `${rowB.original.firstname || ''} ${rowB.original.lastname || ''}`
+                            .trim()
+                            .toLowerCase();
+                    return nameA.localeCompare(nameB);
+                }
+            },
+            {
+                accessorKey: 'role',
+                header: t('Role', { ns: 'common' }),
+                size: 150,
+
+                Cell: ({ row }) => {
+                    return (
+                        <Chip
+                            key={row.original._id}
+                            label={row.original.role}
+                            size="small"
+                            sx={{
+                                fontSize: '0.75rem',
+                                height: 24,
+                                cursor: 'pointer',
+                                '&:hover': {
+                                    backgroundColor: 'action.hover'
+                                }
+                            }}
+                            variant="outlined"
+                        />
+                    );
+                },
+                enableSorting: false
+            },
+            {
+                accessorKey: 'lastLoginAt',
+                header: t('Last active', { ns: 'common' }),
+                size: 150,
+                // Return searchable string for global filter
+                accessorFn: (row) => {
+                    if (!row.lastLoginAt) return '';
+                    return formatDate(row.lastLoginAt).toLowerCase();
+                },
+                Cell: ({ row }) => {
+                    return (
+                        <Typography color="text.secondary" variant="body2">
+                            {row.original.lastLoginAt
+                                ? formatDate(row.original.lastLoginAt)
+                                : '-'}
+                        </Typography>
+                    );
+                },
+                enableSorting: true,
+                sortingFn: (rowA, rowB) => {
+                    const dateA = rowA.original.lastLoginAt
+                        ? new Date(rowA.original.lastLoginAt).getTime()
+                        : 0;
+                    const dateB = rowB.original.lastLoginAt
+                        ? new Date(rowB.original.lastLoginAt).getTime()
+                        : 0;
+                    return dateA - dateB;
+                }
+            },
+            {
+                accessorKey: 'createdAt',
+                header: t('Date added', { ns: 'common' }),
+                size: 150,
+                // Return searchable string for global filter
+                accessorFn: (row) => {
+                    if (!row.createdAt) return '';
+                    return formatDate(row.createdAt).toLowerCase();
+                },
+                Cell: ({ row }) => {
+                    return (
+                        <Typography color="text.secondary" variant="body2">
+                            {row.original.createdAt
+                                ? formatDate(row.original.createdAt)
+                                : '-'}
+                        </Typography>
+                    );
+                },
+                enableSorting: true,
+                sortingFn: (rowA, rowB) => {
+                    const dateA = rowA.original.createdAt
+                        ? new Date(rowA.original.createdAt).getTime()
+                        : 0;
+                    const dateB = rowB.original.createdAt
+                        ? new Date(rowB.original.createdAt).getTime()
+                        : 0;
+                    return dateA - dateB;
+                }
+            },
+            {
+                accessorKey: 'isAccountActivated',
+                header: t('Account Active', { ns: 'common' }),
+                size: 200,
+                accessorFn: (row) => {
+                    return row.isAccountActivated
+                        ? t('Yes', { ns: 'common' })
+                        : t('No', { ns: 'common' });
+                },
+                Cell: ({ row }) => {
+                    return (
+                        <Typography color="text.secondary" variant="body2">
+                            {row.original.isAccountActivated
+                                ? t('Yes', { ns: 'common' })
+                                : t('No', { ns: 'common' })}
+                        </Typography>
+                    );
+                },
+                enableSorting: true,
+                sortingFn: (rowA, rowB) => {
+                    const a = rowA.original.isAccountActivated ? 1 : 0;
+                    const b = rowB.original.isAccountActivated ? 1 : 0;
+                    return a - b;
+                }
+            },
+            {
+                accessorKey: 'archiv',
+                header: t('Archived', { ns: 'common' }),
+                size: 160,
+                accessorFn: (row) => {
+                    return row.archiv
+                        ? t('Yes', { ns: 'common' })
+                        : t('No', { ns: 'common' });
+                },
+                Cell: ({ row }) => {
+                    return (
+                        <Typography color="text.secondary" variant="body2">
+                            {row.original.archiv
+                                ? t('Yes', { ns: 'common' })
+                                : t('No', { ns: 'common' })}
+                        </Typography>
+                    );
+                },
+                enableSorting: true,
+                sortingFn: (rowA, rowB) => {
+                    const a = rowA.original.archiv ? 1 : 0;
+                    const b = rowB.original.archiv ? 1 : 0;
+                    return a - b;
+                }
+            }
+        ],
+        [t, props.readOnly]
+    );
 
     const { mutate: changeUserRoleMutation } = useMutation({
         mutationFn: changeUserRole,
@@ -154,7 +298,6 @@ const UsersList = (props) => {
             setOpenSnackbar(true);
         },
         onSuccess: () => {
-            table.resetRowSelection();
             setSeverity('success');
             setMessage('Update user role successfully!');
             queryClient.invalidateQueries({
@@ -184,7 +327,6 @@ const UsersList = (props) => {
             onSuccess: () => {
                 setSeverity('success');
                 setMessage('Delete user successfully!');
-                table.resetRowSelection();
                 queryClient.invalidateQueries({
                     queryKey: ['users', props.queryString]
                 });
@@ -211,7 +353,6 @@ const UsersList = (props) => {
             setOpenSnackbar(true);
         },
         onSuccess: () => {
-            table.resetRowSelection();
             setSeverity('success');
             setMessage('Update user archiv status successfully!');
             queryClient.invalidateQueries({
@@ -261,6 +402,7 @@ const UsersList = (props) => {
             archivUserWarning: false
         }));
     };
+
     const setModalHideDDelete = () => {
         setUsersListState((prevState) => ({
             ...prevState,
@@ -289,17 +431,6 @@ const UsersList = (props) => {
             archiv
         }));
     };
-
-    table.options.renderTopToolbar = (
-        <TopToolbar
-            onAddClick={props.openAddUserModal}
-            onArchiveClick={setModalArchiv}
-            onDeleteClick={setModalShowDelete}
-            onEditClick={setModalShow}
-            table={table}
-            toolbarStyle={customTableStyles.toolbarStyle}
-        />
-    );
 
     const handleChange2 = (e) => {
         const { value } = e.target;
@@ -331,10 +462,57 @@ const UsersList = (props) => {
         assignUserAs({ role: user_role, _id: user_id });
     };
 
+    const tableConfig = getTableConfig(customTableStyles, isLoading);
+
+    const table = useMaterialReactTable({
+        ...tableConfig,
+        enableRowSelection: !props.readOnly,
+        enableMultiRowSelection: !props.readOnly,
+        columns,
+        data: usersList || [],
+        state: { isLoading },
+        enableGlobalFilter: true,
+        enableColumnFilters: false, // Hide column filters by default, show via Filters button
+        enableSorting: true,
+        initialState: {
+            ...tableConfig.initialState,
+            pagination: { pageSize: 10, pageIndex: 0 },
+            showGlobalFilter: true,
+            showColumnFilters: false,
+            density: 'comfortable'
+        },
+        muiSearchTextFieldProps: {
+            placeholder: t('Search', { ns: 'common' }),
+            size: 'small',
+            sx: { minWidth: 200 }
+        },
+        muiTableContainerProps: {
+            sx: {
+                boxShadow: 'none',
+                border: '1px solid',
+                borderColor: 'divider',
+                borderRadius: 1
+            }
+        },
+        muiTablePaperProps: {
+            elevation: 0
+        },
+        renderTopToolbar: ({ table }) => (
+            <TopToolbar
+                onArchiveClick={setModalArchiv}
+                onDeleteClick={setModalShowDelete}
+                onEditClick={setModalShow}
+                table={table}
+                toolbarStyle={customTableStyles.toolbarStyle}
+            />
+        )
+    });
+
     return (
-        <>
+        <Box sx={{ pb: 4, mt: 1 }}>
             <MaterialReactTable table={table} />
 
+            {/* Modals */}
             <UsersListSubpage
                 firstname={usersListState.firstname}
                 handleChange2={handleChange2}
@@ -366,7 +544,7 @@ const UsersList = (props) => {
                 setModalArchivHide={setModalArchivHide}
                 updateUserArchivStatus={updateArchivUserMutation}
             />
-        </>
+        </Box>
     );
 };
 
