@@ -3,17 +3,14 @@ import {
     Accordion,
     AccordionDetails,
     AccordionSummary,
-    Autocomplete,
     Box,
     Breadcrumbs,
     Button,
     Card,
-    Checkbox,
     Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
-    FormControlLabel,
     Grid,
     Link,
     List,
@@ -27,18 +24,12 @@ import { Link as LinkDom, useParams } from 'react-router-dom';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
-import TimezoneSelect from 'react-timezone-select';
 import { useTranslation } from 'react-i18next';
-import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { is_TaiGer_Agent, is_TaiGer_Editor } from '@taiger-common/core';
-const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
-const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
-import { daysOfWeek, time_slots } from '../../utils/contants';
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
-import { updatePersonalData, updateOfficehours, getUser } from '../../api';
+import { updatePersonalData, getUser } from '../../api';
 import { TabTitle } from '../Utils/TabTitle';
 import { is_personal_data_filled } from '../Utils/checking-functions';
 import DEMO from '../../store/constant';
@@ -57,14 +48,13 @@ const Profile = () => {
         data: null,
         success: false,
         user: {},
-        officehoursModifed: false,
-        selectedTimezone:
-            user.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
         changed_personaldata: false,
         officehours:
             is_TaiGer_Agent(user) || is_TaiGer_Editor(user)
                 ? user.officehours
                 : {},
+        selectedTimezone:
+            user.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
         personaldata: user_id
             ? {
                   firstname: '',
@@ -88,7 +78,6 @@ const Profile = () => {
                   linkedIn: user.linkedIn
               },
         updateconfirmed: false,
-        updateOfficeHoursConfirmed: false,
         res_status: 0,
         res_modal_message: '',
         res_modal_status: 0
@@ -110,6 +99,11 @@ const Profile = () => {
                             success,
                             isLoaded: true,
                             officehours: data.officehours,
+                            selectedTimezone:
+                                data.timezone ||
+                                prevState.selectedTimezone ||
+                                Intl.DateTimeFormat().resolvedOptions()
+                                    .timeZone,
                             personaldata: {
                                 firstname: data.firstname,
                                 firstname_chinese: data.firstname_chinese,
@@ -202,90 +196,6 @@ const Profile = () => {
 
     const setmodalhide = () => {
         window.location.reload(true);
-    };
-
-    const onHideOfficeHoursConfirmed = () => {
-        setProfileState((prevState) => ({
-            ...prevState,
-            updateOfficeHoursConfirmed: false
-        }));
-        window.location.reload(true);
-    };
-
-    const setSelectedTimezone = (e) => {
-        setProfileState((prevState) => ({
-            ...prevState,
-            selectedTimezone: e.value,
-            officehoursModifed: true
-        }));
-    };
-
-    const handleToggleChange = (e, day) => {
-        setProfileState((prevState) => ({
-            ...prevState,
-            officehours: {
-                ...prevState.officehours,
-                [day]: {
-                    ...prevState.officehours[day],
-                    active: e.target.checked
-                }
-            },
-            officehoursModifed: true
-        }));
-    };
-
-    const onTimeStartChange2 = (e, newValues, day) => {
-        setProfileState((prevState) => ({
-            ...prevState,
-            officehours: {
-                ...prevState.officehours,
-                [day]: {
-                    ...prevState.officehours[day],
-                    time_slots: newValues
-                }
-            },
-            officehoursModifed: true
-        }));
-    };
-
-    const handleSubmit_Officehours = () => {
-        updateOfficehours(
-            user._id.toString(),
-            profileState.officehours,
-            profileState.selectedTimezone
-        ).then(
-            (resp) => {
-                const { success } = resp.data;
-                const { status } = resp;
-                if (success) {
-                    setProfileState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        success: success,
-                        officehoursModifed: false,
-                        updateOfficeHoursConfirmed: true,
-                        res_modal_status: status
-                    }));
-                } else {
-                    const { message } = resp.data;
-                    setProfileState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        res_modal_message: message,
-                        res_modal_status: status
-                    }));
-                }
-            },
-            (error) => {
-                setProfileState((prevState) => ({
-                    ...prevState,
-                    isLoaded: true,
-                    error,
-                    res_modal_status: 500,
-                    res_modal_message: ''
-                }));
-            }
-        );
     };
 
     const ConfirmError = () => {
@@ -493,130 +403,13 @@ const Profile = () => {
                 </Button>
             </Box>
             {!user_id && (is_TaiGer_Agent(user) || is_TaiGer_Editor(user)) ? (
-                <>
-                    <Card sx={{ padding: 2, mb: 2 }}>
-                        <Typography>
-                            {t('Profile', { ns: 'common' })}
-                        </Typography>
-                        <Typography variant="h5">
-                            {t('Introduction', { ns: 'common' })}
-                        </Typography>
-                        <Typography>{user.selfIntroduction}</Typography>
-                    </Card>
-                    {is_TaiGer_Agent(profileState.personaldata) ||
-                    is_TaiGer_Editor(profileState.personaldata) ? (
-                        <Card sx={{ padding: 2, mb: 2 }}>
-                            <Typography variant="h6">
-                                {t('Office Hours', { ns: 'common' })}
-                            </Typography>
-                            <Typography variant="h6">
-                                {t('Time zone', { ns: 'common' })}
-                            </Typography>
-                            <TimezoneSelect
-                                displayValue="UTC"
-                                isDisabled={false}
-                                onChange={setSelectedTimezone}
-                                value={profileState.selectedTimezone}
-                            />
-                            <br />
-                            {daysOfWeek.map((day, i) => (
-                                <Box
-                                    key={i}
-                                    sx={{ display: 'flex', textAlign: 'right' }}
-                                >
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={
-                                                    profileState.officehours?.[
-                                                        day
-                                                    ]?.active
-                                                }
-                                                onChange={(e) =>
-                                                    handleToggleChange(e, day)
-                                                }
-                                            />
-                                        }
-                                        label={`${day}`}
-                                    />
-                                    {profileState.officehours &&
-                                    profileState.officehours[day]?.active ? (
-                                        <>
-                                            {/* <span>Timeslots</span> */}
-                                            <Autocomplete
-                                                disableCloseOnSelect
-                                                getOptionLabel={(option) =>
-                                                    option.label
-                                                }
-                                                id={`${day}`}
-                                                isOptionEqualToValue={(
-                                                    option,
-                                                    value
-                                                ) =>
-                                                    option.value === value.value
-                                                }
-                                                multiple
-                                                onChange={(e, newValue) =>
-                                                    onTimeStartChange2(
-                                                        e,
-                                                        newValue,
-                                                        day
-                                                    )
-                                                }
-                                                options={time_slots}
-                                                renderInput={(params) => (
-                                                    <TextField
-                                                        {...params}
-                                                        label="Timeslots"
-                                                        placeholder="Timeslots"
-                                                        variant="standard"
-                                                    />
-                                                )}
-                                                renderOption={(
-                                                    props,
-                                                    option,
-                                                    { selected }
-                                                ) => (
-                                                    <li {...props}>
-                                                        <Checkbox
-                                                            checked={selected}
-                                                            checkedIcon={
-                                                                checkedIcon
-                                                            }
-                                                            icon={icon}
-                                                            style={{
-                                                                marginRight: 8
-                                                            }}
-                                                        />
-                                                        {option.label}
-                                                    </li>
-                                                )}
-                                                style={{ width: 500 }}
-                                                value={
-                                                    profileState.officehours[
-                                                        day
-                                                    ].time_slots
-                                                }
-                                            />
-                                        </>
-                                    ) : (
-                                        <span>
-                                            {t('Close', { ns: 'common' })}
-                                        </span>
-                                    )}
-                                </Box>
-                            ))}
-                            <Button
-                                color="primary"
-                                disabled={!profileState.officehoursModifed}
-                                onClick={handleSubmit_Officehours}
-                                variant="contained"
-                            >
-                                {t('Update', { ns: 'common' })}
-                            </Button>
-                        </Card>
-                    ) : null}
-                </>
+                <Card sx={{ padding: 2, mb: 2 }}>
+                    <Typography>{t('Profile', { ns: 'common' })}</Typography>
+                    <Typography variant="h5">
+                        {t('Introduction', { ns: 'common' })}
+                    </Typography>
+                    <Typography>{user.selfIntroduction}</Typography>
+                </Card>
             ) : null}
             <Dialog
                 aria-labelledby="contained-modal-title-vcenter"
@@ -635,27 +428,6 @@ const Profile = () => {
                     <Button
                         color="primary"
                         onClick={setmodalhide}
-                        variant="contained"
-                    >
-                        {t('Close', { ns: 'common' })}
-                    </Button>
-                </DialogActions>
-            </Dialog>
-            <Dialog
-                onClose={onHideOfficeHoursConfirmed}
-                open={profileState.updateOfficeHoursConfirmed}
-            >
-                <DialogTitle>
-                    {t('Update Successfully', { ns: 'common' })}
-                </DialogTitle>
-                <DialogContent>
-                    {t('Office Hours time slots updated', { ns: 'common' })}
-                    Successfully
-                </DialogContent>
-                <DialogActions>
-                    <Button
-                        color="primary"
-                        onClick={() => onHideOfficeHoursConfirmed()}
                         variant="contained"
                     >
                         {t('Close', { ns: 'common' })}

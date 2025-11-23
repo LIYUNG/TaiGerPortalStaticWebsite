@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Box,
     Badge,
@@ -20,8 +20,16 @@ import {
     DialogContent,
     DialogContentText,
     DialogActions,
-    ButtonGroup
+    ButtonGroup,
+    Autocomplete,
+    Checkbox,
+    FormControlLabel,
+    Grid,
+    Divider
 } from '@mui/material';
+import TimezoneSelect from 'react-timezone-select';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import {
@@ -44,7 +52,9 @@ import {
     getTodayAsWeekday,
     getReorderWeekday,
     isInTheFuture,
-    getUTCWithDST
+    getUTCWithDST,
+    daysOfWeek,
+    time_slots
 } from '../../utils/contants';
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
@@ -58,6 +68,10 @@ import { appConfig } from '../../config';
 import { a11yProps, CustomTabPanel } from '../../components/Tabs';
 import { CreateNewEventModal } from '../../components/Calendar/components/CreateNewEventModal';
 import useCalendarEvents from '../../hooks/useCalendarEvents';
+import { updateOfficehours } from '../../api';
+
+const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
+const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
 const DateRangePickerBasic = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -186,8 +200,6 @@ const TaiGerOfficeHours = () => {
     const [viewMode, setViewMode] = useState(
         startTime && endTime ? 'past' : 'future'
     );
-
-    const [value, setValue] = useState(0);
     const {
         events,
         booked_events,
@@ -239,9 +251,86 @@ const TaiGerOfficeHours = () => {
         receiver_id: user_id
     });
 
-    const [showCalendar, setShowCalendar] = useState(false);
-    const handleChangeTab = (event, newValue) => {
-        setValue(newValue);
+    const [mainTabValue, setMainTabValue] = useState(0);
+
+    // Office Hours Settings state
+    const [officeHours, setOfficeHours] = useState(user.officehours || {});
+    const [selectedTimezone, setSelectedTimezone] = useState(
+        user.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone
+    );
+    const [isOfficeHoursModified, setIsOfficeHoursModified] = useState(false);
+    const [updateOfficeHoursConfirmed, setUpdateOfficeHoursConfirmed] =
+        useState(false);
+    const [isSubmittingOfficeHours, setIsSubmittingOfficeHours] =
+        useState(false);
+
+    useEffect(() => {
+        if (user.officehours) {
+            setOfficeHours(user.officehours);
+        }
+        if (user.timezone) {
+            setSelectedTimezone(user.timezone);
+        }
+    }, [user.officehours, user.timezone]);
+
+    const handleMainTabChange = (event, newValue) => {
+        setMainTabValue(newValue);
+    };
+
+    // Office Hours Settings handlers
+    const handleTimezoneChange = (timezone) => {
+        setSelectedTimezone(timezone.value);
+        setIsOfficeHoursModified(true);
+    };
+
+    const handleToggleDay = (e, day) => {
+        setOfficeHours((prev) => ({
+            ...prev,
+            [day]: {
+                ...prev[day],
+                active: e.target.checked,
+                time_slots: prev[day]?.time_slots || []
+            }
+        }));
+        setIsOfficeHoursModified(true);
+    };
+
+    const handleTimeSlotsChange = (e, newValues, day) => {
+        setOfficeHours((prev) => ({
+            ...prev,
+            [day]: {
+                ...prev[day],
+                time_slots: newValues
+            }
+        }));
+        setIsOfficeHoursModified(true);
+    };
+
+    const handleSubmitOfficeHours = () => {
+        setIsSubmittingOfficeHours(true);
+        updateOfficehours(user._id.toString(), officeHours, selectedTimezone)
+            .then((resp) => {
+                const { success } = resp.data;
+                if (success) {
+                    setIsOfficeHoursModified(false);
+                    setUpdateOfficeHoursConfirmed(true);
+                } else {
+                    const { message } = resp.data;
+                    console.error('Update failed:', message);
+                    alert(message || t('Update failed', { ns: 'common' }));
+                }
+                setIsSubmittingOfficeHours(false);
+            })
+            .catch((error) => {
+                console.error('Update error:', error);
+                alert(t('An error occurred', { ns: 'common' }));
+                setIsSubmittingOfficeHours(false);
+            });
+    };
+
+    const handleCloseOfficeHoursDialog = () => {
+        setUpdateOfficeHoursConfirmed(false);
+        window.location.reload(true);
     };
 
     if (!is_TaiGer_Agent(user) && !is_TaiGer_Editor(user)) {
@@ -315,7 +404,7 @@ const TaiGerOfficeHours = () => {
                     res_modal_status={res_modal_status}
                 />
             ) : null}
-            <Breadcrumbs aria-label="breadcrumb">
+            <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2 }}>
                 <Link
                     color="inherit"
                     component={LinkDom}
@@ -324,101 +413,108 @@ const TaiGerOfficeHours = () => {
                 >
                     {appConfig.companyName}
                 </Link>
-
                 <Typography color="text.primary">
-                    {t('My Events', { ns: 'common' })}
+                    {t('Office Hours', { ns: 'common' })}
                 </Typography>
             </Breadcrumbs>
 
-            {!showCalendar ? (
-                <>
-                    <Button
-                        color="secondary"
-                        onClick={() => setShowCalendar(!showCalendar)}
-                        variant="contained"
+            <Card>
+                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                    <Tabs
+                        aria-label="office hours tabs"
+                        indicatorColor="primary"
+                        onChange={handleMainTabChange}
+                        scrollButtons="auto"
+                        value={mainTabValue}
+                        variant="scrollable"
                     >
-                        {t('To Calendar', { ns: 'common' })}
-                    </Button>
-                    <ButtonGroup
-                        aria-label="outlined primary button group"
-                        style={{ marginBottom: '20px' }}
-                        variant="contained"
-                    >
-                        <Button
-                            onClick={() => {
-                                setSearchParams({
-                                    startTime:
-                                        new Date().toISOString().slice(0, 16) +
-                                        'Z'
-                                });
-                                setViewMode('future');
-                            }}
-                            variant={
-                                viewMode === 'future' ? 'contained' : 'outlined'
-                            }
-                        >
-                            {t('Upcoming', { ns: 'common' })}
-                        </Button>
-                        <Button
-                            onClick={() => {
-                                setSearchParams({
-                                    startTime: '',
-                                    endTime: ''
-                                });
-                                setViewMode('past');
-                            }}
-                            variant={
-                                viewMode === 'past' ? 'contained' : 'outlined'
-                            }
-                        >
-                            {t('Past', { ns: 'common' })}
-                        </Button>
-                    </ButtonGroup>
+                        <Tab
+                            label={t('Calendar', { ns: 'common' })}
+                            {...a11yProps(mainTabValue, 0)}
+                        />
+                        <Tab
+                            label={t('My Events', { ns: 'common' })}
+                            {...a11yProps(mainTabValue, 1)}
+                        />
+                        <Tab
+                            label={t('Settings', { ns: 'common' })}
+                            {...a11yProps(mainTabValue, 2)}
+                        />
+                    </Tabs>
+                </Box>
+                <CustomTabPanel index={0} value={mainTabValue}>
+                    <MyCalendar
+                        events={[...booked_events]}
+                        handleChange={handleChange}
+                        handleChangeReceiver={handleChangeReceiver}
+                        handleModalBook={handleModalBook}
+                        handleModalClose={handleModalClose}
+                        handleModalCreateEvent={handleModalCreateEvent}
+                        handleNewEventModalClose={handleNewEventModalClose}
+                        handleSelectEvent={handleSelectEvent}
+                        handleSelectSlot={handleSelectSlotAgent}
+                        handleSelectStudent={handleSelectStudent}
+                        handleUpdateTimeSlot={handleUpdateTimeSlot}
+                        isNewEventModalOpen={isNewEventModalOpen}
+                        newDescription={newDescription}
+                        newEventEnd={newEventEnd}
+                        newReceiver={newReceiver}
+                        selectedEvent={selectedEvent}
+                    />
+                </CustomTabPanel>
 
-                    {viewMode === 'future' ? (
+                <CustomTabPanel index={1} value={mainTabValue}>
+                    {/* Events Tab */}
+                    <Box sx={{ p: 2 }}>
                         <>
-                            {events?.filter(
-                                (event) =>
-                                    isInTheFuture(event.end) &&
-                                    (!event.isConfirmedReceiver ||
-                                        !event.isConfirmedRequester)
-                            ).length !== 0
-                                ? _.reverse(
-                                      _.sortBy(
-                                          events?.filter(
-                                              (event) =>
-                                                  isInTheFuture(event.end) &&
-                                                  (!event.isConfirmedReceiver ||
-                                                      !event.isConfirmedRequester)
-                                          ),
-                                          ['start']
-                                      )
-                                  )?.map((event, i) => (
-                                      <EventConfirmationCard
-                                          event={event}
-                                          handleConfirmAppointmentModalOpen={
-                                              handleConfirmAppointmentModalOpen
-                                          }
-                                          handleDeleteAppointmentModalOpen={
-                                              handleDeleteAppointmentModalOpen
-                                          }
-                                          handleEditAppointmentModalOpen={
-                                              handleEditAppointmentModalOpen
-                                          }
-                                          key={i}
-                                      />
-                                  ))
-                                : null}
-                            <Card sx={{ p: 2 }}>
-                                <Typography variant="h6">
+                            <ButtonGroup
+                                aria-label="outlined primary button group"
+                                style={{ marginBottom: '20px' }}
+                                variant="contained"
+                            >
+                                <Button
+                                    onClick={() => {
+                                        setSearchParams({
+                                            startTime:
+                                                new Date()
+                                                    .toISOString()
+                                                    .slice(0, 16) + 'Z'
+                                        });
+                                        setViewMode('future');
+                                    }}
+                                    variant={
+                                        viewMode === 'future'
+                                            ? 'contained'
+                                            : 'outlined'
+                                    }
+                                >
                                     {t('Upcoming', { ns: 'common' })}
-                                </Typography>
-                                <Box>
+                                </Button>
+                                <Button
+                                    onClick={() => {
+                                        setSearchParams({
+                                            startTime: '',
+                                            endTime: ''
+                                        });
+                                        setViewMode('past');
+                                    }}
+                                    variant={
+                                        viewMode === 'past'
+                                            ? 'contained'
+                                            : 'outlined'
+                                    }
+                                >
+                                    {t('Past', { ns: 'common' })}
+                                </Button>
+                            </ButtonGroup>
+
+                            {viewMode === 'future' ? (
+                                <>
                                     {events?.filter(
                                         (event) =>
                                             isInTheFuture(event.end) &&
-                                            event.isConfirmedRequester &&
-                                            event.isConfirmedReceiver
+                                            (!event.isConfirmedReceiver ||
+                                                !event.isConfirmedRequester)
                                     ).length !== 0
                                         ? _.reverse(
                                               _.sortBy(
@@ -427,12 +523,12 @@ const TaiGerOfficeHours = () => {
                                                           isInTheFuture(
                                                               event.end
                                                           ) &&
-                                                          event.isConfirmedRequester &&
-                                                          event.isConfirmedReceiver
+                                                          (!event.isConfirmedReceiver ||
+                                                              !event.isConfirmedRequester)
                                                   ),
                                                   ['start']
                                               )
-                                          ).map((event, i) => (
+                                          )?.map((event, i) => (
                                               <EventConfirmationCard
                                                   event={event}
                                                   handleConfirmAppointmentModalOpen={
@@ -447,200 +543,362 @@ const TaiGerOfficeHours = () => {
                                                   key={i}
                                               />
                                           ))
-                                        : t('No upcoming event', {
-                                              ns: 'common'
-                                          })}
-                                </Box>
-                            </Card>
+                                        : null}
+                                    <Card sx={{ p: 2 }}>
+                                        <Typography variant="h6">
+                                            {t('Upcoming', {
+                                                ns: 'common'
+                                            })}
+                                        </Typography>
+                                        <Box>
+                                            {events?.filter(
+                                                (event) =>
+                                                    isInTheFuture(event.end) &&
+                                                    event.isConfirmedRequester &&
+                                                    event.isConfirmedReceiver
+                                            ).length !== 0
+                                                ? _.reverse(
+                                                      _.sortBy(
+                                                          events?.filter(
+                                                              (event) =>
+                                                                  isInTheFuture(
+                                                                      event.end
+                                                                  ) &&
+                                                                  event.isConfirmedRequester &&
+                                                                  event.isConfirmedReceiver
+                                                          ),
+                                                          ['start']
+                                                      )
+                                                  ).map((event, i) => (
+                                                      <EventConfirmationCard
+                                                          event={event}
+                                                          handleConfirmAppointmentModalOpen={
+                                                              handleConfirmAppointmentModalOpen
+                                                          }
+                                                          handleDeleteAppointmentModalOpen={
+                                                              handleDeleteAppointmentModalOpen
+                                                          }
+                                                          handleEditAppointmentModalOpen={
+                                                              handleEditAppointmentModalOpen
+                                                          }
+                                                          key={i}
+                                                      />
+                                                  ))
+                                                : t('No upcoming event', {
+                                                      ns: 'common'
+                                                  })}
+                                        </Box>
+                                    </Card>
+                                </>
+                            ) : null}
+
+                            {viewMode === 'past' ? (
+                                isLoaded ? (
+                                    <Card sx={{ p: 2 }}>
+                                        <DateRangePickerBasic />
+                                        <Typography sx={{ p: 2 }} variant="h6">
+                                            {t('Past', { ns: 'common' })}
+                                        </Typography>
+                                        <Box>
+                                            {_.reverse(
+                                                _.sortBy(events, ['start'])
+                                            ).map((event, i) => (
+                                                <EventConfirmationCard
+                                                    disabled={true}
+                                                    event={event}
+                                                    handleConfirmAppointmentModalOpen={
+                                                        handleConfirmAppointmentModalOpen
+                                                    }
+                                                    handleDeleteAppointmentModalOpen={
+                                                        handleDeleteAppointmentModalOpen
+                                                    }
+                                                    handleEditAppointmentModalOpen={
+                                                        handleEditAppointmentModalOpen
+                                                    }
+                                                    key={i}
+                                                />
+                                            ))}
+                                        </Box>
+                                    </Card>
+                                ) : (
+                                    <CircularProgress />
+                                )
+                            ) : null}
+
+                            <Dialog
+                                centered
+                                onClose={handleConfirmAppointmentModalClose}
+                                open={isConfirmModalOpen}
+                            >
+                                <DialogTitle>
+                                    {t('Confirm Meeting', { ns: 'common' })}
+                                </DialogTitle>
+                                <DialogContent>
+                                    <DialogContentText>
+                                        You are aware of this meeting time and
+                                        confirm.
+                                    </DialogContentText>
+                                </DialogContent>
+                                <DialogActions>
+                                    <Button
+                                        color="primary"
+                                        disabled={
+                                            event_id === '' ||
+                                            event_temp?.description?.length ===
+                                                0 ||
+                                            BookButtonDisable
+                                        }
+                                        fullWidth
+                                        onClick={(e) =>
+                                            handleConfirmAppointmentModal(
+                                                e,
+                                                event_id,
+                                                event_temp
+                                            )
+                                        }
+                                        size="small"
+                                        startIcon={
+                                            BookButtonDisable ? (
+                                                <CircularProgress size={24} />
+                                            ) : (
+                                                <CheckIcon />
+                                            )
+                                        }
+                                        variant="contained"
+                                    >
+                                        {t('Yes', { ns: 'common' })}
+                                    </Button>
+                                    <Button
+                                        color="secondary"
+                                        fullWidth
+                                        onClick={
+                                            handleConfirmAppointmentModalClose
+                                        }
+                                        size="small"
+                                        variant="outlined"
+                                    >
+                                        {t('Close', { ns: 'common' })}
+                                    </Button>
+                                </DialogActions>
+                            </Dialog>
+                            <Dialog
+                                onClose={handleDeleteAppointmentModalClose}
+                                open={isDeleteModalOpen}
+                            >
+                                <DialogTitle>
+                                    {t('Warning', { ns: 'common' })}
+                                </DialogTitle>
+                                <DialogContent>
+                                    <DialogContentText>
+                                        {t(
+                                            'Do you want to cancel this meeting?'
+                                        )}
+                                    </DialogContentText>
+                                </DialogContent>
+                                <DialogActions>
+                                    <Button
+                                        color="secondary"
+                                        disabled={
+                                            event_id === '' || BookButtonDisable
+                                        }
+                                        onClick={(e) =>
+                                            handleDeleteAppointmentModal(
+                                                e,
+                                                event_id
+                                            )
+                                        }
+                                        size="small"
+                                        startIcon={
+                                            BookButtonDisable ? (
+                                                <CircularProgress size={16} />
+                                            ) : (
+                                                <DeleteIcon />
+                                            )
+                                        }
+                                        variant="contained"
+                                    >
+                                        {t('Delete', { ns: 'common' })}
+                                    </Button>
+                                </DialogActions>
+                            </Dialog>
                         </>
-                    ) : null}
+                    </Box>
+                </CustomTabPanel>
+                <CustomTabPanel index={2} value={mainTabValue}>
+                    {/* Office Hours Settings Tab */}
+                    <Box sx={{ p: 3 }}>
+                        <Typography
+                            sx={{ mb: 3, fontWeight: 600 }}
+                            variant="h5"
+                        >
+                            {t('Office Hours Settings', { ns: 'common' })}
+                        </Typography>
 
-                    {viewMode === 'past' ? (
-                        isLoaded ? (
-                            <Card sx={{ p: 2 }}>
-                                <DateRangePickerBasic />
-                                <Typography sx={{ p: 2 }} variant="h6">
-                                    {t('Past', { ns: 'common' })}
-                                </Typography>
-                                <Box>
-                                    {_.reverse(_.sortBy(events, ['start'])).map(
-                                        (event, i) => (
-                                            <EventConfirmationCard
-                                                disabled={true}
-                                                event={event}
-                                                handleConfirmAppointmentModalOpen={
-                                                    handleConfirmAppointmentModalOpen
+                        <Box sx={{ mb: 3 }}>
+                            <Typography
+                                sx={{ mb: 1.5, fontWeight: 500 }}
+                                variant="subtitle1"
+                            >
+                                {t('Time zone', { ns: 'common' })}
+                            </Typography>
+                            <TimezoneSelect
+                                displayValue="UTC"
+                                isDisabled={false}
+                                onChange={handleTimezoneChange}
+                                value={selectedTimezone}
+                            />
+                        </Box>
+
+                        <Divider sx={{ my: 3 }} />
+
+                        <Typography
+                            sx={{ mb: 2, fontWeight: 500 }}
+                            variant="subtitle1"
+                        >
+                            {t('Weekly Schedule', { ns: 'common' })}
+                        </Typography>
+
+                        <Grid container spacing={2}>
+                            {daysOfWeek.map((day, i) => (
+                                <Grid item key={i} md={4} sm={6} xs={12}>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 1.5,
+                                            p: 2,
+                                            border: '1px solid',
+                                            borderColor: 'divider',
+                                            borderRadius: 2,
+                                            backgroundColor: officeHours[day]
+                                                ?.active
+                                                ? 'action.selected'
+                                                : 'background.paper',
+                                            transition: 'background-color 0.2s'
+                                        }}
+                                    >
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={
+                                                        officeHours[day]
+                                                            ?.active || false
+                                                    }
+                                                    onChange={(e) =>
+                                                        handleToggleDay(e, day)
+                                                    }
+                                                />
+                                            }
+                                            label={
+                                                <Typography
+                                                    fontWeight={500}
+                                                    variant="body1"
+                                                >
+                                                    {day}
+                                                </Typography>
+                                            }
+                                        />
+                                        {officeHours[day]?.active ? (
+                                            <Autocomplete
+                                                disableCloseOnSelect
+                                                getOptionLabel={(option) =>
+                                                    option.label
                                                 }
-                                                handleDeleteAppointmentModalOpen={
-                                                    handleDeleteAppointmentModalOpen
+                                                isOptionEqualToValue={(
+                                                    option,
+                                                    value
+                                                ) =>
+                                                    option.value === value.value
                                                 }
-                                                handleEditAppointmentModalOpen={
-                                                    handleEditAppointmentModalOpen
+                                                multiple
+                                                onChange={(e, newValue) =>
+                                                    handleTimeSlotsChange(
+                                                        e,
+                                                        newValue,
+                                                        day
+                                                    )
                                                 }
-                                                key={i}
+                                                options={time_slots}
+                                                renderInput={(params) => (
+                                                    <TextField
+                                                        {...params}
+                                                        label={t('Time Slots', {
+                                                            ns: 'common'
+                                                        })}
+                                                        placeholder={t(
+                                                            'Select time slots',
+                                                            {
+                                                                ns: 'common'
+                                                            }
+                                                        )}
+                                                        size="small"
+                                                        variant="outlined"
+                                                    />
+                                                )}
+                                                renderOption={(
+                                                    props,
+                                                    option,
+                                                    { selected }
+                                                ) => (
+                                                    <li {...props}>
+                                                        <Checkbox
+                                                            checked={selected}
+                                                            checkedIcon={
+                                                                checkedIcon
+                                                            }
+                                                            icon={icon}
+                                                            style={{
+                                                                marginRight: 8
+                                                            }}
+                                                        />
+                                                        {option.label}
+                                                    </li>
+                                                )}
+                                                sx={{ width: '100%' }}
+                                                value={
+                                                    officeHours[day]
+                                                        ?.time_slots || []
+                                                }
                                             />
-                                        )
-                                    )}
-                                </Box>
-                            </Card>
-                        ) : (
-                            <CircularProgress />
-                        )
-                    ) : null}
+                                        ) : (
+                                            <Typography
+                                                color="text.secondary"
+                                                sx={{ ml: 4.5 }}
+                                                variant="body2"
+                                            >
+                                                {t('Closed', { ns: 'common' })}
+                                            </Typography>
+                                        )}
+                                    </Box>
+                                </Grid>
+                            ))}
+                        </Grid>
 
-                    <Dialog
-                        centered
-                        onClose={handleConfirmAppointmentModalClose}
-                        open={isConfirmModalOpen}
-                    >
-                        <DialogTitle>
-                            {t('Confirm Meeting', { ns: 'common' })}
-                        </DialogTitle>
-                        <DialogContent>
-                            <DialogContentText>
-                                You are aware of this meeting time and confirm.
-                            </DialogContentText>
-                        </DialogContent>
-                        <DialogActions>
+                        <Box
+                            sx={{
+                                mt: 3,
+                                display: 'flex',
+                                justifyContent: 'flex-end'
+                            }}
+                        >
                             <Button
                                 color="primary"
                                 disabled={
-                                    event_id === '' ||
-                                    event_temp?.description?.length === 0 ||
-                                    BookButtonDisable
+                                    !isOfficeHoursModified ||
+                                    isSubmittingOfficeHours
                                 }
-                                fullWidth
-                                onClick={(e) =>
-                                    handleConfirmAppointmentModal(
-                                        e,
-                                        event_id,
-                                        event_temp
-                                    )
-                                }
-                                size="small"
-                                startIcon={
-                                    BookButtonDisable ? (
-                                        <CircularProgress size={24} />
-                                    ) : (
-                                        <CheckIcon />
-                                    )
-                                }
+                                onClick={handleSubmitOfficeHours}
+                                size="large"
                                 variant="contained"
                             >
-                                {t('Yes', { ns: 'common' })}
+                                {isSubmittingOfficeHours
+                                    ? t('Updating...', { ns: 'common' })
+                                    : t('Update', { ns: 'common' })}
                             </Button>
-                            <Button
-                                color="secondary"
-                                fullWidth
-                                onClick={handleConfirmAppointmentModalClose}
-                                size="small"
-                                variant="outlined"
-                            >
-                                {t('Close', { ns: 'common' })}
-                            </Button>
-                        </DialogActions>
-                    </Dialog>
-                    <Dialog
-                        onClose={handleDeleteAppointmentModalClose}
-                        open={isDeleteModalOpen}
-                    >
-                        <DialogTitle>
-                            {t('Warning', { ns: 'common' })}
-                        </DialogTitle>
-                        <DialogContent>
-                            <DialogContentText>
-                                {t('Do you want to cancel this meeting?')}
-                            </DialogContentText>
-                        </DialogContent>
-                        <DialogActions>
-                            <Button
-                                color="secondary"
-                                disabled={event_id === '' || BookButtonDisable}
-                                onClick={(e) =>
-                                    handleDeleteAppointmentModal(e, event_id)
-                                }
-                                size="small"
-                                startIcon={
-                                    BookButtonDisable ? (
-                                        <CircularProgress size={16} />
-                                    ) : (
-                                        <DeleteIcon />
-                                    )
-                                }
-                                variant="contained"
-                            >
-                                {t('Delete', { ns: 'common' })}
-                            </Button>
-                        </DialogActions>
-                    </Dialog>
-                </>
-            ) : (
-                <>
-                    <Button
-                        color="secondary"
-                        onClick={() => setShowCalendar(!showCalendar)}
-                        variant="contained"
-                    >
-                        {t('My Appointments')}
-                    </Button>
-                    <Card>
-                        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                            {/* TODO: subpath tab for URL */}
-                            <Tabs
-                                aria-label="basic tabs example"
-                                indicatorColor="primary"
-                                onChange={handleChangeTab}
-                                scrollButtons="auto"
-                                value={value}
-                                variant="scrollable"
-                            >
-                                <Tab
-                                    label={t('Calendar')}
-                                    {...a11yProps(value, 0)}
-                                />
-                                <Tab
-                                    label={t('Available Blocks')}
-                                    {...a11yProps(value, 1)}
-                                />
-                            </Tabs>
                         </Box>
-                        <CustomTabPanel index={0} value={value}>
-                            <MyCalendar
-                                events={[...booked_events]}
-                                handleChange={handleChange}
-                                handleChangeReceiver={handleChangeReceiver}
-                                handleModalBook={handleModalBook}
-                                handleModalClose={handleModalClose}
-                                handleModalCreateEvent={handleModalCreateEvent}
-                                handleNewEventModalClose={
-                                    handleNewEventModalClose
-                                }
-                                handleSelectEvent={handleSelectEvent}
-                                handleSelectSlot={handleSelectSlotAgent}
-                                handleSelectStudent={handleSelectStudent}
-                                handleUpdateTimeSlot={handleUpdateTimeSlot}
-                                isNewEventModalOpen={isNewEventModalOpen}
-                                newDescription={newDescription}
-                                newEventEnd={newEventEnd}
-                                newReceiver={newReceiver}
-                                selectedEvent={selectedEvent}
-                            />
-                        </CustomTabPanel>
-                        <CustomTabPanel index={1} value={value}>
-                            {booked_events
-                                .sort((a, b) => (a.start < b.start ? -1 : 1))
-                                .map((time_slot, j) => (
-                                    <Card key={j}>
-                                        <Typography>
-                                            {time_slot.start.toLocaleString()}{' '}
-                                            to {time_slot.end.toLocaleString()}
-                                        </Typography>
-                                    </Card>
-                                ))}
-                        </CustomTabPanel>
-                    </Card>
-                </>
-            )}
+                    </Box>
+                </CustomTabPanel>
+            </Card>
             <Dialog
                 onClose={handleEditAppointmentModalClose}
                 open={isEditModalOpen}
@@ -749,7 +1007,6 @@ const TaiGerOfficeHours = () => {
             </Dialog>
             {is_TaiGer_Agent(user) || is_TaiGer_Editor(user) ? (
                 <CreateNewEventModal
-                    // {...props}
                     BookButtonDisable={BookButtonDisable}
                     available_termins={available_termins_full}
                     events={events}
@@ -763,6 +1020,34 @@ const TaiGerOfficeHours = () => {
                     students={students}
                 />
             ) : null}
+
+            {/* Office Hours Update Success Dialog */}
+            <Dialog
+                aria-labelledby="office-hours-update-dialog-title"
+                onClose={handleCloseOfficeHoursDialog}
+                open={updateOfficeHoursConfirmed}
+            >
+                <DialogTitle id="office-hours-update-dialog-title">
+                    {t('Update Successfully', { ns: 'common' })}
+                </DialogTitle>
+                <DialogContent>
+                    <Typography>
+                        {t('Office Hours time slots updated', {
+                            ns: 'common'
+                        })}{' '}
+                        {t('Successfully', { ns: 'common' })}
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button
+                        color="primary"
+                        onClick={handleCloseOfficeHoursDialog}
+                        variant="contained"
+                    >
+                        {t('Close', { ns: 'common' })}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 };
