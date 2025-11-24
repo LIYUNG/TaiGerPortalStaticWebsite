@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import IconButton from '@mui/material/IconButton';
 import StarBorderRoundedIcon from '@mui/icons-material/StarBorderRounded';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { is_TaiGer_role } from '@taiger-common/core';
 
 import {
@@ -190,14 +191,20 @@ const CVMLRLOverview = (props) => {
                                 )
                         )}
                         {isNonApprovalCountry ? (
-                            <Chip
-                                color="warning"
-                                label={t('Lack of experience country', {
+                            <Tooltip
+                                title={t('Lack of experience country', {
                                     ns: 'common'
                                 })}
-                                size="small"
-                                variant="outlined"
-                            />
+                            >
+                                <WarningAmberIcon
+                                    fontSize="small"
+                                    sx={{
+                                        color: 'warning.main',
+                                        ml: 0.5,
+                                        mr: 0.5
+                                    }}
+                                />
+                            </Tooltip>
                         ) : null}
                         <>
                             <Link

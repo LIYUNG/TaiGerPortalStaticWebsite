@@ -23,6 +23,8 @@ import { useTranslation } from 'react-i18next';
 import { MuiDataGrid } from '../../components/MuiDataGrid';
 import DEMO from '../../store/constant';
 import { ATTRIBUTES, COLORS } from '../../utils/contants';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import { APPROVAL_COUNTRIES } from '../Utils/checking-functions';
 
 CustomTabPanel.propTypes = {
     children: PropTypes.node,
@@ -192,6 +194,13 @@ const EssayOverview = (props) => {
                     const linkUrl = `${DEMO.DOCUMENT_MODIFICATION_LINK(
                         params.row.thread_id
                     )}`;
+                    const programCountry =
+                        params.row?.program_id?.country || params.row?.country;
+                    const isNonApprovalCountry = programCountry
+                        ? !APPROVAL_COUNTRIES.includes(
+                              String(programCountry).toLowerCase()
+                          )
+                        : false;
                     return (
                         <>
                             {params.row?.attributes?.map(
@@ -213,6 +222,22 @@ const EssayOverview = (props) => {
                                             />
                                         </Tooltip>
                                     )
+                            )}
+                            {isNonApprovalCountry && (
+                                <Tooltip
+                                    title={t('Lack of experience country', {
+                                        ns: 'common'
+                                    })}
+                                >
+                                    <WarningAmberIcon
+                                        fontSize="small"
+                                        sx={{
+                                            color: 'warning.main',
+                                            ml: 0.5,
+                                            mr: 0.5
+                                        }}
+                                    />
+                                </Tooltip>
                             )}
                             <Link
                                 component={LinkDom}

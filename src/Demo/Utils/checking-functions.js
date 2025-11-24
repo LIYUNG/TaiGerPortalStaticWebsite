@@ -1757,6 +1757,7 @@ const prepApplicationTaskV2 = (student, application, program, thread) => {
         program_name: program?.program_name,
         degree: program?.degree,
         lang: `${program?.lang}`,
+        country: program?.country,
         days_left:
             differenceInDays(
                 application_deadline_V2_calculator({
