@@ -5,8 +5,6 @@ import PropTypes from 'prop-types';
 import IconButton from '@mui/material/IconButton';
 import StarBorderRoundedIcon from '@mui/icons-material/StarBorderRounded';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { is_TaiGer_role } from '@taiger-common/core';
 
 import {
@@ -154,39 +152,6 @@ const CVMLRLOverview = (props) => {
             minWidth: 80
         },
         {
-            field: 'status',
-            headerName: t('Status', { ns: 'common' }),
-            minWidth: 110,
-            filterVariant: 'select',
-            filterSelectOptions: [
-                { value: 'Locked', label: t('Locked', { ns: 'common' }) },
-                { value: 'Unlocked', label: t('Unlocked', { ns: 'common' }) }
-            ],
-            filterFn: (row, columnId, filterValue) => {
-                const isLocked = row.original?.isProgramLocked === true;
-                const status = isLocked ? 'Locked' : 'Unlocked';
-                return status === filterValue;
-            },
-            renderCell: (params) => {
-                const isLocked = params.row?.isProgramLocked === true;
-                return isLocked ? (
-                    <Chip
-                        color="warning"
-                        icon={<LockOutlinedIcon fontSize="small" />}
-                        label={t('Locked', { ns: 'common' })}
-                        size="small"
-                    />
-                ) : (
-                    <Chip
-                        icon={<LockOpenIcon fontSize="small" />}
-                        label={t('Unlocked', { ns: 'common' })}
-                        size="small"
-                        variant="outlined"
-                    />
-                );
-            }
-        },
-        {
             field: 'document_name',
             headerName: t('Document name', { ns: 'common' }),
             minWidth: 380,
@@ -194,7 +159,6 @@ const CVMLRLOverview = (props) => {
                 const linkUrl = `${DEMO.DOCUMENT_MODIFICATION_LINK(
                     params.row.thread_id
                 )}`;
-                const isLocked = params.row?.isProgramLocked;
                 // Check if program is from non-approval country
                 const programCountry =
                     params.row?.program_id?.country || params.row?.country;
@@ -235,68 +199,30 @@ const CVMLRLOverview = (props) => {
                                 variant="outlined"
                             />
                         ) : null}
-                        {isLocked ? (
-                            <Tooltip
-                                title={t(
-                                    'Program is locked. Contact your agent to unlock this task.',
-                                    { ns: 'common' }
-                                )}
+                        <>
+                            <Link
+                                component={LinkDom}
+                                target="_blank"
+                                title={params.value}
+                                to={linkUrl}
+                                underline="hover"
                             >
-                                <Box>
-                                    <Link
-                                        component={LinkDom}
-                                        sx={{
-                                            color: 'text.disabled',
-                                            pointerEvents: 'none'
-                                        }}
-                                        target="_blank"
-                                        title={params.value}
-                                        to={linkUrl}
-                                        underline="hover"
-                                    >
-                                        {params.row.file_type}{' '}
-                                        {params.row.program_id
-                                            ? ' - ' +
-                                              params.row.program_name +
-                                              ' - ' +
-                                              params.row.degree
-                                            : ''}
-                                    </Link>
-                                    <Typography
-                                        color="text.secondary"
-                                        sx={{ display: 'block', mt: 0.25 }}
-                                        variant="caption"
-                                    >
-                                        {params.row.school}
-                                    </Typography>
-                                </Box>
-                            </Tooltip>
-                        ) : (
-                            <>
-                                <Link
-                                    component={LinkDom}
-                                    target="_blank"
-                                    title={params.value}
-                                    to={linkUrl}
-                                    underline="hover"
-                                >
-                                    {params.row.file_type}{' '}
-                                    {params.row.program_id
-                                        ? ' - ' +
-                                          params.row.program_name +
-                                          ' - ' +
-                                          params.row.degree
-                                        : ''}
-                                </Link>
-                                <Typography
-                                    color="text.secondary"
-                                    sx={{ display: 'block', mt: 0.25 }}
-                                    variant="caption"
-                                >
-                                    {params.row.school}
-                                </Typography>
-                            </>
-                        )}
+                                {params.row.file_type}{' '}
+                                {params.row.program_id
+                                    ? ' - ' +
+                                      params.row.program_name +
+                                      ' - ' +
+                                      params.row.degree
+                                    : ''}
+                            </Link>
+                            <Typography
+                                color="text.secondary"
+                                sx={{ display: 'block', mt: 0.25 }}
+                                variant="caption"
+                            >
+                                {params.row.school}
+                            </Typography>
+                        </>
                     </Box>
                 );
             }
@@ -347,39 +273,6 @@ const CVMLRLOverview = (props) => {
             width: 80
         },
         {
-            field: 'status',
-            headerName: t('Status', { ns: 'common' }),
-            minWidth: 110,
-            filterVariant: 'select',
-            filterSelectOptions: [
-                { value: 'Locked', label: t('Locked', { ns: 'common' }) },
-                { value: 'Unlocked', label: t('Unlocked', { ns: 'common' }) }
-            ],
-            filterFn: (row, columnId, filterValue) => {
-                const isLocked = row.original?.isProgramLocked === true;
-                const status = isLocked ? 'Locked' : 'Unlocked';
-                return status === filterValue;
-            },
-            renderCell: (params) => {
-                const isLocked = params.row?.isProgramLocked === true;
-                return isLocked ? (
-                    <Chip
-                        color="warning"
-                        icon={<LockOutlinedIcon fontSize="small" />}
-                        label={t('Locked', { ns: 'common' })}
-                        size="small"
-                    />
-                ) : (
-                    <Chip
-                        icon={<LockOpenIcon fontSize="small" />}
-                        label={t('Unlocked', { ns: 'common' })}
-                        size="small"
-                        variant="outlined"
-                    />
-                );
-            }
-        },
-        {
             field: 'document_name',
             headerName: t('Document name', { ns: 'common' }),
             width: 450,
@@ -387,7 +280,6 @@ const CVMLRLOverview = (props) => {
                 const linkUrl = `${DEMO.DOCUMENT_MODIFICATION_LINK(
                     params.row.thread_id
                 )}`;
-                const isLocked = params.row?.isProgramLocked;
                 // Check if program is from non-approval country
                 const programCountry =
                     params.row?.program_id?.country || params.row?.country;
@@ -410,68 +302,30 @@ const CVMLRLOverview = (props) => {
                                 variant="outlined"
                             />
                         ) : null}
-                        {isLocked ? (
-                            <Tooltip
-                                title={t(
-                                    'Program is locked. Contact your agent to unlock this task.',
-                                    { ns: 'common' }
-                                )}
+                        <>
+                            <Link
+                                component={LinkDom}
+                                target="_blank"
+                                title={params.value}
+                                to={linkUrl}
+                                underline="hover"
                             >
-                                <Box>
-                                    <Link
-                                        component={LinkDom}
-                                        sx={{
-                                            color: 'text.disabled',
-                                            pointerEvents: 'none'
-                                        }}
-                                        target="_blank"
-                                        title={params.value}
-                                        to={linkUrl}
-                                        underline="hover"
-                                    >
-                                        {params.row.file_type}{' '}
-                                        {params.row.program_id
-                                            ? ' - ' +
-                                              params.row.program_name +
-                                              ' - ' +
-                                              params.row.degree
-                                            : ''}
-                                    </Link>
-                                    <Typography
-                                        color="text.secondary"
-                                        sx={{ display: 'block', mt: 0.25 }}
-                                        variant="caption"
-                                    >
-                                        {params.row.school}
-                                    </Typography>
-                                </Box>
-                            </Tooltip>
-                        ) : (
-                            <>
-                                <Link
-                                    component={LinkDom}
-                                    target="_blank"
-                                    title={params.value}
-                                    to={linkUrl}
-                                    underline="hover"
-                                >
-                                    {params.row.file_type}{' '}
-                                    {params.row.program_id
-                                        ? ' - ' +
-                                          params.row.program_name +
-                                          ' - ' +
-                                          params.row.degree
-                                        : ''}
-                                </Link>
-                                <Typography
-                                    color="text.secondary"
-                                    sx={{ display: 'block', mt: 0.25 }}
-                                    variant="caption"
-                                >
-                                    {params.row.school}
-                                </Typography>
-                            </>
-                        )}
+                                {params.row.file_type}{' '}
+                                {params.row.program_id
+                                    ? ' - ' +
+                                      params.row.program_name +
+                                      ' - ' +
+                                      params.row.degree
+                                    : ''}
+                            </Link>
+                            <Typography
+                                color="text.secondary"
+                                sx={{ display: 'block', mt: 0.25 }}
+                                variant="caption"
+                            >
+                                {params.row.school}
+                            </Typography>
+                        </>
                     </Box>
                 );
             }
