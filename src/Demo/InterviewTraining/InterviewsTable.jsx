@@ -25,7 +25,7 @@ export const InterviewsTable = ({ isLoading, data, columns }) => {
         columns,
         state: { isLoading },
         data: data || [],
-        enableFacetedValues: true,
+        enableFacetedValues: true
     });
 
     const updateTrainer = async () => {

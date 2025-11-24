@@ -74,6 +74,7 @@ import ProgramLanguageNotMatchedBanner from '../../components/Banner/ProgramLang
 import Audit from '../Audit';
 import EnglishCertificateExpiredBeforeDeadlineBanner from '../../components/Banner/EnglishCertificateExpiredBeforeDeadlineBanner';
 import { getStudentAndDocLinksQuery } from '../../api/query';
+import { MeetingTab } from './MeetingTab';
 
 CustomTabPanel.propTypes = {
     children: PropTypes.node,
@@ -407,6 +408,10 @@ export const SingleStudentPageMainContent = ({
                                 label={t('Audit', { ns: 'common' })}
                                 {...a11yProps(value, 8)}
                             />
+                            <Tab
+                                label={t('Meeting', { ns: 'common' })}
+                                {...a11yProps(value, 9)}
+                            />
                         </Tabs>
                     </Box>
                     <CustomTabPanel index={0} value={value}>
@@ -581,6 +586,12 @@ export const SingleStudentPageMainContent = ({
                     </CustomTabPanel>
                     <CustomTabPanel index={8} value={value}>
                         <Audit audit={audit} />
+                    </CustomTabPanel>
+                    <CustomTabPanel index={9} value={value}>
+                        <MeetingTab
+                            student={singleStudentPage.student}
+                            studentId={singleStudentPage.student._id.toString()}
+                        />
                     </CustomTabPanel>
                 </>
             ) : (

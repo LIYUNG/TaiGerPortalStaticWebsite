@@ -45,13 +45,17 @@ import {
     getInterviewsByProgramId,
     getUsers,
     getUsersCount,
+    getUsersOverview,
     getActiveThreads,
     getSameProgramStudents,
     getArchivStudents,
     getTeamMembers,
     getExpense,
     getApplicationConflicts,
-    getMycourses
+    getMycourses,
+    getStudentMeetings,
+    getEvents,
+    getBookedEvents
 } from '.';
 
 export const getMessagThreadQuery = (threadId) => ({
@@ -152,6 +156,12 @@ export const getUsersCountQuery = () => ({
     queryFn: () => getUsersCount(),
     staleTime: 1000 * 60 * 5, // 5 minutes
     select: (data) => data.data?.data || []
+});
+
+export const getUsersOverviewQuery = () => ({
+    queryKey: ['users', 'overview'],
+    queryFn: getUsersOverview,
+    staleTime: 1000 * 60 * 5 // 5 minutes
 });
 
 export const getActiveStudentsQuery = (queryString) => ({
@@ -389,4 +399,22 @@ export const getMycoursesQuery = (studentId) => ({
     queryKey: ['mycourses', studentId],
     queryFn: () => getMycourses(studentId),
     staleTime: 1000 * 60 * 5 // 5 minutes
+});
+
+export const getStudentMeetingsQuery = (studentId) => ({
+    queryKey: ['student-meetings', studentId],
+    queryFn: () => getStudentMeetings(studentId),
+    staleTime: 1000 * 60 * 2 // 2 minutes
+});
+
+export const getEventsQuery = (queryString) => ({
+    queryKey: ['events', queryString],
+    queryFn: () => getEvents(queryString),
+    staleTime: 1000 * 60 * 2 // 2 minutes
+});
+
+export const getBookedEventsQuery = ({ startTime, endTime }) => ({
+    queryKey: ['events', 'booked', { startTime, endTime }],
+    queryFn: () => getBookedEvents({ startTime, endTime }),
+    staleTime: 1000 * 60 * 2 // 2 minutes
 });

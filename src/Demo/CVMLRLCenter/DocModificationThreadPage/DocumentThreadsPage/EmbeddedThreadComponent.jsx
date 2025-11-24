@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import { Link as LinkDom } from 'react-router-dom';
 import MessageIcon from '@mui/icons-material/Message';
-import { is_TaiGer_Agent } from '@taiger-common/core';
+import { is_TaiGer_AdminAgent } from '@taiger-common/core';
 
 import { getMessagThreadQuery } from '../../../../api/query';
 import ErrorPage from '../../../Utils/ErrorPage';
@@ -147,7 +147,7 @@ export const EmbeddedThreadComponent = ({ setThreadId }) => {
                     )}
                 </Stack>
                 <Stack alignItems="center" direction="row" spacing={2}>
-                    {is_TaiGer_Agent(user) ? (
+                    {is_TaiGer_AdminAgent(user) ? (
                         <Link
                             color="inherit"
                             component={LinkDom}

@@ -51,6 +51,7 @@ export const getQueryStudentResults = (keywords) =>
 export const getUsers = (queryString) =>
     request.get(`/api/users?${queryString}`);
 export const getUsersCount = () => request.get(`/api/users/count`);
+export const getUsersOverview = () => getData('/api/users/overview');
 export const getUser = (user_id) => request.get(`/api/users/${user_id}`);
 export const addUser = (user_information) =>
     request.post('/api/users', user_information);
@@ -632,10 +633,11 @@ export const updateStudentNotes = (student_id, notes) =>
 
 // Time Slot events:
 export const getActiveEventsNumber = () => request.get(`/api/events/ping`);
-export const getAllEvents = () => request.get(`/api/events/all`);
-export const getEvents = ({ startTime, endTime }) =>
-    request.get(`/api/events?startTime=${startTime}&endTime=${endTime}`);
-export const postEvent = (event) => request.post(`/api/events`, event);
+export const getEvents = (queryString) =>
+    request.get(`/api/events?${queryString}`);
+export const getBookedEvents = ({ startTime, endTime }) =>
+    request.get(`/api/events/booked?startTime=${startTime}&endTime=${endTime}`);
+export const postEvent = (event) => postData(`/api/events`, event);
 export const confirmEvent = (event_id, updated_event) =>
     request.put(`/api/events/${event_id}/confirm`, updated_event);
 export const updateEvent = (event_id, updated_event) =>
@@ -830,3 +832,15 @@ export const createCRMDeal = (payload) =>
 export const updateCRMDeal = (dealId, payload) =>
     request.put(`/api/crm/deals/${dealId}`, payload);
 export const getCRMSalesReps = () => request.get(`/api/crm/sales-reps`);
+
+// Student Meetings APIs
+export const getStudentMeetings = (studentId) =>
+    getData(`/api/students/${studentId}/meetings`);
+export const getStudentMeeting = (studentId, meetingId) =>
+    getData(`/api/students/${studentId}/meetings/${meetingId}`);
+export const createStudentMeeting = (studentId, payload) =>
+    postData(`/api/students/${studentId}/meetings`, payload);
+export const updateStudentMeeting = (studentId, meetingId, payload) =>
+    putData(`/api/students/${studentId}/meetings/${meetingId}`, payload);
+export const deleteStudentMeeting = (studentId, meetingId) =>
+    deleteData(`/api/students/${studentId}/meetings/${meetingId}`);

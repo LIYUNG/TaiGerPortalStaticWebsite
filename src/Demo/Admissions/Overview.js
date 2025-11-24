@@ -574,172 +574,187 @@ const Overview = () => {
     if (isLoading || isFinalLoading) return <Loading />;
 
     return (
-        <Box
-            sx={{
-                display: 'grid',
-                gap: 2,
-                gridTemplateColumns: { xs: '1fr', lg: '1fr 1fr' }
-            }}
-        >
-            {/* Results breakdown (no card) */}
-            <Box sx={{ gridColumn: '1 / -1', mt: 2 }}>
-                <ResultsBreakdown
-                    acceptance={kpis.acceptanceRate}
-                    offer={kpis.offer}
-                    rejection={kpis.rejection}
-                    t={t}
-                    unknown={kpis.unknown}
-                />
-            </Box>
-
-            <Card sx={{ p: 2, gridColumn: { xs: '1 / -1', lg: '1 / 2' } }}>
-                <Box
-                    sx={{
-                        width: '100%',
-                        borderBottom: 1,
-                        borderColor: 'divider'
-                    }}
-                >
-                    <Tabs
-                        aria-label={t('Analysis Views')}
-                        onChange={handleMainViewChange}
-                        value={mainView}
-                    >
-                        <Tab label={t('Student')} value="student" />
-                        <Tab label={t('Application')} value="application" />
-                    </Tabs>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Box
+                sx={{
+                    display: 'grid',
+                    gap: 2,
+                    gridTemplateColumns: { xs: '1fr', lg: '1fr 1fr' }
+                }}
+            >
+                {/* Results breakdown (no card) */}
+                <Box sx={{ gridColumn: '1 / -1', mt: 2 }}>
+                    <ResultsBreakdown
+                        acceptance={kpis.acceptanceRate}
+                        offer={kpis.offer}
+                        rejection={kpis.rejection}
+                        t={t}
+                        unknown={kpis.unknown}
+                    />
                 </Box>
 
-                {mainView === 'student' && (
-                    <Box>
-                        <Box sx={{ width: '100%', mb: 2 }}>
-                            <BarChart
-                                dataset={byStudentChartDataset}
-                                height={320}
-                                series={studentsByDegreeSeries}
-                                slotProps={{
-                                    legend: {
-                                        position: {
-                                            vertical: 'middle',
-                                            horizontal: 'right'
-                                        },
-                                        direction: 'column'
-                                    }
-                                }}
-                                xAxis={[{ dataKey: 'year', scaleType: 'band' }]}
-                            />
-                        </Box>
-                        <MuiDataGrid
-                            columns={studentCols}
-                            rows={byStudentRows}
-                            simple
-                        />
-                    </Box>
-                )}
-                {mainView === 'application' && (
-                    <Box>
-                        <Box sx={{ width: '100%', mb: 2 }}>
-                            <BarChart
-                                dataset={byYearChartDataset}
-                                height={320}
-                                series={applicationsPerYearSeries}
-                                slotProps={{
-                                    legend: {
-                                        position: {
-                                            vertical: 'middle',
-                                            horizontal: 'right'
-                                        },
-                                        direction: 'column'
-                                    }
-                                }}
-                                xAxis={[{ dataKey: 'year', scaleType: 'band' }]}
-                            />
-                        </Box>
-                        <MuiDataGrid
-                            columns={yearCols}
-                            rows={byYearRows}
-                            simple
-                        />
-                    </Box>
-                )}
-            </Card>
-
-            <Card sx={{ p: 2, gridColumn: { xs: '1 / -1', lg: '2 / 3' } }}>
-                <Box
-                    sx={{
-                        width: '100%',
-                        borderBottom: 1,
-                        borderColor: 'divider'
-                    }}
-                >
-                    <Tabs
-                        aria-label={t('Geography Views')}
-                        onChange={handleGeoViewChange}
-                        value={geoView}
+                <Card sx={{ p: 2, gridColumn: { xs: '1 / -1', lg: '1 / 2' } }}>
+                    <Box
+                        sx={{
+                            width: '100%',
+                            borderBottom: 1,
+                            borderColor: 'divider'
+                        }}
                     >
-                        <Tab label={t('Map View')} value="map" />
-                        <Tab label={t('Country Breakdown')} value="country" />
-                    </Tabs>
-                </Box>
+                        <Tabs
+                            aria-label={t('Analysis Views')}
+                            onChange={handleMainViewChange}
+                            value={mainView}
+                        >
+                            <Tab label={t('Student')} value="student" />
+                            <Tab label={t('Application')} value="application" />
+                        </Tabs>
+                    </Box>
 
-                {/* Map View */}
-                {geoView === 'map' && (
-                    <Box sx={{ pt: 2 }}>
-                        {hasCityMarkers ? (
-                            <Chart
-                                chartType="GeoChart"
-                                data={cityMarkersData}
-                                height="420px"
-                                options={cityGeoOptions}
-                                width="100%"
+                    {mainView === 'student' && (
+                        <Box>
+                            <Box sx={{ width: '100%', mb: 2 }}>
+                                <BarChart
+                                    dataset={byStudentChartDataset}
+                                    height={320}
+                                    series={studentsByDegreeSeries}
+                                    slotProps={{
+                                        legend: {
+                                            position: {
+                                                vertical: 'middle',
+                                                horizontal: 'right'
+                                            },
+                                            direction: 'column'
+                                        }
+                                    }}
+                                    xAxis={[
+                                        { dataKey: 'year', scaleType: 'band' }
+                                    ]}
+                                />
+                            </Box>
+                            <MuiDataGrid
+                                columns={studentCols}
+                                rows={byStudentRows}
+                                simple
                             />
-                        ) : (
-                            <Typography color="text.secondary" variant="body2">
+                        </Box>
+                    )}
+                    {mainView === 'application' && (
+                        <Box>
+                            <Box sx={{ width: '100%', mb: 2 }}>
+                                <BarChart
+                                    dataset={byYearChartDataset}
+                                    height={320}
+                                    series={applicationsPerYearSeries}
+                                    slotProps={{
+                                        legend: {
+                                            position: {
+                                                vertical: 'middle',
+                                                horizontal: 'right'
+                                            },
+                                            direction: 'column'
+                                        }
+                                    }}
+                                    xAxis={[
+                                        { dataKey: 'year', scaleType: 'band' }
+                                    ]}
+                                />
+                            </Box>
+                            <MuiDataGrid
+                                columns={yearCols}
+                                rows={byYearRows}
+                                simple
+                            />
+                        </Box>
+                    )}
+                </Card>
+
+                <Card sx={{ p: 2, gridColumn: { xs: '1 / -1', lg: '2 / 3' } }}>
+                    <Box
+                        sx={{
+                            width: '100%',
+                            borderBottom: 1,
+                            borderColor: 'divider'
+                        }}
+                    >
+                        <Tabs
+                            aria-label={t('Geography Views')}
+                            onChange={handleGeoViewChange}
+                            value={geoView}
+                        >
+                            <Tab label={t('Map View')} value="map" />
+                            <Tab
+                                label={t('Country Breakdown')}
+                                value="country"
+                            />
+                        </Tabs>
+                    </Box>
+
+                    {/* Map View */}
+                    {geoView === 'map' && (
+                        <Box sx={{ pt: 2 }}>
+                            {hasCityMarkers ? (
+                                <Chart
+                                    chartType="GeoChart"
+                                    data={cityMarkersData}
+                                    height="420px"
+                                    options={cityGeoOptions}
+                                    width="100%"
+                                />
+                            ) : (
+                                <Typography
+                                    color="text.secondary"
+                                    variant="body2"
+                                >
+                                    {t(
+                                        'No final decision locations to display yet'
+                                    )}
+                                </Typography>
+                            )}
+                            <Typography
+                                color="text.secondary"
+                                variant="caption"
+                            >
                                 {t(
-                                    'No final decision locations to display yet'
+                                    'Bubble size and color indicate final decision counts per city/zip'
                                 )}
                             </Typography>
-                        )}
-                        <Typography color="text.secondary" variant="caption">
-                            {t(
-                                'Bubble size and color indicate final decision counts per city/zip'
-                            )}
-                        </Typography>
-                    </Box>
-                )}
+                        </Box>
+                    )}
 
-                {/* Country Breakdown View */}
-                {geoView === 'country' && (
-                    <Box sx={{ pt: 2 }}>
-                        <PieChart
-                            height={260}
-                            series={[
-                                {
-                                    data: finalByCountryChartData,
-                                    innerRadius: 40,
-                                    paddingAngle: 2,
-                                    cornerRadius: 4
-                                }
-                            ]}
-                            slotProps={{
-                                legend: {
-                                    labelStyle: { fontSize: 11 },
-                                    itemMarkWidth: 10,
-                                    itemMarkHeight: 10,
-                                    markGap: 6,
-                                    itemGap: 10
-                                }
-                            }}
-                        />
-                        <Divider sx={{ my: 2 }} />
-                        <MuiDataGrid
-                            columns={countryCols}
-                            rows={finalByCountryRows}
-                            simple
-                        />
-                    </Box>
-                )}
-            </Card>
+                    {/* Country Breakdown View */}
+                    {geoView === 'country' && (
+                        <Box sx={{ pt: 2 }}>
+                            <PieChart
+                                height={260}
+                                series={[
+                                    {
+                                        data: finalByCountryChartData,
+                                        innerRadius: 40,
+                                        paddingAngle: 2,
+                                        cornerRadius: 4
+                                    }
+                                ]}
+                                slotProps={{
+                                    legend: {
+                                        labelStyle: { fontSize: 11 },
+                                        itemMarkWidth: 10,
+                                        itemMarkHeight: 10,
+                                        markGap: 6,
+                                        itemGap: 10
+                                    }
+                                }}
+                            />
+                            <Divider sx={{ my: 2 }} />
+                            <MuiDataGrid
+                                columns={countryCols}
+                                rows={finalByCountryRows}
+                                simple
+                            />
+                        </Box>
+                    )}
+                </Card>
+            </Box>
         </Box>
     );
 };

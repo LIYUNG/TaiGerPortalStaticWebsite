@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate, Link as LinkDom } from 'react-router-dom';
-import { Box, Breadcrumbs, Link, Typography } from '@mui/material';
+import { Box, Breadcrumbs, Button, Link, Typography } from '@mui/material';
+import { Assessment } from '@mui/icons-material';
 import { is_TaiGer_role } from '@taiger-common/core';
 import queryString from 'query-string';
 import { useQuery } from '@tanstack/react-query';
@@ -61,6 +62,23 @@ const StudentDatabase = () => {
                     {students?.length})
                 </Typography>
             </Breadcrumbs>
+            <Box
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    mt: 2,
+                    mb: 2
+                }}
+            >
+                <Button
+                    component={LinkDom}
+                    startIcon={<Assessment />}
+                    to={DEMO.STUDENT_DATABASE_OVERVIEW}
+                    variant="outlined"
+                >
+                    {t('View Overview', { ns: 'common' })}
+                </Button>
+            </Box>
             <StudentsTable
                 data={studentsTransformed}
                 isLoading={isLoading}

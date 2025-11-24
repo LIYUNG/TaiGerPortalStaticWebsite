@@ -195,22 +195,6 @@ const CVMLRLOverview = (props) => {
                     params.row.thread_id
                 )}`;
                 const isLocked = params.row?.isProgramLocked;
-                const content = (
-                    <Box
-                        component="span"
-                        sx={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: 0.5,
-                            color: isLocked ? 'text.disabled' : 'inherit'
-                        }}
-                    >
-                        {isLocked ? (
-                            <LockOutlinedIcon fontSize="small" />
-                        ) : null}
-                        <span>{params.value}</span>
-                    </Box>
-                );
                 // Check if program is from non-approval country
                 const programCountry =
                     params.row?.program_id?.country || params.row?.country;
@@ -221,7 +205,7 @@ const CVMLRLOverview = (props) => {
                     : false;
 
                 return (
-                    <>
+                    <Box>
                         {params.row?.attributes?.map(
                             (attribute) =>
                                 [1, 3, 9, 10, 11].includes(attribute.value) && (
@@ -258,20 +242,62 @@ const CVMLRLOverview = (props) => {
                                     { ns: 'common' }
                                 )}
                             >
-                                <span>{content}</span>
+                                <Box>
+                                    <Link
+                                        component={LinkDom}
+                                        sx={{
+                                            color: 'text.disabled',
+                                            pointerEvents: 'none'
+                                        }}
+                                        target="_blank"
+                                        title={params.value}
+                                        to={linkUrl}
+                                        underline="hover"
+                                    >
+                                        {params.row.file_type}{' '}
+                                        {params.row.program_id
+                                            ? ' - ' +
+                                              params.row.program_name +
+                                              ' - ' +
+                                              params.row.degree
+                                            : ''}
+                                    </Link>
+                                    <Typography
+                                        color="text.secondary"
+                                        sx={{ display: 'block', mt: 0.25 }}
+                                        variant="caption"
+                                    >
+                                        {params.row.school}
+                                    </Typography>
+                                </Box>
                             </Tooltip>
                         ) : (
-                            <Link
-                                component={LinkDom}
-                                target="_blank"
-                                title={params.value}
-                                to={linkUrl}
-                                underline="hover"
-                            >
-                                {content}
-                            </Link>
+                            <>
+                                <Link
+                                    component={LinkDom}
+                                    target="_blank"
+                                    title={params.value}
+                                    to={linkUrl}
+                                    underline="hover"
+                                >
+                                    {params.row.file_type}{' '}
+                                    {params.row.program_id
+                                        ? ' - ' +
+                                          params.row.program_name +
+                                          ' - ' +
+                                          params.row.degree
+                                        : ''}
+                                </Link>
+                                <Typography
+                                    color="text.secondary"
+                                    sx={{ display: 'block', mt: 0.25 }}
+                                    variant="caption"
+                                >
+                                    {params.row.school}
+                                </Typography>
+                            </>
                         )}
-                    </>
+                    </Box>
                 );
             }
         },
@@ -362,22 +388,6 @@ const CVMLRLOverview = (props) => {
                     params.row.thread_id
                 )}`;
                 const isLocked = params.row?.isProgramLocked;
-                const content = (
-                    <Box
-                        component="span"
-                        sx={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: 0.5,
-                            color: isLocked ? 'text.disabled' : 'inherit'
-                        }}
-                    >
-                        {isLocked ? (
-                            <LockOutlinedIcon fontSize="small" />
-                        ) : null}
-                        <span>{params.value}</span>
-                    </Box>
-                );
                 // Check if program is from non-approval country
                 const programCountry =
                     params.row?.program_id?.country || params.row?.country;
@@ -388,7 +398,7 @@ const CVMLRLOverview = (props) => {
                     : false;
 
                 return (
-                    <>
+                    <Box>
                         {isNonApprovalCountry ? (
                             <Chip
                                 color="warning"
@@ -396,7 +406,7 @@ const CVMLRLOverview = (props) => {
                                     ns: 'common'
                                 })}
                                 size="small"
-                                sx={{ mr: 0.5 }}
+                                sx={{ mr: 0.5, mb: 0.5 }}
                                 variant="outlined"
                             />
                         ) : null}
@@ -407,20 +417,62 @@ const CVMLRLOverview = (props) => {
                                     { ns: 'common' }
                                 )}
                             >
-                                <span>{content}</span>
+                                <Box>
+                                    <Link
+                                        component={LinkDom}
+                                        sx={{
+                                            color: 'text.disabled',
+                                            pointerEvents: 'none'
+                                        }}
+                                        target="_blank"
+                                        title={params.value}
+                                        to={linkUrl}
+                                        underline="hover"
+                                    >
+                                        {params.row.file_type}{' '}
+                                        {params.row.program_id
+                                            ? ' - ' +
+                                              params.row.program_name +
+                                              ' - ' +
+                                              params.row.degree
+                                            : ''}
+                                    </Link>
+                                    <Typography
+                                        color="text.secondary"
+                                        sx={{ display: 'block', mt: 0.25 }}
+                                        variant="caption"
+                                    >
+                                        {params.row.school}
+                                    </Typography>
+                                </Box>
                             </Tooltip>
                         ) : (
-                            <Link
-                                component={LinkDom}
-                                target="_blank"
-                                title={params.value}
-                                to={linkUrl}
-                                underline="hover"
-                            >
-                                {content}
-                            </Link>
+                            <>
+                                <Link
+                                    component={LinkDom}
+                                    target="_blank"
+                                    title={params.value}
+                                    to={linkUrl}
+                                    underline="hover"
+                                >
+                                    {params.row.file_type}{' '}
+                                    {params.row.program_id
+                                        ? ' - ' +
+                                          params.row.program_name +
+                                          ' - ' +
+                                          params.row.degree
+                                        : ''}
+                                </Link>
+                                <Typography
+                                    color="text.secondary"
+                                    sx={{ display: 'block', mt: 0.25 }}
+                                    variant="caption"
+                                >
+                                    {params.row.school}
+                                </Typography>
+                            </>
                         )}
-                    </>
+                    </Box>
                 );
             }
         },

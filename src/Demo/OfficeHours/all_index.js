@@ -6,7 +6,11 @@ import {
     Breadcrumbs,
     Card,
     CircularProgress,
+    FormControl,
+    InputLabel,
     Link,
+    MenuItem,
+    Select,
     Tabs,
     Tab,
     Typography,
@@ -16,11 +20,13 @@ import {
     DialogContent,
     DialogActions
 } from '@mui/material';
-import { Navigate, Link as LinkDom } from 'react-router-dom';
+import { Navigate, Link as LinkDom, useSearchParams } from 'react-router-dom';
 import CheckIcon from '@mui/icons-material/Check';
 import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 import { is_TaiGer_role } from '@taiger-common/core';
+import { getUsersQuery } from '../../api/query';
 
 import { isInTheFuture } from '../../utils/contants';
 import ErrorPage from '../Utils/ErrorPage';
@@ -38,10 +44,24 @@ import useCalendarEvents from '../../hooks/useCalendarEvents';
 const AllOfficeHours = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
+    const [searchParams, setSearchParams] = useSearchParams();
     const [value, setValue] = useState(0);
+    const handleChangeValue = (event, newValue) => {
+        setValue(newValue);
+    };
+    // Get receiver_id from URL query parameter
+    const receiverIdFromUrl = searchParams.get('receiver_id') || '';
+
+    // Fetch agents list for the dropdown
+    const { data: agentsList, isLoading: isLoadingAgents } = useQuery(
+        getUsersQuery('role=Agent&archiv=false')
+    );
+    // Response structure: { success: true, data: [array of agent objects] }
+    // Access via agentsQuery.data.data (axios response.data contains the API response)
+    const agents = agentsList ? agentsList : [];
+    console.log(agents);
     const {
         events,
-        hasEvents,
         res_status,
         isLoaded,
         isConfirmModalOpen,
@@ -76,16 +96,29 @@ const AllOfficeHours = () => {
         handleChange,
         handleSelectSlot,
         handleNewEventModalClose,
-        switchCalendarAndMyBookedEvents,
         handleModalCreateEvent,
         handleSelectStudent,
         res_modal_message,
         res_modal_status,
         ConfirmError
-    } = useCalendarEvents({ user_id: '', isAll: true });
+    } = useCalendarEvents({
+        user_id: '',
+        isAll: true,
+        receiver_id: receiverIdFromUrl || undefined
+    });
 
-    const handleChangeTab = (event, newValue) => {
-        setValue(newValue);
+    // Handle agent selection change
+    const handleAgentChange = (event) => {
+        const selectedReceiverId = event.target.value;
+        const newSearchParams = new URLSearchParams(searchParams);
+
+        if (selectedReceiverId) {
+            newSearchParams.set('receiver_id', selectedReceiverId);
+        } else {
+            newSearchParams.delete('receiver_id');
+        }
+
+        setSearchParams(newSearchParams, { replace: true });
     };
 
     if (!is_TaiGer_role(user)) {
@@ -136,16 +169,104 @@ const AllOfficeHours = () => {
                     {t('Calendar Events', { ns: 'common' })}
                 </Typography>
             </Breadcrumbs>
-            {hasEvents ? (
-                <>
+            {/* Agent Filter */}
+            <Box sx={{ mb: 2, mt: 2 }}>
+                <FormControl fullWidth size="small" sx={{ maxWidth: 400 }}>
+                    <InputLabel id="agent-select-label">
+                        {t('Filter by Agent', { ns: 'common' })}
+                    </InputLabel>
+                    <Select
+                        disabled={isLoadingAgents}
+                        id="agent-select"
+                        label={t('Filter by Agent', { ns: 'common' })}
+                        labelId="agent-select-label"
+                        onChange={handleAgentChange}
+                        value={receiverIdFromUrl || ''}
+                    >
+                        <MenuItem value="">
+                            <em>{t('All Agents', { ns: 'common' })}</em>
+                        </MenuItem>
+                        {isLoadingAgents ? (
+                            <MenuItem disabled>
+                                {t('Loading...', { ns: 'common' })}
+                            </MenuItem>
+                        ) : agents.length > 0 ? (
+                            agents.map((agent) => (
+                                <MenuItem key={agent._id} value={agent._id}>
+                                    {agent.firstname} {agent.lastname}
+                                    {agent.email && ` (${agent.email})`}
+                                </MenuItem>
+                            ))
+                        ) : (
+                            <MenuItem disabled>
+                                {t('No agents found', { ns: 'common' })}
+                            </MenuItem>
+                        )}
+                    </Select>
+                </FormControl>
+                {receiverIdFromUrl && (
                     <Button
                         color="secondary"
-                        onClick={switchCalendarAndMyBookedEvents}
+                        onClick={() => {
+                            const newSearchParams = new URLSearchParams(
+                                searchParams
+                            );
+                            newSearchParams.delete('receiver_id');
+                            setSearchParams(newSearchParams, { replace: true });
+                        }}
                         size="small"
-                        variant="contained"
+                        sx={{ ml: 2 }}
+                        variant="outlined"
                     >
-                        {t('To Calendar', { ns: 'common' })}
+                        {t('Clear Filter', { ns: 'common' })}
                     </Button>
+                )}
+            </Box>
+            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <Tabs
+                    aria-label="basic tabs example"
+                    onChange={handleChangeValue}
+                    scrollButtons="auto"
+                    value={value}
+                    variant="scrollable"
+                >
+                    <Tab
+                        label={t('Calendar', { ns: 'common' })}
+                        {...a11yProps(value, 0)}
+                    />
+                    <Tab
+                        label={t('Events', { ns: 'common' })}
+                        {...a11yProps(value, 1)}
+                    />
+                </Tabs>
+            </Box>
+            <CustomTabPanel index={0} value={value}>
+                <CustomTabPanel index={0} value={value}>
+                    <MyCalendar
+                        events={[...booked_events]}
+                        handleChange={handleChange}
+                        handleChangeReceiver={handleChangeReceiver}
+                        handleModalBook={handleModalBook}
+                        handleModalClose={handleModalClose}
+                        handleModalCreateEvent={handleModalCreateEvent}
+                        handleNewEventModalClose={handleNewEventModalClose}
+                        handleSelectEvent={handleSelectEvent}
+                        handleSelectSlot={handleSelectSlot}
+                        handleSelectStudent={handleSelectStudent}
+                        handleUpdateTimeSlot={handleUpdateTimeSlotAgent}
+                        isNewEventModalOpen={isNewEventModalOpen}
+                        newDescription={newDescription}
+                        newEventEnd={newEventEnd}
+                        newEventStart={newEventStart}
+                        newReceiver={newReceiver}
+                        selectedEvent={selectedEvent}
+                        student_id={student_id}
+                        students={students}
+                    />
+                </CustomTabPanel>
+            </CustomTabPanel>
+            <CustomTabPanel index={1} value={value}>
+                <>
                     {events?.filter(
                         (event) =>
                             isInTheFuture(event.end) &&
@@ -313,60 +434,7 @@ const AllOfficeHours = () => {
                         </DialogActions>
                     </Dialog>
                 </>
-            ) : (
-                <>
-                    <Button
-                        color="secondary"
-                        onClick={switchCalendarAndMyBookedEvents}
-                        size="sm"
-                        variant="contained"
-                    >
-                        {t('All Appointments')}
-                    </Button>
-                    <Card>
-                        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                            <Tabs
-                                aria-label="basic tabs example"
-                                indicatorColor="primary"
-                                onChange={handleChangeTab}
-                                scrollButtons="auto"
-                                value={value}
-                                variant="scrollable"
-                            >
-                                <Tab
-                                    label={t('Calendar')}
-                                    {...a11yProps(value, 0)}
-                                />
-                            </Tabs>
-                        </Box>
-                        <CustomTabPanel index={0} value={value}>
-                            <MyCalendar
-                                events={[...booked_events]}
-                                handleChange={handleChange}
-                                handleChangeReceiver={handleChangeReceiver}
-                                handleModalBook={handleModalBook}
-                                handleModalClose={handleModalClose}
-                                handleModalCreateEvent={handleModalCreateEvent}
-                                handleNewEventModalClose={
-                                    handleNewEventModalClose
-                                }
-                                handleSelectEvent={handleSelectEvent}
-                                handleSelectSlot={handleSelectSlot}
-                                handleSelectStudent={handleSelectStudent}
-                                handleUpdateTimeSlot={handleUpdateTimeSlotAgent}
-                                isNewEventModalOpen={isNewEventModalOpen}
-                                newDescription={newDescription}
-                                newEventEnd={newEventEnd}
-                                newEventStart={newEventStart}
-                                newReceiver={newReceiver}
-                                selectedEvent={selectedEvent}
-                                student_id={student_id}
-                                students={students}
-                            />
-                        </CustomTabPanel>
-                    </Card>
-                </>
-            )}
+            </CustomTabPanel>
             <Dialog
                 onClose={handleEditAppointmentModalClose}
                 open={isEditModalOpen}

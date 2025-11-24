@@ -1757,6 +1757,9 @@ const prepApplicationTaskV2 = (student, application, program, thread) => {
         }),
         show: isProgramDecided(application) ? true : false,
         document_name: `${thread.file_type} - ${program?.school} - ${program?.degree} -${program?.program_name}`,
+        school: program?.school,
+        program_name: program?.program_name,
+        degree: program?.degree,
         lang: `${program?.lang}`,
         days_left:
             differenceInDays(
@@ -2442,4 +2445,18 @@ export const calculateProgramLockStatus = (program) => {
 
     // Business logic for approval countries
     return { isLocked: false, reason: null };
+};
+
+// Format date for display (e.g., "Mar 4, 2024")
+export const formatDate = (date) => {
+    if (!date) return '-';
+    const d = new Date(date);
+    return d.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
 };

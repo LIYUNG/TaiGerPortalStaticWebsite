@@ -22,13 +22,15 @@ import {
     Notifications as NotificationsIcon,
     ReplyAll as ReplyAllIcon,
     CheckCircleOutline as CheckCircleIcon,
-    FolderOpen as FolderOpenIcon
+    FolderOpen as FolderOpenIcon,
+    AccessTime as AccessTimeIcon
 } from '@mui/icons-material';
 
 import CVMLRLOverview from '../CVMLRLCenter/CVMLRLOverview';
 import {
     AGENT_SUPPORT_DOCUMENTS_A,
     FILE_TYPE_E,
+    formatDate,
     frequencyDistribution,
     open_tasks_v2
 } from '../Utils/checking-functions';
@@ -45,11 +47,13 @@ import {
 } from '../../utils/contants';
 import { useQuery } from '@tanstack/react-query';
 import { getMyStudentsThreadsQuery } from '../../api/query';
+import { useTranslation } from 'react-i18next';
 
 // TODO TEST_CASE
 const EditorPage = () => {
     const { user_id } = useParams();
     const { user } = useAuth();
+    const { t } = useTranslation();
 
     const { data: myStudentsThreads, isLoading: isLoadingThreads } = useQuery(
         getMyStudentsThreadsQuery({
@@ -325,6 +329,47 @@ const EditorPage = () => {
                                     />
                                 </Tooltip>
                             </Stack>
+                        </Box>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'flex-end',
+                                gap: 0.5
+                            }}
+                        >
+                            <Typography
+                                sx={{
+                                    color: 'rgba(255,255,255,0.8)',
+                                    fontSize: '0.875rem',
+                                    fontWeight: 500
+                                }}
+                            >
+                                {t('Last Login', { ns: 'common' })}
+                            </Typography>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 0.5
+                                }}
+                            >
+                                <AccessTimeIcon
+                                    sx={{
+                                        color: 'white',
+                                        fontSize: '1rem'
+                                    }}
+                                />
+                                <Typography
+                                    sx={{
+                                        color: 'white',
+                                        fontSize: '0.875rem',
+                                        fontWeight: 'bold'
+                                    }}
+                                >
+                                    {formatDate(editorUser?.lastLoginAt)}
+                                </Typography>
+                            </Box>
                         </Box>
                     </Box>
                 </CardContent>

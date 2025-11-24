@@ -174,6 +174,13 @@ const StudentBriefOverview = (props) => {
                                     </Tooltip>
                                 </Box>
                             ) : null}
+                            <Avatar
+                                {...stringAvatar(
+                                    `${props.student.firstname} ${props.student.lastname}`
+                                )}
+                                src={props.student?.pictureUrl}
+                                sx={{ width: 48, height: 48, mr: 2 }}
+                            />
                             <Box>
                                 <Typography
                                     color="textSecondary"

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
     Box,
     Breadcrumbs,
@@ -28,11 +28,12 @@ import {
 } from '@mui/icons-material';
 import { Navigate, Link as LinkDom } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
 import { is_TaiGer_Admin, is_TaiGer_role, Role } from '@taiger-common/core';
 
 import ErrorPage from '../../Utils/ErrorPage';
 
-import { getTeamMembers } from '../../../api';
+import { getTeamMembersQuery } from '../../../api/query';
 import { TabTitle } from '../../Utils/TabTitle';
 import DEMO from '../../../store/constant';
 import { appConfig } from '../../../config';
@@ -282,75 +283,33 @@ const MemberSection = ({
 const TaiGerMember = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
-    const [taiGerMemberState, setTaiGerMember] = useState({
-        error: '',
-        role: '',
-        isLoaded: false,
-        data: null,
-        success: false,
-        modalShow: false,
-        firstname: '',
-        lastname: '',
-        selected_user_id: '',
-        user_permissions: [],
-        teams: null,
-        res_status: 0
-    });
 
-    useEffect(() => {
-        getTeamMembers().then(
-            (resp) => {
-                const { data, success } = resp.data;
-                const { status } = resp;
-                if (success) {
-                    setTaiGerMember((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        teams: data,
-                        success: success,
-                        res_status: status
-                    }));
-                } else {
-                    setTaiGerMember((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        res_status: status
-                    }));
-                }
-            },
-            (error) => {
-                setTaiGerMember((prevState) => ({
-                    ...prevState,
-                    isLoaded: true,
-                    error,
-                    res_status: 500
-                }));
-            }
-        );
-    }, []);
+    const {
+        data: response,
+        isLoading,
+        isError,
+        error
+    } = useQuery(getTeamMembersQuery());
 
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
-    TabTitle(`${appConfig.companyName} Team Member`);
-    const { res_status, isLoaded } = taiGerMemberState;
 
-    if (!isLoaded && !taiGerMemberState.teams) {
+    TabTitle(`${appConfig.companyName} Team Member`);
+
+    if (isLoading) {
         return <Loading />;
     }
 
-    if (res_status >= 400) {
-        return <ErrorPage res_status={res_status} />;
+    if (isError || !response?.data?.success) {
+        const status = response?.status || error?.response?.status || 500;
+        return <ErrorPage res_status={status} />;
     }
-    const admins = taiGerMemberState.teams.filter(
-        (member) => member.role === Role.Admin
-    );
-    const agents = taiGerMemberState.teams.filter(
-        (member) => member.role === Role.Agent
-    );
-    const editors = taiGerMemberState.teams.filter(
-        (member) => member.role === Role.Editor
-    );
+
+    const teams = response?.data?.data || [];
+    const admins = teams.filter((member) => member.role === Role.Admin);
+    const agents = teams.filter((member) => member.role === Role.Agent);
+    const editors = teams.filter((member) => member.role === Role.Editor);
 
     return (
         <Box sx={{ p: { xs: 2, sm: 3 } }}>
@@ -396,8 +355,7 @@ const TaiGerMember = () => {
                             })}
                         </Typography>
                         <Typography sx={{ opacity: 0.9 }} variant="body1">
-                            {t('Total', { ns: 'common' })}:{' '}
-                            {taiGerMemberState.teams.length}{' '}
+                            {t('Total', { ns: 'common' })}: {teams.length}{' '}
                             {t('members', { ns: 'common' })}
                         </Typography>
                     </Box>

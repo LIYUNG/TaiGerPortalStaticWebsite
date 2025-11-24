@@ -124,6 +124,7 @@ const DEMO = {
         return `/student-database/${student_id}${path}`;
     },
     STUDENT_DATABASE_LINK: '/student-database',
+    STUDENT_DATABASE_OVERVIEW: '/student-database/overview',
     SURVEY_LINK: '/survey',
     TEAM_ADMIN_LINK: (admin_id) => {
         return `/teams/admins/${admin_id}`;

@@ -802,7 +802,8 @@ export const SINGLE_STUDENT_TABS = {
     survey: 5,
     courses: 6,
     notes: 7,
-    audit: 8
+    audit: 8,
+    meetings: 9
 };
 
 export const SINGLE_STUDENT_REVERSED_TABS = {
@@ -814,7 +815,8 @@ export const SINGLE_STUDENT_REVERSED_TABS = {
     5: 'survey',
     6: 'courses',
     7: 'notes',
-    8: 'audit'
+    8: 'audit',
+    9: 'meetings'
 };
 
 export const spinner_style2 = {
@@ -1822,13 +1824,7 @@ export const c1_mrt = [
             )}`;
             const isLocked = row.original?.isProgramLocked;
             return (
-                <Box
-                    sx={{
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden'
-                        // textOverflow: 'ellipsis'
-                    }}
-                >
+                <Box>
                     {row.original?.attributes?.map(
                         (attribute) =>
                             [1, 3, 9, 10, 11].includes(attribute.value) && (
@@ -1855,29 +1851,60 @@ export const c1_mrt = [
                                 { ns: 'common' }
                             )}
                         >
-                            <Box
-                                component="span"
-                                sx={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: 0.5,
-                                    color: 'text.disabled'
-                                }}
-                            >
-                                <LockOutlinedIcon fontSize="inherit" />
-                                <span>{row.original.document_name}</span>
+                            <Box>
+                                <Link
+                                    component={LinkDom}
+                                    sx={{
+                                        color: 'text.disabled',
+                                        pointerEvents: 'none'
+                                    }}
+                                    target="_blank"
+                                    title={params.value}
+                                    to={linkUrl}
+                                    underline="hover"
+                                >
+                                    {row.original.file_type}{' '}
+                                    {row.original.program_id
+                                        ? ' - ' +
+                                          row.original.program_name +
+                                          ' - ' +
+                                          row.original.degree
+                                        : ''}
+                                </Link>
+                                <Typography
+                                    color="text.secondary"
+                                    sx={{ display: 'block', mt: 0.25 }}
+                                    variant="caption"
+                                >
+                                    {row.original.school}
+                                </Typography>
                             </Box>
                         </Tooltip>
                     ) : (
-                        <Link
-                            component={LinkDom}
-                            target="_blank"
-                            title={row.original.document_name}
-                            to={linkUrl}
-                            underline="hover"
-                        >
-                            {row.original.document_name}
-                        </Link>
+                        <>
+                            <Link
+                                component={LinkDom}
+                                target="_blank"
+                                title={params.value}
+                                to={linkUrl}
+                                underline="hover"
+                            >
+                                {row.original.file_type}{' '}
+                                {row.original.program_id
+                                    ? ' - ' +
+                                      row.original.program_name +
+                                      ' - ' +
+                                      row.original.degree
+                                    : ''}
+                            </Link>
+                            <Typography
+                                color="text.secondary"
+                                sx={{ display: 'block', mt: 0.25 }}
+                                variant="caption"
+                            >
+                                {row.original.school}
+                            </Typography>
+                        </>
                     )}
                 </Box>
             );

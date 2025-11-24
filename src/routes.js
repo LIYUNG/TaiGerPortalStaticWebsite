@@ -197,6 +197,9 @@ const Admissions = React.lazy(() => import('./Demo/Admissions/Admissions'));
 const StudentDatabase = React.lazy(
     () => import('./Demo/StudentDatabase/index')
 );
+const StudentDatabaseOverview = React.lazy(
+    () => import('./Demo/StudentDatabase/StudentDatabaseOverview')
+);
 const CVMLRL_Modification_Thread = React.lazy(
     () =>
         import(
@@ -470,6 +473,11 @@ const routes = [
                 path: '',
                 errorElement: <DefaultErrorPage />,
                 element: <StudentDatabase />
+            },
+            {
+                path: 'overview',
+                errorElement: <DefaultErrorPage />,
+                element: <StudentDatabaseOverview />
             },
             {
                 path: ':studentId',

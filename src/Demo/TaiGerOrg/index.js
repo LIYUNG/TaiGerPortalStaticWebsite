@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Navigate, Link as LinkDom } from 'react-router-dom';
 import {
     Avatar,
@@ -31,11 +31,14 @@ import {
     SupervisorAccount as SupervisorAccountIcon,
     AdminPanelSettings as AdminPanelSettingsIcon
 } from '@mui/icons-material';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { is_TaiGer_Admin, is_TaiGer_role, Role } from '@taiger-common/core';
 import i18next from 'i18next';
 
 import ErrorPage from '../Utils/ErrorPage';
-import { getTeamMembers, updateUserPermission } from '../../api';
+import { updateUserPermission } from '../../api';
+import { getTeamMembersQuery } from '../../api/query';
+import { queryClient } from '../../api/client';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '../../store/constant';
 import GrantPermissionModal from './GrantPermissionModal';
@@ -379,52 +382,43 @@ const TeamSection = ({
 const TaiGerOrg = () => {
     const { user } = useAuth();
 
-    const [taiGerOrgState, setTaiGerOrgState] = useState({
-        error: '',
-        role: '',
-        isLoaded: false,
-        data: null,
-        success: false,
+    const [modalState, setModalState] = useState({
         modalShow: false,
         managerModalShow: false,
         firstname: '',
         lastname: '',
         selected_user_id: '',
-        user_permissions: [],
-        teams: null,
-        res_status: 0
+        user_permissions: []
     });
-    useEffect(() => {
-        getTeamMembers().then(
-            (resp) => {
-                const { data, success } = resp.data;
-                const { status } = resp;
-                if (success) {
-                    setTaiGerOrgState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        teams: data,
-                        success: success,
-                        res_status: status
-                    }));
-                } else {
-                    setTaiGerOrgState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        res_status: status
-                    }));
-                }
-            },
-            (error) => {
-                setTaiGerOrgState((prevState) => ({
-                    ...prevState,
-                    isLoaded: true,
-                    error,
-                    res_status: 500
-                }));
-            }
-        );
-    }, []);
+
+    const {
+        data: response,
+        isLoading,
+        isError,
+        error
+    } = useQuery(getTeamMembersQuery());
+
+    const { mutate: updatePermissionsMutation } = useMutation({
+        mutationFn: ({ userId, permissions }) =>
+            updateUserPermission(userId, permissions),
+        onSuccess: () => {
+            // Invalidate and refetch team members
+            queryClient.invalidateQueries({
+                queryKey: ['team-members']
+            });
+            setModalState({
+                modalShow: false,
+                managerModalShow: false,
+                firstname: '',
+                lastname: '',
+                selected_user_id: '',
+                user_permissions: []
+            });
+        },
+        onError: (error) => {
+            console.error('Failed to update permissions:', error);
+        }
+    });
 
     const setModalShow = (
         user_firstname,
@@ -432,91 +426,56 @@ const TaiGerOrg = () => {
         user_id,
         permissions
     ) => {
-        setTaiGerOrgState((prevState) => ({
-            ...prevState,
+        setModalState({
             modalShow: true,
+            managerModalShow: false,
             firstname: user_firstname,
             lastname: user_lastname,
             selected_user_id: user_id,
             user_permissions: permissions
-        }));
+        });
     };
 
     const setModalHide = () => {
-        setTaiGerOrgState((prevState) => ({
-            ...prevState,
+        setModalState((prev) => ({
+            ...prev,
             modalShow: false
         }));
     };
 
     const setManagerModalHide = () => {
-        setTaiGerOrgState((prevState) => ({
-            ...prevState,
+        setModalState((prev) => ({
+            ...prev,
             managerModalShow: false
         }));
     };
 
     const onUpdatePermissions = (e, permissions) => {
         e.preventDefault();
-        updateUserPermission(taiGerOrgState.selected_user_id, permissions).then(
-            (resp) => {
-                const { data, success } = resp.data;
-                const { status } = resp;
-                if (success) {
-                    let teams_temp = [...taiGerOrgState.teams];
-                    let team_member = teams_temp.find(
-                        (member) =>
-                            member._id.toString() ===
-                            taiGerOrgState.selected_user_id
-                    );
-                    team_member.permissions = [data];
-                    setTaiGerOrgState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        modalShow: false,
-                        teams: teams_temp,
-                        firstname: '',
-                        lastname: '',
-                        selected_user_id: '',
-                        success: success,
-                        res_status: status
-                    }));
-                } else {
-                    setTaiGerOrgState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        res_status: status
-                    }));
-                }
-            },
-            (error) => {
-                setTaiGerOrgState((prevState) => ({
-                    ...prevState,
-                    isLoaded: true,
-                    error,
-                    res_status: 500
-                }));
-            }
-        );
+        updatePermissionsMutation({
+            userId: modalState.selected_user_id,
+            permissions
+        });
     };
 
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
-    TabTitle(`${appConfig.companyName} Team Permissions Management`);
-    const { res_status, isLoaded } = taiGerOrgState;
 
-    if (!isLoaded && !taiGerOrgState.teams) {
+    TabTitle(`${appConfig.companyName} Team Permissions Management`);
+
+    if (isLoading) {
         return <Loading />;
     }
 
-    if (res_status >= 400) {
-        return <ErrorPage res_status={res_status} />;
+    if (isError || !response?.data?.success) {
+        const status = response?.status || error?.response?.status || 500;
+        return <ErrorPage res_status={status} />;
     }
-    const admins = taiGerOrgState.teams.filter(
-        (member) => member.role === Role.Admin
-    );
-    const membersByRole = taiGerOrgState.teams.reduce((acc, member) => {
+
+    const teams = response?.data?.data || [];
+    const admins = teams.filter((member) => member.role === Role.Admin);
+    const membersByRole = teams.reduce((acc, member) => {
         if (!acc[member.role]) {
             acc[member.role] = [];
         }
@@ -641,24 +600,24 @@ const TaiGerOrg = () => {
                 );
             })}
 
-            {taiGerOrgState.modalShow && (
+            {modalState.modalShow && (
                 <GrantPermissionModal
-                    firstname={taiGerOrgState.firstname}
-                    lastname={taiGerOrgState.lastname}
-                    modalShow={taiGerOrgState.modalShow}
+                    firstname={modalState.firstname}
+                    lastname={modalState.lastname}
+                    modalShow={modalState.modalShow}
                     onUpdatePermissions={onUpdatePermissions}
                     setModalHide={setModalHide}
-                    user_permissions={taiGerOrgState.user_permissions}
+                    user_permissions={modalState.user_permissions}
                 />
             )}
-            {taiGerOrgState.managerModalShow && (
+            {modalState.managerModalShow && (
                 <GrantManagerModal
-                    firstname={taiGerOrgState.firstname}
-                    lastname={taiGerOrgState.lastname}
-                    managerModalShow={taiGerOrgState.managerModalShow}
+                    firstname={modalState.firstname}
+                    lastname={modalState.lastname}
+                    managerModalShow={modalState.managerModalShow}
                     onUpdatePermissions={onUpdatePermissions}
                     setManagerModalHide={setManagerModalHide}
-                    user_permissions={taiGerOrgState.user_permissions}
+                    user_permissions={modalState.user_permissions}
                 />
             )}
         </Box>
