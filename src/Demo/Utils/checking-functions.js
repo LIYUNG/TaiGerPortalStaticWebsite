@@ -2388,3 +2388,5 @@ export const formatDate = (date) => {
         second: '2-digit'
     });
 };
+
+export const APPROVAL_COUNTRIES = ['de', 'nl', 'uk', 'ch', 'se', 'at'];
