@@ -287,28 +287,9 @@ const CVMLRLOverview = (props) => {
                 const linkUrl = `${DEMO.DOCUMENT_MODIFICATION_LINK(
                     params.row.thread_id
                 )}`;
-                // Check if program is from non-approval country
-                const programCountry =
-                    params.row?.program_id?.country || params.row?.country;
-                const isNonApprovalCountry = programCountry
-                    ? !APPROVAL_COUNTRIES.includes(
-                          String(programCountry).toLowerCase()
-                      )
-                    : false;
 
                 return (
                     <Box>
-                        {isNonApprovalCountry ? (
-                            <Chip
-                                color="warning"
-                                label={t('Lack of experience country', {
-                                    ns: 'common'
-                                })}
-                                size="small"
-                                sx={{ mr: 0.5, mb: 0.5 }}
-                                variant="outlined"
-                            />
-                        ) : null}
                         <>
                             <Link
                                 component={LinkDom}
