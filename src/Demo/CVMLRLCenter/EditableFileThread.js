@@ -17,7 +17,10 @@ import LabelImportantIcon from '@mui/icons-material/LabelImportant';
 import { useTranslation } from 'react-i18next';
 import { is_TaiGer_role } from '@taiger-common/core';
 
-import { latestReplyInfo } from '../Utils/checking-functions';
+import {
+    latestReplyInfo,
+    APPROVAL_COUNTRIES
+} from '../Utils/checking-functions';
 import {
     FILE_OK_SYMBOL,
     FILE_MISSING_SYMBOL,
@@ -29,11 +32,13 @@ import { useAuth } from '../../components/AuthProvider';
 const EditableFileThread = (props) => {
     const { user } = useAuth();
     const { t } = useTranslation();
+    const applicationId = props.application?._id;
+
     const handleAsFinalFileThread = (documenName, isFinal) => {
         props.handleAsFinalFile(
             props.thread.doc_thread_id._id,
             props.student._id,
-            props.application._id,
+            applicationId,
             isFinal,
             documenName
         );
@@ -57,6 +62,72 @@ const EditableFileThread = (props) => {
         documenName = 'General' + ' - ' + props.thread.doc_thread_id?.file_type;
     }
 
+    const documentTypographyColor =
+        props.decided === 'O' ? 'primary.main' : 'text.secondary';
+
+    let rlChip = null;
+    if (props.thread.doc_thread_id?.file_type?.includes('RL')) {
+        rlChip = props.application?.programId?.is_rl_specific ? (
+            <Chip
+                color="error"
+                icon={<LabelImportantIcon />}
+                label="Specific"
+                size="small"
+                variant="filled"
+            />
+        ) : (
+            <Chip
+                color="primary"
+                icon={<LabelImportantIcon />}
+                label="General"
+                size="small"
+                variant="filled"
+            />
+        );
+    }
+
+    // Check if program is from non-approval country
+    const programCountry = props.application?.programId?.country;
+    const isNonApprovalCountry = programCountry
+        ? !APPROVAL_COUNTRIES.includes(String(programCountry).toLowerCase())
+        : false;
+
+    const documentLabel = (
+        <Stack alignItems="center" direction="row" spacing={1}>
+            <Typography
+                sx={{
+                    color: documentTypographyColor,
+                    display: 'inline-flex',
+                    alignItems: 'center'
+                }}
+            >
+                {documenName}{' '}
+            </Typography>
+            {rlChip}
+            {isNonApprovalCountry ? (
+                <Chip
+                    color="warning"
+                    label={t('Lack of experience country', { ns: 'common' })}
+                    size="small"
+                    variant="outlined"
+                />
+            ) : null}
+        </Stack>
+    );
+
+    const documentLink = (
+        <Link
+            component={LinkDom}
+            target="_blank"
+            to={DEMO.DOCUMENT_MODIFICATION_LINK(
+                props.thread.doc_thread_id?._id
+            )}
+            underline="hover"
+        >
+            {documentLabel}
+        </Link>
+    );
+
     fileStatus = (
         <Box
             sx={{
@@ -74,52 +145,7 @@ const EditableFileThread = (props) => {
                             : props.thread.isFinalVersion
                               ? FILE_OK_SYMBOL
                               : FILE_MISSING_SYMBOL}
-                        <Link
-                            component={LinkDom}
-                            target="_blank"
-                            to={DEMO.DOCUMENT_MODIFICATION_LINK(
-                                props.thread.doc_thread_id?._id
-                            )}
-                        >
-                            <Stack
-                                alignItems="center"
-                                direction="row"
-                                spacing={1}
-                            >
-                                <Typography
-                                    color={
-                                        props.decided === 'O'
-                                            ? 'primary'
-                                            : 'grey'
-                                    }
-                                >
-                                    {documenName}{' '}
-                                </Typography>
-
-                                {props.thread.doc_thread_id?.file_type?.includes(
-                                    'RL'
-                                ) ? (
-                                    props.application?.programId
-                                        ?.is_rl_specific ? (
-                                        <Chip
-                                            color="error"
-                                            icon={<LabelImportantIcon />}
-                                            label="Specific"
-                                            size="small"
-                                            variant="filled"
-                                        />
-                                    ) : (
-                                        <Chip
-                                            color="primary"
-                                            icon={<LabelImportantIcon />}
-                                            label="General"
-                                            size="small"
-                                            variant="filled"
-                                        />
-                                    )
-                                ) : null}
-                            </Stack>
-                        </Link>
+                        {documentLink}
                     </Stack>
                     <Typography color="textSecondary" variant="body2">
                         {convertDate(props.thread.doc_thread_id?.updatedAt)} by{' '}
@@ -140,31 +166,35 @@ const EditableFileThread = (props) => {
                                     ns: 'common'
                                 })}
                             >
-                                <IconButton
-                                    onClick={() =>
-                                        handleAsFinalFileThread(
-                                            documenName,
-                                            true
-                                        )
-                                    }
-                                >
-                                    <CheckIcon color="success" size={24} />
-                                </IconButton>
+                                <span>
+                                    <IconButton
+                                        onClick={() =>
+                                            handleAsFinalFileThread(
+                                                documenName,
+                                                true
+                                            )
+                                        }
+                                    >
+                                        <CheckIcon color="success" size={24} />
+                                    </IconButton>
+                                </span>
                             </Tooltip>
                         ) : null}
                         {props.thread.isFinalVersion ? (
                             is_TaiGer_role(user) ? (
                                 <Tooltip title={t('Undo', { ns: 'common' })}>
-                                    <IconButton>
-                                        <ReplayIcon
+                                    <span>
+                                        <IconButton
                                             onClick={() =>
                                                 handleAsFinalFileThread(
                                                     documenName,
                                                     false
                                                 )
                                             }
-                                        />
-                                    </IconButton>
+                                        >
+                                            <ReplayIcon />
+                                        </IconButton>
+                                    </span>
                                 </Tooltip>
                             ) : (
                                 <Typography color="error.main">
@@ -174,13 +204,15 @@ const EditableFileThread = (props) => {
                         ) : null}
                         {is_TaiGer_role(user) ? (
                             <Tooltip title={t('Delete', { ns: 'common' })}>
-                                <IconButton>
-                                    <DeleteIcon
+                                <span>
+                                    <IconButton
                                         onClick={() =>
                                             handleDeleteFileThread(documenName)
                                         }
-                                    />
-                                </IconButton>
+                                    >
+                                        <DeleteIcon />
+                                    </IconButton>
+                                </span>
                             </Tooltip>
                         ) : null}
                     </Stack>

@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import IconButton from '@mui/material/IconButton';
 import StarBorderRoundedIcon from '@mui/icons-material/StarBorderRounded';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { is_TaiGer_role } from '@taiger-common/core';
 
 import {
@@ -20,6 +21,7 @@ import { CustomTabPanel, a11yProps } from '../../components/Tabs';
 import { useTranslation } from 'react-i18next';
 import { MuiDataGrid } from '../../components/MuiDataGrid';
 import DEMO from '../../store/constant';
+import { APPROVAL_COUNTRIES } from '../Utils/checking-functions';
 
 CustomTabPanel.propTypes = {
     children: PropTypes.node,
@@ -158,6 +160,15 @@ const CVMLRLOverview = (props) => {
                 const linkUrl = `${DEMO.DOCUMENT_MODIFICATION_LINK(
                     params.row.thread_id
                 )}`;
+                // Check if program is from non-approval country
+                const programCountry =
+                    params.row?.program_id?.country || params.row?.country;
+                const isNonApprovalCountry = programCountry
+                    ? !APPROVAL_COUNTRIES.includes(
+                          String(programCountry).toLowerCase()
+                      )
+                    : false;
+
                 return (
                     <Box>
                         {params.row?.attributes?.map(
@@ -179,28 +190,46 @@ const CVMLRLOverview = (props) => {
                                     </Tooltip>
                                 )
                         )}
-                        <Link
-                            component={LinkDom}
-                            target="_blank"
-                            title={params.value}
-                            to={linkUrl}
-                            underline="hover"
-                        >
-                            {params.row.file_type}{' '}
-                            {params.row.program_id
-                                ? ' - ' +
-                                  params.row.program_name +
-                                  ' - ' +
-                                  params.row.degree
-                                : ''}
-                        </Link>
-                        <Typography
-                            color="text.secondary"
-                            sx={{ display: 'block', mt: 0.25 }}
-                            variant="caption"
-                        >
-                            {params.row.school}
-                        </Typography>
+                        {isNonApprovalCountry ? (
+                            <Tooltip
+                                title={t('Lack of experience country', {
+                                    ns: 'common'
+                                })}
+                            >
+                                <WarningAmberIcon
+                                    fontSize="small"
+                                    sx={{
+                                        color: 'warning.main',
+                                        ml: 0.5,
+                                        mr: 0.5
+                                    }}
+                                />
+                            </Tooltip>
+                        ) : null}
+                        <>
+                            <Link
+                                component={LinkDom}
+                                target="_blank"
+                                title={params.value}
+                                to={linkUrl}
+                                underline="hover"
+                            >
+                                {params.row.file_type}{' '}
+                                {params.row.program_id
+                                    ? ' - ' +
+                                      params.row.program_name +
+                                      ' - ' +
+                                      params.row.degree
+                                    : ''}
+                            </Link>
+                            <Typography
+                                color="text.secondary"
+                                sx={{ display: 'block', mt: 0.25 }}
+                                variant="caption"
+                            >
+                                {params.row.school}
+                            </Typography>
+                        </>
                     </Box>
                 );
             }
@@ -258,30 +287,33 @@ const CVMLRLOverview = (props) => {
                 const linkUrl = `${DEMO.DOCUMENT_MODIFICATION_LINK(
                     params.row.thread_id
                 )}`;
+
                 return (
                     <Box>
-                        <Link
-                            component={LinkDom}
-                            target="_blank"
-                            title={params.value}
-                            to={linkUrl}
-                            underline="hover"
-                        >
-                            {params.row.file_type}{' '}
-                            {params.row.program_id
-                                ? ' - ' +
-                                  params.row.program_name +
-                                  ' - ' +
-                                  params.row.degree
-                                : ''}
-                        </Link>
-                        <Typography
-                            color="text.secondary"
-                            sx={{ display: 'block', mt: 0.25 }}
-                            variant="caption"
-                        >
-                            {params.row.school}
-                        </Typography>
+                        <>
+                            <Link
+                                component={LinkDom}
+                                target="_blank"
+                                title={params.value}
+                                to={linkUrl}
+                                underline="hover"
+                            >
+                                {params.row.file_type}{' '}
+                                {params.row.program_id
+                                    ? ' - ' +
+                                      params.row.program_name +
+                                      ' - ' +
+                                      params.row.degree
+                                    : ''}
+                            </Link>
+                            <Typography
+                                color="text.secondary"
+                                sx={{ display: 'block', mt: 0.25 }}
+                                variant="caption"
+                            >
+                                {params.row.school}
+                            </Typography>
+                        </>
                     </Box>
                 );
             }
