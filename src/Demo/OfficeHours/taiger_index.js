@@ -105,23 +105,44 @@ const DateRangePickerBasic = () => {
 
         setStartTime(newStartDate);
         setEndTime(newEndDate);
+
+        // Automatically update URL when shortcut is clicked, preserving existing params
+        if (newStartDate && newEndDate) {
+            const newParams = new URLSearchParams(searchParams);
+            newParams.set(
+                'startTime',
+                newStartDate.startOf('minute').toDate().toISOString()
+            );
+            newParams.set(
+                'endTime',
+                newEndDate.startOf('minute').toDate().toISOString()
+            );
+            newParams.set('view', 'past');
+            setSearchParams(newParams);
+        }
     };
 
     const handleSubmit = () => {
         if (startTime && endTime) {
-            const newParams = {};
-            if (startTime)
-                newParams.startTime = startTime
+            // Preserve existing params (like 'tab', 'view') and update time range
+            const newParams = new URLSearchParams(searchParams);
+            newParams.set(
+                'startTime',
+                startTime
                     .startOf('minute') // Round to the start of the minute
                     .toDate()
-                    .toISOString();
-            if (endTime)
-                newParams.endTime = endTime
+                    .toISOString()
+            );
+            newParams.set(
+                'endTime',
+                endTime
                     .startOf('minute') // Round to the start of the minute
                     .toDate()
-                    .toISOString();
-
-            setSearchParams(newParams); // Update the URL query parameters
+                    .toISOString()
+            );
+            // Ensure view is set to 'past' when date range is selected
+            newParams.set('view', 'past');
+            setSearchParams(newParams);
         } else {
             alert('Please select both start and end date-times.');
         }
@@ -251,7 +272,27 @@ const TaiGerOfficeHours = () => {
         receiver_id: user_id
     });
 
-    const [mainTabValue, setMainTabValue] = useState(0);
+    // Tab name to index mapping
+    const tabNameToIndex = {
+        calendar: 0,
+        events: 1,
+        settings: 2
+    };
+    const indexToTabName = {
+        0: 'calendar',
+        1: 'events',
+        2: 'settings'
+    };
+
+    // Derive tab value directly from URL params (no state needed)
+    const getTabIndexFromName = (name) => {
+        if (name && name in tabNameToIndex) {
+            return tabNameToIndex[name];
+        }
+        return 0; // Default to Calendar
+    };
+    const tabParam = searchParams.get('tab');
+    const mainTabValue = tabParam ? getTabIndexFromName(tabParam) : 0;
 
     // Office Hours Settings state
     const [officeHours, setOfficeHours] = useState(user.officehours || {});
@@ -274,7 +315,19 @@ const TaiGerOfficeHours = () => {
     }, [user.officehours, user.timezone]);
 
     const handleMainTabChange = (event, newValue) => {
-        setMainTabValue(newValue);
+        // Update URL with new tab name while preserving other params
+        const newParams = new URLSearchParams(searchParams);
+        if (newValue === 0) {
+            // Remove tab param if it's the default (Calendar tab)
+            newParams.delete('tab');
+        } else {
+            const tabName = indexToTabName[newValue];
+            if (tabName) {
+                newParams.set('tab', tabName);
+            }
+        }
+        setSearchParams(newParams);
+        // mainTabValue will automatically update on next render from searchParams
     };
 
     // Office Hours Settings handlers
@@ -474,12 +527,19 @@ const TaiGerOfficeHours = () => {
                             >
                                 <Button
                                     onClick={() => {
-                                        setSearchParams({
-                                            startTime:
-                                                new Date()
-                                                    .toISOString()
-                                                    .slice(0, 16) + 'Z'
-                                        });
+                                        // Preserve existing params (like 'tab') and update view mode
+                                        const newParams = new URLSearchParams(
+                                            searchParams
+                                        );
+                                        newParams.set('view', 'future');
+                                        // For upcoming events, set startTime to now and remove endTime
+                                        const now = new Date();
+                                        newParams.set(
+                                            'startTime',
+                                            now.toISOString().slice(0, 16) + 'Z'
+                                        );
+                                        newParams.delete('endTime');
+                                        setSearchParams(newParams);
                                         setViewMode('future');
                                     }}
                                     variant={
@@ -492,10 +552,15 @@ const TaiGerOfficeHours = () => {
                                 </Button>
                                 <Button
                                     onClick={() => {
-                                        setSearchParams({
-                                            startTime: '',
-                                            endTime: ''
-                                        });
+                                        // Preserve existing params (like 'tab') and update view mode
+                                        const newParams = new URLSearchParams(
+                                            searchParams
+                                        );
+                                        newParams.set('view', 'past');
+                                        // For past events, clear time range (user can set via date picker)
+                                        newParams.delete('startTime');
+                                        newParams.delete('endTime');
+                                        setSearchParams(newParams);
                                         setViewMode('past');
                                     }}
                                     variant={

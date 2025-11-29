@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
     Avatar,
     Badge,
@@ -23,7 +23,12 @@ import {
     useTheme
 } from '@mui/material';
 import moment from 'moment-timezone';
-import { Navigate, useParams, Link as LinkDom } from 'react-router-dom';
+import {
+    Navigate,
+    useParams,
+    Link as LinkDom,
+    useSearchParams
+} from 'react-router-dom';
 import CheckIcon from '@mui/icons-material/Check';
 import PersonIcon from '@mui/icons-material/Person';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
@@ -68,9 +73,9 @@ const OfficeHours = () => {
     const { user_id } = useParams();
     const { t } = useTranslation();
     const theme = useTheme();
-    const query = new URLSearchParams(window.location.search);
-    const startTime = query.get('startTime');
-    const endTime = query.get('endTime');
+    const [searchParams, setSearchParams] = useSearchParams();
+    const startTime = searchParams.get('startTime') || '';
+    const endTime = searchParams.get('endTime') || '';
     const {
         events,
         agents,
@@ -119,10 +124,42 @@ const OfficeHours = () => {
         requester_id: user_id
     });
 
-    const [value, setValue] = useState(0);
+    // Tab name to index mapping
+    const tabNameToIndex = {
+        calendar: 0,
+        events: 1,
+        timeslots: 2
+    };
+    const indexToTabName = {
+        0: 'calendar',
+        1: 'events',
+        2: 'timeslots'
+    };
+
+    // Derive tab value directly from URL params (no state needed)
+    const getTabIndexFromName = (name) => {
+        if (name && name in tabNameToIndex) {
+            return tabNameToIndex[name];
+        }
+        return 0; // Default to Calendar
+    };
+    const tabParam = searchParams.get('tab');
+    const value = tabParam ? getTabIndexFromName(tabParam) : 0;
 
     const handleChangeValue = (event, newValue) => {
-        setValue(newValue);
+        // Update URL with new tab name while preserving other params
+        const newParams = new URLSearchParams(searchParams);
+        if (newValue === 0) {
+            // Remove tab param if it's the default (Calendar tab)
+            newParams.delete('tab');
+        } else {
+            const tabName = indexToTabName[newValue];
+            if (tabName) {
+                newParams.set('tab', tabName);
+            }
+        }
+        setSearchParams(newParams);
+        // value will automatically update on next render from searchParams
     };
 
     if (!is_TaiGer_Student(user)) {
