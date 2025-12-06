@@ -11,7 +11,6 @@ import {
     is_program_ml_rl_essay_finished,
     calculateProgramLockStatus,
     calculateApplicationLockStatus,
-    APPROVAL_COUNTRIES,
     file_category_const
 } from '../Utils/checking-functions';
 import {
@@ -27,24 +26,14 @@ const ManualFiles = (props) => {
     const { t } = useTranslation();
     const [categoryState, setCategory] = useState('');
 
-    // For approval countries: use program-level lock status
-    // For non-approval countries: use application-level lock status
+    // Always use calculateApplicationLockStatus - it correctly handles both approval and non-approval countries
     let lockStatus = null;
     let isLocked = false;
     if (props.application && props.application.programId) {
-        const program = props.application.programId;
-        const countryCode = program?.country
-            ? String(program.country).toLowerCase()
-            : null;
-        const isInApprovalCountry = countryCode
-            ? APPROVAL_COUNTRIES.includes(countryCode)
-            : false;
-
-        lockStatus = isInApprovalCountry
-            ? calculateProgramLockStatus(program)
-            : calculateApplicationLockStatus(props.application);
+        lockStatus = calculateApplicationLockStatus(props.application);
         isLocked = lockStatus.isLocked === true;
     } else {
+        // Fallback: if no application, use program lock status
         lockStatus = calculateProgramLockStatus(props.application?.programId);
         isLocked = lockStatus.isLocked === true;
     }

@@ -1775,19 +1775,8 @@ const prepApplicationTaskV2 = (student, application, program, thread) => {
 
 // student.applications -> application.doc_modification_thread
 const prepApplicationTask = (student, application, thread) => {
-    // For approval countries: use program-level lock status
-    // For non-approval countries: use application-level lock status
-    const program = application.programId;
-    const countryCode = program?.country
-        ? String(program.country).toLowerCase()
-        : null;
-    const isInApprovalCountry = countryCode
-        ? APPROVAL_COUNTRIES.includes(countryCode)
-        : false;
-
-    const lockStatus = isInApprovalCountry
-        ? calculateProgramLockStatus(program)
-        : calculateApplicationLockStatus(application);
+    // Always use calculateApplicationLockStatus - it correctly handles both approval and non-approval countries
+    const lockStatus = calculateApplicationLockStatus(application);
 
     return {
         ...prepTask(student, thread),
@@ -2410,7 +2399,6 @@ export const APPROVAL_COUNTRIES = ['de', 'nl', 'uk', 'ch', 'se', 'at'];
 
 export const LOCK_REASON = {
     NON_APPROVAL_COUNTRY: 'NON_APPROVAL_COUNTRY',
-    NO_ACTIVE_STUDENTS: 'NO_ACTIVE_STUDENTS',
     STALE_DATA: 'STALE_DATA'
 };
 
