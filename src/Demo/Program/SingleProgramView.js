@@ -33,7 +33,8 @@ import {
     DialogTitle,
     DialogContent,
     DialogContentText,
-    DialogActions
+    DialogActions,
+    Tooltip
 } from '@mui/material';
 import {
     is_TaiGer_Admin,
@@ -153,12 +154,22 @@ const SingleProgramView = (props) => {
                 >
                     {`${program.school}-${program.program_name}`}
                     {isProgramLocked ? (
-                        <Chip
-                            color="warning"
-                            icon={<LockOutlinedIcon fontSize="small" />}
-                            label={t('Locked', { ns: 'common' })}
-                            size="small"
-                        />
+                        <Tooltip
+                            title={
+                                lockStatus.reason === 'STALE_DATA'
+                                    ? t('Stale data (≥6 months old)', {
+                                          ns: 'common'
+                                      })
+                                    : t('Program is locked', { ns: 'common' })
+                            }
+                        >
+                            <Chip
+                                color="warning"
+                                icon={<LockOutlinedIcon fontSize="small" />}
+                                label={t('Locked', { ns: 'common' })}
+                                size="small"
+                            />
+                        </Tooltip>
                     ) : canViewUnlockedChip ? (
                         <Chip
                             color="success"
@@ -189,10 +200,15 @@ const SingleProgramView = (props) => {
                     severity="warning"
                     sx={{ mb: 2 }}
                 >
-                    {t(
-                        'Program tasks are locked. Please contact an agent or manager to unlock.',
-                        { ns: 'common' }
-                    )}
+                    {lockStatus.reason === 'STALE_DATA'
+                        ? t(
+                              'Program is locked due to stale data (≥6 months old). Please refresh the program to unlock.',
+                              { ns: 'common' }
+                          )
+                        : t(
+                              'Program tasks are locked. Please contact an agent or manager to unlock.',
+                              { ns: 'common' }
+                          )}
                 </Alert>
             ) : null}
 
@@ -1163,6 +1179,17 @@ const SingleProgramView = (props) => {
                         onClick={() => setUnlockDialogOpen(false)}
                     >
                         {t('Cancel', { ns: 'common' })}
+                    </Button>
+                    <Button
+                        color="primary"
+                        component={LinkDom}
+                        disabled={props.isRefreshing}
+                        to={DEMO.PROGRAM_EDIT(
+                            props.program._id?.toString() || props.program._id
+                        )}
+                        variant="outlined"
+                    >
+                        {t('Edit', { ns: 'common' })}
                     </Button>
                     <Button
                         color="secondary"

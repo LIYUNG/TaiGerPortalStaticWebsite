@@ -1761,6 +1761,7 @@ const prepApplicationTaskV2 = (student, application, program, thread) => {
         program_name: program?.program_name,
         degree: program?.degree,
         lang: `${program?.lang}`,
+        country: program?.country,
         days_left:
             differenceInDays(
                 application_deadline_V2_calculator({
@@ -1774,13 +1775,27 @@ const prepApplicationTaskV2 = (student, application, program, thread) => {
 
 // student.applications -> application.doc_modification_thread
 const prepApplicationTask = (student, application, thread) => {
-    const lockStatus = calculateProgramLockStatus(application.programId);
+    // For approval countries: use program-level lock status
+    // For non-approval countries: use application-level lock status
+    const program = application.programId;
+    const countryCode = program?.country
+        ? String(program.country).toLowerCase()
+        : null;
+    const isInApprovalCountry = countryCode
+        ? APPROVAL_COUNTRIES.includes(countryCode)
+        : false;
+
+    const lockStatus = isInApprovalCountry
+        ? calculateProgramLockStatus(program)
+        : calculateApplicationLockStatus(application);
+
     return {
         ...prepTask(student, thread),
         thread_id: thread.doc_thread_id?._id?.toString(),
         program_id: application.programId?._id.toString(),
         program: application.programId,
-        isProgramLocked: lockStatus.isLocked,
+        isApplicationLocked: lockStatus.isLocked,
+        isProgramLocked: lockStatus.isLocked, // Keep for backward compatibility
         lockReason: lockStatus.reason,
         deadline: application_deadline_V2_calculator(application),
         show: isProgramDecided(application) ? true : false,
@@ -1919,6 +1934,11 @@ export const programs_refactor_v2 = (applications) => {
                   : 'No'
             : 'Undecided';
 
+        // Calculate lock status for the application
+        const lockStatus = calculateApplicationLockStatus(application);
+        const isLocked = lockStatus.isLocked;
+        const lockStatusText = isLocked ? 'Locked' : 'Unlocked';
+
         acc.push({
             ...application,
             id: `${application.studentId._id.toString()}-${application.programId._id.toString()}`,
@@ -1963,7 +1983,10 @@ export const programs_refactor_v2 = (applications) => {
             status:
                 deadline === 'CLOSE'
                     ? 100
-                    : progressBarCounter(application.studentId, application)
+                    : progressBarCounter(application.studentId, application),
+            lockStatus: lockStatusText,
+            isLocked,
+            lockStatusReason: lockStatus.reason
         });
 
         return acc;
@@ -2396,55 +2419,87 @@ export const calculateProgramLockStatus = (program) => {
         return { isLocked: true, reason: null };
     }
 
+    const lastUpdated = program.updatedAt ? new Date(program.updatedAt) : null;
+
+    // Calculate if program data is stale (6 months = 180 days)
+    // Both approval and non-approval countries should lock if program updatedAt > 6 months
+    const SIX_MONTHS_IN_MS = 180 * 24 * 60 * 60 * 1000;
+    const isStale = lastUpdated
+        ? Date.now() - lastUpdated.getTime() >= SIX_MONTHS_IN_MS
+        : true; // If no updatedAt, consider stale (lock it)
+
+    // TOP PRIORITY: If program updatedAt is missing or is over 6 months, lock no matter what
+    // This applies to both approval and non-approval countries
+    if (isStale) {
+        return { isLocked: true, reason: LOCK_REASON.STALE_DATA };
+    }
+
+    // For program-level locking (used for approval countries and program pages):
+    // Programs are unlocked by default (unless stale data, which is already handled above)
+    // Note: For non-approval countries with applications, use calculateApplicationLockStatus instead
+    return { isLocked: false, reason: null };
+};
+
+export const calculateApplicationLockStatus = (application) => {
+    if (!application || !application.programId) {
+        return { isLocked: true, reason: null };
+    }
+
+    const program = application.programId;
     const countryCode = program.country
         ? String(program.country).toLowerCase()
         : null;
-    const lastUpdated = program.updatedAt ? new Date(program.updatedAt) : null;
-    const hasActiveApplications = program.hasActiveApplications === true;
+
+    // Check program's updatedAt (not application's updatedAt)
+    const programLastUpdated = program.updatedAt
+        ? new Date(program.updatedAt)
+        : null;
 
     // Check if country is in approval list (case-insensitive comparison)
     const isInApprovalCountry = countryCode
         ? APPROVAL_COUNTRIES.includes(countryCode)
         : false;
 
-    // Calculate if data is stale (6 months = 180 days)
+    // Calculate if program data is stale (6 months = 180 days)
+    // Both approval and non-approval countries should lock if program updatedAt > 6 months
     const SIX_MONTHS_IN_MS = 180 * 24 * 60 * 60 * 1000;
-    const isStale = lastUpdated
-        ? Date.now() - lastUpdated.getTime() >= SIX_MONTHS_IN_MS
-        : true; // If no updatedAt, consider stale
+    const isStale = programLastUpdated
+        ? Date.now() - programLastUpdated.getTime() >= SIX_MONTHS_IN_MS
+        : true; // If no program updatedAt, consider stale (lock it) - consistent with calculateProgramLockStatus
 
-    // TOP PRIORITY: If updatedAt is over 6 months, lock no matter what (applies to all programs)
+    // TOP PRIORITY: If program is stale, lock all applications (both approval and non-approval)
+    // Show "Check Program" button instead of unlock button
     if (isStale) {
-        return { isLocked: true, reason: LOCK_REASON.STALE_DATA };
+        return {
+            isLocked: true,
+            reason: LOCK_REASON.STALE_DATA,
+            canUnlock: false
+        };
     }
 
-    // Business logic for non-approval countries
-    if (!isInApprovalCountry) {
-        const ONE_MINUTE_IN_MS = 60 * 1000;
-        const wasUpdatedVeryRecently = lastUpdated
-            ? Date.now() - lastUpdated.getTime() < ONE_MINUTE_IN_MS
-            : false;
-
-        // If updated very recently (within 1 minute), unlock (handles manual unlock)
-        if (wasUpdatedVeryRecently) {
-            return { isLocked: false, reason: null };
-        }
-
-        // If has active applications, unlock
-        if (hasActiveApplications) {
-            return { isLocked: false, reason: null };
-        }
-
-        // If no active applications, lock
-        if (!hasActiveApplications) {
-            return { isLocked: true, reason: LOCK_REASON.NO_ACTIVE_STUDENTS };
-        }
-
-        return { isLocked: true, reason: LOCK_REASON.NON_APPROVAL_COUNTRY };
+    // For approval countries: unlocked automatically when program is not stale
+    if (isInApprovalCountry) {
+        // Approval countries are unlocked by default (unless stale data, which is already handled above)
+        return { isLocked: false, reason: null, canUnlock: false };
     }
 
-    // Business logic for approval countries
-    return { isLocked: false, reason: null };
+    // For non-approval countries: check application.isLocked field when program is not stale
+    // If isLocked is undefined (field doesn't exist in DB yet), default to true (locked)
+    const applicationIsLocked =
+        application.isLocked === undefined
+            ? true // Default to locked if field doesn't exist (for existing applications)
+            : application.isLocked === true;
+
+    if (applicationIsLocked) {
+        return {
+            isLocked: true,
+            reason: LOCK_REASON.NON_APPROVAL_COUNTRY,
+            canUnlock: true
+        };
+    }
+
+    // Application is unlocked
+    return { isLocked: false, reason: null, canUnlock: true };
 };
 
 // Format date for display (e.g., "Mar 4, 2024")

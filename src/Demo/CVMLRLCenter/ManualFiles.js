@@ -10,6 +10,8 @@ import {
     is_program_closed,
     is_program_ml_rl_essay_finished,
     calculateProgramLockStatus,
+    calculateApplicationLockStatus,
+    APPROVAL_COUNTRIES,
     file_category_const
 } from '../Utils/checking-functions';
 import {
@@ -24,12 +26,36 @@ const ManualFiles = (props) => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const [categoryState, setCategory] = useState('');
-    const lockStatus = calculateProgramLockStatus(props.application?.programId);
-    const isProgramLocked = lockStatus.isLocked;
-    const lockTooltip = t(
-        'Program is locked. Contact an agent to unlock this task.',
-        { ns: 'common' }
-    );
+
+    // For approval countries: use program-level lock status
+    // For non-approval countries: use application-level lock status
+    let lockStatus = null;
+    let isLocked = false;
+    if (props.application && props.application.programId) {
+        const program = props.application.programId;
+        const countryCode = program?.country
+            ? String(program.country).toLowerCase()
+            : null;
+        const isInApprovalCountry = countryCode
+            ? APPROVAL_COUNTRIES.includes(countryCode)
+            : false;
+
+        lockStatus = isInApprovalCountry
+            ? calculateProgramLockStatus(program)
+            : calculateApplicationLockStatus(props.application);
+        isLocked = lockStatus.isLocked === true;
+    } else {
+        lockStatus = calculateProgramLockStatus(props.application?.programId);
+        isLocked = lockStatus.isLocked === true;
+    }
+
+    const lockTooltip = isLocked
+        ? t('Application is locked. Unlock to modify documents.', {
+              ns: 'common'
+          })
+        : t('Program is locked. Contact an agent to unlock this task.', {
+              ns: 'common'
+          });
 
     const formatDocumentMessage = (docEntry) => {
         if (!docEntry) {
@@ -221,13 +247,6 @@ const ManualFiles = (props) => {
                     ) : null}
                     {props.filetype === 'ProgramSpecific' ? (
                         <>
-                            {isProgramLocked ? (
-                                <Grid item xs={12}>
-                                    <Alert severity="warning">
-                                        {lockTooltip}
-                                    </Alert>
-                                </Grid>
-                            ) : null}
                             <Grid item xs={12}>
                                 {missingDocs.length > 0 ? (
                                     <Alert severity="error">
@@ -284,7 +303,7 @@ const ManualFiles = (props) => {
                         <ManualFilesList
                             application={props.application}
                             handleAsFinalFile={props.handleAsFinalFile}
-                            isProgramLocked={isProgramLocked}
+                            isLocked={isLocked}
                             onDeleteFileThread={props.onDeleteFileThread}
                             student={props.student}
                         />
@@ -305,7 +324,7 @@ const ManualFiles = (props) => {
                                     handleCreateProgramSpecificMessageThread
                                 }
                                 handleSelect={handleSelect}
-                                isProgramLocked={isProgramLocked}
+                                isLocked={isLocked}
                                 student={props.student}
                                 user={user}
                             />
@@ -320,6 +339,7 @@ const ManualFiles = (props) => {
                             <Button
                                 color="primary"
                                 disabled={
+                                    isLocked ||
                                     !is_program_ml_rl_essay_finished(
                                         props.application
                                     )
@@ -332,6 +352,7 @@ const ManualFiles = (props) => {
                                         is_program_closed(props.application)
                                     )
                                 }
+                                title={isLocked ? lockTooltip : ''}
                                 variant={
                                     is_program_closed(props.application)
                                         ? 'outlined'

@@ -123,6 +123,9 @@ export const updateStudentApplication = (studentId, application_id, payload) =>
 export const deleteApplicationStudentV2 = (applicationId) =>
     request.delete(`/api/applications/application/${applicationId}`);
 
+export const refreshApplication = (applicationId) =>
+    postData(`/api/applications/${applicationId}/refresh`, {});
+
 export const getStudentUniAssistV2 = ({ studentId }) =>
     getData(`/api/uniassist/${studentId}`);
 

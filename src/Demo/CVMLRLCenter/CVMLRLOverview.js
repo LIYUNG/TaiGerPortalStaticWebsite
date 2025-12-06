@@ -7,6 +7,7 @@ import StarBorderRoundedIcon from '@mui/icons-material/StarBorderRounded';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { is_TaiGer_role } from '@taiger-common/core';
 
 import {
@@ -163,12 +164,16 @@ const CVMLRLOverview = (props) => {
                 { value: 'Unlocked', label: t('Unlocked', { ns: 'common' }) }
             ],
             filterFn: (row, columnId, filterValue) => {
-                const isLocked = row.original?.isProgramLocked === true;
+                const isLocked =
+                    row.original?.isApplicationLocked === true ||
+                    row.original?.isProgramLocked === true;
                 const status = isLocked ? 'Locked' : 'Unlocked';
                 return status === filterValue;
             },
             renderCell: (params) => {
-                const isLocked = params.row?.isProgramLocked === true;
+                const isLocked =
+                    params.row?.isApplicationLocked === true ||
+                    params.row?.isProgramLocked === true;
                 return isLocked ? (
                     <Chip
                         color="warning"
@@ -194,7 +199,9 @@ const CVMLRLOverview = (props) => {
                 const linkUrl = `${DEMO.DOCUMENT_MODIFICATION_LINK(
                     params.row.thread_id
                 )}`;
-                const isLocked = params.row?.isProgramLocked;
+                const isLocked =
+                    params.row?.isApplicationLocked ||
+                    params.row?.isProgramLocked;
                 // Check if program is from non-approval country
                 const programCountry =
                     params.row?.program_id?.country || params.row?.country;
@@ -225,16 +232,22 @@ const CVMLRLOverview = (props) => {
                                     </Tooltip>
                                 )
                         )}
-                        {isNonApprovalCountry ? (
-                            <Chip
-                                color="warning"
-                                label={t('Lack of experience country', {
+                        {isNonApprovalCountry && (
+                            <Tooltip
+                                title={t('Lack of experience country', {
                                     ns: 'common'
                                 })}
-                                size="small"
-                                variant="outlined"
-                            />
-                        ) : null}
+                            >
+                                <WarningAmberIcon
+                                    fontSize="small"
+                                    sx={{
+                                        color: 'warning.main',
+                                        ml: 0.5,
+                                        mr: 0.5
+                                    }}
+                                />
+                            </Tooltip>
+                        )}
                         {isLocked ? (
                             <Tooltip
                                 title={t(
@@ -356,12 +369,16 @@ const CVMLRLOverview = (props) => {
                 { value: 'Unlocked', label: t('Unlocked', { ns: 'common' }) }
             ],
             filterFn: (row, columnId, filterValue) => {
-                const isLocked = row.original?.isProgramLocked === true;
+                const isLocked =
+                    row.original?.isApplicationLocked === true ||
+                    row.original?.isProgramLocked === true;
                 const status = isLocked ? 'Locked' : 'Unlocked';
                 return status === filterValue;
             },
             renderCell: (params) => {
-                const isLocked = params.row?.isProgramLocked === true;
+                const isLocked =
+                    params.row?.isApplicationLocked === true ||
+                    params.row?.isProgramLocked === true;
                 return isLocked ? (
                     <Chip
                         color="warning"
@@ -387,7 +404,9 @@ const CVMLRLOverview = (props) => {
                 const linkUrl = `${DEMO.DOCUMENT_MODIFICATION_LINK(
                     params.row.thread_id
                 )}`;
-                const isLocked = params.row?.isProgramLocked;
+                const isLocked =
+                    params.row?.isApplicationLocked ||
+                    params.row?.isProgramLocked;
                 // Check if program is from non-approval country
                 const programCountry =
                     params.row?.program_id?.country || params.row?.country;
@@ -399,17 +418,22 @@ const CVMLRLOverview = (props) => {
 
                 return (
                     <Box>
-                        {isNonApprovalCountry ? (
-                            <Chip
-                                color="warning"
-                                label={t('Lack of experience country', {
+                        {isNonApprovalCountry && (
+                            <Tooltip
+                                title={t('Lack of experience country', {
                                     ns: 'common'
                                 })}
-                                size="small"
-                                sx={{ mr: 0.5, mb: 0.5 }}
-                                variant="outlined"
-                            />
-                        ) : null}
+                            >
+                                <WarningAmberIcon
+                                    fontSize="small"
+                                    sx={{
+                                        color: 'warning.main',
+                                        ml: 0.5,
+                                        mr: 0.5
+                                    }}
+                                />
+                            </Tooltip>
+                        )}
                         {isLocked ? (
                             <Tooltip
                                 title={t(

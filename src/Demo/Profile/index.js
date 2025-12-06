@@ -49,12 +49,6 @@ const Profile = () => {
         success: false,
         user: {},
         changed_personaldata: false,
-        officehours:
-            is_TaiGer_Agent(user) || is_TaiGer_Editor(user)
-                ? user.officehours
-                : {},
-        selectedTimezone:
-            user.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
         personaldata: user_id
             ? {
                   firstname: '',
@@ -98,12 +92,6 @@ const Profile = () => {
                             ...prevState,
                             success,
                             isLoaded: true,
-                            officehours: data.officehours,
-                            selectedTimezone:
-                                data.timezone ||
-                                prevState.selectedTimezone ||
-                                Intl.DateTimeFormat().resolvedOptions()
-                                    .timeZone,
                             personaldata: {
                                 firstname: data.firstname,
                                 firstname_chinese: data.firstname_chinese,

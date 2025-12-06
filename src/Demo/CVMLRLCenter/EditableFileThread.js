@@ -20,7 +20,8 @@ import { is_TaiGer_role } from '@taiger-common/core';
 
 import {
     latestReplyInfo,
-    APPROVAL_COUNTRIES
+    APPROVAL_COUNTRIES,
+    calculateApplicationLockStatus
 } from '../Utils/checking-functions';
 import {
     FILE_OK_SYMBOL,
@@ -33,15 +34,33 @@ import { useAuth } from '../../components/AuthProvider';
 const EditableFileThread = (props) => {
     const { user } = useAuth();
     const { t } = useTranslation();
-    const isProgramLocked = props.isProgramLocked === true;
-    const lockTooltip = t(
-        'Program is locked. Contact an agent to unlock this task.',
-        { ns: 'common' }
-    );
+    // Always use calculateApplicationLockStatus for consistency
+    // It correctly handles approval countries by checking program staleness
+    let lockStatus = null;
+    let isLocked = false;
+    if (props.application && props.application.programId) {
+        // Always use calculateApplicationLockStatus - it correctly handles approval countries
+        // by checking program staleness and returning unlocked if not stale
+        lockStatus = calculateApplicationLockStatus(props.application);
+        isLocked = lockStatus.isLocked === true;
+    } else {
+        // Fallback to program lock status from props
+        isLocked =
+            props.isProgramLocked === true ||
+            props.isApplicationLocked === true;
+    }
+
+    const lockTooltip = isLocked
+        ? t('Application is locked. Unlock to modify documents.', {
+              ns: 'common'
+          })
+        : t('Program is locked. Contact an agent to unlock this task.', {
+              ns: 'common'
+          });
     const applicationId = props.application?._id;
 
     const handleAsFinalFileThread = (documenName, isFinal) => {
-        if (isProgramLocked) {
+        if (isLocked) {
             return;
         }
         props.handleAsFinalFile(
@@ -54,7 +73,7 @@ const EditableFileThread = (props) => {
     };
 
     const handleDeleteFileThread = (documenName) => {
-        if (isProgramLocked) {
+        if (isLocked) {
             return;
         }
         props.onDeleteFileThread(
@@ -74,7 +93,7 @@ const EditableFileThread = (props) => {
         documenName = 'General' + ' - ' + props.thread.doc_thread_id?.file_type;
     }
 
-    const documentTypographyColor = isProgramLocked
+    const documentTypographyColor = isLocked
         ? 'text.disabled'
         : props.decided === 'O'
           ? 'primary.main'
@@ -130,7 +149,7 @@ const EditableFileThread = (props) => {
         </Stack>
     );
 
-    const documentLink = isProgramLocked ? (
+    const documentLink = isLocked ? (
         <Tooltip title={lockTooltip}>
             <Box
                 component="span"
@@ -193,7 +212,7 @@ const EditableFileThread = (props) => {
                         !props.thread.isFinalVersion ? (
                             <Tooltip
                                 title={
-                                    isProgramLocked
+                                    isLocked
                                         ? lockTooltip
                                         : t('Set as final version', {
                                               ns: 'common'
@@ -202,7 +221,7 @@ const EditableFileThread = (props) => {
                             >
                                 <span>
                                     <IconButton
-                                        disabled={isProgramLocked}
+                                        disabled={isLocked}
                                         onClick={() =>
                                             handleAsFinalFileThread(
                                                 documenName,
@@ -219,14 +238,14 @@ const EditableFileThread = (props) => {
                             is_TaiGer_role(user) ? (
                                 <Tooltip
                                     title={
-                                        isProgramLocked
+                                        isLocked
                                             ? lockTooltip
                                             : t('Undo', { ns: 'common' })
                                     }
                                 >
                                     <span>
                                         <IconButton
-                                            disabled={isProgramLocked}
+                                            disabled={isLocked}
                                             onClick={() =>
                                                 handleAsFinalFileThread(
                                                     documenName,
@@ -247,14 +266,14 @@ const EditableFileThread = (props) => {
                         {is_TaiGer_role(user) ? (
                             <Tooltip
                                 title={
-                                    isProgramLocked
+                                    isLocked
                                         ? lockTooltip
                                         : t('Delete', { ns: 'common' })
                                 }
                             >
                                 <span>
                                     <IconButton
-                                        disabled={isProgramLocked}
+                                        disabled={isLocked}
                                         onClick={() =>
                                             handleDeleteFileThread(documenName)
                                         }

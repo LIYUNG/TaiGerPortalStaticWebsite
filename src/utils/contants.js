@@ -7,6 +7,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import BugReportIcon from '@mui/icons-material/BugReport';
 import WarningIcon from '@mui/icons-material/Warning';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import HelpIcon from '@mui/icons-material/Help';
 import RemoveIcon from '@mui/icons-material/Remove';
 import QueryBuilderIcon from '@mui/icons-material/QueryBuilder';
@@ -28,6 +29,7 @@ import { appConfig } from '../config';
 import DEMO from '../store/constant';
 import { is_TaiGer_Student } from '@taiger-common/core';
 import i18next from 'i18next';
+import { APPROVAL_COUNTRIES } from '../Demo/Utils/checking-functions';
 
 export const IS_DEV =
     !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
@@ -1823,6 +1825,18 @@ export const c1_mrt = [
                 row.original.thread_id
             )}`;
             const isLocked = row.original?.isProgramLocked;
+            // Check country from multiple possible locations
+            const programCountry =
+                row.original?.country ||
+                (typeof row.original?.program_id === 'object' &&
+                row.original?.program_id?.country
+                    ? row.original.program_id.country
+                    : null);
+            const isNonApprovalCountry = programCountry
+                ? !APPROVAL_COUNTRIES.includes(
+                      String(programCountry).toLowerCase()
+                  )
+                : false;
             return (
                 <Box>
                     {row.original?.attributes?.map(
@@ -1843,6 +1857,18 @@ export const c1_mrt = [
                                     />
                                 </Tooltip>
                             )
+                    )}
+                    {isNonApprovalCountry && (
+                        <Tooltip
+                            title={i18next.t('Lack of experience country', {
+                                ns: 'common'
+                            })}
+                        >
+                            <WarningAmberIcon
+                                fontSize="small"
+                                sx={{ color: 'warning.main', ml: 0.5, mr: 0.5 }}
+                            />
+                        </Tooltip>
                     )}
                     {isLocked ? (
                         <Tooltip

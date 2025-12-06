@@ -17,8 +17,7 @@ import {
     Stack,
     Divider,
     Chip,
-    Tooltip,
-    Alert
+    Tooltip
 } from '@mui/material';
 import EventIcon from '@mui/icons-material/Event';
 import PersonIcon from '@mui/icons-material/Person';
@@ -66,9 +65,7 @@ const InformationBlock = ({
     handleFavoriteToggle,
     thread,
     user,
-    children,
-    isProgramLocked,
-    programLockTooltip
+    children
 }) => {
     const theme = useTheme();
     const isDarkMode = theme.palette.mode === 'dark';
@@ -1343,11 +1340,6 @@ const InformationBlock = ({
                             }
                         }}
                     >
-                        {isProgramLocked ? (
-                            <Alert severity="warning" sx={{ mb: 2 }}>
-                                {programLockTooltip}
-                            </Alert>
-                        ) : null}
                         {children}
                     </Box>
                 </Grid>

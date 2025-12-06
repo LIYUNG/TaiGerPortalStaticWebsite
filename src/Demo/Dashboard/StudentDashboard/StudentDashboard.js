@@ -533,7 +533,7 @@ const StudentDashboard = (props) => {
                                                         component={LinkDom}
                                                         to={`${DEMO.EVENT_STUDENT_STUDENTID_LINK(
                                                             data.data.data?._id?.toString()
-                                                        )}`}
+                                                        )}?tab=timeslots`}
                                                         underline="hover"
                                                     >
                                                         <Button
