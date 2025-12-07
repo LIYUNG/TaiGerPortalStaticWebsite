@@ -906,8 +906,38 @@ const NewProgramEdit = (props) => {
                         </FormControl>
                     </Grid>
                     <Grid item md={6} xs={12}>
-                        <Typography variant="body1">
+                        <Typography
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 0.5
+                            }}
+                            variant="body1"
+                        >
                             {t('Essay Difficulty', { ns: 'common' })}
+                            <Tooltip
+                                arrow
+                                size="small"
+                                title={
+                                    <div>
+                                        <div>
+                                            EASY: below 1000 words
+                                            (non-scientific research style)
+                                        </div>
+                                        <div>
+                                            HARD: above 1000 words (scientific
+                                            research style)
+                                        </div>
+                                    </div>
+                                }
+                            >
+                                <IconButton size="body1" sx={{ padding: 0 }}>
+                                    <InfoOutlinedIcon
+                                        color="action"
+                                        fontSize="small"
+                                    />
+                                </IconButton>
+                            </Tooltip>
                         </Typography>
                     </Grid>
                     <Grid item md={6} xs={12}>
