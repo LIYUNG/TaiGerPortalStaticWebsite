@@ -1790,13 +1790,17 @@ export const c1_mrt = [
             { value: 'Unlocked', label: 'Unlocked' }
         ],
         filterFn: (row, columnId, filterValue) => {
-            const isLocked = row.original?.isProgramLocked === true;
+            const isLocked =
+                row.original?.isApplicationLocked === true ||
+                row.original?.isProgramLocked === true;
             const status = isLocked ? 'Locked' : 'Unlocked';
             return status === filterValue;
         },
         Cell: (params) => {
             const { row } = params;
-            const isLocked = row.original?.isProgramLocked === true;
+            const isLocked =
+                row.original?.isApplicationLocked === true ||
+                row.original?.isProgramLocked === true;
             return isLocked ? (
                 <Chip
                     color="warning"

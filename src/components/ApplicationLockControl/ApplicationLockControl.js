@@ -13,14 +13,14 @@ import {
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
-import VisibilityIcon from '@mui/icons-material/Visibility';
+import FactCheckIcon from '@mui/icons-material/FactCheck';
 import { useTranslation } from 'react-i18next';
 import {
     calculateApplicationLockStatus,
     APPROVAL_COUNTRIES
 } from '../../Demo/Utils/checking-functions';
 import { refreshApplication } from '../../api';
-import { is_TaiGer_role } from '@taiger-common/core';
+import { is_TaiGer_Admin, is_TaiGer_Agent } from '@taiger-common/core';
 import { useAuth } from '../AuthProvider';
 import { useSnackBar } from '../../contexts/use-snack-bar';
 import DEMO from '../../store/constant';
@@ -60,7 +60,7 @@ const ApplicationLockControl = ({ application }) => {
                 });
             case 'STALE_DATA':
                 return t(
-                    'Stale data (≥6 months old). Program must be refreshed first.',
+                    'Program data is outdated (≥6 months old). Please verify program requirements are up to date.',
                     { ns: 'common' }
                 );
             default:
@@ -111,18 +111,23 @@ const ApplicationLockControl = ({ application }) => {
     const programId = program?._id?.toString() || program?._id;
     const programLink = programId ? DEMO.SINGLE_PROGRAM_LINK(programId) : null;
 
-    // Show "Check Program" button:
+    // Permission check: Only Admin and Agent can use unlock/verify buttons
+    const canUseLockControls = is_TaiGer_Admin(user) || is_TaiGer_Agent(user);
+
+    // Show "Verify Program" button:
     // - For approval countries: always show when locked
     // - For non-approval countries: always show when locked
-    const shouldShowCheckProgramButton = isLocked && programLink;
+    // - Only Admin and Agent can see/use it
+    const shouldShowCheckProgramButton =
+        isLocked && programLink && canUseLockControls;
 
     // Show unlock button for non-approval countries:
     // - Always show when locked (regardless of application.isLocked value)
     // - Only for non-approval countries
-    // - User has permission
-    // Note: For non-approval countries, both "Check Program" and "Unlock Application" buttons can be visible
+    // - Only Admin and Agent can see/use it
+    // Note: For non-approval countries, both "Verify Program" and "Unlock Application" buttons can be visible
     const shouldShowUnlockButton =
-        !isInApprovalCountry && isLocked && is_TaiGer_role(user);
+        !isInApprovalCountry && isLocked && canUseLockControls;
 
     // Disable unlock button when program is stale (STALE_DATA)
     // User must check/unlock the program first
@@ -154,7 +159,7 @@ const ApplicationLockControl = ({ application }) => {
                 <Tooltip
                     title={
                         isUnlockButtonDisabled
-                            ? t('Please check the program to unlock first', {
+                            ? t('Please verify the program before unlock', {
                                   ns: 'common'
                               })
                             : t('Unlock application', { ns: 'common' })
@@ -179,16 +184,20 @@ const ApplicationLockControl = ({ application }) => {
             )}
 
             {shouldShowCheckProgramButton && programLink && (
-                <Tooltip title={t('Check program', { ns: 'common' })}>
+                <Tooltip
+                    title={t('Verify program requirements are up to date', {
+                        ns: 'common'
+                    })}
+                >
                     <IconButton
                         color="primary"
                         component="a"
-                        data-testid="check-program-button"
+                        data-testid="verify-program-button"
                         href={programLink}
                         size="small"
                         target="_blank"
                     >
-                        <VisibilityIcon fontSize="small" />
+                        <FactCheckIcon fontSize="small" />
                     </IconButton>
                 </Tooltip>
             )}

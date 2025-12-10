@@ -41,7 +41,8 @@ import {
     readPDF,
     readXLSX,
     toogleItemInArray,
-    calculateProgramLockStatus
+    calculateProgramLockStatus,
+    calculateApplicationLockStatus
 } from '../../Utils/checking-functions';
 import {
     SubmitMessageWithAttachment,
@@ -109,14 +110,37 @@ const DocModificationThreadPage = ({
     const [checkResult, setCheckResult] = useState([]);
     const { hash } = useLocation();
     const thread = docModificationThreadPageState.thread || {};
-    const lockStatus = calculateProgramLockStatus(thread?.program_id);
-    const isProgramLocked = lockStatus.isLocked;
-    const programLockTooltip = i18next.t(
-        'Program is locked. Contact an agent to unlock this task.',
-        { ns: 'common' }
-    );
+
+    // Use application-level lock status if application_id exists and has programId
+    // Otherwise fall back to program-level lock status
+    let lockStatus = null;
+    let isLocked = false;
+    if (thread?.application_id && thread?.application_id?.programId) {
+        // Construct application object from thread data
+        const application = {
+            ...thread.application_id,
+            programId: thread.program_id || thread.application_id.programId
+        };
+        lockStatus = calculateApplicationLockStatus(application);
+        isLocked = lockStatus.isLocked === true;
+    } else if (thread?.program_id) {
+        // Fallback to program-level lock status
+        lockStatus = calculateProgramLockStatus(thread.program_id);
+        isLocked = lockStatus.isLocked === true;
+    }
+
+    const lockTooltip = isLocked
+        ? i18next.t('Application is locked. Unlock to modify documents.', {
+              ns: 'common'
+          })
+        : i18next.t(
+              'Program is locked. Contact an agent to unlock this task.',
+              {
+                  ns: 'common'
+              }
+          );
     const isThreadClosed = thread?.isFinalVersion === true;
-    const isReadOnlyThread = isProgramLocked || isThreadClosed;
+    const isReadOnlyThread = isLocked || isThreadClosed;
     const hashKey = hash?.replace('#', '') || '';
     const [value, setValue] = useState(THREAD_TABS[hashKey] ?? 0);
     useEffect(() => {
@@ -145,9 +169,9 @@ const DocModificationThreadPage = ({
 
     const onFileChange = (e) => {
         e.preventDefault();
-        if (isProgramLocked) {
+        if (isLocked) {
             setSeverity('warning');
-            setMessage(programLockTooltip);
+            setMessage(lockTooltip);
             setOpenSnackbar(true);
             return;
         }
@@ -214,9 +238,9 @@ const DocModificationThreadPage = ({
 
     const handleClickSave = (e, editorState) => {
         e.preventDefault();
-        if (isProgramLocked) {
+        if (isLocked) {
             setSeverity('warning');
-            setMessage(programLockTooltip);
+            setMessage(lockTooltip);
             setOpenSnackbar(true);
             return;
         }
@@ -318,9 +342,9 @@ const DocModificationThreadPage = ({
         isFinalVersion,
         application_id
     ) => {
-        if (isProgramLocked) {
+        if (isLocked) {
             setSeverity('warning');
-            setMessage(programLockTooltip);
+            setMessage(lockTooltip);
             setOpenSnackbar(true);
             return;
         }
@@ -337,9 +361,9 @@ const DocModificationThreadPage = ({
 
     const ConfirmSetAsFinalFileHandler = (e) => {
         e.preventDefault();
-        if (isProgramLocked) {
+        if (isLocked) {
             setSeverity('warning');
-            setMessage(programLockTooltip);
+            setMessage(lockTooltip);
             setOpenSnackbar(true);
             return;
         }
@@ -805,7 +829,7 @@ const DocModificationThreadPage = ({
                                         textAlign: 'center'
                                     }}
                                 >
-                                    {isProgramLocked ? (
+                                    {isLocked ? (
                                         <WarningAmberIcon
                                             color="warning"
                                             sx={{ fontSize: 48, mb: 1 }}
@@ -820,8 +844,8 @@ const DocModificationThreadPage = ({
                                         color="text.secondary"
                                         variant="body1"
                                     >
-                                        {isProgramLocked
-                                            ? programLockTooltip
+                                        {isLocked
+                                            ? lockTooltip
                                             : i18next.t('thread-close')}
                                     </Typography>
                                 </Box>
@@ -894,8 +918,8 @@ const DocModificationThreadPage = ({
                                             }
                                             handleClickSave={handleClickSave}
                                             onFileChange={onFileChange}
-                                            readOnly={isProgramLocked}
-                                            readOnlyTooltip={programLockTooltip}
+                                            readOnly={isLocked}
+                                            readOnlyTooltip={lockTooltip}
                                             thread={thread}
                                         />
                                     </Box>
@@ -924,8 +948,8 @@ const DocModificationThreadPage = ({
                         </Card>
                     )}
                     {is_TaiGer_role(user) ? (
-                        isProgramLocked ? (
-                            <Tooltip title={programLockTooltip}>
+                        isLocked ? (
+                            <Tooltip title={lockTooltip}>
                                 <span>
                                     <Button
                                         color="success"

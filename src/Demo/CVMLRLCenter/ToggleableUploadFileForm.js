@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { calculateApplicationLockStatus } from '../Utils/checking-functions';
 const GENERAL_FILTE_TYPE = [
     { name: 'Please Select', value: '' },
     { name: 'CV', value: 'CV' },
@@ -64,8 +65,22 @@ const ToggleableUploadFileForm = (props) => {
         </FormControl>
     );
 
-    const isLocked =
-        props.isProgramLocked === true && props.filetype !== 'General';
+    // Use application-level lock status for program-specific files
+    // General files are never locked
+    let isLocked = false;
+    if (props.filetype !== 'General' && props.application) {
+        const lockStatus = calculateApplicationLockStatus(props.application);
+        isLocked = lockStatus.isLocked === true;
+    }
+
+    const lockTooltip = isLocked
+        ? t('Application is locked. Unlock to modify documents.', {
+              ns: 'common'
+          })
+        : t('Program is locked. Contact an agent to unlock this task.', {
+              ns: 'common'
+          });
+
     const button = (
         <Button
             color="primary"
@@ -97,12 +112,7 @@ const ToggleableUploadFileForm = (props) => {
             </Grid>
             <Grid item md={4} xs={12}>
                 {isLocked ? (
-                    <Tooltip
-                        title={t(
-                            'Program is locked. Contact an agent to unlock this task.',
-                            { ns: 'common' }
-                        )}
-                    >
+                    <Tooltip title={lockTooltip}>
                         <span>{button}</span>
                     </Tooltip>
                 ) : (
