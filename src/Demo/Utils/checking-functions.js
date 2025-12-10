@@ -2472,10 +2472,11 @@ export const calculateApplicationLockStatus = (application) => {
     }
 
     // For non-approval countries: check application.isLocked field when program is not stale
-    // If isLocked is undefined (field doesn't exist in DB yet), default to true (locked)
+    // New applications default to unlocked (isLocked: false)
+    // If isLocked is undefined (field doesn't exist in DB yet), default to true (locked) for backward compatibility
     const applicationIsLocked =
         application.isLocked === undefined
-            ? true // Default to locked if field doesn't exist (for existing applications)
+            ? true // Default to locked if field doesn't exist (for existing applications without the field)
             : application.isLocked === true;
 
     if (applicationIsLocked) {
