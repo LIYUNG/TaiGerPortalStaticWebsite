@@ -8,12 +8,15 @@ import { getTableConfig, useTableStyles } from '../../components/table';
 import { useTranslation } from 'react-i18next';
 import { Link } from '@mui/material';
 import { Box, Chip } from '@mui/material';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import LockOpenIcon from '@mui/icons-material/LockOpen';
 
 import DEMO from '../../store/constant';
 import { TopToolbar } from '../../components/table/programs-table/TopToolbar';
 import { AssignProgramsToStudentDialog } from './AssignProgramsToStudentDialog';
 import { COUNTRIES_ARRAY_OPTIONS } from '../../utils/contants';
 import { PROGRAM_SUBJECTS } from '@taiger-common/core';
+import { calculateProgramLockStatus } from '../Utils/checking-functions';
 
 export const ProgramsTable = ({ isLoading, data, student }) => {
     const customTableStyles = useTableStyles();
@@ -32,6 +35,50 @@ export const ProgramsTable = ({ isLoading, data, student }) => {
     );
 
     const columns = [
+        {
+            accessorFn: (row) => {
+                const lockStatus = calculateProgramLockStatus(row.original);
+                return lockStatus.isLocked ? 'Locked' : 'Unlocked';
+            },
+            id: 'status',
+            header: t('Status', { ns: 'common' }),
+            size: 110,
+            filterVariant: 'select',
+            filterFn: (row, columnId, filterValue) => {
+                const lockStatus = calculateProgramLockStatus(row.original);
+                const status = lockStatus.isLocked ? 'Locked' : 'Unlocked';
+                return status === filterValue;
+            },
+            filterSelectOptions: [
+                {
+                    value: 'Locked',
+                    label: t('Locked', { ns: 'common' })
+                },
+                {
+                    value: 'Unlocked',
+                    label: t('Unlocked', { ns: 'common' })
+                }
+            ],
+            Cell: ({ row }) => {
+                const lockStatus = calculateProgramLockStatus(row.original);
+
+                return lockStatus.isLocked ? (
+                    <Chip
+                        color="warning"
+                        icon={<LockOutlinedIcon fontSize="small" />}
+                        label={t('Locked', { ns: 'common' })}
+                        size="small"
+                    />
+                ) : (
+                    <Chip
+                        icon={<LockOpenIcon fontSize="small" />}
+                        label={t('Unlocked', { ns: 'common' })}
+                        size="small"
+                        variant="outlined"
+                    />
+                );
+            }
+        },
         {
             accessorKey: 'school',
             header: t('School', { ns: 'common' }),
@@ -168,7 +215,12 @@ export const ProgramsTable = ({ isLoading, data, student }) => {
         state: { isLoading },
         data: data || []
     });
+    const selectedRows = table.getSelectedRowModel().rows ?? [];
+    const programsForDialog = selectedRows.map(({ original }) => original);
     const handleAssignClick = () => {
+        if (selectedRows.length === 0) {
+            return;
+        }
         setOpenAssignDialog(true);
     };
 
@@ -196,25 +248,7 @@ export const ProgramsTable = ({ isLoading, data, student }) => {
                 handleOnSuccess={handleOnSuccess}
                 onClose={handleDialogClose}
                 open={openAssignDialog}
-                programs={table
-                    .getSelectedRowModel()
-                    .rows?.map(
-                        ({
-                            original: {
-                                _id,
-                                school,
-                                program_name,
-                                degree,
-                                semester
-                            }
-                        }) => ({
-                            _id,
-                            school,
-                            program_name,
-                            degree,
-                            semester
-                        })
-                    )}
+                programs={programsForDialog}
                 student={student}
             />
         </>

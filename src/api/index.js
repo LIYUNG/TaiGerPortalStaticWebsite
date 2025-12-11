@@ -123,6 +123,9 @@ export const updateStudentApplication = (studentId, application_id, payload) =>
 export const deleteApplicationStudentV2 = (applicationId) =>
     request.delete(`/api/applications/application/${applicationId}`);
 
+export const refreshApplication = (applicationId) =>
+    postData(`/api/applications/${applicationId}/refresh`, {});
+
 export const getStudentUniAssistV2 = ({ studentId }) =>
     getData(`/api/uniassist/${studentId}`);
 
@@ -445,6 +448,9 @@ export const getProgramChangeRequests = (programId) =>
 export const reviewProgramChangeRequests = (requestId) =>
     request.post(`/api/programs/review-changes/${requestId}`);
 
+export const refreshProgram = (programId) =>
+    postData(`/api/programs/${programId}/refresh`, {});
+
 // Docs APIs
 export const deleteDoc = (id) => request.delete(`/api/docs/${id}`);
 export const addDoc = (id) => request.post(`/api/docs/${id}`);
@@ -677,7 +683,7 @@ export const updateCredentials = (credentials, email, password) =>
     request.post(`/api/account/credentials`, { credentials, email, password });
 
 //TaiGer AI:
-export const processProgramListAi = (programId) =>
+export const processProgramList = (programId) =>
     request.get(`/api/taigerai/program/${programId}`);
 export const TaiGerAiGeneral = (prompt) =>
     request.post(`/api/taigerai/general`, {

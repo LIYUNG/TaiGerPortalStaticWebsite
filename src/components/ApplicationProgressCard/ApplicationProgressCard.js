@@ -36,6 +36,7 @@ import {
 } from '@taiger-common/core';
 
 import ApplicationProgressCardBody from './ApplicationProgressCardBody';
+import ApplicationLockControl from '../ApplicationLockControl/ApplicationLockControl';
 import { updateStudentApplicationResult } from '../../api';
 import DEMO from '../../store/constant';
 import {
@@ -270,6 +271,15 @@ export default function ApplicationProgressCard(props) {
                             </>
                         )}
                     </Typography>
+                    <Box sx={{ my: 1 }}>
+                        <ApplicationLockControl
+                            application={application}
+                            onLockChange={() => {
+                                // Refresh application data if needed
+                                setApplication({ ...application });
+                            }}
+                        />
+                    </Box>
                     <ProgramLink program={application.programId} />
                     <Typography fontWeight="bold" variant="body2">
                         {application?.programId?.degree}{' '}

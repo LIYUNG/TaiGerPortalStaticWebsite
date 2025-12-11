@@ -109,10 +109,7 @@ export const AssignProgramsToStudentDialog = ({
                 {programs?.map(
                     ({ school, program_name, degree, semester }, index) => (
                         <Box key={index}>
-                            {school}
-                            {program_name}
-                            {degree}
-                            {semester}
+                            {school} - {program_name} - {degree} - {semester}
                         </Box>
                     )
                 )}

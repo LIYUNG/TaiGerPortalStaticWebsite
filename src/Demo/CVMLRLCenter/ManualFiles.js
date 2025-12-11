@@ -8,8 +8,10 @@ import ManualFilesList from './ManualFilesList';
 import ToggleableUploadFileForm from './ToggleableUploadFileForm';
 import {
     is_program_closed,
-    file_category_const,
-    is_program_ml_rl_essay_finished
+    is_program_ml_rl_essay_finished,
+    calculateProgramLockStatus,
+    calculateApplicationLockStatus,
+    file_category_const
 } from '../Utils/checking-functions';
 import {
     checkGeneralDocs,
@@ -23,6 +25,26 @@ const ManualFiles = (props) => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const [categoryState, setCategory] = useState('');
+
+    // Always use calculateApplicationLockStatus - it correctly handles both approval and non-approval countries
+    let lockStatus = null;
+    let isLocked = false;
+    if (props.application && props.application.programId) {
+        lockStatus = calculateApplicationLockStatus(props.application);
+        isLocked = lockStatus.isLocked === true;
+    } else {
+        // Fallback: if no application, use program lock status
+        lockStatus = calculateProgramLockStatus(props.application?.programId);
+        isLocked = lockStatus.isLocked === true;
+    }
+
+    const lockTooltip = isLocked
+        ? t('Application is locked. Unlock to modify documents.', {
+              ns: 'common'
+          })
+        : t('Program is locked. Contact an agent to unlock this task.', {
+              ns: 'common'
+          });
 
     const formatDocumentMessage = (docEntry) => {
         if (!docEntry) {
@@ -270,6 +292,7 @@ const ManualFiles = (props) => {
                         <ManualFilesList
                             application={props.application}
                             handleAsFinalFile={props.handleAsFinalFile}
+                            isLocked={isLocked}
                             onDeleteFileThread={props.onDeleteFileThread}
                             student={props.student}
                         />
@@ -290,6 +313,7 @@ const ManualFiles = (props) => {
                                     handleCreateProgramSpecificMessageThread
                                 }
                                 handleSelect={handleSelect}
+                                isLocked={isLocked}
                                 student={props.student}
                                 user={user}
                             />
@@ -304,6 +328,7 @@ const ManualFiles = (props) => {
                             <Button
                                 color="primary"
                                 disabled={
+                                    isLocked ||
                                     !is_program_ml_rl_essay_finished(
                                         props.application
                                     )
@@ -316,6 +341,7 @@ const ManualFiles = (props) => {
                                         is_program_closed(props.application)
                                     )
                                 }
+                                title={isLocked ? lockTooltip : ''}
                                 variant={
                                     is_program_closed(props.application)
                                         ? 'outlined'

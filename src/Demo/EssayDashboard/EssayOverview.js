@@ -12,6 +12,8 @@ import {
 import { Link as LinkDom } from 'react-router-dom';
 import StarBorderRoundedIcon from '@mui/icons-material/StarBorderRounded';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import LockOpenIcon from '@mui/icons-material/LockOpen';
 import PropTypes from 'prop-types';
 import { is_TaiGer_role } from '@taiger-common/core';
 
@@ -187,6 +189,46 @@ const EssayOverview = (props) => {
                 minWidth: 80
             },
             {
+                field: 'status',
+                headerName: t('Status', { ns: 'common' }),
+                minWidth: 110,
+                filterVariant: 'select',
+                filterSelectOptions: [
+                    { value: 'Locked', label: t('Locked', { ns: 'common' }) },
+                    {
+                        value: 'Unlocked',
+                        label: t('Unlocked', { ns: 'common' })
+                    }
+                ],
+                filterFn: (row, columnId, filterValue) => {
+                    const isLocked =
+                        row.original?.isApplicationLocked === true ||
+                        row.original?.isProgramLocked === true;
+                    const status = isLocked ? 'Locked' : 'Unlocked';
+                    return status === filterValue;
+                },
+                renderCell: (params) => {
+                    const isLocked =
+                        params.row?.isApplicationLocked === true ||
+                        params.row?.isProgramLocked === true;
+                    return isLocked ? (
+                        <Chip
+                            color="warning"
+                            icon={<LockOutlinedIcon fontSize="small" />}
+                            label={t('Locked', { ns: 'common' })}
+                            size="small"
+                        />
+                    ) : (
+                        <Chip
+                            icon={<LockOpenIcon fontSize="small" />}
+                            label={t('Unlocked', { ns: 'common' })}
+                            size="small"
+                            variant="outlined"
+                        />
+                    );
+                }
+            },
+            {
                 field: 'document_name',
                 headerName: t('Document name', { ns: 'common' }),
                 minWidth: 380,
@@ -194,6 +236,13 @@ const EssayOverview = (props) => {
                     const linkUrl = `${DEMO.DOCUMENT_MODIFICATION_LINK(
                         params.row.thread_id
                     )}`;
+                    const isLocked =
+                        params.row?.isApplicationLocked === true ||
+                        params.row?.isProgramLocked === true;
+                    const lockTooltip = t(
+                        'Program is locked. Contact an agent to unlock this task.',
+                        { ns: 'common' }
+                    );
                     const programCountry =
                         params.row?.program_id?.country || params.row?.country;
                     const isNonApprovalCountry = programCountry
@@ -239,15 +288,41 @@ const EssayOverview = (props) => {
                                     />
                                 </Tooltip>
                             )}
-                            <Link
-                                component={LinkDom}
-                                target="_blank"
-                                title={params.value}
-                                to={linkUrl}
-                                underline="hover"
-                            >
-                                {params.value}
-                            </Link>
+                            {isLocked ? (
+                                <Tooltip title={lockTooltip}>
+                                    <Box
+                                        component="span"
+                                        sx={{
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            gap: 0.75,
+                                            color: 'text.disabled'
+                                        }}
+                                    >
+                                        <LockOutlinedIcon
+                                            color="disabled"
+                                            fontSize="small"
+                                        />
+                                        <Typography
+                                            component="span"
+                                            sx={{ color: 'text.disabled' }}
+                                            variant="body2"
+                                        >
+                                            {params.value}
+                                        </Typography>
+                                    </Box>
+                                </Tooltip>
+                            ) : (
+                                <Link
+                                    component={LinkDom}
+                                    target="_blank"
+                                    title={params.value}
+                                    to={linkUrl}
+                                    underline="hover"
+                                >
+                                    {params.value}
+                                </Link>
+                            )}
                         </>
                     );
                 }
