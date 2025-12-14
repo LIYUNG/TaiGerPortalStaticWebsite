@@ -132,7 +132,9 @@ export const TopToolbar = ({ table, toolbarStyle, onAssignClick }) => {
             <Stack direction="row" justifyContent="flex-end" spacing={1}>
                 <Button
                     color="success"
-                    disabled={table.getSelectedRowModel().rows?.length === 0}
+                    disabled={
+                        (table.getSelectedRowModel().rows?.length || 0) === 0
+                    }
                     onClick={onAssignClick}
                     startIcon={<PersonAddIcon />}
                     sx={{ mr: 1 }}

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import {
+    Alert,
     Box,
     Button,
     CircularProgress,
@@ -18,10 +19,12 @@ import {
     DialogTitle,
     DialogContent,
     DialogContentText,
-    DialogActions
+    DialogActions,
+    Tooltip
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import LaunchIcon from '@mui/icons-material/Launch';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import {
     isProgramDecided,
     isProgramSubmitted,
@@ -29,9 +32,12 @@ import {
 } from '@taiger-common/core';
 
 import ManualFiles from './ManualFiles';
+import ApplicationLockControl from '../../components/ApplicationLockControl/ApplicationLockControl';
 import {
     LinkableNewlineText,
-    application_deadline_V2_calculator
+    application_deadline_V2_calculator,
+    calculateProgramLockStatus,
+    calculateApplicationLockStatus
 } from '../Utils/checking-functions';
 import { FILE_OK_SYMBOL, spinner_style2 } from '../../utils/contants';
 import ErrorPage from '../Utils/ErrorPage';
@@ -49,39 +55,115 @@ import Loading from '../../components/Loading/Loading';
 import i18next from 'i18next';
 
 const ApplicationAccordionSummary = ({ application }) => {
+    // For approval countries: use program-level lock status (check program staleness)
+    // For non-approval countries: use application-level lock status (check program staleness + application.isLocked)
+    // Always use calculateApplicationLockStatus for consistency - it handles both cases correctly
+    let lockStatus = null;
+    if (application && application.programId) {
+        // Always use calculateApplicationLockStatus - it correctly handles approval countries
+        // by checking program staleness and returning unlocked if not stale
+        lockStatus = calculateApplicationLockStatus(application);
+    } else {
+        // Fallback: if no application or programId, use program lock status
+        lockStatus = calculateProgramLockStatus(application?.programId);
+    }
+    const isLocked = lockStatus.isLocked;
+
+    // Determine status text
+    const getStatusText = () => {
+        if (isProgramSubmitted(application)) {
+            return null; // Will show FILE_OK_SYMBOL instead
+        }
+
+        if (application.decided === '-') {
+            return (
+                <Typography color="grey" variant="body1">
+                    Undecided
+                </Typography>
+            );
+        }
+
+        if (application.decided === 'X') {
+            return (
+                <Typography color="grey" variant="body1">
+                    Not wanted
+                </Typography>
+            );
+        }
+
+        if (isProgramWithdraw(application)) {
+            return (
+                <Typography fontWeight="bold">
+                    {i18next.t('WITHDRAW', { ns: 'common' })}
+                </Typography>
+            );
+        }
+
+        return (
+            <Typography fontWeight="bold">
+                {i18next.t('In Progress', { ns: 'common' })}
+            </Typography>
+        );
+    };
+
+    const statusNode = (() => {
+        if (isProgramSubmitted(application)) {
+            return <IconButton>{FILE_OK_SYMBOL}</IconButton>;
+        }
+
+        const statusText = getStatusText();
+        const lockIcon = isLocked ? (
+            <Tooltip
+                title={i18next.t(
+                    'Program is locked. Contact your agent to unlock this task.',
+                    { ns: 'common' }
+                )}
+            >
+                <Box
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        color: 'warning.main',
+                        mb: 0.5
+                    }}
+                >
+                    <LockOutlinedIcon fontSize="small" />
+                </Box>
+            </Tooltip>
+        ) : null;
+
+        return (
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                }}
+            >
+                {lockIcon}
+                {statusText}
+            </Box>
+        );
+    })();
+
+    const progressColor = isLocked
+        ? 'text.disabled'
+        : isProgramDecided(application)
+          ? isProgramSubmitted(application)
+              ? 'success.light'
+              : 'error.main'
+          : 'grey';
+
     return (
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <Grid container spacing={2}>
                 <Grid item md={1} xs={1}>
-                    {application.decided === '-' ? (
-                        <Typography color="grey" sx={{ mr: 2 }} variant="body1">
-                            Undecided
-                        </Typography>
-                    ) : application.decided === 'X' ? (
-                        <Typography color="grey" sx={{ mr: 2 }} variant="body1">
-                            Not wanted
-                        </Typography>
-                    ) : isProgramSubmitted(application) ? (
-                        <IconButton>{FILE_OK_SYMBOL}</IconButton>
-                    ) : isProgramWithdraw(application) ? (
-                        <Typography fontWeight="bold">
-                            {i18next.t('WITHDRAW', { ns: 'common' })}
-                        </Typography>
-                    ) : (
-                        <Typography fontWeight="bold">
-                            {i18next.t('In Progress', { ns: 'common' })}
-                        </Typography>
-                    )}
+                    {statusNode}
                 </Grid>
                 <Grid item md={1} xs={1}>
                     <Typography
-                        color={
-                            isProgramDecided(application)
-                                ? isProgramSubmitted(application)
-                                    ? 'success.light'
-                                    : 'error.main'
-                                : 'grey'
-                        }
+                        color={progressColor}
                         sx={{ mr: 2 }}
                         variant="body1"
                     >
@@ -96,13 +178,7 @@ const ApplicationAccordionSummary = ({ application }) => {
                 <Grid item md={8} xs={8}>
                     <Box sx={{ display: 'flex' }}>
                         <Typography
-                            color={
-                                isProgramDecided(application)
-                                    ? isProgramSubmitted(application)
-                                        ? 'success.light'
-                                        : 'error.main'
-                                    : 'grey'
-                            }
+                            color={progressColor}
                             sx={{ mr: 2 }}
                             variant="body1"
                         >
@@ -122,10 +198,19 @@ const ApplicationAccordionSummary = ({ application }) => {
                     </Box>
                 </Grid>
                 <Grid item md={2} xs={2}>
-                    <Typography>
-                        Deadline:{' '}
-                        {application_deadline_V2_calculator(application)}
-                    </Typography>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 1
+                        }}
+                    >
+                        <Typography>
+                            Deadline:{' '}
+                            {application_deadline_V2_calculator(application)}
+                        </Typography>
+                        <ApplicationLockControl application={application} />
+                    </Box>
                 </Grid>
             </Grid>
         </AccordionSummary>
@@ -416,6 +501,30 @@ const EditorDocsProgress = (props) => {
         application_id,
         isApplicationSubmitted
     ) => {
+        // Find the application to check lock status
+        const application = editorDocsProgressState.student?.applications?.find(
+            (app) => app._id.toString() === application_id
+        );
+
+        if (application && application.programId) {
+            // Always use calculateApplicationLockStatus for consistency
+            // It correctly handles approval countries by checking program staleness
+            const lockStatus = calculateApplicationLockStatus(application);
+
+            // Prevent submission if locked
+            if (lockStatus.isLocked) {
+                setEditorDocsProgressState((prevState) => ({
+                    ...prevState,
+                    res_modal_status: 400,
+                    res_modal_message: i18next.t(
+                        'Cannot submit application. Application is locked. Please unlock first.',
+                        { ns: 'common' }
+                    )
+                }));
+                return;
+            }
+        }
+
         setEditorDocsProgressState((prevState) => ({
             ...prevState,
             student_id,
@@ -668,67 +777,116 @@ const EditorDocsProgress = (props) => {
             {/* TODO: simplify this! with array + function! */}
             {editorDocsProgressState.student.applications
                 ?.filter((app) => isProgramDecided(app))
-                .map((application, i) => (
-                    <div key={i}>
-                        <Accordion defaultExpanded={false} disableGutters>
-                            <ApplicationAccordionSummary
-                                application={application}
-                            />
-                            <AccordionDetails>
-                                <ManualFiles
+                .map((application, i) => {
+                    const lockStatus =
+                        calculateApplicationLockStatus(application);
+                    const isLocked = lockStatus.isLocked;
+                    return (
+                        <div key={i}>
+                            <Accordion defaultExpanded={false} disableGutters>
+                                <ApplicationAccordionSummary
                                     application={application}
-                                    filetype="ProgramSpecific"
-                                    handleAsFinalFile={handleAsFinalFile}
-                                    handleProgramStatus={handleProgramStatus}
-                                    initGeneralFileThread={
-                                        initGeneralFileThread
-                                    }
-                                    initProgramSpecificFileThread={
-                                        initProgramSpecificFileThread
-                                    }
-                                    onDeleteFileThread={onDeleteFileThread}
-                                    openRequirements_ModalWindow={
-                                        openRequirements_ModalWindow
-                                    }
-                                    student={editorDocsProgressState.student}
                                 />
-                            </AccordionDetails>
-                        </Accordion>
-                        <Divider sx={{ my: 2 }} />
-                    </div>
-                ))}
+                                <AccordionDetails>
+                                    {isLocked && (
+                                        <Alert
+                                            severity="warning"
+                                            sx={{ mb: 2 }}
+                                        >
+                                            <Typography variant="body2">
+                                                <strong>Warning:</strong>
+                                                <br />
+                                                {i18next.t(
+                                                    'Program is locked. Contact an agent to unlock this task.',
+                                                    { ns: 'common' }
+                                                )}
+                                            </Typography>
+                                        </Alert>
+                                    )}
+                                    <ManualFiles
+                                        application={application}
+                                        filetype="ProgramSpecific"
+                                        handleAsFinalFile={handleAsFinalFile}
+                                        handleProgramStatus={
+                                            handleProgramStatus
+                                        }
+                                        initGeneralFileThread={
+                                            initGeneralFileThread
+                                        }
+                                        initProgramSpecificFileThread={
+                                            initProgramSpecificFileThread
+                                        }
+                                        onDeleteFileThread={onDeleteFileThread}
+                                        openRequirements_ModalWindow={
+                                            openRequirements_ModalWindow
+                                        }
+                                        student={
+                                            editorDocsProgressState.student
+                                        }
+                                    />
+                                </AccordionDetails>
+                            </Accordion>
+                            <Divider sx={{ my: 2 }} />
+                        </div>
+                    );
+                })}
             {editorDocsProgressState.student.applications
                 ?.filter((app) => !isProgramDecided(app))
-                .map((application, i) => (
-                    <div key={i}>
-                        <Accordion defaultExpanded={false} disableGutters>
-                            <ApplicationAccordionSummary
-                                application={application}
-                                student={editorDocsProgressState.student}
-                            />
-                            <AccordionDetails>
-                                <ManualFiles
+                .map((application, i) => {
+                    const lockStatus =
+                        calculateApplicationLockStatus(application);
+                    const isLocked = lockStatus.isLocked;
+                    return (
+                        <div key={i}>
+                            <Accordion defaultExpanded={false} disableGutters>
+                                <ApplicationAccordionSummary
                                     application={application}
-                                    filetype="ProgramSpecific"
-                                    handleAsFinalFile={handleAsFinalFile}
-                                    handleProgramStatus={handleProgramStatus}
-                                    initGeneralFileThread={
-                                        initGeneralFileThread
-                                    }
-                                    initProgramSpecificFileThread={
-                                        initProgramSpecificFileThread
-                                    }
-                                    onDeleteFileThread={onDeleteFileThread}
-                                    openRequirements_ModalWindow={
-                                        openRequirements_ModalWindow
-                                    }
+                                    onStudentUpdate={props.onStudentUpdate}
                                     student={editorDocsProgressState.student}
                                 />
-                            </AccordionDetails>
-                        </Accordion>
-                        <Divider sx={{ my: 2 }} />
-                    </div>
-                ))}
+                                <AccordionDetails>
+                                    {isLocked && (
+                                        <Alert
+                                            severity="warning"
+                                            sx={{ mb: 2 }}
+                                        >
+                                            <Typography variant="body2">
+                                                <strong>Warning:</strong>
+                                                <br />
+                                                {i18next.t(
+                                                    'Program is locked. Contact an agent to unlock this task.',
+                                                    { ns: 'common' }
+                                                )}
+                                            </Typography>
+                                        </Alert>
+                                    )}
+                                    <ManualFiles
+                                        application={application}
+                                        filetype="ProgramSpecific"
+                                        handleAsFinalFile={handleAsFinalFile}
+                                        handleProgramStatus={
+                                            handleProgramStatus
+                                        }
+                                        initGeneralFileThread={
+                                            initGeneralFileThread
+                                        }
+                                        initProgramSpecificFileThread={
+                                            initProgramSpecificFileThread
+                                        }
+                                        onDeleteFileThread={onDeleteFileThread}
+                                        openRequirements_ModalWindow={
+                                            openRequirements_ModalWindow
+                                        }
+                                        student={
+                                            editorDocsProgressState.student
+                                        }
+                                    />
+                                </AccordionDetails>
+                            </Accordion>
+                            <Divider sx={{ my: 2 }} />
+                        </div>
+                    );
+                })}
             <Dialog
                 aria-labelledby="contained-modal-title-vcenter"
                 onClose={closeWarningWindow}

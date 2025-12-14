@@ -4,14 +4,19 @@ import { useTranslation } from 'react-i18next';
 import {
     Compare as CompareIcon,
     OpenInNew as OpenInNewIcon,
-    Info as InfoIcon
+    Info as InfoIcon,
+    LockOutlined as LockOutlinedIcon,
+    LockOpen as LockOpenIcon,
+    Refresh as RefreshIcon
 } from '@mui/icons-material';
 
 import {
+    Alert,
     Box,
     Button,
     Card,
     CardContent,
+    Chip,
     Link,
     Grid,
     Table,
@@ -23,20 +28,29 @@ import {
     Tabs,
     Tab,
     Breadcrumbs,
-    Skeleton
+    Skeleton,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogContentText,
+    DialogActions,
+    Tooltip
 } from '@mui/material';
 import {
     is_TaiGer_Admin,
     is_TaiGer_AdminAgent,
     is_TaiGer_Agent,
     is_TaiGer_Editor,
+    is_TaiGer_Manager,
     is_TaiGer_role,
+    is_TaiGer_Student,
     isProgramWithdraw
 } from '@taiger-common/core';
 
 import {
     isApplicationOpen,
-    LinkableNewlineText
+    LinkableNewlineText,
+    calculateProgramLockStatus
 } from '../Utils/checking-functions';
 import {
     IS_DEV,
@@ -69,7 +83,16 @@ const SingleProgramView = (props) => {
     const { t } = useTranslation();
     const [value, setValue] = useState(0);
     const [studentsTabValue, setStudentsTabValue] = useState(0);
+    const [unlockDialogOpen, setUnlockDialogOpen] = useState(false);
+    const program = props.program || {};
     const versions = props?.versions || {};
+    const lockStatus = calculateProgramLockStatus(program);
+    const isProgramLocked = lockStatus.isLocked;
+    const canViewUnlockedChip =
+        is_TaiGer_Admin(user) ||
+        is_TaiGer_Manager(user) ||
+        is_TaiGer_Agent(user) ||
+        is_TaiGer_Editor(user);
     const { data, isLoading } = useQuery(
         getSameProgramStudentsQuery({
             programId,
@@ -79,8 +102,7 @@ const SingleProgramView = (props) => {
                 is_TaiGer_Editor(user)
         })
     );
-    const students = data || [];
-    console.log(JSON.stringify(students));
+    const students = data || props.students || [];
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
@@ -126,8 +148,37 @@ const SingleProgramView = (props) => {
                         {t('Applications')}
                     </Link>
                 )}
-                <Typography color="text.primary">
-                    {`${props.program.school}-${props.program.program_name}`}
+                <Typography
+                    color="text.primary"
+                    sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+                >
+                    {`${program.school}-${program.program_name}`}
+                    {isProgramLocked ? (
+                        <Tooltip
+                            title={
+                                lockStatus.reason === 'STALE_DATA'
+                                    ? t('Stale data (≥6 months old)', {
+                                          ns: 'common'
+                                      })
+                                    : t('Program is locked', { ns: 'common' })
+                            }
+                        >
+                            <Chip
+                                color="warning"
+                                icon={<LockOutlinedIcon fontSize="small" />}
+                                label={t('Locked', { ns: 'common' })}
+                                size="small"
+                            />
+                        </Tooltip>
+                    ) : canViewUnlockedChip ? (
+                        <Chip
+                            color="success"
+                            icon={<LockOpenIcon fontSize="small" />}
+                            label={t('Unlocked', { ns: 'common' })}
+                            size="small"
+                            variant="outlined"
+                        />
+                    ) : null}
                 </Typography>
             </Breadcrumbs>
             <Box sx={{ my: 1 }}>
@@ -142,6 +193,24 @@ const SingleProgramView = (props) => {
                     to={`${DEMO.BASE_DOCUMENTS_LINK}`}
                 />
             </Box>
+
+            {isProgramLocked ? (
+                <Alert
+                    icon={<LockOutlinedIcon fontSize="small" />}
+                    severity="warning"
+                    sx={{ mb: 2 }}
+                >
+                    {lockStatus.reason === 'STALE_DATA'
+                        ? t(
+                              'Program is locked due to stale data (≥6 months old). Please refresh the program to unlock.',
+                              { ns: 'common' }
+                          )
+                        : t(
+                              'Program tasks are locked. Please contact an agent or manager to unlock.',
+                              { ns: 'common' }
+                          )}
+                </Alert>
+            ) : null}
 
             <Grid container spacing={2}>
                 <Grid item md={8} xs={12}>
@@ -711,6 +780,36 @@ const SingleProgramView = (props) => {
                                     {t('Edit', { ns: 'common' })}
                                 </Button>
                             </Grid>
+                            {!is_TaiGer_Student(user) ? (
+                                <Grid item>
+                                    <Button
+                                        color="secondary"
+                                        disabled={
+                                            !isProgramLocked ||
+                                            props.isRefreshing
+                                        }
+                                        onClick={() =>
+                                            setUnlockDialogOpen(true)
+                                        }
+                                        startIcon={<RefreshIcon />}
+                                        title={
+                                            !isProgramLocked
+                                                ? t(
+                                                      'Program is already unlocked',
+                                                      {
+                                                          ns: 'common'
+                                                      }
+                                                  )
+                                                : t('Unlock program manually', {
+                                                      ns: 'common'
+                                                  })
+                                        }
+                                        variant="outlined"
+                                    >
+                                        {t('Unlock', { ns: 'common' })}
+                                    </Button>
+                                </Grid>
+                            ) : null}
                             {is_TaiGer_Admin(user) ? (
                                 <Grid item>
                                     <Button
@@ -732,11 +831,11 @@ const SingleProgramView = (props) => {
                         <Link
                             component={LinkDom}
                             target="_blank"
-                            to={`https://www.google.com/search?q=${props.program.school?.replace(
+                            to={`https://www.google.com/search?q=${program.school?.replace(
                                 '&',
                                 'and'
-                            )}+${props.program.program_name?.replace('&', 'and')}+${
-                                props.program.degree
+                            )}+${program.program_name?.replace('&', 'and')}+${
+                                program.degree
                             }`}
                         >
                             <Button
@@ -989,6 +1088,7 @@ const SingleProgramView = (props) => {
                                     </Typography>
                                     <Button
                                         color="primary"
+                                        disabled={isProgramLocked}
                                         onClick={props.programListAssistant}
                                         size="small"
                                         variant="contained"
@@ -1013,6 +1113,100 @@ const SingleProgramView = (props) => {
                     </Card>
                 </Grid>
             </Grid>
+            <Dialog
+                aria-describedby="unlock-dialog-description"
+                aria-labelledby="unlock-dialog-title"
+                onClose={() => setUnlockDialogOpen(false)}
+                open={unlockDialogOpen}
+            >
+                <DialogTitle id="unlock-dialog-title">
+                    {t('Unlock Program Manually', { ns: 'common' })}
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="unlock-dialog-description">
+                        <Alert severity="warning" sx={{ mb: 2 }}>
+                            <Typography
+                                sx={{ fontWeight: 'bold', mb: 1 }}
+                                variant="body1"
+                            >
+                                {t('Important: Verify Program Information', {
+                                    ns: 'common'
+                                })}
+                            </Typography>
+                            <Typography variant="body2">
+                                {t(
+                                    'Before manually unlocking this program, please ensure that all required information in the program list has been reviewed and updated, including:',
+                                    { ns: 'common' }
+                                )}
+                            </Typography>
+                            <Box component="ul" sx={{ mt: 1, mb: 1, pl: 3 }}>
+                                <Typography component="li" variant="body2">
+                                    {t('Application deadlines and dates', {
+                                        ns: 'common'
+                                    })}
+                                </Typography>
+                                <Typography component="li" variant="body2">
+                                    {t(
+                                        'Language requirements and test scores',
+                                        { ns: 'common' }
+                                    )}
+                                </Typography>
+                                <Typography component="li" variant="body2">
+                                    {t(
+                                        'Required documents and special requirements',
+                                        { ns: 'common' }
+                                    )}
+                                </Typography>
+                                <Typography component="li" variant="body2">
+                                    {t(
+                                        'Any other program-specific information',
+                                        { ns: 'common' }
+                                    )}
+                                </Typography>
+                            </Box>
+                            <Typography sx={{ mt: 1 }} variant="body2">
+                                {t(
+                                    'Manually unlocking will update the program timestamp and reset the automatic locking mechanism. Only proceed if you have confirmed that all program information is current and accurate.',
+                                    { ns: 'common' }
+                                )}
+                            </Typography>
+                        </Alert>
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button
+                        color="inherit"
+                        onClick={() => setUnlockDialogOpen(false)}
+                    >
+                        {t('Cancel', { ns: 'common' })}
+                    </Button>
+                    <Button
+                        color="primary"
+                        component={LinkDom}
+                        disabled={props.isRefreshing}
+                        to={DEMO.PROGRAM_EDIT(
+                            props.program._id?.toString() || props.program._id
+                        )}
+                        variant="outlined"
+                    >
+                        {t('Edit', { ns: 'common' })}
+                    </Button>
+                    <Button
+                        color="secondary"
+                        disabled={props.isRefreshing}
+                        onClick={() => {
+                            setUnlockDialogOpen(false);
+                            props.onRefreshProgram();
+                        }}
+                        startIcon={<RefreshIcon />}
+                        variant="contained"
+                    >
+                        {props.isRefreshing
+                            ? t('Unlocking...', { ns: 'common' })
+                            : t('Confirm Unlock', { ns: 'common' })}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </>
     );
 };

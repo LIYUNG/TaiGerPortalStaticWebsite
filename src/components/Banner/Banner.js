@@ -1,9 +1,8 @@
 import React from 'react';
 import { Link as LinkDom } from 'react-router-dom';
-import { Alert, Box, Link, Typography } from '@mui/material';
+import { Alert, Link, Typography } from '@mui/material';
 
 const Banner = ({
-    bg,
     link_name,
     removeBanner,
     notification_key,
@@ -13,31 +12,44 @@ const Banner = ({
 }) => {
     return (
         <Alert
-            bg={bg ? bg : 'primary'}
             onClose={
                 notification_key
                     ? (e) => removeBanner(e, notification_key)
                     : undefined
             }
-            severity={title}
+            severity={
+                title === 'warning' || title?.toLowerCase() === 'warning'
+                    ? 'warning'
+                    : title === 'error'
+                      ? 'error'
+                      : title === 'success'
+                        ? 'success'
+                        : title === 'info'
+                          ? 'info'
+                          : 'info'
+            }
         >
-            <Box sx={{ display: 'flex' }}>
-                <Typography
-                    fontWeight="bold"
-                    style={{ textAlign: 'left' }}
-                    variant="body2"
-                >
-                    {title ? title : 'Reminder'}:
-                </Typography>
-                <Typography style={{ textAlign: 'left' }} variant="body2">
-                    {text}
-                </Typography>
-                <Typography style={{ textAlign: 'left' }} variant="body2">
+            <Typography variant="body2">
+                <strong>
+                    {title === 'warning'
+                        ? 'Warning'
+                        : title === 'error'
+                          ? 'Error'
+                          : title === 'success'
+                            ? 'Success'
+                            : title === 'info'
+                              ? 'Info'
+                              : title || 'Reminder'}
+                    :
+                </strong>
+                <br />
+                {text}
+                {link_name && (
                     <Link component={LinkDom} to={`${path}`}>
                         {link_name}
-                    </Link>{' '}
-                </Typography>
-            </Box>
+                    </Link>
+                )}
+            </Typography>
         </Alert>
     );
 };
