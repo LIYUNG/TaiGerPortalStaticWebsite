@@ -213,25 +213,26 @@ const CVMLRLOverview = (props) => {
 
                 return (
                     <Box>
-                        {params.row?.attributes?.map(
-                            (attribute) =>
-                                [1, 3, 9, 10, 11].includes(attribute.value) && (
-                                    <Tooltip
-                                        key={attribute._id}
-                                        title={`${attribute.name}: ${
-                                            ATTRIBUTES[attribute.value - 1]
-                                                .definition
-                                        }`}
-                                    >
-                                        <Chip
-                                            color={COLORS[attribute.value]}
-                                            data-testid={`chip-${attribute.name}`}
-                                            label={attribute.name[0]}
-                                            size="small"
-                                        />
-                                    </Tooltip>
-                                )
-                        )}
+                        {params.row?.attributes
+                            ?.filter((attribute) =>
+                                [1, 3, 9, 10, 11].includes(attribute.value)
+                            )
+                            ?.map((attribute) => (
+                                <Tooltip
+                                    key={attribute._id}
+                                    title={`${attribute.name}: ${
+                                        ATTRIBUTES[attribute.value - 1]
+                                            .definition
+                                    }`}
+                                >
+                                    <Chip
+                                        color={COLORS[attribute.value]}
+                                        data-testid={`chip-${attribute.name}`}
+                                        label={attribute.name[0]}
+                                        size="small"
+                                    />
+                                </Tooltip>
+                            ))}
                         {isNonApprovalCountry && (
                             <Tooltip
                                 title={t('Lack of experience country', {
