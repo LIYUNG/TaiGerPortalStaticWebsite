@@ -1066,6 +1066,9 @@ const StudentApplicationsTableTemplate = (props) => {
                         closeText={t('No', { ns: 'common' })}
                         confirmText={t('Yes', { ns: 'common' })}
                         content="This will delete all message and editted files in discussion. Are you sure?"
+                        isLoading={
+                            !studentApplicationsTableTemplateState.isLoaded
+                        }
                         onClose={onHideModalDeleteApplication}
                         onConfirm={handleDeleteConfirm}
                         open={
