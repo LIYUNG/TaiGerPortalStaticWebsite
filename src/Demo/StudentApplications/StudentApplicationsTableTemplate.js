@@ -72,8 +72,7 @@ import DEMO from '../../store/constant';
 import { appConfig } from '../../config';
 import { useAuth } from '../../components/AuthProvider';
 import Loading from '../../components/Loading/Loading';
-import { useNavigate, useRevalidator } from 'react-router-dom';
-import { useMutation } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { ImportStudentProgramsCard } from './ImportStudentProgramsCard';
 import { StudentPreferenceCard } from './StudentPreferenceCard';
 import { ConfirmationModal } from '../../components/Modal/ConfirmationModal';
@@ -83,7 +82,6 @@ const StudentApplicationsTableTemplate = (props) => {
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const revalidator = useRevalidator();
     const [
         studentApplicationsTableTemplateState,
         setStudentApplicationsTableTemplateState
@@ -103,45 +101,6 @@ const StudentApplicationsTableTemplate = (props) => {
         res_status: 0,
         res_modal_status: 0,
         res_modal_message: ''
-    });
-
-    const {
-        mutate: deleteApplicationMutation,
-        isPending: isDeletingApplication
-    } = useMutation({
-        mutationFn: deleteApplicationStudentV2,
-        onSuccess: () => {
-            setSeverity('success');
-            setMessage(
-                t('The application deleted successfully!', {
-                    ns: 'common'
-                })
-            );
-            setOpenSnackbar(true);
-            setStudentApplicationsTableTemplateState((prevState) => ({
-                ...prevState,
-                modalDeleteApplication: false
-            }));
-            // Revalidate loader data to ensure we have the latest data from server
-            revalidator.revalidate();
-        },
-        onError: (error) => {
-            setSeverity('error');
-            setMessage(
-                error.message ||
-                    t('An error occurred. Please try again.', {
-                        ns: 'common'
-                    })
-            );
-            setOpenSnackbar(true);
-            setStudentApplicationsTableTemplateState((prevState) => ({
-                ...prevState,
-                isLoaded: true,
-                error,
-                res_modal_status: 500,
-                res_modal_message: ''
-            }));
-        }
     });
 
     const handleChangeProgramCount = (e) => {
@@ -271,8 +230,72 @@ const StudentApplicationsTableTemplate = (props) => {
 
     const handleDeleteConfirm = (e) => {
         e.preventDefault();
-        deleteApplicationMutation(
+        setStudentApplicationsTableTemplateState((prevState) => ({
+            ...prevState,
+            isLoaded: false
+        }));
+        // TODO: test render update.
+        deleteApplicationStudentV2(
             studentApplicationsTableTemplateState.application_id
+        ).then(
+            (resp) => {
+                const { success } = resp.data;
+                const { status } = resp;
+                if (success) {
+                    setSeverity('success');
+                    setMessage(
+                        t('The application deleted successfully!', {
+                            ns: 'common'
+                        })
+                    );
+                    const applications_temp = [
+                        ...studentApplicationsTableTemplateState.student
+                            .applications
+                    ];
+                    applications_temp.splice(
+                        applications_temp.findIndex(
+                            (app) =>
+                                app._id ===
+                                studentApplicationsTableTemplateState.application_id
+                        ),
+                        1
+                    );
+                    setOpenSnackbar(true);
+                    setStudentApplicationsTableTemplateState((prevState) => ({
+                        ...prevState,
+                        isLoaded: true,
+                        student: {
+                            ...prevState.student,
+                            applications: applications_temp
+                        },
+                        success: success,
+                        modalDeleteApplication: false,
+                        res_modal_status: status
+                    }));
+                } else {
+                    const { message } = resp.data;
+                    setStudentApplicationsTableTemplateState((prevState) => ({
+                        ...prevState,
+                        isLoaded: true,
+                        res_modal_status: status,
+                        res_modal_message: message
+                    }));
+                }
+            },
+            (error) => {
+                setSeverity('error');
+                setMessage(
+                    error.message || 'An error occurred. Please try again.'
+                );
+                setOpenSnackbar(true);
+                setStudentApplicationsTableTemplateState((prevState) => ({
+                    ...prevState,
+                    isLoaded: true,
+                    error,
+                    res_modal_status: 500,
+                    res_modal_message: ''
+                }));
+            }
         );
     };
 
@@ -1043,7 +1066,6 @@ const StudentApplicationsTableTemplate = (props) => {
                         closeText={t('No', { ns: 'common' })}
                         confirmText={t('Yes', { ns: 'common' })}
                         content="This will delete all message and editted files in discussion. Are you sure?"
-                        isLoading={isDeletingApplication}
                         onClose={onHideModalDeleteApplication}
                         onConfirm={handleDeleteConfirm}
                         open={
