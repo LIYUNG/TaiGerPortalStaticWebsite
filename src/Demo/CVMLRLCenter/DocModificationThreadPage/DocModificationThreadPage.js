@@ -46,6 +46,7 @@ import {
     deleteAMessageInThread,
     SetFileAsFinal,
     updateEssayWriter,
+    updateEditors,
     putThreadFavorite
 } from '../../../api';
 import { TabTitle } from '../../Utils/TabTitle';
@@ -53,6 +54,7 @@ import DEMO from '../../../store/constant';
 import FilesList from './FilesList';
 import { useAuth } from '../../../components/AuthProvider';
 import EditEssayWritersSubpage from '../../Dashboard/MainViewTab/StudDocsOverview/EditEssayWritersSubpage';
+import EditEditorsSubpage from '../../Dashboard/MainViewTab/StudDocsOverview/EditEditorsSubpage';
 import MessageList from '../../../components/Message/MessageList';
 import DocumentCheckingResultModal from './DocumentCheckingResultModal';
 import { a11yProps, CustomTabPanel } from '../../../components/Tabs';
@@ -493,6 +495,70 @@ const DocModificationThreadPage = ({
                 setMessage(
                     error.message || 'An error occurred. Please try again.'
                 );
+                setOpenSnackbar(true);
+            }
+        );
+    };
+
+    const submitUpdateEditorlist = (e, updateEditorList, student_id) => {
+        e.preventDefault();
+        setDocModificationThreadPageState((prevState) => ({
+            ...prevState,
+            isSubmitting: true
+        }));
+        updateEditors(updateEditorList, student_id).then(
+            (resp) => {
+                const { data, success } = resp.data;
+                const { status } = resp;
+                if (success) {
+                    // Update thread's student_id.editors reference
+                    let thread_temp = {
+                        ...docModificationThreadPageState.thread
+                    };
+                    if (thread_temp.student_id) {
+                        thread_temp.student_id = {
+                            ...thread_temp.student_id,
+                            editors: data.editors
+                        };
+                    }
+                    setDocModificationThreadPageState((prevState) => ({
+                        ...prevState,
+                        isLoaded: true,
+                        isSubmitting: false,
+                        thread: thread_temp,
+                        editors: data.editors, // Update editors in state
+                        success: success,
+                        res_modal_status: status
+                    }));
+                    setEditorModalhide();
+                    setSeverity('success');
+                    setMessage('Editor assigned successfully!');
+                    setOpenSnackbar(true);
+                } else {
+                    const { message } = resp.data;
+                    setDocModificationThreadPageState((prevState) => ({
+                        ...prevState,
+                        isLoaded: true,
+                        isSubmitting: false,
+                        res_modal_message: message,
+                        res_modal_status: status
+                    }));
+                    setSeverity('error');
+                    setMessage(message || 'Failed to update editors');
+                    setOpenSnackbar(true);
+                }
+            },
+            (error) => {
+                setDocModificationThreadPageState((prevState) => ({
+                    ...prevState,
+                    isLoaded: true,
+                    isSubmitting: false,
+                    error,
+                    res_modal_status: 500,
+                    res_modal_message: ''
+                }));
+                setSeverity('error');
+                setMessage('Failed to update editors');
                 setOpenSnackbar(true);
             }
         );
@@ -1086,22 +1152,66 @@ const DocModificationThreadPage = ({
                 title={t('Warning', { ns: 'common' })}
             />
             {is_TaiGer_role(user) &&
-            docModificationThreadPageState.showEditorPage ? (
-                <EditEssayWritersSubpage
-                    actor={
-                        [FILE_TYPE_E.essay_required].includes(thread.file_type)
-                            ? 'Essay Writer'
-                            : 'Editor'
-                    }
-                    editors={docModificationThreadPageState.editors}
-                    essayDocumentThread={thread}
-                    isSubmitting={docModificationThreadPageState.isSubmitting}
-                    onHide={setEditorModalhide}
-                    setmodalhide={setEditorModalhide}
-                    show={docModificationThreadPageState.showEditorPage}
-                    submitUpdateEssayWriterlist={submitUpdateEssayWriterlist}
-                />
-            ) : null}
+            docModificationThreadPageState.showEditorPage
+                ? (() => {
+                      const isEssay = [FILE_TYPE_E.essay_required].includes(
+                          thread.file_type
+                      );
+                      // Treat undefined as 'EASY' (default to editor assignment flow)
+                      const essayDifficulty =
+                          thread?.program_id?.essay_difficulty;
+                      const isEasyEssay =
+                          isEssay &&
+                          (essayDifficulty === 'EASY' ||
+                              essayDifficulty === undefined);
+
+                      if (isEasyEssay) {
+                          // EASY essay: Use editor subpage
+                          return (
+                              <EditEditorsSubpage
+                                  editors={
+                                      docModificationThreadPageState.editors
+                                  }
+                                  isSubmitting={
+                                      docModificationThreadPageState.isSubmitting
+                                  }
+                                  onHide={setEditorModalhide}
+                                  setmodalhide={setEditorModalhide}
+                                  show={
+                                      docModificationThreadPageState.showEditorPage
+                                  }
+                                  student={thread.student_id}
+                                  submitUpdateEditorlist={
+                                      submitUpdateEditorlist
+                                  }
+                              />
+                          );
+                      } else if (isEssay) {
+                          // HARD essay: Use essay writer subpage
+                          return (
+                              <EditEssayWritersSubpage
+                                  actor="Essay Writer"
+                                  editors={
+                                      docModificationThreadPageState.editors
+                                  }
+                                  essayDocumentThread={thread}
+                                  isSubmitting={
+                                      docModificationThreadPageState.isSubmitting
+                                  }
+                                  onHide={setEditorModalhide}
+                                  setmodalhide={setEditorModalhide}
+                                  show={
+                                      docModificationThreadPageState.showEditorPage
+                                  }
+                                  submitUpdateEssayWriterlist={
+                                      submitUpdateEssayWriterlist
+                                  }
+                              />
+                          );
+                      }
+                      return null;
+                  })()
+                : null}
             {res_modal_status >= 400 ? (
                 <ModalMain
                     ConfirmError={ConfirmError}

@@ -1747,6 +1747,8 @@ const prepApplicationTaskV2 = (student, application, program, thread) => {
         ...prepTaskV2(student, thread),
         thread_id: thread?._id.toString(),
         program_id: program?._id.toString(),
+        // Include full program object (or at least essay_difficulty) for filtering
+        program_id_obj: program,
         deadline: application_deadline_V2_calculator({
             ...application,
             programId: program

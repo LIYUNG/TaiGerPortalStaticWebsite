@@ -128,7 +128,22 @@ const AssignEssayWritersPage = ({ essayDocumentThreads }) => {
 
     const noWriterEssays = useMemo(() => {
         return state.essayDocumentThreads
-            .filter((thread) => !thread.isFinalVersion)
+            .filter((thread) => {
+                if (thread.isFinalVersion) return false;
+
+                // Filter out EASY essays - they use editor assignment flow
+                // Treat undefined as 'EASY' (default to editor assignment flow)
+                const program = thread.program_id;
+                const essayDifficulty = program?.essay_difficulty;
+                if (essayDifficulty === 'EASY' || essayDifficulty === undefined)
+                    return false;
+
+                // Only show HARD essays without writers
+                return (
+                    !thread.outsourced_user_id ||
+                    thread.outsourced_user_id.length === 0
+                );
+            })
             .map((essayDocumentThread) => (
                 <NoWritersEssaysCard
                     essayDocumentThread={essayDocumentThread}

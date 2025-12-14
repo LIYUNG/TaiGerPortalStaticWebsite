@@ -69,9 +69,22 @@ const EssayDashboard = () => {
         (open_task) => open_task.show && !open_task.isFinalVersion
     );
     const no_essay_writer_tasks = open_tasks_withMyEssay_arr?.filter(
-        (open_task) =>
-            open_task.outsourced_user_id === undefined ||
-            open_task.outsourced_user_id.length === 0
+        (open_task) => {
+            // Only show HARD essays without writers
+            // Filter out EASY essays - they use editor assignment flow
+            // Treat undefined as 'EASY' (default to editor assignment flow)
+            const program = open_task.program_id_obj || open_task.program_id;
+            const essayDifficulty = program?.essay_difficulty;
+            if (essayDifficulty === 'EASY' || essayDifficulty === undefined) {
+                return false;
+            }
+
+            // Only show HARD essays without outsourcer
+            return (
+                open_task.outsourced_user_id === undefined ||
+                open_task.outsourced_user_id.length === 0
+            );
+        }
     );
 
     const new_message_tasks = open_tasks_withMyEssay_arr?.filter((open_task) =>

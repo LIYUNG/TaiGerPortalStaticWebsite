@@ -118,6 +118,18 @@ const EssayOverview = (props) => {
                 headerAlign: 'left',
                 minWidth: 120,
                 renderCell: (params) => {
+                    const program = params.row.program_id;
+                    const essayDifficulty = program?.essay_difficulty;
+
+                    // Only show for HARD essays - EASY essays use editors column instead
+                    // Treat undefined as 'EASY' (default to editor assignment flow)
+                    if (
+                        essayDifficulty === 'EASY' ||
+                        essayDifficulty === undefined
+                    ) {
+                        return null;
+                    }
+
                     return (
                         params.row.outsourced_user_id?.map((outsourcer) => (
                             <Link
