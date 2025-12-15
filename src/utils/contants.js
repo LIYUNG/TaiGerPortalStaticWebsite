@@ -1828,7 +1828,10 @@ export const c1_mrt = [
             const linkUrl = `${DEMO.DOCUMENT_MODIFICATION_LINK(
                 row.original.thread_id
             )}`;
-            const isLocked = row.original?.isProgramLocked;
+            // Primary use isApplicationLocked, fallback to isProgramLocked for backward compatibility
+            const isLocked =
+                row.original?.isApplicationLocked === true ||
+                row.original?.isProgramLocked === true;
             // Check country from multiple possible locations
             const programCountry =
                 row.original?.country ||
@@ -2077,7 +2080,10 @@ export const c1 = [
             const linkUrl = `${DEMO.DOCUMENT_MODIFICATION_LINK(
                 params.row.thread_id
             )}`;
-            const isLocked = params.row?.isProgramLocked;
+            // Primary use isApplicationLocked, fallback to isProgramLocked for backward compatibility
+            const isLocked =
+                params.row?.isApplicationLocked === true ||
+                params.row?.isProgramLocked === true;
             const content = (
                 <Box
                     component="span"

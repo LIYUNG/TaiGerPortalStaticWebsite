@@ -1,12 +1,48 @@
 import React from 'react';
 import { Link as LinkDom } from 'react-router-dom';
-import { Link, TableCell, TableRow } from '@mui/material';
+import { Link, TableCell, TableRow, Typography, Tooltip } from '@mui/material';
 import { isProgramDecided } from '@taiger-common/core';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import { useTranslation } from 'react-i18next';
 
 import DEMO from '../../../../store/constant';
 import { convertDate } from '../../../../utils/contants';
+import { calculateApplicationLockStatus } from '../../../Utils/checking-functions';
 
 const RespondedThreads = (props) => {
+    const { t } = useTranslation();
+    const renderThreadLink = (content, url, locked) => {
+        if (locked) {
+            return (
+                <Tooltip
+                    title={t(
+                        'Program is locked. Contact your agent to unlock this task.',
+                        { ns: 'common' }
+                    )}
+                >
+                    <Typography
+                        color="text.disabled"
+                        component="span"
+                        sx={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 0.5
+                        }}
+                        variant="body2"
+                    >
+                        <LockOutlinedIcon fontSize="inherit" />
+                        {content}
+                    </Typography>
+                </Tooltip>
+            );
+        }
+        return (
+            <Link component={LinkDom} to={url} underline="hover">
+                {content}
+            </Link>
+        );
+    };
+
     var unread_general_generaldocs;
     var unread_applications_docthread;
 
@@ -59,23 +95,16 @@ const RespondedThreads = (props) => {
                             isProgramDecided(application) ? (
                                 <>
                                     <TableCell>
-                                        <Link
-                                            component={LinkDom}
-                                            to={DEMO.DOCUMENT_MODIFICATION_LINK(
+                                        {renderThreadLink(
+                                            `${application_doc_thread.doc_thread_id.file_type} - ${application.programId.school} - ${application.programId.program_name}`,
+                                            DEMO.DOCUMENT_MODIFICATION_LINK(
                                                 application_doc_thread
                                                     .doc_thread_id._id
-                                            )}
-                                            underline="hover"
-                                        >
-                                            {
-                                                application_doc_thread
-                                                    .doc_thread_id.file_type
-                                            }
-                                            {' - '}
-                                            {application.programId.school}
-                                            {' - '}
-                                            {application.programId.program_name}
-                                        </Link>
+                                            ),
+                                            calculateApplicationLockStatus(
+                                                application
+                                            ).isLocked
+                                        )}
                                     </TableCell>
                                     <TableCell>
                                         {convertDate(

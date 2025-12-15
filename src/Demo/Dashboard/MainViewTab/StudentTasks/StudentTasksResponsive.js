@@ -19,7 +19,7 @@ import {
     is_personal_data_filled,
     all_applications_results_updated,
     has_admissions,
-    calculateProgramLockStatus
+    calculateApplicationLockStatus
 } from '../../../Utils/checking-functions';
 import { appConfig } from '../../../../config';
 
@@ -127,8 +127,8 @@ const StudentTasksResponsive = (props) => {
                                                       application_doc_thread
                                                           .doc_thread_id._id
                                                   ),
-                                                  calculateProgramLockStatus(
-                                                      application.programId
+                                                  calculateApplicationLockStatus(
+                                                      application
                                                   ).isLocked
                                               )}
                                           </TableCell>
@@ -139,8 +139,8 @@ const StudentTasksResponsive = (props) => {
                                                       application_doc_thread
                                                           .doc_thread_id._id
                                                   ),
-                                                  calculateProgramLockStatus(
-                                                      application.programId
+                                                  calculateApplicationLockStatus(
+                                                      application
                                                   ).isLocked
                                               )}
                                           </TableCell>
