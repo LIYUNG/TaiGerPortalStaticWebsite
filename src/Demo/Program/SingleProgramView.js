@@ -157,7 +157,7 @@ const SingleProgramView = (props) => {
                         <Tooltip
                             title={
                                 lockStatus.reason === 'STALE_DATA'
-                                    ? t('Stale data (≥6 months old)', {
+                                    ? t('Stale data (≥9 months old)', {
                                           ns: 'common'
                                       })
                                     : t('Program is locked', { ns: 'common' })
@@ -202,7 +202,7 @@ const SingleProgramView = (props) => {
                 >
                     {lockStatus.reason === 'STALE_DATA'
                         ? t(
-                              'Program is locked due to stale data (≥6 months old). Please refresh the program to unlock.',
+                              'Program is locked due to stale data (≥9 months old). Please refresh the program to unlock.',
                               { ns: 'common' }
                           )
                         : t(

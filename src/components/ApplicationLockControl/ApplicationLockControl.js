@@ -60,7 +60,7 @@ const ApplicationLockControl = ({ application }) => {
                 });
             case 'STALE_DATA':
                 return t(
-                    'Program data is outdated (≥6 months old). Please verify program requirements are up to date.',
+                    'Program data is outdated (≥9 months old). Please verify program requirements are up to date.',
                     { ns: 'common' }
                 );
             default:

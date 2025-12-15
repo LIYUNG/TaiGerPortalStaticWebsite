@@ -2411,9 +2411,9 @@ export const calculateProgramLockStatus = (program) => {
 
     // Calculate if program data is stale (6 months = 180 days)
     // Both approval and non-approval countries should lock if program updatedAt > 6 months
-    const SIX_MONTHS_IN_MS = 180 * 24 * 60 * 60 * 1000;
+    const NINE_MONTHS_IN_MS = 270 * 24 * 60 * 60 * 1000;
     const isStale = lastUpdated
-        ? Date.now() - lastUpdated.getTime() >= SIX_MONTHS_IN_MS
+        ? Date.now() - lastUpdated.getTime() >= NINE_MONTHS_IN_MS
         : true; // If no updatedAt, consider stale (lock it)
 
     // TOP PRIORITY: If program updatedAt is missing or is over 6 months, lock no matter what
@@ -2450,9 +2450,9 @@ export const calculateApplicationLockStatus = (application) => {
 
     // Calculate if program data is stale (6 months = 180 days)
     // Both approval and non-approval countries should lock if program updatedAt > 6 months
-    const SIX_MONTHS_IN_MS = 180 * 24 * 60 * 60 * 1000;
+    const NINE_MONTHS_IN_MS = 270 * 24 * 60 * 60 * 1000;
     const isStale = programLastUpdated
-        ? Date.now() - programLastUpdated.getTime() >= SIX_MONTHS_IN_MS
+        ? Date.now() - programLastUpdated.getTime() >= NINE_MONTHS_IN_MS
         : true; // If no program updatedAt, consider stale (lock it) - consistent with calculateProgramLockStatus
 
     // TOP PRIORITY: If program is stale, lock all applications (both approval and non-approval)
