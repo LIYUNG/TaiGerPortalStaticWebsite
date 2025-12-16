@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Navigate,
     Link as LinkDom,
@@ -31,7 +31,7 @@ import {
 } from '@mui/material';
 import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getLeadIdByUserId } from '../../api';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import {
@@ -86,10 +86,12 @@ export const SingleStudentPageMainContent = ({
     survey_link,
     base_docs_link,
     data,
-    audit
+    audit,
+    refetch
 }) => {
     const { user } = useAuth();
     const { t } = useTranslation();
+    const queryClient = useQueryClient();
     const [singleStudentPage, setSingleStudentPage] = useState({
         error: '',
         isLoaded: {},
@@ -105,6 +107,22 @@ export const SingleStudentPageMainContent = ({
         res_modal_message: '',
         res_modal_status: 0
     });
+
+    // Update state when data prop changes (e.g., after query refetch)
+    useEffect(() => {
+        setSingleStudentPage((prevState) => ({
+            ...prevState,
+            student: data
+        }));
+    }, [
+        data._id,
+        JSON.stringify(
+            data.applications?.map((app) => ({
+                id: app._id,
+                isLocked: app.isLocked
+            }))
+        )
+    ]);
 
     const { data: leadId } = useQuery({
         queryKey: ['studentId', singleStudentPage.student._id],
@@ -521,6 +539,40 @@ export const SingleStudentPageMainContent = ({
                         <Card sx={{ p: 2 }}>
                             <EditorDocsProgress
                                 idx={0}
+                                onStudentUpdate={async () => {
+                                    // Use the refetch function from the parent component
+                                    if (refetch) {
+                                        try {
+                                            await refetch();
+                                        } catch (error) {
+                                            console.error(
+                                                '[SingleStudentPage] Error refetching:',
+                                                error
+                                            );
+                                        }
+                                    } else {
+                                        // Fallback to queryClient if refetch not available
+                                        const studentId =
+                                            singleStudentPage.student._id.toString();
+                                        const queryKey =
+                                            getStudentAndDocLinksQuery({
+                                                studentId
+                                            }).queryKey;
+                                        try {
+                                            await queryClient.invalidateQueries(
+                                                { queryKey }
+                                            );
+                                            await queryClient.refetchQueries({
+                                                queryKey
+                                            });
+                                        } catch (error) {
+                                            console.error(
+                                                '[SingleStudentPage] Error invalidating/refetching query:',
+                                                error
+                                            );
+                                        }
+                                    }
+                                }}
                                 student={singleStudentPage.student}
                             />
                         </Card>
@@ -614,9 +666,11 @@ export const SingleStudentPageMainContent = ({
 const SingleStudentPage = () => {
     const { studentId } = useParams();
     // Fetch student and doc links using React Query
-    const { data: response, isLoading } = useQuery(
-        getStudentAndDocLinksQuery({ studentId })
-    );
+    const {
+        data: response,
+        isLoading,
+        refetch
+    } = useQuery(getStudentAndDocLinksQuery({ studentId }));
 
     if (isLoading || !response?.data) {
         return (
@@ -626,12 +680,17 @@ const SingleStudentPage = () => {
         );
     }
 
-    const { survey_link, base_docs_link, data, audit } = response.data;
+    // response is the axios response: { data: { success: true, data: student, ... }, status, headers, ... }
+    // So response.data is our API response: { success: true, data: student, ... }
+    const apiResponse = response.data;
+    const { survey_link, base_docs_link, data, audit } = apiResponse;
+
     return (
         <SingleStudentPageMainContent
             audit={audit}
             base_docs_link={base_docs_link}
             data={data}
+            refetch={refetch}
             survey_link={survey_link}
         />
     );
