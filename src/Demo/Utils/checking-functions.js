@@ -1743,7 +1743,18 @@ const prepGeneralTask = (student, thread) => {
 };
 
 const prepApplicationTaskV2 = (student, application, program, thread) => {
-    const lockStatus = calculateProgramLockStatus(program);
+    const applicationWithProgram =
+        application && program ? { ...application, programId: program } : null;
+
+    // Use calculateApplicationLockStatus if we have both application and program
+    // This correctly handles:
+    // - Approval countries: unlocked if program not stale
+    // - Non-approval countries: checks application.isLocked (defaults to unlocked if undefined for existing apps)
+    const lockStatus =
+        applicationWithProgram && applicationWithProgram.programId
+            ? calculateApplicationLockStatus(applicationWithProgram)
+            : calculateProgramLockStatus(program); // Fallback (shouldn't happen in normal flow)
+
     return {
         ...prepTaskV2(student, thread),
         thread_id: thread?._id.toString(),
@@ -1751,7 +1762,8 @@ const prepApplicationTaskV2 = (student, application, program, thread) => {
         // Include full program object (or at least essay_difficulty) for filtering
         program_id_obj: program,
         program,
-        isProgramLocked: lockStatus.isLocked,
+        isApplicationLocked: lockStatus.isLocked,
+        isProgramLocked: lockStatus.isLocked, // Keep for backward compatibility
         lockReason: lockStatus.reason,
         deadline: application_deadline_V2_calculator({
             ...application,

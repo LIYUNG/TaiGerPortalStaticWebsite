@@ -408,33 +408,9 @@ const CVMLRLOverview = (props) => {
                 const isLocked =
                     params.row?.isApplicationLocked ||
                     params.row?.isProgramLocked;
-                // Check if program is from non-approval country
-                const programCountry =
-                    params.row?.program_id?.country || params.row?.country;
-                const isNonApprovalCountry = programCountry
-                    ? !APPROVAL_COUNTRIES.includes(
-                          String(programCountry).toLowerCase()
-                      )
-                    : false;
 
                 return (
                     <Box>
-                        {isNonApprovalCountry && (
-                            <Tooltip
-                                title={t('Lack of experience country', {
-                                    ns: 'common'
-                                })}
-                            >
-                                <WarningAmberIcon
-                                    fontSize="small"
-                                    sx={{
-                                        color: 'warning.main',
-                                        ml: 0.5,
-                                        mr: 0.5
-                                    }}
-                                />
-                            </Tooltip>
-                        )}
                         {isLocked ? (
                             <Tooltip
                                 title={t(

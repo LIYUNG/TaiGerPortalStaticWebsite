@@ -33,8 +33,7 @@ import {
     DialogTitle,
     DialogContent,
     DialogContentText,
-    DialogActions,
-    Tooltip
+    DialogActions
 } from '@mui/material';
 import {
     is_TaiGer_Admin,
@@ -154,22 +153,12 @@ const SingleProgramView = (props) => {
                 >
                     {`${program.school}-${program.program_name}`}
                     {isProgramLocked ? (
-                        <Tooltip
-                            title={
-                                lockStatus.reason === 'STALE_DATA'
-                                    ? t('Stale data (≥9 months old)', {
-                                          ns: 'common'
-                                      })
-                                    : t('Program is locked', { ns: 'common' })
-                            }
-                        >
-                            <Chip
-                                color="warning"
-                                icon={<LockOutlinedIcon fontSize="small" />}
-                                label={t('Locked', { ns: 'common' })}
-                                size="small"
-                            />
-                        </Tooltip>
+                        <Chip
+                            color="warning"
+                            icon={<LockOutlinedIcon fontSize="small" />}
+                            label={t('Locked', { ns: 'common' })}
+                            size="small"
+                        />
                     ) : canViewUnlockedChip ? (
                         <Chip
                             color="success"

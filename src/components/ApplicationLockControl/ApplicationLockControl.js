@@ -20,7 +20,11 @@ import {
     APPROVAL_COUNTRIES
 } from '../../Demo/Utils/checking-functions';
 import { refreshApplication } from '../../api';
-import { is_TaiGer_Admin, is_TaiGer_Agent } from '@taiger-common/core';
+import {
+    is_TaiGer_Admin,
+    is_TaiGer_Agent,
+    is_TaiGer_Student
+} from '@taiger-common/core';
 import { useAuth } from '../AuthProvider';
 import { useSnackBar } from '../../contexts/use-snack-bar';
 import DEMO from '../../store/constant';
@@ -132,6 +136,11 @@ const ApplicationLockControl = ({ application }) => {
     // Disable unlock button when program is stale (STALE_DATA)
     // User must check/unlock the program first
     const isUnlockButtonDisabled = lockStatus.reason === 'STALE_DATA';
+
+    // Don't show lock chip for students
+    if (is_TaiGer_Student(user)) {
+        return null;
+    }
 
     return (
         <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1 }}>
