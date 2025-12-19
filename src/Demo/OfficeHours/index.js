@@ -177,7 +177,7 @@ const OfficeHours = () => {
     const available_termins_func = (users) => {
         return [0, 1, 2, 3, 4, 5].flatMap((iter, x) =>
             users.flatMap((agent) =>
-                agent.timezone && moment.tz.zone(agent.timezone)
+                agent && agent.timezone && moment.tz.zone(agent.timezone)
                     ? getReorderWeekday(
                           getTodayAsWeekday(agent.timezone)
                       ).flatMap((weekday, i) => {
@@ -272,7 +272,7 @@ const OfficeHours = () => {
         (user) => user.email === receiver?.email
     );
     const single_agent_editor_available_termins = available_termins_func(
-        receiver ? [agent_or_editor] : []
+        receiver && agent_or_editor ? [agent_or_editor] : []
     );
 
     const has_officehours = available_termins?.length !== 0 ? true : false;
