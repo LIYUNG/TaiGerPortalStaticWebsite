@@ -13,6 +13,7 @@ import {
     Card,
     CardContent,
     Chip,
+    CircularProgress,
     Avatar,
     IconButton,
     Tooltip,
@@ -49,7 +50,6 @@ import { appConfig } from '../../config';
 import { getCRMMeetingsQuery, getCRMLeadsQuery } from '../../api/query';
 import { updateCRMMeeting, instantInviteTA } from '../../api';
 import { useSnackBar } from '../../contexts/use-snack-bar';
-import Loading from '../../components/Loading/Loading';
 
 const MeetingPage = () => {
     const { t } = useTranslation();
@@ -748,10 +748,13 @@ const MeetingPage = () => {
                     </Button>
                     <Button
                         disabled={isInviting}
+                        endIcon={
+                            isInviting ? <CircularProgress size={24} /> : null
+                        }
                         onClick={handleInstantInvite}
                         variant="contained"
                     >
-                        {isInviting ? <Loading /> : 'Submit'}
+                        Submit
                     </Button>
                 </DialogActions>
             </Dialog>
