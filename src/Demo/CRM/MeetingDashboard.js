@@ -24,7 +24,11 @@ import {
     ListItemText,
     ListItemAvatar,
     Tabs,
-    Tab
+    Tab,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions
 } from '@mui/material';
 import {
     Person as PersonIcon,
@@ -43,7 +47,7 @@ import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';
 
 import { getCRMMeetingsQuery, getCRMLeadsQuery } from '../../api/query';
-import { updateCRMMeeting } from '../../api';
+import { updateCRMMeeting, instantInviteTA } from '../../api';
 
 const MeetingPage = () => {
     const { t } = useTranslation();
@@ -60,6 +64,21 @@ const MeetingPage = () => {
         pageIndex: 0,
         pageSize: 10
     });
+
+    const [openInviteDialog, setOpenInviteDialog] = useState(false);
+    const [inviteTitle, setInviteTitle] = useState('');
+    const [inviteLink, setInviteLink] = useState('');
+
+    const handleInstantInvite = async () => {
+        try {
+            await instantInviteTA(inviteTitle, inviteLink);
+            setOpenInviteDialog(false);
+            setInviteTitle('');
+            setInviteLink('');
+        } catch (error) {
+            console.error('Failed to invite:', error);
+        }
+    };
 
     const { user } = useAuth();
     if (!is_TaiGer_role(user)) {
@@ -591,17 +610,32 @@ const MeetingPage = () => {
             {/* Table Section with Tabs */}
             <Card elevation={3} sx={{ borderRadius: 3, overflow: 'hidden' }}>
                 <CardContent sx={{ p: 0 }}>
-                    <Box sx={{ p: 2.5 }}>
-                        <Typography
-                            color="text.primary"
-                            fontWeight={600}
-                            variant="h6"
+                    <Box
+                        sx={{
+                            p: 2.5,
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                        }}
+                    >
+                        <Box>
+                            <Typography
+                                color="text.primary"
+                                fontWeight={600}
+                                variant="h6"
+                            >
+                                {t('common.meetinTranscripts', { ns: 'crm' })}
+                            </Typography>
+                            <Typography color="text.secondary" variant="body2">
+                                {t('common.manageTranscripts', { ns: 'crm' })}
+                            </Typography>
+                        </Box>
+                        <Button
+                            onClick={() => setOpenInviteDialog(true)}
+                            variant="contained"
                         >
-                            {t('common.meetinTranscripts', { ns: 'crm' })}
-                        </Typography>
-                        <Typography color="text.secondary" variant="body2">
-                            {t('common.manageTranscripts', { ns: 'crm' })}
-                        </Typography>
+                            Instant Invite
+                        </Button>
                     </Box>
 
                     {/* Tabs */}
@@ -649,6 +683,40 @@ const MeetingPage = () => {
                     />
                 </CardContent>
             </Card>
+
+            <Dialog
+                onClose={() => setOpenInviteDialog(false)}
+                open={openInviteDialog}
+            >
+                <DialogTitle>Instant Invite</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        autoFocus
+                        fullWidth
+                        label="Meeting Title"
+                        margin="dense"
+                        onChange={(e) => setInviteTitle(e.target.value)}
+                        value={inviteTitle}
+                        variant="outlined"
+                    />
+                    <TextField
+                        fullWidth
+                        label="Meeting Link"
+                        margin="dense"
+                        onChange={(e) => setInviteLink(e.target.value)}
+                        value={inviteLink}
+                        variant="outlined"
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenInviteDialog(false)}>
+                        Cancel
+                    </Button>
+                    <Button onClick={handleInstantInvite} variant="contained">
+                        Submit
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 };
