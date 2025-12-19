@@ -48,6 +48,8 @@ import { appConfig } from '../../config';
 
 import { getCRMMeetingsQuery, getCRMLeadsQuery } from '../../api/query';
 import { updateCRMMeeting, instantInviteTA } from '../../api';
+import { useSnackBar } from '../../contexts/use-snack-bar';
+import Loading from '../../components/Loading/Loading';
 
 const MeetingPage = () => {
     const { t } = useTranslation();
@@ -65,18 +67,47 @@ const MeetingPage = () => {
         pageSize: 10
     });
 
+    const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
+
     const [openInviteDialog, setOpenInviteDialog] = useState(false);
     const [inviteTitle, setInviteTitle] = useState('');
     const [inviteLink, setInviteLink] = useState('');
+    const [isInviting, setIsInviting] = useState(false);
 
     const handleInstantInvite = async () => {
+        setIsInviting(true);
         try {
-            await instantInviteTA(inviteTitle, inviteLink);
-            setOpenInviteDialog(false);
-            setInviteTitle('');
-            setInviteLink('');
+            const { data } = await instantInviteTA(inviteTitle, inviteLink);
+            console.log('Invite response:', data);
+            // Mock response
+            // await new Promise((resolve) => setTimeout(resolve, 1000));
+            // const response = { success: true, payload: { success: true } };
+
+            if (data.success) {
+                setOpenInviteDialog(false);
+                setInviteTitle('');
+                setInviteLink('');
+                setMessage('Invitation sent successfully');
+                setSeverity('success');
+                setOpenSnackbar(true);
+            } else {
+                setOpenInviteDialog(false);
+                setInviteTitle('');
+                setInviteLink('');
+                setMessage(
+                    'Failed to invite TaiGer Assistant: ' +
+                        (data.message || 'Unknown error')
+                );
+                setSeverity('error');
+                setOpenSnackbar(true);
+            }
         } catch (error) {
             console.error('Failed to invite:', error);
+            setMessage('Failed to send invitation');
+            setSeverity('error');
+            setOpenSnackbar(true);
+        } finally {
+            setIsInviting(false);
         }
     };
 
@@ -634,7 +665,7 @@ const MeetingPage = () => {
                             onClick={() => setOpenInviteDialog(true)}
                             variant="contained"
                         >
-                            Instant Invite
+                            Add TA to Live meeting
                         </Button>
                     </Box>
 
@@ -688,7 +719,7 @@ const MeetingPage = () => {
                 onClose={() => setOpenInviteDialog(false)}
                 open={openInviteDialog}
             >
-                <DialogTitle>Instant Invite</DialogTitle>
+                <DialogTitle>Add TaiGer Assistant to Live Meeting</DialogTitle>
                 <DialogContent>
                     <TextField
                         autoFocus
@@ -709,11 +740,18 @@ const MeetingPage = () => {
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenInviteDialog(false)}>
+                    <Button
+                        disabled={isInviting}
+                        onClick={() => setOpenInviteDialog(false)}
+                    >
                         Cancel
                     </Button>
-                    <Button onClick={handleInstantInvite} variant="contained">
-                        Submit
+                    <Button
+                        disabled={isInviting}
+                        onClick={handleInstantInvite}
+                        variant="contained"
+                    >
+                        {isInviting ? <Loading /> : 'Submit'}
                     </Button>
                 </DialogActions>
             </Dialog>
