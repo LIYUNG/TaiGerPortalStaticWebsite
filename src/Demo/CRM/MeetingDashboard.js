@@ -78,11 +78,6 @@ const MeetingPage = () => {
         setIsInviting(true);
         try {
             const { data } = await instantInviteTA(inviteTitle, inviteLink);
-            console.log('Invite response:', data);
-            // Mock response
-            // await new Promise((resolve) => setTimeout(resolve, 1000));
-            // const response = { success: true, payload: { success: true } };
-
             if (data.success) {
                 setOpenInviteDialog(false);
                 setInviteTitle('');
@@ -727,6 +722,7 @@ const MeetingPage = () => {
                         label="Meeting Title"
                         margin="dense"
                         onChange={(e) => setInviteTitle(e.target.value)}
+                        required
                         value={inviteTitle}
                         variant="outlined"
                     />
@@ -735,6 +731,7 @@ const MeetingPage = () => {
                         label="Meeting Link"
                         margin="dense"
                         onChange={(e) => setInviteLink(e.target.value)}
+                        required
                         value={inviteLink}
                         variant="outlined"
                     />
@@ -747,7 +744,7 @@ const MeetingPage = () => {
                         Cancel
                     </Button>
                     <Button
-                        disabled={isInviting}
+                        disabled={isInviting || !inviteTitle || !inviteLink}
                         endIcon={
                             isInviting ? <CircularProgress size={24} /> : null
                         }
