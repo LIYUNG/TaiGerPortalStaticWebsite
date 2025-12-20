@@ -27,6 +27,10 @@ import BorderColorIcon from '@mui/icons-material/BorderColor';
 import DifferenceIcon from '@mui/icons-material/Difference';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import ArchitectureIcon from '@mui/icons-material/Architecture';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import ContactsIcon from '@mui/icons-material/Contacts';
+import HandshakeIcon from '@mui/icons-material/Handshake';
+import GroupsIcon from '@mui/icons-material/Groups';
 import { appConfig } from './config';
 
 let application_overview = [
@@ -539,7 +543,7 @@ if (appConfig.CRMEnable) {
                 title: 'CRM Overview',
                 type: 'item',
                 url: '/crm',
-                icon: <DrawIcon />,
+                icon: <DashboardIcon />,
                 target: false,
                 breadcrumbs: false
             },
@@ -548,7 +552,7 @@ if (appConfig.CRMEnable) {
                 title: 'Leads',
                 type: 'item',
                 url: '/crm/leads',
-                icon: <DrawIcon />,
+                icon: <ContactsIcon />,
                 target: false,
                 breadcrumbs: false
             },
@@ -557,7 +561,7 @@ if (appConfig.CRMEnable) {
                 title: 'Deals',
                 type: 'item',
                 url: '/crm/deals',
-                icon: <DrawIcon />,
+                icon: <HandshakeIcon />,
                 target: false,
                 breadcrumbs: false
             },
@@ -566,7 +570,7 @@ if (appConfig.CRMEnable) {
                 title: 'Meetings',
                 type: 'item',
                 url: '/crm/meetings',
-                icon: <DrawIcon />,
+                icon: <GroupsIcon />,
                 target: false,
                 breadcrumbs: false
             }
