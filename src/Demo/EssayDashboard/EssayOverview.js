@@ -430,7 +430,7 @@ const EssayOverview = (props) => {
                     notification_key={undefined}
                     path="/"
                     removeBanner={null}
-                    text="Please assign essay writer to the following essays:"
+                    text="Please assign essay writers to the following essays:"
                     title="warning"
                 />
                 <MuiDataGrid

@@ -780,7 +780,7 @@ const InformationBlock = ({
                                                                           key={
                                                                               userObj._id
                                                                           }
-                                                                          title={`${userObj.firstname} ${userObj.lastname}${userObj.source === 'thread_outsourced' ? ' (Legacy Assignment)' : ''}`}
+                                                                          title={`${userObj.firstname} ${userObj.lastname}${!is_TaiGer_Student(user) && userObj.source === 'thread_outsourced' ? ' (Legacy Assignment)' : ''}`}
                                                                       >
                                                                           {is_TaiGer_role(
                                                                               user
