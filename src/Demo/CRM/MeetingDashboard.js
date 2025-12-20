@@ -80,24 +80,21 @@ const MeetingPage = () => {
         setIsInviting(true);
         try {
             const { data } = await instantInviteTA(inviteTitle, inviteLink);
+            setOpenInviteDialog(false);
+            setInviteTitle('');
+            setInviteLink('');
             if (data.success) {
-                setOpenInviteDialog(false);
-                setInviteTitle('');
-                setInviteLink('');
                 setMessage('Invitation sent successfully');
                 setSeverity('success');
                 setOpenSnackbar(true);
             } else {
-                setOpenInviteDialog(false);
-                setInviteTitle('');
-                setInviteLink('');
                 setMessage(
                     'Failed to invite TaiGer Assistant: ' +
                         (data.message || 'Unknown error')
                 );
                 setSeverity('error');
-                setOpenSnackbar(true);
             }
+            setOpenSnackbar(true);
         } catch (error) {
             console.error('Failed to invite:', error);
             setMessage('Failed to send invitation');
@@ -733,6 +730,7 @@ const MeetingPage = () => {
                         margin="dense"
                         onChange={(e) => setInviteLink(e.target.value)}
                         required
+                        type="url"
                         value={inviteLink}
                         variant="outlined"
                     />
