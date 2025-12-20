@@ -20,7 +20,8 @@
         "createDeal": "创建订单",
         "createUserAccount": "创建用户账号",
         "createUserAccountFromLead": "由线索创建用户账号",
-        "viewTranscript": "查看文字记录"
+        "viewTranscript": "查看文字记录",
+        "submit": "提交"
     },
     "common": {
         "na": "无",
@@ -124,7 +125,17 @@
         "unassignLead": "从此会议移除线索指派",
         "allMeetings": "全部会议",
         "unassignedMeetings": "未指派线索的会议",
-        "archivedMeetings": "已归档会议"
+        "archivedMeetings": "已归档会议",
+        "invitationSentSuccess": "邀请已成功发送",
+        "failedToInviteTA": "邀请 TaiGer 助手失败：",
+        "unknownError": "未知错误",
+        "failedToSendInvitation": "发送邀请失败",
+        "addTAToLiveMeeting": "将 TA 加入即时会议",
+        "addTAToLiveMeetingTitle": "将 TaiGer 助手加入即时会议",
+        "meetingTitleLabel": "会议标题",
+        "meetingLinkLabel": "会议链接",
+        "taJoinTimeInfo": "TaiGer 助手加入您的会议可能需要 1-2 分钟。",
+        "rateLimitInfo": "请求频率限制：每 20 分钟最多 3 次请求，请合理使用，感谢理解。"
     },
     "deals": {
         "createDeal": "创建订单",

@@ -29,7 +29,8 @@ import {
     Dialog,
     DialogTitle,
     DialogContent,
-    DialogActions
+    DialogActions,
+    Alert
 } from '@mui/material';
 import {
     Person as PersonIcon,
@@ -84,20 +85,21 @@ const MeetingPage = () => {
             setInviteTitle('');
             setInviteLink('');
             if (data.success) {
-                setMessage('Invitation sent successfully');
+                setMessage(t('meetings.invitationSentSuccess', { ns: 'crm' }));
                 setSeverity('success');
                 setOpenSnackbar(true);
             } else {
                 setMessage(
-                    'Failed to invite TaiGer Assistant: ' +
-                        (data.message || 'Unknown error')
+                    t('meetings.failedToInviteTA', { ns: 'crm' }) +
+                        (data.message ||
+                            t('meetings.unknownError', { ns: 'crm' }))
                 );
                 setSeverity('error');
             }
             setOpenSnackbar(true);
         } catch (error) {
             console.error('Failed to invite:', error);
-            setMessage('Failed to send invitation');
+            setMessage(t('meetings.failedToSendInvitation', { ns: 'crm' }));
             setSeverity('error');
             setOpenSnackbar(true);
         } finally {
@@ -658,7 +660,7 @@ const MeetingPage = () => {
                             onClick={() => setOpenInviteDialog(true)}
                             variant="contained"
                         >
-                            Add TA to Live meeting
+                            {t('meetings.addTAToLiveMeeting', { ns: 'crm' })}
                         </Button>
                     </Box>
 
@@ -712,12 +714,14 @@ const MeetingPage = () => {
                 onClose={() => setOpenInviteDialog(false)}
                 open={openInviteDialog}
             >
-                <DialogTitle>Add TaiGer Assistant to Live Meeting</DialogTitle>
+                <DialogTitle>
+                    {t('meetings.addTAToLiveMeetingTitle', { ns: 'crm' })}
+                </DialogTitle>
                 <DialogContent>
                     <TextField
                         autoFocus
                         fullWidth
-                        label="Meeting Title"
+                        label={t('meetings.meetingTitleLabel', { ns: 'crm' })}
                         margin="dense"
                         onChange={(e) => setInviteTitle(e.target.value)}
                         required
@@ -726,7 +730,7 @@ const MeetingPage = () => {
                     />
                     <TextField
                         fullWidth
-                        label="Meeting Link"
+                        label={t('meetings.meetingLinkLabel', { ns: 'crm' })}
                         margin="dense"
                         onChange={(e) => setInviteLink(e.target.value)}
                         required
@@ -734,13 +738,21 @@ const MeetingPage = () => {
                         value={inviteLink}
                         variant="outlined"
                     />
+                    <Alert severity="info" sx={{ mt: 2 }}>
+                        <Typography sx={{ display: 'block' }} variant="body2">
+                            {t('meetings.taJoinTimeInfo', { ns: 'crm' })}
+                        </Typography>
+                        <Typography sx={{ display: 'block' }} variant="body2">
+                            {t('meetings.rateLimitInfo', { ns: 'crm' })}
+                        </Typography>
+                    </Alert>
                 </DialogContent>
                 <DialogActions>
                     <Button
                         disabled={isInviting}
                         onClick={() => setOpenInviteDialog(false)}
                     >
-                        Cancel
+                        {t('actions.cancel', { ns: 'crm' })}
                     </Button>
                     <Button
                         disabled={isInviting || !inviteTitle || !inviteLink}
@@ -750,7 +762,7 @@ const MeetingPage = () => {
                         onClick={handleInstantInvite}
                         variant="contained"
                     >
-                        Submit
+                        {t('actions.submit', { ns: 'crm' })}
                     </Button>
                 </DialogActions>
             </Dialog>

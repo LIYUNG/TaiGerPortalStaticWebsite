@@ -20,7 +20,8 @@
         "createDeal": "Create Deal",
         "createUserAccount": "Create User Account",
         "createUserAccountFromLead": "Create User Account from Lead",
-        "viewTranscript": "View Transcript"
+        "viewTranscript": "View Transcript",
+        "submit": "Submit"
     },
     "common": {
         "na": "N/A",
@@ -124,7 +125,17 @@
         "unassignLead": "Unassign lead from this meeting",
         "allMeetings": "All Meetings",
         "unassignedMeetings": "Unassigned Meetings",
-        "archivedMeetings": "Archived Meetings"
+        "archivedMeetings": "Archived Meetings",
+        "invitationSentSuccess": "Invitation sent successfully",
+        "failedToInviteTA": "Failed to invite TaiGer Assistant: ",
+        "unknownError": "Unknown error",
+        "failedToSendInvitation": "Failed to send invitation",
+        "addTAToLiveMeeting": "Add TA to Live meeting",
+        "addTAToLiveMeetingTitle": "Add TaiGer Assistant to Live Meeting",
+        "meetingTitleLabel": "Meeting Title",
+        "meetingLinkLabel": "Meeting Link",
+        "taJoinTimeInfo": "It can take 1-2 minutes for the TaiGer Assistant to join your meeting.",
+        "rateLimitInfo": "Rate limit: only 3 requests every 20 minutes—please be mindful."
     },
     "deals": {
         "createDeal": "Create Deal",
