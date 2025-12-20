@@ -46,6 +46,7 @@ import { is_TaiGer_role } from '@taiger-common/core';
 import { appConfig } from '../../config';
 import { getCRMMeetingQuery, getCRMLeadsQuery } from '../../api/query';
 import { updateCRMMeeting } from '../../api';
+import { sanitizeMeetingTitle } from './components/meetingUtils';
 
 const MeetingPage = () => {
     const { meetingId } = useParams();
@@ -62,10 +63,11 @@ const MeetingPage = () => {
     const { data, isLoading } = useQuery(getCRMMeetingQuery(meetingId));
     const { data: leadsData } = useQuery(getCRMLeadsQuery());
     const meeting = data?.data?.data || {};
+    const meetingTitle = sanitizeMeetingTitle(meeting.title || 'N/A');
     const leads = leadsData?.data?.data || [];
 
     TabTitle(
-        `${t('breadcrumbs.meetings', { ns: 'crm' })} ${meeting ? `- ${meeting.title}` : ''}`
+        `${t('breadcrumbs.meetings', { ns: 'crm' })} ${meeting ? `- ${meetingTitle}` : ''}`
     );
 
     const handleMeetingUpdate = async (payload) => {
@@ -162,7 +164,8 @@ const MeetingPage = () => {
                         {t('breadcrumbs.meetings', { ns: 'crm' })}
                     </Link>
                     <Typography color="text.primary">
-                        {meeting.title}
+                        {meetingTitle ||
+                            t('meetings.meetingTitle', { ns: 'crm' })}
                     </Typography>
                 </Breadcrumbs>
 

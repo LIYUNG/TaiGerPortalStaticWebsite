@@ -51,6 +51,8 @@ import { getCRMMeetingsQuery, getCRMLeadsQuery } from '../../api/query';
 import { updateCRMMeeting, instantInviteTA } from '../../api';
 import { useSnackBar } from '../../contexts/use-snack-bar';
 
+import { sanitizeMeetingTitle } from './components/meetingUtils';
+
 const MeetingPage = () => {
     const { t } = useTranslation();
     TabTitle(
@@ -306,8 +308,7 @@ const MeetingPage = () => {
                     to={`/crm/meetings/${row.original.id}`}
                     underline="hover"
                 >
-                    {row.original.title ||
-                        t('meetings.meetingTitle', { ns: 'crm' })}
+                    {sanitizeMeetingTitle(row.original.title) || 'N/A'}
                 </Link>
             )
         },
