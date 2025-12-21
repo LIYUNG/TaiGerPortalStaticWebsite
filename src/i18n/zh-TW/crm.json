@@ -20,7 +20,8 @@
         "createDeal": "建立訂單",
         "createUserAccount": "建立使用者帳號",
         "createUserAccountFromLead": "由線索建立使用者帳號",
-        "viewTranscript": "檢視逐字稿"
+        "viewTranscript": "檢視逐字稿",
+        "submit": "提交"
     },
     "common": {
         "na": "無",
@@ -124,7 +125,17 @@
         "unassignLead": "自此會議移除線索指派",
         "allMeetings": "全部會議",
         "unassignedMeetings": "未指派線索之會議",
-        "archivedMeetings": "已封存會議"
+        "archivedMeetings": "已封存會議",
+        "invitationSentSuccess": "邀請已成功發送",
+        "failedToInviteTA": "邀請 TaiGer 助手失敗：",
+        "unknownError": "未知錯誤",
+        "failedToSendInvitation": "發送邀請失敗",
+        "addTAToLiveMeeting": "將 TA 加入即時會議",
+        "addTAToLiveMeetingTitle": "將 TaiGer 助手加入即時會議",
+        "meetingTitleLabel": "會議標題",
+        "meetingLinkLabel": "會議連結",
+        "taJoinTimeInfo": "TaiGer 助手加入您的會議可能需要 1-2 分鐘。",
+        "rateLimitInfo": "請求頻率限制：每 20 分鐘最多 3 次請求，請合理使用，感謝您理解。"
     },
     "deals": {
         "createDeal": "建立訂單",

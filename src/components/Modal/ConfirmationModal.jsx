@@ -16,13 +16,15 @@ export const ConfirmationModal = ({
     content,
     confirmText,
     closeText,
-    isLoading
+    isLoading,
+    children
 }) => {
     return (
         <Dialog onClose={onClose} open={open}>
             <DialogTitle>{title}</DialogTitle>
             <DialogContent>
                 <DialogContentText>{content}</DialogContentText>
+                {children}
             </DialogContent>
             <DialogActions>
                 <Button

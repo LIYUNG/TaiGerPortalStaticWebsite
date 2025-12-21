@@ -13,6 +13,7 @@ import {
     Card,
     CardContent,
     Chip,
+    CircularProgress,
     Avatar,
     IconButton,
     Tooltip,
@@ -24,7 +25,12 @@ import {
     ListItemText,
     ListItemAvatar,
     Tabs,
-    Tab
+    Tab,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    Alert
 } from '@mui/material';
 import {
     Person as PersonIcon,
@@ -43,7 +49,10 @@ import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';
 
 import { getCRMMeetingsQuery, getCRMLeadsQuery } from '../../api/query';
-import { updateCRMMeeting } from '../../api';
+import { updateCRMMeeting, instantInviteTA } from '../../api';
+import { useSnackBar } from '../../contexts/use-snack-bar';
+
+import { sanitizeMeetingTitle } from './components/meetingUtils';
 
 const MeetingPage = () => {
     const { t } = useTranslation();
@@ -60,6 +69,48 @@ const MeetingPage = () => {
         pageIndex: 0,
         pageSize: 10
     });
+
+    const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
+
+    const [openInviteDialog, setOpenInviteDialog] = useState(false);
+    const [inviteTitle, setInviteTitle] = useState('');
+    const [inviteLink, setInviteLink] = useState('');
+    const [isInviting, setIsInviting] = useState(false);
+
+    const handleInstantInvite = async () => {
+        setIsInviting(true);
+        try {
+            const { data } = await instantInviteTA(inviteTitle, inviteLink);
+            setOpenInviteDialog(false);
+            setInviteTitle('');
+            setInviteLink('');
+            if (data.success) {
+                setMessage(t('meetings.invitationSentSuccess', { ns: 'crm' }));
+                setSeverity('success');
+                setOpenSnackbar(true);
+            } else {
+                setMessage(
+                    t('meetings.failedToInviteTA', { ns: 'crm' }) +
+                        (data.message ||
+                            t('meetings.unknownError', { ns: 'crm' }))
+                );
+                setSeverity('error');
+            }
+            setOpenSnackbar(true);
+        } catch (error) {
+            console.error('Failed to invite:', error);
+            setMessage(
+                t('meetings.failedToSendInvitation', { ns: 'crm' }) +
+                    (error.response?.data?.message
+                        ? `: ${error.response.data.message}`
+                        : '')
+            );
+            setSeverity('error');
+            setOpenSnackbar(true);
+        } finally {
+            setIsInviting(false);
+        }
+    };
 
     const { user } = useAuth();
     if (!is_TaiGer_role(user)) {
@@ -261,8 +312,7 @@ const MeetingPage = () => {
                     to={`/crm/meetings/${row.original.id}`}
                     underline="hover"
                 >
-                    {row.original.title ||
-                        t('meetings.meetingTitle', { ns: 'crm' })}
+                    {sanitizeMeetingTitle(row.original.title) || 'N/A'}
                 </Link>
             )
         },
@@ -591,17 +641,32 @@ const MeetingPage = () => {
             {/* Table Section with Tabs */}
             <Card elevation={3} sx={{ borderRadius: 3, overflow: 'hidden' }}>
                 <CardContent sx={{ p: 0 }}>
-                    <Box sx={{ p: 2.5 }}>
-                        <Typography
-                            color="text.primary"
-                            fontWeight={600}
-                            variant="h6"
+                    <Box
+                        sx={{
+                            p: 2.5,
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                        }}
+                    >
+                        <Box>
+                            <Typography
+                                color="text.primary"
+                                fontWeight={600}
+                                variant="h6"
+                            >
+                                {t('common.meetinTranscripts', { ns: 'crm' })}
+                            </Typography>
+                            <Typography color="text.secondary" variant="body2">
+                                {t('common.manageTranscripts', { ns: 'crm' })}
+                            </Typography>
+                        </Box>
+                        <Button
+                            onClick={() => setOpenInviteDialog(true)}
+                            variant="contained"
                         >
-                            {t('common.meetinTranscripts', { ns: 'crm' })}
-                        </Typography>
-                        <Typography color="text.secondary" variant="body2">
-                            {t('common.manageTranscripts', { ns: 'crm' })}
-                        </Typography>
+                            {t('meetings.addTAToLiveMeeting', { ns: 'crm' })}
+                        </Button>
                     </Box>
 
                     {/* Tabs */}
@@ -649,6 +714,63 @@ const MeetingPage = () => {
                     />
                 </CardContent>
             </Card>
+
+            <Dialog
+                onClose={() => setOpenInviteDialog(false)}
+                open={openInviteDialog}
+            >
+                <DialogTitle>
+                    {t('meetings.addTAToLiveMeetingTitle', { ns: 'crm' })}
+                </DialogTitle>
+                <DialogContent>
+                    <TextField
+                        autoFocus
+                        fullWidth
+                        label={t('meetings.meetingTitleLabel', { ns: 'crm' })}
+                        margin="dense"
+                        onChange={(e) => setInviteTitle(e.target.value)}
+                        required
+                        value={inviteTitle}
+                        variant="outlined"
+                    />
+                    <TextField
+                        fullWidth
+                        label={t('meetings.meetingLinkLabel', { ns: 'crm' })}
+                        margin="dense"
+                        onChange={(e) => setInviteLink(e.target.value)}
+                        required
+                        type="url"
+                        value={inviteLink}
+                        variant="outlined"
+                    />
+                    <Alert severity="info" sx={{ mt: 2 }}>
+                        <Typography sx={{ display: 'block' }} variant="body2">
+                            {t('meetings.taJoinTimeInfo', { ns: 'crm' })}
+                        </Typography>
+                        <Typography sx={{ display: 'block' }} variant="body2">
+                            {t('meetings.rateLimitInfo', { ns: 'crm' })}
+                        </Typography>
+                    </Alert>
+                </DialogContent>
+                <DialogActions>
+                    <Button
+                        disabled={isInviting}
+                        onClick={() => setOpenInviteDialog(false)}
+                    >
+                        {t('actions.cancel', { ns: 'crm' })}
+                    </Button>
+                    <Button
+                        disabled={isInviting || !inviteTitle || !inviteLink}
+                        endIcon={
+                            isInviting ? <CircularProgress size={24} /> : null
+                        }
+                        onClick={handleInstantInvite}
+                        variant="contained"
+                    >
+                        {t('actions.submit', { ns: 'crm' })}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 };

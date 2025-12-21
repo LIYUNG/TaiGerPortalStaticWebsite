@@ -46,6 +46,7 @@ import SimilarStudents from './components/SimilarStudents';
 import StatusMenu from './components/StatusMenu';
 import DealItem from './components/DealItem';
 import { isTerminalStatus, getDealId } from './components/statusUtils';
+import { sanitizeMeetingTitle } from './components/meetingUtils';
 
 const LeadPage = () => {
     const { leadId } = useParams();
@@ -1001,7 +1002,9 @@ const LeadPage = () => {
                                                 }}
                                                 underline="hover"
                                             >
-                                                {meeting.title}
+                                                {sanitizeMeetingTitle(
+                                                    meeting.title
+                                                ) || 'N/A'}
                                             </Link>
                                         </Box>
                                         <Box

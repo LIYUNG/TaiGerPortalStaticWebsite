@@ -835,6 +835,11 @@ export const createCRMDeal = (payload) =>
 export const updateCRMDeal = (dealId, payload) =>
     request.put(`/api/crm/deals/${dealId}`, payload);
 export const getCRMSalesReps = () => request.get(`/api/crm/sales-reps`);
+export const instantInviteTA = (meetingSummary, meetingLink) =>
+    request.post(`/api/crm/instant-invite`, {
+        meetingSummary,
+        meetingLink
+    });
 
 // Student Meetings APIs
 export const getStudentMeetings = (studentId) =>
