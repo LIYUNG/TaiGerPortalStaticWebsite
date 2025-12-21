@@ -99,7 +99,12 @@ const MeetingPage = () => {
             setOpenSnackbar(true);
         } catch (error) {
             console.error('Failed to invite:', error);
-            setMessage(t('meetings.failedToSendInvitation', { ns: 'crm' }));
+            setMessage(
+                t('meetings.failedToSendInvitation', { ns: 'crm' }) +
+                    (error.response?.data?.message
+                        ? `: ${error.response.data.message}`
+                        : '')
+            );
             setSeverity('error');
             setOpenSnackbar(true);
         } finally {
