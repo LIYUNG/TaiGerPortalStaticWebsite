@@ -719,53 +719,39 @@ const InformationBlock = ({
                                                           undefined;
 
                                                   if (isEasyEssay) {
-                                                      // EASY essay: Show BOTH student.editors AND thread.outsourced_user_id (backward compatibility)
-                                                      const editorsFromNewSystem =
-                                                          editors || [];
-                                                      const editorsFromOldSystem =
-                                                          thread?.outsourced_user_id ||
-                                                          [];
+                                                      // EASY essay: Prioritize outsourcer (legacy system) if both exist
+                                                      const hasOutsourcer =
+                                                          thread?.outsourced_user_id &&
+                                                          thread
+                                                              .outsourced_user_id
+                                                              .length > 0;
+                                                      const hasEditors =
+                                                          editors &&
+                                                          editors.length > 0;
 
-                                                      // Combine and deduplicate (prefer new system if duplicate)
-                                                      const allEditors =
-                                                          new Map();
+                                                      let displayUsers = [];
 
-                                                      // Add from new system first (higher priority)
-                                                      editorsFromNewSystem.forEach(
-                                                          (editor) => {
-                                                              allEditors.set(
-                                                                  editor._id.toString(),
-                                                                  {
+                                                      if (hasOutsourcer) {
+                                                          // If outsourcer exists, show only outsourcers (legacy system takes priority)
+                                                          displayUsers =
+                                                              thread.outsourced_user_id.map(
+                                                                  (
+                                                                      outsourcer
+                                                                  ) => ({
+                                                                      ...outsourcer,
+                                                                      source: 'thread_outsourced'
+                                                                  })
+                                                              );
+                                                      } else if (hasEditors) {
+                                                          // If no outsourcer but has editors, show editors only (new system)
+                                                          displayUsers =
+                                                              editors.map(
+                                                                  (editor) => ({
                                                                       ...editor,
                                                                       source: 'student_editors'
-                                                                  }
+                                                                  })
                                                               );
-                                                          }
-                                                      );
-
-                                                      // Add from old system (only if not already present)
-                                                      editorsFromOldSystem.forEach(
-                                                          (outsourcer) => {
-                                                              if (
-                                                                  !allEditors.has(
-                                                                      outsourcer._id.toString()
-                                                                  )
-                                                              ) {
-                                                                  allEditors.set(
-                                                                      outsourcer._id.toString(),
-                                                                      {
-                                                                          ...outsourcer,
-                                                                          source: 'thread_outsourced'
-                                                                      }
-                                                                  );
-                                                              }
-                                                          }
-                                                      );
-
-                                                      const displayUsers =
-                                                          Array.from(
-                                                              allEditors.values()
-                                                          );
+                                                      }
 
                                                       return displayUsers.length >
                                                           0 ? (
