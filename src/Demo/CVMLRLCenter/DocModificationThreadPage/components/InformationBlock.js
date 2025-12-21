@@ -719,20 +719,16 @@ const InformationBlock = ({
                                                           undefined;
 
                                                   if (isEasyEssay) {
-                                                      // EASY essay: Prioritize outsourcer (legacy system) if both exist
                                                       const hasOutsourcer =
                                                           thread?.outsourced_user_id &&
                                                           thread
                                                               .outsourced_user_id
                                                               .length > 0;
-                                                      const hasEditors =
-                                                          editors &&
-                                                          editors.length > 0;
 
                                                       let displayUsers = [];
 
                                                       if (hasOutsourcer) {
-                                                          // If outsourcer exists, show only outsourcers (legacy system takes priority)
+                                                          // Show outsourcers
                                                           displayUsers =
                                                               thread.outsourced_user_id.map(
                                                                   (
@@ -740,15 +736,6 @@ const InformationBlock = ({
                                                                   ) => ({
                                                                       ...outsourcer,
                                                                       source: 'thread_outsourced'
-                                                                  })
-                                                              );
-                                                      } else if (hasEditors) {
-                                                          // If no outsourcer but has editors, show editors only (new system)
-                                                          displayUsers =
-                                                              editors.map(
-                                                                  (editor) => ({
-                                                                      ...editor,
-                                                                      source: 'student_editors'
                                                                   })
                                                               );
                                                       }
@@ -766,7 +753,7 @@ const InformationBlock = ({
                                                                           key={
                                                                               userObj._id
                                                                           }
-                                                                          title={`${userObj.firstname} ${userObj.lastname}${!is_TaiGer_Student(user) && userObj.source === 'thread_outsourced' ? ' (Legacy Assignment)' : ''}`}
+                                                                          title={`${userObj.firstname} ${userObj.lastname}`}
                                                                       >
                                                                           {is_TaiGer_role(
                                                                               user
