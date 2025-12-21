@@ -8,7 +8,9 @@ import {
     Card,
     Chip,
     Grid,
-    Paper
+    Paper,
+    Checkbox,
+    FormControlLabel
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EventIcon from '@mui/icons-material/Event';
@@ -85,6 +87,7 @@ export const MeetingTab = ({ studentId, student }) => {
     const [selectedMeeting, setSelectedMeeting] = useState(null);
     const [meetingToDelete, setMeetingToDelete] = useState(null);
     const [meetingToConfirm, setMeetingToConfirm] = useState(null);
+    const [addAssistant, setAddAssistant] = useState(false);
 
     // Fetch events with a wide time range
     const now = new Date();
@@ -219,6 +222,7 @@ export const MeetingTab = ({ studentId, student }) => {
 
     const handleConfirmMeeting = (meeting) => {
         setMeetingToConfirm(meeting);
+        setAddAssistant(true);
         setConfirmModalOpen(true);
     };
 
@@ -269,7 +273,8 @@ export const MeetingTab = ({ studentId, student }) => {
             const eventData = {
                 start: meetingToConfirm.dateTime,
                 description: meetingToConfirm.description,
-                title: meetingToConfirm.title
+                title: meetingToConfirm.title,
+                addMeetingAssistant: addAssistant
             };
             confirmMutation.mutate({
                 eventId: meetingToConfirm._id,
@@ -560,7 +565,23 @@ export const MeetingTab = ({ studentId, student }) => {
                 onConfirm={handleConfirmMeetingAction}
                 open={confirmModalOpen}
                 title={t('Confirm Meeting', { ns: 'common' })}
-            />
+            >
+                <Box sx={{ mt: 2 }}>
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={addAssistant}
+                                onChange={(e) =>
+                                    setAddAssistant(e.target.checked)
+                                }
+                            />
+                        }
+                        label={t('Add TaiGer assistant to meeting', {
+                            ns: 'common'
+                        })}
+                    />
+                </Box>
+            </ConfirmationModal>
         </Box>
     );
 };

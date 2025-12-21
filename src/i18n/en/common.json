@@ -436,5 +436,18 @@
     "finalDecisionsWithCount_one": "{{count}} final decision",
     "finalDecisionsWithCount_other": "{{count}} final decisions",
     "finalDecision_one": "final decision",
-    "finalDecision_other": "final decisions"
+    "finalDecision_other": "final decisions",
+    "Loading meetings...": "Loading meetings...",
+    "Error loading meetings": "Error loading meetings",
+    "Arrange Meeting": "Arrange Meeting",
+    "Total Meetings": "Total Meetings",
+    "Confirmed": "Confirmed",
+    "Completed": "Completed",
+    "meeting(s) awaiting confirmation": "meeting(s) awaiting confirmation",
+    "No meetings scheduled yet": "No meetings scheduled yet",
+    "Start by arranging your first meeting with this student.": "Start by arranging your first meeting with this student.",
+    "Are you sure you want to delete this meeting? This action cannot be undone.": "Are you sure you want to delete this meeting? This action cannot be undone.",
+    "Delete Meeting": "Delete Meeting",
+    "Are you sure you want to confirm this meeting? A meeting link will be generated.": "Are you sure you want to confirm this meeting? A meeting link will be generated.",
+    "Add TaiGer assistant to meeting": "Add TaiGer assistant to meeting"
 }

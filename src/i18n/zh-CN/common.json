@@ -438,5 +438,18 @@
     "finalDecisionsWithCount_other": "{{count}} 笔最终决定",
     "finalDecision_0": "笔最终决定",
     "finalDecision_1": "笔最终决定",
-    "finalDecision_other": "笔最终决定"
+    "finalDecision_other": "笔最终决定",
+    "Loading meetings...": "正在加载会议...",
+    "Error loading meetings": "加载会议时出错",
+    "Arrange Meeting": "安排会议",
+    "Total Meetings": "会议总数",
+    "Confirmed": "已确认",
+    "Completed": "已完成",
+    "meeting(s) awaiting confirmation": "个会议等待确认",
+    "No meetings scheduled yet": "尚未安排会议",
+    "Start by arranging your first meeting with this student.": "开始安排与该学生的第一次会议。",
+    "Are you sure you want to delete this meeting? This action cannot be undone.": "您确定要删除此会议吗？此操作无法撤销。",
+    "Delete Meeting": "删除会议",
+    "Are you sure you want to confirm this meeting? A meeting link will be generated.": "您确定要确认此会议吗？将生成会议链接。",
+    "Add TaiGer assistant to meeting": "添加 TaiGer 助手到会议"
 }
