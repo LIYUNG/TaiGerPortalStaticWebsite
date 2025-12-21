@@ -50,7 +50,7 @@ let application_overview = [
     },
     {
         id: 'cvmlrl-overview',
-        title: 'CV/ML/RL Center',
+        title: 'Application Document Editing Center',
         type: 'item',
         url: '/cv-ml-rl-center',
         classes: 'nav-item',
@@ -357,7 +357,7 @@ const MenuSidebar = [
             },
             {
                 id: 'editor_center',
-                title: 'CV/ML/RL Center',
+                title: 'Application Document Editing Center',
                 type: 'item',
                 url: '/cv-ml-rl-center',
                 classes: 'nav-item',

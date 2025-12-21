@@ -8,7 +8,7 @@ import StarRoundedIcon from '@mui/icons-material/StarRounded';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-import { is_TaiGer_role } from '@taiger-common/core';
+import { is_TaiGer_role, is_TaiGer_Student } from '@taiger-common/core';
 
 import {
     ATTRIBUTES,
@@ -211,6 +211,16 @@ const CVMLRLOverview = (props) => {
                       )
                     : false;
 
+                // Check if this is an Essay and get difficulty
+                const isEssay = params.row.file_type === 'Essay';
+                const program = params.row.program || params.row.program_id_obj;
+                const essayDifficulty = program?.essay_difficulty;
+                const isHardEssay = isEssay && essayDifficulty === 'HARD';
+                const isEasyEssay =
+                    isEssay &&
+                    (essayDifficulty === 'EASY' ||
+                        essayDifficulty === undefined);
+
                 return (
                     <Box>
                         {params.row?.attributes
@@ -233,6 +243,38 @@ const CVMLRLOverview = (props) => {
                                     />
                                 </Tooltip>
                             ))}
+                        {/* Essay difficulty indicator (exclude students) */}
+                        {!is_TaiGer_Student(user) &&
+                            isEssay &&
+                            (isHardEssay || isEasyEssay) && (
+                                <Tooltip
+                                    title={
+                                        isHardEssay
+                                            ? t(
+                                                  'Hard Essay (above 1000 words, scientific research style)',
+                                                  {
+                                                      ns: 'common'
+                                                  }
+                                              )
+                                            : t(
+                                                  'Easy Essay (below 1000 words, non-scientific research style)',
+                                                  {
+                                                      ns: 'common'
+                                                  }
+                                              )
+                                    }
+                                >
+                                    <Chip
+                                        color={
+                                            isHardEssay ? 'error' : 'success'
+                                        }
+                                        label={isHardEssay ? 'HARD' : 'EASY'}
+                                        size="small"
+                                        sx={{ ml: 0.5, mr: 0.5 }}
+                                        variant="outlined"
+                                    />
+                                </Tooltip>
+                            )}
                         {isNonApprovalCountry && (
                             <Tooltip
                                 title={t('Lack of experience country', {
@@ -409,8 +451,50 @@ const CVMLRLOverview = (props) => {
                     params.row?.isApplicationLocked ||
                     params.row?.isProgramLocked;
 
+                // Check if this is an Essay and get difficulty
+                const isEssay = params.row.file_type === 'Essay';
+                const program = params.row.program || params.row.program_id_obj;
+                const essayDifficulty = program?.essay_difficulty;
+                const isHardEssay = isEssay && essayDifficulty === 'HARD';
+                const isEasyEssay =
+                    isEssay &&
+                    (essayDifficulty === 'EASY' ||
+                        essayDifficulty === undefined);
+
                 return (
                     <Box>
+                        {/* Essay difficulty indicator (exclude students) */}
+                        {!is_TaiGer_Student(user) &&
+                            isEssay &&
+                            (isHardEssay || isEasyEssay) && (
+                                <Tooltip
+                                    title={
+                                        isHardEssay
+                                            ? t(
+                                                  'Hard Essay (above 1000 words, scientific research style)',
+                                                  {
+                                                      ns: 'common'
+                                                  }
+                                              )
+                                            : t(
+                                                  'Easy Essay (below 1000 words, non-scientific research style)',
+                                                  {
+                                                      ns: 'common'
+                                                  }
+                                              )
+                                    }
+                                >
+                                    <Chip
+                                        color={
+                                            isHardEssay ? 'error' : 'success'
+                                        }
+                                        label={isHardEssay ? 'HARD' : 'EASY'}
+                                        size="small"
+                                        sx={{ mb: 0.5, display: 'block' }}
+                                        variant="outlined"
+                                    />
+                                </Tooltip>
+                            )}
                         {isLocked ? (
                             <Tooltip
                                 title={t(
