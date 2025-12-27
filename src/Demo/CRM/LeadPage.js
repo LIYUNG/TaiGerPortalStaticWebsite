@@ -16,7 +16,10 @@ import {
     MenuItem,
     IconButton,
     Button,
-    CircularProgress
+    CircularProgress,
+    Accordion,
+    AccordionSummary,
+    AccordionDetails
 } from '@mui/material';
 import {
     Edit as EditIcon,
@@ -26,26 +29,29 @@ import {
     Event as EventIcon,
     Female as FemaleIcon,
     Male as MaleIcon,
-    Transgender as OtherGenderIcon
+    Transgender as OtherGenderIcon,
+    ExpandMore as ExpandMoreIcon
 } from '@mui/icons-material';
+
+import { is_TaiGer_role } from '@taiger-common/core';
+import { getCRMLeadQuery, getStudentQuery } from '../../api/query';
+import { request } from '../../api/request';
+import { updateCRMDeal } from '../../api';
 
 import DEMO from '../../store/constant';
 import { appConfig } from '../../config';
+
 import Loading from '../../components/Loading/Loading';
-import { is_TaiGer_role } from '@taiger-common/core';
 import { useAuth } from '../../components/AuthProvider';
-import { getCRMLeadQuery } from '../../api/query';
-import { request } from '../../api/request';
-import { updateCRMDeal } from '../../api';
 import CreateUserFromLeadModal from './components/CreateUserFromLeadModal';
 import DealModal from './components/DealModal';
 import EditableCard from './components/EditableCard';
 import { GenericCardContent } from './components/GenericCard';
 import { getCardConfigurations } from './components/CardConfigurations';
+import DealItem from './components/DealItem';
 import SimilarStudents from './components/SimilarStudents';
 import StatusMenu from './components/StatusMenu';
-import DealItem from './components/DealItem';
-import { isTerminalStatus, getDealId } from './components/statusUtils';
+import { getDealId, isTerminalStatus } from './components/statusUtils';
 import { sanitizeMeetingTitle } from './components/meetingUtils';
 
 const LeadPage = () => {
@@ -57,8 +63,30 @@ const LeadPage = () => {
     if (!is_TaiGer_role(user))
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
 
-    const { data, isLoading } = useQuery(getCRMLeadQuery(leadId));
+    const leadQueryOptions = leadId
+        ? getCRMLeadQuery(leadId)
+        : {
+              queryKey: ['crm/lead', leadId],
+              queryFn: async () => null,
+              enabled: false
+          };
+    const { data, isLoading: leadLoading } = useQuery(leadQueryOptions);
     const lead = data?.data?.data || {};
+
+    // lead.userId exists fetch student data
+    const studentQueryOptions = lead?.userId
+        ? getStudentQuery(lead.userId)
+        : {
+              queryKey: ['student', lead?.userId],
+              queryFn: async () => null,
+              enabled: false
+          };
+    const { data: studentData, isLoading: studentLoading } =
+        useQuery(studentQueryOptions);
+    const student = studentData?.data?.data || {};
+    console.log('student data:', student);
+
+    const isLoading = leadLoading || (lead?.userId && studentLoading);
 
     const [selectedLead, setSelectedLead] = useState(null);
     const [showCreateUserModal, setShowCreateUserModal] = useState(false);
@@ -1044,45 +1072,60 @@ const LeadPage = () => {
                 similarUsers={lead?.leadSimilarUsers}
             />
 
-            {lead && Object.keys(lead).length > 0 ? (
-                <Grid container spacing={3} sx={{ pb: 5 }}>
-                    {cardConfigurations.map((config) => (
-                        <Grid item key={config.id} {...config.gridSize}>
-                            <EditableCard
-                                editContent={
-                                    <GenericCardContent
-                                        config={config}
-                                        formData={formData}
-                                        isEditing={true}
-                                        lead={lead}
-                                        onFieldChange={handleFieldChange}
+            <Accordion defaultExpanded={false}>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    <Typography variant="h6">
+                        {t('common.leadDetails', { ns: 'crm' })}
+                    </Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                    {lead && Object.keys(lead).length > 0 ? (
+                        <Grid container spacing={3} sx={{ pb: 5 }}>
+                            {cardConfigurations.map((config) => (
+                                <Grid item key={config.id} {...config.gridSize}>
+                                    <EditableCard
+                                        editContent={
+                                            <GenericCardContent
+                                                config={config}
+                                                formData={formData}
+                                                isEditing={true}
+                                                lead={lead}
+                                                onFieldChange={
+                                                    handleFieldChange
+                                                }
+                                            />
+                                        }
+                                        hasUnsavedChanges={hasUnsavedChanges(
+                                            config.id
+                                        )}
+                                        isEditing={editStates[config.id]}
+                                        isLoading={updateLeadMutation.isPending}
+                                        onCancel={() => handleCancel(config.id)}
+                                        onEdit={() => handleEdit(config.id)}
+                                        onSave={() => handleSave(config.id)}
+                                        title={config.title}
+                                        viewContent={
+                                            <GenericCardContent
+                                                config={config}
+                                                formData={formData}
+                                                isEditing={false}
+                                                lead={lead}
+                                                onFieldChange={
+                                                    handleFieldChange
+                                                }
+                                            />
+                                        }
                                     />
-                                }
-                                hasUnsavedChanges={hasUnsavedChanges(config.id)}
-                                isEditing={editStates[config.id]}
-                                isLoading={updateLeadMutation.isPending}
-                                onCancel={() => handleCancel(config.id)}
-                                onEdit={() => handleEdit(config.id)}
-                                onSave={() => handleSave(config.id)}
-                                title={config.title}
-                                viewContent={
-                                    <GenericCardContent
-                                        config={config}
-                                        formData={formData}
-                                        isEditing={false}
-                                        lead={lead}
-                                        onFieldChange={handleFieldChange}
-                                    />
-                                }
-                            />
+                                </Grid>
+                            ))}
                         </Grid>
-                    ))}
-                </Grid>
-            ) : (
-                <Typography color="text.secondary" variant="body1">
-                    {t('common.loadingLeadInfo', { ns: 'crm' })}
-                </Typography>
-            )}
+                    ) : (
+                        <Typography color="text.secondary" variant="body1">
+                            {t('common.loadingLeadInfo', { ns: 'crm' })}
+                        </Typography>
+                    )}
+                </AccordionDetails>
+            </Accordion>
 
             <CreateUserFromLeadModal
                 lead={selectedLead}
