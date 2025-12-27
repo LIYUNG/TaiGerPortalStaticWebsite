@@ -69,6 +69,9 @@ export const getStudents = () => request.get(`/api/students`);
 export const getStudentsV3 = (queryString) =>
     getData(`/api/students/v3?${queryString}`);
 
+export const getStudent = (studentId) =>
+    request.get(`/api/students/${studentId}`);
+
 export const getApplications = (queryString) =>
     getData(`/api/applications?${queryString}`);
 

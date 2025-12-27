@@ -22,6 +22,7 @@ import {
     getMyCommunicationThreadV2,
     getMessagThread,
     getStudentsV3,
+    getStudent,
     getMyStudentsApplications,
     getMyStudentsThreads,
     getApplications,
@@ -173,6 +174,12 @@ export const getActiveStudentsQuery = (queryString) => ({
 export const getStudentsV3Query = (queryString) => ({
     queryKey: ['students/v3', queryString],
     queryFn: () => getStudentsV3(queryString),
+    staleTime: 1000 * 60 * 5 // 5 minutes
+});
+
+export const getStudentQuery = (studentId) => ({
+    queryKey: ['student', studentId],
+    queryFn: () => getStudent(studentId),
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
 
