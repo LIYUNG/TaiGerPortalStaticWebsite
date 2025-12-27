@@ -306,7 +306,6 @@ const LeadPage = () => {
                     </Typography>
                 </Breadcrumbs>
             </Box>
-
             <Box
                 sx={{
                     mb: 3,
@@ -1071,6 +1070,184 @@ const LeadPage = () => {
                 leadId={leadId}
                 similarUsers={lead?.leadSimilarUsers}
             />
+
+            {/* Student data */}
+            {lead?.userId && (
+                <Box
+                    sx={{
+                        mb: 3,
+                        display: 'flex',
+                        alignItems: 'center',
+                        flexDirection: 'column',
+                        p: 2,
+                        borderRadius: 1,
+                        backgroundColor: 'background.paper',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
+                        border: '1px solid',
+                        borderColor: 'divider'
+                    }}
+                >
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            width: '100%',
+                            gap: 1.5
+                        }}
+                    >
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                width: '100%',
+                                gap: 1
+                            }}
+                        >
+                            <Typography
+                                sx={{
+                                    fontWeight: 600,
+                                    color: 'text.primary',
+                                    letterSpacing: '0.3px'
+                                }}
+                                variant="h5"
+                            >
+                                {t('common.student', { ns: 'crm' })}
+                            </Typography>
+                        </Box>
+                        {/* Academic Background */}
+                        {student.academic_background && (
+                            <Box>
+                                <Typography sx={{ mb: 1 }} variant="h6">
+                                    Academic Background
+                                </Typography>
+                                {student.academic_background.university && (
+                                    <Box sx={{ mb: 1 }}>
+                                        <Typography variant="subtitle2">
+                                            University
+                                        </Typography>
+                                        <Typography variant="body2">
+                                            Attended University:{' '}
+                                            {
+                                                student.academic_background
+                                                    .university
+                                                    .attended_university
+                                            }
+                                        </Typography>
+                                        <Typography variant="body2">
+                                            Program:{' '}
+                                            {
+                                                student.academic_background
+                                                    .university
+                                                    .attended_university_program
+                                            }
+                                        </Typography>
+                                        <Typography variant="body2">
+                                            GPA:{' '}
+                                            {
+                                                student.academic_background
+                                                    .university.My_GPA_Uni
+                                            }{' '}
+                                            /{' '}
+                                            {
+                                                student.academic_background
+                                                    .university.Highest_GPA_Uni
+                                            }
+                                        </Typography>
+                                        <Typography variant="body2">
+                                            Graduated:{' '}
+                                            {
+                                                student.academic_background
+                                                    .university.isGraduated
+                                            }
+                                        </Typography>
+                                    </Box>
+                                )}
+                                {student.academic_background.language && (
+                                    <Box sx={{ mb: 1 }}>
+                                        <Typography variant="subtitle2">
+                                            Language
+                                        </Typography>
+                                        <Typography variant="body2">
+                                            English:{' '}
+                                            {
+                                                student.academic_background
+                                                    .language
+                                                    .english_certificate
+                                            }{' '}
+                                            -{' '}
+                                            {
+                                                student.academic_background
+                                                    .language.english_score
+                                            }
+                                        </Typography>
+                                        <Typography variant="body2">
+                                            German:{' '}
+                                            {
+                                                student.academic_background
+                                                    .language.german_certificate
+                                            }{' '}
+                                            -{' '}
+                                            {
+                                                student.academic_background
+                                                    .language.german_score
+                                            }
+                                        </Typography>
+                                    </Box>
+                                )}
+                            </Box>
+                        )}
+                        {/* Application Preference */}
+                        {student.application_preference && (
+                            <Box sx={{ mt: 2, width: '100%' }}>
+                                <Typography sx={{ mb: 1 }} variant="h6">
+                                    Application Preference
+                                </Typography>
+                                <Typography variant="body2">
+                                    Expected Application Date:{' '}
+                                    {
+                                        student.application_preference
+                                            .expected_application_date
+                                    }
+                                </Typography>
+                                <Typography variant="body2">
+                                    Semester:{' '}
+                                    {
+                                        student.application_preference
+                                            .expected_application_semester
+                                    }
+                                </Typography>
+                                <Typography variant="body2">
+                                    Target Degree:{' '}
+                                    {
+                                        student.application_preference
+                                            .target_degree
+                                    }
+                                </Typography>
+                                <Typography variant="body2">
+                                    Target Field:{' '}
+                                    {
+                                        student.application_preference
+                                            .target_application_field
+                                    }
+                                </Typography>
+                                <Typography variant="body2">
+                                    Target Subjects:{' '}
+                                    {student.application_preference.targetApplicationSubjects?.join(
+                                        ', '
+                                    )}
+                                </Typography>
+                                <Typography variant="body2">
+                                    Special Wishes:{' '}
+                                    {
+                                        student.application_preference
+                                            .special_wished
+                                    }
+                                </Typography>
+                            </Box>
+                        )}
+                    </Box>
+                </Box>
+            )}
 
             <Accordion defaultExpanded={false}>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
