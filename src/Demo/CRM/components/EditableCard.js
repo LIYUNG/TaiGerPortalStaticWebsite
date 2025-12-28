@@ -24,6 +24,7 @@ const EditableCard = ({
     editContent,
     isLoading = false,
     hasUnsavedChanges = false,
+    disableEdit = false,
     gridProps = {}
 }) => {
     const { t } = useTranslation();
@@ -55,9 +56,11 @@ const EditableCard = ({
                         )}
                     </Typography>
                     {!isEditing ? (
-                        <IconButton onClick={onEdit} size="small">
-                            <EditIcon />
-                        </IconButton>
+                        !disableEdit && (
+                            <IconButton onClick={onEdit} size="small">
+                                <EditIcon />
+                            </IconButton>
+                        )
                     ) : (
                         <Box sx={{ display: 'flex', gap: 1 }}>
                             <IconButton

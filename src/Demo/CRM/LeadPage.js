@@ -1283,6 +1283,9 @@ const LeadPage = () => {
                             {cardConfigurations.map((config) => (
                                 <Grid item key={config.id} {...config.gridSize}>
                                     <EditableCard
+                                        disableEdit={
+                                            lead?.userId ? true : false
+                                        }
                                         editContent={
                                             <GenericCardContent
                                                 config={config}
