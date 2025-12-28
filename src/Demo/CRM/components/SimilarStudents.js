@@ -595,7 +595,7 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
     // Render loading state
     if (isLoading) {
         return (
-            <Card sx={{ mb: 3 }}>
+            <Card sx={{ mb: 1 }}>
                 <CardContent>
                     <Box
                         sx={{

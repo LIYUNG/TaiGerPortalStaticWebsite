@@ -1273,7 +1273,17 @@ const LeadPage = () => {
                 </Box>
             )}
 
-            <Accordion defaultExpanded={false}>
+            <Accordion
+                defaultExpanded={!hasPortalUser}
+                disableGutters
+                elevation={0}
+                square
+                sx={{
+                    backgroundColor: 'transparent',
+                    boxShadow: 'none',
+                    '&:before': { display: 'none' }
+                }}
+            >
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                     <Typography variant="h6">
                         {t('common.leadDetails', { ns: 'crm' })}
