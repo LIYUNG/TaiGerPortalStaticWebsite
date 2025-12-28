@@ -73,8 +73,10 @@ const LeadPage = () => {
     const { data, isLoading: leadLoading } = useQuery(leadQueryOptions);
     const lead = data?.data?.data || {};
 
+    const hasPortalUser = !!lead?.userId;
+
     // lead.userId exists fetch student data
-    const studentQueryOptions = lead?.userId
+    const studentQueryOptions = hasPortalUser
         ? getStudentQuery(lead.userId)
         : {
               queryKey: ['student', lead?.userId],
@@ -86,7 +88,7 @@ const LeadPage = () => {
     const student = studentData?.data?.data || {};
     console.log('student data:', student);
 
-    const isLoading = leadLoading || (lead?.userId && studentLoading);
+    const isLoading = leadLoading || (hasPortalUser && studentLoading);
 
     const [selectedLead, setSelectedLead] = useState(null);
     const [showCreateUserModal, setShowCreateUserModal] = useState(false);
@@ -541,7 +543,7 @@ const LeadPage = () => {
                                     {lead.applicantRole}
                                 </Typography>
                             )}
-                            {lead.userId ? (
+                            {hasPortalUser ? (
                                 <Link
                                     component="a"
                                     href={`/student-database/${lead.userId}`}
@@ -554,7 +556,7 @@ const LeadPage = () => {
                                 >
                                     {t('common.studentProfile', { ns: 'crm' })}
                                 </Link>
-                            ) : !lead.userId &&
+                            ) : !hasPortalUser &&
                               lead.status !== 'closed' &&
                               lead.status !== 'converted' ? (
                                 <Button
@@ -1072,7 +1074,7 @@ const LeadPage = () => {
             />
 
             {/* Student data */}
-            {lead?.userId && (
+            {hasPortalUser && (
                 <Box
                     sx={{
                         mb: 3,
@@ -1283,9 +1285,7 @@ const LeadPage = () => {
                             {cardConfigurations.map((config) => (
                                 <Grid item key={config.id} {...config.gridSize}>
                                     <EditableCard
-                                        disableEdit={
-                                            lead?.userId ? true : false
-                                        }
+                                        disableEdit={hasPortalUser}
                                         editContent={
                                             <GenericCardContent
                                                 config={config}
