@@ -1,6 +1,6 @@
 import { Typography } from '@mui/material';
 
-export const getCardConfigurations = (t) => [
+export const getLeadCardConfigurations = (t) => [
     {
         id: 'education',
         title: t('cards.education.title', { ns: 'crm' }),
@@ -220,6 +220,257 @@ export const getCardConfigurations = (t) => [
                 type: 'text',
                 multiline: true,
                 rows: 3
+            }
+        ]
+    }
+];
+
+export const getStudentCardConfigurations = (t) => [
+    {
+        id: 'academic-university',
+        title: t('Academic Background Survey'),
+        gridSize: { xs: 12, md: 8 },
+        layout: 'grid',
+        sections: [
+            {
+                title: t('High School'),
+                gridSize: 4,
+                fields: [
+                    {
+                        key: 'academic_background_university_high_school_isGraduated',
+                        label: t('High School already graduated'),
+                        type: 'text'
+                    },
+                    {
+                        key: 'academic_background_university_attended_high_school',
+                        label: t('High School Name (English)'),
+                        type: 'text'
+                    },
+                    {
+                        key: 'academic_background_university_high_school_graduated_year',
+                        label: t('High School Graduate Year'),
+                        type: 'text'
+                    }
+                ]
+            },
+            {
+                title: t('University Name (Bachelor degree)'),
+                gridSize: 4,
+                fields: [
+                    {
+                        key: 'academic_background_university_attended_university',
+                        label: t('University Name'),
+                        type: 'text'
+                    },
+                    {
+                        key: 'academic_background_university_attended_university_program',
+                        label: t('Program Name'),
+                        type: 'text'
+                    },
+                    {
+                        key: 'academic_background_university_isGraduated',
+                        label: t('Already Bachelor graduated ?'),
+                        type: 'text'
+                    },
+                    {
+                        key: 'academic_background_university_expected_grad_date',
+                        label: t('Expected Graduate Year'),
+                        type: 'text'
+                    },
+                    {
+                        key: 'academic_background_university_My_GPA_Uni',
+                        label: t('My GPA'),
+                        type: 'text'
+                    },
+                    {
+                        key: 'academic_background_university_Highest_GPA_Uni',
+                        label: t(
+                            'Highest Score GPA of your university program'
+                        ),
+                        type: 'text'
+                    },
+                    {
+                        key: 'academic_background_university_Passing_GPA_Uni',
+                        label: t(
+                            'Passing Score GPA of your university program'
+                        ),
+                        type: 'text'
+                    }
+                ]
+            },
+            {
+                title: t('Second Degree'),
+                gridSize: 4,
+                fields: [
+                    {
+                        key: 'academic_background_university_attendedSecondDegreeUniversity',
+                        label: t('University Name'),
+                        type: 'text'
+                    },
+                    {
+                        key: 'academic_background_university_attendedSecondDegreeProgram',
+                        label: t('Program Name'),
+                        type: 'text'
+                    },
+                    {
+                        key: 'academic_background_university_isSecondGraduated',
+                        label: t('Already Second Degree graduated ?'),
+                        type: 'text'
+                    },
+                    {
+                        key: 'academic_background_university_expectedSecondDegreeGradDate',
+                        label: t('Graduated Year'),
+                        type: 'text'
+                    }
+                ]
+            }
+        ],
+        fields: [
+            {
+                key: 'academic_background_university_Has_Exchange_Experience',
+                label: t('Exchange Student Experience ?'),
+                type: 'text'
+            },
+            {
+                key: 'academic_background_university_Has_Internship_Experience',
+                label: t('Internship Experience ?'),
+                type: 'text'
+            },
+            {
+                key: 'academic_background_university_Has_Working_Experience',
+                label: t('Full-Time Job Experience ?'),
+                type: 'text'
+            }
+        ]
+    },
+
+    // 👇 same position as "programs" in lead cards
+    {
+        id: 'application-preference',
+        title: t('Application Preference'),
+        gridSize: { xs: 12, md: 4 },
+        layout: 'grid',
+        sections: [
+            {
+                title: t('Expected Application Semester'),
+                gridSize: 12,
+                fields: [
+                    {
+                        key: 'application_preference_expected_application_date',
+                        label: t('Expected Application Year'),
+                        type: 'text'
+                    },
+                    {
+                        key: 'application_preference_expected_application_semester',
+                        label: t('Expected Application Semester'),
+                        type: 'text'
+                    }
+                ]
+            }
+        ],
+        fields: [
+            {
+                key: 'application_preference_target_degree',
+                label: t('Target Degree Programs'),
+                type: 'text'
+            },
+            {
+                key: 'application_preference_target_program_language',
+                label: t('Target Program Language'),
+                type: 'text'
+            },
+            {
+                key: 'application_preference_target_application_field',
+                label: t('Target Application Fields'),
+                type: 'text'
+            },
+            {
+                key: 'application_preference_targetApplicationSubjects',
+                label: t('Target Application Subjects'),
+                type: 'text'
+            },
+            {
+                key: 'application_preference_considered_privat_universities',
+                label: t(
+                    'Considering private universities? (Tuition Fee: ~15000 EURO/year)'
+                ),
+                type: 'text'
+            },
+            {
+                key: 'application_preference_application_outside_germany',
+                label: t('Considering universities outside Germany?'),
+                type: 'text'
+            },
+            {
+                key: 'application_preference_special_wished',
+                label: t('Note'),
+                type: 'text',
+                multiline: true,
+                rows: 3
+            }
+        ]
+    },
+
+    // 👇 same position as "language" in lead cards
+    {
+        id: 'academic-language',
+        title: t('Languages Test and Certificates'),
+        gridSize: { xs: 12, md: 4 },
+        layout: 'grid',
+        sections: [
+            {
+                title: t('English Test'),
+                gridSize: 6,
+                fields: [
+                    {
+                        key: 'academic_background_language_english_isPassed',
+                        label: t('English Passed ? (IELTS 6_5 / TOEFL 88)'),
+                        type: 'text'
+                    },
+                    {
+                        key: 'academic_background_language_english_certificate',
+                        label: t('English Certificate'),
+                        type: 'text'
+                    },
+                    {
+                        key: 'academic_background_language_english_score',
+                        label: t('acquired-score'),
+                        type: 'text'
+                    },
+                    {
+                        key: 'academic_background_language_english_test_date',
+                        label: t('English Test Date'),
+                        type: 'text'
+                    }
+                ]
+            },
+            {
+                title: t('German Certificate'),
+                gridSize: 6,
+                fields: [
+                    {
+                        key: 'academic_background_language_german_isPassed',
+                        label: t(
+                            'German Passed ? (Set Not need if applying English taught programs_)'
+                        ),
+                        type: 'text'
+                    },
+                    {
+                        key: 'academic_background_language_german_certificate',
+                        label: t('German Certificate'),
+                        type: 'text'
+                    },
+                    {
+                        key: 'academic_background_language_german_score',
+                        label: t('German Test Score'),
+                        type: 'text'
+                    },
+                    {
+                        key: 'academic_background_language_german_test_date',
+                        label: t('German Test Date'),
+                        type: 'text'
+                    }
+                ]
             }
         ]
     }

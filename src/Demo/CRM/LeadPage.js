@@ -47,12 +47,16 @@ import CreateUserFromLeadModal from './components/CreateUserFromLeadModal';
 import DealModal from './components/DealModal';
 import EditableCard from './components/EditableCard';
 import { GenericCardContent } from './components/GenericCard';
-import { getCardConfigurations } from './components/CardConfigurations';
+import {
+    getStudentCardConfigurations,
+    getLeadCardConfigurations
+} from './components/CardConfigurations';
 import DealItem from './components/DealItem';
 import SimilarStudents from './components/SimilarStudents';
 import StatusMenu from './components/StatusMenu';
 import { getDealId, isTerminalStatus } from './components/statusUtils';
 import { sanitizeMeetingTitle } from './components/meetingUtils';
+import { flattenObject } from '../Utils/checking-functions';
 
 const LeadPage = () => {
     const { leadId } = useParams();
@@ -86,8 +90,6 @@ const LeadPage = () => {
     const { data: studentData, isLoading: studentLoading } =
         useQuery(studentQueryOptions);
     const student = studentData?.data?.data || {};
-    console.log('student data:', student);
-
     const isLoading = leadLoading || (hasPortalUser && studentLoading);
 
     const [selectedLead, setSelectedLead] = useState(null);
@@ -96,16 +98,17 @@ const LeadPage = () => {
     const [showDealModal, setShowDealModal] = useState(false);
     const [statusMenu, setStatusMenu] = useState({ anchorEl: null, row: null });
 
-    const cardConfigurations = getCardConfigurations(t);
-    const initialEditStates = useMemo(
+    const leadCardConfigurations = getLeadCardConfigurations(t);
+    const studentCardConfigurations = getStudentCardConfigurations(t);
+    const initLeadEditStates = useMemo(
         () =>
-            cardConfigurations.reduce(
+            leadCardConfigurations.reduce(
                 (acc, c) => ({ ...acc, [c.id]: false }),
                 {}
             ),
-        [cardConfigurations]
+        [leadCardConfigurations]
     );
-    const [editStates, setEditStates] = useState(initialEditStates);
+    const [leadEditStates, setLeadEditStates] = useState(initLeadEditStates);
     const [formData, setFormData] = useState({});
 
     useMemo(() => {
@@ -118,7 +121,7 @@ const LeadPage = () => {
             const res = await request.get('/api/crm/sales-reps');
             return res?.data?.data ?? res?.data ?? [];
         },
-        enabled: !!editStates?.personal,
+        enabled: !!leadEditStates?.personal,
         staleTime: 300000
     });
     const salesOptions = (salesData || []).map((s) => ({
@@ -183,25 +186,25 @@ const LeadPage = () => {
     });
 
     const handleEdit = (cardId) => {
-        setEditStates((p) => ({ ...p, [cardId]: true }));
+        setLeadEditStates((p) => ({ ...p, [cardId]: true }));
         if (lead && Object.keys(lead).length) {
             setFormData(lead);
             form.reset(lead);
         }
     };
     const handleCancel = (cardId) => {
-        setEditStates((p) => ({ ...p, [cardId]: false }));
+        setLeadEditStates((p) => ({ ...p, [cardId]: false }));
         setFormData(lead);
         form.reset(lead);
     };
     const handleSave = async (cardId) => {
         const changed = getChangedFields(lead, formData);
         if (Object.keys(changed).length === 0) {
-            setEditStates((p) => ({ ...p, [cardId]: false }));
+            setLeadEditStates((p) => ({ ...p, [cardId]: false }));
             return;
         }
         await updateLeadMutation.mutateAsync(changed);
-        setEditStates((p) => ({ ...p, [cardId]: false }));
+        setLeadEditStates((p) => ({ ...p, [cardId]: false }));
     };
     const handleFieldChange = (field, value) => {
         setFormData((p) => ({ ...p, [field]: value }));
@@ -209,7 +212,7 @@ const LeadPage = () => {
     };
     const hasUnsavedChanges = (cardId) => {
         const changed = getChangedFields(lead, formData);
-        const cfg = cardConfigurations.find((c) => c.id === cardId);
+        const cfg = leadCardConfigurations.find((c) => c.id === cardId);
         if (!cfg) return false;
         const fields = [
             ...(cfg.fields ? cfg.fields.map((f) => f.key) : []),
@@ -322,7 +325,7 @@ const LeadPage = () => {
                     borderColor: 'divider'
                 }}
             >
-                {!editStates.personal ? (
+                {!leadEditStates.personal ? (
                     <Box
                         sx={{
                             display: 'flex',
@@ -964,7 +967,6 @@ const LeadPage = () => {
                     </Box>
                 )}
             </Box>
-
             {lead?.meetings && lead.meetings.length > 0 && (
                 <Box sx={{ mb: 4 }}>
                     <Box
@@ -1067,212 +1069,228 @@ const LeadPage = () => {
                     </Box>
                 </Box>
             )}
-
             <SimilarStudents
                 leadId={leadId}
                 similarUsers={lead?.leadSimilarUsers}
             />
-
             {/* Student data */}
             {hasPortalUser && (
-                <Box
-                    sx={{
-                        mb: 3,
-                        display: 'flex',
-                        alignItems: 'center',
-                        flexDirection: 'column',
-                        p: 2,
-                        borderRadius: 1,
-                        backgroundColor: 'background.paper',
-                        boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
-                        border: '1px solid',
-                        borderColor: 'divider'
-                    }}
-                >
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            width: '100%',
-                            gap: 1.5
-                        }}
-                    >
-                        <Box
-                            sx={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                width: '100%',
-                                gap: 1
-                            }}
-                        >
-                            <Typography
-                                sx={{
-                                    fontWeight: 600,
-                                    color: 'text.primary',
-                                    letterSpacing: '0.3px'
-                                }}
-                                variant="h5"
-                            >
-                                {t('common.student', { ns: 'crm' })}
-                            </Typography>
-                        </Box>
-                        {/* Academic Background and Application Preference side by side */}
-                        <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-                            <Box sx={{ flex: 1 }}>
-                                {student.academic_background && (
-                                    <Box>
-                                        <Typography sx={{ mb: 1 }} variant="h6">
-                                            Academic Background
-                                        </Typography>
-                                        {student.academic_background
-                                            .university && (
-                                            <Box sx={{ mb: 1 }}>
-                                                <Typography variant="subtitle2">
-                                                    University
-                                                </Typography>
-                                                <Typography variant="body2">
-                                                    Attended University:{' '}
-                                                    {
-                                                        student
-                                                            .academic_background
-                                                            .university
-                                                            .attended_university
-                                                    }
-                                                </Typography>
-                                                <Typography variant="body2">
-                                                    Program:{' '}
-                                                    {
-                                                        student
-                                                            .academic_background
-                                                            .university
-                                                            .attended_university_program
-                                                    }
-                                                </Typography>
-                                                <Typography variant="body2">
-                                                    GPA:{' '}
-                                                    {
-                                                        student
-                                                            .academic_background
-                                                            .university
-                                                            .My_GPA_Uni
-                                                    }{' '}
-                                                    /{' '}
-                                                    {
-                                                        student
-                                                            .academic_background
-                                                            .university
-                                                            .Highest_GPA_Uni
-                                                    }
-                                                </Typography>
-                                                <Typography variant="body2">
-                                                    Graduated:{' '}
-                                                    {
-                                                        student
-                                                            .academic_background
-                                                            .university
-                                                            .isGraduated
-                                                    }
-                                                </Typography>
-                                            </Box>
-                                        )}
-                                        {student.academic_background
-                                            .language && (
-                                            <Box sx={{ mb: 1 }}>
-                                                <Typography variant="subtitle2">
-                                                    Language
-                                                </Typography>
-                                                <Typography variant="body2">
-                                                    English:{' '}
-                                                    {
-                                                        student
-                                                            .academic_background
-                                                            .language
-                                                            .english_certificate
-                                                    }{' '}
-                                                    -{' '}
-                                                    {
-                                                        student
-                                                            .academic_background
-                                                            .language
-                                                            .english_score
-                                                    }
-                                                </Typography>
-                                                <Typography variant="body2">
-                                                    German:{' '}
-                                                    {
-                                                        student
-                                                            .academic_background
-                                                            .language
-                                                            .german_certificate
-                                                    }{' '}
-                                                    -{' '}
-                                                    {
-                                                        student
-                                                            .academic_background
-                                                            .language
-                                                            .german_score
-                                                    }
-                                                </Typography>
-                                            </Box>
-                                        )}
-                                    </Box>
-                                )}
-                            </Box>
-                            <Box sx={{ flex: 1 }}>
-                                {student.application_preference && (
-                                    <Box>
-                                        <Typography sx={{ mb: 1 }} variant="h6">
-                                            Application Preference
-                                        </Typography>
-                                        <Typography variant="body2">
-                                            Expected Application Date:{' '}
-                                            {
-                                                student.application_preference
-                                                    .expected_application_date
-                                            }
-                                        </Typography>
-                                        <Typography variant="body2">
-                                            Semester:{' '}
-                                            {
-                                                student.application_preference
-                                                    .expected_application_semester
-                                            }
-                                        </Typography>
-                                        <Typography variant="body2">
-                                            Target Degree:{' '}
-                                            {
-                                                student.application_preference
-                                                    .target_degree
-                                            }
-                                        </Typography>
-                                        <Typography variant="body2">
-                                            Target Field:{' '}
-                                            {
-                                                student.application_preference
-                                                    .target_application_field
-                                            }
-                                        </Typography>
-                                        <Typography variant="body2">
-                                            Target Subjects:{' '}
-                                            {student.application_preference.targetApplicationSubjects?.join(
-                                                ', '
-                                            )}
-                                        </Typography>
-                                        <Typography variant="body2">
-                                            Special Wishes:{' '}
-                                            {
-                                                student.application_preference
-                                                    .special_wished
-                                            }
-                                        </Typography>
-                                    </Box>
-                                )}
-                            </Box>
-                        </Box>
-                    </Box>
-                </Box>
-            )}
+                <Grid container spacing={3} sx={{ pb: 5 }}>
+                    {studentCardConfigurations.map((config) => (
+                        <Grid item key={config.id} {...config.gridSize}>
+                            <EditableCard
+                                disableEdit={hasPortalUser}
+                                title={config.title}
+                                viewContent={
+                                    <GenericCardContent
+                                        config={config}
+                                        isEditing={false}
+                                        lead={flattenObject(student)}
+                                        onFieldChange={handleFieldChange}
+                                    />
+                                }
+                            />
+                        </Grid>
+                    ))}
+                </Grid>
 
+                // <Box
+                //     sx={{
+                //         mb: 3,
+                //         display: 'flex',
+                //         alignItems: 'center',
+                //         flexDirection: 'column',
+                //         p: 2,
+                //         borderRadius: 1,
+                //         backgroundColor: 'background.paper',
+                //         boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
+                //         border: '1px solid',
+                //         borderColor: 'divider'
+                //     }}
+                // >
+                //     <Box
+                //         sx={{
+                //             display: 'flex',
+                //             flexDirection: 'column',
+                //             width: '100%',
+                //             gap: 1.5
+                //         }}
+                //     >
+                //         <Box
+                //             sx={{
+                //                 display: 'flex',
+                //                 alignItems: 'center',
+                //                 width: '100%',
+                //                 gap: 1
+                //             }}
+                //         >
+                //             <Typography
+                //                 sx={{
+                //                     fontWeight: 600,
+                //                     color: 'text.primary',
+                //                     letterSpacing: '0.3px'
+                //                 }}
+                //                 variant="h5"
+                //             >
+                //                 {t('common.student', { ns: 'crm' })}
+                //             </Typography>
+                //         </Box>
+                //         {/* Academic Background and Application Preference side by side */}
+                //         <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                //             <Box sx={{ flex: 1 }}>
+                //                 {student.academic_background && (
+                //                     <Box>
+                //                         <Typography sx={{ mb: 1 }} variant="h6">
+                //                             Academic Background
+                //                         </Typography>
+                //                         {student.academic_background
+                //                             .university && (
+                //                             <Box sx={{ mb: 1 }}>
+                //                                 <Typography variant="subtitle2">
+                //                                     University
+                //                                 </Typography>
+                //                                 <Typography variant="body2">
+                //                                     Attended University:{' '}
+                //                                     {
+                //                                         student
+                //                                             .academic_background
+                //                                             .university
+                //                                             .attended_university
+                //                                     }
+                //                                 </Typography>
+                //                                 <Typography variant="body2">
+                //                                     Program:{' '}
+                //                                     {
+                //                                         student
+                //                                             .academic_background
+                //                                             .university
+                //                                             .attended_university_program
+                //                                     }
+                //                                 </Typography>
+                //                                 <Typography variant="body2">
+                //                                     GPA:{' '}
+                //                                     {
+                //                                         student
+                //                                             .academic_background
+                //                                             .university
+                //                                             .My_GPA_Uni
+                //                                     }{' '}
+                //                                     /{' '}
+                //                                     {
+                //                                         student
+                //                                             .academic_background
+                //                                             .university
+                //                                             .Highest_GPA_Uni
+                //                                     }
+                //                                 </Typography>
+                //                                 <Typography variant="body2">
+                //                                     Graduated:{' '}
+                //                                     {
+                //                                         student
+                //                                             .academic_background
+                //                                             .university
+                //                                             .isGraduated
+                //                                     }
+                //                                 </Typography>
+                //                             </Box>
+                //                         )}
+                //                         {student.academic_background
+                //                             .language && (
+                //                             <Box sx={{ mb: 1 }}>
+                //                                 <Typography variant="subtitle2">
+                //                                     Language
+                //                                 </Typography>
+                //                                 <Typography variant="body2">
+                //                                     English:{' '}
+                //                                     {
+                //                                         student
+                //                                             .academic_background
+                //                                             .language
+                //                                             .english_certificate
+                //                                     }{' '}
+                //                                     -{' '}
+                //                                     {
+                //                                         student
+                //                                             .academic_background
+                //                                             .language
+                //                                             .english_score
+                //                                     }
+                //                                 </Typography>
+                //                                 <Typography variant="body2">
+                //                                     German:{' '}
+                //                                     {
+                //                                         student
+                //                                             .academic_background
+                //                                             .language
+                //                                             .german_certificate
+                //                                     }{' '}
+                //                                     -{' '}
+                //                                     {
+                //                                         student
+                //                                             .academic_background
+                //                                             .language
+                //                                             .german_score
+                //                                     }
+                //                                 </Typography>
+                //                             </Box>
+                //                         )}
+                //                     </Box>
+                //                 )}
+                //             </Box>
+                //             <Box sx={{ flex: 1 }}>
+                //                 {student.application_preference && (
+                //                     <Box>
+                //                         <Typography sx={{ mb: 1 }} variant="h6">
+                //                             Application Preference
+                //                         </Typography>
+                //                         <Typography variant="body2">
+                //                             Expected Application Date:{' '}
+                //                             {
+                //                                 student.application_preference
+                //                                     .expected_application_date
+                //                             }
+                //                         </Typography>
+                //                         <Typography variant="body2">
+                //                             Semester:{' '}
+                //                             {
+                //                                 student.application_preference
+                //                                     .expected_application_semester
+                //                             }
+                //                         </Typography>
+                //                         <Typography variant="body2">
+                //                             Target Degree:{' '}
+                //                             {
+                //                                 student.application_preference
+                //                                     .target_degree
+                //                             }
+                //                         </Typography>
+                //                         <Typography variant="body2">
+                //                             Target Field:{' '}
+                //                             {
+                //                                 student.application_preference
+                //                                     .target_application_field
+                //                             }
+                //                         </Typography>
+                //                         <Typography variant="body2">
+                //                             Target Subjects:{' '}
+                //                             {student.application_preference.targetApplicationSubjects?.join(
+                //                                 ', '
+                //                             )}
+                //                         </Typography>
+                //                         <Typography variant="body2">
+                //                             Special Wishes:{' '}
+                //                             {
+                //                                 student.application_preference
+                //                                     .special_wished
+                //                             }
+                //                         </Typography>
+                //                     </Box>
+                //                 )}
+                //             </Box>
+                //         </Box>
+                //     </Box>
+                // </Box>
+            )}
             <Accordion
                 defaultExpanded={!hasPortalUser}
                 disableGutters
@@ -1292,7 +1310,7 @@ const LeadPage = () => {
                 <AccordionDetails>
                     {lead && Object.keys(lead).length > 0 ? (
                         <Grid container spacing={3} sx={{ pb: 5 }}>
-                            {cardConfigurations.map((config) => (
+                            {leadCardConfigurations.map((config) => (
                                 <Grid item key={config.id} {...config.gridSize}>
                                     <EditableCard
                                         disableEdit={hasPortalUser}
@@ -1310,7 +1328,7 @@ const LeadPage = () => {
                                         hasUnsavedChanges={hasUnsavedChanges(
                                             config.id
                                         )}
-                                        isEditing={editStates[config.id]}
+                                        isEditing={leadEditStates[config.id]}
                                         isLoading={updateLeadMutation.isPending}
                                         onCancel={() => handleCancel(config.id)}
                                         onEdit={() => handleEdit(config.id)}
@@ -1338,14 +1356,12 @@ const LeadPage = () => {
                     )}
                 </AccordionDetails>
             </Accordion>
-
             <CreateUserFromLeadModal
                 lead={selectedLead}
                 onClose={handleCloseCreateUserModal}
                 onSuccess={handleUserCreated}
                 open={showCreateUserModal}
             />
-
             <DealModal
                 deal={editingDeal}
                 lockLeadSelect={true}
@@ -1361,7 +1377,6 @@ const LeadPage = () => {
                 preselectedLeadId={leadId}
                 preselectedSalesUserId={lead?.salesRep?.userId || null}
             />
-
             <StatusMenu
                 anchorEl={statusMenu.anchorEl}
                 currentStatus={statusMenu.row?.status}
