@@ -29,6 +29,7 @@
         "note": "備註",
         "status": "狀態",
         "lead": "線索",
+        "leadDetails": "線索詳情",
         "sales": "業務",
         "actions": "操作",
         "salesNote": "業務備註",
@@ -64,6 +65,7 @@
         "assignedLead": "已指派線索",
         "speakers": "講者",
         "attendees": "與會者",
+        "studentDetails": "學生詳情",
         "studentProfile": "檢視學生資料",
         "unsavedChanges": "• 尚未儲存的變更"
     },

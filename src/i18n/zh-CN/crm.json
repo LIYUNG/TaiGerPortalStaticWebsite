@@ -29,6 +29,7 @@
         "note": "备注",
         "status": "状态",
         "lead": "线索",
+        "leadDetails": "线索详情",
         "sales": "销售",
         "actions": "操作",
         "salesNote": "销售备注",
@@ -64,6 +65,7 @@
         "assignedLead": "已指派线索",
         "speakers": "讲者",
         "attendees": "与会者",
+        "studentDetails": "学生详情",
         "studentProfile": "查看学生档案",
         "unsavedChanges": "• 未保存的更改"
     },

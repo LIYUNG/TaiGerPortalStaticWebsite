@@ -29,6 +29,7 @@
         "note": "Note",
         "status": "Status",
         "lead": "Lead",
+        "leadDetails": "Lead Details",
         "sales": "Sales",
         "actions": "Actions",
         "salesNote": "Sales Note",
@@ -64,6 +65,7 @@
         "assignedLead": "Assigned Lead",
         "speakers": "Speakers",
         "attendees": "Attendees",
+        "studentDetails": "Student Details",
         "studentProfile": "View Student Profile",
         "unsavedChanges": "• Unsaved changes"
     },
