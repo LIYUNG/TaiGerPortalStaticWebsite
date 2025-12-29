@@ -324,27 +324,8 @@ export const getStudentCardConfigurations = (t) => [
                     }
                 ]
             }
-        ],
-        fields: [
-            {
-                key: 'academic_background_university_Has_Exchange_Experience',
-                label: t('Exchange Student Experience ?'),
-                type: 'text'
-            },
-            {
-                key: 'academic_background_university_Has_Internship_Experience',
-                label: t('Internship Experience ?'),
-                type: 'text'
-            },
-            {
-                key: 'academic_background_university_Has_Working_Experience',
-                label: t('Full-Time Job Experience ?'),
-                type: 'text'
-            }
         ]
     },
-
-    // 👇 same position as "programs" in lead cards
     {
         id: 'application-preference',
         title: t('Application Preference'),
@@ -471,6 +452,28 @@ export const getStudentCardConfigurations = (t) => [
                         type: 'text'
                     }
                 ]
+            }
+        ]
+    },
+    {
+        id: 'academic-experience',
+        title: t('Experience'),
+        gridSize: { xs: 12, md: 4 },
+        fields: [
+            {
+                key: 'academic_background_university_Has_Exchange_Experience',
+                label: t('Exchange Student Experience ?'),
+                type: 'text'
+            },
+            {
+                key: 'academic_background_university_Has_Internship_Experience',
+                label: t('Internship Experience ?'),
+                type: 'text'
+            },
+            {
+                key: 'academic_background_university_Has_Working_Experience',
+                label: t('Full-Time Job Experience ?'),
+                type: 'text'
             }
         ]
     }
