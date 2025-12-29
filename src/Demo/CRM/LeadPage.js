@@ -1075,24 +1075,45 @@ const LeadPage = () => {
             />
             {/* Student data */}
             {hasPortalUser && (
-                <Grid container spacing={3} sx={{ pb: 5 }}>
-                    {studentCardConfigurations.map((config) => (
-                        <Grid item key={config.id} {...config.gridSize}>
-                            <EditableCard
-                                disableEdit={hasPortalUser}
-                                title={config.title}
-                                viewContent={
-                                    <GenericCardContent
-                                        config={config}
-                                        isEditing={false}
-                                        lead={flattenObject(student)}
-                                        onFieldChange={handleFieldChange}
+                <Accordion
+                    defaultExpanded={hasPortalUser}
+                    disableGutters
+                    elevation={0}
+                    square
+                    sx={{
+                        backgroundColor: 'transparent',
+                        boxShadow: 'none',
+                        '&:before': { display: 'none' }
+                    }}
+                >
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                        <Typography variant="h6">
+                            {t('common.studentDetails', { ns: 'crm' })}
+                        </Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <Grid container spacing={3} sx={{ pb: 5 }}>
+                            {studentCardConfigurations.map((config) => (
+                                <Grid item key={config.id} {...config.gridSize}>
+                                    <EditableCard
+                                        disableEdit={hasPortalUser}
+                                        title={config.title}
+                                        viewContent={
+                                            <GenericCardContent
+                                                config={config}
+                                                isEditing={false}
+                                                lead={flattenObject(student)}
+                                                onFieldChange={
+                                                    handleFieldChange
+                                                }
+                                            />
+                                        }
                                     />
-                                }
-                            />
+                                </Grid>
+                            ))}
                         </Grid>
-                    ))}
-                </Grid>
+                    </AccordionDetails>
+                </Accordion>
             )}
             <Accordion
                 defaultExpanded={!hasPortalUser}
@@ -1159,6 +1180,8 @@ const LeadPage = () => {
                     )}
                 </AccordionDetails>
             </Accordion>
+
+            {/* ------------ Modals ------------ */}
             <CreateUserFromLeadModal
                 lead={selectedLead}
                 onClose={handleCloseCreateUserModal}
