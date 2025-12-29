@@ -1083,13 +1083,33 @@ const LeadPage = () => {
                     sx={{
                         backgroundColor: 'transparent',
                         boxShadow: 'none',
+                        borderBottom: '1px solid',
+                        borderColor: 'divider',
                         '&:before': { display: 'none' }
                     }}
                 >
-                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                        <Typography variant="h6">
-                            {t('common.studentDetails', { ns: 'crm' })}
+                    <AccordionSummary
+                        expandIcon={<ExpandMoreIcon />}
+                        sx={{
+                            '& .MuiAccordionSummary-content': {
+                                alignItems: 'center',
+                                gap: 1
+                            }
+                        }}
+                    >
+                        <Typography sx={{ flexGrow: 1 }} variant="h6">
+                            {`${t('common.studentDetails', { ns: 'crm' })}  (${t('readOnly', { ns: 'common' })})`}
                         </Typography>
+
+                        <IconButton
+                            aria-label="Edit student survey"
+                            component="a"
+                            href={`/student-database/${lead.userId}#survey`}
+                            onClick={(e) => e.stopPropagation()}
+                            size="small"
+                        >
+                            <EditIcon fontSize="small" />
+                        </IconButton>
                     </AccordionSummary>
                     <AccordionDetails>
                         <Grid container spacing={3} sx={{ pb: 5 }}>
@@ -1123,12 +1143,17 @@ const LeadPage = () => {
                 sx={{
                     backgroundColor: 'transparent',
                     boxShadow: 'none',
+                    borderBottom: '1px solid',
+                    borderColor: 'divider',
                     '&:before': { display: 'none' }
                 }}
             >
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                     <Typography variant="h6">
                         {t('common.leadDetails', { ns: 'crm' })}
+                        {hasPortalUser
+                            ? ` (${t('readOnly', { ns: 'common' })})`
+                            : ''}
                     </Typography>
                 </AccordionSummary>
                 <AccordionDetails>

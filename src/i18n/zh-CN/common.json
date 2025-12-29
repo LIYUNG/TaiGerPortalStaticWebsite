@@ -451,5 +451,6 @@
     "Are you sure you want to delete this meeting? This action cannot be undone.": "您确定要删除此会议吗？此操作无法撤销。",
     "Delete Meeting": "删除会议",
     "Are you sure you want to confirm this meeting? A meeting link will be generated.": "您确定要确认此会议吗？将生成会议链接。",
-    "Add TaiGer assistant to meeting": "添加 TaiGer 助手到会议"
+    "Add TaiGer assistant to meeting": "添加 TaiGer 助手到会议",
+    "readOnly": "只读"
 }
