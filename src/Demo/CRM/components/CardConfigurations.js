@@ -299,7 +299,9 @@ export const getStudentCardConfigurations = (t) => [
                 ]
             },
             {
-                title: t('Second Degree'),
+                title: t('Second degree (Another Bachelor or Master)', {
+                    ns: 'survey'
+                }),
                 gridSize: 4,
                 fields: [
                     {
@@ -333,7 +335,6 @@ export const getStudentCardConfigurations = (t) => [
         layout: 'grid',
         sections: [
             {
-                title: t('Expected Application Semester'),
                 gridSize: 12,
                 fields: [
                     {
@@ -400,7 +401,7 @@ export const getStudentCardConfigurations = (t) => [
         layout: 'grid',
         sections: [
             {
-                title: t('English Test'),
+                title: t('English Certificate'),
                 gridSize: 6,
                 fields: [
                     {
@@ -457,7 +458,7 @@ export const getStudentCardConfigurations = (t) => [
     },
     {
         id: 'academic-experience',
-        title: t('Experience'),
+        title: t('Practical Experience', { ns: 'survey' }),
         gridSize: { xs: 12, md: 4 },
         fields: [
             {
