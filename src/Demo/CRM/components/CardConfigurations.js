@@ -281,20 +281,6 @@ export const getStudentCardConfigurations = (t) => [
                         key: 'academic_background_university_My_GPA_Uni',
                         label: t('My GPA'),
                         type: 'text'
-                    },
-                    {
-                        key: 'academic_background_university_Highest_GPA_Uni',
-                        label: t(
-                            'Highest Score GPA of your university program'
-                        ),
-                        type: 'text'
-                    },
-                    {
-                        key: 'academic_background_university_Passing_GPA_Uni',
-                        label: t(
-                            'Passing Score GPA of your university program'
-                        ),
-                        type: 'text'
                     }
                 ]
             },
@@ -335,7 +321,7 @@ export const getStudentCardConfigurations = (t) => [
         layout: 'grid',
         sections: [
             {
-                gridSize: 12,
+                gridSize: 6,
                 fields: [
                     {
                         key: 'application_preference_expected_application_date',
@@ -346,43 +332,48 @@ export const getStudentCardConfigurations = (t) => [
                         key: 'application_preference_expected_application_semester',
                         label: t('Expected Application Semester'),
                         type: 'text'
+                    },
+                    {
+                        key: 'application_preference_target_degree',
+                        label: t('Target Degree Programs'),
+                        type: 'text'
+                    },
+                    {
+                        key: 'application_preference_target_program_language',
+                        label: t('Target Program Language'),
+                        type: 'text'
+                    }
+                ]
+            },
+            {
+                gridSize: 6,
+                fields: [
+                    {
+                        key: 'application_preference_target_application_field',
+                        label: t('Target Application Fields'),
+                        type: 'text'
+                    },
+                    {
+                        key: 'application_preference_targetApplicationSubjects',
+                        label: t('Target Application Subjects'),
+                        type: 'text'
+                    },
+                    {
+                        key: 'application_preference_considered_privat_universities',
+                        label: t(
+                            'Considering private universities? (Tuition Fee: ~15000 EURO/year)'
+                        ),
+                        type: 'text'
+                    },
+                    {
+                        key: 'application_preference_application_outside_germany',
+                        label: t('Considering universities outside Germany?'),
+                        type: 'text'
                     }
                 ]
             }
         ],
         fields: [
-            {
-                key: 'application_preference_target_degree',
-                label: t('Target Degree Programs'),
-                type: 'text'
-            },
-            {
-                key: 'application_preference_target_program_language',
-                label: t('Target Program Language'),
-                type: 'text'
-            },
-            {
-                key: 'application_preference_target_application_field',
-                label: t('Target Application Fields'),
-                type: 'text'
-            },
-            {
-                key: 'application_preference_targetApplicationSubjects',
-                label: t('Target Application Subjects'),
-                type: 'text'
-            },
-            {
-                key: 'application_preference_considered_privat_universities',
-                label: t(
-                    'Considering private universities? (Tuition Fee: ~15000 EURO/year)'
-                ),
-                type: 'text'
-            },
-            {
-                key: 'application_preference_application_outside_germany',
-                label: t('Considering universities outside Germany?'),
-                type: 'text'
-            },
             {
                 key: 'application_preference_special_wished',
                 label: t('Note'),
@@ -392,8 +383,6 @@ export const getStudentCardConfigurations = (t) => [
             }
         ]
     },
-
-    // 👇 same position as "language" in lead cards
     {
         id: 'academic-language',
         title: t('Languages Test and Certificates'),
