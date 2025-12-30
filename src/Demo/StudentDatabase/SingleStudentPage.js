@@ -352,7 +352,7 @@ export const SingleStudentPageMainContent = ({
                                 </Link>
                             ) : (
                                 <Button
-                                    color="inherit"
+                                    color="secondary"
                                     disabled={
                                         createLeadMutation.isPending ||
                                         !singleStudentPage.student._id
@@ -367,7 +367,7 @@ export const SingleStudentPageMainContent = ({
                                         )
                                     }
                                     sx={{ mr: 1 }}
-                                    variant="outlined"
+                                    variant="contained"
                                 >
                                     {createLeadMutation.isPending
                                         ? t('Creating Lead...', {
