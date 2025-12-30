@@ -57,6 +57,7 @@ import StatusMenu from './components/StatusMenu';
 import { getDealId, isTerminalStatus } from './components/statusUtils';
 import { sanitizeMeetingTitle } from './components/meetingUtils';
 import { flattenObject } from '../Utils/checking-functions';
+import { TabTitle } from '../Utils/TabTitle';
 
 const LeadPage = () => {
     const { leadId } = useParams();
@@ -70,6 +71,8 @@ const LeadPage = () => {
     const leadQueryOptions = getCRMLeadQuery(leadId);
     const { data, isLoading: leadLoading } = useQuery(leadQueryOptions);
     const lead = data?.data?.data || {};
+
+    TabTitle(`${t('common.lead', { ns: 'crm' })} - ${lead.fullName}`);
 
     const hasPortalUser = !!lead?.userId;
     const isMigratedLead = lead?.status === 'migrated' && hasPortalUser;
