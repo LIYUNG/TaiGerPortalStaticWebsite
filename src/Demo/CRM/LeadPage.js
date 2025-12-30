@@ -67,13 +67,7 @@ const LeadPage = () => {
     if (!is_TaiGer_role(user))
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
 
-    const leadQueryOptions = leadId
-        ? getCRMLeadQuery(leadId)
-        : {
-              queryKey: ['crm/lead', leadId],
-              queryFn: async () => null,
-              enabled: false
-          };
+    const leadQueryOptions = getCRMLeadQuery(leadId);
     const { data, isLoading: leadLoading } = useQuery(leadQueryOptions);
     const lead = data?.data?.data || {};
 
@@ -278,6 +272,10 @@ const LeadPage = () => {
     // Note: status changes are handled in StatusMenu onChoose
 
     if (isLoading) return <Loading />;
+
+    // If the lead endpoint explicitly returned 404, redirect to lead list
+    if (!leadLoading && data?.status === 404)
+        return <Navigate replace to="/crm/leads" />;
 
     return (
         <Box>
