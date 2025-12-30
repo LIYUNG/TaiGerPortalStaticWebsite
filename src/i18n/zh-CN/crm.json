@@ -21,6 +21,7 @@
         "createUserAccount": "创建用户账号",
         "createUserAccountFromLead": "由线索创建用户账号",
         "viewTranscript": "查看文字记录",
+        "findSimilarStudents": "查找相似学生",
         "submit": "提交"
     },
     "common": {
@@ -29,6 +30,7 @@
         "note": "备注",
         "status": "状态",
         "lead": "线索",
+        "leadDetails": "线索详情",
         "sales": "销售",
         "actions": "操作",
         "salesNote": "销售备注",
@@ -47,6 +49,7 @@
         "showLess": "收起",
         "noSimilarStudentsFound": "未找到相似学生",
         "similarStudentsDesc": "匹配依据为学术背景（学校、专业、GPA）以及申请偏好（学位层级、方向）",
+        "similarStudentsManualFetch": "未加载相似学生。点击下面按钮为该线索获取建议。",
         "gpa": "GPA",
         "school": "学校",
         "program": "专业",
@@ -64,6 +67,7 @@
         "assignedLead": "已指派线索",
         "speakers": "讲者",
         "attendees": "与会者",
+        "studentDetails": "学生详情",
         "studentProfile": "查看学生档案",
         "unsavedChanges": "• 未保存的更改"
     },
@@ -78,12 +82,14 @@
         "convertedLeads": "已转化线索",
         "closedLeads": "已结案线索",
         "allLeads": "全部线索",
+        "migratedLeads": "回填线索",
         "desc": {
             "all": "所有分类中的线索。",
             "open": "用户通过 Google 表单提交的未处理线索。",
             "contacted": "已有排定会议的已联系线索。",
             "converted": "已转化或完成的线索。",
-            "closed": "已结案的线索。"
+            "closed": "已结案的线索。",
+            "migrated": "从已存在学生账号回填的线索。"
         },
         "gender": "性别",
         "role": "角色",

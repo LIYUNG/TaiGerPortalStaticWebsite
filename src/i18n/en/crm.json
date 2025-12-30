@@ -21,6 +21,7 @@
         "createUserAccount": "Create User Account",
         "createUserAccountFromLead": "Create User Account from Lead",
         "viewTranscript": "View Transcript",
+        "findSimilarStudents": "Find similar students",
         "submit": "Submit"
     },
     "common": {
@@ -29,6 +30,7 @@
         "note": "Note",
         "status": "Status",
         "lead": "Lead",
+        "leadDetails": "Lead Details",
         "sales": "Sales",
         "actions": "Actions",
         "salesNote": "Sales Note",
@@ -47,6 +49,7 @@
         "showLess": "Show Less",
         "noSimilarStudentsFound": "No similar students found",
         "similarStudentsDesc": "Matches are based on academic background (school, program, GPA) and application preferences (program level, direction).",
+        "similarStudentsManualFetch": "No similar students loaded. Click the button below to fetch suggestions for this lead.",
         "gpa": "GPA",
         "school": "School",
         "program": "Program",
@@ -64,6 +67,7 @@
         "assignedLead": "Assigned Lead",
         "speakers": "Speakers",
         "attendees": "Attendees",
+        "studentDetails": "Student Details",
         "studentProfile": "View Student Profile",
         "unsavedChanges": "• Unsaved changes"
     },
@@ -78,12 +82,14 @@
         "convertedLeads": "Converted Leads",
         "closedLeads": "Closed Leads",
         "allLeads": "All Leads",
+        "migratedLeads": "Migrated Leads",
         "desc": {
             "all": "All leads from all categories.",
             "open": "Open leads submitted by users through the google survey.",
             "contacted": "Contacted leads with scheduled meetings.",
             "converted": "Leads that have been Converted or completed.",
-            "closed": "Leads that have been closed."
+            "closed": "Leads that have been closed.",
+            "migrated": "Leads that have been backported from the Student Portal user."
         },
         "gender": "Gender",
         "role": "Role",

@@ -31,8 +31,8 @@ import {
 } from '@mui/material';
 import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getLeadIdByUserId } from '../../api';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { getLeadIdByUserId, createLeadFromStudent } from '../../api';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import {
     is_TaiGer_Editor,
@@ -66,6 +66,7 @@ import DEMO from '../../store/constant';
 import PortalCredentialPage from '../PortalCredentialPage';
 import { appConfig } from '../../config';
 import { useAuth } from '../../components/AuthProvider';
+import { useSnackBar } from '../../contexts/use-snack-bar';
 import { CustomTabPanel, a11yProps } from '../../components/Tabs';
 import { SurveyProvider } from '../../components/SurveyProvider';
 import ProgramDetailsComparisonTable from '../Program/ProgramDetailsComparisonTable';
@@ -92,6 +93,7 @@ export const SingleStudentPageMainContent = ({
     const { user } = useAuth();
     const { t } = useTranslation();
     const queryClient = useQueryClient();
+    const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
     const [singleStudentPage, setSingleStudentPage] = useState({
         error: '',
         isLoaded: {},
@@ -124,11 +126,69 @@ export const SingleStudentPageMainContent = ({
         )
     ]);
 
-    const { data: leadId } = useQuery({
+    const [localLeadId, setLocalLeadId] = useState(null);
+
+    useEffect(() => {
+        setLocalLeadId(null);
+    }, [singleStudentPage.student._id]);
+
+    const { data: leadId, refetch: refetchLeadId } = useQuery({
         queryKey: ['studentId', singleStudentPage.student._id],
         queryFn: () => getLeadIdByUserId(singleStudentPage.student._id),
         select: (res) => res?.data?.data?.id ?? null,
         enabled: !!singleStudentPage.student._id
+    });
+
+    const effectiveLeadId = localLeadId ?? leadId;
+
+    const createLeadMutation = useMutation({
+        mutationFn: () => createLeadFromStudent(singleStudentPage.student._id),
+        onSuccess: async (res) => {
+            const newLeadId = res?.data?.data?.id ?? null;
+            if (newLeadId) {
+                setLocalLeadId(newLeadId);
+            }
+
+            await queryClient.invalidateQueries({
+                queryKey: ['studentId', singleStudentPage.student._id]
+            });
+
+            // If the create lead response includes matching meetings, show a snackbar
+            const meetingCount = res?.data?.matchingMeetingCounts ?? 0;
+            setSeverity('success');
+            if (meetingCount > 0) {
+                setMessage(
+                    t('Lead created linked', {
+                        count: meetingCount,
+                        ns: 'common'
+                    })
+                );
+            } else {
+                setMessage(t('Lead created successfully', { ns: 'common' }));
+            }
+            setOpenSnackbar(true);
+
+            if (!newLeadId) {
+                try {
+                    const { data: leadId } = await refetchLeadId();
+                    setLocalLeadId(leadId ?? null);
+                } catch {
+                    // ignore; UI will keep showing the create button
+                }
+            }
+        },
+        onError: (error) => {
+            const status = error?.response?.status ?? 500;
+            const message =
+                error?.response?.data?.message ??
+                error?.message ??
+                'Failed to create CRM lead';
+            setSingleStudentPage((prevState) => ({
+                ...prevState,
+                res_modal_status: status,
+                res_modal_message: message
+            }));
+        }
     });
 
     const { hash } = useLocation();
@@ -281,14 +341,14 @@ export const SingleStudentPageMainContent = ({
                                     <b>{t('Message', { ns: 'common' })}</b>
                                 </Button>
                             </Link>
-                            {leadId ? (
+                            {effectiveLeadId ? (
                                 <Link
                                     color="inherit"
                                     component={LinkDom}
                                     rel="noopener noreferrer"
                                     sx={{ mr: 1 }}
                                     target="_blank"
-                                    to={DEMO.CRM_LEAD_LINK(leadId)}
+                                    to={DEMO.CRM_LEAD_LINK(effectiveLeadId)}
                                     underline="hover"
                                 >
                                     <Button
@@ -300,7 +360,34 @@ export const SingleStudentPageMainContent = ({
                                         {t('CRM Lead', { ns: 'common' })}
                                     </Button>
                                 </Link>
-                            ) : null}
+                            ) : (
+                                <Button
+                                    color="secondary"
+                                    disabled={
+                                        createLeadMutation.isPending ||
+                                        !singleStudentPage.student._id
+                                    }
+                                    onClick={() => createLeadMutation.mutate()}
+                                    size="small"
+                                    startIcon={
+                                        createLeadMutation.isPending ? (
+                                            <CircularProgress size={16} />
+                                        ) : (
+                                            <LaunchIcon />
+                                        )
+                                    }
+                                    sx={{ mr: 1 }}
+                                    variant="contained"
+                                >
+                                    {createLeadMutation.isPending
+                                        ? t('Creating Lead...', {
+                                              ns: 'common'
+                                          })
+                                        : t('Create CRM Lead', {
+                                              ns: 'common'
+                                          })}
+                                </Button>
+                            )}
                             {t('Last Login', { ns: 'auth' })}:&nbsp;
                             {convertDate(
                                 singleStudentPage.student.lastLoginAt

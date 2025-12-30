@@ -5,6 +5,8 @@ import { useForm } from '@tanstack/react-form';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
     Box,
+    Avatar,
+    Chip,
     Breadcrumbs,
     Link,
     Typography,
@@ -16,7 +18,10 @@ import {
     MenuItem,
     IconButton,
     Button,
-    CircularProgress
+    CircularProgress,
+    Accordion,
+    AccordionSummary,
+    AccordionDetails
 } from '@mui/material';
 import {
     Edit as EditIcon,
@@ -26,27 +31,35 @@ import {
     Event as EventIcon,
     Female as FemaleIcon,
     Male as MaleIcon,
-    Transgender as OtherGenderIcon
+    Transgender as OtherGenderIcon,
+    ExpandMore as ExpandMoreIcon
 } from '@mui/icons-material';
+
+import { is_TaiGer_role } from '@taiger-common/core';
+import { getCRMLeadQuery, getStudentQuery } from '../../api/query';
+import { request } from '../../api/request';
+import { updateCRMDeal } from '../../api';
 
 import DEMO from '../../store/constant';
 import { appConfig } from '../../config';
+
 import Loading from '../../components/Loading/Loading';
-import { is_TaiGer_role } from '@taiger-common/core';
 import { useAuth } from '../../components/AuthProvider';
-import { getCRMLeadQuery } from '../../api/query';
-import { request } from '../../api/request';
-import { updateCRMDeal } from '../../api';
 import CreateUserFromLeadModal from './components/CreateUserFromLeadModal';
 import DealModal from './components/DealModal';
 import EditableCard from './components/EditableCard';
 import { GenericCardContent } from './components/GenericCard';
-import { getCardConfigurations } from './components/CardConfigurations';
+import {
+    getStudentCardConfigurations,
+    getLeadCardConfigurations
+} from './components/CardConfigurations';
+import DealItem from './components/DealItem';
 import SimilarStudents from './components/SimilarStudents';
 import StatusMenu from './components/StatusMenu';
-import DealItem from './components/DealItem';
-import { isTerminalStatus, getDealId } from './components/statusUtils';
+import { getDealId, isTerminalStatus } from './components/statusUtils';
 import { sanitizeMeetingTitle } from './components/meetingUtils';
+import { flattenObject } from '../Utils/checking-functions';
+import { TabTitle } from '../Utils/TabTitle';
 
 const LeadPage = () => {
     const { leadId } = useParams();
@@ -57,8 +70,27 @@ const LeadPage = () => {
     if (!is_TaiGer_role(user))
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
 
-    const { data, isLoading } = useQuery(getCRMLeadQuery(leadId));
+    const leadQueryOptions = getCRMLeadQuery(leadId);
+    const { data, isLoading: leadLoading } = useQuery(leadQueryOptions);
     const lead = data?.data?.data || {};
+
+    TabTitle(`${t('common.lead', { ns: 'crm' })} - ${lead.fullName}`);
+
+    const hasPortalUser = !!lead?.userId;
+    const isMigratedLead = lead?.status === 'migrated' && hasPortalUser;
+
+    // lead.userId exists fetch student data
+    const studentQueryOptions = hasPortalUser
+        ? getStudentQuery(lead.userId)
+        : {
+              queryKey: ['student', lead?.userId],
+              queryFn: async () => null,
+              enabled: false
+          };
+    const { data: studentData, isLoading: studentLoading } =
+        useQuery(studentQueryOptions);
+    const student = studentData?.data?.data || {};
+    const isLoading = leadLoading || (hasPortalUser && studentLoading);
 
     const [selectedLead, setSelectedLead] = useState(null);
     const [showCreateUserModal, setShowCreateUserModal] = useState(false);
@@ -66,21 +98,18 @@ const LeadPage = () => {
     const [showDealModal, setShowDealModal] = useState(false);
     const [statusMenu, setStatusMenu] = useState({ anchorEl: null, row: null });
 
-    const cardConfigurations = getCardConfigurations(t);
-    const initialEditStates = useMemo(
+    const leadCardConfigurations = getLeadCardConfigurations(t);
+    const studentCardConfigurations = getStudentCardConfigurations(t);
+    const initLeadEditStates = useMemo(
         () =>
-            cardConfigurations.reduce(
+            leadCardConfigurations.reduce(
                 (acc, c) => ({ ...acc, [c.id]: false }),
                 {}
             ),
-        [cardConfigurations]
+        [leadCardConfigurations]
     );
-    const [editStates, setEditStates] = useState(initialEditStates);
+    const [leadEditStates, setLeadEditStates] = useState(initLeadEditStates);
     const [formData, setFormData] = useState({});
-
-    useMemo(() => {
-        if (lead && Object.keys(lead).length) setFormData(lead);
-    }, [lead]);
 
     const { data: salesData } = useQuery({
         queryKey: ['crm/sales-reps'],
@@ -88,17 +117,21 @@ const LeadPage = () => {
             const res = await request.get('/api/crm/sales-reps');
             return res?.data?.data ?? res?.data ?? [];
         },
-        enabled: !!editStates?.personal,
+        enabled: !!leadEditStates?.personal,
         staleTime: 300000
     });
-    const salesOptions = (salesData || []).map((s) => ({
-        userId: s.userId || s.value,
-        label:
-            s.label ||
-            s.name ||
-            s.fullName ||
-            t('common.unknown', { ns: 'crm' })
-    }));
+    const salesOptions = useMemo(
+        () =>
+            (salesData || []).map((s) => ({
+                userId: s.userId || s.value,
+                label:
+                    s.label ||
+                    s.name ||
+                    s.fullName ||
+                    t('common.unknown', { ns: 'crm' })
+            })),
+        [salesData, t]
+    );
 
     const form = useForm({
         defaultValues: formData,
@@ -153,25 +186,25 @@ const LeadPage = () => {
     });
 
     const handleEdit = (cardId) => {
-        setEditStates((p) => ({ ...p, [cardId]: true }));
+        setLeadEditStates((p) => ({ ...p, [cardId]: true }));
         if (lead && Object.keys(lead).length) {
             setFormData(lead);
             form.reset(lead);
         }
     };
     const handleCancel = (cardId) => {
-        setEditStates((p) => ({ ...p, [cardId]: false }));
+        setLeadEditStates((p) => ({ ...p, [cardId]: false }));
         setFormData(lead);
         form.reset(lead);
     };
     const handleSave = async (cardId) => {
         const changed = getChangedFields(lead, formData);
         if (Object.keys(changed).length === 0) {
-            setEditStates((p) => ({ ...p, [cardId]: false }));
+            setLeadEditStates((p) => ({ ...p, [cardId]: false }));
             return;
         }
         await updateLeadMutation.mutateAsync(changed);
-        setEditStates((p) => ({ ...p, [cardId]: false }));
+        setLeadEditStates((p) => ({ ...p, [cardId]: false }));
     };
     const handleFieldChange = (field, value) => {
         setFormData((p) => ({ ...p, [field]: value }));
@@ -179,7 +212,7 @@ const LeadPage = () => {
     };
     const hasUnsavedChanges = (cardId) => {
         const changed = getChangedFields(lead, formData);
-        const cfg = cardConfigurations.find((c) => c.id === cardId);
+        const cfg = leadCardConfigurations.find((c) => c.id === cardId);
         if (!cfg) return false;
         const fields = [
             ...(cfg.fields ? cfg.fields.map((f) => f.key) : []),
@@ -245,6 +278,10 @@ const LeadPage = () => {
 
     if (isLoading) return <Loading />;
 
+    // If the lead endpoint explicitly returned 404, redirect to lead list
+    if (!leadLoading && data?.status === 404)
+        return <Navigate replace to="/crm/leads" />;
+
     return (
         <Box>
             <Box sx={{ mb: 3 }}>
@@ -278,7 +315,6 @@ const LeadPage = () => {
                     </Typography>
                 </Breadcrumbs>
             </Box>
-
             <Box
                 sx={{
                     mb: 3,
@@ -293,7 +329,7 @@ const LeadPage = () => {
                     borderColor: 'divider'
                 }}
             >
-                {!editStates.personal ? (
+                {!leadEditStates.personal ? (
                     <Box
                         sx={{
                             display: 'flex',
@@ -307,186 +343,204 @@ const LeadPage = () => {
                                 display: 'flex',
                                 alignItems: 'center',
                                 width: '100%',
-                                gap: 1
+                                gap: 2
                             }}
                         >
-                            <Typography
+                            <Avatar
                                 sx={{
-                                    fontWeight: 600,
-                                    color: 'text.primary',
-                                    letterSpacing: '0.3px'
-                                }}
-                                variant="h5"
-                            >
-                                {lead.fullName || t('common.na', { ns: 'crm' })}
-                            </Typography>
-                            {lead.gender && (
-                                <Box
-                                    sx={{
-                                        display: 'flex',
-                                        alignItems: 'center'
-                                    }}
-                                    title={`${t('leads.gender', { ns: 'crm' })}: ${String(lead.gender).charAt(0).toUpperCase() + String(lead.gender).slice(1)}`}
-                                >
-                                    {(() => {
-                                        const genderText = String(
-                                            lead.gender || ''
-                                        )
-                                            .toLowerCase()
-                                            .trim();
-                                        const femaleKeywords = [
-                                            '女',
-                                            'female',
-                                            'woman'
-                                        ];
-                                        const maleKeywords = [
-                                            '男',
-                                            'male',
-                                            'man'
-                                        ];
-                                        if (
-                                            femaleKeywords.some((k) =>
-                                                genderText.includes(k)
-                                            )
-                                        )
-                                            return (
-                                                <FemaleIcon
-                                                    sx={{
-                                                        color: 'secondary.main',
-                                                        fontSize: '1.8rem'
-                                                    }}
-                                                />
-                                            );
-                                        if (
-                                            maleKeywords.some((k) =>
-                                                genderText.includes(k)
-                                            )
-                                        )
-                                            return (
-                                                <MaleIcon
-                                                    sx={{
-                                                        color: 'info.main',
-                                                        fontSize: '1.8rem'
-                                                    }}
-                                                />
-                                            );
-                                        return (
-                                            <OtherGenderIcon
-                                                sx={{
-                                                    color: 'text.secondary',
-                                                    fontSize: '1.8rem'
-                                                }}
-                                            />
-                                        );
-                                    })()}
-                                </Box>
-                            )}
-                            {lead.closeLikelihood && (
-                                <Box
-                                    sx={{
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        borderRadius: '50%',
-                                        width: 28,
-                                        height: 28,
-                                        bgcolor:
-                                            lead.closeLikelihood === 'high'
-                                                ? 'success.main'
-                                                : lead.closeLikelihood ===
-                                                    'medium'
-                                                  ? 'warning.main'
-                                                  : 'error.main',
-                                        color: '#fff',
-                                        fontWeight: 'bold',
-                                        fontSize: '0.75rem',
-                                        border: '1px solid',
-                                        borderColor:
-                                            lead.closeLikelihood === 'high'
-                                                ? 'success.dark'
-                                                : lead.closeLikelihood ===
-                                                    'medium'
-                                                  ? 'warning.dark'
-                                                  : 'error.dark',
-                                        boxShadow: '0 2px 4px rgba(0,0,0,0.08)',
-                                        letterSpacing: '0.2px'
-                                    }}
-                                    title={`${t('leads.closeLikelihood', { ns: 'crm' })}: ${lead.closeLikelihood.charAt(0).toUpperCase() + lead.closeLikelihood.slice(1)}`}
-                                >
-                                    {lead.closeLikelihood === 'high'
-                                        ? 'H'
-                                        : lead.closeLikelihood === 'medium'
-                                          ? 'M'
-                                          : 'L'}
-                                </Box>
-                            )}
-                            <Box
-                                sx={{
-                                    fontWeight: 'medium',
-                                    px: 1.5,
-                                    py: 0.5,
-                                    borderRadius: '50px',
-                                    backgroundColor:
-                                        lead.status === 'converted'
-                                            ? 'success.main'
-                                            : lead.status === 'qualified'
-                                              ? 'info.main'
-                                              : lead.status === 'closed'
-                                                ? 'error.main'
-                                                : 'primary.main',
-                                    color: '#fff',
-                                    fontSize: '0.8rem',
-                                    letterSpacing: '0.2px',
-                                    boxShadow: '0 2px 4px rgba(0,0,0,0.08)',
-                                    border: '1px solid',
-                                    borderColor:
-                                        lead.status === 'converted'
-                                            ? 'success.dark'
-                                            : lead.status === 'qualified'
-                                              ? 'info.dark'
-                                              : lead.status === 'closed'
-                                                ? 'error.dark'
-                                                : 'primary.dark',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    height: 28
+                                    bgcolor: 'primary.main',
+                                    width: 64,
+                                    height: 64,
+                                    fontSize: 20
                                 }}
                             >
-                                {lead.status
-                                    ? lead.status.charAt(0).toUpperCase() +
-                                      lead.status.slice(1)
-                                    : t('common.na', { ns: 'crm' })}
-                            </Box>
+                                {(lead.fullName || '')
+                                    .split(' ')
+                                    .map((n) => n?.[0])
+                                    .filter(Boolean)
+                                    .slice(0, 2)
+                                    .join('') ||
+                                    (lead.fullName ? lead.fullName[0] : '?')}
+                            </Avatar>
                             <Box
                                 sx={{
-                                    ml: 'auto',
                                     display: 'flex',
-                                    alignItems: 'center'
+                                    flexDirection: 'column',
+                                    minWidth: 0
                                 }}
                             >
                                 <Typography
                                     sx={{
-                                        mr: 1,
+                                        fontWeight: 600,
+                                        color: 'text.primary',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        whiteSpace: 'nowrap'
+                                    }}
+                                    variant="h5"
+                                >
+                                    {lead.fullName ||
+                                        t('common.na', { ns: 'crm' })}
+                                </Typography>
+                                <Typography
+                                    sx={{
                                         color: 'text.secondary',
-                                        backgroundColor: 'grey.100',
-                                        px: 1,
-                                        py: 0.25,
-                                        borderRadius: '12px'
+                                        mt: 0.25,
+                                        display: 'flex',
+                                        gap: 1,
+                                        alignItems: 'center'
                                     }}
                                     variant="body2"
                                 >
-                                    {t('common.sales', { ns: 'crm' })}:{' '}
-                                    {lead?.salesRep?.label ||
-                                        t('leads.unassigned', { ns: 'crm' })}
+                                    {lead.applicantRole || ''}
                                 </Typography>
-                                <IconButton
-                                    onClick={() => handleEdit('personal')}
-                                    size="small"
-                                >
-                                    <EditIcon />
-                                </IconButton>
                             </Box>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 1
+                                }}
+                            >
+                                {lead.gender && (
+                                    <Box
+                                        title={`${t('leads.gender', { ns: 'crm' })}: ${String(lead.gender).charAt(0).toUpperCase() + String(lead.gender).slice(1)}`}
+                                    >
+                                        {(() => {
+                                            const genderText = String(
+                                                lead.gender || ''
+                                            )
+                                                .toLowerCase()
+                                                .trim();
+                                            const femaleKeywords = [
+                                                '女',
+                                                'female',
+                                                'woman'
+                                            ];
+                                            const maleKeywords = [
+                                                '男',
+                                                'male',
+                                                'man'
+                                            ];
+                                            if (
+                                                femaleKeywords.some((k) =>
+                                                    genderText.includes(k)
+                                                )
+                                            )
+                                                return (
+                                                    <FemaleIcon
+                                                        sx={{
+                                                            color: 'secondary.main',
+                                                            fontSize: '1.6rem'
+                                                        }}
+                                                    />
+                                                );
+                                            if (
+                                                maleKeywords.some((k) =>
+                                                    genderText.includes(k)
+                                                )
+                                            )
+                                                return (
+                                                    <MaleIcon
+                                                        sx={{
+                                                            color: 'info.main',
+                                                            fontSize: '1.6rem'
+                                                        }}
+                                                    />
+                                                );
+                                            return (
+                                                <OtherGenderIcon
+                                                    sx={{
+                                                        color: 'text.secondary',
+                                                        fontSize: '1.6rem'
+                                                    }}
+                                                />
+                                            );
+                                        })()}
+                                    </Box>
+                                )}
+                                {lead.closeLikelihood && (
+                                    <Chip
+                                        label={
+                                            lead.closeLikelihood === 'high'
+                                                ? 'H'
+                                                : lead.closeLikelihood ===
+                                                    'medium'
+                                                  ? 'M'
+                                                  : 'L'
+                                        }
+                                        size="small"
+                                        sx={{
+                                            bgcolor:
+                                                lead.closeLikelihood === 'high'
+                                                    ? 'success.main'
+                                                    : lead.closeLikelihood ===
+                                                        'medium'
+                                                      ? 'warning.main'
+                                                      : 'error.main',
+                                            color: '#fff',
+                                            fontWeight: '600'
+                                        }}
+                                        title={`${t('leads.closeLikelihood', { ns: 'crm' })}: ${lead.closeLikelihood.charAt(0).toUpperCase() + lead.closeLikelihood.slice(1)}`}
+                                    />
+                                )}
+                                <Chip
+                                    label={
+                                        lead.status
+                                            ? lead.status
+                                                  .charAt(0)
+                                                  .toUpperCase() +
+                                              lead.status.slice(1)
+                                            : t('common.na', { ns: 'crm' })
+                                    }
+                                    size="small"
+                                    sx={{
+                                        bgcolor:
+                                            lead.status === 'converted'
+                                                ? 'success.main'
+                                                : lead.status === 'qualified'
+                                                  ? 'info.main'
+                                                  : lead.status === 'closed'
+                                                    ? 'error.main'
+                                                    : 'primary.main',
+                                        color: '#fff',
+                                        fontWeight: 600
+                                    }}
+                                />
+                            </Box>
+                            {!isMigratedLead && (
+                                <Box
+                                    sx={{
+                                        ml: 'auto',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 1
+                                    }}
+                                >
+                                    <Typography
+                                        sx={{
+                                            color: 'text.secondary',
+                                            backgroundColor: 'grey.100',
+                                            px: 1,
+                                            py: 0.25,
+                                            borderRadius: '12px'
+                                        }}
+                                        variant="body2"
+                                    >
+                                        {t('common.sales', { ns: 'crm' })}:{' '}
+                                        {lead?.salesRep?.label ||
+                                            t('leads.unassigned', {
+                                                ns: 'crm'
+                                            })}
+                                    </Typography>
+                                    <IconButton
+                                        onClick={() => handleEdit('personal')}
+                                        size="small"
+                                    >
+                                        <EditIcon />
+                                    </IconButton>
+                                </Box>
+                            )}
                         </Box>
                         <Box
                             sx={{
@@ -514,7 +568,7 @@ const LeadPage = () => {
                                     {lead.applicantRole}
                                 </Typography>
                             )}
-                            {lead.userId ? (
+                            {hasPortalUser ? (
                                 <Link
                                     component="a"
                                     href={`/student-database/${lead.userId}`}
@@ -527,7 +581,7 @@ const LeadPage = () => {
                                 >
                                     {t('common.studentProfile', { ns: 'crm' })}
                                 </Link>
-                            ) : !lead.userId &&
+                            ) : !hasPortalUser &&
                               lead.status !== 'closed' &&
                               lead.status !== 'converted' ? (
                                 <Button
@@ -542,17 +596,19 @@ const LeadPage = () => {
                                     })}
                                 </Button>
                             ) : null}
-                            <Button
-                                color="secondary"
-                                onClick={() => {
-                                    setEditingDeal(null);
-                                    setShowDealModal(true);
-                                }}
-                                size="small"
-                                variant="contained"
-                            >
-                                {t('actions.createDeal', { ns: 'crm' })}
-                            </Button>
+                            {!isMigratedLead && (
+                                <Button
+                                    color="secondary"
+                                    onClick={() => {
+                                        setEditingDeal(null);
+                                        setShowDealModal(true);
+                                    }}
+                                    size="small"
+                                    variant="contained"
+                                >
+                                    {t('actions.createDeal', { ns: 'crm' })}
+                                </Button>
+                            )}
                         </Box>
                         {lead.salesNote?.trim() && (
                             <Box sx={{ width: '100%' }}>
@@ -935,7 +991,6 @@ const LeadPage = () => {
                     </Box>
                 )}
             </Box>
-
             {lead?.meetings && lead.meetings.length > 0 && (
                 <Box sx={{ mb: 4 }}>
                     <Box
@@ -1038,59 +1093,163 @@ const LeadPage = () => {
                     </Box>
                 </Box>
             )}
-
             <SimilarStudents
                 leadId={leadId}
                 similarUsers={lead?.leadSimilarUsers}
             />
+            {/* Student data */}
+            {hasPortalUser && (
+                <Accordion
+                    defaultExpanded={hasPortalUser}
+                    disableGutters
+                    elevation={0}
+                    square
+                    sx={{
+                        backgroundColor: 'transparent',
+                        boxShadow: 'none',
+                        borderBottom: '1px solid',
+                        borderColor: 'divider',
+                        '&:before': { display: 'none' }
+                    }}
+                >
+                    <AccordionSummary
+                        expandIcon={<ExpandMoreIcon />}
+                        sx={{
+                            '& .MuiAccordionSummary-content': {
+                                alignItems: 'center',
+                                gap: 1
+                            }
+                        }}
+                    >
+                        <Typography sx={{ flexGrow: 1 }} variant="h6">
+                            {`${t('common.studentDetails', { ns: 'crm' })}  (${t('readOnly', { ns: 'common' })})`}
+                        </Typography>
 
-            {lead && Object.keys(lead).length > 0 ? (
-                <Grid container spacing={3} sx={{ pb: 5 }}>
-                    {cardConfigurations.map((config) => (
-                        <Grid item key={config.id} {...config.gridSize}>
-                            <EditableCard
-                                editContent={
-                                    <GenericCardContent
-                                        config={config}
-                                        formData={formData}
-                                        isEditing={true}
-                                        lead={lead}
-                                        onFieldChange={handleFieldChange}
+                        <IconButton
+                            aria-label="Edit student survey"
+                            component="a"
+                            href={`/student-database/${lead.userId}#survey`}
+                            onClick={(e) => e.stopPropagation()}
+                            size="small"
+                        >
+                            <EditIcon fontSize="small" />
+                        </IconButton>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <Grid container spacing={3} sx={{ pb: 5 }}>
+                            {studentCardConfigurations.map((config) => (
+                                <Grid item key={config.id} {...config.gridSize}>
+                                    <EditableCard
+                                        disableEdit={hasPortalUser}
+                                        title={config.title}
+                                        viewContent={
+                                            <GenericCardContent
+                                                config={config}
+                                                isEditing={false}
+                                                lead={flattenObject(student)}
+                                                onFieldChange={
+                                                    handleFieldChange
+                                                }
+                                            />
+                                        }
                                     />
-                                }
-                                hasUnsavedChanges={hasUnsavedChanges(config.id)}
-                                isEditing={editStates[config.id]}
-                                isLoading={updateLeadMutation.isPending}
-                                onCancel={() => handleCancel(config.id)}
-                                onEdit={() => handleEdit(config.id)}
-                                onSave={() => handleSave(config.id)}
-                                title={config.title}
-                                viewContent={
-                                    <GenericCardContent
-                                        config={config}
-                                        formData={formData}
-                                        isEditing={false}
-                                        lead={lead}
-                                        onFieldChange={handleFieldChange}
-                                    />
-                                }
-                            />
+                                </Grid>
+                            ))}
                         </Grid>
-                    ))}
-                </Grid>
-            ) : (
-                <Typography color="text.secondary" variant="body1">
-                    {t('common.loadingLeadInfo', { ns: 'crm' })}
-                </Typography>
+                    </AccordionDetails>
+                </Accordion>
             )}
 
+            {!isMigratedLead && (
+                <Accordion
+                    defaultExpanded={!hasPortalUser}
+                    disableGutters
+                    elevation={0}
+                    square
+                    sx={{
+                        backgroundColor: 'transparent',
+                        boxShadow: 'none',
+                        borderBottom: '1px solid',
+                        borderColor: 'divider',
+                        '&:before': { display: 'none' }
+                    }}
+                >
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                        <Typography variant="h6">
+                            {t('common.leadDetails', { ns: 'crm' })}
+                            {hasPortalUser
+                                ? ` (${t('readOnly', { ns: 'common' })})`
+                                : ''}
+                        </Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        {lead && Object.keys(lead).length > 0 ? (
+                            <Grid container spacing={3} sx={{ pb: 5 }}>
+                                {leadCardConfigurations.map((config) => (
+                                    <Grid
+                                        item
+                                        key={config.id}
+                                        {...config.gridSize}
+                                    >
+                                        <EditableCard
+                                            disableEdit={hasPortalUser}
+                                            editContent={
+                                                <GenericCardContent
+                                                    config={config}
+                                                    formData={formData}
+                                                    isEditing={true}
+                                                    lead={lead}
+                                                    onFieldChange={
+                                                        handleFieldChange
+                                                    }
+                                                />
+                                            }
+                                            hasUnsavedChanges={hasUnsavedChanges(
+                                                config.id
+                                            )}
+                                            isEditing={
+                                                leadEditStates[config.id]
+                                            }
+                                            isLoading={
+                                                updateLeadMutation.isPending
+                                            }
+                                            onCancel={() =>
+                                                handleCancel(config.id)
+                                            }
+                                            onEdit={() => handleEdit(config.id)}
+                                            onSave={() => handleSave(config.id)}
+                                            title={config.title}
+                                            viewContent={
+                                                <GenericCardContent
+                                                    config={config}
+                                                    formData={formData}
+                                                    isEditing={false}
+                                                    lead={lead}
+                                                    onFieldChange={
+                                                        handleFieldChange
+                                                    }
+                                                />
+                                            }
+                                        />
+                                    </Grid>
+                                ))}
+                            </Grid>
+                        ) : (
+                            <Typography color="text.secondary" variant="body1">
+                                {t('common.loadingLeadInfo', { ns: 'crm' })}
+                            </Typography>
+                        )}
+                    </AccordionDetails>
+                </Accordion>
+            )}
+
+            {/* ------------ Modals ------------ */}
             <CreateUserFromLeadModal
                 lead={selectedLead}
                 onClose={handleCloseCreateUserModal}
                 onSuccess={handleUserCreated}
                 open={showCreateUserModal}
             />
-
             <DealModal
                 deal={editingDeal}
                 lockLeadSelect={true}
@@ -1106,7 +1265,6 @@ const LeadPage = () => {
                 preselectedLeadId={leadId}
                 preselectedSalesUserId={lead?.salesRep?.userId || null}
             />
-
             <StatusMenu
                 anchorEl={statusMenu.anchorEl}
                 currentStatus={statusMenu.row?.status}

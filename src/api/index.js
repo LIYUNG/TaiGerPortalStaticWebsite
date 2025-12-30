@@ -69,6 +69,9 @@ export const getStudents = () => request.get(`/api/students`);
 export const getStudentsV3 = (queryString) =>
     getData(`/api/students/v3?${queryString}`);
 
+export const getStudent = (studentId) =>
+    request.get(`/api/students/${studentId}`);
+
 export const getApplications = (queryString) =>
     getData(`/api/applications?${queryString}`);
 
@@ -824,6 +827,8 @@ export const getCRMLeads = () => request.get(`/api/crm/leads`);
 export const getCRMLead = (leadId) => request.get(`/api/crm/leads/${leadId}`);
 export const getLeadIdByUserId = (userId) =>
     request.get(`/api/crm/students/${userId}/lead`);
+export const createLeadFromStudent = (userId) =>
+    request.post(`/api/crm/students/${userId}/lead`);
 export const getCRMMeetings = () => request.get(`/api/crm/meetings`);
 export const getCRMMeeting = (meetingId) =>
     request.get(`/api/crm/meetings/${meetingId}`);

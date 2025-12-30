@@ -2517,3 +2517,21 @@ export const formatDate = (date) => {
         second: '2-digit'
     });
 };
+
+export const flattenObject = (obj, parentKey = '', result = {}) => {
+    for (const [key, value] of Object.entries(obj || {})) {
+        const newKey = parentKey ? `${parentKey}_${key}` : key;
+
+        if (
+            value &&
+            typeof value === 'object' &&
+            !Array.isArray(value) &&
+            !(value instanceof Date)
+        ) {
+            flattenObject(value, newKey, result);
+        } else {
+            result[newKey] = value;
+        }
+    }
+    return result;
+};

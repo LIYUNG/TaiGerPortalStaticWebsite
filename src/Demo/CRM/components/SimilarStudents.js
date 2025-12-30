@@ -438,7 +438,9 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
             }
             return response?.data;
         },
-        enabled: !!leadId && similarUsers.length === 0,
+        // Do not auto-load for leadId when no similarUsers are provided.
+        // Manual fetch will be triggered via `refetchSimilarStudents`.
+        enabled: false,
         refetchOnWindowFocus: false,
         refetchOnMount: false,
         staleTime: Infinity
@@ -471,7 +473,6 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
         data: userDetails,
         isLoading: isLoadingUserDetails,
         isFetching: isFetchingUserDetails,
-        refetch: refetchUserDetails,
         error: userDetailsError
     } = useQuery({
         queryKey: ['similar-user-details', studentIds],
@@ -562,10 +563,7 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
     const isRefreshing = isFetchingSimilarStudents || isFetchingUserDetails;
     const handleRefetch = async () => {
         try {
-            if (similarUsers.length === 0) {
-                await refetchSimilarStudents();
-            }
-            await refetchUserDetails();
+            await refetchSimilarStudents();
         } catch (error) {
             console.error('Failed to refetch similar students', error);
         }
@@ -595,7 +593,7 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
     // Render loading state
     if (isLoading) {
         return (
-            <Card sx={{ mb: 3 }}>
+            <Card sx={{ mb: 1 }}>
                 <CardContent>
                     <Box
                         sx={{
@@ -808,6 +806,85 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
 
     // Render empty state
     if (!sortedStudents || sortedStudents.length === 0) {
+        // If we have a leadId and no similarUsers were passed in, but
+        // we haven't fetched yet, show a manual fetch CTA instead of
+        // auto-loading the endpoint.
+        if (!!leadId && similarUsers.length === 0 && !similarStudentsData) {
+            return (
+                <Card sx={{ mb: 3 }}>
+                    <CardContent>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                mb: 2
+                            }}
+                        >
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 1
+                                }}
+                            >
+                                <PersonIcon color="primary" />
+                                <Typography variant="h6">
+                                    {t('common.similarStudents', { ns: 'crm' })}
+                                </Typography>
+                            </Box>
+                            <Tooltip
+                                title={t('actions.regenerate', { ns: 'crm' })}
+                            >
+                                <span>
+                                    <IconButton
+                                        aria-label={t('actions.regenerate', {
+                                            ns: 'crm'
+                                        })}
+                                        disabled={isRefreshing}
+                                        onClick={handleRefetch}
+                                        size="small"
+                                    >
+                                        {isRefreshing ? (
+                                            <CircularProgress size={16} />
+                                        ) : (
+                                            <ReplayIcon />
+                                        )}
+                                    </IconButton>
+                                </span>
+                            </Tooltip>
+                        </Box>
+
+                        <Typography color="text.secondary">
+                            {t('common.similarStudentsManualFetch', {
+                                ns: 'crm',
+                                defaultValue:
+                                    'No similar students loaded. Click the button below to fetch suggestions for this lead.'
+                            })}
+                        </Typography>
+
+                        <Box sx={{ mt: 2 }}>
+                            <Button
+                                disabled={isRefreshing}
+                                onClick={handleRefetch}
+                                startIcon={
+                                    isRefreshing ? (
+                                        <CircularProgress size={14} />
+                                    ) : null
+                                }
+                                variant="contained"
+                            >
+                                {t('actions.findSimilarStudents', {
+                                    ns: 'crm',
+                                    defaultValue: 'Find similar students'
+                                })}
+                            </Button>
+                        </Box>
+                    </CardContent>
+                </Card>
+            );
+        }
+
         return (
             <Card sx={{ mb: 3 }}>
                 <CardContent>

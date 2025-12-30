@@ -327,6 +327,11 @@
     "Submit": "Submit",
     "Submitted": "Submitted",
     "Success": "Success",
+    "Lead created successfully": "Lead created successfully",
+    "Lead created linked": "Lead created and {{count}} matching meeting(s) linked.",
+    "Create CRM Lead": "Create CRM Lead",
+    "Creating Lead...": "Creating Lead...",
+    "CRM Lead": "CRM Lead",
     "Supplementary Form Required?": "Supplementary form required?",
     "Supplementary Form Requirements": "Supplementary form requirements",
     "Survey": "Survey",
@@ -449,5 +454,6 @@
     "Are you sure you want to delete this meeting? This action cannot be undone.": "Are you sure you want to delete this meeting? This action cannot be undone.",
     "Delete Meeting": "Delete Meeting",
     "Are you sure you want to confirm this meeting? A meeting link will be generated.": "Are you sure you want to confirm this meeting? A meeting link will be generated.",
-    "Add TaiGer assistant to meeting": "Add TaiGer assistant to meeting"
+    "Add TaiGer assistant to meeting": "Add TaiGer assistant to meeting",
+    "readOnly": "Read Only"
 }

@@ -328,6 +328,11 @@
     "Submitted": "已送出",
     "Submit feedback": "送出意見",
     "Success": "成功",
+    "Lead created successfully": "已建立線索。",
+    "Lead created linked": "已建立線索並連結 {{count}} 個匹配會議。",
+    "Create CRM Lead": "建立 CRM 線索",
+    "Creating Lead...": "建立中...",
+    "CRM Lead": "CRM 線索",
     "Supplementary Form Required?": "需要 Supplementary Form?",
     "Supplementary Form Requirements": "Supplementary Form 要求",
     "Survey": "問卷",
@@ -451,5 +456,6 @@
     "Are you sure you want to delete this meeting? This action cannot be undone.": "您確定要刪除此會議嗎？此操作無法復原。",
     "Delete Meeting": "刪除會議",
     "Are you sure you want to confirm this meeting? A meeting link will be generated.": "您確定要確認此會議嗎？將生成會議連結。",
-    "Add TaiGer assistant to meeting": "添加 TaiGer 助手到會議"
+    "Add TaiGer assistant to meeting": "添加 TaiGer 助手到會議",
+    "readOnly": "唯讀"
 }
