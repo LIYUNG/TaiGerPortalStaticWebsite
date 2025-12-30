@@ -80,12 +80,14 @@
         "convertedLeads": "Converted Leads",
         "closedLeads": "Closed Leads",
         "allLeads": "All Leads",
+        "migratedLeads": "Migrated Leads",
         "desc": {
             "all": "All leads from all categories.",
             "open": "Open leads submitted by users through the google survey.",
             "contacted": "Contacted leads with scheduled meetings.",
             "converted": "Leads that have been Converted or completed.",
-            "closed": "Leads that have been closed."
+            "closed": "Leads that have been closed.",
+            "migrated": "Leads that have been backported from the Student Portal user."
         },
         "gender": "Gender",
         "role": "Role",

@@ -44,7 +44,8 @@ const LeadDashboard = () => {
     }
 
     const { data, isLoading } = useQuery(getCRMLeadsQuery());
-    const allLeads = data?.data?.data || [];
+    const leads = data?.data?.data || [];
+    const allLeads = leads.filter((lead) => lead.status !== 'migrated');
 
     const openLeads = allLeads.filter(
         (lead) => lead.status === 'open' && lead.meetingCount === 0
@@ -56,6 +57,7 @@ const LeadDashboard = () => {
         (lead) => lead.status === 'converted'
     );
     const closedLeads = allLeads.filter((lead) => lead.status === 'closed');
+    const migratedLeads = leads.filter((lead) => lead.status === 'migrated');
 
     const getSalesColor = (salesName) => {
         const colors = {
@@ -248,6 +250,8 @@ const LeadDashboard = () => {
                 return convertedLeads;
             case 4:
                 return closedLeads;
+            case 5:
+                return migratedLeads;
             default:
                 return openLeads;
         }
@@ -265,6 +269,8 @@ const LeadDashboard = () => {
                 return t('leads.convertedLeads', { ns: 'crm' });
             case 4:
                 return t('leads.closedLeads', { ns: 'crm' });
+            case 5:
+                return t('leads.migratedLeads', { ns: 'crm' });
             default:
                 return t('leads.openLeads', { ns: 'crm' });
         }
@@ -282,6 +288,8 @@ const LeadDashboard = () => {
                 return t('leads.desc.converted', { ns: 'crm' });
             case 4:
                 return t('leads.desc.closed', { ns: 'crm' });
+            case 5:
+                return t('leads.desc.migrated', { ns: 'crm' });
             default:
                 return t('leads.desc.open', { ns: 'crm' });
         }
@@ -346,6 +354,10 @@ const LeadDashboard = () => {
                             />
                             <Tab
                                 label={`${t('leads.closedLeads', { ns: 'crm' })} (${closedLeads.length})`}
+                                sx={{ textTransform: 'none' }}
+                            />
+                            <Tab
+                                label={`${t('leads.migratedLeads', { ns: 'crm' })} (${migratedLeads.length})`}
                                 sx={{ textTransform: 'none' }}
                             />
                         </Tabs>

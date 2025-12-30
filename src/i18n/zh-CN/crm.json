@@ -80,12 +80,14 @@
         "convertedLeads": "已转化线索",
         "closedLeads": "已结案线索",
         "allLeads": "全部线索",
+        "migratedLeads": "回填线索",
         "desc": {
             "all": "所有分类中的线索。",
             "open": "用户通过 Google 表单提交的未处理线索。",
             "contacted": "已有排定会议的已联系线索。",
             "converted": "已转化或完成的线索。",
-            "closed": "已结案的线索。"
+            "closed": "已结案的线索。",
+            "migrated": "从已存在学生账号回填的线索。"
         },
         "gender": "性别",
         "role": "角色",

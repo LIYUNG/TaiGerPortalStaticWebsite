@@ -80,12 +80,14 @@
         "convertedLeads": "已轉換線索",
         "closedLeads": "已結案線索",
         "allLeads": "全部線索",
+        "migratedLeads": "回填線索",
         "desc": {
             "all": "所有分類中的線索。",
             "open": "使用者透過 Google 表單提交的未處理線索。",
             "contacted": "已有排定會議的已聯繫線索。",
             "converted": "已轉換或完成的線索。",
-            "closed": "已結案的線索。"
+            "closed": "已結案的線索。",
+            "migrated": "從已存在學生帳號回填的線索。"
         },
         "gender": "性別",
         "role": "角色",
