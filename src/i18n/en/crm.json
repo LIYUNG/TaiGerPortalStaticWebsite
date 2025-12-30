@@ -21,6 +21,7 @@
         "createUserAccount": "Create User Account",
         "createUserAccountFromLead": "Create User Account from Lead",
         "viewTranscript": "View Transcript",
+        "findSimilarStudents": "Find similar students",
         "submit": "Submit"
     },
     "common": {
@@ -48,6 +49,7 @@
         "showLess": "Show Less",
         "noSimilarStudentsFound": "No similar students found",
         "similarStudentsDesc": "Matches are based on academic background (school, program, GPA) and application preferences (program level, direction).",
+        "similarStudentsManualFetch": "No similar students loaded. Click the button below to fetch suggestions for this lead.",
         "gpa": "GPA",
         "school": "School",
         "program": "Program",

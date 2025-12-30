@@ -21,6 +21,7 @@
         "createUserAccount": "创建用户账号",
         "createUserAccountFromLead": "由线索创建用户账号",
         "viewTranscript": "查看文字记录",
+        "findSimilarStudents": "查找相似学生",
         "submit": "提交"
     },
     "common": {
@@ -48,6 +49,7 @@
         "showLess": "收起",
         "noSimilarStudentsFound": "未找到相似学生",
         "similarStudentsDesc": "匹配依据为学术背景（学校、专业、GPA）以及申请偏好（学位层级、方向）",
+        "similarStudentsManualFetch": "未加载相似学生。点击下面按钮为该线索获取建议。",
         "gpa": "GPA",
         "school": "学校",
         "program": "专业",

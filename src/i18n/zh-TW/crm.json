@@ -21,6 +21,7 @@
         "createUserAccount": "建立使用者帳號",
         "createUserAccountFromLead": "由線索建立使用者帳號",
         "viewTranscript": "檢視逐字稿",
+        "findSimilarStudents": "查找相似學生",
         "submit": "提交"
     },
     "common": {
@@ -48,6 +49,7 @@
         "showLess": "顯示較少",
         "noSimilarStudentsFound": "沒有相似學生",
         "similarStudentsDesc": "比對依據學術背景（學校、科系、GPA）與申請偏好（學位層級、方向）",
+        "similarStudentsManualFetch": "未載入相似學生。點擊下方按鈕以為此線索取得建議。",
         "gpa": "GPA",
         "school": "學校",
         "program": "科系",
