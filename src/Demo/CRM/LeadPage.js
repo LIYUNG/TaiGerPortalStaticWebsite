@@ -5,6 +5,8 @@ import { useForm } from '@tanstack/react-form';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
     Box,
+    Avatar,
+    Chip,
     Breadcrumbs,
     Link,
     Typography,
@@ -109,10 +111,6 @@ const LeadPage = () => {
     const [leadEditStates, setLeadEditStates] = useState(initLeadEditStates);
     const [formData, setFormData] = useState({});
 
-    useMemo(() => {
-        if (lead && Object.keys(lead).length) setFormData(lead);
-    }, [lead]);
-
     const { data: salesData } = useQuery({
         queryKey: ['crm/sales-reps'],
         queryFn: async () => {
@@ -122,14 +120,18 @@ const LeadPage = () => {
         enabled: !!leadEditStates?.personal,
         staleTime: 300000
     });
-    const salesOptions = (salesData || []).map((s) => ({
-        userId: s.userId || s.value,
-        label:
-            s.label ||
-            s.name ||
-            s.fullName ||
-            t('common.unknown', { ns: 'crm' })
-    }));
+    const salesOptions = useMemo(
+        () =>
+            (salesData || []).map((s) => ({
+                userId: s.userId || s.value,
+                label:
+                    s.label ||
+                    s.name ||
+                    s.fullName ||
+                    t('common.unknown', { ns: 'crm' })
+            })),
+        [salesData, t]
+    );
 
     const form = useForm({
         defaultValues: formData,
@@ -341,168 +343,182 @@ const LeadPage = () => {
                                 display: 'flex',
                                 alignItems: 'center',
                                 width: '100%',
-                                gap: 1
+                                gap: 2
                             }}
                         >
-                            <Typography
+                            <Avatar
                                 sx={{
-                                    fontWeight: 600,
-                                    color: 'text.primary',
-                                    letterSpacing: '0.3px'
+                                    bgcolor: 'primary.main',
+                                    width: 64,
+                                    height: 64,
+                                    fontSize: 20
                                 }}
-                                variant="h5"
                             >
-                                {lead.fullName || t('common.na', { ns: 'crm' })}
-                            </Typography>
-                            {lead.gender && (
-                                <Box
-                                    sx={{
-                                        display: 'flex',
-                                        alignItems: 'center'
-                                    }}
-                                    title={`${t('leads.gender', { ns: 'crm' })}: ${String(lead.gender).charAt(0).toUpperCase() + String(lead.gender).slice(1)}`}
-                                >
-                                    {(() => {
-                                        const genderText = String(
-                                            lead.gender || ''
-                                        )
-                                            .toLowerCase()
-                                            .trim();
-                                        const femaleKeywords = [
-                                            '女',
-                                            'female',
-                                            'woman'
-                                        ];
-                                        const maleKeywords = [
-                                            '男',
-                                            'male',
-                                            'man'
-                                        ];
-                                        if (
-                                            femaleKeywords.some((k) =>
-                                                genderText.includes(k)
-                                            )
-                                        )
-                                            return (
-                                                <FemaleIcon
-                                                    sx={{
-                                                        color: 'secondary.main',
-                                                        fontSize: '1.8rem'
-                                                    }}
-                                                />
-                                            );
-                                        if (
-                                            maleKeywords.some((k) =>
-                                                genderText.includes(k)
-                                            )
-                                        )
-                                            return (
-                                                <MaleIcon
-                                                    sx={{
-                                                        color: 'info.main',
-                                                        fontSize: '1.8rem'
-                                                    }}
-                                                />
-                                            );
-                                        return (
-                                            <OtherGenderIcon
-                                                sx={{
-                                                    color: 'text.secondary',
-                                                    fontSize: '1.8rem'
-                                                }}
-                                            />
-                                        );
-                                    })()}
-                                </Box>
-                            )}
-                            {lead.closeLikelihood && (
-                                <Box
-                                    sx={{
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        borderRadius: '50%',
-                                        width: 28,
-                                        height: 28,
-                                        bgcolor:
-                                            lead.closeLikelihood === 'high'
-                                                ? 'success.main'
-                                                : lead.closeLikelihood ===
-                                                    'medium'
-                                                  ? 'warning.main'
-                                                  : 'error.main',
-                                        color: '#fff',
-                                        fontWeight: 'bold',
-                                        fontSize: '0.75rem',
-                                        border: '1px solid',
-                                        borderColor:
-                                            lead.closeLikelihood === 'high'
-                                                ? 'success.dark'
-                                                : lead.closeLikelihood ===
-                                                    'medium'
-                                                  ? 'warning.dark'
-                                                  : 'error.dark',
-                                        boxShadow: '0 2px 4px rgba(0,0,0,0.08)',
-                                        letterSpacing: '0.2px'
-                                    }}
-                                    title={`${t('leads.closeLikelihood', { ns: 'crm' })}: ${lead.closeLikelihood.charAt(0).toUpperCase() + lead.closeLikelihood.slice(1)}`}
-                                >
-                                    {lead.closeLikelihood === 'high'
-                                        ? 'H'
-                                        : lead.closeLikelihood === 'medium'
-                                          ? 'M'
-                                          : 'L'}
-                                </Box>
-                            )}
+                                {(lead.fullName || '')
+                                    .split(' ')
+                                    .map((n) => n?.[0])
+                                    .filter(Boolean)
+                                    .slice(0, 2)
+                                    .join('') ||
+                                    (lead.fullName ? lead.fullName[0] : '?')}
+                            </Avatar>
                             <Box
                                 sx={{
-                                    fontWeight: 'medium',
-                                    px: 1.5,
-                                    py: 0.5,
-                                    borderRadius: '50px',
-                                    backgroundColor:
-                                        lead.status === 'converted'
-                                            ? 'success.main'
-                                            : lead.status === 'qualified'
-                                              ? 'info.main'
-                                              : lead.status === 'closed'
-                                                ? 'error.main'
-                                                : 'primary.main',
-                                    color: '#fff',
-                                    fontSize: '0.8rem',
-                                    letterSpacing: '0.2px',
-                                    boxShadow: '0 2px 4px rgba(0,0,0,0.08)',
-                                    border: '1px solid',
-                                    borderColor:
-                                        lead.status === 'converted'
-                                            ? 'success.dark'
-                                            : lead.status === 'qualified'
-                                              ? 'info.dark'
-                                              : lead.status === 'closed'
-                                                ? 'error.dark'
-                                                : 'primary.dark',
                                     display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    height: 28
+                                    flexDirection: 'column',
+                                    minWidth: 0
                                 }}
                             >
-                                {lead.status
-                                    ? lead.status.charAt(0).toUpperCase() +
-                                      lead.status.slice(1)
-                                    : t('common.na', { ns: 'crm' })}
+                                <Typography
+                                    sx={{
+                                        fontWeight: 600,
+                                        color: 'text.primary',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        whiteSpace: 'nowrap'
+                                    }}
+                                    variant="h5"
+                                >
+                                    {lead.fullName ||
+                                        t('common.na', { ns: 'crm' })}
+                                </Typography>
+                                <Typography
+                                    sx={{
+                                        color: 'text.secondary',
+                                        mt: 0.25,
+                                        display: 'flex',
+                                        gap: 1,
+                                        alignItems: 'center'
+                                    }}
+                                    variant="body2"
+                                >
+                                    {lead.applicantRole || ''}
+                                </Typography>
+                            </Box>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 1
+                                }}
+                            >
+                                {lead.gender && (
+                                    <Box
+                                        title={`${t('leads.gender', { ns: 'crm' })}: ${String(lead.gender).charAt(0).toUpperCase() + String(lead.gender).slice(1)}`}
+                                    >
+                                        {(() => {
+                                            const genderText = String(
+                                                lead.gender || ''
+                                            )
+                                                .toLowerCase()
+                                                .trim();
+                                            const femaleKeywords = [
+                                                '女',
+                                                'female',
+                                                'woman'
+                                            ];
+                                            const maleKeywords = [
+                                                '男',
+                                                'male',
+                                                'man'
+                                            ];
+                                            if (
+                                                femaleKeywords.some((k) =>
+                                                    genderText.includes(k)
+                                                )
+                                            )
+                                                return (
+                                                    <FemaleIcon
+                                                        sx={{
+                                                            color: 'secondary.main',
+                                                            fontSize: '1.6rem'
+                                                        }}
+                                                    />
+                                                );
+                                            if (
+                                                maleKeywords.some((k) =>
+                                                    genderText.includes(k)
+                                                )
+                                            )
+                                                return (
+                                                    <MaleIcon
+                                                        sx={{
+                                                            color: 'info.main',
+                                                            fontSize: '1.6rem'
+                                                        }}
+                                                    />
+                                                );
+                                            return (
+                                                <OtherGenderIcon
+                                                    sx={{
+                                                        color: 'text.secondary',
+                                                        fontSize: '1.6rem'
+                                                    }}
+                                                />
+                                            );
+                                        })()}
+                                    </Box>
+                                )}
+                                {lead.closeLikelihood && (
+                                    <Chip
+                                        label={
+                                            lead.closeLikelihood === 'high'
+                                                ? 'H'
+                                                : lead.closeLikelihood ===
+                                                    'medium'
+                                                  ? 'M'
+                                                  : 'L'
+                                        }
+                                        size="small"
+                                        sx={{
+                                            bgcolor:
+                                                lead.closeLikelihood === 'high'
+                                                    ? 'success.main'
+                                                    : lead.closeLikelihood ===
+                                                        'medium'
+                                                      ? 'warning.main'
+                                                      : 'error.main',
+                                            color: '#fff',
+                                            fontWeight: '600'
+                                        }}
+                                        title={`${t('leads.closeLikelihood', { ns: 'crm' })}: ${lead.closeLikelihood.charAt(0).toUpperCase() + lead.closeLikelihood.slice(1)}`}
+                                    />
+                                )}
+                                <Chip
+                                    label={
+                                        lead.status
+                                            ? lead.status
+                                                  .charAt(0)
+                                                  .toUpperCase() +
+                                              lead.status.slice(1)
+                                            : t('common.na', { ns: 'crm' })
+                                    }
+                                    size="small"
+                                    sx={{
+                                        bgcolor:
+                                            lead.status === 'converted'
+                                                ? 'success.main'
+                                                : lead.status === 'qualified'
+                                                  ? 'info.main'
+                                                  : lead.status === 'closed'
+                                                    ? 'error.main'
+                                                    : 'primary.main',
+                                        color: '#fff',
+                                        fontWeight: 600
+                                    }}
+                                />
                             </Box>
                             {!isMigratedLead && (
                                 <Box
                                     sx={{
                                         ml: 'auto',
                                         display: 'flex',
-                                        alignItems: 'center'
+                                        alignItems: 'center',
+                                        gap: 1
                                     }}
                                 >
                                     <Typography
                                         sx={{
-                                            mr: 1,
                                             color: 'text.secondary',
                                             backgroundColor: 'grey.100',
                                             px: 1,
