@@ -1077,12 +1077,10 @@ const LeadPage = () => {
                     </Box>
                 </Box>
             )}
-            {!isMigratedLead && (
-                <SimilarStudents
-                    leadId={leadId}
-                    similarUsers={lead?.leadSimilarUsers}
-                />
-            )}
+            <SimilarStudents
+                leadId={leadId}
+                similarUsers={lead?.leadSimilarUsers}
+            />
             {/* Student data */}
             {hasPortalUser && (
                 <Accordion
