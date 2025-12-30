@@ -78,6 +78,7 @@ const LeadPage = () => {
     const lead = data?.data?.data || {};
 
     const hasPortalUser = !!lead?.userId;
+    const isMigratedLead = lead?.status === 'migrated' && hasPortalUser;
 
     // lead.userId exists fetch student data
     const studentQueryOptions = hasPortalUser
@@ -490,35 +491,39 @@ const LeadPage = () => {
                                       lead.status.slice(1)
                                     : t('common.na', { ns: 'crm' })}
                             </Box>
-                            <Box
-                                sx={{
-                                    ml: 'auto',
-                                    display: 'flex',
-                                    alignItems: 'center'
-                                }}
-                            >
-                                <Typography
+                            {!isMigratedLead && (
+                                <Box
                                     sx={{
-                                        mr: 1,
-                                        color: 'text.secondary',
-                                        backgroundColor: 'grey.100',
-                                        px: 1,
-                                        py: 0.25,
-                                        borderRadius: '12px'
+                                        ml: 'auto',
+                                        display: 'flex',
+                                        alignItems: 'center'
                                     }}
-                                    variant="body2"
                                 >
-                                    {t('common.sales', { ns: 'crm' })}:{' '}
-                                    {lead?.salesRep?.label ||
-                                        t('leads.unassigned', { ns: 'crm' })}
-                                </Typography>
-                                <IconButton
-                                    onClick={() => handleEdit('personal')}
-                                    size="small"
-                                >
-                                    <EditIcon />
-                                </IconButton>
-                            </Box>
+                                    <Typography
+                                        sx={{
+                                            mr: 1,
+                                            color: 'text.secondary',
+                                            backgroundColor: 'grey.100',
+                                            px: 1,
+                                            py: 0.25,
+                                            borderRadius: '12px'
+                                        }}
+                                        variant="body2"
+                                    >
+                                        {t('common.sales', { ns: 'crm' })}:{' '}
+                                        {lead?.salesRep?.label ||
+                                            t('leads.unassigned', {
+                                                ns: 'crm'
+                                            })}
+                                    </Typography>
+                                    <IconButton
+                                        onClick={() => handleEdit('personal')}
+                                        size="small"
+                                    >
+                                        <EditIcon />
+                                    </IconButton>
+                                </Box>
+                            )}
                         </Box>
                         <Box
                             sx={{
@@ -574,17 +579,19 @@ const LeadPage = () => {
                                     })}
                                 </Button>
                             ) : null}
-                            <Button
-                                color="secondary"
-                                onClick={() => {
-                                    setEditingDeal(null);
-                                    setShowDealModal(true);
-                                }}
-                                size="small"
-                                variant="contained"
-                            >
-                                {t('actions.createDeal', { ns: 'crm' })}
-                            </Button>
+                            {!isMigratedLead && (
+                                <Button
+                                    color="secondary"
+                                    onClick={() => {
+                                        setEditingDeal(null);
+                                        setShowDealModal(true);
+                                    }}
+                                    size="small"
+                                    variant="contained"
+                                >
+                                    {t('actions.createDeal', { ns: 'crm' })}
+                                </Button>
+                            )}
                         </Box>
                         {lead.salesNote?.trim() && (
                             <Box sx={{ width: '100%' }}>
@@ -1069,10 +1076,12 @@ const LeadPage = () => {
                     </Box>
                 </Box>
             )}
-            <SimilarStudents
-                leadId={leadId}
-                similarUsers={lead?.leadSimilarUsers}
-            />
+            {!isMigratedLead && (
+                <SimilarStudents
+                    leadId={leadId}
+                    similarUsers={lead?.leadSimilarUsers}
+                />
+            )}
             {/* Student data */}
             {hasPortalUser && (
                 <Accordion
@@ -1135,76 +1144,89 @@ const LeadPage = () => {
                     </AccordionDetails>
                 </Accordion>
             )}
-            <Accordion
-                defaultExpanded={!hasPortalUser}
-                disableGutters
-                elevation={0}
-                square
-                sx={{
-                    backgroundColor: 'transparent',
-                    boxShadow: 'none',
-                    borderBottom: '1px solid',
-                    borderColor: 'divider',
-                    '&:before': { display: 'none' }
-                }}
-            >
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography variant="h6">
-                        {t('common.leadDetails', { ns: 'crm' })}
-                        {hasPortalUser
-                            ? ` (${t('readOnly', { ns: 'common' })})`
-                            : ''}
-                    </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                    {lead && Object.keys(lead).length > 0 ? (
-                        <Grid container spacing={3} sx={{ pb: 5 }}>
-                            {leadCardConfigurations.map((config) => (
-                                <Grid item key={config.id} {...config.gridSize}>
-                                    <EditableCard
-                                        disableEdit={hasPortalUser}
-                                        editContent={
-                                            <GenericCardContent
-                                                config={config}
-                                                formData={formData}
-                                                isEditing={true}
-                                                lead={lead}
-                                                onFieldChange={
-                                                    handleFieldChange
-                                                }
-                                            />
-                                        }
-                                        hasUnsavedChanges={hasUnsavedChanges(
-                                            config.id
-                                        )}
-                                        isEditing={leadEditStates[config.id]}
-                                        isLoading={updateLeadMutation.isPending}
-                                        onCancel={() => handleCancel(config.id)}
-                                        onEdit={() => handleEdit(config.id)}
-                                        onSave={() => handleSave(config.id)}
-                                        title={config.title}
-                                        viewContent={
-                                            <GenericCardContent
-                                                config={config}
-                                                formData={formData}
-                                                isEditing={false}
-                                                lead={lead}
-                                                onFieldChange={
-                                                    handleFieldChange
-                                                }
-                                            />
-                                        }
-                                    />
-                                </Grid>
-                            ))}
-                        </Grid>
-                    ) : (
-                        <Typography color="text.secondary" variant="body1">
-                            {t('common.loadingLeadInfo', { ns: 'crm' })}
+
+            {!isMigratedLead && (
+                <Accordion
+                    defaultExpanded={!hasPortalUser}
+                    disableGutters
+                    elevation={0}
+                    square
+                    sx={{
+                        backgroundColor: 'transparent',
+                        boxShadow: 'none',
+                        borderBottom: '1px solid',
+                        borderColor: 'divider',
+                        '&:before': { display: 'none' }
+                    }}
+                >
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                        <Typography variant="h6">
+                            {t('common.leadDetails', { ns: 'crm' })}
+                            {hasPortalUser
+                                ? ` (${t('readOnly', { ns: 'common' })})`
+                                : ''}
                         </Typography>
-                    )}
-                </AccordionDetails>
-            </Accordion>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        {lead && Object.keys(lead).length > 0 ? (
+                            <Grid container spacing={3} sx={{ pb: 5 }}>
+                                {leadCardConfigurations.map((config) => (
+                                    <Grid
+                                        item
+                                        key={config.id}
+                                        {...config.gridSize}
+                                    >
+                                        <EditableCard
+                                            disableEdit={hasPortalUser}
+                                            editContent={
+                                                <GenericCardContent
+                                                    config={config}
+                                                    formData={formData}
+                                                    isEditing={true}
+                                                    lead={lead}
+                                                    onFieldChange={
+                                                        handleFieldChange
+                                                    }
+                                                />
+                                            }
+                                            hasUnsavedChanges={hasUnsavedChanges(
+                                                config.id
+                                            )}
+                                            isEditing={
+                                                leadEditStates[config.id]
+                                            }
+                                            isLoading={
+                                                updateLeadMutation.isPending
+                                            }
+                                            onCancel={() =>
+                                                handleCancel(config.id)
+                                            }
+                                            onEdit={() => handleEdit(config.id)}
+                                            onSave={() => handleSave(config.id)}
+                                            title={config.title}
+                                            viewContent={
+                                                <GenericCardContent
+                                                    config={config}
+                                                    formData={formData}
+                                                    isEditing={false}
+                                                    lead={lead}
+                                                    onFieldChange={
+                                                        handleFieldChange
+                                                    }
+                                                />
+                                            }
+                                        />
+                                    </Grid>
+                                ))}
+                            </Grid>
+                        ) : (
+                            <Typography color="text.secondary" variant="body1">
+                                {t('common.loadingLeadInfo', { ns: 'crm' })}
+                            </Typography>
+                        )}
+                    </AccordionDetails>
+                </Accordion>
+            )}
 
             {/* ------------ Modals ------------ */}
             <CreateUserFromLeadModal
