@@ -18,6 +18,82 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from '@tanstack/react-form';
 import { addUser } from '../../../api';
 
+function parseGPA(value) {
+    if (!value || typeof value !== 'string') {
+        return {};
+    }
+
+    const [current, max] = value.split('/').map((v) => v.trim());
+
+    return {
+        gpa: current || undefined,
+        maxGpa: max || undefined
+    };
+}
+
+function mapLeadToStudentAcademic(lead) {
+    const { gpa: bachelorGPA, maxGpa: bachelorHighestGPA } = parseGPA(
+        lead.bachelorGPA
+    );
+
+    const { gpa: masterGPA, maxGpa: masterHighestGPA } = parseGPA(
+        lead.masterGPA
+    );
+    return {
+        academic_background: {
+            university: {
+                high_school_isGraduated: lead.highschoolName ? 'Yes' : 'No',
+                attended_high_school: lead.highschoolName || '',
+
+                isGraduated: lead.masterSchool ? 'Yes' : 'pending',
+                attended_university: lead.bachelorSchool || '',
+                attended_university_program: lead.bachelorProgramName || '',
+
+                My_GPA_Uni: bachelorGPA ? Number(bachelorGPA) : undefined,
+                Highest_GPA_Uni: bachelorHighestGPA
+                    ? Number(bachelorHighestGPA)
+                    : undefined,
+
+                isSecondGraduated: lead.masterSchool ? 'pending' : 'No',
+                attendedSecondDegreeUniversity: lead.masterSchool || '',
+                attendedSecondDegreeProgram: lead.masterProgramName || '',
+                mySecondDegreeGPA: masterGPA ? Number(masterGPA) : undefined,
+                highestSecondDegreeGPA: masterHighestGPA
+                    ? Number(masterHighestGPA)
+                    : undefined,
+
+                expected_grad_date: lead.currentYearOrGraduated || '',
+                highestEducation: lead.highestEducation || '',
+                Has_Working_Experience: lead.workExperience || '-',
+                Has_Internship_Experience: lead.otherActivities || '-'
+            },
+
+            language: {
+                english_certificate: lead.englishLevel || '',
+                german_certificate: lead.germanLevel || ''
+            }
+        },
+        application_preference: {
+            expected_application_date: lead.intendedStartTime || '',
+            target_program_level: lead.intendedProgramLevel || '',
+            target_application_field: lead.intendedDirection || '',
+            special_wished: [
+                'Survey input:',
+                lead.intendedStartTime &&
+                    `Start Time: ${lead.intendedStartTime}`,
+                lead.intendedProgramLevel &&
+                    `Program Level: ${lead.intendedProgramLevel}`,
+                lead.intendedDirection &&
+                    `Direction: ${lead.intendedDirection}`,
+                lead.intendedPrograms && `Programs: ${lead.intendedPrograms}`,
+                lead.additionalInfo && `Info: ${lead.additionalInfo}`
+            ]
+                .filter(Boolean)
+                .join('\n')
+        }
+    };
+}
+
 const CreateUserFromLeadModal = ({ open, onClose, lead, onSuccess }) => {
     const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
@@ -48,7 +124,8 @@ const CreateUserFromLeadModal = ({ open, onClose, lead, onSuccess }) => {
                 const userInformation = {
                     ...value,
                     email: value.email.trim(),
-                    role: 'Student'
+                    role: 'Student',
+                    ...mapLeadToStudentAcademic(lead)
                 };
 
                 const response = await addUser(userInformation);
