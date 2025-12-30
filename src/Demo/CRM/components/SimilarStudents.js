@@ -471,7 +471,6 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
         data: userDetails,
         isLoading: isLoadingUserDetails,
         isFetching: isFetchingUserDetails,
-        refetch: refetchUserDetails,
         error: userDetailsError
     } = useQuery({
         queryKey: ['similar-user-details', studentIds],
@@ -562,10 +561,7 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
     const isRefreshing = isFetchingSimilarStudents || isFetchingUserDetails;
     const handleRefetch = async () => {
         try {
-            if (similarUsers.length === 0) {
-                await refetchSimilarStudents();
-            }
-            await refetchUserDetails();
+            await refetchSimilarStudents();
         } catch (error) {
             console.error('Failed to refetch similar students', error);
         }
