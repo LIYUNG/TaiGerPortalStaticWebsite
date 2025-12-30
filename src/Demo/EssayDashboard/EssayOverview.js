@@ -15,7 +15,7 @@ import StarRoundedIcon from '@mui/icons-material/StarRounded';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import PropTypes from 'prop-types';
-import { is_TaiGer_role } from '@taiger-common/core';
+import { is_TaiGer_role, is_TaiGer_Student } from '@taiger-common/core';
 
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import Banner from '../../components/Banner/Banner';
@@ -120,6 +120,18 @@ const EssayOverview = (props) => {
                 headerAlign: 'left',
                 minWidth: 120,
                 renderCell: (params) => {
+                    const program = params.row.program_id;
+                    const essayDifficulty = program?.essay_difficulty;
+
+                    // Only show for HARD essays - EASY essays use editors column instead
+                    // Treat undefined as 'EASY' (default to editor assignment flow)
+                    if (
+                        essayDifficulty === 'EASY' ||
+                        essayDifficulty === undefined
+                    ) {
+                        return null;
+                    }
+
                     return (
                         params.row.outsourced_user_id?.map((outsourcer) => (
                             <Link
@@ -250,6 +262,15 @@ const EssayOverview = (props) => {
                               String(programCountry).toLowerCase()
                           )
                         : false;
+                    // Check essay difficulty
+                    const program =
+                        params.row.program || params.row.program_id_obj;
+                    const essayDifficulty = program?.essay_difficulty;
+                    const isHardEssay = essayDifficulty === 'HARD';
+                    const isEasyEssay =
+                        essayDifficulty === 'EASY' ||
+                        essayDifficulty === undefined;
+
                     return (
                         <>
                             {params.row?.attributes?.map(
@@ -272,6 +293,41 @@ const EssayOverview = (props) => {
                                         </Tooltip>
                                     )
                             )}
+                            {/* Essay difficulty indicator (exclude students) */}
+                            {!is_TaiGer_Student(user) &&
+                                (isHardEssay || isEasyEssay) && (
+                                    <Tooltip
+                                        title={
+                                            isHardEssay
+                                                ? t(
+                                                      'Hard Essay (above 1000 words, scientific research style)',
+                                                      {
+                                                          ns: 'common'
+                                                      }
+                                                  )
+                                                : t(
+                                                      'Easy Essay (below 1000 words, non-scientific research style)',
+                                                      {
+                                                          ns: 'common'
+                                                      }
+                                                  )
+                                        }
+                                    >
+                                        <Chip
+                                            color={
+                                                isHardEssay
+                                                    ? 'error'
+                                                    : 'success'
+                                            }
+                                            label={
+                                                isHardEssay ? 'HARD' : 'EASY'
+                                            }
+                                            size="small"
+                                            sx={{ ml: 0.5, mr: 0.5 }}
+                                            variant="outlined"
+                                        />
+                                    </Tooltip>
+                                )}
                             {isNonApprovalCountry && (
                                 <Tooltip
                                     title={t('Lack of experience country', {
@@ -418,7 +474,7 @@ const EssayOverview = (props) => {
                     notification_key={undefined}
                     path="/"
                     removeBanner={null}
-                    text="Please assign essay writer to the following essays:"
+                    text="Please assign essay writers to the following essays:"
                     title="warning"
                 />
                 <MuiDataGrid

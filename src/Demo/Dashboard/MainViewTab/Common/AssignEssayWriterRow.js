@@ -12,7 +12,7 @@ const AssignEssayWriterRow = (props) => {
                     component={LinkDom}
                     to={`${DEMO.ASSIGN_ESSAY_WRITER_LINK}`}
                 >
-                    {t('Assign Essay Writer', { ns: 'common' })} (
+                    {t('Assign Essay Writers', { ns: 'common' })} (
                     {props.tasksOverview.noEssayWritersEssays})
                 </Link>
             </TableCell>

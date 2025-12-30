@@ -706,138 +706,331 @@ const InformationBlock = ({
                                         {[
                                             ...AGENT_SUPPORT_DOCUMENTS_A,
                                             FILE_TYPE_E.essay_required
-                                        ].includes(thread.file_type) ? (
-                                            thread?.outsourced_user_id?.length >
-                                            0 ? (
-                                                <Stack
-                                                    direction="row"
-                                                    flexWrap="wrap"
-                                                    gap={0.75}
-                                                >
-                                                    {thread?.outsourced_user_id?.map(
-                                                        (outsourcer) => (
-                                                            <Tooltip
-                                                                key={
-                                                                    outsourcer._id
-                                                                }
-                                                                title={`${outsourcer.firstname} ${outsourcer.lastname}`}
-                                                            >
-                                                                {is_TaiGer_role(
-                                                                    user
-                                                                ) ? (
-                                                                    <Chip
-                                                                        avatar={
-                                                                            <Avatar
-                                                                                src={
-                                                                                    outsourcer.pictureUrl
-                                                                                }
-                                                                                {...stringAvatar(
-                                                                                    `${outsourcer.firstname} ${outsourcer.lastname}`
-                                                                                )}
-                                                                                sx={{
-                                                                                    bgcolor:
-                                                                                        theme
-                                                                                            .palette
-                                                                                            .secondary
-                                                                                            .main,
-                                                                                    color: 'white',
-                                                                                    fontSize:
-                                                                                        '0.65rem',
-                                                                                    width: 24,
-                                                                                    height: 24
-                                                                                }}
-                                                                            >
-                                                                                {getInitials(
-                                                                                    outsourcer.firstname,
-                                                                                    outsourcer.lastname
-                                                                                )}
-                                                                            </Avatar>
-                                                                        }
-                                                                        clickable
-                                                                        component={
-                                                                            LinkDom
-                                                                        }
-                                                                        label={`${outsourcer.firstname}`}
-                                                                        size="small"
-                                                                        sx={{
-                                                                            fontWeight: 500,
-                                                                            fontSize:
-                                                                                '0.8rem',
-                                                                            height: 28,
-                                                                            '&:hover':
-                                                                                {
-                                                                                    bgcolor:
-                                                                                        'secondary.50'
-                                                                                }
-                                                                        }}
-                                                                        target="_blank"
-                                                                        to={`${DEMO.TEAM_EDITOR_LINK(
-                                                                            outsourcer._id.toString()
-                                                                        )}`}
-                                                                        variant="outlined"
-                                                                    />
-                                                                ) : (
-                                                                    <Chip
-                                                                        avatar={
-                                                                            <Avatar
-                                                                                src={
-                                                                                    outsourcer.pictureUrl
-                                                                                }
-                                                                                {...stringAvatar(
-                                                                                    `${outsourcer.firstname} ${outsourcer.lastname}`
-                                                                                )}
-                                                                                sx={{
-                                                                                    bgcolor:
-                                                                                        theme
-                                                                                            .palette
-                                                                                            .secondary
-                                                                                            .main,
-                                                                                    color: 'white',
-                                                                                    fontSize:
-                                                                                        '0.65rem',
-                                                                                    width: 24,
-                                                                                    height: 24
-                                                                                }}
-                                                                            >
-                                                                                {getInitials(
-                                                                                    outsourcer.firstname,
-                                                                                    outsourcer.lastname
-                                                                                )}
-                                                                            </Avatar>
-                                                                        }
-                                                                        label={`${outsourcer.firstname}`}
-                                                                        size="small"
-                                                                        sx={{
-                                                                            fontWeight: 500,
-                                                                            fontSize:
-                                                                                '0.8rem',
-                                                                            height: 28
-                                                                        }}
-                                                                        variant="outlined"
-                                                                    />
-                                                                )}
-                                                            </Tooltip>
-                                                        )
-                                                    )}
-                                                </Stack>
-                                            ) : (
-                                                <Typography
-                                                    color="text.secondary"
-                                                    sx={{
-                                                        fontStyle: 'italic',
-                                                        py: 0.5,
-                                                        fontSize: '0.85rem'
-                                                    }}
-                                                    variant="body2"
-                                                >
-                                                    {[
-                                                        ...AGENT_SUPPORT_DOCUMENTS_A
-                                                    ].includes(thread.file_type)
-                                                        ? 'If needed, editor can be added'
-                                                        : 'To Be Assigned'}
-                                                </Typography>
-                                            )
-                                        ) : null}
+                                        ].includes(thread.file_type)
+                                            ? (() => {
+                                                  // Treat undefined as 'EASY' (default to editor assignment flow)
+                                                  const essayDifficulty =
+                                                      thread?.program_id
+                                                          ?.essay_difficulty;
+                                                  const isEasyEssay =
+                                                      essayDifficulty ===
+                                                          'EASY' ||
+                                                      essayDifficulty ===
+                                                          undefined;
+
+                                                  if (isEasyEssay) {
+                                                      const hasOutsourcer =
+                                                          thread?.outsourced_user_id &&
+                                                          thread
+                                                              .outsourced_user_id
+                                                              .length > 0;
+
+                                                      let displayUsers = [];
+
+                                                      if (hasOutsourcer) {
+                                                          // Show outsourcers
+                                                          displayUsers =
+                                                              thread.outsourced_user_id.map(
+                                                                  (
+                                                                      outsourcer
+                                                                  ) => ({
+                                                                      ...outsourcer,
+                                                                      source: 'thread_outsourced'
+                                                                  })
+                                                              );
+                                                      }
+
+                                                      return displayUsers.length >
+                                                          0 ? (
+                                                          <Stack
+                                                              direction="row"
+                                                              flexWrap="wrap"
+                                                              gap={0.75}
+                                                          >
+                                                              {displayUsers.map(
+                                                                  (userObj) => (
+                                                                      <Tooltip
+                                                                          key={
+                                                                              userObj._id
+                                                                          }
+                                                                          title={`${userObj.firstname} ${userObj.lastname}`}
+                                                                      >
+                                                                          {is_TaiGer_role(
+                                                                              user
+                                                                          ) ? (
+                                                                              <Chip
+                                                                                  avatar={
+                                                                                      <Avatar
+                                                                                          src={
+                                                                                              userObj.pictureUrl
+                                                                                          }
+                                                                                          {...stringAvatar(
+                                                                                              `${userObj.firstname} ${userObj.lastname}`
+                                                                                          )}
+                                                                                          sx={{
+                                                                                              bgcolor:
+                                                                                                  userObj.source ===
+                                                                                                  'thread_outsourced'
+                                                                                                      ? theme
+                                                                                                            .palette
+                                                                                                            .warning
+                                                                                                            .main
+                                                                                                      : theme
+                                                                                                            .palette
+                                                                                                            .secondary
+                                                                                                            .main,
+                                                                                              color: 'white',
+                                                                                              fontSize:
+                                                                                                  '0.65rem',
+                                                                                              width: 24,
+                                                                                              height: 24
+                                                                                          }}
+                                                                                      >
+                                                                                          {getInitials(
+                                                                                              userObj.firstname,
+                                                                                              userObj.lastname
+                                                                                          )}
+                                                                                      </Avatar>
+                                                                                  }
+                                                                                  clickable
+                                                                                  component={
+                                                                                      LinkDom
+                                                                                  }
+                                                                                  label={`${userObj.firstname}`}
+                                                                                  size="small"
+                                                                                  sx={{
+                                                                                      fontWeight: 500,
+                                                                                      fontSize:
+                                                                                          '0.8rem',
+                                                                                      height: 28,
+                                                                                      border:
+                                                                                          userObj.source ===
+                                                                                          'thread_outsourced'
+                                                                                              ? '1px dashed orange'
+                                                                                              : 'none',
+                                                                                      '&:hover':
+                                                                                          {
+                                                                                              bgcolor:
+                                                                                                  'secondary.50'
+                                                                                          }
+                                                                                  }}
+                                                                                  target="_blank"
+                                                                                  to={`${DEMO.TEAM_EDITOR_LINK(
+                                                                                      userObj._id.toString()
+                                                                                  )}`}
+                                                                                  variant="outlined"
+                                                                              />
+                                                                          ) : (
+                                                                              <Chip
+                                                                                  avatar={
+                                                                                      <Avatar
+                                                                                          src={
+                                                                                              userObj.pictureUrl
+                                                                                          }
+                                                                                          {...stringAvatar(
+                                                                                              `${userObj.firstname} ${userObj.lastname}`
+                                                                                          )}
+                                                                                          sx={{
+                                                                                              bgcolor:
+                                                                                                  userObj.source ===
+                                                                                                  'thread_outsourced'
+                                                                                                      ? theme
+                                                                                                            .palette
+                                                                                                            .warning
+                                                                                                            .main
+                                                                                                      : theme
+                                                                                                            .palette
+                                                                                                            .secondary
+                                                                                                            .main,
+                                                                                              color: 'white',
+                                                                                              fontSize:
+                                                                                                  '0.65rem',
+                                                                                              width: 24,
+                                                                                              height: 24
+                                                                                          }}
+                                                                                      >
+                                                                                          {getInitials(
+                                                                                              userObj.firstname,
+                                                                                              userObj.lastname
+                                                                                          )}
+                                                                                      </Avatar>
+                                                                                  }
+                                                                                  label={`${userObj.firstname}`}
+                                                                                  size="small"
+                                                                                  sx={{
+                                                                                      fontWeight: 500,
+                                                                                      fontSize:
+                                                                                          '0.8rem',
+                                                                                      height: 28,
+                                                                                      border:
+                                                                                          userObj.source ===
+                                                                                          'thread_outsourced'
+                                                                                              ? '1px dashed orange'
+                                                                                              : 'none'
+                                                                                  }}
+                                                                                  variant="outlined"
+                                                                              />
+                                                                          )}
+                                                                      </Tooltip>
+                                                                  )
+                                                              )}
+                                                          </Stack>
+                                                      ) : (
+                                                          <Typography
+                                                              color="text.secondary"
+                                                              sx={{
+                                                                  fontStyle:
+                                                                      'italic',
+                                                                  py: 0.5,
+                                                                  fontSize:
+                                                                      '0.85rem'
+                                                              }}
+                                                              variant="body2"
+                                                          >
+                                                              {t(
+                                                                  'No editors assigned',
+                                                                  {
+                                                                      ns: 'common'
+                                                                  }
+                                                              )}
+                                                          </Typography>
+                                                      );
+                                                  } else {
+                                                      // HARD essay: Only show thread.outsourced_user_id (current behavior)
+                                                      return thread
+                                                          ?.outsourced_user_id
+                                                          ?.length > 0 ? (
+                                                          <Stack
+                                                              direction="row"
+                                                              flexWrap="wrap"
+                                                              gap={0.75}
+                                                          >
+                                                              {thread?.outsourced_user_id?.map(
+                                                                  (
+                                                                      outsourcer
+                                                                  ) => (
+                                                                      <Tooltip
+                                                                          key={
+                                                                              outsourcer._id
+                                                                          }
+                                                                          title={`${outsourcer.firstname} ${outsourcer.lastname}`}
+                                                                      >
+                                                                          {is_TaiGer_role(
+                                                                              user
+                                                                          ) ? (
+                                                                              <Chip
+                                                                                  avatar={
+                                                                                      <Avatar
+                                                                                          src={
+                                                                                              outsourcer.pictureUrl
+                                                                                          }
+                                                                                          {...stringAvatar(
+                                                                                              `${outsourcer.firstname} ${outsourcer.lastname}`
+                                                                                          )}
+                                                                                          sx={{
+                                                                                              bgcolor:
+                                                                                                  theme
+                                                                                                      .palette
+                                                                                                      .secondary
+                                                                                                      .main,
+                                                                                              color: 'white',
+                                                                                              fontSize:
+                                                                                                  '0.65rem',
+                                                                                              width: 24,
+                                                                                              height: 24
+                                                                                          }}
+                                                                                      >
+                                                                                          {getInitials(
+                                                                                              outsourcer.firstname,
+                                                                                              outsourcer.lastname
+                                                                                          )}
+                                                                                      </Avatar>
+                                                                                  }
+                                                                                  clickable
+                                                                                  component={
+                                                                                      LinkDom
+                                                                                  }
+                                                                                  label={`${outsourcer.firstname}`}
+                                                                                  size="small"
+                                                                                  sx={{
+                                                                                      fontWeight: 500,
+                                                                                      fontSize:
+                                                                                          '0.8rem',
+                                                                                      height: 28,
+                                                                                      '&:hover':
+                                                                                          {
+                                                                                              bgcolor:
+                                                                                                  'secondary.50'
+                                                                                          }
+                                                                                  }}
+                                                                                  target="_blank"
+                                                                                  to={`${DEMO.TEAM_EDITOR_LINK(
+                                                                                      outsourcer._id.toString()
+                                                                                  )}`}
+                                                                                  variant="outlined"
+                                                                              />
+                                                                          ) : (
+                                                                              <Chip
+                                                                                  avatar={
+                                                                                      <Avatar
+                                                                                          src={
+                                                                                              outsourcer.pictureUrl
+                                                                                          }
+                                                                                          {...stringAvatar(
+                                                                                              `${outsourcer.firstname} ${outsourcer.lastname}`
+                                                                                          )}
+                                                                                          sx={{
+                                                                                              bgcolor:
+                                                                                                  theme
+                                                                                                      .palette
+                                                                                                      .secondary
+                                                                                                      .main,
+                                                                                              color: 'white',
+                                                                                              fontSize:
+                                                                                                  '0.65rem',
+                                                                                              width: 24,
+                                                                                              height: 24
+                                                                                          }}
+                                                                                      >
+                                                                                          {getInitials(
+                                                                                              outsourcer.firstname,
+                                                                                              outsourcer.lastname
+                                                                                          )}
+                                                                                      </Avatar>
+                                                                                  }
+                                                                                  label={`${outsourcer.firstname}`}
+                                                                                  size="small"
+                                                                                  sx={{
+                                                                                      fontWeight: 500,
+                                                                                      fontSize:
+                                                                                          '0.8rem',
+                                                                                      height: 28
+                                                                                  }}
+                                                                                  variant="outlined"
+                                                                              />
+                                                                          )}
+                                                                      </Tooltip>
+                                                                  )
+                                                              )}
+                                                          </Stack>
+                                                      ) : (
+                                                          <Typography
+                                                              color="text.secondary"
+                                                              sx={{
+                                                                  fontStyle:
+                                                                      'italic',
+                                                                  py: 0.5,
+                                                                  fontSize:
+                                                                      '0.85rem'
+                                                              }}
+                                                              variant="body2"
+                                                          >
+                                                              To Be Assigned
+                                                          </Typography>
+                                                      );
+                                                  }
+                                              })()
+                                            : null}
                                         {![
                                             ...AGENT_SUPPORT_DOCUMENTS_A,
                                             FILE_TYPE_E.essay_required
