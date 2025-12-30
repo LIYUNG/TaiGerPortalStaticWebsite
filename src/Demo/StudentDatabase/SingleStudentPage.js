@@ -66,6 +66,7 @@ import DEMO from '../../store/constant';
 import PortalCredentialPage from '../PortalCredentialPage';
 import { appConfig } from '../../config';
 import { useAuth } from '../../components/AuthProvider';
+import { useSnackBar } from '../../contexts/use-snack-bar';
 import { CustomTabPanel, a11yProps } from '../../components/Tabs';
 import { SurveyProvider } from '../../components/SurveyProvider';
 import ProgramDetailsComparisonTable from '../Program/ProgramDetailsComparisonTable';
@@ -92,6 +93,7 @@ export const SingleStudentPageMainContent = ({
     const { user } = useAuth();
     const { t } = useTranslation();
     const queryClient = useQueryClient();
+    const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
     const [singleStudentPage, setSingleStudentPage] = useState({
         error: '',
         isLoaded: {},
@@ -130,10 +132,7 @@ export const SingleStudentPageMainContent = ({
         setLocalLeadId(null);
     }, [singleStudentPage.student._id]);
 
-    const extractLeadIdFromResponse = (res) =>
-        res?.data?.data?.id ?? res?.data?.data?._id ?? res?.data?.id ?? null;
-
-    const { data: leadId } = useQuery({
+    const { data: leadId, refetch: refetchLeadId } = useQuery({
         queryKey: ['studentId', singleStudentPage.student._id],
         queryFn: () => getLeadIdByUserId(singleStudentPage.student._id),
         select: (res) => res?.data?.data?.id ?? null,
@@ -145,7 +144,7 @@ export const SingleStudentPageMainContent = ({
     const createLeadMutation = useMutation({
         mutationFn: () => createLeadFromStudent(singleStudentPage.student._id),
         onSuccess: async (res) => {
-            const newLeadId = extractLeadIdFromResponse(res);
+            const newLeadId = res?.data?.data?.id ?? null;
             if (newLeadId) {
                 setLocalLeadId(newLeadId);
             }
@@ -154,14 +153,25 @@ export const SingleStudentPageMainContent = ({
                 queryKey: ['studentId', singleStudentPage.student._id]
             });
 
+            // If the create lead response includes matching meetings, show a snackbar
+            const meetingCount = res?.data?.matchingMeetingCounts ?? 0;
+            setSeverity('success');
+            if (meetingCount > 0) {
+                setMessage(
+                    t('Lead created linked', {
+                        count: meetingCount,
+                        ns: 'common'
+                    })
+                );
+            } else {
+                setMessage(t('Lead created successfully', { ns: 'common' }));
+            }
+            setOpenSnackbar(true);
+
             if (!newLeadId) {
                 try {
-                    const refreshed = await getLeadIdByUserId(
-                        singleStudentPage.student._id
-                    );
-                    setLocalLeadId(
-                        extractLeadIdFromResponse(refreshed) ?? null
-                    );
+                    const { data: leadId } = await refetchLeadId();
+                    setLocalLeadId(leadId ?? null);
                 } catch {
                     // ignore; UI will keep showing the create button
                 }
