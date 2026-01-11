@@ -189,13 +189,19 @@ export const getRequirement = (thread) => {
         requirementsKey,
         validValues
     } of requirementsMapping) {
-        if (
-            fileType.includes(type) &&
-            (validValues
+        if (fileType.includes(type)) {
+            const isRequired = validValues
                 ? validValues.includes(program[requiredKey])
-                : program[requiredKey] === 'yes')
-        ) {
-            return program[requirementsKey] || 'No';
+                : program[requiredKey] === 'yes';
+
+            // Allow returning requirement if program[requirementsKey] exists
+            if (isRequired || (program && program[requirementsKey])) {
+                // If it's explicitly "no" but there's a requirement text, show "No" and the requirement
+                if (!isRequired && program[requirementsKey]) {
+                    return `No — ${program[requirementsKey]}`;
+                }
+                return program[requirementsKey] || 'No';
+            }
         }
     }
 
