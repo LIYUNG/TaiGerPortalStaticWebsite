@@ -599,7 +599,7 @@ const routes = [
     {
         path: '/cv-ml-rl-center',
         exact: true,
-        name: 'CV/ML/RL Center',
+        name: 'Application Document Editing Center',
         Component: CVMLRLOverview
     },
     {

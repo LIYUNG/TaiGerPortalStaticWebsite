@@ -93,7 +93,7 @@ const CVMLRLCenter = () => {
     }, []);
 
     const { res_status, isLoaded, open_tasks_arr } = indexState;
-    TabTitle('CV ML RL Overview');
+    TabTitle('Application Document Editing Center');
     if (!isLoaded) {
         return <Loading />;
     }

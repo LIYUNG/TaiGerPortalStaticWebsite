@@ -1765,6 +1765,8 @@ const prepApplicationTaskV2 = (student, application, program, thread) => {
         ...prepTaskV2(student, thread),
         thread_id: thread?._id.toString(),
         program_id: program?._id.toString(),
+        // Include full program object (or at least essay_difficulty) for filtering
+        program_id_obj: program,
         program,
         isApplicationLocked: lockStatus.isLocked,
         isProgramLocked: lockStatus.isLocked, // Keep for backward compatibility

@@ -1177,22 +1177,38 @@ const DocModificationThreadPage = ({
                 title={t('Warning', { ns: 'common' })}
             />
             {is_TaiGer_role(user) &&
-            docModificationThreadPageState.showEditorPage ? (
-                <EditEssayWritersSubpage
-                    actor={
-                        [FILE_TYPE_E.essay_required].includes(thread.file_type)
-                            ? 'Essay Writer'
-                            : 'Editor'
-                    }
-                    editors={docModificationThreadPageState.editors}
-                    essayDocumentThread={thread}
-                    isSubmitting={docModificationThreadPageState.isSubmitting}
-                    onHide={setEditorModalhide}
-                    setmodalhide={setEditorModalhide}
-                    show={docModificationThreadPageState.showEditorPage}
-                    submitUpdateEssayWriterlist={submitUpdateEssayWriterlist}
-                />
-            ) : null}
+            docModificationThreadPageState.showEditorPage
+                ? (() => {
+                      const isEssay = [FILE_TYPE_E.essay_required].includes(
+                          thread.file_type
+                      );
+
+                      if (isEssay) {
+                          // All essays (EASY and HARD): Use essay writer subpage
+                          return (
+                              <EditEssayWritersSubpage
+                                  actor="Essay Writer"
+                                  editors={
+                                      docModificationThreadPageState.editors
+                                  }
+                                  essayDocumentThread={thread}
+                                  isSubmitting={
+                                      docModificationThreadPageState.isSubmitting
+                                  }
+                                  onHide={setEditorModalhide}
+                                  setmodalhide={setEditorModalhide}
+                                  show={
+                                      docModificationThreadPageState.showEditorPage
+                                  }
+                                  submitUpdateEssayWriterlist={
+                                      submitUpdateEssayWriterlist
+                                  }
+                              />
+                          );
+                      }
+                      return null;
+                  })()
+                : null}
             {res_modal_status >= 400 ? (
                 <ModalMain
                     ConfirmError={ConfirmError}

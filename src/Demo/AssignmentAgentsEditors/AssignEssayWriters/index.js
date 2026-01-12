@@ -41,7 +41,7 @@ const AssignEssayWriters = () => {
                 items={[
                     { label: appConfig.companyName, link: DEMO.DASHBOARD_LINK },
                     {
-                        label: t('Assign Essay Writer', { ns: 'common' })
+                        label: t('Assign Essay Writers', { ns: 'common' })
                     }
                 ]}
             />
