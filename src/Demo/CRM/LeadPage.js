@@ -1022,7 +1022,7 @@ const LeadPage = () => {
                                                 key={note.id || `note-${idx}`}
                                                 sx={{
                                                     display: 'flex',
-                                                    alignItems: 'center',
+                                                    alignItems: 'flex-start',
                                                     gap: 1
                                                 }}
                                             >
@@ -1039,7 +1039,14 @@ const LeadPage = () => {
                                                         value={editingNoteDraft}
                                                     />
                                                 ) : (
-                                                    <Typography variant="body2">
+                                                    <Typography
+                                                        sx={{
+                                                            whiteSpace:
+                                                                'pre-wrap',
+                                                            lineHeight: 1.6
+                                                        }}
+                                                        variant="body2"
+                                                    >
                                                         • {note.note}
                                                     </Typography>
                                                 )}
