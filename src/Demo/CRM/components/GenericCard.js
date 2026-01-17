@@ -43,7 +43,19 @@ const ViewField = ({ field, lead, t }) => {
 
 // Generic field renderer for edit mode
 const EditField = ({ field, formData, onFieldChange }) => {
-    const value = formData[field.key] || '';
+    const rawValue = formData[field.key];
+    let value = rawValue ?? '';
+
+    if (Array.isArray(rawValue)) {
+        if (rawValue.length > 0 && typeof rawValue[0] === 'object') {
+            value = rawValue
+                .map((item) => item?.note ?? '')
+                .filter(Boolean)
+                .join('\n');
+        } else {
+            value = rawValue.join(', ');
+        }
+    }
 
     // Use editField config if available, otherwise use the field itself
     const editConfig = field.editField || field;

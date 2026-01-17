@@ -1,4 +1,4 @@
-import { Typography } from '@mui/material';
+import { Box, Chip, Typography } from '@mui/material';
 
 export const getLeadCardConfigurations = (t) => [
     {
@@ -220,6 +220,79 @@ export const getLeadCardConfigurations = (t) => [
                 type: 'text',
                 multiline: true,
                 rows: 3
+            }
+        ]
+    },
+    {
+        id: 'internal',
+        title: t('cards.internal.title', {
+            ns: 'crm',
+            defaultValue: 'Internal'
+        }),
+        gridSize: { xs: 12 },
+        fields: [
+            {
+                key: 'tags',
+                label: t('common.tags', { ns: 'crm', defaultValue: 'Tags' }),
+                type: 'custom',
+                render: (lead) => {
+                    const tags = lead.tags || [];
+                    if (!tags.length) {
+                        return (
+                            <Typography color="text.secondary" variant="body2">
+                                {t('common.na', { ns: 'crm' })}
+                            </Typography>
+                        );
+                    }
+                    return (
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                            {tags.map((tag) => (
+                                <Chip key={tag} label={tag} size="small" />
+                            ))}
+                        </Box>
+                    );
+                },
+                editField: {
+                    type: 'text'
+                }
+            },
+            {
+                key: 'notes',
+                label: t('common.notes', { ns: 'crm', defaultValue: 'Notes' }),
+                type: 'custom',
+                render: (lead) => {
+                    const notes = lead.notes || [];
+                    if (!notes.length) {
+                        return (
+                            <Typography color="text.secondary" variant="body2">
+                                {t('common.na', { ns: 'crm' })}
+                            </Typography>
+                        );
+                    }
+                    return (
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 1
+                            }}
+                        >
+                            {notes.map((note) => (
+                                <Typography
+                                    key={note.id || note.note}
+                                    variant="body2"
+                                >
+                                    • {note.note}
+                                </Typography>
+                            ))}
+                        </Box>
+                    );
+                },
+                editField: {
+                    type: 'text',
+                    multiline: true,
+                    rows: 4
+                }
             }
         ]
     }
