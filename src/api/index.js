@@ -837,8 +837,8 @@ export const updateCRMLeadTags = (leadId, tags) =>
     request.put(`/api/crm/leads/${leadId}/tags`, { tags });
 export const appendCRMLeadTags = (leadId, tags) =>
     request.post(`/api/crm/leads/${leadId}/tags`, { tags });
-export const deleteCRMLeadTags = (leadId, tags) =>
-    request.delete(`/api/crm/leads/${leadId}/tags`, { data: { tags } });
+export const deleteCRMLeadTags = (leadId, tagIds) =>
+    request.delete(`/api/crm/leads/${leadId}/tags`, { data: { tagIds } });
 export const getCRMLeadNotes = (leadId) =>
     request.get(`/api/crm/leads/${leadId}/notes`);
 export const createCRMLeadNote = (leadId, payload) =>

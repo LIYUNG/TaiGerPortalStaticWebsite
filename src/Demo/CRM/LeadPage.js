@@ -239,16 +239,20 @@ const LeadPage = () => {
 
             if (tags !== undefined) {
                 const normalizedTags = normalizeTagsInput(tags);
-                const existingTags = normalizeTagsInput(lead?.tags || []);
+                const existingTagObjects = normalizeTagObjects(
+                    lead?.tags || []
+                );
+                const existingTags = existingTagObjects.map((t) => t.tag);
                 const addedTags = normalizedTags.filter(
                     (tag) => !existingTags.includes(tag)
                 );
-                const removedTags = existingTags.filter(
-                    (tag) => !normalizedTags.includes(tag)
-                );
+                const removedTagIds = existingTagObjects
+                    .filter((t) => !normalizedTags.includes(t.tag))
+                    .map((t) => t.id)
+                    .filter(Boolean);
 
-                if (removedTags.length > 0) {
-                    tasks.push(deleteCRMLeadTags(leadId, removedTags));
+                if (removedTagIds.length > 0) {
+                    tasks.push(deleteCRMLeadTags(leadId, removedTagIds));
                 }
                 if (addedTags.length > 0) {
                     tasks.push(appendCRMLeadTags(leadId, addedTags));
@@ -337,6 +341,12 @@ const LeadPage = () => {
         await updateLeadMutation.mutateAsync({ tags: nextTags });
     };
 
+    const deleteTagById = async (tagId) => {
+        if (!tagId) return;
+        await deleteCRMLeadTags(leadId, [tagId]);
+        queryClient.invalidateQueries(['crm/lead', leadId]);
+    };
+
     const applyNotesUpdate = async (nextNotes) => {
         await updateLeadMutation.mutateAsync({ notes: nextNotes });
     };
@@ -385,6 +395,29 @@ const LeadPage = () => {
             seen.add(tag);
             return true;
         });
+    };
+
+    const normalizeTagObjects = (value) => {
+        if (Array.isArray(value)) {
+            return value
+                .map((t) =>
+                    t && typeof t === 'object'
+                        ? { id: t.id, tag: t.tag }
+                        : { tag: t }
+                )
+                .map((t) => ({
+                    ...t,
+                    tag: `${t?.tag ?? ''}`.trim()
+                }))
+                .filter((t) => t.tag.length > 0);
+        }
+
+        if (typeof value === 'string') {
+            const normalized = `${value}`.trim();
+            return normalized.length > 0 ? [{ tag: normalized }] : [];
+        }
+
+        return [];
     };
 
     const normalizeNoteObjects = (value) => {
@@ -867,9 +900,15 @@ const LeadPage = () => {
                                                 ? t('common.done', {
                                                       ns: 'crm'
                                                   })
-                                                : t('common.edit', {
-                                                      ns: 'crm'
-                                                  })}
+                                                : normalizeTagList(
+                                                        lead?.tags || []
+                                                    ).length === 0
+                                                  ? t('common.add', {
+                                                        ns: 'crm'
+                                                    })
+                                                  : t('common.edit', {
+                                                        ns: 'crm'
+                                                    })}
                                         </Button>
                                     </Box>
                                     <Box
@@ -879,49 +918,28 @@ const LeadPage = () => {
                                             gap: 1
                                         }}
                                     >
-                                        {normalizeTagList(lead?.tags || [])
-                                            .length === 0 ? (
-                                            <Typography
-                                                color="text.secondary"
-                                                variant="body2"
-                                            >
-                                                {t('common.na', { ns: 'crm' })}
-                                            </Typography>
-                                        ) : (
-                                            normalizeTagList(
-                                                lead?.tags || []
-                                            ).map((tag) => (
-                                                <Chip
-                                                    key={tag}
-                                                    label={`#${tag}`}
-                                                    onDelete={
-                                                        showTagsEditor
-                                                            ? () =>
-                                                                  applyTagsUpdate(
-                                                                      normalizeTagList(
-                                                                          (
-                                                                              lead?.tags ||
-                                                                              []
-                                                                          ).filter(
-                                                                              (
-                                                                                  t
-                                                                              ) =>
-                                                                                  t !==
-                                                                                  tag
-                                                                          )
-                                                                      )
-                                                                  )
-                                                            : undefined
-                                                    }
-                                                    size="small"
-                                                    sx={{
-                                                        bgcolor: 'grey.100',
-                                                        color: 'text.secondary'
-                                                    }}
-                                                    variant="outlined"
-                                                />
-                                            ))
-                                        )}
+                                        {normalizeTagObjects(
+                                            lead?.tags || []
+                                        ).map((tagItem) => (
+                                            <Chip
+                                                key={tagItem.id || tagItem.tag}
+                                                label={`#${tagItem.tag}`}
+                                                onDelete={
+                                                    showTagsEditor
+                                                        ? () =>
+                                                              deleteTagById(
+                                                                  tagItem.id
+                                                              )
+                                                        : undefined
+                                                }
+                                                size="small"
+                                                sx={{
+                                                    bgcolor: 'grey.100',
+                                                    color: 'text.secondary'
+                                                }}
+                                                variant="outlined"
+                                            />
+                                        ))}
                                     </Box>
                                     {showTagsEditor && (
                                         <Box
@@ -976,16 +994,19 @@ const LeadPage = () => {
                                     )}
                                 </Box>
                                 <Box sx={{ width: '100%' }}>
-                                    <Typography
-                                        sx={{
-                                            color: 'text.secondary',
-                                            textTransform: 'uppercase',
-                                            letterSpacing: 0.4
-                                        }}
-                                        variant="caption"
-                                    >
-                                        {t('common.notes', { ns: 'crm' })}
-                                    </Typography>
+                                    {normalizeNoteObjects(lead?.notes || [])
+                                        .length > 0 && (
+                                        <Typography
+                                            sx={{
+                                                color: 'text.secondary',
+                                                textTransform: 'uppercase',
+                                                letterSpacing: 0.4
+                                            }}
+                                            variant="caption"
+                                        >
+                                            {t('common.notes', { ns: 'crm' })}
+                                        </Typography>
+                                    )}
                                     <Box
                                         sx={{
                                             mt: 0.5,
@@ -994,149 +1015,133 @@ const LeadPage = () => {
                                             gap: 0.5
                                         }}
                                     >
-                                        {normalizeNoteObjects(lead?.notes || [])
-                                            .length === 0 ? (
-                                            <Typography
-                                                color="text.secondary"
-                                                variant="body2"
+                                        {normalizeNoteObjects(
+                                            lead?.notes || []
+                                        ).map((note, idx) => (
+                                            <Box
+                                                key={note.id || `note-${idx}`}
+                                                sx={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: 1
+                                                }}
                                             >
-                                                {t('common.na', { ns: 'crm' })}
-                                            </Typography>
-                                        ) : (
-                                            normalizeNoteObjects(
-                                                lead?.notes || []
-                                            ).map((note, idx) => (
-                                                <Box
-                                                    key={
-                                                        note.id || `note-${idx}`
-                                                    }
-                                                    sx={{
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: 1
-                                                    }}
-                                                >
-                                                    {editingNoteId ===
-                                                    note.id ? (
-                                                        <TextField
-                                                            fullWidth
-                                                            minRows={2}
-                                                            multiline
-                                                            onChange={(e) =>
-                                                                setEditingNoteDraft(
-                                                                    e.target
-                                                                        .value
-                                                                )
-                                                            }
-                                                            value={
-                                                                editingNoteDraft
-                                                            }
-                                                        />
-                                                    ) : (
-                                                        <Typography variant="body2">
-                                                            • {note.note}
-                                                        </Typography>
-                                                    )}
-                                                    {note.id && (
-                                                        <Box
-                                                            sx={{
-                                                                display: 'flex',
-                                                                gap: 0.5
-                                                            }}
-                                                        >
-                                                            {editingNoteId ===
-                                                            note.id ? (
-                                                                <>
-                                                                    <IconButton
-                                                                        aria-label="save"
-                                                                        onClick={() => {
-                                                                            const nextNotes =
-                                                                                normalizeNoteObjects(
-                                                                                    lead?.notes ||
-                                                                                        []
-                                                                                ).map(
-                                                                                    (
-                                                                                        n
-                                                                                    ) =>
-                                                                                        n.id ===
-                                                                                        note.id
-                                                                                            ? {
-                                                                                                  ...n,
-                                                                                                  note: editingNoteDraft
-                                                                                              }
-                                                                                            : n
-                                                                                );
-                                                                            applyNotesUpdate(
-                                                                                nextNotes
+                                                {editingNoteId === note.id ? (
+                                                    <TextField
+                                                        fullWidth
+                                                        minRows={2}
+                                                        multiline
+                                                        onChange={(e) =>
+                                                            setEditingNoteDraft(
+                                                                e.target.value
+                                                            )
+                                                        }
+                                                        value={editingNoteDraft}
+                                                    />
+                                                ) : (
+                                                    <Typography variant="body2">
+                                                        • {note.note}
+                                                    </Typography>
+                                                )}
+                                                {note.id && (
+                                                    <Box
+                                                        sx={{
+                                                            display: 'flex',
+                                                            gap: 0.5
+                                                        }}
+                                                    >
+                                                        {editingNoteId ===
+                                                        note.id ? (
+                                                            <>
+                                                                <IconButton
+                                                                    aria-label="save"
+                                                                    onClick={() => {
+                                                                        const nextNotes =
+                                                                            normalizeNoteObjects(
+                                                                                lead?.notes ||
+                                                                                    []
+                                                                            ).map(
+                                                                                (
+                                                                                    n
+                                                                                ) =>
+                                                                                    n.id ===
+                                                                                    note.id
+                                                                                        ? {
+                                                                                              ...n,
+                                                                                              note: editingNoteDraft
+                                                                                          }
+                                                                                        : n
                                                                             );
-                                                                            setEditingNoteId(
-                                                                                null
-                                                                            );
-                                                                            setEditingNoteDraft(
+                                                                        applyNotesUpdate(
+                                                                            nextNotes
+                                                                        );
+                                                                        setEditingNoteId(
+                                                                            null
+                                                                        );
+                                                                        setEditingNoteDraft(
+                                                                            ''
+                                                                        );
+                                                                    }}
+                                                                >
+                                                                    <SaveIcon />
+                                                                </IconButton>
+                                                                <IconButton
+                                                                    aria-label="cancel"
+                                                                    onClick={() => {
+                                                                        setEditingNoteId(
+                                                                            null
+                                                                        );
+                                                                        setEditingNoteDraft(
+                                                                            ''
+                                                                        );
+                                                                    }}
+                                                                >
+                                                                    <CancelIcon />
+                                                                </IconButton>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <IconButton
+                                                                    aria-label="edit"
+                                                                    onClick={() => {
+                                                                        setEditingNoteId(
+                                                                            note.id
+                                                                        );
+                                                                        setEditingNoteDraft(
+                                                                            note.note ||
                                                                                 ''
+                                                                        );
+                                                                    }}
+                                                                >
+                                                                    <EditIcon />
+                                                                </IconButton>
+                                                                <IconButton
+                                                                    aria-label="delete"
+                                                                    onClick={() => {
+                                                                        const nextNotes =
+                                                                            normalizeNoteObjects(
+                                                                                lead?.notes ||
+                                                                                    []
+                                                                            ).filter(
+                                                                                (
+                                                                                    n
+                                                                                ) =>
+                                                                                    n.id !==
+                                                                                    note.id
                                                                             );
-                                                                        }}
-                                                                    >
-                                                                        <SaveIcon />
-                                                                    </IconButton>
-                                                                    <IconButton
-                                                                        aria-label="cancel"
-                                                                        onClick={() => {
-                                                                            setEditingNoteId(
-                                                                                null
-                                                                            );
-                                                                            setEditingNoteDraft(
-                                                                                ''
-                                                                            );
-                                                                        }}
-                                                                    >
-                                                                        <CancelIcon />
-                                                                    </IconButton>
-                                                                </>
-                                                            ) : (
-                                                                <>
-                                                                    <IconButton
-                                                                        aria-label="edit"
-                                                                        onClick={() => {
-                                                                            setEditingNoteId(
-                                                                                note.id
-                                                                            );
-                                                                            setEditingNoteDraft(
-                                                                                note.note ||
-                                                                                    ''
-                                                                            );
-                                                                        }}
-                                                                    >
-                                                                        <EditIcon />
-                                                                    </IconButton>
-                                                                    <IconButton
-                                                                        aria-label="delete"
-                                                                        onClick={() => {
-                                                                            const nextNotes =
-                                                                                normalizeNoteObjects(
-                                                                                    lead?.notes ||
-                                                                                        []
-                                                                                ).filter(
-                                                                                    (
-                                                                                        n
-                                                                                    ) =>
-                                                                                        n.id !==
-                                                                                        note.id
-                                                                                );
-                                                                            applyNotesUpdate(
-                                                                                nextNotes
-                                                                            );
-                                                                        }}
-                                                                    >
-                                                                        <CloseIcon />
-                                                                    </IconButton>
-                                                                </>
-                                                            )}
-                                                        </Box>
-                                                    )}
-                                                </Box>
-                                            ))
-                                        )}
+                                                                        applyNotesUpdate(
+                                                                            nextNotes
+                                                                        );
+                                                                    }}
+                                                                >
+                                                                    <CloseIcon />
+                                                                </IconButton>
+                                                            </>
+                                                        )}
+                                                    </Box>
+                                                )}
+                                            </Box>
+                                        ))}
                                         <Box
                                             sx={{
                                                 mt: 0.5,
