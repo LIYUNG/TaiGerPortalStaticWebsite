@@ -28,6 +28,12 @@
         "na": "无",
         "unknown": "未知",
         "note": "备注",
+        "notes": "备注",
+        "tags": "标签",
+        "add": "添加",
+        "edit": "编辑",
+        "done": "完成",
+        "cancel": "取消",
         "status": "状态",
         "lead": "线索",
         "leadDetails": "线索详情",
@@ -69,7 +75,8 @@
         "attendees": "与会者",
         "studentDetails": "学生详情",
         "studentProfile": "查看学生档案",
-        "unsavedChanges": "• 未保存的更改"
+        "unsavedChanges": "• 未保存的更改",
+        "noteCreatedAt": "创建于"
     },
     "leads": {
         "fullName": "姓名",

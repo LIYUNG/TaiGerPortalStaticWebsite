@@ -1023,33 +1023,67 @@ const LeadPage = () => {
                                                 sx={{
                                                     display: 'flex',
                                                     alignItems: 'flex-start',
-                                                    gap: 1
+                                                    gap: 1,
+                                                    p: 1.25,
+                                                    border: '1px solid',
+                                                    borderColor: 'divider',
+                                                    borderRadius: 1,
+                                                    bgcolor: 'background.paper'
                                                 }}
                                             >
-                                                {editingNoteId === note.id ? (
-                                                    <TextField
-                                                        fullWidth
-                                                        minRows={2}
-                                                        multiline
-                                                        onChange={(e) =>
-                                                            setEditingNoteDraft(
-                                                                e.target.value
-                                                            )
-                                                        }
-                                                        value={editingNoteDraft}
-                                                    />
-                                                ) : (
-                                                    <Typography
-                                                        sx={{
-                                                            whiteSpace:
-                                                                'pre-wrap',
-                                                            lineHeight: 1.6
-                                                        }}
-                                                        variant="body2"
-                                                    >
-                                                        • {note.note}
-                                                    </Typography>
-                                                )}
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        gap: 0.5,
+                                                        flex: 1
+                                                    }}
+                                                >
+                                                    {editingNoteId ===
+                                                    note.id ? (
+                                                        <TextField
+                                                            fullWidth
+                                                            minRows={2}
+                                                            multiline
+                                                            onChange={(e) =>
+                                                                setEditingNoteDraft(
+                                                                    e.target
+                                                                        .value
+                                                                )
+                                                            }
+                                                            value={
+                                                                editingNoteDraft
+                                                            }
+                                                        />
+                                                    ) : (
+                                                        <Typography
+                                                            sx={{
+                                                                whiteSpace:
+                                                                    'pre-wrap',
+                                                                lineHeight: 1.6
+                                                            }}
+                                                            variant="body2"
+                                                        >
+                                                            {note.note}
+                                                        </Typography>
+                                                    )}
+                                                    {note.createdAt && (
+                                                        <Typography
+                                                            color="text.secondary"
+                                                            variant="caption"
+                                                        >
+                                                            {t(
+                                                                'common.noteCreatedAt',
+                                                                {
+                                                                    ns: 'crm'
+                                                                }
+                                                            )}{' '}
+                                                            {new Date(
+                                                                note.createdAt
+                                                            ).toLocaleString()}
+                                                        </Typography>
+                                                    )}
+                                                </Box>
                                                 {note.id && (
                                                     <Box
                                                         sx={{
@@ -1089,6 +1123,20 @@ const LeadPage = () => {
                                                                             ''
                                                                         );
                                                                     }}
+                                                                    size="small"
+                                                                    sx={{
+                                                                        color: 'success.main',
+                                                                        bgcolor:
+                                                                            'success.50',
+                                                                        border: '1px solid',
+                                                                        borderColor:
+                                                                            'success.100',
+                                                                        '&:hover':
+                                                                            {
+                                                                                bgcolor:
+                                                                                    'success.100'
+                                                                            }
+                                                                    }}
                                                                 >
                                                                     <SaveIcon />
                                                                 </IconButton>
@@ -1101,6 +1149,20 @@ const LeadPage = () => {
                                                                         setEditingNoteDraft(
                                                                             ''
                                                                         );
+                                                                    }}
+                                                                    size="small"
+                                                                    sx={{
+                                                                        color: 'text.secondary',
+                                                                        bgcolor:
+                                                                            'grey.50',
+                                                                        border: '1px solid',
+                                                                        borderColor:
+                                                                            'divider',
+                                                                        '&:hover':
+                                                                            {
+                                                                                bgcolor:
+                                                                                    'grey.100'
+                                                                            }
                                                                     }}
                                                                 >
                                                                     <CancelIcon />
@@ -1118,6 +1180,22 @@ const LeadPage = () => {
                                                                             note.note ||
                                                                                 ''
                                                                         );
+                                                                    }}
+                                                                    size="small"
+                                                                    sx={{
+                                                                        color: 'text.secondary',
+                                                                        bgcolor:
+                                                                            'transparent',
+                                                                        border: '1px solid',
+                                                                        borderColor:
+                                                                            'transparent',
+                                                                        '&:hover':
+                                                                            {
+                                                                                bgcolor:
+                                                                                    'action.hover',
+                                                                                borderColor:
+                                                                                    'divider'
+                                                                            }
                                                                     }}
                                                                 >
                                                                     <EditIcon />
@@ -1139,6 +1217,23 @@ const LeadPage = () => {
                                                                         applyNotesUpdate(
                                                                             nextNotes
                                                                         );
+                                                                    }}
+                                                                    size="small"
+                                                                    sx={{
+                                                                        color: 'text.secondary',
+                                                                        bgcolor:
+                                                                            'transparent',
+                                                                        border: '1px solid',
+                                                                        borderColor:
+                                                                            'transparent',
+                                                                        '&:hover':
+                                                                            {
+                                                                                bgcolor:
+                                                                                    'action.hover',
+                                                                                borderColor:
+                                                                                    'divider',
+                                                                                color: 'error.main'
+                                                                            }
                                                                     }}
                                                                 >
                                                                     <CloseIcon />

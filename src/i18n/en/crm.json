@@ -28,6 +28,12 @@
         "na": "N/A",
         "unknown": "Unknown",
         "note": "Note",
+        "notes": "Notes",
+        "tags": "Tags",
+        "add": "Add",
+        "edit": "Edit",
+        "done": "Done",
+        "cancel": "Cancel",
         "status": "Status",
         "lead": "Lead",
         "leadDetails": "Lead Details",
@@ -69,7 +75,8 @@
         "attendees": "Attendees",
         "studentDetails": "Student Details",
         "studentProfile": "View Student Profile",
-        "unsavedChanges": "• Unsaved changes"
+        "unsavedChanges": "• Unsaved changes",
+        "noteCreatedAt": "Created"
     },
     "leads": {
         "fullName": "Full Name",

@@ -28,6 +28,12 @@
         "na": "無",
         "unknown": "未知",
         "note": "備註",
+        "notes": "備註",
+        "tags": "標籤",
+        "add": "新增",
+        "edit": "編輯",
+        "done": "完成",
+        "cancel": "取消",
         "status": "狀態",
         "lead": "線索",
         "leadDetails": "線索詳情",
@@ -69,7 +75,8 @@
         "attendees": "與會者",
         "studentDetails": "學生詳情",
         "studentProfile": "檢視學生資料",
-        "unsavedChanges": "• 尚未儲存的變更"
+        "unsavedChanges": "• 尚未儲存的變更",
+        "noteCreatedAt": "建立於"
     },
     "leads": {
         "fullName": "姓名",
