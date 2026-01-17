@@ -89,7 +89,6 @@ const LeadPage = () => {
     const hasPortalUser = !!lead?.userId;
     const isMigratedLead = lead?.status === 'migrated' && hasPortalUser;
 
-    // lead.userId exists fetch student data
     const studentQueryOptions = hasPortalUser
         ? getStudentQuery(lead.userId)
         : {
@@ -107,7 +106,12 @@ const LeadPage = () => {
     const [editingDeal, setEditingDeal] = useState(null);
     const [showDealModal, setShowDealModal] = useState(false);
     const [statusMenu, setStatusMenu] = useState({ anchorEl: null, row: null });
-    const [showNotesEditor, setShowNotesEditor] = useState(false);
+    const [showTagsEditor, setShowTagsEditor] = useState(false);
+    const [tagDraft, setTagDraft] = useState('');
+    const [editingNoteId, setEditingNoteId] = useState(null);
+    const [editingNoteDraft, setEditingNoteDraft] = useState('');
+    const [showAddNote, setShowAddNote] = useState(false);
+    const [newNoteDraft, setNewNoteDraft] = useState('');
 
     const leadCardConfigurations = getLeadCardConfigurations(t);
     const studentCardConfigurations = getStudentCardConfigurations(t);
@@ -329,6 +333,14 @@ const LeadPage = () => {
         }
     });
 
+    const applyTagsUpdate = async (nextTags) => {
+        await updateLeadMutation.mutateAsync({ tags: nextTags });
+    };
+
+    const applyNotesUpdate = async (nextNotes) => {
+        await updateLeadMutation.mutateAsync({ notes: nextNotes });
+    };
+
     const handleEdit = (cardId) => {
         setLeadEditStates((p) => ({ ...p, [cardId]: true }));
         if (lead && Object.keys(lead).length) {
@@ -393,6 +405,7 @@ const LeadPage = () => {
 
         return [];
     };
+
     const hasUnsavedChanges = (cardId) => {
         const changed = getChangedFields(lead, formData);
         const cfg = leadCardConfigurations.find((c) => c.id === cardId);
@@ -837,11 +850,37 @@ const LeadPage = () => {
                                     <Box
                                         sx={{
                                             display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'flex-end'
+                                        }}
+                                    >
+                                        <Button
+                                            onClick={() =>
+                                                setShowTagsEditor(
+                                                    (prev) => !prev
+                                                )
+                                            }
+                                            size="small"
+                                            variant="text"
+                                        >
+                                            {showTagsEditor
+                                                ? t('common.done', {
+                                                      ns: 'crm'
+                                                  })
+                                                : t('common.edit', {
+                                                      ns: 'crm'
+                                                  })}
+                                        </Button>
+                                    </Box>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
                                             flexWrap: 'wrap',
                                             gap: 1
                                         }}
                                     >
-                                        {(lead?.tags || []).length === 0 ? (
+                                        {normalizeTagList(lead?.tags || [])
+                                            .length === 0 ? (
                                             <Typography
                                                 color="text.secondary"
                                                 variant="body2"
@@ -849,10 +888,31 @@ const LeadPage = () => {
                                                 {t('common.na', { ns: 'crm' })}
                                             </Typography>
                                         ) : (
-                                            lead.tags.map((tag) => (
+                                            normalizeTagList(
+                                                lead?.tags || []
+                                            ).map((tag) => (
                                                 <Chip
                                                     key={tag}
                                                     label={`#${tag}`}
+                                                    onDelete={
+                                                        showTagsEditor
+                                                            ? () =>
+                                                                  applyTagsUpdate(
+                                                                      normalizeTagList(
+                                                                          (
+                                                                              lead?.tags ||
+                                                                              []
+                                                                          ).filter(
+                                                                              (
+                                                                                  t
+                                                                              ) =>
+                                                                                  t !==
+                                                                                  tag
+                                                                          )
+                                                                      )
+                                                                  )
+                                                            : undefined
+                                                    }
                                                     size="small"
                                                     sx={{
                                                         bgcolor: 'grey.100',
@@ -863,6 +923,57 @@ const LeadPage = () => {
                                             ))
                                         )}
                                     </Box>
+                                    {showTagsEditor && (
+                                        <Box
+                                            sx={{
+                                                mt: 1,
+                                                display: 'flex',
+                                                gap: 1
+                                            }}
+                                        >
+                                            <TextField
+                                                fullWidth
+                                                label={t('common.tags', {
+                                                    ns: 'crm'
+                                                })}
+                                                onChange={(e) =>
+                                                    setTagDraft(e.target.value)
+                                                }
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') {
+                                                        e.preventDefault();
+                                                        const nextTags =
+                                                            normalizeTagList([
+                                                                ...(lead?.tags ||
+                                                                    []),
+                                                                tagDraft
+                                                            ]);
+                                                        applyTagsUpdate(
+                                                            nextTags
+                                                        );
+                                                        setTagDraft('');
+                                                    }
+                                                }}
+                                                size="small"
+                                                value={tagDraft}
+                                            />
+                                            <Button
+                                                onClick={() => {
+                                                    const nextTags =
+                                                        normalizeTagList([
+                                                            ...(lead?.tags ||
+                                                                []),
+                                                            tagDraft
+                                                        ]);
+                                                    applyTagsUpdate(nextTags);
+                                                    setTagDraft('');
+                                                }}
+                                                variant="contained"
+                                            >
+                                                {t('common.add', { ns: 'crm' })}
+                                            </Button>
+                                        </Box>
+                                    )}
                                 </Box>
                                 <Box sx={{ width: '100%' }}>
                                     <Typography
@@ -883,7 +994,8 @@ const LeadPage = () => {
                                             gap: 0.5
                                         }}
                                     >
-                                        {(lead?.notes || []).length === 0 ? (
+                                        {normalizeNoteObjects(lead?.notes || [])
+                                            .length === 0 ? (
                                             <Typography
                                                 color="text.secondary"
                                                 variant="body2"
@@ -891,15 +1003,218 @@ const LeadPage = () => {
                                                 {t('common.na', { ns: 'crm' })}
                                             </Typography>
                                         ) : (
-                                            lead.notes.map((note) => (
-                                                <Typography
-                                                    key={note.id || note.note}
-                                                    variant="body2"
+                                            normalizeNoteObjects(
+                                                lead?.notes || []
+                                            ).map((note, idx) => (
+                                                <Box
+                                                    key={
+                                                        note.id || `note-${idx}`
+                                                    }
+                                                    sx={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: 1
+                                                    }}
                                                 >
-                                                    • {note.note}
-                                                </Typography>
+                                                    {editingNoteId ===
+                                                    note.id ? (
+                                                        <TextField
+                                                            fullWidth
+                                                            minRows={2}
+                                                            multiline
+                                                            onChange={(e) =>
+                                                                setEditingNoteDraft(
+                                                                    e.target
+                                                                        .value
+                                                                )
+                                                            }
+                                                            value={
+                                                                editingNoteDraft
+                                                            }
+                                                        />
+                                                    ) : (
+                                                        <Typography variant="body2">
+                                                            • {note.note}
+                                                        </Typography>
+                                                    )}
+                                                    {note.id && (
+                                                        <Box
+                                                            sx={{
+                                                                display: 'flex',
+                                                                gap: 0.5
+                                                            }}
+                                                        >
+                                                            {editingNoteId ===
+                                                            note.id ? (
+                                                                <>
+                                                                    <IconButton
+                                                                        aria-label="save"
+                                                                        onClick={() => {
+                                                                            const nextNotes =
+                                                                                normalizeNoteObjects(
+                                                                                    lead?.notes ||
+                                                                                        []
+                                                                                ).map(
+                                                                                    (
+                                                                                        n
+                                                                                    ) =>
+                                                                                        n.id ===
+                                                                                        note.id
+                                                                                            ? {
+                                                                                                  ...n,
+                                                                                                  note: editingNoteDraft
+                                                                                              }
+                                                                                            : n
+                                                                                );
+                                                                            applyNotesUpdate(
+                                                                                nextNotes
+                                                                            );
+                                                                            setEditingNoteId(
+                                                                                null
+                                                                            );
+                                                                            setEditingNoteDraft(
+                                                                                ''
+                                                                            );
+                                                                        }}
+                                                                    >
+                                                                        <SaveIcon />
+                                                                    </IconButton>
+                                                                    <IconButton
+                                                                        aria-label="cancel"
+                                                                        onClick={() => {
+                                                                            setEditingNoteId(
+                                                                                null
+                                                                            );
+                                                                            setEditingNoteDraft(
+                                                                                ''
+                                                                            );
+                                                                        }}
+                                                                    >
+                                                                        <CancelIcon />
+                                                                    </IconButton>
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <IconButton
+                                                                        aria-label="edit"
+                                                                        onClick={() => {
+                                                                            setEditingNoteId(
+                                                                                note.id
+                                                                            );
+                                                                            setEditingNoteDraft(
+                                                                                note.note ||
+                                                                                    ''
+                                                                            );
+                                                                        }}
+                                                                    >
+                                                                        <EditIcon />
+                                                                    </IconButton>
+                                                                    <IconButton
+                                                                        aria-label="delete"
+                                                                        onClick={() => {
+                                                                            const nextNotes =
+                                                                                normalizeNoteObjects(
+                                                                                    lead?.notes ||
+                                                                                        []
+                                                                                ).filter(
+                                                                                    (
+                                                                                        n
+                                                                                    ) =>
+                                                                                        n.id !==
+                                                                                        note.id
+                                                                                );
+                                                                            applyNotesUpdate(
+                                                                                nextNotes
+                                                                            );
+                                                                        }}
+                                                                    >
+                                                                        <CloseIcon />
+                                                                    </IconButton>
+                                                                </>
+                                                            )}
+                                                        </Box>
+                                                    )}
+                                                </Box>
                                             ))
                                         )}
+                                        <Box
+                                            sx={{
+                                                mt: 0.5,
+                                                display: 'flex',
+                                                gap: 1
+                                            }}
+                                        >
+                                            {showAddNote ? (
+                                                <>
+                                                    <TextField
+                                                        fullWidth
+                                                        minRows={2}
+                                                        multiline
+                                                        onChange={(e) =>
+                                                            setNewNoteDraft(
+                                                                e.target.value
+                                                            )
+                                                        }
+                                                        value={newNoteDraft}
+                                                    />
+                                                    <Button
+                                                        onClick={() => {
+                                                            const trimmed =
+                                                                `${newNoteDraft}`.trim();
+                                                            if (!trimmed)
+                                                                return;
+                                                            const nextNotes =
+                                                                normalizeNoteObjects(
+                                                                    [
+                                                                        ...(lead?.notes ||
+                                                                            []),
+                                                                        {
+                                                                            note: trimmed
+                                                                        }
+                                                                    ]
+                                                                );
+                                                            applyNotesUpdate(
+                                                                nextNotes
+                                                            );
+                                                            setNewNoteDraft('');
+                                                            setShowAddNote(
+                                                                false
+                                                            );
+                                                        }}
+                                                        variant="contained"
+                                                    >
+                                                        {t('common.add', {
+                                                            ns: 'crm'
+                                                        })}
+                                                    </Button>
+                                                    <Button
+                                                        onClick={() => {
+                                                            setNewNoteDraft('');
+                                                            setShowAddNote(
+                                                                false
+                                                            );
+                                                        }}
+                                                        variant="text"
+                                                    >
+                                                        {t('common.cancel', {
+                                                            ns: 'crm'
+                                                        })}
+                                                    </Button>
+                                                </>
+                                            ) : (
+                                                <Button
+                                                    onClick={() =>
+                                                        setShowAddNote(true)
+                                                    }
+                                                    size="small"
+                                                    variant="text"
+                                                >
+                                                    {t('common.add', {
+                                                        ns: 'crm'
+                                                    })}
+                                                </Button>
+                                            )}
+                                        </Box>
                                     </Box>
                                 </Box>
                             </Box>
@@ -1190,285 +1505,6 @@ const LeadPage = () => {
                                     value={formData.salesNote || ''}
                                     variant="outlined"
                                 />
-                            </Grid>
-                            <Grid item xs={12}>
-                                <Typography
-                                    sx={{
-                                        color: 'text.secondary',
-                                        textTransform: 'uppercase',
-                                        letterSpacing: 0.4
-                                    }}
-                                    variant="caption"
-                                >
-                                    {t('common.tags', { ns: 'crm' })}
-                                </Typography>
-                                <Box
-                                    sx={{
-                                        mt: 0.5,
-                                        display: 'flex',
-                                        flexWrap: 'wrap',
-                                        gap: 1
-                                    }}
-                                >
-                                    {normalizeTagList(formData.tags || []).map(
-                                        (tag) => (
-                                            <Chip
-                                                key={tag}
-                                                label={tag}
-                                                onDelete={() =>
-                                                    handleFieldChange(
-                                                        'tags',
-                                                        normalizeTagList(
-                                                            (
-                                                                formData.tags ||
-                                                                []
-                                                            ).filter(
-                                                                (t) => t !== tag
-                                                            )
-                                                        )
-                                                    )
-                                                }
-                                                size="small"
-                                            />
-                                        )
-                                    )}
-                                    {normalizeTagList(formData.tags || [])
-                                        .length === 0 && (
-                                        <Typography
-                                            color="text.secondary"
-                                            variant="body2"
-                                        >
-                                            {t('common.na', { ns: 'crm' })}
-                                        </Typography>
-                                    )}
-                                </Box>
-                                <Box sx={{ mt: 1, display: 'flex', gap: 1 }}>
-                                    <TextField
-                                        fullWidth
-                                        label={t('common.tags', { ns: 'crm' })}
-                                        onChange={(e) =>
-                                            setFormData((p) => ({
-                                                ...p,
-                                                _tagDraft: e.target.value
-                                            }))
-                                        }
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter') {
-                                                e.preventDefault();
-                                                const nextTags =
-                                                    normalizeTagList([
-                                                        ...(formData.tags ||
-                                                            []),
-                                                        formData._tagDraft
-                                                    ]);
-                                                handleFieldChange(
-                                                    'tags',
-                                                    nextTags
-                                                );
-                                                setFormData((p) => ({
-                                                    ...p,
-                                                    _tagDraft: ''
-                                                }));
-                                            }
-                                        }}
-                                        size="small"
-                                        value={formData._tagDraft || ''}
-                                    />
-                                    <Button
-                                        onClick={() => {
-                                            const nextTags = normalizeTagList([
-                                                ...(formData.tags || []),
-                                                formData._tagDraft
-                                            ]);
-                                            handleFieldChange('tags', nextTags);
-                                            setFormData((p) => ({
-                                                ...p,
-                                                _tagDraft: ''
-                                            }));
-                                        }}
-                                        variant="contained"
-                                    >
-                                        {t('common.add', { ns: 'crm' })}
-                                    </Button>
-                                </Box>
-                            </Grid>
-                            <Grid item xs={12}>
-                                <Box
-                                    sx={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between'
-                                    }}
-                                >
-                                    <Typography
-                                        sx={{
-                                            color: 'text.secondary',
-                                            textTransform: 'uppercase',
-                                            letterSpacing: 0.4
-                                        }}
-                                        variant="caption"
-                                    >
-                                        {t('common.notes', { ns: 'crm' })}
-                                    </Typography>
-                                    <Button
-                                        onClick={() =>
-                                            setShowNotesEditor((prev) => !prev)
-                                        }
-                                        size="small"
-                                        variant="text"
-                                    >
-                                        {showNotesEditor
-                                            ? t('common.done', { ns: 'crm' })
-                                            : t('common.edit', { ns: 'crm' })}
-                                    </Button>
-                                </Box>
-                                {!showNotesEditor ? (
-                                    <Box
-                                        sx={{
-                                            mt: 0.5,
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            gap: 0.5
-                                        }}
-                                    >
-                                        {normalizeNoteObjects(
-                                            formData.notes || []
-                                        ).length === 0 ? (
-                                            <Typography
-                                                color="text.secondary"
-                                                variant="body2"
-                                            >
-                                                {t('common.na', { ns: 'crm' })}
-                                            </Typography>
-                                        ) : (
-                                            normalizeNoteObjects(
-                                                formData.notes || []
-                                            ).map((note, idx) => (
-                                                <Typography
-                                                    key={
-                                                        note.id || `note-${idx}`
-                                                    }
-                                                    variant="body2"
-                                                >
-                                                    • {note.note}
-                                                </Typography>
-                                            ))
-                                        )}
-                                    </Box>
-                                ) : (
-                                    <Box
-                                        sx={{
-                                            mt: 0.5,
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            gap: 1
-                                        }}
-                                    >
-                                        {normalizeNoteObjects(
-                                            formData.notes || []
-                                        ).map((note, idx) => (
-                                            <Box
-                                                key={note.id || `note-${idx}`}
-                                                sx={{ display: 'flex', gap: 1 }}
-                                            >
-                                                <TextField
-                                                    fullWidth
-                                                    minRows={2}
-                                                    multiline
-                                                    onChange={(e) => {
-                                                        const nextNotes =
-                                                            normalizeNoteObjects(
-                                                                formData.notes ||
-                                                                    []
-                                                            );
-                                                        nextNotes[idx] = {
-                                                            ...nextNotes[idx],
-                                                            note: e.target.value
-                                                        };
-                                                        handleFieldChange(
-                                                            'notes',
-                                                            nextNotes
-                                                        );
-                                                    }}
-                                                    value={note.note || ''}
-                                                />
-                                                <IconButton
-                                                    aria-label="delete"
-                                                    onClick={() => {
-                                                        const nextNotes =
-                                                            normalizeNoteObjects(
-                                                                formData.notes ||
-                                                                    []
-                                                            ).filter(
-                                                                (_, i) =>
-                                                                    i !== idx
-                                                            );
-                                                        handleFieldChange(
-                                                            'notes',
-                                                            nextNotes
-                                                        );
-                                                    }}
-                                                >
-                                                    <CloseIcon />
-                                                </IconButton>
-                                            </Box>
-                                        ))}
-                                        {normalizeNoteObjects(
-                                            formData.notes || []
-                                        ).length === 0 && (
-                                            <Typography
-                                                color="text.secondary"
-                                                variant="body2"
-                                            >
-                                                {t('common.na', { ns: 'crm' })}
-                                            </Typography>
-                                        )}
-                                        <Box sx={{ display: 'flex', gap: 1 }}>
-                                            <TextField
-                                                fullWidth
-                                                label={t('common.notes', {
-                                                    ns: 'crm'
-                                                })}
-                                                minRows={2}
-                                                multiline
-                                                onChange={(e) =>
-                                                    setFormData((p) => ({
-                                                        ...p,
-                                                        _noteDraft:
-                                                            e.target.value
-                                                    }))
-                                                }
-                                                value={
-                                                    formData._noteDraft || ''
-                                                }
-                                            />
-                                            <Button
-                                                onClick={() => {
-                                                    const trimmed =
-                                                        `${formData._noteDraft || ''}`.trim();
-                                                    if (!trimmed) return;
-                                                    const nextNotes =
-                                                        normalizeNoteObjects([
-                                                            ...(formData.notes ||
-                                                                []),
-                                                            { note: trimmed }
-                                                        ]);
-                                                    handleFieldChange(
-                                                        'notes',
-                                                        nextNotes
-                                                    );
-                                                    setFormData((p) => ({
-                                                        ...p,
-                                                        _noteDraft: ''
-                                                    }));
-                                                }}
-                                                variant="contained"
-                                            >
-                                                {t('common.add', { ns: 'crm' })}
-                                            </Button>
-                                        </Box>
-                                    </Box>
-                                )}
                             </Grid>
                             {Array.isArray(lead?.deals) &&
                                 lead.deals.length > 0 && (
