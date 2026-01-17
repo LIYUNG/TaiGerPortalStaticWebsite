@@ -107,6 +107,7 @@ const LeadPage = () => {
     const [editingDeal, setEditingDeal] = useState(null);
     const [showDealModal, setShowDealModal] = useState(false);
     const [statusMenu, setStatusMenu] = useState({ anchorEl: null, row: null });
+    const [showNotesEditor, setShowNotesEditor] = useState(false);
 
     const leadCardConfigurations = getLeadCardConfigurations(t);
     const studentCardConfigurations = getStudentCardConfigurations(t);
@@ -833,19 +834,8 @@ const LeadPage = () => {
                                 }}
                             >
                                 <Box sx={{ width: '100%' }}>
-                                    <Typography
-                                        sx={{
-                                            color: 'text.secondary',
-                                            textTransform: 'uppercase',
-                                            letterSpacing: 0.4
-                                        }}
-                                        variant="caption"
-                                    >
-                                        {t('common.tags', { ns: 'crm' })}
-                                    </Typography>
                                     <Box
                                         sx={{
-                                            mt: 0.5,
                                             display: 'flex',
                                             flexWrap: 'wrap',
                                             gap: 1
@@ -862,8 +852,13 @@ const LeadPage = () => {
                                             lead.tags.map((tag) => (
                                                 <Chip
                                                     key={tag}
-                                                    label={tag}
+                                                    label={`#${tag}`}
                                                     size="small"
+                                                    sx={{
+                                                        bgcolor: 'grey.100',
+                                                        color: 'text.secondary'
+                                                    }}
+                                                    variant="outlined"
                                                 />
                                             ))
                                         )}
@@ -1298,121 +1293,182 @@ const LeadPage = () => {
                                 </Box>
                             </Grid>
                             <Grid item xs={12}>
-                                <Typography
-                                    sx={{
-                                        color: 'text.secondary',
-                                        textTransform: 'uppercase',
-                                        letterSpacing: 0.4
-                                    }}
-                                    variant="caption"
-                                >
-                                    {t('common.notes', { ns: 'crm' })}
-                                </Typography>
                                 <Box
                                     sx={{
-                                        mt: 0.5,
                                         display: 'flex',
-                                        flexDirection: 'column',
-                                        gap: 1
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between'
                                     }}
                                 >
-                                    {normalizeNoteObjects(
-                                        formData.notes || []
-                                    ).map((note, idx) => (
-                                        <Box
-                                            key={note.id || `note-${idx}`}
-                                            sx={{ display: 'flex', gap: 1 }}
-                                        >
+                                    <Typography
+                                        sx={{
+                                            color: 'text.secondary',
+                                            textTransform: 'uppercase',
+                                            letterSpacing: 0.4
+                                        }}
+                                        variant="caption"
+                                    >
+                                        {t('common.notes', { ns: 'crm' })}
+                                    </Typography>
+                                    <Button
+                                        onClick={() =>
+                                            setShowNotesEditor((prev) => !prev)
+                                        }
+                                        size="small"
+                                        variant="text"
+                                    >
+                                        {showNotesEditor
+                                            ? t('common.done', { ns: 'crm' })
+                                            : t('common.edit', { ns: 'crm' })}
+                                    </Button>
+                                </Box>
+                                {!showNotesEditor ? (
+                                    <Box
+                                        sx={{
+                                            mt: 0.5,
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 0.5
+                                        }}
+                                    >
+                                        {normalizeNoteObjects(
+                                            formData.notes || []
+                                        ).length === 0 ? (
+                                            <Typography
+                                                color="text.secondary"
+                                                variant="body2"
+                                            >
+                                                {t('common.na', { ns: 'crm' })}
+                                            </Typography>
+                                        ) : (
+                                            normalizeNoteObjects(
+                                                formData.notes || []
+                                            ).map((note, idx) => (
+                                                <Typography
+                                                    key={
+                                                        note.id || `note-${idx}`
+                                                    }
+                                                    variant="body2"
+                                                >
+                                                    • {note.note}
+                                                </Typography>
+                                            ))
+                                        )}
+                                    </Box>
+                                ) : (
+                                    <Box
+                                        sx={{
+                                            mt: 0.5,
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 1
+                                        }}
+                                    >
+                                        {normalizeNoteObjects(
+                                            formData.notes || []
+                                        ).map((note, idx) => (
+                                            <Box
+                                                key={note.id || `note-${idx}`}
+                                                sx={{ display: 'flex', gap: 1 }}
+                                            >
+                                                <TextField
+                                                    fullWidth
+                                                    minRows={2}
+                                                    multiline
+                                                    onChange={(e) => {
+                                                        const nextNotes =
+                                                            normalizeNoteObjects(
+                                                                formData.notes ||
+                                                                    []
+                                                            );
+                                                        nextNotes[idx] = {
+                                                            ...nextNotes[idx],
+                                                            note: e.target.value
+                                                        };
+                                                        handleFieldChange(
+                                                            'notes',
+                                                            nextNotes
+                                                        );
+                                                    }}
+                                                    value={note.note || ''}
+                                                />
+                                                <IconButton
+                                                    aria-label="delete"
+                                                    onClick={() => {
+                                                        const nextNotes =
+                                                            normalizeNoteObjects(
+                                                                formData.notes ||
+                                                                    []
+                                                            ).filter(
+                                                                (_, i) =>
+                                                                    i !== idx
+                                                            );
+                                                        handleFieldChange(
+                                                            'notes',
+                                                            nextNotes
+                                                        );
+                                                    }}
+                                                >
+                                                    <CloseIcon />
+                                                </IconButton>
+                                            </Box>
+                                        ))}
+                                        {normalizeNoteObjects(
+                                            formData.notes || []
+                                        ).length === 0 && (
+                                            <Typography
+                                                color="text.secondary"
+                                                variant="body2"
+                                            >
+                                                {t('common.na', { ns: 'crm' })}
+                                            </Typography>
+                                        )}
+                                        <Box sx={{ display: 'flex', gap: 1 }}>
                                             <TextField
                                                 fullWidth
+                                                label={t('common.notes', {
+                                                    ns: 'crm'
+                                                })}
                                                 minRows={2}
                                                 multiline
-                                                onChange={(e) => {
-                                                    const nextNotes =
-                                                        normalizeNoteObjects(
-                                                            formData.notes || []
-                                                        );
-                                                    nextNotes[idx] = {
-                                                        ...nextNotes[idx],
-                                                        note: e.target.value
-                                                    };
-                                                    handleFieldChange(
-                                                        'notes',
-                                                        nextNotes
-                                                    );
-                                                }}
-                                                value={note.note || ''}
+                                                onChange={(e) =>
+                                                    setFormData((p) => ({
+                                                        ...p,
+                                                        _noteDraft:
+                                                            e.target.value
+                                                    }))
+                                                }
+                                                value={
+                                                    formData._noteDraft || ''
+                                                }
                                             />
-                                            <IconButton
-                                                aria-label="delete"
+                                            <Button
                                                 onClick={() => {
+                                                    const trimmed =
+                                                        `${formData._noteDraft || ''}`.trim();
+                                                    if (!trimmed) return;
                                                     const nextNotes =
-                                                        normalizeNoteObjects(
-                                                            formData.notes || []
-                                                        ).filter(
-                                                            (_, i) => i !== idx
-                                                        );
+                                                        normalizeNoteObjects([
+                                                            ...(formData.notes ||
+                                                                []),
+                                                            { note: trimmed }
+                                                        ]);
                                                     handleFieldChange(
                                                         'notes',
                                                         nextNotes
                                                     );
+                                                    setFormData((p) => ({
+                                                        ...p,
+                                                        _noteDraft: ''
+                                                    }));
                                                 }}
+                                                variant="contained"
                                             >
-                                                <CloseIcon />
-                                            </IconButton>
+                                                {t('common.add', { ns: 'crm' })}
+                                            </Button>
                                         </Box>
-                                    ))}
-                                    {normalizeNoteObjects(formData.notes || [])
-                                        .length === 0 && (
-                                        <Typography
-                                            color="text.secondary"
-                                            variant="body2"
-                                        >
-                                            {t('common.na', { ns: 'crm' })}
-                                        </Typography>
-                                    )}
-                                    <Box sx={{ display: 'flex', gap: 1 }}>
-                                        <TextField
-                                            fullWidth
-                                            label={t('common.notes', {
-                                                ns: 'crm'
-                                            })}
-                                            minRows={2}
-                                            multiline
-                                            onChange={(e) =>
-                                                setFormData((p) => ({
-                                                    ...p,
-                                                    _noteDraft: e.target.value
-                                                }))
-                                            }
-                                            value={formData._noteDraft || ''}
-                                        />
-                                        <Button
-                                            onClick={() => {
-                                                const trimmed =
-                                                    `${formData._noteDraft || ''}`.trim();
-                                                if (!trimmed) return;
-                                                const nextNotes =
-                                                    normalizeNoteObjects([
-                                                        ...(formData.notes ||
-                                                            []),
-                                                        { note: trimmed }
-                                                    ]);
-                                                handleFieldChange(
-                                                    'notes',
-                                                    nextNotes
-                                                );
-                                                setFormData((p) => ({
-                                                    ...p,
-                                                    _noteDraft: ''
-                                                }));
-                                            }}
-                                            variant="contained"
-                                        >
-                                            {t('common.add', { ns: 'crm' })}
-                                        </Button>
                                     </Box>
-                                </Box>
+                                )}
                             </Grid>
                             {Array.isArray(lead?.deals) &&
                                 lead.deals.length > 0 && (
