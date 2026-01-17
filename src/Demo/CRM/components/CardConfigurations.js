@@ -1,6 +1,294 @@
-import { Box, Chip, Typography } from '@mui/material';
+import { useMemo, useState } from 'react';
+import {
+    Box,
+    Chip,
+    Typography,
+    TextField,
+    Button,
+    IconButton,
+    Stack
+} from '@mui/material';
+import { Close as CloseIcon, Add as AddIcon } from '@mui/icons-material';
+
+const normalizeTagList = (value) => {
+    const raw = Array.isArray(value)
+        ? value
+        : typeof value === 'string'
+          ? value.split(/[\n,]/)
+          : [];
+
+    const normalized = raw
+        .map((t) => (t && typeof t === 'object' ? t.tag : t))
+        .map((t) => `${t}`.trim())
+        .filter((t) => t.length > 0);
+
+    const seen = new Set();
+    return normalized.filter((tag) => {
+        if (seen.has(tag)) return false;
+        seen.add(tag);
+        return true;
+    });
+};
+
+const normalizeNoteObjects = (value) => {
+    if (Array.isArray(value)) {
+        return value
+            .map((n) => (typeof n === 'object' ? n : { note: n }))
+            .map((n) => ({
+                ...n,
+                note: `${n?.note ?? ''}`
+            }))
+            .filter((n) => n.note.trim().length > 0);
+    }
+
+    if (typeof value === 'string') {
+        const normalized = `${value}`;
+        return normalized.trim().length > 0 ? [{ note: normalized }] : [];
+    }
+
+    return [];
+};
+
+const TagsEditor = ({ field, formData, onFieldChange }) => {
+    const [inputValue, setInputValue] = useState('');
+    const tags = useMemo(
+        () => normalizeTagList(formData[field.key] || []),
+        [formData, field.key]
+    );
+
+    const addTags = (raw) => {
+        const newTags = normalizeTagList(raw);
+        if (!newTags.length) return;
+        const merged = [...tags];
+        newTags.forEach((tag) => {
+            if (!merged.includes(tag)) merged.push(tag);
+        });
+        onFieldChange(field.key, merged);
+        setInputValue('');
+    };
+
+    return (
+        <Box sx={{ mb: 2 }}>
+            <Typography color="text.secondary" variant="body2">
+                {field.label}
+            </Typography>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
+                {tags.length === 0 ? (
+                    <Typography color="text.secondary" variant="body2">
+                        -
+                    </Typography>
+                ) : (
+                    tags.map((tag) => (
+                        <Chip
+                            key={tag}
+                            label={tag}
+                            onDelete={() =>
+                                onFieldChange(
+                                    field.key,
+                                    tags.filter((t) => t !== tag)
+                                )
+                            }
+                            size="small"
+                        />
+                    ))
+                )}
+            </Box>
+            <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+                <TextField
+                    fullWidth
+                    label={field.label}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            addTags(inputValue);
+                        }
+                    }}
+                    size="small"
+                    value={inputValue}
+                />
+                <Button
+                    onClick={() => addTags(inputValue)}
+                    startIcon={<AddIcon />}
+                    variant="contained"
+                >
+                    Add
+                </Button>
+            </Stack>
+        </Box>
+    );
+};
+
+const NotesEditor = ({ field, formData, onFieldChange }) => {
+    const [draft, setDraft] = useState('');
+    const notes = useMemo(
+        () => normalizeNoteObjects(formData[field.key] || []),
+        [formData, field.key]
+    );
+
+    const updateNote = (index, newValue) => {
+        const next = [...notes];
+        next[index] = { ...next[index], note: newValue };
+        onFieldChange(field.key, next);
+    };
+
+    const removeNote = (index) => {
+        const next = notes.filter((_, i) => i !== index);
+        onFieldChange(field.key, next);
+    };
+
+    const addNote = () => {
+        const trimmed = `${draft}`.trim();
+        if (!trimmed) return;
+        const next = [...notes, { id: `new-${Date.now()}`, note: trimmed }];
+        onFieldChange(field.key, next);
+        setDraft('');
+    };
+
+    return (
+        <Box sx={{ mb: 2 }}>
+            <Typography color="text.secondary" variant="body2">
+                {field.label}
+            </Typography>
+            <Stack spacing={1} sx={{ mt: 1 }}>
+                {notes.length === 0 ? (
+                    <Typography color="text.secondary" variant="body2">
+                        -
+                    </Typography>
+                ) : (
+                    notes.map((note, index) => (
+                        <Stack
+                            direction="row"
+                            key={note.id || `note-${index}`}
+                            spacing={1}
+                            sx={{ alignItems: 'flex-start' }}
+                        >
+                            <TextField
+                                fullWidth
+                                minRows={2}
+                                multiline
+                                onChange={(e) =>
+                                    updateNote(index, e.target.value)
+                                }
+                                value={note.note || ''}
+                            />
+                            <IconButton
+                                aria-label="delete"
+                                onClick={() => removeNote(index)}
+                            >
+                                <CloseIcon />
+                            </IconButton>
+                        </Stack>
+                    ))
+                )}
+                <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+                    <TextField
+                        fullWidth
+                        label={field.label}
+                        minRows={2}
+                        multiline
+                        onChange={(e) => setDraft(e.target.value)}
+                        value={draft}
+                    />
+                    <Button
+                        onClick={addNote}
+                        startIcon={<AddIcon />}
+                        variant="contained"
+                    >
+                        Add
+                    </Button>
+                </Stack>
+            </Stack>
+        </Box>
+    );
+};
 
 export const getLeadCardConfigurations = (t) => [
+    {
+        id: 'internal',
+        title: t('cards.internal.title', {
+            ns: 'crm',
+            defaultValue: 'Internal'
+        }),
+        gridSize: { xs: 12 },
+        fields: [
+            {
+                key: 'tags',
+                label: t('common.tags', { ns: 'crm', defaultValue: 'Tags' }),
+                type: 'custom',
+                render: (lead) => {
+                    const tags = lead.tags || [];
+                    if (!tags.length) {
+                        return (
+                            <Typography color="text.secondary" variant="body2">
+                                {t('common.na', { ns: 'crm' })}
+                            </Typography>
+                        );
+                    }
+                    return (
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                            {tags.map((tag) => (
+                                <Chip key={tag} label={tag} size="small" />
+                            ))}
+                        </Box>
+                    );
+                },
+                editField: {
+                    type: 'custom',
+                    renderEdit: ({ field, formData, onFieldChange }) => (
+                        <TagsEditor
+                            field={field}
+                            formData={formData}
+                            onFieldChange={onFieldChange}
+                        />
+                    )
+                }
+            },
+            {
+                key: 'notes',
+                label: t('common.notes', { ns: 'crm', defaultValue: 'Notes' }),
+                type: 'custom',
+                render: (lead) => {
+                    const notes = lead.notes || [];
+                    if (!notes.length) {
+                        return (
+                            <Typography color="text.secondary" variant="body2">
+                                {t('common.na', { ns: 'crm' })}
+                            </Typography>
+                        );
+                    }
+                    return (
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 1
+                            }}
+                        >
+                            {notes.map((note) => (
+                                <Typography
+                                    key={note.id || note.note}
+                                    variant="body2"
+                                >
+                                    • {note.note}
+                                </Typography>
+                            ))}
+                        </Box>
+                    );
+                },
+                editField: {
+                    type: 'custom',
+                    renderEdit: ({ field, formData, onFieldChange }) => (
+                        <NotesEditor
+                            field={field}
+                            formData={formData}
+                            onFieldChange={onFieldChange}
+                        />
+                    )
+                }
+            }
+        ]
+    },
     {
         id: 'education',
         title: t('cards.education.title', { ns: 'crm' }),
@@ -220,79 +508,6 @@ export const getLeadCardConfigurations = (t) => [
                 type: 'text',
                 multiline: true,
                 rows: 3
-            }
-        ]
-    },
-    {
-        id: 'internal',
-        title: t('cards.internal.title', {
-            ns: 'crm',
-            defaultValue: 'Internal'
-        }),
-        gridSize: { xs: 12 },
-        fields: [
-            {
-                key: 'tags',
-                label: t('common.tags', { ns: 'crm', defaultValue: 'Tags' }),
-                type: 'custom',
-                render: (lead) => {
-                    const tags = lead.tags || [];
-                    if (!tags.length) {
-                        return (
-                            <Typography color="text.secondary" variant="body2">
-                                {t('common.na', { ns: 'crm' })}
-                            </Typography>
-                        );
-                    }
-                    return (
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                            {tags.map((tag) => (
-                                <Chip key={tag} label={tag} size="small" />
-                            ))}
-                        </Box>
-                    );
-                },
-                editField: {
-                    type: 'text'
-                }
-            },
-            {
-                key: 'notes',
-                label: t('common.notes', { ns: 'crm', defaultValue: 'Notes' }),
-                type: 'custom',
-                render: (lead) => {
-                    const notes = lead.notes || [];
-                    if (!notes.length) {
-                        return (
-                            <Typography color="text.secondary" variant="body2">
-                                {t('common.na', { ns: 'crm' })}
-                            </Typography>
-                        );
-                    }
-                    return (
-                        <Box
-                            sx={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                gap: 1
-                            }}
-                        >
-                            {notes.map((note) => (
-                                <Typography
-                                    key={note.id || note.note}
-                                    variant="body2"
-                                >
-                                    • {note.note}
-                                </Typography>
-                            ))}
-                        </Box>
-                    );
-                },
-                editField: {
-                    type: 'text',
-                    multiline: true,
-                    rows: 4
-                }
             }
         ]
     }

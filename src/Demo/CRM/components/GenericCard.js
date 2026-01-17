@@ -60,6 +60,13 @@ const EditField = ({ field, formData, onFieldChange }) => {
     // Use editField config if available, otherwise use the field itself
     const editConfig = field.editField || field;
 
+    if (
+        editConfig.type === 'custom' &&
+        typeof editConfig.renderEdit === 'function'
+    ) {
+        return editConfig.renderEdit({ field, formData, onFieldChange });
+    }
+
     if (editConfig.type === 'select') {
         return (
             <FormControl fullWidth sx={{ mb: 2 }}>

@@ -29,6 +29,7 @@ import {
     Cancel as CancelIcon,
     PersonAdd as PersonAddIcon,
     Event as EventIcon,
+    Close as CloseIcon,
     Female as FemaleIcon,
     Male as MaleIcon,
     Transgender as OtherGenderIcon,
@@ -38,7 +39,16 @@ import {
 import { is_TaiGer_role } from '@taiger-common/core';
 import { getCRMLeadQuery, getStudentQuery } from '../../api/query';
 import { request } from '../../api/request';
-import { updateCRMDeal } from '../../api';
+import {
+    getCRMLead,
+    createCRMLeadNote,
+    appendCRMLeadTags,
+    deleteCRMLeadTags,
+    updateCRMLeadNote,
+    deleteCRMLeadNote,
+    updateCRMDeal,
+    updateCRMLead
+} from '../../api';
 
 import DEMO from '../../store/constant';
 import { appConfig } from '../../config';
@@ -145,7 +155,16 @@ const LeadPage = () => {
     const getChangedFields = (orig, cur) => {
         const out = {};
         Object.keys(cur).forEach((k) => {
-            if (['createdAt', 'updatedAt', 'meetings', 'id'].includes(k))
+            if (
+                [
+                    'createdAt',
+                    'updatedAt',
+                    'meetings',
+                    'id',
+                    '_tagDraft',
+                    '_noteDraft'
+                ].includes(k)
+            )
                 return;
             const ov = orig[k];
             const cv = cur[k];
@@ -165,12 +184,136 @@ const LeadPage = () => {
         }
     }, [lead]);
 
+    const normalizeTagsInput = (value) => {
+        const raw = Array.isArray(value)
+            ? value
+            : typeof value === 'string'
+              ? value.split(/[,\n]/)
+              : [];
+
+        const normalized = raw
+            .map((t) => (t && typeof t === 'object' ? t.tag : t))
+            .map((t) => `${t}`.trim())
+            .filter((t) => t.length > 0);
+
+        const seen = new Set();
+        return normalized.filter((tag) => {
+            if (seen.has(tag)) return false;
+            seen.add(tag);
+            return true;
+        });
+    };
+
+    const normalizeNotesInput = (value) => {
+        if (Array.isArray(value)) {
+            return value
+                .map((n) => (typeof n === 'object' ? n : { note: n }))
+                .map((n) => ({
+                    ...n,
+                    note: `${n?.note ?? ''}`
+                }))
+                .filter((n) => n.note.trim().length > 0);
+        }
+
+        if (typeof value === 'string') {
+            const normalized = `${value}`;
+            return normalized.trim().length > 0 ? [{ note: normalized }] : [];
+        }
+
+        return [];
+    };
+
     const updateLeadMutation = useMutation({
         mutationFn: async (changed) => {
-            const res = await request.put(`/api/crm/leads/${leadId}`, changed);
-            return res.data || res;
+            const { tags, notes, ...rest } = changed || {};
+            const tasks = [];
+
+            if (Object.keys(rest).length > 0) {
+                tasks.push(updateCRMLead(leadId, rest));
+            }
+
+            if (tags !== undefined) {
+                const normalizedTags = normalizeTagsInput(tags);
+                const existingTags = normalizeTagsInput(lead?.tags || []);
+                const addedTags = normalizedTags.filter(
+                    (tag) => !existingTags.includes(tag)
+                );
+                const removedTags = existingTags.filter(
+                    (tag) => !normalizedTags.includes(tag)
+                );
+
+                if (removedTags.length > 0) {
+                    tasks.push(deleteCRMLeadTags(leadId, removedTags));
+                }
+                if (addedTags.length > 0) {
+                    tasks.push(appendCRMLeadTags(leadId, addedTags));
+                }
+            }
+
+            if (notes !== undefined) {
+                const normalizedNotes = normalizeNotesInput(notes);
+                const existingNotes = normalizeNotesInput(lead?.notes || []);
+                const existingById = new Map(
+                    existingNotes.filter((n) => n.id).map((n) => [n.id, n])
+                );
+                const currentById = new Map(
+                    normalizedNotes
+                        .filter((n) => n.id && !String(n.id).startsWith('new-'))
+                        .map((n) => [n.id, n])
+                );
+
+                const addedNotes = normalizedNotes.filter(
+                    (n) => !n.id || String(n.id).startsWith('new-')
+                );
+                const removedNotes = existingNotes.filter(
+                    (n) => n.id && !currentById.has(n.id)
+                );
+                const updatedNotes = normalizedNotes.filter(
+                    (n) =>
+                        n.id &&
+                        existingById.has(n.id) &&
+                        existingById.get(n.id).note !== n.note
+                );
+
+                if (addedNotes.length > 0) {
+                    tasks.push(
+                        createCRMLeadNote(leadId, {
+                            notes: addedNotes.map((n) => n.note)
+                        })
+                    );
+                }
+
+                if (updatedNotes.length > 0) {
+                    tasks.push(
+                        Promise.all(
+                            updatedNotes.map((n) =>
+                                updateCRMLeadNote(leadId, n.id, {
+                                    note: n.note
+                                })
+                            )
+                        )
+                    );
+                }
+
+                if (removedNotes.length > 0) {
+                    tasks.push(
+                        Promise.all(
+                            removedNotes.map((n) =>
+                                deleteCRMLeadNote(leadId, n.id)
+                            )
+                        )
+                    );
+                }
+            }
+
+            if (tasks.length === 0) return null;
+
+            await Promise.all(tasks);
+            const refreshed = await getCRMLead(leadId);
+            return refreshed?.data?.data ?? refreshed?.data ?? refreshed;
         },
         onSuccess: (updated) => {
+            if (!updated) return;
             queryClient.setQueryData(['crm/lead', leadId], (old) => {
                 if (!old) return old;
                 return {
@@ -209,6 +352,45 @@ const LeadPage = () => {
     const handleFieldChange = (field, value) => {
         setFormData((p) => ({ ...p, [field]: value }));
         form.setFieldValue(field, value);
+    };
+
+    const normalizeTagList = (value) => {
+        const raw = Array.isArray(value)
+            ? value
+            : typeof value === 'string'
+              ? value.split(/[\n,]/)
+              : [];
+
+        const normalized = raw
+            .map((t) => (t && typeof t === 'object' ? t.tag : t))
+            .map((t) => `${t}`.trim())
+            .filter((t) => t.length > 0);
+
+        const seen = new Set();
+        return normalized.filter((tag) => {
+            if (seen.has(tag)) return false;
+            seen.add(tag);
+            return true;
+        });
+    };
+
+    const normalizeNoteObjects = (value) => {
+        if (Array.isArray(value)) {
+            return value
+                .map((n) => (typeof n === 'object' ? n : { note: n }))
+                .map((n) => ({
+                    ...n,
+                    note: `${n?.note ?? ''}`
+                }))
+                .filter((n) => n.note.trim().length > 0);
+        }
+
+        if (typeof value === 'string') {
+            const normalized = `${value}`;
+            return normalized.trim().length > 0 ? [{ note: normalized }] : [];
+        }
+
+        return [];
     };
     const hasUnsavedChanges = (cardId) => {
         const changed = getChangedFields(lead, formData);
@@ -640,6 +822,93 @@ const LeadPage = () => {
                                 </Box>
                             </Box>
                         )}
+                        {(Array.isArray(lead?.tags) ||
+                            Array.isArray(lead?.notes)) && (
+                            <Box
+                                sx={{
+                                    width: '100%',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: 1.5
+                                }}
+                            >
+                                <Box sx={{ width: '100%' }}>
+                                    <Typography
+                                        sx={{
+                                            color: 'text.secondary',
+                                            textTransform: 'uppercase',
+                                            letterSpacing: 0.4
+                                        }}
+                                        variant="caption"
+                                    >
+                                        {t('common.tags', { ns: 'crm' })}
+                                    </Typography>
+                                    <Box
+                                        sx={{
+                                            mt: 0.5,
+                                            display: 'flex',
+                                            flexWrap: 'wrap',
+                                            gap: 1
+                                        }}
+                                    >
+                                        {(lead?.tags || []).length === 0 ? (
+                                            <Typography
+                                                color="text.secondary"
+                                                variant="body2"
+                                            >
+                                                {t('common.na', { ns: 'crm' })}
+                                            </Typography>
+                                        ) : (
+                                            lead.tags.map((tag) => (
+                                                <Chip
+                                                    key={tag}
+                                                    label={tag}
+                                                    size="small"
+                                                />
+                                            ))
+                                        )}
+                                    </Box>
+                                </Box>
+                                <Box sx={{ width: '100%' }}>
+                                    <Typography
+                                        sx={{
+                                            color: 'text.secondary',
+                                            textTransform: 'uppercase',
+                                            letterSpacing: 0.4
+                                        }}
+                                        variant="caption"
+                                    >
+                                        {t('common.notes', { ns: 'crm' })}
+                                    </Typography>
+                                    <Box
+                                        sx={{
+                                            mt: 0.5,
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 0.5
+                                        }}
+                                    >
+                                        {(lead?.notes || []).length === 0 ? (
+                                            <Typography
+                                                color="text.secondary"
+                                                variant="body2"
+                                            >
+                                                {t('common.na', { ns: 'crm' })}
+                                            </Typography>
+                                        ) : (
+                                            lead.notes.map((note) => (
+                                                <Typography
+                                                    key={note.id || note.note}
+                                                    variant="body2"
+                                                >
+                                                    • {note.note}
+                                                </Typography>
+                                            ))
+                                        )}
+                                    </Box>
+                                </Box>
+                            </Box>
+                        )}
                         {Array.isArray(lead?.deals) &&
                             lead.deals.length > 0 && (
                                 <Box sx={{ width: '100%' }}>
@@ -926,6 +1195,224 @@ const LeadPage = () => {
                                     value={formData.salesNote || ''}
                                     variant="outlined"
                                 />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Typography
+                                    sx={{
+                                        color: 'text.secondary',
+                                        textTransform: 'uppercase',
+                                        letterSpacing: 0.4
+                                    }}
+                                    variant="caption"
+                                >
+                                    {t('common.tags', { ns: 'crm' })}
+                                </Typography>
+                                <Box
+                                    sx={{
+                                        mt: 0.5,
+                                        display: 'flex',
+                                        flexWrap: 'wrap',
+                                        gap: 1
+                                    }}
+                                >
+                                    {normalizeTagList(formData.tags || []).map(
+                                        (tag) => (
+                                            <Chip
+                                                key={tag}
+                                                label={tag}
+                                                onDelete={() =>
+                                                    handleFieldChange(
+                                                        'tags',
+                                                        normalizeTagList(
+                                                            (
+                                                                formData.tags ||
+                                                                []
+                                                            ).filter(
+                                                                (t) => t !== tag
+                                                            )
+                                                        )
+                                                    )
+                                                }
+                                                size="small"
+                                            />
+                                        )
+                                    )}
+                                    {normalizeTagList(formData.tags || [])
+                                        .length === 0 && (
+                                        <Typography
+                                            color="text.secondary"
+                                            variant="body2"
+                                        >
+                                            {t('common.na', { ns: 'crm' })}
+                                        </Typography>
+                                    )}
+                                </Box>
+                                <Box sx={{ mt: 1, display: 'flex', gap: 1 }}>
+                                    <TextField
+                                        fullWidth
+                                        label={t('common.tags', { ns: 'crm' })}
+                                        onChange={(e) =>
+                                            setFormData((p) => ({
+                                                ...p,
+                                                _tagDraft: e.target.value
+                                            }))
+                                        }
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                                e.preventDefault();
+                                                const nextTags =
+                                                    normalizeTagList([
+                                                        ...(formData.tags ||
+                                                            []),
+                                                        formData._tagDraft
+                                                    ]);
+                                                handleFieldChange(
+                                                    'tags',
+                                                    nextTags
+                                                );
+                                                setFormData((p) => ({
+                                                    ...p,
+                                                    _tagDraft: ''
+                                                }));
+                                            }
+                                        }}
+                                        size="small"
+                                        value={formData._tagDraft || ''}
+                                    />
+                                    <Button
+                                        onClick={() => {
+                                            const nextTags = normalizeTagList([
+                                                ...(formData.tags || []),
+                                                formData._tagDraft
+                                            ]);
+                                            handleFieldChange('tags', nextTags);
+                                            setFormData((p) => ({
+                                                ...p,
+                                                _tagDraft: ''
+                                            }));
+                                        }}
+                                        variant="contained"
+                                    >
+                                        {t('common.add', { ns: 'crm' })}
+                                    </Button>
+                                </Box>
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Typography
+                                    sx={{
+                                        color: 'text.secondary',
+                                        textTransform: 'uppercase',
+                                        letterSpacing: 0.4
+                                    }}
+                                    variant="caption"
+                                >
+                                    {t('common.notes', { ns: 'crm' })}
+                                </Typography>
+                                <Box
+                                    sx={{
+                                        mt: 0.5,
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: 1
+                                    }}
+                                >
+                                    {normalizeNoteObjects(
+                                        formData.notes || []
+                                    ).map((note, idx) => (
+                                        <Box
+                                            key={note.id || `note-${idx}`}
+                                            sx={{ display: 'flex', gap: 1 }}
+                                        >
+                                            <TextField
+                                                fullWidth
+                                                minRows={2}
+                                                multiline
+                                                onChange={(e) => {
+                                                    const nextNotes =
+                                                        normalizeNoteObjects(
+                                                            formData.notes || []
+                                                        );
+                                                    nextNotes[idx] = {
+                                                        ...nextNotes[idx],
+                                                        note: e.target.value
+                                                    };
+                                                    handleFieldChange(
+                                                        'notes',
+                                                        nextNotes
+                                                    );
+                                                }}
+                                                value={note.note || ''}
+                                            />
+                                            <IconButton
+                                                aria-label="delete"
+                                                onClick={() => {
+                                                    const nextNotes =
+                                                        normalizeNoteObjects(
+                                                            formData.notes || []
+                                                        ).filter(
+                                                            (_, i) => i !== idx
+                                                        );
+                                                    handleFieldChange(
+                                                        'notes',
+                                                        nextNotes
+                                                    );
+                                                }}
+                                            >
+                                                <CloseIcon />
+                                            </IconButton>
+                                        </Box>
+                                    ))}
+                                    {normalizeNoteObjects(formData.notes || [])
+                                        .length === 0 && (
+                                        <Typography
+                                            color="text.secondary"
+                                            variant="body2"
+                                        >
+                                            {t('common.na', { ns: 'crm' })}
+                                        </Typography>
+                                    )}
+                                    <Box sx={{ display: 'flex', gap: 1 }}>
+                                        <TextField
+                                            fullWidth
+                                            label={t('common.notes', {
+                                                ns: 'crm'
+                                            })}
+                                            minRows={2}
+                                            multiline
+                                            onChange={(e) =>
+                                                setFormData((p) => ({
+                                                    ...p,
+                                                    _noteDraft: e.target.value
+                                                }))
+                                            }
+                                            value={formData._noteDraft || ''}
+                                        />
+                                        <Button
+                                            onClick={() => {
+                                                const trimmed =
+                                                    `${formData._noteDraft || ''}`.trim();
+                                                if (!trimmed) return;
+                                                const nextNotes =
+                                                    normalizeNoteObjects([
+                                                        ...(formData.notes ||
+                                                            []),
+                                                        { note: trimmed }
+                                                    ]);
+                                                handleFieldChange(
+                                                    'notes',
+                                                    nextNotes
+                                                );
+                                                setFormData((p) => ({
+                                                    ...p,
+                                                    _noteDraft: ''
+                                                }));
+                                            }}
+                                            variant="contained"
+                                        >
+                                            {t('common.add', { ns: 'crm' })}
+                                        </Button>
+                                    </Box>
+                                </Box>
                             </Grid>
                             {Array.isArray(lead?.deals) &&
                                 lead.deals.length > 0 && (

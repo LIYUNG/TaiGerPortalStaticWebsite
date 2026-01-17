@@ -825,10 +825,30 @@ export const deleteAMessageinTicket = (ticketId, message_id) =>
 export const getCRMStats = () => request.get(`/api/crm/stats`);
 export const getCRMLeads = () => request.get(`/api/crm/leads`);
 export const getCRMLead = (leadId) => request.get(`/api/crm/leads/${leadId}`);
+export const updateCRMLead = (leadId, payload) =>
+    request.put(`/api/crm/leads/${leadId}`, payload);
 export const getLeadIdByUserId = (userId) =>
     request.get(`/api/crm/students/${userId}/lead`);
 export const createLeadFromStudent = (userId) =>
     request.post(`/api/crm/students/${userId}/lead`);
+export const getCRMLeadTags = (leadId) =>
+    request.get(`/api/crm/leads/${leadId}/tags`);
+export const updateCRMLeadTags = (leadId, tags) =>
+    request.put(`/api/crm/leads/${leadId}/tags`, { tags });
+export const appendCRMLeadTags = (leadId, tags) =>
+    request.post(`/api/crm/leads/${leadId}/tags`, { tags });
+export const deleteCRMLeadTags = (leadId, tags) =>
+    request.delete(`/api/crm/leads/${leadId}/tags`, { data: { tags } });
+export const getCRMLeadNotes = (leadId) =>
+    request.get(`/api/crm/leads/${leadId}/notes`);
+export const createCRMLeadNote = (leadId, payload) =>
+    request.post(`/api/crm/leads/${leadId}/notes`, payload);
+export const replaceCRMLeadNotes = (leadId, notes) =>
+    request.put(`/api/crm/leads/${leadId}/notes`, { notes });
+export const updateCRMLeadNote = (leadId, noteId, payload) =>
+    request.patch(`/api/crm/leads/${leadId}/notes/${noteId}`, payload);
+export const deleteCRMLeadNote = (leadId, noteId) =>
+    request.delete(`/api/crm/leads/${leadId}/notes/${noteId}`);
 export const getCRMMeetings = () => request.get(`/api/crm/meetings`);
 export const getCRMMeeting = (meetingId) =>
     request.get(`/api/crm/meetings/${meetingId}`);
