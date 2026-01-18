@@ -192,7 +192,7 @@ export const getLeadCardConfigurations = (t) => [
                 type: 'text'
             },
             {
-                key: 'source',
+                key: 'referralSource',
                 label: t('cards.contact.source', { ns: 'crm' }),
                 type: 'text'
             }
