@@ -1,8 +1,8 @@
 module.exports = {
     input: [
-        'src/**/*.{js,jsx}',
+        'src/**/*.{js,jsx,ts,tsx}',
         // Use ! to filter out files or directories
-        '!src/**/*.test.{js,jsx}',
+        '!src/**/*.test.{js,jsx,ts,tsx}',
         '!src/i18next/**',
         '!node_modules/**'
     ],
@@ -13,7 +13,7 @@ module.exports = {
         // read strings from functions: IllegalMoveError('KEY') or t('KEY')
         func: {
             list: ['i18next.t', 't'],
-            extensions: ['.js', '.jsx']
+            extensions: ['.js', '.jsx', '.ts', '.tsx']
         },
         removeUnusedKeys: false,
 

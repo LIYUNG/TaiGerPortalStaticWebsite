@@ -6,7 +6,10 @@ module.exports = {
     roots: ['<rootDir>/src'],
 
     // The glob patterns Jest uses to detect test files
-    testMatch: ['**/__tests__/**/*.js', '**/?(*.)+(spec|test).js'],
+    testMatch: [
+        '**/__tests__/**/*.{js,jsx,ts,tsx}',
+        '**/?(*.)+(spec|test).{js,jsx,ts,tsx}'
+    ],
 
     // The module file extensions for importing modules in your tests
     moduleFileExtensions: ['js', 'json', 'jsx', 'ts', 'tsx', 'node'],
@@ -22,5 +25,5 @@ module.exports = {
         '/node_modules/(?!@mui/x-charts|@mui/material|@babel/runtime|d3-(color|format|interpolate|scale|shape|time|time-format|path|array)|internmap|query-string|export-to-csv)'
     ],
     // Setup files to run before tests
-    setupFilesAfterEnv: ['<rootDir>/src/setupTests.js']
+    setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts']
 };

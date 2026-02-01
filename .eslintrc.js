@@ -27,6 +27,20 @@ module.exports = {
             parserOptions: {
                 sourceType: 'module'
             }
+        },
+        {
+            files: ['**/*.ts', '**/*.tsx'],
+            parser: '@typescript-eslint/parser',
+            parserOptions: {
+                ecmaVersion: 'latest',
+                sourceType: 'module',
+                ecmaFeatures: { jsx: true }
+            },
+            plugins: ['@typescript-eslint'],
+            extends: ['plugin:@typescript-eslint/recommended'],
+            rules: {
+                'react/prop-types': 'off'
+            }
         }
     ],
     parserOptions: {
