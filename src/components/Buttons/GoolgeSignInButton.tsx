@@ -1,8 +1,9 @@
 import React from 'react';
 import { Button, SvgIcon } from '@mui/material';
+import { googleOAuthClientId, googleOAuthRedirectUrl } from '../../env';
 
-const GOOGLE_OAUTH_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
-const GOOGLE_OAUTH_REDIRECT_URL = process.env.REACT_APP_GOOGLE_REDIRECT_URL;
+const GOOGLE_OAUTH_CLIENT_ID = googleOAuthClientId;
+const GOOGLE_OAUTH_REDIRECT_URL = googleOAuthRedirectUrl;
 
 function GoogleIcon(): JSX.Element {
     return (

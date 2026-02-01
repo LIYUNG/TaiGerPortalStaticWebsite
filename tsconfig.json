@@ -10,13 +10,13 @@
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "module": "ESNext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "types": ["node", "jest"]
+    "types": ["node", "jest", "vite/client"]
   },
-  "include": ["src", "src/types/global-d.ts"],
+  "include": ["src", "src/types/global-d.ts", "src/vite-env.d.ts"],
   "exclude": ["node_modules"]
 }

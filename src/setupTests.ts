@@ -5,6 +5,14 @@
 import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
 
+// Defaults for env.ts when running in Jest (no import.meta.env)
+if (typeof process !== 'undefined') {
+    if (!process.env.VITE_DEV_URL) process.env.VITE_DEV_URL = 'http://localhost:3000';
+    if (!process.env.VITE_PROD_URL) process.env.VITE_PROD_URL = 'https://example.com';
+    if (!process.env.VITE_DEV_TENANT_ID) process.env.VITE_DEV_TENANT_ID = 'TaiGer';
+    if (!process.env.VITE_TENANT_ID) process.env.VITE_TENANT_ID = 'TaiGer_Prod';
+}
+
 // Expose jest globally so test files can use jest.mock(), jest.fn(), etc.
 // without importing from '@jest/globals' (avoids "Cannot use namespace 'jest' as a value").
 if (typeof (globalThis as Record<string, unknown>).jest === 'undefined') {

@@ -1,14 +1,9 @@
 import axios, { type AxiosRequestConfig } from 'axios';
+import { baseUrl, tenantId as envTenantId } from '../env';
 
-export const BASE_URL =
-    process.env.NODE_ENV === 'development'
-        ? process.env.REACT_APP_DEV_URL
-        : process.env.REACT_APP_PROD_URL;
+export const BASE_URL = baseUrl;
 
-const tenantId =
-    process.env.NODE_ENV === 'development'
-        ? process.env.REACT_APP_DEV_TENANT_ID
-        : process.env.REACT_APP_TENANT_ID;
+const tenantId = envTenantId;
 
 const request = axios.create({
     baseURL: BASE_URL,

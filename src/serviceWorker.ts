@@ -25,18 +25,18 @@ const isLocalhost = Boolean(
         )
 );
 
+import { publicUrl } from './env';
+
 export function register(config?: ServiceWorkerConfig): void {
-    if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
-        const publicUrl = new URL(
-            process.env.PUBLIC_URL ?? '',
-            window.location.href
-        );
-        if (publicUrl.origin !== window.location.origin) {
+    if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+        const base = publicUrl || window.location.origin;
+        const publicUrlObj = new URL(base, window.location.href);
+        if (publicUrlObj.origin !== window.location.origin) {
             return;
         }
 
         window.addEventListener('load', () => {
-            const swUrl = `${process.env.PUBLIC_URL}/service-worker.js`;
+            const swUrl = `${publicUrl || ''}/service-worker.js`;
 
             if (isLocalhost) {
                 checkValidServiceWorker(swUrl, config);

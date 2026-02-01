@@ -4,7 +4,6 @@ import { I18nextProvider } from 'react-i18next';
 import { QueryClientProvider } from '@tanstack/react-query';
 
 import App from './App';
-import * as serviceWorker from './serviceWorker';
 import { AuthProvider } from './components/AuthProvider/index';
 import './index.css';
 import i18n from './i18n';
@@ -36,5 +35,3 @@ const app = (
 
 const root = createRoot(rootElement);
 root.render(app);
-
-serviceWorker.unregister();
