@@ -502,7 +502,7 @@ const DocModificationThreadInput = () => {
 
     const submitInput = async () => {
         try {
-            let allStatus = {};
+            const allStatus = {};
             if (isChanged?.general && surveyInputs?.general) {
                 // only set final if general survey, where programId not present
                 const genIsFinalVersion = !thread?.program_id && isFinalVersion;

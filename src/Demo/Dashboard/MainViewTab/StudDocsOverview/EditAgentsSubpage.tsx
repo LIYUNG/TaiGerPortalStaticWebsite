@@ -73,7 +73,7 @@ const EditAgentsSubpage = (props) => {
         }));
     };
 
-    let agentlist = checkboxState.agents ? (
+    const agentlist = checkboxState.agents ? (
         checkboxState.agents.map((agent, i) => (
             <TableRow key={i + 1}>
                 <TableCell>

@@ -44,6 +44,38 @@ interface EmbeddedFriendData {
     };
 }
 
+interface AttributeChipsProps {
+    attributes?: Array<{ _id: string; name: string; value: number }>;
+}
+
+const AttributeChips = ({ attributes }: AttributeChipsProps) =>
+    attributes?.map((attribute) =>
+        [1, 3, 8, 9, 10, 11].includes(attribute.value) ? (
+            <Tooltip
+                key={attribute._id}
+                title={`${attribute.name}: ${
+                    ATTRIBUTES[attribute.value - 1].definition
+                }`}
+            >
+                <Chip
+                    color={
+                        COLORS[attribute.value] as
+                            | 'default'
+                            | 'primary'
+                            | 'secondary'
+                            | 'error'
+                            | 'info'
+                            | 'success'
+                            | 'warning'
+                    }
+                    data-testid={`chip-${attribute.name}`}
+                    label={attribute.name[0]}
+                    size="small"
+                />
+            </Tooltip>
+        ) : null
+    ) ?? null;
+
 interface EmbeddedFriendProps {
     data: EmbeddedFriendData;
     activeId: string;
@@ -81,37 +113,6 @@ const Friend = (props: EmbeddedFriendProps) => {
         props.data?.latestCommunication?.user_id?.toString() ===
             props.data?.latestCommunication?.student_id?.toString() &&
         props.data?.latestCommunication?.ignore_message !== true;
-
-    const Chips = () => (
-        <>
-            {props.data?.attributes?.map((attribute) =>
-                [1, 3, 8, 9, 10, 11].includes(attribute.value) ? (
-                    <Tooltip
-                        key={attribute._id}
-                        title={`${attribute.name}: ${
-                            ATTRIBUTES[attribute.value - 1].definition
-                        }`}
-                    >
-                        <Chip
-                            color={
-                                COLORS[attribute.value] as
-                                    | 'default'
-                                    | 'primary'
-                                    | 'secondary'
-                                    | 'error'
-                                    | 'info'
-                                    | 'success'
-                                    | 'warning'
-                            }
-                            data-testid={`chip-${attribute.name}`}
-                            label={attribute.name[0]}
-                            size="small"
-                        />
-                    </Tooltip>
-                ) : null
-            )}
-        </>
-    );
 
     return (
         <ListItem
@@ -155,7 +156,7 @@ const Friend = (props: EmbeddedFriendProps) => {
                     <ListItemText
                         primary={
                             <Typography style={{ fontWeight: 'bold' }}>
-                                <Chips />
+                                <AttributeChips attributes={props.data?.attributes} />
                                 {truncateText(
                                     `${
                                         props.data.lastname_chinese

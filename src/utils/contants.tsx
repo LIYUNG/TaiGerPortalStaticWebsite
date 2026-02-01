@@ -669,7 +669,7 @@ export const getNextDayDate = (reorder_weekday, dayOfWeek, timezone, nextN) => {
     const now = DateTime.fromObject({}, { zone: timezone });
     const targetDayIndex = reorder_weekday.indexOf(dayOfWeek); // dayOfWeek is explicitly predefined. (Monday....) 0-6
 
-    let daysToAdd = targetDayIndex % 7;
+    const daysToAdd = targetDayIndex % 7;
 
     // Calculate the date of the next Nth occurrence
     const nextOccurrence = now.plus({
@@ -839,8 +839,8 @@ export const valid_internal_categories = [
 ];
 
 export const split_header = (header_name) => {
-    var rest = header_name.substring(0, header_name.lastIndexOf(' ') + 1);
-    var last = header_name.substring(
+    const rest = header_name.substring(0, header_name.lastIndexOf(' ') + 1);
+    const last = header_name.substring(
         header_name.lastIndexOf(' ') + 1,
         header_name.length
     );
@@ -907,7 +907,7 @@ export const twoYearsInDays = 730; // days
 
 export const getDate = (date) => {
     // const userLocale = navigator.language;
-    let dat = new Date(date)
+    const dat = new Date(date)
         .toLocaleDateString('zh-Hans-CN', {
             year: 'numeric',
             month: '2-digit',
@@ -937,7 +937,7 @@ export const getDate = (date) => {
 
 export const getTime = (date) => {
     // const userLocale = navigator.language;
-    let time = new Date(date).toLocaleTimeString('en-US', {
+    const time = new Date(date).toLocaleTimeString('en-US', {
         hour: '2-digit',
         minute: '2-digit',
         hour12: true
@@ -947,14 +947,14 @@ export const getTime = (date) => {
 
 export const convertDate = (date) => {
     // const userLocale = navigator.language;
-    let dat = new Date(date)
+    const dat = new Date(date)
         ?.toLocaleDateString('zh-Hans-CN', {
             year: 'numeric',
             month: '2-digit',
             day: '2-digit'
         })
         ?.replace(/\//g, '-');
-    let time = new Date(date).toLocaleTimeString('en-US', {
+    const time = new Date(date).toLocaleTimeString('en-US', {
         hour: '2-digit',
         minute: '2-digit',
         hour12: true

@@ -439,9 +439,9 @@ const AllOfficeHours = () => {
                 <DialogContent>
                     <Typography component="span">請寫下想討論的主題</Typography>
                     <TextField
+                        error={(event_temp?.description?.length ?? 0) > 2000}
                         fullWidth
                         inputProps={{ maxLength: 2000 }}
-                        error={(event_temp?.description?.length ?? 0) > 2000}
                         minRows={10}
                         multiline
                         onChange={(e) => handleUpdateDescription(e)}

@@ -101,12 +101,12 @@ const Popping = ({
                         />
                         <br />
                         <Badge
+                            badgeContent={`${newDescription?.length || 0}/${textLimit}`}
                             color={
                                 newDescription?.length > textLimit
                                     ? 'error'
                                     : 'primary'
                             }
-                            badgeContent={`${newDescription?.length || 0}/${textLimit}`}
                         >
                             <span />
                         </Badge>

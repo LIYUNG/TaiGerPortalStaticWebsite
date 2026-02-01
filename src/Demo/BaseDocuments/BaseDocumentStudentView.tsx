@@ -26,8 +26,8 @@ const BaseDocumentStudentView = ({ student, base_docs_link }) => {
         });
 
     useEffect(() => {
-        let keys2 = Object.keys(PROFILE_NAME);
-        let temp_isLoaded = {};
+        const keys2 = Object.keys(PROFILE_NAME);
+        const temp_isLoaded = {};
         for (let i = 0; i < keys2.length; i++) {
             temp_isLoaded[keys2[i]] = true;
         }
@@ -87,10 +87,10 @@ const BaseDocumentStudentView = ({ student, base_docs_link }) => {
     if (!ready) {
         return <Loading />;
     }
-    let profile_wtih_doc_link_list_key = Object.keys(PROFILE_NAME);
-    let object_init = {};
-    let object_message = {};
-    let object_time_init = {};
+    const profile_wtih_doc_link_list_key = Object.keys(PROFILE_NAME);
+    const object_init = {};
+    const object_message = {};
+    const object_time_init = {};
     profile_wtih_doc_link_list_key.forEach((key) => {
         object_init[key] = { status: DocumentStatusType.Missing, link: '' };
         object_message[key] = '';
@@ -106,8 +106,8 @@ const BaseDocumentStudentView = ({ student, base_docs_link }) => {
     }
     if (baseDocumentStudentViewState.student.profile) {
         baseDocumentStudentViewState.student.profile.forEach((profile) => {
-            let document_split = profile.path.replace(/\\/g, '/');
-            let document_name = document_split.split('/')[1];
+            const document_split = profile.path.replace(/\\/g, '/');
+            const document_name = document_split.split('/')[1];
 
             switch (profile.status) {
                 case DocumentStatusType.Uploaded:

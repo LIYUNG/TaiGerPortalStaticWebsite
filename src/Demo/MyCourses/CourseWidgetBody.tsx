@@ -32,7 +32,7 @@ export default function CourseWidgetBody({ programRequirements }) {
     const theme = useTheme(); // Get the current theme from Material UI
     const { student_id } = useParams();
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
-    let [statedata, setStatedata] = useState({
+    const [statedata, setStatedata] = useState({
         error: '',
         coursesdata: [
             {

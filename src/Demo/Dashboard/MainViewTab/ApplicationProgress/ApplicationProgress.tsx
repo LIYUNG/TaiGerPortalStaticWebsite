@@ -20,9 +20,9 @@ import DEMO from '../../../../store/constant';
 
 function ApplicationProgress(props) {
     const { t } = useTranslation();
-    var applying_university;
+    let applying_university;
 
-    var today = new Date();
+    const today = new Date();
     if (
         props.student.applications === undefined ||
         props.student.applications.length === 0

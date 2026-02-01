@@ -1665,7 +1665,7 @@ export default function CourseAnalysisV2() {
     const { user } = useAuth();
     const [value, setValue] = useState(0);
     const [sheetName, setSheetName] = useState('General');
-    let [statedata, setStatedata] = useState({
+    const [statedata, setStatedata] = useState({
         error: '',
         isLoaded: false,
         sheets: {},

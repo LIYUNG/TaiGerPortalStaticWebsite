@@ -257,8 +257,8 @@ export const BaseDocumentsTable = ({ students }) => {
                 </Box>
             );
         } else if (value?.status === DocumentStatusType.Accepted) {
-            let document_split = value?.path.replace(/\\/g, '/');
-            let document_name = document_split.split('/')[1];
+            const document_split = value?.path.replace(/\\/g, '/');
+            const document_name = document_split.split('/')[1];
             return (
                 <Box
                     onClick={(e) => {

@@ -122,6 +122,21 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
     const createEventMutation = useMutation({
         mutationFn: (eventData: Record<string, unknown>) =>
             postEvent(eventData),
+        onMutate: () => {
+            setCalendarEventsState((prevState) => ({
+                ...prevState,
+                BookButtonDisable: true
+            }));
+        },
+        onError: (error: Error) => {
+            setSeverity('error');
+            setMessage(error.message || 'An error occurred. Please try again.');
+            setOpenSnackbar(true);
+            setCalendarEventsState((prevState) => ({
+                ...prevState,
+                BookButtonDisable: false
+            }));
+        },
         onSuccess: async () => {
             await queryClient.invalidateQueries({
                 queryKey: ['events'],
@@ -149,21 +164,6 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
             setSeverity('success');
             setMessage('Meeting created successfully!');
             setOpenSnackbar(true);
-        },
-        onError: (error: Error) => {
-            setSeverity('error');
-            setMessage(error.message || 'An error occurred. Please try again.');
-            setOpenSnackbar(true);
-            setCalendarEventsState((prevState) => ({
-                ...prevState,
-                BookButtonDisable: false
-            }));
-        },
-        onMutate: () => {
-            setCalendarEventsState((prevState) => ({
-                ...prevState,
-                BookButtonDisable: true
-            }));
         }
     });
 
@@ -257,6 +257,12 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
                 res_modal_status: status ?? 0
             }));
         },
+        onMutate: () => {
+            setCalendarEventsState((prevState) => ({
+                ...prevState,
+                BookButtonDisable: true
+            }));
+        },
         onError: (error: Error) => {
             setSeverity('error');
             setMessage(error.message || 'An error occurred. Please try again.');
@@ -264,12 +270,6 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
             setCalendarEventsState((prevState) => ({
                 ...prevState,
                 BookButtonDisable: false
-            }));
-        },
-        onMutate: () => {
-            setCalendarEventsState((prevState) => ({
-                ...prevState,
-                BookButtonDisable: true
             }));
         }
     });
@@ -318,6 +318,12 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
                 event_id: ''
             }));
         },
+        onMutate: () => {
+            setCalendarEventsState((prevState) => ({
+                ...prevState,
+                BookButtonDisable: true
+            }));
+        },
         onError: (error: Error) => {
             setSeverity('error');
             setMessage(error.message || 'An error occurred. Please try again.');
@@ -325,12 +331,6 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
             setCalendarEventsState((prevState) => ({
                 ...prevState,
                 BookButtonDisable: false
-            }));
-        },
-        onMutate: () => {
-            setCalendarEventsState((prevState) => ({
-                ...prevState,
-                BookButtonDisable: true
             }));
         }
     });
@@ -373,6 +373,12 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
             setMessage('Meeting deleted successfully!');
             setOpenSnackbar(true);
         },
+        onMutate: () => {
+            setCalendarEventsState((prevState) => ({
+                ...prevState,
+                BookButtonDisable: true
+            }));
+        },
         onError: (error: Error) => {
             setSeverity('error');
             setMessage(error.message || 'An error occurred. Please try again.');
@@ -380,12 +386,6 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
             setCalendarEventsState((prevState) => ({
                 ...prevState,
                 BookButtonDisable: false
-            }));
-        },
-        onMutate: () => {
-            setCalendarEventsState((prevState) => ({
-                ...prevState,
-                BookButtonDisable: true
             }));
         }
     });

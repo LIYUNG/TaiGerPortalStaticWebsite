@@ -151,7 +151,7 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
             loadButtonDisabled: true
         }));
         loadCommunicationThread(
-            student._id?.toString(),
+            student._id?.toString() ?? '',
             communicationsState.pageNumber + 1
         ).then(
             (resp: {
@@ -239,7 +239,7 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
             const checkPromises = Array.from(e.target.files).map(
                 (file: File) => {
                     const extension = file.name.split('.').pop()?.toLowerCase();
-                    const studentName = communicationsState.student?.firstname;
+                    const studentName = communicationsState.student?.firstname ?? '';
 
                     if (extension === 'pdf') {
                         return readPDF(file, studentName);

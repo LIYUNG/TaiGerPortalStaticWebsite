@@ -27,7 +27,7 @@ import { useSnackBar } from '../../contexts/use-snack-bar';
 
 export default function PortalCredentialsCard(props) {
     const { t } = useTranslation();
-    let [statedata, setStatedata] = useState({
+    const [statedata, setStatedata] = useState({
         error: '',
         isLoaded: false,
         isUpdateLoaded: {},
@@ -49,9 +49,9 @@ export default function PortalCredentialsCard(props) {
                 const { data, success } = resp.data;
                 const { status } = resp;
                 if (success) {
-                    let credentials_temp = {};
-                    let isUpdateLoaded_temp = {};
-                    let isChanged_temp = {};
+                    const credentials_temp = {};
+                    const isUpdateLoaded_temp = {};
+                    const isChanged_temp = {};
                     if (data.applications) {
                         for (const application of data.applications) {
                             const applicationId = application._id.toString();

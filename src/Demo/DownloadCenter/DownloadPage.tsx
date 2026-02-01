@@ -47,7 +47,7 @@ const DownloadPage = () => {
                 const { data, success } = resp.data;
                 const { status } = resp;
                 if (success) {
-                    let areLoaded_temp = {};
+                    const areLoaded_temp = {};
                     for (let i = 0; i < templatelist.length; i++) {
                         areLoaded_temp[templatelist[i].prop] = true;
                     }
@@ -90,7 +90,7 @@ const DownloadPage = () => {
         e.preventDefault();
         const formData = new FormData();
         formData.append('file', downloadPageState.file);
-        let areLoaded_temp = { ...downloadPageState.areLoaded };
+        const areLoaded_temp = { ...downloadPageState.areLoaded };
         areLoaded_temp[category] = false;
         setDownloadPageState({ areLoaded: areLoaded_temp });
         uploadtemplate(category, formData).then(
@@ -99,7 +99,7 @@ const DownloadPage = () => {
                 const { status } = resp;
                 if (success) {
                     areLoaded_temp[category] = true;
-                    let templates_temp = [...downloadPageState.templates];
+                    const templates_temp = [...downloadPageState.templates];
                     templates_temp.push(data);
                     setDownloadPageState((prevState) => ({
                         ...prevState,

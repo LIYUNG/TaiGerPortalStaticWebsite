@@ -12,7 +12,6 @@ interface NotesEditorProps {
     thread?: unknown;
     buttonDisabled: boolean;
     handleClickSave: (e: React.MouseEvent, editorState: unknown) => void;
-    unique_id?: string;
 }
 
 const NotesEditor = ({

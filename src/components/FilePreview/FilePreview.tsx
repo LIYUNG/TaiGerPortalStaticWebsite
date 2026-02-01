@@ -28,10 +28,10 @@ const FilePreview = ({ path, apiFilePath }: FilePreviewProps) => {
                 }}
             >
                 <img
+                    alt="Preview"
                     height="60%"
                     src={`${BASE_URL}${apiFilePath}`}
                     width="90%"
-                    alt="Preview"
                 />
             </div>
             <div>

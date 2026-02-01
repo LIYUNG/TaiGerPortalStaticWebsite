@@ -19,16 +19,6 @@ module.exports = {
     ],
     overrides: [
         {
-            env: {
-                node: true,
-                jest: true
-            },
-            files: ['**/*.test.js', '**/*.test.jsx'],
-            parserOptions: {
-                sourceType: 'module'
-            }
-        },
-        {
             files: ['**/*.ts', '**/*.tsx'],
             parser: '@typescript-eslint/parser',
             parserOptions: {
@@ -39,7 +29,15 @@ module.exports = {
             plugins: ['@typescript-eslint'],
             extends: ['plugin:@typescript-eslint/recommended'],
             rules: {
-                'react/prop-types': 'off'
+                'react/prop-types': 'off',
+                '@typescript-eslint/no-empty-function': ['error', { allow: ['arrowFunctions'] }]
+            }
+        },
+        {
+            env: { node: true, jest: true },
+            files: ['**/*.test.js', '**/*.test.jsx', '**/*.test.ts', '**/*.test.tsx', '**/__mocks__/**'],
+            rules: {
+                '@typescript-eslint/no-empty-function': 'off'
             }
         }
     ],

@@ -26,7 +26,7 @@ export default function ResetPassword() {
     const passwordValidation = () => {
         if (password === '') return false;
         if (password.length < 8) return false;
-        var decimal =
+        const decimal =
             /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,20}$/;
         if (decimal.test(password) === false) return false;
         // const regex =

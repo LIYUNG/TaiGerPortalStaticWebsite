@@ -164,7 +164,7 @@ const ProgramReport = (props) => {
                 const { status } = resp;
                 if (success) {
                     const temp_tickets = [...programReportState.tickets];
-                    let temp_ticket_idx = temp_tickets.findIndex(
+                    const temp_ticket_idx = temp_tickets.findIndex(
                         (temp_t) => temp_t._id.toString() === ticket_id
                     );
                     temp_tickets[temp_ticket_idx] = data;

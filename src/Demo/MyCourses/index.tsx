@@ -63,7 +63,7 @@ export default function MyCourses() {
 
     const theme = useTheme(); // Get the current theme from Material UI
 
-    let [statedata, setStatedata] = useState({
+    const [statedata, setStatedata] = useState({
         error: '',
         isLoaded: false,
         coursesdata: {},

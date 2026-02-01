@@ -972,10 +972,10 @@ const TaiGerOfficeHours = () => {
                 <DialogTitle>{t('Edit', { ns: 'common' })}</DialogTitle>
                 <DialogContent>
                     <TextField
-                        fullWidth
                         error={(event_temp?.description?.length ?? 0) > 2000}
-                        label="請寫下想討論的主題"
+                        fullWidth
                         inputProps={{ maxLength: 2000 }}
+                        label="請寫下想討論的主題"
                         multiline
                         onChange={(e) => handleUpdateDescription(e)}
                         placeholder="Example：我想定案選校、選課，我想討論簽證，德語班。"
@@ -1001,7 +1001,7 @@ const TaiGerOfficeHours = () => {
                     ))}
                     <Typography>
                         Time zone: {user.timezone}. (Please update it in{' '}
-                        <a href="/profile" target="_blank" rel="noreferrer">
+                        <a href="/profile" rel="noreferrer" target="_blank">
                             Profile
                         </a>
                         )

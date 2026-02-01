@@ -86,7 +86,7 @@ const StudentBriefOverview = (props) => {
             (resp) => {
                 const { data, success } = resp.data;
                 if (success) {
-                    let students_temp = { ...student };
+                    const students_temp = { ...student };
                     students_temp.agents = data.agents; // datda is single student updated
                     setOpenAgentsDialog(false);
                     setStudent(students_temp);
@@ -103,7 +103,7 @@ const StudentBriefOverview = (props) => {
             (resp) => {
                 const { data, success } = resp.data;
                 if (success) {
-                    let students_temp = { ...student };
+                    const students_temp = { ...student };
                     students_temp.editors = data.editors; // datda is single student updated
                     setStudent(students_temp);
                     setOpenEditorsDialog(false);
@@ -128,7 +128,7 @@ const StudentBriefOverview = (props) => {
             (resp) => {
                 const { data, success } = resp.data;
                 if (success) {
-                    let students_temp = { ...student };
+                    const students_temp = { ...student };
                     students_temp.attributes = data.attributes; // datda is single student updated
                     setStudent(students_temp);
                     setOpenAttributesDialog(false);

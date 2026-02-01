@@ -296,10 +296,10 @@ const EditorDocsProgress = (props) => {
                     const { success } = resp.data;
                     const { status } = resp;
                     if (success) {
-                        let student_temp = {
+                        const student_temp = {
                             ...editorDocsProgressState.student
                         };
-                        let general_docs_idx =
+                        const general_docs_idx =
                             student_temp.generaldocs_threads.findIndex(
                                 (thread) =>
                                     thread.doc_thread_id._id.toString() ===
@@ -354,17 +354,17 @@ const EditorDocsProgress = (props) => {
                     const { success } = resp.data;
                     const { status } = resp;
                     if (success) {
-                        let student_temp = {
+                        const student_temp = {
                             ...editorDocsProgressState.student
                         };
-                        let application_idx =
+                        const application_idx =
                             student_temp.applications.findIndex(
                                 (application) =>
                                     application._id.toString() ===
                                     editorDocsProgressState.application_id
                             );
                         if (application_idx !== -1) {
-                            let doc_thread_idx = student_temp.applications[
+                            const doc_thread_idx = student_temp.applications[
                                 application_idx
                             ].doc_modification_thread.findIndex(
                                 (thread) =>
@@ -431,17 +431,17 @@ const EditorDocsProgress = (props) => {
                 const { data, success } = resp.data;
                 const { status } = resp;
                 if (success) {
-                    let student_temp = { ...editorDocsProgressState.student };
+                    const student_temp = { ...editorDocsProgressState.student };
                     let targetThread;
                     if (editorDocsProgressState.application_id) {
-                        let application_idx =
+                        const application_idx =
                             student_temp.applications.findIndex(
                                 (application) =>
                                     application._id.toString() ===
                                     editorDocsProgressState.application_id
                             );
 
-                        let thread_idx = student_temp.applications[
+                        const thread_idx = student_temp.applications[
                             application_idx
                         ].doc_modification_thread.findIndex(
                             (thread) =>
@@ -452,7 +452,7 @@ const EditorDocsProgress = (props) => {
                             student_temp.applications[application_idx]
                                 .doc_modification_thread[thread_idx];
                     } else {
-                        let general_doc_idx =
+                        const general_doc_idx =
                             student_temp.generaldocs_threads.findIndex(
                                 (docs) =>
                                     docs.doc_thread_id._id.toString() ===
@@ -646,8 +646,8 @@ const EditorDocsProgress = (props) => {
                 const { data, success } = resp.data;
                 const { status } = resp;
                 if (success) {
-                    let student_temp = { ...editorDocsProgressState.student };
-                    let application_idx = student_temp.applications.findIndex(
+                    const student_temp = { ...editorDocsProgressState.student };
+                    const application_idx = student_temp.applications.findIndex(
                         (application) =>
                             application._id.toString() === applicationId
                     );
@@ -700,7 +700,7 @@ const EditorDocsProgress = (props) => {
                     const { data, success } = resp.data;
                     const { status } = resp;
                     if (success) {
-                        let student_temp = {
+                        const student_temp = {
                             ...editorDocsProgressState.student
                         };
                         student_temp.generaldocs_threads.push(data);

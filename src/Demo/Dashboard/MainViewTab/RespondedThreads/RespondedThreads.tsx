@@ -43,8 +43,8 @@ const RespondedThreads = (props) => {
         );
     };
 
-    var unread_general_generaldocs;
-    var unread_applications_docthread;
+    let unread_general_generaldocs;
+    let unread_applications_docthread;
 
     if (
         props.student.applications === undefined ||

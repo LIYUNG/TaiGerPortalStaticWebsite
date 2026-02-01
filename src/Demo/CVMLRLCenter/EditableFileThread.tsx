@@ -59,7 +59,7 @@ const EditableFileThread = (props) => {
           });
     const applicationId = props.application?._id;
 
-    const handleAsFinalFileThread = (documenName, isFinal) => {
+    const handleAsFinalFileThread = (documenName: string, isFinal: boolean) => {
         if (isLocked) {
             return;
         }
@@ -84,7 +84,6 @@ const EditableFileThread = (props) => {
         );
     };
 
-    let fileStatus;
     let documenName;
     if (props.application) {
         documenName = props.thread.doc_thread_id?.file_type;
@@ -177,7 +176,7 @@ const EditableFileThread = (props) => {
         </Link>
     );
 
-    fileStatus = (
+    const fileStatus = (
         <Box
             sx={{
                 p: 2,

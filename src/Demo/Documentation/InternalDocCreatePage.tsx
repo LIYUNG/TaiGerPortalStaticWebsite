@@ -121,10 +121,10 @@ const InternalDocCreatePage = (props) => {
                 const { success } = resp.data;
                 const { status } = resp;
                 if (success) {
-                    let documentlists_temp = [
+                    const documentlists_temp = [
                         ...internalDocCreatePageState.documentlists
                     ];
-                    let to_be_delete_doc_idx = documentlists_temp.findIndex(
+                    const to_be_delete_doc_idx = documentlists_temp.findIndex(
                         (doc) =>
                             doc._id.toString() ===
                             internalDocCreatePageState.doc_id_toBeDelete
@@ -201,7 +201,7 @@ const InternalDocCreatePage = (props) => {
                 const { success, data } = resp.data;
                 const { status } = resp;
                 if (success) {
-                    let documentlists_temp = [
+                    const documentlists_temp = [
                         ...internalDocCreatePageState.documentlists
                     ];
                     documentlists_temp.push(data);
@@ -265,7 +265,7 @@ const InternalDocCreatePage = (props) => {
     const documentlist_key = Object.keys(internal_documentation_categories);
 
     const document_list = (cat) => {
-        let sections = {};
+        const sections = {};
         sections[`${cat}`] = internalDocCreatePageState.documentlists.filter(
             (document) => document.category === cat
         );

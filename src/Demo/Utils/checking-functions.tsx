@@ -287,7 +287,7 @@ export const check_german_language_Notneeded = (academic_background) => {
 export const based_documents_init = (student) => {
     const documentlist2_keys = Object.keys(ProfileNameType);
 
-    let object_init = documentlist2_keys.reduce((acc, key) => {
+    const object_init = documentlist2_keys.reduce((acc, key) => {
         acc[key] = DocumentStatusType.Missing;
         return acc;
     }, {});
@@ -806,7 +806,7 @@ export const application_date_calculator = (student, application) => {
         // include Rolling
         return `${application_year}-Rolling`;
     }
-    let deadline_month = parseInt(
+    const deadline_month = parseInt(
         application.programId.application_start.split('-')[0]
     );
 
@@ -837,7 +837,7 @@ export const application_deadline_V2_calculator = (application) => {
         // include Rolling
         return `${application_year}-Rolling`;
     }
-    let deadline_month = parseInt(
+    const deadline_month = parseInt(
         application.programId.application_deadline.split('-')[0]
     );
 
@@ -850,8 +850,8 @@ export const application_deadline_V2_calculator = (application) => {
     return formatApplicationDate(application_year, application_deadline);
 };
 
-export const GetCVDeadlineV2 = (applications) => {
-    var today = new Date();
+export const GetCVDeadlineV2 = (applications: Application[]) => {
+    const today = new Date();
     let daysLeftMin = 3000;
     let CVDeadline = '';
     let daysLeftRollingMin = 0;
@@ -884,7 +884,7 @@ export const GetCVDeadlineV2 = (applications) => {
 };
 
 export const GetCVDeadline = (student) => {
-    var today = new Date();
+    const today = new Date();
     let daysLeftMin = 3000;
     let CVDeadline = '';
     let daysLeftRollingMin = 0;
@@ -1477,7 +1477,7 @@ export const isLanguageNotMatchedInAnyProgram = (student) => {
     const decidedApplications = applications.filter((app: Application) =>
         isProgramDecided(app)
     );
-    for (let app of decidedApplications) {
+    for (const app of decidedApplications) {
         const programLang = app.programId.lang?.toLowerCase();
         if (
             check_german_language_Notneeded(academic_background) &&
@@ -1512,7 +1512,7 @@ export const isEnglishCertificateExpiredBeforeDeadline = (student) => {
         return false;
     }
 
-    for (let app of applications) {
+    for (const app of applications) {
         if (!isProgramDecided(app)) {
             continue;
         }
@@ -2294,7 +2294,7 @@ export const extractTextFromDocx = async (arrayBuffer) => {
     const zip = await JSZip.loadAsync(arrayBuffer);
     const documentXml = await zip.file('word/document.xml')?.async('string');
     // Extract text from the XML content
-    let textContent = documentXml?.replace(/<[^>]+>/g, ''); // Strip HTML tags
+    const textContent = documentXml?.replace(/<[^>]+>/g, ''); // Strip HTML tags
     // Extract header text if present
     let headerText = '';
     const headerXml = await zip
@@ -2317,7 +2317,7 @@ export const extractTextFromDocx = async (arrayBuffer) => {
     return { headerText, textContent, footerText };
 };
 
-export const readPDF = async (file, studentName) => {
+export const readPDF = async (file: File, studentName: string) => {
     const checkPoints = {
         correctFirstname: {
             value: false,

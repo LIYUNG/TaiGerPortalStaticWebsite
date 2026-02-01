@@ -81,7 +81,7 @@ const Message = (props) => {
         }
     });
     useEffect(() => {
-        var initialEditorState = null;
+        let initialEditorState = null;
         if (props.message.message && props.message.message !== '{}') {
             try {
                 initialEditorState = JSON.parse(props.message.message);
@@ -162,10 +162,10 @@ const Message = (props) => {
     if (!messageState.isLoaded && !messageState.editorState) {
         return <Loading />;
     }
-    let firstname = props.message.user_id
+    const firstname = props.message.user_id
         ? props.message.user_id.firstname
         : 'Staff';
-    let lastname = props.message.user_id
+    const lastname = props.message.user_id
         ? props.message.user_id.lastname
         : appConfig.companyName;
     const editable = props.message.user_id

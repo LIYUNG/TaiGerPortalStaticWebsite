@@ -108,7 +108,7 @@ const StudentApplicationsTableTemplate = (props) => {
         e: React.ChangeEvent<HTMLInputElement>
     ) => {
         e.preventDefault();
-        let applying_program_count = e.target.value;
+        const applying_program_count = e.target.value;
         setStudentApplicationsTableTemplateState((prevState) => ({
             ...prevState,
             application_status_changed: true,
@@ -121,7 +121,7 @@ const StudentApplicationsTableTemplate = (props) => {
         application_idx: number
     ) => {
         e.preventDefault();
-        let applications_temp = [
+        const applications_temp = [
             ...studentApplicationsTableTemplateState.student.applications
         ];
         applications_temp[application_idx][e.target.name] = e.target.value;
@@ -146,7 +146,7 @@ const StudentApplicationsTableTemplate = (props) => {
 
     const handleWithdraw = (e, application_idx, programWithdraw = '-') => {
         e.preventDefault();
-        let applications_temp = [
+        const applications_temp = [
             ...studentApplicationsTableTemplateState.student.applications
         ];
         applications_temp[application_idx].closed = programWithdraw;
@@ -324,7 +324,7 @@ const StudentApplicationsTableTemplate = (props) => {
         student_id: string
     ) => {
         e.preventDefault();
-        let applications_temp =
+        const applications_temp =
             studentApplicationsTableTemplateState.student.applications?.map(
                 (application) => ({
                     _id: application._id,
@@ -335,7 +335,7 @@ const StudentApplicationsTableTemplate = (props) => {
                     finalEnrolment: application.finalEnrolment
                 })
             );
-        let applying_program_count =
+        const applying_program_count =
             studentApplicationsTableTemplateState.applying_program_count;
         setStudentApplicationsTableTemplateState((prevState) => ({
             ...prevState,
@@ -429,8 +429,8 @@ const StudentApplicationsTableTemplate = (props) => {
     if (res_status >= 400) {
         return <ErrorPage res_status={res_status} />;
     }
-    var applying_university_info;
-    var today = new Date();
+    let applying_university_info;
+    const today = new Date();
     if (
         studentApplicationsTableTemplateState.student.applications ===
             undefined ||

@@ -75,7 +75,7 @@ const CustomerTicketDetailPageBody = ({ complaintTicket }) => {
     };
 
     const singleExpandtHandler = (idx) => {
-        let accordionKeys = [
+        const accordionKeys = [
             ...customerTicketDetailPageBodyState.accordionKeys
         ];
         accordionKeys[idx] = accordionKeys[idx] !== idx ? idx : -1;
@@ -149,7 +149,7 @@ const CustomerTicketDetailPageBody = ({ complaintTicket }) => {
             ...prevState,
             buttonDisabled: true
         }));
-        var message = JSON.stringify(editorState);
+        const message = JSON.stringify(editorState);
         const formData = new FormData();
 
         if (customerTicketDetailPageBodyState.file) {
@@ -233,10 +233,10 @@ const CustomerTicketDetailPageBody = ({ complaintTicket }) => {
                 const { status } = resp;
                 if (success) {
                     // TODO: remove that message
-                    var new_messages = [
+                    const new_messages = [
                         ...customerTicketDetailPageBodyState.thread.messages
                     ];
-                    let idx =
+                    const idx =
                         customerTicketDetailPageBodyState.thread.messages.findIndex(
                             (message) => message._id.toString() === message_id
                         );

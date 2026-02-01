@@ -206,7 +206,7 @@ export const SingleStudentPageMainContent = ({
                 const { success } = resp.data;
                 const { status } = resp;
                 if (success) {
-                    let student_temp = { ...singleStudentPage.student };
+                    const student_temp = { ...singleStudentPage.student };
                     student_temp.archiv = isArchived;
                     setSingleStudentPage((prevState) => ({
                         ...prevState,

@@ -40,7 +40,7 @@ const Documentation = (props) => {
                 const { data, success } = resp.data;
                 const { status } = resp;
                 if (success) {
-                    var initialEditorState = null;
+                    let initialEditorState = null;
                     const author = data.author;
                     if (data.text) {
                         initialEditorState = JSON.parse(data.text);

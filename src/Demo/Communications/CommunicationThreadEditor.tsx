@@ -35,7 +35,7 @@ const CommunicationThreadEditor = (props) => {
     const { studentId } = useParams();
 
     const { user } = useAuth();
-    let [statedata, setStatedata] = useState({
+    const [statedata, setStatedata] = useState({
         editorState: props.editorState,
         data: ''
     });

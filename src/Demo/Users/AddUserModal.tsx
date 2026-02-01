@@ -20,7 +20,7 @@ const AddUserModal = (props) => {
     });
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
-        var user_information_temp = { ...addUserModal.user_information };
+        const user_information_temp = { ...addUserModal.user_information };
         user_information_temp[e.target.name] = e.target.value;
         setAddUserModal((prevState) => ({
             ...prevState,

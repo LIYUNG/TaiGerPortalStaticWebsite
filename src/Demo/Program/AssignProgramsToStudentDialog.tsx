@@ -62,7 +62,7 @@ export const AssignProgramsToStudentDialog = ({
         setShowMyStudentsOnly(event.target.checked);
     };
 
-    let [studentId, setStudentId] = useState('');
+    const [studentId, setStudentId] = useState('');
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
     const {
         mutate,

@@ -22,15 +22,14 @@ const EditDownloadFiles = (props) => {
         props.submitFile(e, prop);
     };
 
-    let object_init = {};
+    const object_init = {};
     for (let i = 0; i < templatelist.length; i++) {
         object_init[templatelist[i].prop] = DocumentStatusType.Missing;
     }
     for (let i = 0; i < props.templates.length; i++) {
         object_init[props.templates[i].category_name] = 'uploaded';
     }
-    let templatelist2;
-    templatelist2 = templatelist.map((template, i) => {
+    const templatelist2 = templatelist.map((template, i) => {
         return (
             <TableRow key={i + 1}>
                 <TableCell>{template.name}</TableCell>

@@ -41,11 +41,11 @@ const MessageList = (props: MessageListProps) => {
             <MessageCard
                 apiPrefix={props.apiPrefix}
                 documentsthreadId={props.documentsthreadId}
+                handleClickSave={props.handleClickSave}
                 isLoaded={props.isLoaded}
                 key={message._id}
                 message={message}
                 onDeleteSingleMessage={props.onDeleteSingleMessage}
-                handleClickSave={props.handleClickSave}
             />
         );
     });

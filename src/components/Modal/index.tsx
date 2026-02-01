@@ -5,7 +5,6 @@ interface ModalNewProps {
     open: boolean;
     onClose: () => void;
     children: React.ReactNode;
-    size?: string;
     width?: string;
     height?: string;
 }

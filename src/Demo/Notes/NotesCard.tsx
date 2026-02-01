@@ -16,7 +16,6 @@ interface NotesCardProps {
     notes: unknown;
     isLoaded: boolean;
     student_id: string;
-    user: Record<string, unknown>;
 }
 
 const NotesCard = (props: NotesCardProps) => {

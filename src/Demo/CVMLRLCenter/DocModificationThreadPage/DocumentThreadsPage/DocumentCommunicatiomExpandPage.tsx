@@ -466,7 +466,7 @@ const DocumentCommunicationExpandPage = () => {
             );
         });
 
-    let currentCategory = '';
+    const currentCategory = '';
 
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;

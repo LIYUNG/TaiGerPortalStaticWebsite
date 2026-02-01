@@ -19,7 +19,7 @@ const ProgramReportDeleteModal = (props) => {
         });
     const { t } = useTranslation();
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        var temp_ticket = { ...programReportDeleteModal.ticket };
+        const temp_ticket = { ...programReportDeleteModal.ticket };
         temp_ticket[e.target.id] = e.target.value;
         setProgramReportDeleteModalState((prevState) => ({
             ...prevState,

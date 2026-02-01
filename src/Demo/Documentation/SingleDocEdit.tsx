@@ -38,7 +38,7 @@ const SingleDocEdit = ({
 
     const handleChange_category = (e: React.ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
-        var category_temp = { ...singleDocEditState.category };
+        let category_temp = { ...singleDocEditState.category };
         category_temp = e.target.value;
         setSingleDocEdit((prevState) => ({
             ...prevState,
@@ -48,7 +48,7 @@ const SingleDocEdit = ({
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
-        var doc_title_temp = { ...singleDocEditState.doc_title };
+        let doc_title_temp = { ...singleDocEditState.doc_title };
         doc_title_temp = e.target.value;
         setSingleDocEdit((prevState) => ({
             ...prevState,

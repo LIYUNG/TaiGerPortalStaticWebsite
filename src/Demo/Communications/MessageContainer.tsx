@@ -53,7 +53,7 @@ const MessageContainer = (props) => {
     });
 
     useEffect(() => {
-        var initialEditorState = null;
+        let initialEditorState = null;
         if (props.message.message && props.message.message !== '{}') {
             try {
                 initialEditorState = JSON.parse(props.message.message);
@@ -91,10 +91,10 @@ const MessageContainer = (props) => {
             isEdit: false
         }));
     };
-    let firstname = props.message.user_id
+    const firstname = props.message.user_id
         ? props.message.user_id.firstname
         : 'Staff';
-    let lastname = props.message.user_id
+    const lastname = props.message.user_id
         ? props.message.user_id.lastname
         : 'TaiGer';
     const editable = props.message.user_id

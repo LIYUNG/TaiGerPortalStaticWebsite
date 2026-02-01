@@ -140,7 +140,7 @@ const ManagerMainView = (props) => {
             a.application_deadline > b.application_deadline ? 1 : -1
         );
 
-    let header = Object.values(academic_background_header);
+    const header = Object.values(academic_background_header);
 
     return (
         <>

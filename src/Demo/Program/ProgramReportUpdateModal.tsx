@@ -28,7 +28,7 @@ const ProgramReportUpdateModal = (props) => {
     }, [props.ticket]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        var temp_ticket = { ...programReportUpdateModalState.ticket };
+        const temp_ticket = { ...programReportUpdateModalState.ticket };
         temp_ticket[e.target.name] = e.target.value;
         ProgramReportUpdateModalState((prevState) => ({
             ...prevState,

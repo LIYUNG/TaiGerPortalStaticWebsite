@@ -197,7 +197,7 @@ const DocModificationThreadPage = ({
             // Ensure a file is selected
             // TODO: make array
             const checkPromises = Array.from(e.target.files).map((file) => {
-                const extension = file.name.split('.').pop().toLowerCase();
+                const extension = file.name.split('.').pop()?.toLowerCase();
                 const studentName =
                     docModificationThreadPageState.thread.student_id.firstname;
 
@@ -258,7 +258,7 @@ const DocModificationThreadPage = ({
             ...prevState,
             buttonDisabled: true
         }));
-        var message = JSON.stringify(editorState);
+        const message = JSON.stringify(editorState);
         const formData = new FormData();
 
         if (docModificationThreadPageState.file) {
@@ -448,10 +448,10 @@ const DocModificationThreadPage = ({
                 const { status } = resp;
                 if (success) {
                     // TODO: remove that message
-                    var new_messages = [
+                    const new_messages = [
                         ...docModificationThreadPageState.thread.messages
                     ];
-                    let idx =
+                    const idx =
                         docModificationThreadPageState.thread.messages.findIndex(
                             (message) => message._id.toString() === message_id
                         );
@@ -530,7 +530,7 @@ const DocModificationThreadPage = ({
                 const { data, success } = resp.data;
                 const { status } = resp;
                 if (success) {
-                    let essays_temp = {
+                    const essays_temp = {
                         ...docModificationThreadPageState.thread
                     };
                     essays_temp.outsourced_user_id = data.outsourced_user_id; // data is single student updated
@@ -628,7 +628,7 @@ const DocModificationThreadPage = ({
     }
 
     // Only CV, ML RL has instructions and template.
-    let template_obj = templatelist.find(
+    const template_obj = templatelist.find(
         ({ prop, alias }) =>
             prop.includes(thread.file_type.split('_')[0]) ||
             alias.includes(thread.file_type.split('_')[0])

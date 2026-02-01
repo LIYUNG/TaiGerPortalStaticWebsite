@@ -21,7 +21,6 @@ interface GrantManagerModalProps {
         e: React.FormEvent,
         permissions: Record<string, unknown>
     ) => void;
-    user_permissions: unknown[];
 }
 
 const GrantManagerModal = (props: GrantManagerModalProps) => {

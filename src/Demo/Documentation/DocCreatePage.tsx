@@ -126,10 +126,10 @@ const DocCreatePage = (props) => {
                 const { success } = resp.data;
                 const { status } = resp;
                 if (success) {
-                    let documentlists_temp = [
+                    const documentlists_temp = [
                         ...DocCreatePageState.documentlists
                     ];
-                    let to_be_delete_doc_idx = documentlists_temp.findIndex(
+                    const to_be_delete_doc_idx = documentlists_temp.findIndex(
                         (doc) =>
                             doc._id.toString() ===
                             DocCreatePageState.doc_id_toBeDelete
@@ -207,7 +207,7 @@ const DocCreatePage = (props) => {
                 const { success, data } = resp.data;
                 const { status } = resp;
                 if (success) {
-                    let documentlists_temp = [
+                    const documentlists_temp = [
                         ...DocCreatePageState.documentlists
                     ];
                     documentlists_temp.push(data);
@@ -272,7 +272,7 @@ const DocCreatePage = (props) => {
     const documentlist_key = Object.keys(documentation_categories);
 
     const document_list = (cat) => {
-        let sections = {};
+        const sections = {};
         sections[`${cat}`] = DocCreatePageState.documentlists.filter(
             (document) => document.category === cat
         );

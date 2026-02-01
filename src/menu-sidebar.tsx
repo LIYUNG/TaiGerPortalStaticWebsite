@@ -46,7 +46,7 @@ export interface MenuItem {
     tenant?: string;
 }
 
-let application_overview: MenuItem[] = [
+const application_overview: MenuItem[] = [
     {
         id: 'applications_overview_stidemt',
         title: 'My Applications',

@@ -29,8 +29,6 @@ export interface EditorSimpleProps {
     imageEnable?: boolean;
     thread?: { _id: string; student_id: { _id: string } };
     handleEditorChange?: (outputData: EditorStateData) => void;
-    handleClickSave?: (e: MouseEvent, editorState: EditorStateData) => void;
-    setStatedata?: Dispatch<SetStateAction<{ editorState: EditorStateData }>>;
 }
 
 const EditorSimple = (props: EditorSimpleProps) => {

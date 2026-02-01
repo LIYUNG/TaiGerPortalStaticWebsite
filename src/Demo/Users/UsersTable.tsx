@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { Navigate, Link as LinkDom } from 'react-router-dom';
 import {
     Tabs,
@@ -50,7 +50,7 @@ const UsersTable = () => {
     });
     const [value, setValue] = useState(0);
 
-    const handleChange = (event: ChangeEvent<{}>, newValue: number) => {
+    const handleChange = (_event: SyntheticEvent, newValue: number) => {
         setValue(newValue);
     };
 

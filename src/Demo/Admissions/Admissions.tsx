@@ -18,7 +18,7 @@ import Loading from '../../components/Loading/Loading';
 import { a11yProps, CustomTabPanel } from '../../components/Tabs';
 import { getAdmissionsQuery } from '../../api/query';
 import { BreadcrumbsNavigation } from '../../components/BreadcrumbsNavigation/BreadcrumbsNavigation';
-import { ChangeEvent, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 const Admissions = () => {
     const { user } = useAuth();
@@ -54,7 +54,7 @@ const Admissions = () => {
         setValue(initialTabIndex);
     }, [initialTabIndex]);
 
-    const handleChange = (event: ChangeEvent<{}>, newValue: number) => {
+    const handleChange = (_event: SyntheticEvent, newValue: number) => {
         setValue(newValue);
         // Update the URL with the selected tab while preserving existing params
         const params = new URLSearchParams(location.search);

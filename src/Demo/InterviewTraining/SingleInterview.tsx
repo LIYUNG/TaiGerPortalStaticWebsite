@@ -390,7 +390,7 @@ const InterviewMetadataSidebar = ({
 
     const handleClickSave = async (e, editorState) => {
         e.preventDefault();
-        var notes = JSON.stringify(editorState);
+        const notes = JSON.stringify(editorState);
         const { data, status } = await updateInterview(
             interview._id.toString(),
             {

@@ -26,6 +26,26 @@ export interface CalendarEventType {
     provider?: { firstname?: string; lastname?: string };
 }
 
+interface CalendarEventComponentProps {
+    event: CalendarEventType;
+}
+
+const CalendarEventComponent = ({
+    event
+}: CalendarEventComponentProps): React.ReactElement => {
+    const { user } = useAuth();
+    return user && is_TaiGer_Student(user as UserProps) ? (
+        <span>
+            {event.start.toLocaleTimeString()} {NoonNightLabel(event.start)}{' '}
+        </span>
+    ) : (
+        <span>
+            {event.start.toLocaleTimeString()} {NoonNightLabel(event.start)}{' '}
+            {event.title} - {event.description}
+        </span>
+    );
+};
+
 interface MyCalendarProps {
     BookButtonDisable: boolean;
     events: CalendarEventType[];
@@ -215,19 +235,7 @@ const MyCalendar = ({
         <Box sx={calendarStyles}>
             <BigCalendar
                 components={{
-                    event: ({ event }: { event: CalendarEventType }) =>
-                        user && is_TaiGer_Student(user as UserProps) ? (
-                            <span>
-                                {event.start.toLocaleTimeString()}{' '}
-                                {NoonNightLabel(event.start)}{' '}
-                            </span>
-                        ) : (
-                            <span>
-                                {event.start.toLocaleTimeString()}{' '}
-                                {NoonNightLabel(event.start)}
-                                {event.title} - {event.description}
-                            </span>
-                        )
+                    event: CalendarEventComponent
                 }}
                 defaultView="month"
                 endAccessor="end"

@@ -553,12 +553,12 @@ const OfficeHours = () => {
                             </DialogTitle>
                             <DialogContent>
                                 <TextField
-                                    fullWidth
-                                    inputProps={{ maxLength: 2000 }}
                                     error={
                                         (event_temp?.description?.length ?? 0) >
                                         2000
                                     }
+                                    fullWidth
+                                    inputProps={{ maxLength: 2000 }}
                                     minRows={5}
                                     multiline
                                     onChange={(e) => handleUpdateDescription(e)}
@@ -836,9 +836,9 @@ const OfficeHours = () => {
                     </DialogTitle>
                     <DialogContent>
                         <TextField
+                            error={(newDescription?.length ?? 0) > 2000}
                             fullWidth
                             inputProps={{ maxLength: 2000 }}
-                            error={(newDescription?.length ?? 0) > 2000}
                             minRows={5}
                             multiline
                             onChange={handleChange}
