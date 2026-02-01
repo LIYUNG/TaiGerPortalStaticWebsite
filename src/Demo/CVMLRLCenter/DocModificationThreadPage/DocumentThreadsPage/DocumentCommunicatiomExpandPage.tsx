@@ -64,7 +64,7 @@ const categories = {
     Agents: ['Supplementary_Form', 'Curriculum_Analysis']
 };
 
-const getCategory = (fileType) => {
+const getCategory = (fileType: string) => {
     for (const [category, types] of Object.entries(categories)) {
         if (types.includes(fileType)) {
             return category;
@@ -83,7 +83,7 @@ const getStudentMetricsQuery = () => ({
     cacheTime: 10 * 60 * 1000 // 10 minutes
 });
 
-const getThreadByStudentQuery = (studentId) => ({
+const getThreadByStudentQuery = (studentId: string) => ({
     queryKey: ['threadsByStudent', studentId],
     queryFn: async () => {
         // await new Promise((resolve) => setTimeout(resolve, 10000));

@@ -24,6 +24,7 @@ import { Link as LinkDom } from 'react-router-dom';
 import { getStudentAndDocLinksQuery } from '../../../../api/query';
 import { application_deadline_V2_calculator } from '../../../Utils/checking-functions';
 import DEMO from '../../../../store/constant';
+import { Application } from '../../../../api/types';
 
 export const GeneralRLRequirementsTab = ({
     studentId
@@ -51,7 +52,7 @@ export const GeneralRLRequirementsTab = ({
 
     // decided field in sample data: "-" = pending/undecided, "O" = decided, "X" = excluded
     const relevantApplications = useMemo(() => {
-        return (apps || []).filter((app) => {
+        return (apps || []).filter((app: Application) => {
             const program = app.programId || null;
             const generalRLNotRequired =
                 !app ||
@@ -64,13 +65,14 @@ export const GeneralRLRequirementsTab = ({
     }, [apps]);
 
     const rlRows = useMemo(() => {
-        const rowsWithMeta = relevantApplications.map((app) => {
+        const rowsWithMeta = relevantApplications.map((app: Application) => {
             const program = app.programId || {};
             const school = program.school || '';
             const programName = program.program_name || '';
             const rlRequiredRaw = program.rl_required; // "0","1","2"
             const rlRequired = normalizeCount(rlRequiredRaw);
-            const rlText = (program.rl_requirements || '').trim();
+            const rlText =
+                (program.rl_requirements as string | undefined)?.trim() || '';
             const decided = (app.decided || '-').toUpperCase();
             const deadlineDisplay = application_deadline_V2_calculator(app);
             const programLinkTarget = program?._id
