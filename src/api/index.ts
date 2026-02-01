@@ -8,11 +8,9 @@ import {
     request
 } from './request';
 import type {
-    ApiResponse,
     LoginCredentials,
     ResetPasswordPayload,
     ForgotPasswordPayload,
-    ActivationPayload,
     AuthUserData,
     ApiPayload,
     QueryString,
@@ -23,7 +21,6 @@ import type {
     DocumentThreadId,
     MessageId,
     SurveyId,
-    EventId,
     TicketId,
     MeetingId,
     InterviewId,
@@ -105,10 +102,10 @@ export const getStudents = () => request.get(`/api/students`);
 export const getStudentsV3 = (queryString: QueryString) =>
     getData(`/api/students/v3?${queryString}`);
 
-export const getStudent = (studentId) =>
+export const getStudent = (studentId: string) =>
     request.get(`/api/students/${studentId}`);
 
-export const getApplications = (queryString) =>
+export const getApplications = (queryString: QueryString) =>
     getData(`/api/applications?${queryString}`);
 
 export const getMyStudentsApplications = ({
@@ -177,10 +174,10 @@ export const updateStudentApplication = (
 export const deleteApplicationStudentV2 = (applicationId: ApplicationId) =>
     request.delete(`/api/applications/application/${applicationId}`);
 
-export const refreshApplication = (applicationId) =>
+export const refreshApplication = (applicationId: string) =>
     postData(`/api/applications/${applicationId}/refresh`, {});
 
-export const getStudentUniAssistV2 = ({ studentId }) =>
+export const getStudentUniAssistV2 = ({ studentId }: { studentId: string }) =>
     getData(`/api/uniassist/${studentId}`);
 
 export const getArchivStudents = (TaiGerStaffId?: string) =>
@@ -545,10 +542,10 @@ export const getInternalDocumentationPage = () =>
 export const updateInternalDocumentationPage = (doc: ApiPayload) =>
     request.put(`/api/docs/taiger/internal/confidential`, doc);
 // External docs
-export const uploadImage = (file: File) =>
-    request.post(`/api/docs/upload/image`, file);
-export const uploadDocDocs = (file: File) =>
-    request.post(`/api/docs/upload/docs`, file);
+export const uploadImage = (formData: FormData) =>
+    request.post(`/api/docs/upload/image`, formData);
+export const uploadDocDocs = (formData: FormData) =>
+    request.post(`/api/docs/upload/docs`, formData);
 export const getCategorizedDocumentationPage = (category: string) =>
     request.get(`/api/docs/pages/${category}`);
 export const updateDocumentationPage = (category: string, doc: ApiPayload) =>
@@ -600,10 +597,10 @@ export const deleteProgramV2 = ({ program_id }: { program_id: string }) =>
 export const createProgramV2 = ({ program }: { program: ApiPayload }) =>
     postData('/api/programs', program);
 
-export const updateProgram = (program: { _id: string; [key: string]: unknown }) =>
+export const updateProgram = (program: { _id: string;[key: string]: unknown }) =>
     request.put(`/api/programs/${program._id}`, program);
 
-export const updateProgramV2 = ({ program }: { program: { _id: string; [key: string]: unknown } }) =>
+export const updateProgramV2 = ({ program }: { program: { _id: string;[key: string]: unknown } }) =>
     putData(`/api/programs/${program._id}`, program);
 
 export const getProgramChangeRequests = (programId: string) =>
@@ -612,7 +609,7 @@ export const getProgramChangeRequests = (programId: string) =>
 export const reviewProgramChangeRequests = (requestId: string) =>
     request.post(`/api/programs/review-changes/${requestId}`);
 
-export const refreshProgram = (programId) =>
+export const refreshProgram = (programId: ProgramId) =>
     postData(`/api/programs/${programId}/refresh`, {});
 
 // Docs APIs
@@ -634,11 +631,11 @@ export const getApplicationArticle = () => getArticle('application');
 export const uploadDocumentThreadImage = (
     documentsthreadId: string,
     studentId: StudentId,
-    file: File
+    formData: FormData
 ) =>
     request.post(
         `/api/document-threads/image/${documentsthreadId}/${studentId}`,
-        file
+        formData
     );
 
 export const putOriginAuthorConfirmedByStudent = (
@@ -744,16 +741,16 @@ export const IgnoreMessageV2 = ({
         message
     );
 
-export const getSurveyInputs = (documentsthreadId) =>
+export const getSurveyInputs = (documentsthreadId: string) =>
     request.get(`/api/document-threads/${documentsthreadId}/survey-inputs`);
 
-export const putSurveyInput = (surveyId, input, informEditor) =>
+export const putSurveyInput = (surveyId: string, input: ApiPayload, informEditor: boolean) =>
     request.put(`/api/document-threads/survey-input/${surveyId}`, {
         input,
         informEditor
     });
 
-export const postSurveyInput = (input, informEditor) =>
+export const postSurveyInput = (input: ApiPayload, informEditor: boolean) =>
     request.post(`/api/document-threads/survey-input/`, {
         input,
         informEditor
@@ -801,27 +798,27 @@ export const initApplicationMessageThread = (
     );
 
 // remove Banner/notification
-export const updateBanner = (notification_key) =>
+export const updateBanner = (notification_key: string) =>
     request.post(`/api/account/student/notifications`, {
         notification_key
     });
 
-export const updateAgentBanner = (notification_key, student_id) =>
+export const updateAgentBanner = (notification_key: string, student_id: string) =>
     request.post(`/api/account/agent/notifications`, {
         notification_key,
         student_id
     });
 
 //Survey:
-export const updateAcademicBackground = (university, student_id) =>
+export const updateAcademicBackground = (university: string, student_id: string) =>
     request.post(`/api/account/survey/university/${student_id}`, {
         university
     });
-export const updateLanguageSkill = (language, student_id) =>
+export const updateLanguageSkill = (language: string, student_id: string) =>
     request.post(`/api/account/survey/language/${student_id}`, { language });
 export const updateApplicationPreference = (
-    application_preference,
-    student_id
+    application_preference: ApiPayload,
+    student_id: StudentId
 ) =>
     request.post(`/api/account/survey/preferences/${student_id}`, {
         application_preference
@@ -829,25 +826,25 @@ export const updateApplicationPreference = (
 
 export const getMyAcademicBackground = () => request.get('/api/account/survey');
 
-export const getStudentNotes = (student_id) =>
+export const getStudentNotes = (student_id: string) =>
     request.get(`/api/notes/${student_id}`);
-export const updateStudentNotes = (student_id, notes) =>
+export const updateStudentNotes = (student_id: string, notes: ApiPayload) =>
     request.put(`/api/notes/${student_id}`, { notes });
 
 // Time Slot events:
 export const getActiveEventsNumber = () => request.get(`/api/events/ping`);
-export const getEvents = (queryString) =>
+export const getEvents = (queryString: QueryString) =>
     request.get(`/api/events?${queryString}`);
-export const getBookedEvents = ({ startTime, endTime }) =>
+export const getBookedEvents = ({ startTime, endTime }: { startTime: string, endTime: string }) =>
     request.get(`/api/events/booked?startTime=${startTime}&endTime=${endTime}`);
-export const postEvent = (event) => postData(`/api/events`, event);
-export const confirmEvent = (event_id, updated_event) =>
+export const postEvent = (event: ApiPayload) => postData(`/api/events`, event);
+export const confirmEvent = (event_id: string, updated_event: ApiPayload) =>
     request.put(`/api/events/${event_id}/confirm`, updated_event);
-export const updateEvent = (event_id, updated_event) =>
+export const updateEvent = (event_id: string, updated_event: ApiPayload) =>
     request.put(`/api/events/${event_id}`, updated_event);
-export const deleteEvent = (event_id) =>
+export const deleteEvent = (event_id: string) =>
     request.delete(`/api/events/${event_id}`);
-export const updateOfficehours = (user_id, officehours, timezone) =>
+export const updateOfficehours = (user_id: string, officehours: ApiPayload, timezone: string) =>
     request.put(`/api/account/profile/officehours/${user_id}`, {
         officehours,
         timezone
@@ -865,31 +862,31 @@ export const getStatisticsResponseTimeV2 = () =>
     getData('/api/teams/statistics/response-time');
 export const getTasksOverview = () => getData('/api/teams/tasks-overview');
 export const getIsManager = () => getData('/api/teams/is-manager');
-export const getResponseIntervalByStudent = (studentId) =>
+export const getResponseIntervalByStudent = (studentId: string) =>
     request.get(`/api/teams/response-interval/${studentId}`);
 
-export const getAgentProfile = (agent_id) =>
+export const getAgentProfile = (agent_id: string) =>
     request.get(`/api/agents/profile/${agent_id}`);
-export const getExpense = (taiger_user_id) =>
+export const getExpense = (taiger_user_id: string) =>
     request.get(`/api/expenses/users/${taiger_user_id}`);
-export const updateUserPermission = (taiger_user_id, permissions) =>
+export const updateUserPermission = (taiger_user_id: string, permissions: ApiPayload) =>
     request.post(`/api/permissions/${taiger_user_id}`, permissions);
 
 //Personal Data:
-export const updatePersonalData = (user_id, personaldata) =>
+export const updatePersonalData = (user_id: string, personaldata: ApiPayload) =>
     request.post(`/api/account/profile/${user_id}`, { personaldata });
 
-export const updateCredentials = (credentials, email, password) =>
+export const updateCredentials = (credentials: ApiPayload, email: string, password: string) =>
     request.post(`/api/account/credentials`, { credentials, email, password });
 
 //TaiGer AI:
-export const processProgramList = (programId) =>
+export const processProgramList = (programId: ProgramId) =>
     request.get(`/api/taigerai/program/${programId}`);
-export const TaiGerAiGeneral = (prompt) =>
+export const TaiGerAiGeneral = (prompt: string) =>
     request.post(`/api/taigerai/general`, {
         prompt
     });
-export const TaiGerAiGeneral2 = (prompt) =>
+export const TaiGerAiGeneral2 = (prompt: string) =>
     fetch(`${BASE_URL}/api/taigerai/general`, {
         method: 'post', // HTTP POST to send query to server
         headers: {
@@ -911,7 +908,7 @@ export const TaiGerChatAssistant = (prompt: string, studentId: StudentId) =>
         body: JSON.stringify({ prompt }) // server is expecting JSON
     });
 
-export const cvmlrlAi2 = (prompt) =>
+export const cvmlrlAi2 = (prompt: string) =>
     fetch(`${BASE_URL}/api/taigerai/cvmlrl`, {
         method: 'post', // HTTP POST to send query to server
         headers: {
@@ -1057,7 +1054,7 @@ export const getCRMLead = (leadId: LeadId) =>
     request.get(`/api/crm/leads/${leadId}`);
 export const getLeadIdByUserId = (userId: UserId) =>
     request.get(`/api/crm/students/${userId}/lead`);
-export const createLeadFromStudent = (userId) =>
+export const createLeadFromStudent = (userId: UserId) =>
     request.post(`/api/crm/students/${userId}/lead`);
 export const getCRMMeetings = () => request.get(`/api/crm/meetings`);
 export const getCRMMeeting = (meetingId: MeetingId) =>
@@ -1073,7 +1070,7 @@ export const createCRMDeal = (payload: ApiPayload) =>
 export const updateCRMDeal = (dealId: string, payload: ApiPayload) =>
     request.put(`/api/crm/deals/${dealId}`, payload);
 export const getCRMSalesReps = () => request.get(`/api/crm/sales-reps`);
-export const instantInviteTA = (meetingSummary, meetingLink) =>
+export const instantInviteTA = (meetingSummary: string, meetingLink: string) =>
     request.post(`/api/crm/instant-invite`, {
         meetingSummary,
         meetingLink

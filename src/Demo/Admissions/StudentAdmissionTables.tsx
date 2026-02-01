@@ -1,4 +1,4 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import { Box, Tabs, Tab } from '@mui/material';
 // import { useTranslation } from 'react-i18next';
 import i18next from 'i18next';
@@ -13,12 +13,12 @@ import { getActiveStudentsQuery } from '../../api/query';
 
 const StudentAdmissionsTables = () => {
     // const { t } = useTranslation();
-    const [tab, setTab] = React.useState(0);
+    const [tab, setTab] = useState(0);
     const location = useLocation();
     const navigate = useNavigate();
     const STUDENT_TAB_KEYS = ['risk', 'final'];
 
-    React.useEffect(() => {
+    useEffect(() => {
         const params = new URLSearchParams(location.search);
         const key = (params.get('studentTab') || '').toLowerCase();
         const idx = STUDENT_TAB_KEYS.indexOf(key);

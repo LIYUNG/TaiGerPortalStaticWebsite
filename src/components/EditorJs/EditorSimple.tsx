@@ -1,6 +1,4 @@
-import { useEffect, useRef, type MouseEvent } from 'react';
-import { Dispatch } from 'react';
-import { SetStateAction } from 'react';
+import { useEffect, useRef } from 'react';
 import EditorJS from '@editorjs/editorjs';
 import Header from '@editorjs/header';
 import List from '@editorjs/list';
@@ -47,7 +45,7 @@ const EditorSimple = (props: EditorSimpleProps) => {
         }) => {
             if (!props.readOnly && props.handleEditorChange) {
                 api.saver.save().then((outputData) => {
-                    props.handleEditorChange!(outputData);
+                    props.handleEditorChange?.(outputData);
                 });
             }
         },

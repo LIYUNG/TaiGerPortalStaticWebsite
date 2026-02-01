@@ -4,6 +4,9 @@ import { Link as LinkDom } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
     MaterialReactTable,
+    MRT_ColumnDef,
+    MRT_Row,
+    MRT_SortingFn,
     useMaterialReactTable
 } from 'material-react-table';
 import {
@@ -55,7 +58,7 @@ const UsersList = (props) => {
     });
 
     // Format date for display (e.g., "Mar 4, 2024")
-    const formatDate = (date) => {
+    const formatDate = (date: string | number | Date) => {
         if (!date) return '-';
         const d = new Date(date);
         return d.toLocaleDateString('en-US', {
@@ -76,7 +79,7 @@ const UsersList = (props) => {
         return ``;
     };
 
-    const columns = useMemo(
+    const columns = useMemo<MRT_ColumnDef<Record<string, unknown>>[]>(
         () => [
             {
                 accessorKey: 'user',
@@ -197,7 +200,7 @@ const UsersList = (props) => {
                     );
                 },
                 enableSorting: true,
-                sortingFn: (rowA, rowB) => {
+                sortingFn: (rowA, rowB): number => {
                     const dateA = rowA.original.lastLoginAt
                         ? new Date(rowA.original.lastLoginAt).getTime()
                         : 0;

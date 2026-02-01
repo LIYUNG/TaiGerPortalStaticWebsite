@@ -1,5 +1,3 @@
-import React from 'react';
-
 import EditableFileThread from './EditableFileThread';
 
 const ManualFilesList = (props) => {

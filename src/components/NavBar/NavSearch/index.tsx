@@ -184,7 +184,7 @@ const NavSearch = () => {
             {isErrorTerm ? (
                 <ModalMain
                     ConfirmError={ConfirmError}
-                    res_modal_message={statedata.res_modal_message}
+                    res_modal_message={statedata.res_modal_message as string}
                     res_modal_status={statedata.res_modal_status}
                 />
             ) : null}

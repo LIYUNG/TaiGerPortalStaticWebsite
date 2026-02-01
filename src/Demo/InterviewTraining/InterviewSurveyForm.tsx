@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect, useState, type ChangeEvent } from 'react';
 import { Box, Paper, Container, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
@@ -30,11 +30,11 @@ const InterviewSurveyForm = () => {
     const { t } = useTranslation();
     const { user } = useAuth();
 
-    const [currentStep, setCurrentStep] = React.useState(0);
-    const [isLoading, setIsLoading] = React.useState(false);
-    const [isChanged, setIsChanged] = React.useState(false);
-    const [isModalOpen, setIsModalOpen] = React.useState(false);
-    const [values, setValues] = React.useState({
+    const [currentStep, setCurrentStep] = useState(0);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isChanged, setIsChanged] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [values, setValues] = useState({
         interviewRating: '',
         informationClarity: '',
         trainerFriendliness: '',
@@ -42,9 +42,9 @@ const InterviewSurveyForm = () => {
         interviewQuestions: '',
         interviewFeedback: ''
     });
-    const [validationErrors, setValidationErrors] = React.useState([]);
-    const [interview, setInterview] = React.useState({});
-    const [interviewSurveyState, setInterviewSurveyState] = React.useState({
+    const [validationErrors, setValidationErrors] = useState([]);
+    const [interview, setInterview] = useState({});
+    const [interviewSurveyState, setInterviewSurveyState] = useState({
         isLoaded: false,
         res_status: 0
     });
@@ -133,7 +133,7 @@ const InterviewSurveyForm = () => {
         }
     };
 
-    const handleChange = (event) => {
+    const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target;
         console.log('handleChange called:', { name, value, event });
         if (
@@ -306,7 +306,7 @@ const InterviewSurveyForm = () => {
             case 0:
                 return (
                     <InterviewExperienceStep
-                        disabled={values.isFinal}
+                        disabled={values.isFinal as boolean}
                         onChange={handleChange}
                         t={t}
                         values={values}

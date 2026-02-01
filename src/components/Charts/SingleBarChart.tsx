@@ -1,4 +1,3 @@
-import React from 'react';
 import { BarChart } from '@mui/x-charts/BarChart';
 
 interface SingleBarChartProps {
@@ -27,8 +26,7 @@ const SingleBarChart = ({
                 {
                     data: labels,
                     scaleType: 'band',
-                    id: 'axis2',
-                    interval: 0
+                    id: 'axis2'
                 }
             ]}
             yAxis={[

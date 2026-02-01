@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card, Typography, Box } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { isProgramDecided } from '@taiger-common/core';

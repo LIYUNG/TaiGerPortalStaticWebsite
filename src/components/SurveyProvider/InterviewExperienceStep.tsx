@@ -1,4 +1,3 @@
-import React from 'react';
 import { Box, Typography, Divider } from '@mui/material';
 import StarRating from './StarRating';
 

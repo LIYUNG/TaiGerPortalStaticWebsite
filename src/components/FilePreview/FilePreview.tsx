@@ -1,4 +1,3 @@
-import React from 'react';
 import DownloadIcon from '@mui/icons-material/Download';
 import { Button } from '@mui/material';
 import i18next from 'i18next';

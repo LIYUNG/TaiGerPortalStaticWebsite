@@ -1,4 +1,4 @@
-import React from 'react';
+import { type ChangeEvent } from 'react';
 import { Box, Typography, Divider, TextField } from '@mui/material';
 
 export interface FinalThoughtsValues {
@@ -7,7 +7,7 @@ export interface FinalThoughtsValues {
 
 export interface FinalThoughtsStepProps {
     values: FinalThoughtsValues;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onChange: (e: ChangeEvent<HTMLInputElement>) => void;
     disabled?: boolean;
 }
 

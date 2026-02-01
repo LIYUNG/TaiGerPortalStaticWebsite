@@ -27,7 +27,11 @@ import ChildLoading from '../../../../components/Loading/ChildLoading';
 import { useRef } from 'react';
 import { useAuth } from '../../../../components/AuthProvider';
 
-export const EmbeddedThreadComponent = ({ setThreadId }) => {
+export const EmbeddedThreadComponent = ({
+    setThreadId
+}: {
+    setThreadId: (threadId: string | null) => void;
+}) => {
     const { documentsthreadId } = useParams();
     const theme = useTheme();
     const { user } = useAuth();
@@ -36,7 +40,7 @@ export const EmbeddedThreadComponent = ({ setThreadId }) => {
     const { t } = useTranslation();
 
     const { data, isLoading, error } = useQuery(
-        getMessagThreadQuery(documentsthreadId)
+        getMessagThreadQuery(documentsthreadId ?? '')
     );
 
     if (isLoading) {
@@ -45,13 +49,13 @@ export const EmbeddedThreadComponent = ({ setThreadId }) => {
     if (error) {
         return <ErrorPage />;
     }
-    const thread = data.data?.data;
-    const deadline = data.data?.deadline;
-    const agents = data.data?.agents;
-    const conflict_list = data.data?.conflict_list;
-    const editors = data.data?.editors;
-    const threadAuditLog = data.data?.threadAuditLog;
-    const similarThreads = data.data?.similarThreads;
+    const thread = data?.data?.data;
+    const deadline = data?.data?.deadline;
+    const agents = data?.data?.agents;
+    const conflict_list = data?.data?.conflict_list;
+    const editors = data?.data?.editors;
+    const threadAuditLog = data?.data?.threadAuditLog;
+    const similarThreads = data?.data?.similarThreads;
     const studentName = `${thread.student_id.firstname} ${thread.student_id.lastname}`;
     const schoolName = thread.program_id?.school;
     const programName = thread.program_id?.program_name;

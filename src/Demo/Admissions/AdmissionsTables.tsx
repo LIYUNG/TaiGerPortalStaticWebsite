@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Tabs, Tab, Box } from '@mui/material';
 import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';

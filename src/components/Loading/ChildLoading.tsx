@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
 import { Box, Typography } from '@mui/material';
 import i18next from 'i18next';

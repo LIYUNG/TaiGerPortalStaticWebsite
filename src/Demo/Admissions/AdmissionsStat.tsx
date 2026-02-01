@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import { Link } from '@mui/material';
 import PropTypes from 'prop-types';

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, type ChangeEvent, type MouseEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link as LinkDom, useNavigate } from 'react-router-dom';
 import {
@@ -97,7 +97,10 @@ const AddInterview = () => {
         }));
     };
 
-    const handleClickSave = (e: React.MouseEvent<HTMLElement>, editorState: unknown) => {
+    const handleClickSave = (
+        e: MouseEvent<HTMLElement>,
+        editorState: unknown
+    ) => {
         e.preventDefault();
         if (
             !interviewTrainingState.interviewData.program_id ||
@@ -147,7 +150,7 @@ const AddInterview = () => {
         setAddInterviewState((state) => ({ ...state, in_edit_mode: false }));
     };
 
-    const handleChange_AddInterview = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange_AddInterview = (e: ChangeEvent<HTMLInputElement>) => {
         if (e.target.name === 'student') {
             setAddInterviewState((prevState) => ({
                 ...prevState,

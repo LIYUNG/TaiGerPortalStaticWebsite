@@ -1,4 +1,4 @@
-import React from 'react';
+import { type ChangeEvent } from 'react';
 import { Box, Typography, Divider, TextField } from '@mui/material';
 
 export interface ProgramFeedbackValues {
@@ -7,7 +7,7 @@ export interface ProgramFeedbackValues {
 
 export interface ProgramFeedbackStepProps {
     values: ProgramFeedbackValues;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onChange: (e: ChangeEvent<HTMLInputElement>) => void;
     disabled?: boolean;
 }
 

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import { Card, Link, Box, Typography } from '@mui/material';
 import { FileIcon, defaultStyles } from 'react-file-icon';

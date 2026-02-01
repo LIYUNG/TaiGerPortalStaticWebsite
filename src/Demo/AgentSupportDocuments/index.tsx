@@ -89,7 +89,7 @@ const AgentSupportDocuments = () => {
         );
     }, []);
 
-    const handleFavoriteToggle = (id) => {
+    const handleFavoriteToggle = (id: string) => {
         const updatedOpenTasksArr = indexState.open_tasks_arr?.map((row) =>
             row.id === id
                 ? {

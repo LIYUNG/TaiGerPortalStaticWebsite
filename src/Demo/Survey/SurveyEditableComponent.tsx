@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, type MouseEvent } from 'react';
 import {
     Box,
     Button,
@@ -112,7 +112,7 @@ const SurveyEditableComponent = (props) => {
         }));
     };
 
-    const handleUpdateDocLink = (e: React.MouseEvent<HTMLElement>) => {
+    const handleUpdateDocLink = (e: MouseEvent<HTMLElement>) => {
         e.preventDefault();
         setSurveyEditableComponentState((prevState) => ({
             ...prevState,

@@ -21,7 +21,7 @@ import ExpandMore from '@mui/icons-material/ExpandMore';
 import type { Theme } from '@mui/material/styles';
 
 import { appConfig } from '../../config';
-import { MenuSidebar, type MenuItem } from '../../menu-sidebar';
+import { MenuSidebar } from '../../menu-sidebar';
 import { useAuth } from '../AuthProvider';
 import { useTranslation } from 'react-i18next';
 import Footer from '../Footer/Footer';

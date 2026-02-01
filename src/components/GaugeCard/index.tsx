@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, Stack } from '@mui/material';
-import { Gauge, gaugeClasses } from '@mui/x-charts';
+import { Gauge, GaugeFormatterParams, gaugeClasses } from '@mui/x-charts';
 import { useTheme } from '@mui/material/styles';
 
 interface GaugeCardProps {
@@ -88,7 +88,6 @@ const GaugeCard = ({
                         {...settings}
                         {...GaugeProps}
                         endAngle={endAngle}
-                        size={gaugeSize}
                         startAngle={startAngle}
                         sx={{
                             [`& .${gaugeClasses.valueArc}`]: {
@@ -98,9 +97,13 @@ const GaugeCard = ({
                                 fontSize: 30,
                                 fontWeight: 'bold'
                             },
+                            width: gaugeSize,
+                            height: gaugeSize,
                             ...(GaugeProps.sx as object)
                         }}
-                        text={({ value }: { value: number }) => `${value}%`}
+                        text={(params: GaugeFormatterParams) =>
+                            `${params.value}%`
+                        }
                         value={score}
                     />
                 </Stack>

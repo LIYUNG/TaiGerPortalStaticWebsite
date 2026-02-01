@@ -28,17 +28,11 @@ import {
 import { useAuth } from '../AuthProvider';
 import { useSnackBar } from '../../contexts/use-snack-bar';
 import DEMO from '../../store/constant';
+import { type IApplication, type IProgram } from '@taiger-common/model';
+import { ApplicationId, ProgramId } from '../../api/types';
 
 interface ApplicationLockControlProps {
-    application: {
-        _id?: string | { toString: () => string };
-        programId?: {
-            _id?: string | { toString: () => string };
-            country?: string;
-            [key: string]: unknown;
-        };
-        [key: string]: unknown;
-    };
+    application: IApplication;
     onLockChange?: () => void;
 }
 
@@ -56,11 +50,7 @@ const ApplicationLockControl = ({
         return null;
     }
 
-    const program = application.programId as {
-        _id?: string | { toString: () => string };
-        country?: string;
-        [key: string]: unknown;
-    };
+    const program = application.programId as unknown as IProgram;
     const countryCode = program?.country
         ? String(program.country).toLowerCase()
         : null;
@@ -90,7 +80,9 @@ const ApplicationLockControl = ({
     const handleUnlock = async (): Promise<void> => {
         setIsLoading(true);
         try {
-            const response = await refreshApplication(application._id);
+            const response = await refreshApplication(
+                application._id as ApplicationId
+            );
             if (response?.success) {
                 setOpenDialog(false);
                 window.location.reload();
@@ -120,7 +112,7 @@ const ApplicationLockControl = ({
         }
     };
 
-    const programId = program?._id?.toString?.() ?? (program?._id as string);
+    const programId = program?._id?.toString?.() ?? (program?._id as ProgramId);
     const programLink = programId ? DEMO.SINGLE_PROGRAM_LINK(programId) : null;
 
     const canUseLockControls =

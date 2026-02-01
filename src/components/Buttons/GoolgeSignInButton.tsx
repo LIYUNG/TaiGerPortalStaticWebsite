@@ -1,4 +1,3 @@
-import React from 'react';
 import { Button, SvgIcon } from '@mui/material';
 import { googleOAuthClientId, googleOAuthRedirectUrl } from '../../env';
 

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import { SyntheticEvent, useMemo, useState } from 'react';
 import { Link, Tabs, Tab, Box, Typography, Card, Popover } from '@mui/material';
 import PropTypes from 'prop-types';
 import { Link as LinkDom } from 'react-router-dom';
@@ -52,12 +52,12 @@ const ApplicationOverviewTabs = ({ students: stds, applications }) => {
         students: stds
     });
 
-    const handleChange = (event, newValue) => {
+    const handleChange = (_event: SyntheticEvent, newValue: number) => {
         setValue(newValue);
     };
 
-    const handleRowClick = (row, event) => {
-        setPopoverAnchorEl(event.currentTarget);
+    const handleRowClick = (row: any, event: MouseEvent) => {
+        setPopoverAnchorEl(event.currentTarget as HTMLElement);
         setSelectedRowData(row);
     };
 

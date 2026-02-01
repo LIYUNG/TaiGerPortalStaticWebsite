@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState } from 'react';
 import { Box, IconButton, Typography } from '@mui/material';
 import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
@@ -14,7 +14,7 @@ const StarRating = ({
     onRatingChange,
     disabled = false
 }: StarRatingProps) => {
-    const [hoverRating, setHoverRating] = React.useState(0);
+    const [hoverRating, setHoverRating] = useState(0);
 
     const currentRating = rating ? parseInt(String(rating), 10) : 0;
 

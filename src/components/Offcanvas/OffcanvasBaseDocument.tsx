@@ -1,4 +1,4 @@
-import React from 'react';
+import { type ChangeEvent, type MouseEvent } from 'react';
 import {
     Button,
     Dialog,
@@ -14,10 +14,10 @@ export interface OffcanvasBaseDocumentProps {
     baseDocsflagOffcanvasButtonDisable?: boolean;
     docName: string;
     link: string;
-    onChangeURL: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onChangeURL: (e: ChangeEvent<HTMLInputElement>) => void;
     onHide: () => void;
     open: boolean;
-    updateDocLink: (e: React.MouseEvent) => void;
+    updateDocLink: (e: MouseEvent) => void;
 }
 
 const OffcanvasBaseDocument = ({

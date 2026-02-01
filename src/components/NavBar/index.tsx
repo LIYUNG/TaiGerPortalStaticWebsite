@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, type MouseEvent, type ReactNode } from 'react';
 import { Navigate, useNavigate, Link as LinkDom } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
 import { styled } from '@mui/material/styles';
@@ -183,7 +183,7 @@ const RenderMenu = ({
 );
 
 interface NavBarProps {
-    children: React.ReactNode;
+    children: ReactNode;
 }
 
 const NavBar = (props: NavBarProps): JSX.Element => {
@@ -275,7 +275,7 @@ const NavBar = (props: NavBarProps): JSX.Element => {
         }
     };
 
-    const handleOpenChat = (e: React.MouseEvent<HTMLElement>): void => {
+    const handleOpenChat = (e: MouseEvent<HTMLElement>): void => {
         if (is_TaiGer_Student(user)) {
             setNavState((prevState) => ({
                 ...prevState,
@@ -293,7 +293,7 @@ const NavBar = (props: NavBarProps): JSX.Element => {
         setNavState((prevState) => ({ ...prevState, unreadCount: 0 }));
     };
 
-    const handleDrawerOpen = (e: React.MouseEvent): void => {
+    const handleDrawerOpen = (e: MouseEvent): void => {
         e.stopPropagation();
         setOpen(true);
     };
@@ -302,9 +302,7 @@ const NavBar = (props: NavBarProps): JSX.Element => {
         setOpen(false);
     };
 
-    const handleProfileMenuOpen = (
-        event: React.MouseEvent<HTMLElement>
-    ): void => {
+    const handleProfileMenuOpen = (event: MouseEvent<HTMLElement>): void => {
         setAnchorEl(event.currentTarget);
     };
 

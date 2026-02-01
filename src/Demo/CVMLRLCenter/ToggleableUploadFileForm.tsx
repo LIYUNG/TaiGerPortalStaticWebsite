@@ -7,7 +7,6 @@ import {
     Select,
     Tooltip
 } from '@mui/material';
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { calculateApplicationLockStatus } from '../Utils/checking-functions';
 const GENERAL_FILTE_TYPE = [

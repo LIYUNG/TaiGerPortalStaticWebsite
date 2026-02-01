@@ -1,4 +1,3 @@
-import React from 'react';
 import { useTheme } from '@mui/material';
 import { diffChars } from 'diff';
 
@@ -23,7 +22,7 @@ const HighlightTextDiff = ({ original = '', updated = '' }) => {
         useHighlightColors();
 
     const diff = diffChars(`${original}`, `${updated}`);
-    return diff.map((part, index) => {
+    return diff.map((part, index: number) => {
         const { added, removed } = part;
         const color = added ? addTextColor : removed ? removeTextColor : '';
         const background = added ? addTextBg : removed ? removeTextBg : 'none';

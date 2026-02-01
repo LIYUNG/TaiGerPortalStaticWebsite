@@ -4,8 +4,7 @@ import {
     useMaterialReactTable,
     type MRT_ColumnDef,
     type MRT_RowSelectionState,
-    type MRT_TableInstance,
-    type MRT_ColumnVisibilityState
+    type MRT_VisibilityState
 } from 'material-react-table';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -20,7 +19,7 @@ export interface MRTableProps<T extends Record<string, unknown>> {
         updater: (old: MRT_RowSelectionState) => MRT_RowSelectionState
     ) => void;
     rowSelection?: MRT_RowSelectionState;
-    columnVisibilityModel?: MRT_ColumnVisibilityState;
+    columnVisibilityModel?: MRT_VisibilityState;
 }
 
 function MRTable<T extends Record<string, unknown>>({
@@ -50,7 +49,7 @@ function MRTable<T extends Record<string, unknown>>({
             showColumnFilters: true,
             showGlobalFilter: true,
             density: 'compact',
-            columnVisibilityModel: { ...columnVisibilityModel },
+            columnVisibility: { ...columnVisibilityModel },    
             columnPinning: {
                 left: ['mrt-row-expand', 'mrt-row-select'],
                 right: ['mrt-row-actions']
@@ -77,15 +76,15 @@ function MRTable<T extends Record<string, unknown>>({
 export interface ExampleWithLocalizationProviderProps<
     T extends Record<string, unknown>
 > {
-    col: object[];
+    col: MRT_ColumnDef<T>[];
     data: T[];
     enableRowSelection?: boolean;
     enableMultiRowSelection?: boolean;
     muiTableBodyRowProps?: (props: { row: { original: T } }) => object;
     onRowSelectionChange?: (
-        updater: (old: RowSelectionState) => RowSelectionState
+        updater: (old: MRT_RowSelectionState) => MRT_RowSelectionState
     ) => void;
-    rowSelection?: RowSelectionState;
+    rowSelection?: MRT_RowSelectionState;
 }
 
 function ExampleWithLocalizationProvider<T extends Record<string, unknown>>({

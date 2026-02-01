@@ -18,7 +18,7 @@ import Loading from '../../components/Loading/Loading';
 import { a11yProps, CustomTabPanel } from '../../components/Tabs';
 import { getAdmissionsQuery } from '../../api/query';
 import { BreadcrumbsNavigation } from '../../components/BreadcrumbsNavigation/BreadcrumbsNavigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type SyntheticEvent } from 'react';
 
 const Admissions = () => {
     const { user } = useAuth();

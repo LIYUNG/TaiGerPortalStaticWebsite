@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, type ChangeEvent, type FormEvent } from 'react';
 import {
     Button,
     Dialog,
@@ -18,7 +18,7 @@ const AddUserModal = (props) => {
     const [addUserModal, setAddUserModal] = useState({
         user_information: { role: Role.Student }
     });
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
         const user_information_temp = { ...addUserModal.user_information };
         user_information_temp[e.target.name] = e.target.value;
@@ -27,7 +27,10 @@ const AddUserModal = (props) => {
             user_information: user_information_temp
         }));
     };
-    const AddUserSubmit = (e: React.FormEvent<HTMLFormElement>, user_information: { firstname: string; lastname: string; email: string }) => {
+    const AddUserSubmit = (
+        e: FormEvent<HTMLFormElement>,
+        user_information: { firstname: string; lastname: string; email: string }
+    ) => {
         e.preventDefault();
         if (
             !user_information.firstname ||

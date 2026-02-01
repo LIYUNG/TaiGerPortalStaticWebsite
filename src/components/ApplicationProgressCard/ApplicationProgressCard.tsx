@@ -54,6 +54,7 @@ import {
 import { appConfig } from '../../config';
 import { ConfirmationModal } from '../Modal/ConfirmationModal';
 import { useSnackBar } from '../../contexts/use-snack-bar';
+import { type IApplication } from '@taiger-common/model';
 
 interface ProgramLinkProps {
     program: {
@@ -116,8 +117,8 @@ const ProgramLink = ({ program }: ProgramLinkProps) => (
 
 const AdmissionLetterLink = ({ application }: AdmissionLetterLinkProps) => {
     return (
-        (isProgramAdmitted(application as ApplicationProps) ||
-            isProgramRejected(application as ApplicationProps)) &&
+        (isProgramAdmitted(application as unknown as ApplicationProps) ||
+            isProgramRejected(application as unknown as ApplicationProps)) &&
         application.admission_letter?.status === 'uploaded' && (
             <a
                 className="text-info"
@@ -128,7 +129,7 @@ const AdmissionLetterLink = ({ application }: AdmissionLetterLinkProps) => {
                 rel="noopener noreferrer"
                 target="_blank"
             >
-                {isProgramAdmitted(application as ApplicationProps)
+                {isProgramAdmitted(application as unknown as ApplicationProps)
                     ? i18next.t('Admission Letter', { ns: 'admissions' })
                     : i18next.t('Rejection Letter', { ns: 'admissions' })}
             </a>
@@ -146,7 +147,8 @@ export default function ApplicationProgressCard(
 
     const applicationFromProps = props.application as Application;
 
-    const [application, setApplication] = useState<Application>(applicationFromProps);
+    const [application, setApplication] =
+        useState<Application>(applicationFromProps);
     const [resultState, setResultState] = useState('-');
     const [letter, setLetter] = useState<File | null>(null);
     const [returnedMessage, setReturnedMessage] = useState('');
@@ -221,9 +223,10 @@ export default function ApplicationProgressCard(
                 if (success && data) {
                     const application_tmep = { ...application };
                     application_tmep.admission = result;
-                    application_tmep.admission_letter = data.admission_letter as
-                        | { status?: string; admission_file_path?: string }
-                        | undefined;
+                    application_tmep.admission_letter =
+                        data.admission_letter as
+                            | { status?: string; admission_file_path?: string }
+                            | undefined;
                     setSeverity('success');
                     setMessage('Uploaded application status successfully!');
                     setOpenSnackbar(true);
@@ -269,7 +272,9 @@ export default function ApplicationProgressCard(
                                         })}
                                     </>
                                 ) : null}
-                                {isProgramAdmitted(application) ? (
+                                {isProgramAdmitted(
+                                    application as unknown as ApplicationProps
+                                ) ? (
                                     <>
                                         <IconButton>
                                             {FILE_OK_SYMBOL}
@@ -280,7 +285,9 @@ export default function ApplicationProgressCard(
                                         })}
                                     </>
                                 ) : null}
-                                {isProgramRejected(application as ApplicationProps) ? (
+                                {isProgramRejected(
+                                    application as ApplicationProps
+                                ) ? (
                                     <>
                                         <IconButton>
                                             {FILE_NOT_OK_SYMBOL}
@@ -315,7 +322,7 @@ export default function ApplicationProgressCard(
                     </Typography>
                     <Box sx={{ my: 1 }}>
                         <ApplicationLockControl
-                            application={application}
+                            application={application as unknown as IApplication}
                             onLockChange={() => {
                                 // Refresh application data if needed
                                 setApplication({ ...application });
@@ -349,7 +356,9 @@ export default function ApplicationProgressCard(
                                 title="Undo"
                                 variant="contained"
                             >
-                                {isProgramAdmitted(application)
+                                {isProgramAdmitted(
+                                    application as unknown as ApplicationProps
+                                )
                                     ? i18next.t('upload-admission-letter', {
                                           ns: 'admissions'
                                       })
@@ -416,7 +425,8 @@ export default function ApplicationProgressCard(
                                                 }
                                                 target="_blank"
                                                 to={`${DEMO.INTERVIEW_SINGLE_LINK(
-                                                    application?.interview_id ?? ''
+                                                    application?.interview_id ??
+                                                        ''
                                                 )}`}
                                                 underline="hover"
                                             >
@@ -452,7 +462,7 @@ export default function ApplicationProgressCard(
                                             onClick={(e) => e.stopPropagation()}
                                             target="_blank"
                                             to={`${DEMO.INTERVIEW_SINGLE_LINK(
-                                                application?.interview_id
+                                                application?.interview_id ?? ''
                                             )}`}
                                             underline="hover"
                                         >
@@ -519,7 +529,9 @@ export default function ApplicationProgressCard(
                             className="custom-progress-bar-container"
                             style={{ flex: 1, marginRight: '10px' }}
                             value={
-                                isProgramSubmitted(application as ApplicationProps)
+                                isProgramSubmitted(
+                                    application as ApplicationProps
+                                )
                                     ? 100
                                     : progressBarCounter(
                                           props.student,
@@ -530,7 +542,9 @@ export default function ApplicationProgressCard(
                         />
                         <span>
                             {`${
-                                isProgramSubmitted(application as ApplicationProps)
+                                isProgramSubmitted(
+                                    application as ApplicationProps
+                                )
                                     ? 100
                                     : progressBarCounter(
                                           props.student,

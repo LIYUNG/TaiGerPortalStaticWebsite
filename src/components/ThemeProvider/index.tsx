@@ -1,4 +1,4 @@
-import React from 'react';
+import { type ReactNode } from 'react';
 import { createContext, useContext, useState } from 'react';
 import themeLight from './themeLight';
 import themeDark from './themeDark';
@@ -14,7 +14,7 @@ const CustomThemeContext = createContext<CustomThemeContextValue | undefined>(
 );
 
 interface CustomThemeProviderProps {
-    children: React.ReactNode;
+    children: ReactNode;
 }
 
 export const CustomThemeProvider = ({ children }: CustomThemeProviderProps) => {

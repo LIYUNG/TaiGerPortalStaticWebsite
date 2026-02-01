@@ -1,4 +1,3 @@
-import React from 'react';
 import { Box, Card } from '@mui/material';
 
 const ResourceLockedError = () => {

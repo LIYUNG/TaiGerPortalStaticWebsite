@@ -38,12 +38,6 @@ const SearchableMultiSelect = ({
 
     const options = Array.isArray(data) ? data : Object.keys(data);
 
-    const getOptionLabel = (option: string) =>
-        Array.isArray(data)
-            ? option
-            : ((data as Record<string, SearchableMultiSelectOption>)[option]
-                  ?.label ?? option);
-
     return (
         <div>
             <Autocomplete
@@ -131,14 +125,7 @@ const SearchableMultiSelect = ({
                             const { key, ...tagProps } = getTagProps({
                                 index
                             });
-                            const chipColor = Array.isArray(data)
-                                ? 'primary'
-                                : ((
-                                      data as Record<
-                                          string,
-                                          SearchableMultiSelectOption
-                                      >
-                                  )[option]?.color ?? 'primary');
+
                             return (
                                 <Chip
                                     key={key}
