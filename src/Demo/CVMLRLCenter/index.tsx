@@ -64,7 +64,7 @@ const CVMLRLCenter = () => {
             (resp) => {
                 const { data, success } = resp;
                 const { status } = resp;
-                const tasksData = open_tasks_v2(data.threads);
+                const tasksData = open_tasks_v2(data?.threads ?? []);
                 if (success) {
                     setIndexState((prevState) => ({
                         ...prevState,

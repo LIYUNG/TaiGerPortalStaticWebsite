@@ -60,7 +60,7 @@ const AgentSupportDocuments = () => {
                 const { data, success } = resp;
                 const { status } = resp;
                 if (success) {
-                    const tasksData = open_tasks_v2(data.threads);
+                    const tasksData = open_tasks_v2(data?.threads ?? []);
                     setIndexState((prevState) => ({
                         ...prevState,
                         isLoaded: true,
