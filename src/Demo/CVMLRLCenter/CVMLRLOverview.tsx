@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link as LinkDom, useLocation } from 'react-router-dom';
 import { Tabs, Tab, Box, Typography, Link, Tooltip, Chip } from '@mui/material';
 import PropTypes from 'prop-types';

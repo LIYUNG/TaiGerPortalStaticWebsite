@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, Fragment } from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import {
     Accordion,
@@ -203,7 +203,7 @@ export const ExtendableTable = ({ data }: ExtendableTableProps) => {
                 </TableHead>
                 <TableBody>
                     {data.map((student, index) => (
-                        <React.Fragment key={index}>
+                        <Fragment key={index}>
                             <TableRow>
                                 <TableCell>
                                     <b
@@ -313,7 +313,7 @@ export const ExtendableTable = ({ data }: ExtendableTableProps) => {
                                     </TableCell>
                                 </TableRow>
                             </Collapse>
-                        </React.Fragment>
+                        </Fragment>
                     ))}
                 </TableBody>
             </Table>

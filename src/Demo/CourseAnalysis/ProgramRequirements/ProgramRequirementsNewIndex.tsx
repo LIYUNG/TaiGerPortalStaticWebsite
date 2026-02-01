@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import { Suspense } from 'react';
 import { Await, useLoaderData, Link as LinkDom } from 'react-router-dom';
 import { TabTitle } from '../../Utils/TabTitle';
 

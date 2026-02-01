@@ -1,4 +1,11 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import {
+    useEffect,
+    useMemo,
+    useState,
+    type ChangeEvent,
+    type MouseEvent,
+    type FormEvent
+} from 'react';
 import { Link as LinkDom, useLocation, useParams } from 'react-router-dom';
 import ArticleIcon from '@mui/icons-material/Article';
 import ChatIcon from '@mui/icons-material/Chat';
@@ -167,7 +174,7 @@ const DocModificationThreadPage = ({
         }));
     };
 
-    const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
         if (isLocked) {
             setSeverity('warning');
@@ -236,7 +243,10 @@ const DocModificationThreadPage = ({
         }));
     };
 
-    const handleClickSave = (e: React.MouseEvent<HTMLElement>, editorState: unknown) => {
+    const handleClickSave = (
+        e: MouseEvent<HTMLElement>,
+        editorState: unknown
+    ) => {
         e.preventDefault();
         if (isLocked) {
             setSeverity('warning');
@@ -423,7 +433,10 @@ const DocModificationThreadPage = ({
         );
     };
 
-    const onDeleteSingleMessage = (e: React.MouseEvent<HTMLElement>, message_id: string) => {
+    const onDeleteSingleMessage = (
+        e: MouseEvent<HTMLElement>,
+        message_id: string
+    ) => {
         e.preventDefault();
         setDocModificationThreadPageState((prevState) => ({
             ...prevState,
@@ -503,7 +516,7 @@ const DocModificationThreadPage = ({
     };
 
     const submitUpdateEssayWriterlist = (
-        e: React.FormEvent<HTMLFormElement>,
+        e: FormEvent<HTMLFormElement>,
         updateEssayWriterList: unknown,
         essayDocumentThread_id: string
     ) => {
@@ -1170,7 +1183,9 @@ const DocModificationThreadPage = ({
                     docModificationThreadPageState.isSubmissionLoaded
                 }
                 onClose={closeSetAsFinalFileModelWindow}
-                onConfirm={(e: React.MouseEvent<HTMLElement>) => ConfirmSetAsFinalFileHandler(e)}
+                onConfirm={(e: MouseEvent<HTMLElement>) =>
+                    ConfirmSetAsFinalFileHandler(e)
+                }
                 open={docModificationThreadPageState.SetAsFinalFileModel}
                 student_name={student_name}
                 thread_id={thread._id}

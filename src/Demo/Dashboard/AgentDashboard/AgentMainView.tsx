@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import { Fragment, useState, type MouseEvent } from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import LaunchIcon from '@mui/icons-material/Launch';
 import { useTranslation } from 'react-i18next';
@@ -90,7 +90,11 @@ const AgentMainView = (props) => {
         collapsedRows: {}
     });
 
-    const removeAgentBanner = (e: React.MouseEvent<HTMLElement>, notification_key: string, student_id: string) => {
+    const removeAgentBanner = (
+        e: MouseEvent<HTMLElement>,
+        notification_key: string,
+        student_id: string
+    ) => {
         e.preventDefault();
         const temp_user = { ...user };
         const idx = temp_user.agent_notification[
@@ -197,7 +201,9 @@ const AgentMainView = (props) => {
                                         student.student_id,
                                         DEMO.PROFILE_HASH
                                     )}`}
-                                    removeBanner={(e: React.MouseEvent<HTMLElement>) =>
+                                    removeBanner={(
+                                        e: MouseEvent<HTMLElement>
+                                    ) =>
                                         removeAgentBanner(
                                             e,
                                             'isRead_new_base_docs_uploaded',

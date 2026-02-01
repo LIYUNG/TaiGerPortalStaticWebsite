@@ -1,4 +1,6 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef, type MouseEvent } from 'react';
+import { Dispatch } from 'react';
+import { SetStateAction } from 'react';
 import EditorJS from '@editorjs/editorjs';
 import Header from '@editorjs/header';
 import List from '@editorjs/list';
@@ -27,13 +29,8 @@ export interface EditorSimpleProps {
     imageEnable?: boolean;
     thread?: { _id: string; student_id: { _id: string } };
     handleEditorChange?: (outputData: EditorStateData) => void;
-    handleClickSave?: (
-        e: React.MouseEvent,
-        editorState: EditorStateData
-    ) => void;
-    setStatedata?: React.Dispatch<
-        React.SetStateAction<{ editorState: EditorStateData }>
-    >;
+    handleClickSave?: (e: MouseEvent, editorState: EditorStateData) => void;
+    setStatedata?: Dispatch<SetStateAction<{ editorState: EditorStateData }>>;
 }
 
 const EditorSimple = (props: EditorSimpleProps) => {

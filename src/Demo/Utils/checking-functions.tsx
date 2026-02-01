@@ -80,7 +80,7 @@ export const calculateDisplayLength = (text) => {
     return length;
 };
 
-export const truncateText = (text, maxLength) => {
+export const truncateText = (text: string, maxLength: number) => {
     let currentLength = 0;
     let truncatedText = '';
 
@@ -1099,7 +1099,10 @@ export const check_all_decided_applications_submitted = (student) => {
 
     return student.applications
         .filter((app: Application) => isProgramDecided(app))
-        .every((app: Application) => isProgramSubmitted(app) && isProgramDecided(app));
+        .every(
+            (app: Application) =>
+                isProgramSubmitted(app) && isProgramDecided(app)
+        );
 };
 
 export const check_program_uni_assist_needed = (application) => {
@@ -2343,7 +2346,7 @@ export const readPDF = async (file, studentName) => {
                 }
                 resolve(checkPoints);
             } catch (error) {
-                checkPoints.error = { value: true, text: error.message };
+                checkPoints.error = { value: true, text: error?.message };
                 reject(checkPoints);
             }
         };
@@ -2385,7 +2388,7 @@ export const readDOCX = async (file, studentName) => {
     return result;
 };
 
-export const readXLSX = async (file, studentName) => {
+export const readXLSX = async (file, studentName: string) => {
     const checkPoints = {
         correctFirstname: {
             value: false,
@@ -2395,7 +2398,7 @@ export const readXLSX = async (file, studentName) => {
     const reader = new FileReader();
     const result = await new Promise((resolve) => {
         reader.onload = (event) => {
-            const data = new Uint8Array(event.target.result);
+            const data = new Uint8Array(event?.target?.result as ArrayBuffer);
             const workbook = XLSX.read(data, { type: 'array' });
             let text = '';
             workbook.SheetNames.forEach((sheetName) => {
@@ -2421,7 +2424,7 @@ export const LOCK_REASON = {
     STALE_DATA: 'STALE_DATA'
 };
 
-export const calculateProgramLockStatus = (program) => {
+export const calculateProgramLockStatus = (program: any) => {
     if (!program) {
         return { isLocked: true, reason: null };
     }
@@ -2447,7 +2450,7 @@ export const calculateProgramLockStatus = (program) => {
     return { isLocked: false, reason: null };
 };
 
-export const calculateApplicationLockStatus = (application) => {
+export const calculateApplicationLockStatus = (application: any) => {
     if (!application || !application.programId) {
         return { isLocked: true, reason: null };
     }

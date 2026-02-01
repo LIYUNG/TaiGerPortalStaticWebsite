@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, type ReactNode } from 'react';
 import { Alert, Snackbar } from '@mui/material';
 
 export interface SnackBarContextValue {
@@ -12,7 +12,7 @@ const SnackBarContext = createContext<SnackBarContextValue | undefined>(
 );
 
 interface SnackBarProviderProps {
-    children: React.ReactNode;
+    children: ReactNode;
 }
 
 export const SnackBarProvider = ({

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, type ChangeEvent, type MouseEvent } from 'react';
 import { Alert, Button, Card, Grid, Link, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { Link as LinkDom } from 'react-router-dom';
@@ -84,7 +84,11 @@ const ManualFiles = (props) => {
             </li>
         ));
 
-    const handleCreateGeneralMessageThread = (e: React.MouseEvent<HTMLElement>, studentId: string, fileCategory: string) => {
+    const handleCreateGeneralMessageThread = (
+        e: MouseEvent<HTMLElement>,
+        studentId: string,
+        fileCategory: string
+    ) => {
         e.preventDefault();
         if (!categoryState) {
             alert('Please select file type');
@@ -114,7 +118,7 @@ const ManualFiles = (props) => {
         }
     };
 
-    const handleSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleSelect = (e: ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
         setCategory(e.target.value);
     };

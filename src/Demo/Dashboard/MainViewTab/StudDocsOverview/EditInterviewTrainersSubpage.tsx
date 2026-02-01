@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, type ChangeEvent } from 'react';
 import {
     Button,
     Checkbox,
@@ -55,7 +55,7 @@ const EditInterviewTrainersSubpage = (props) => {
         );
     }, [props.interview.trainer_id]);
 
-    const handleChangeTrainerlist = (e: React.SyntheticEvent) => {
+    const handleChangeTrainerlist = (e: ChangeEvent<HTMLInputElement>) => {
         const { value } = e.target;
         setCheckboxState((prevState) => ({
             ...prevState,

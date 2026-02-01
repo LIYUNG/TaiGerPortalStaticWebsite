@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo, type FormEvent, type MouseEvent } from 'react';
 import {
     Link as LinkDom,
     useLocation,
@@ -314,7 +314,9 @@ const InterviewMetadataSidebar = ({
         setInterviewTrainingTimeChange(true);
     };
 
-    const handleSendInterviewInvitation = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSendInterviewInvitation = async (
+        e: FormEvent<HTMLFormElement>
+    ) => {
         e.preventDefault();
         try {
             const end_date = new Date(utcTime);
@@ -1463,7 +1465,10 @@ const SingleInterview = () => {
     });
 
     // Handlers
-    const handleClickSave = (e: React.MouseEvent<HTMLElement>, editorState: unknown) => {
+    const handleClickSave = (
+        e: MouseEvent<HTMLElement>,
+        editorState: unknown
+    ) => {
         e.preventDefault();
         const message = JSON.stringify(editorState);
         const formData = new FormData();
@@ -1502,7 +1507,10 @@ const SingleInterview = () => {
         setAccordionKeys(newAccordionKeys);
     };
 
-    const onDeleteSingleMessage = (e: React.MouseEvent<HTMLElement>, message_id: string) => {
+    const onDeleteSingleMessage = (
+        e: MouseEvent<HTMLElement>,
+        message_id: string
+    ) => {
         e.preventDefault();
         deleteMessageMutation.mutate({
             threadId: interview?.thread_id?._id.toString(),
@@ -1526,7 +1534,7 @@ const SingleInterview = () => {
         window.location.hash = THREAD_REVERSED_TABS[newValue];
     };
 
-    const openDeleteDocModalWindow = (e: React.MouseEvent<HTMLElement>) => {
+    const openDeleteDocModalWindow = (e: MouseEvent<HTMLElement>) => {
         e.stopPropagation();
         setDeleteDialogOpen(true);
     };

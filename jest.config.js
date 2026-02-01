@@ -1,6 +1,6 @@
 module.exports = {
-    // Indicates that the test environment is a Node.js environment
-    testEnvironment: 'node',
+    // Use happy-dom (no native canvas dependency; jsdom requires canvas.node on Windows)
+    testEnvironment: '@happy-dom/jest-environment',
 
     // A list of directories that Jest should use to search for test files
     roots: ['<rootDir>/src'],
@@ -14,9 +14,11 @@ module.exports = {
     // The module file extensions for importing modules in your tests
     moduleFileExtensions: ['js', 'json', 'jsx', 'ts', 'tsx', 'node'],
 
-    // A map from regular expressions to module names that allow to stub out resources with a single module
+    // Map env imports to Jest-only mock (real env.ts uses import.meta which Jest cannot parse)
     moduleNameMapper: {
-        '^@/(.*)$': '<rootDir>/src/$1'
+        '^@/(.*)$': '<rootDir>/src/$1',
+        '^(\\.\\./)+env$': '<rootDir>/src/__mocks__/env.ts',
+        '^(\\./)?env$': '<rootDir>/src/__mocks__/env.ts'
     },
     transform: {
         '^.+\\.[tj]sx?$': 'babel-jest'

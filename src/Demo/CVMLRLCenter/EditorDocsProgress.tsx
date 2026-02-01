@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, type ChangeEvent, type MouseEvent } from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import {
     Alert,
@@ -611,7 +611,7 @@ const EditorDocsProgress = (props) => {
         }));
     };
 
-    const onChangeDeleteField = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const onChangeDeleteField = (e: ChangeEvent<HTMLInputElement>) => {
         setEditorDocsProgressState((prevState) => ({
             ...prevState,
             delete_field: e.target.value
@@ -635,7 +635,7 @@ const EditorDocsProgress = (props) => {
     };
 
     const initProgramSpecificFileThread = (
-        e: React.MouseEvent<HTMLElement>,
+        e: MouseEvent<HTMLElement>,
         studentId: string,
         applicationId: string,
         document_catgory: string
@@ -684,7 +684,11 @@ const EditorDocsProgress = (props) => {
             });
     };
 
-    const initGeneralFileThread = (e: React.MouseEvent<HTMLElement>, studentId: string, document_catgory: string) => {
+    const initGeneralFileThread = (
+        e: MouseEvent<HTMLElement>,
+        studentId: string,
+        document_catgory: string
+    ) => {
         // eslint-disable-next-line no-constant-condition
         if ('1' === '') {
             e.preventDefault();

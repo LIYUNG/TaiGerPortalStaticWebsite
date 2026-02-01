@@ -1,4 +1,3 @@
-import React, { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Box, Tab, Tabs } from '@mui/material';
@@ -19,6 +18,7 @@ import Loading from '../../components/Loading/Loading';
 import { a11yProps, CustomTabPanel } from '../../components/Tabs';
 import { getAdmissionsQuery } from '../../api/query';
 import { BreadcrumbsNavigation } from '../../components/BreadcrumbsNavigation/BreadcrumbsNavigation';
+import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 
 const Admissions = () => {
     const { user } = useAuth();
@@ -54,7 +54,7 @@ const Admissions = () => {
         setValue(initialTabIndex);
     }, [initialTabIndex]);
 
-    const handleChange = (event, newValue) => {
+    const handleChange = (event: ChangeEvent<{}>, newValue: number) => {
         setValue(newValue);
         // Update the URL with the selected tab while preserving existing params
         const params = new URLSearchParams(location.search);
@@ -89,7 +89,11 @@ const Admissions = () => {
                 ]}
             />
             {isLoading ? <Loading /> : null}
-            {isError ? error : null}
+            {isError && error ? (
+                <Box component="span" sx={{ color: 'error.main' }}>
+                    {error instanceof Error ? error.message : String(error)}
+                </Box>
+            ) : null}
             {!isLoading && !isError ? (
                 <>
                     <Box>

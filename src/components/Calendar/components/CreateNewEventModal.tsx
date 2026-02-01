@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import LaunchIcon from '@mui/icons-material/Launch';
 import { Link as LinkDom } from 'react-router-dom';
 import {
@@ -110,12 +110,12 @@ export const CreateNewEventModal = (props: CreateNewEventModalProps) => {
                     to update your time zone
                 </span>
                 <Typography sx={{ mt: 2 }} variant="body1">
-                    Time zone: {user.timezone}
+                    Time zone: {user?.timezone}
                     {available_termins[0]
                         ? ` ( UTC +${
                               getUTCTimezoneOffset(
                                   available_termins[0].start,
-                                  user.timezone
+                                  user?.timezone
                               ) / 60
                           } ) `
                         : null}

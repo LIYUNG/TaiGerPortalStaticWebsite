@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
@@ -356,7 +356,7 @@ const ThreadsList = ({
                         currentCategory = category;
 
                         return (
-                            <React.Fragment key={thread._id}>
+                            <Fragment key={thread._id}>
                                 {showCategoryLabel ? (
                                     <Divider
                                         sx={{
@@ -374,7 +374,7 @@ const ThreadsList = ({
                                     }}
                                     thread={thread}
                                 />
-                            </React.Fragment>
+                            </Fragment>
                         );
                     })}
             </List>

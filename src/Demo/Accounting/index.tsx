@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { Navigate, Link as LinkDom } from 'react-router-dom';
 import { Box, Card, Typography } from '@mui/material';
 import { is_TaiGer_role } from '@taiger-common/core';

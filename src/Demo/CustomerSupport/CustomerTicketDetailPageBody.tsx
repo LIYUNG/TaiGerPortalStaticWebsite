@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, type ChangeEvent, type MouseEvent } from 'react';
 import { Link as LinkDom, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -85,7 +85,7 @@ const CustomerTicketDetailPageBody = ({ complaintTicket }) => {
         }));
     };
 
-    const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
         const file_num = e.target.files.length;
         if (file_num <= 3) {
@@ -140,7 +140,10 @@ const CustomerTicketDetailPageBody = ({ complaintTicket }) => {
         }
     };
 
-    const handleClickSave = (e: React.MouseEvent<HTMLElement>, editorState: unknown) => {
+    const handleClickSave = (
+        e: MouseEvent<HTMLElement>,
+        editorState: unknown
+    ) => {
         e.preventDefault();
         setCustomerTicketDetailPageBodyState((prevState) => ({
             ...prevState,
@@ -212,7 +215,10 @@ const CustomerTicketDetailPageBody = ({ complaintTicket }) => {
         }));
     };
 
-    const onDeleteSingleMessage = (e, message_id) => {
+    const onDeleteSingleMessage = (
+        e: MouseEvent<HTMLElement>,
+        message_id: string
+    ) => {
         e.preventDefault();
         setCustomerTicketDetailPageBodyState((prevState) => ({
             ...prevState,

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import {
@@ -25,7 +25,11 @@ import { getStudentAndDocLinksQuery } from '../../../../api/query';
 import { application_deadline_V2_calculator } from '../../../Utils/checking-functions';
 import DEMO from '../../../../store/constant';
 
-export const GeneralRLRequirementsTab = ({ studentId }) => {
+export const GeneralRLRequirementsTab = ({
+    studentId
+}: {
+    studentId: string;
+}) => {
     const { t } = useTranslation('cvmlrl');
     const theme = useTheme();
     const paperSx = useMemo(() => containerSx(theme), [theme]);

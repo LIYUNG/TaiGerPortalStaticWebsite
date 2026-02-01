@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef, type ReactElement } from 'react';
 import { pdfjs, Document, Page } from 'react-pdf';
 import { Box, Button, Typography } from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -11,7 +11,7 @@ import { useQuery } from '@tanstack/react-query';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 
-const PDFViewer = (apiFilePath: string, path: string): React.ReactElement => {
+const PDFViewer = (apiFilePath: string, path: string): ReactElement => {
     const { data: pdfData, isLoading } = useQuery(getPDFQuery(apiFilePath));
     const [pageWidth, setPageWidth] = useState<number | null>(null);
     const [numPages, setNumPages] = useState<number | null>(null);

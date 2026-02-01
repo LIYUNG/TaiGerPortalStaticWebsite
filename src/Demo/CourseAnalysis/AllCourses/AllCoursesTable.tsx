@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { getTableConfig, useTableStyles } from '../../../components/table';
 import { TopToolbar } from '../../../components/table/all-courses-table/TopToolbar';
 import { DeleteCourseDialog } from './DeleteCourseDialog';
+import { MRT_ColumnDef } from 'material-react-table';
 
 export const AllCoursesTable = ({ isLoading, data }) => {
     const customTableStyles = useTableStyles();
@@ -15,7 +16,7 @@ export const AllCoursesTable = ({ isLoading, data }) => {
     const tableConfig = getTableConfig(customTableStyles, isLoading);
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
-    const columns = [
+    const columns: Array<MRT_ColumnDef<any>> = [
         {
             accessorKey: 'all_course_chinese',
             header: t('Course Name (ZH)', { ns: 'common' }),

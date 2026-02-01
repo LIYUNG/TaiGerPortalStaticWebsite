@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, type ChangeEvent } from 'react';
 import SearchIcon from '@mui/icons-material/Search';
 import { Box, ListItem, MenuItem, Skeleton, Typography } from '@mui/material';
 import i18next from 'i18next';
@@ -132,7 +132,7 @@ const ChatList = (props: ChatListProps) => {
         }
     }, [searchTerm]);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
         if (e.target.value !== '') {
             setSearchTerm(e.target.value);
             setChatListState((prevState) => ({

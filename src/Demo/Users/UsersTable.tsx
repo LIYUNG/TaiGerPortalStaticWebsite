@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { Navigate, Link as LinkDom } from 'react-router-dom';
 import {
     Tabs,
@@ -50,7 +50,7 @@ const UsersTable = () => {
     });
     const [value, setValue] = useState(0);
 
-    const handleChange = (event, newValue) => {
+    const handleChange = (event: ChangeEvent<{}>, newValue: number) => {
         setValue(newValue);
     };
 
@@ -89,7 +89,15 @@ const UsersTable = () => {
         }));
     };
 
-    const AddUserSubmit = (e: React.FormEvent<HTMLFormElement>, user_information: { firstname: string; lastname: string; email: string; role?: string }) => {
+    const AddUserSubmit = (
+        e: FormEvent<HTMLFormElement>,
+        user_information: {
+            firstname: string;
+            lastname: string;
+            email: string;
+            role?: string;
+        }
+    ) => {
         addUserMutation(user_information);
     };
 

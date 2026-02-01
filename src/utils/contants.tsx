@@ -30,6 +30,7 @@ import DEMO from '../store/constant';
 import { is_TaiGer_Student } from '@taiger-common/core';
 import i18next from 'i18next';
 import { APPROVAL_COUNTRIES } from '../Demo/Utils/checking-functions';
+import { MRT_ColumnDef } from 'material-react-table';
 
 export const IS_DEV =
     !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
@@ -1209,7 +1210,7 @@ export const convertDateUXFriendly = (date) => {
 
 export const APP_BAR_HEIGHT = 64;
 
-const create_years = (start_year, end_year) => {
+const create_years = (start_year: number, end_year: number) => {
     const num = end_year - start_year;
     const year_array = Array.from({ length: num }, (_, i) => i + start_year);
     return year_array;
@@ -1569,7 +1570,7 @@ export const internal_documentation_categories = {
     others: 'Others'
 };
 
-export const col_keywords = [
+export const col_keywords: Array<MRT_ColumnDef<any>> = [
     {
         accessorKey: 'categoryName', //accessorKey used to define `data` column. `id` gets set to accessorKey automatically
         filterVariant: 'autocomplete',
@@ -1650,7 +1651,7 @@ export const col_keywords = [
     }
 ];
 
-export const c1_mrt = [
+export const c1_mrt: Array<MRT_ColumnDef<any>> = [
     {
         accessorKey: 'firstname_lastname', //accessorKey used to define `data` column. `id` gets set to accessorKey automatically
         filterVariant: 'autocomplete',

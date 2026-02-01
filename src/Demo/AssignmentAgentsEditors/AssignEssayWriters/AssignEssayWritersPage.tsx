@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState, type FormEvent } from 'react';
 import {
     Box,
     Card,
@@ -111,7 +111,11 @@ const AssignEssayWritersPage = ({ essayDocumentThreads }) => {
     );
 
     const handleSubmit = useCallback(
-        (e: React.FormEvent<HTMLFormElement>, updateEditorList: unknown, essayDocumentThread_id: string) => {
+        (
+            e: FormEvent<HTMLFormElement>,
+            updateEditorList: unknown,
+            essayDocumentThread_id: string
+        ) => {
             e.preventDefault();
             updateEssayWriterList(updateEditorList, essayDocumentThread_id);
         },

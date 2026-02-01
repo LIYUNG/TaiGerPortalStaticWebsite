@@ -23,6 +23,7 @@ import {
     CheckCircle as CheckCircleIcon,
     Error as ErrorIcon
 } from '@mui/icons-material';
+import { MRT_ColumnDef } from 'material-react-table';
 
 const InterviewTraining = () => {
     const { user } = useAuth();
@@ -140,7 +141,7 @@ const InterviewTraining = () => {
     };
 
     TabTitle('Interview training');
-    const columns = [
+    const columns: Array<MRT_ColumnDef<any>> = [
         {
             accessorKey: 'status',
             filterVariant: 'multi-select',
@@ -214,8 +215,6 @@ const InterviewTraining = () => {
             header: `${t('Training Time', { ns: 'interviews' })} (${
                 Intl.DateTimeFormat().resolvedOptions().timeZone
             } ${showTimezoneOffset()})`,
-            align: 'left',
-            headerAlign: 'left',
             filterFn: 'contains',
             size: 280,
             Cell: (params) => {
@@ -226,8 +225,6 @@ const InterviewTraining = () => {
         {
             accessorKey: 'interview_date',
             header: t('Official Interview Time', { ns: 'interviews' }),
-            align: 'left',
-            headerAlign: 'left',
             filterFn: 'contains',
             size: 220,
             Cell: (params) => {

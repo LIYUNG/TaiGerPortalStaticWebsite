@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, type ChangeEvent, type MouseEvent } from 'react';
+import { Dispatch } from 'react';
+import { SetStateAction } from 'react';
 import SendIcon from '@mui/icons-material/Send';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -40,11 +42,11 @@ export interface DocThreadEditorProps {
     file?: File[] | { name: string }[];
     buttonDisabled?: boolean;
     handleClickSave: (
-        e: React.MouseEvent,
+        e: MouseEvent<HTMLElement>,
         editorState: EditorStateData
     ) => void;
     checkResult?: Record<string, CheckResultItem>[];
-    onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onFileChange: (e: ChangeEvent<HTMLInputElement>) => void;
     readOnly?: boolean;
     readOnlyTooltip?: string;
 }
@@ -126,8 +128,8 @@ const DocThreadEditor = ({
                         imageEnable={!readOnly}
                         readOnly={readOnly}
                         setStatedata={
-                            setStatedata as React.Dispatch<
-                                React.SetStateAction<{
+                            setStatedata as Dispatch<
+                                SetStateAction<{
                                     editorState: EditorStateData;
                                 }>
                             >

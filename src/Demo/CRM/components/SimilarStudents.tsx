@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import { useState,useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -34,7 +34,7 @@ const { STUDENT_DATABASE_STUDENTID_LINK, SINGLE_PROGRAM_LINK } = DEMO;
 // Extracted student card component for better organization
 const StudentCard = ({ student, matchReason }) => {
     const { t } = useTranslation();
-    const [expanded, setExpanded] = React.useState(false);
+    const [expanded, setExpanded] = useState(false);
 
     const sortedApplications = useMemo(() => {
         return (student?.applications || [])

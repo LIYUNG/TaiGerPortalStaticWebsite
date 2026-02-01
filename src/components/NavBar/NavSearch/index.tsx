@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { is_TaiGer_role, Role } from '@taiger-common/core';
@@ -117,7 +117,7 @@ const NavSearch = () => {
         };
     }, [searchTerm, user]);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(e.target.value.trimStart());
         if (e.target.value.length === 0) {
             setIsResultsVisible(false);

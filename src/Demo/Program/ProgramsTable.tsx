@@ -17,6 +17,7 @@ import { AssignProgramsToStudentDialog } from './AssignProgramsToStudentDialog';
 import { COUNTRIES_ARRAY_OPTIONS } from '../../utils/contants';
 import { PROGRAM_SUBJECTS } from '@taiger-common/core';
 import { calculateProgramLockStatus } from '../Utils/checking-functions';
+import { MRT_ColumnDef } from 'material-react-table';
 
 export const ProgramsTable = ({ isLoading, data, student }) => {
     const customTableStyles = useTableStyles();
@@ -34,7 +35,7 @@ export const ProgramsTable = ({ isLoading, data, student }) => {
         })
     );
 
-    const columns = [
+    const columns: Array<MRT_ColumnDef<any>> = [
         {
             accessorFn: (row) => {
                 const lockStatus = calculateProgramLockStatus(row.original);

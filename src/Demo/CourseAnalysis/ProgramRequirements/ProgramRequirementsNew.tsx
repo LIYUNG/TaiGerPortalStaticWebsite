@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, type ChangeEvent, type FormEvent } from 'react';
 import {
     Autocomplete,
     Box,
@@ -64,7 +64,7 @@ const ProgramRequirementsNew = ({ programsAndCourseKeywordSets }) => {
     });
 
     const navigate = useNavigate();
-    const handleScores = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleScores = (e: ChangeEvent<HTMLInputElement>) => {
         setScores((prevState) => ({
             ...prevState,
             [e.target.name]: e.target.value
@@ -130,7 +130,7 @@ const ProgramRequirementsNew = ({ programsAndCourseKeywordSets }) => {
         );
     };
 
-    const onSubmitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
+    const onSubmitHandler = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setIsSubmitting(true);
         const inputObject = {

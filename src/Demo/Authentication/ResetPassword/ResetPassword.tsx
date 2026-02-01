@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
     Button,
@@ -37,7 +37,7 @@ export default function ResetPassword() {
         return true;
     };
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (passwordValidation()) {
             try {

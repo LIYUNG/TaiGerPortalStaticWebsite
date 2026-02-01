@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, type ChangeEvent, type MouseEvent } from 'react';
 import { Link as LinkDom, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -171,7 +171,7 @@ const SurveyForm = ({
     );
     const [collapseOpen, setCollapseOpen] = useState(isCollapse || !title);
 
-    const handleTitleClick = (e: React.MouseEvent<HTMLElement>) => {
+    const handleTitleClick = (e: MouseEvent<HTMLElement>) => {
         e.stopPropagation();
         setCollapseOpen((prevOpen) => !prevOpen);
     };
@@ -461,7 +461,7 @@ const DocModificationThreadInput = () => {
         }));
     };
 
-    const onChangeEditorRequirements = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const onChangeEditorRequirements = (e: ChangeEvent<HTMLInputElement>) => {
         const name = e.target.name;
         if (name === 'useProgramRequirementData') {
             const checked = e.target.checked;

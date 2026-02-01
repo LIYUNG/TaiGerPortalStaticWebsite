@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, type FormEvent } from 'react';
 import {
     Box,
     Breadcrumbs,
@@ -86,7 +86,7 @@ const DownloadPage = () => {
         }));
     };
 
-    const onSubmitFile = (e: React.FormEvent<HTMLFormElement>, category: string) => {
+    const onSubmitFile = (e: FormEvent<HTMLFormElement>, category: string) => {
         e.preventDefault();
         const formData = new FormData();
         formData.append('file', downloadPageState.file);
@@ -133,7 +133,10 @@ const DownloadPage = () => {
         );
     };
 
-    const submitFile = (e: React.FormEvent<HTMLFormElement>, docName: string) => {
+    const submitFile = (
+        e: React.FormEvent<HTMLFormElement>,
+        docName: string
+    ) => {
         if (downloadPageState.file === '') {
             e.preventDefault();
             alert('Please select file');
@@ -143,7 +146,10 @@ const DownloadPage = () => {
         }
     };
 
-    const onDeleteTemplateFile = (e: React.MouseEvent<HTMLElement>, category: string) => {
+    const onDeleteTemplateFile = (
+        e: React.MouseEvent<HTMLElement>,
+        category: string
+    ) => {
         e.preventDefault();
         deleteTemplateFile(category).then(
             (resp) => {

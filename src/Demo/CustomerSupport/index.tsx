@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import { Suspense } from 'react';
 import { useLoaderData, Await } from 'react-router-dom';
 import { Box } from '@mui/material';
 

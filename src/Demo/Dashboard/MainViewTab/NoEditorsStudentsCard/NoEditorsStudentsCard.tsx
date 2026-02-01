@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Button,
@@ -51,7 +51,11 @@ const NoEditorsStudentsCard = (props) => {
         }));
     };
 
-    const submitUpdateEditorlist = (e: React.FormEvent<HTMLFormElement>, updateEditorList: unknown, student_id: string) => {
+    const submitUpdateEditorlist = (
+        e: FormEvent<HTMLFormElement>,
+        updateEditorList: unknown,
+        student_id: string
+    ) => {
         e.preventDefault();
         setEditorModalhide();
         props.submitUpdateEditorlist(e, updateEditorList, student_id);

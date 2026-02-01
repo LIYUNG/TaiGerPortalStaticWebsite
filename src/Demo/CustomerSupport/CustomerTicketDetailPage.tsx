@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import { Suspense } from 'react';
 import { useLoaderData, Await, useNavigate } from 'react-router-dom';
 import { Box, Button, Grid, Paper, Typography } from '@mui/material';
 
