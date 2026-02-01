@@ -33,3 +33,58 @@ jest.mock('react-i18next', () => ({
 }));
 
 // Note: export-to-csv and query-string are mocked in src/__mocks__/ directory
+
+// Prevent real HTTP requests in tests (avoids Cross-Origin / Network Error warnings)
+const mockAxiosInstance = {
+    get: jest.fn().mockResolvedValue({ data: {}, status: 200 }),
+    post: jest.fn().mockResolvedValue({ data: {}, status: 200 }),
+    put: jest.fn().mockResolvedValue({ data: {}, status: 200 }),
+    delete: jest.fn().mockResolvedValue({ data: {}, status: 200 }),
+    request: jest.fn().mockResolvedValue({ data: {}, status: 200 })
+};
+jest.mock('axios', () => ({
+    create: () => mockAxiosInstance,
+    ...mockAxiosInstance
+}));
+
+// Suppress React Router v7 future-flag deprecation warnings in tests (we opt-in via createMemoryRouter where used)
+const originalConsoleWarn = console.warn;
+console.warn = (...args: unknown[]) => {
+    const msg = typeof args[0] === 'string' ? args[0] : String(args[0]);
+    if (
+        msg.includes('React Router Future Flag Warning') ||
+        msg.includes('v7_startTransition') ||
+        msg.includes('v7_relativeSplatPath')
+    ) {
+        return;
+    }
+    originalConsoleWarn.apply(console, args);
+};
+
+// Suppress known test noise: React act() warnings and React Router ErrorBoundary route errors
+const originalConsoleError = console.error;
+console.error = (...args: unknown[]) => {
+    const msg = typeof args[0] === 'string' ? args[0] : String(args[0]);
+    if (
+        (msg.includes('An update to ') && msg.includes('inside a test was not wrapped in act(...)')) ||
+        msg.includes('Error handled by React Router default ErrorBoundary') ||
+        (msg.includes('No route matches') || msg.includes('No routes matched'))
+    ) {
+        return;
+    }
+    try {
+        originalConsoleError.apply(console, args);
+    } catch {
+        // Avoid rethrowing if ErrorBoundary or other code passes non-standard args
+    }
+};
+
+// ResizeObserver is not available in happy-dom; many MUI/components use it
+class ResizeObserverMock {
+    observe(): void {}
+    disconnect(): void {}
+    unobserve(): void {}
+}
+if (typeof window !== 'undefined' && !window.ResizeObserver) {
+    window.ResizeObserver = ResizeObserverMock as unknown as typeof ResizeObserver;
+}

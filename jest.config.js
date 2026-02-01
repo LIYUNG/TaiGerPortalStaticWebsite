@@ -18,7 +18,8 @@ module.exports = {
     moduleNameMapper: {
         '^@/(.*)$': '<rootDir>/src/$1',
         '^(\\.\\./)+env$': '<rootDir>/src/__mocks__/env.ts',
-        '^(\\./)?env$': '<rootDir>/src/__mocks__/env.ts'
+        '^(\\./)?env$': '<rootDir>/src/__mocks__/env.ts',
+        '\\.(css|scss|sass)$': '<rootDir>/src/__mocks__/styleMock.js'
     },
     transform: {
         '^.+\\.[tj]sx?$': 'babel-jest'
