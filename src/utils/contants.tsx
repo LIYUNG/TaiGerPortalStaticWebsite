@@ -29,8 +29,10 @@ import { appConfig } from '../config';
 import DEMO from '../store/constant';
 import { is_TaiGer_Student } from '@taiger-common/core';
 import i18next from 'i18next';
-import { APPROVAL_COUNTRIES } from '../Demo/Utils/checking-functions';
+import { APPROVAL_COUNTRIES } from '../Demo/Utils/util_functions';
 import { MRT_ColumnDef } from 'material-react-table';
+import type { IUserWithId, IApplicationWithId, IProgramWithId } from '../types/taiger-common';
+import type { DocumentThreadResponse, AgentResponse } from '../api/types';
 
 export const IS_DEV =
     !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
@@ -207,7 +209,7 @@ export const questionType = {
     essay: 'essay'
 };
 
-export const prepQuestions = (thread, isSpecific) => {
+export const prepQuestions = (thread: DocumentThreadResponse, isSpecific: boolean): any[] => {
     let questions = [];
     if (
         thread?.file_type?.includes('RL') ||
@@ -261,7 +263,7 @@ export const CVQuestions = () => {
     ];
 };
 
-export const RLQuestions = () => {
+export const RLQuestions = (thread?: DocumentThreadResponse): any[] => {
     return [
         {
             questionId: 'q1',
@@ -401,7 +403,7 @@ export const RLQuestions = () => {
     ];
 };
 
-export const MLQuestions = (thread, isSpecific) => {
+export const MLQuestions = (thread: DocumentThreadResponse, isSpecific: boolean): any[] => {
     if (isSpecific) {
         return [
             {
@@ -511,12 +513,12 @@ export const daysOfWeek = [
 
 export const bufferDays = 2;
 
-export const getTodayAsWeekday = (timezone) => {
+export const getTodayAsWeekday = (timezone: string): number => {
     const now = DateTime.fromObject({}, { zone: timezone });
     return now.weekday - 1 + bufferDays;
 };
 
-export const getReorderWeekday = (index) => {
+export const getReorderWeekday = (index: number): string[] | string => {
     let delayed_index = index;
     delayed_index = delayed_index % 7;
     if (delayed_index >= 0 && delayed_index <= 6) {
@@ -528,7 +530,7 @@ export const getReorderWeekday = (index) => {
         return 'Invalid index';
     }
 };
-export const NoonNightLabel = (start) => {
+export const NoonNightLabel = (start: string | Date): string => {
     const start_temp = new Date(start);
     return start_temp.getHours() === 12 && start_temp.getMinutes() === 0
         ? '(Noon)'
@@ -537,7 +539,14 @@ export const NoonNightLabel = (start) => {
           : '';
 };
 
-export const transformObjectToArray = (inputObject) => {
+export const transformObjectToArray = (inputObject: Record<string, any>): Array<{
+    date: string;
+    apiCallCount: number;
+    get: number;
+    post: number;
+    put: number;
+    delete: number;
+}> => {
     return Object.entries(inputObject).map(([date, apiCallCount]) => ({
         date,
         apiCallCount: apiCallCount.TOTAL,
@@ -563,9 +572,9 @@ export const getLast180DaysSet = () => {
     return last180DaysSet;
 };
 
-export const getLast180DaysObject = () => {
+export const getLast180DaysObject = (): Record<string, any> => {
     const today = new Date();
-    const last180DaysObject = {};
+    const last180DaysObject: Record<string, any> = {};
 
     for (let i = 0; i < 180; i++) {
         const currentDate = new Date(today);
@@ -584,7 +593,7 @@ export const getLast180DaysObject = () => {
     return last180DaysObject;
 };
 
-const convertISOToCustomFormat = (isoString) => {
+const convertISOToCustomFormat = (isoString: string): string => {
     const date = new Date(isoString);
     const year = date.getUTCFullYear();
     const month = String(date.getUTCMonth() + 1).padStart(2, '0');
@@ -596,7 +605,7 @@ const convertISOToCustomFormat = (isoString) => {
     return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.000+00:00`;
 };
 
-export const getUTCWithDST = (year, month, day, timezone, timeslot) => {
+export const getUTCWithDST = (year: number, month: number, day: number, timezone: string, timeslot: string): string => {
     // Create a Moment object for the current date and time in the specified timezone
     const localTime = moment.tz(timezone);
     const [hours, minutes] = timeslot.split(':').map(Number);
@@ -626,18 +635,18 @@ export const getUTCWithDST = (year, month, day, timezone, timeslot) => {
     return convertISOToCustomFormat(a.utc().format());
 };
 
-export const getLocalTime = (utc_time, timezone) => {
+export const getLocalTime = (utc_time: Date, timezone: string): string => {
     const utcMoment = moment.utc(`${utc_time.toISOString()}`).tz(timezone);
     const localTime = utcMoment.tz(timezone);
     return localTime.format();
 };
-export const getUTCTimezoneOffset = (utc_time, timezone) => {
+export const getUTCTimezoneOffset = (utc_time: Date, timezone: string): number => {
     const utcMoment = moment.utc(`${utc_time.toISOString()}`);
     const localTime = utcMoment.clone().tz(timezone);
     const timeZoneOffsetMinutes = localTime.utcOffset();
     return timeZoneOffsetMinutes;
 };
-export const getTimezoneOffset = (timezone) => {
+export const getTimezoneOffset = (timezone?: string): number => {
     const zone = IANAZone.create(
         timezone ? timezone : Intl.DateTimeFormat().resolvedOptions().timeZone
     );
@@ -655,7 +664,7 @@ export const showTimezoneOffset = () => {
         : getTimezoneOffset(Intl.DateTimeFormat().resolvedOptions().timeZone);
 };
 
-export const shiftDateByOffset = (originalDate, offsetHours) => {
+export const shiftDateByOffset = (originalDate: Date, offsetHours: number): Date => {
     const shiftedDate = new Date(originalDate);
     const hours = Math.floor(offsetHours); // Get the whole number of hours
     const minutes = (offsetHours - hours) * 60; // Convert decimal to minutes
@@ -665,7 +674,7 @@ export const shiftDateByOffset = (originalDate, offsetHours) => {
     return shiftedDate;
 };
 
-export const getNextDayDate = (reorder_weekday, dayOfWeek, timezone, nextN) => {
+export const getNextDayDate = (reorder_weekday: string[], dayOfWeek: string, timezone: string, nextN: number): { weekdayLong: string | null; year: number; month: number; day: number } => {
     const now = DateTime.fromObject({}, { zone: timezone });
     const targetDayIndex = reorder_weekday.indexOf(dayOfWeek); // dayOfWeek is explicitly predefined. (Monday....) 0-6
 
@@ -838,7 +847,7 @@ export const valid_internal_categories = [
     { key: 'others', value: 'Others' }
 ];
 
-export const split_header = (header_name) => {
+export const split_header = (header_name: string): React.ReactElement => {
     const rest = header_name.substring(0, header_name.lastIndexOf(' ') + 1);
     const last = header_name.substring(
         header_name.lastIndexOf(' ') + 1,
@@ -853,9 +862,9 @@ export const split_header = (header_name) => {
     );
 };
 
-export const stringToColor = (str) => {
+export const stringToColor = (str: string): string => {
     let hash = 0;
-    let i;
+    let i: number;
 
     /* eslint-disable no-bitwise */
     for (i = 0; i < str.length; i += 1) {
@@ -873,7 +882,7 @@ export const stringToColor = (str) => {
     return color;
 };
 
-const getBrightness = (hexColor) => {
+const getBrightness = (hexColor: string): number => {
     const r = parseInt(hexColor.slice(1, 3), 16);
     const g = parseInt(hexColor.slice(3, 5), 16);
     const b = parseInt(hexColor.slice(5, 7), 16);
@@ -881,7 +890,7 @@ const getBrightness = (hexColor) => {
     return (r * 299 + g * 587 + b * 114) / 1000;
 };
 
-export const stringAvatar = (name) => {
+export const stringAvatar = (name: string): { sx: { bgcolor: string; color: string }; children: string } => {
     const backgroundColor = stringToColor(name);
 
     const textColor =
@@ -896,7 +905,7 @@ export const stringAvatar = (name) => {
     };
 };
 
-export const isInTheFuture = (end) => {
+export const isInTheFuture = (end: string | Date): boolean => {
     const now = new Date();
     const date = new Date(end);
 
@@ -905,7 +914,7 @@ export const isInTheFuture = (end) => {
 
 export const twoYearsInDays = 730; // days
 
-export const getDate = (date) => {
+export const getDate = (date: string | Date): string => {
     // const userLocale = navigator.language;
     const dat = new Date(date)
         .toLocaleDateString('zh-Hans-CN', {
@@ -935,7 +944,7 @@ export const getDate = (date) => {
     }
 };
 
-export const getTime = (date) => {
+export const getTime = (date: string | Date): string => {
     // const userLocale = navigator.language;
     const time = new Date(date).toLocaleTimeString('en-US', {
         hour: '2-digit',
@@ -945,7 +954,7 @@ export const getTime = (date) => {
     return `${time}`;
 };
 
-export const convertDate = (date) => {
+export const convertDate = (date: string | Date): string => {
     // const userLocale = navigator.language;
     const dat = new Date(date)
         ?.toLocaleDateString('zh-Hans-CN', {
@@ -1164,11 +1173,11 @@ export const program_fields = [
 export const programField2Label = program_fields.reduce((acc, field) => {
     acc[field.prop] = field.name;
     return acc;
-}, {});
+}, {} as Record<string, string>);
 
 export const programFieldOrder = program_fields.map((field) => field.prop);
 
-export const sortProgramFields = (a, b) => {
+export const sortProgramFields = (a: string, b: string): number => {
     const indexA = programFieldOrder.indexOf(a);
     const indexB = programFieldOrder.indexOf(b);
     if (indexA === -1 && indexB === -1) return 0; // Both are not in `order` = equal
@@ -1177,11 +1186,11 @@ export const sortProgramFields = (a, b) => {
     return indexA - indexB;
 };
 
-export const convertDateUXFriendly = (date) => {
+export const convertDateUXFriendly = (date: string | Date): string => {
     const currentDate = new Date();
     const input_date_point = new Date(date);
     // Calculate the time difference in milliseconds
-    const timeDiff = Math.abs(currentDate - input_date_point);
+    const timeDiff = Math.abs(currentDate.getTime() - input_date_point.getTime());
 
     // Convert milliseconds to minutes, hours, days, and weeks
     const minutes = Math.floor(timeDiff / (1000 * 60));
@@ -1216,7 +1225,7 @@ const create_years = (start_year: number, end_year: number) => {
     return year_array;
 };
 
-export const isProgramValid = (program) => {
+export const isProgramValid = (program: IProgramWithId): boolean => {
     const pattern = /^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/;
     if (
         !program.application_deadline?.toLowerCase()?.includes('rolling') &&
@@ -1238,7 +1247,7 @@ export const isProgramValid = (program) => {
     }
 };
 
-export const showFieldAlert = (program) => {
+export const showFieldAlert = (program: IProgramWithId): void => {
     if (!program.school) {
         alert('Please fill School name completely');
         return;
@@ -1510,7 +1519,7 @@ export const DEGREE_ARRAY_OPTIONS = [
     { value: 'BachelorMaster', label: 'BachelorMaster' }
 ];
 
-export const is_new_message_status = (user, thread) => {
+export const is_new_message_status = (user: IUserWithId, thread: DocumentThreadResponse): boolean => {
     if (thread.isFinalVersion) {
         return false;
     }
@@ -1528,11 +1537,11 @@ export const is_new_message_status = (user, thread) => {
     }
 };
 
-export const is_my_fav_message_status = (user, thread) => {
+export const is_my_fav_message_status = (user: IUserWithId, thread: DocumentThreadResponse): boolean => {
     return thread.flag_by_user_id?.includes(user._id.toString());
 };
 
-export const is_pending_status = (user, thread) => {
+export const is_pending_status = (user: IUserWithId, thread: DocumentThreadResponse): boolean => {
     return !is_new_message_status(user, thread);
 };
 
@@ -1691,7 +1700,7 @@ export const c1_mrt: Array<MRT_ColumnDef<any>> = [
         size: 120,
         Cell: (params) => {
             return params.row.original.file_type === 'Essay'
-                ? params.row.original.outsourced_user_id?.map((outsourcer) => (
+                ? params.row.original.outsourced_user_id?.map((outsourcer: any) => (
                       <Box
                           key={`${outsourcer._id.toString()}`}
                           sx={{
@@ -1713,7 +1722,7 @@ export const c1_mrt: Array<MRT_ColumnDef<any>> = [
                           </Link>
                       </Box>
                   )) || []
-                : params.row.original.editors?.map((editor) => (
+                : params.row.original.editors?.map((editor: any) => (
                       <Link
                           component={LinkDom}
                           key={`${editor._id.toString()}`}
@@ -1848,7 +1857,7 @@ export const c1_mrt: Array<MRT_ColumnDef<any>> = [
             return (
                 <Box>
                     {row.original?.attributes?.map(
-                        (attribute) =>
+                        (attribute: any) =>
                             [1, 3, 9, 10, 11].includes(attribute.value) && (
                                 <Tooltip
                                     key={attribute._id}
@@ -2011,7 +2020,7 @@ export const c1 = [
         align: 'left',
         headerAlign: 'left',
         width: 150,
-        renderCell: (params) => {
+        renderCell: (params: any) => {
             const linkUrl = `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
                 params.row.student_id,
                 DEMO.PROFILE_HASH
@@ -2035,9 +2044,9 @@ export const c1 = [
         align: 'left',
         headerAlign: 'left',
         minWidth: 150,
-        renderCell: (params) => {
+        renderCell: (params: any) => {
             return params.row.file_type === 'Essay'
-                ? params.row.outsourced_user_id?.map((outsourcer) => (
+                ? params.row.outsourced_user_id?.map((outsourcer: any) => (
                       <Link
                           component={LinkDom}
                           key={`${outsourcer._id.toString()}`}
@@ -2049,7 +2058,7 @@ export const c1 = [
                           {`${outsourcer.firstname} `}
                       </Link>
                   )) || []
-                : params.value?.map((editor) => (
+                : params.value?.map((editor: any) => (
                       <Link
                           component={LinkDom}
                           key={`${editor._id.toString()}`}
@@ -2077,7 +2086,7 @@ export const c1 = [
         field: 'document_name',
         headerName: 'Document name',
         minWidth: 380,
-        renderCell: (params) => {
+        renderCell: (params: any) => {
             const linkUrl = `${DEMO.DOCUMENT_MODIFICATION_LINK(
                 params.row.thread_id
             )}`;
@@ -2102,7 +2111,7 @@ export const c1 = [
             return (
                 <>
                     {params.row?.attributes?.map(
-                        (attribute) =>
+                        (attribute: any) =>
                             [1, 3, 9, 10, 11].includes(attribute.value) && (
                                 <Tooltip
                                     key={attribute._id}

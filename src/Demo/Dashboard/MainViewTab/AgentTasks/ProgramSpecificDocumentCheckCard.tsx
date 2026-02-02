@@ -5,7 +5,7 @@ import { Card, Alert, Typography, Link } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 
 import { useAuth } from '../../../../components/AuthProvider';
-import { AGENT_SUPPORT_DOCUMENTS_A } from '../../../Utils/checking-functions';
+import { AGENT_SUPPORT_DOCUMENTS_A } from '../../../Utils/util_functions';
 import DEMO from '../../../../store/constant';
 
 const ProgramSpecificDocumentCheckCard = (props) => {

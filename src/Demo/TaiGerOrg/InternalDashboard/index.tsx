@@ -21,7 +21,7 @@ import OverviewDashboardTab from './OverviewDashboardTab';
 import AgentDashboard from './AgentDashboard';
 import KPIDashboardTab from './KPIDashboardTab';
 import ResponseTimeDashboardTab from './ResponseTimeDashboardTab';
-import { calculateDuration } from '../../Utils/checking-functions';
+import { calculateDuration } from '../../Utils/util_functions';
 import {
     getStatisticsOverviewQuery,
     getStatisticsAgentsQuery,

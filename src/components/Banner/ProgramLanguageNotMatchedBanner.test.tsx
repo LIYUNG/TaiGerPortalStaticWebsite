@@ -1,8 +1,7 @@
-import React from 'react';
 import { render } from '@testing-library/react';
 import ProgramLanguageNotMatchedBanner from './ProgramLanguageNotMatchedBanner';
 
-jest.mock('../../Demo/Utils/checking-functions', () => ({
+jest.mock('../../Demo/Utils/util_functions', () => ({
     isLanguageNotMatchedInAnyProgram: jest.fn().mockReturnValue(false),
     languageNotMatchedPrograms: jest.fn().mockReturnValue([])
 }));

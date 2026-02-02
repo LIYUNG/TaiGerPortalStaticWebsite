@@ -17,7 +17,7 @@ import {
 import {
     areProgramsDecidedMoreThanContract,
     is_num_Program_Not_specified
-} from '../../../Utils/checking-functions';
+} from '../../../Utils/util_functions';
 import DEMO from '../../../../store/constant';
 import { useAuth } from '../../../../components/AuthProvider';
 

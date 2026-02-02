@@ -8,7 +8,7 @@ import {
     Tooltip
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { calculateApplicationLockStatus } from '../Utils/checking-functions';
+import { calculateApplicationLockStatus } from '../Utils/util_functions';
 const GENERAL_FILTE_TYPE = [
     { name: 'Please Select', value: '' },
     { name: 'CV', value: 'CV' },

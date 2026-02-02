@@ -24,7 +24,7 @@ import {
     FILE_TYPE_E,
     open_tasks_v2,
     toogleItemInArray
-} from '../Utils/checking-functions';
+} from '../Utils/util_functions';
 import DEMO from '../../store/constant';
 import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';

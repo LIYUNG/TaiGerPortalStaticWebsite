@@ -21,7 +21,7 @@ import {
     open_tasks_v2,
     AGENT_SUPPORT_DOCUMENTS_A,
     FILE_TYPE_E
-} from '../../Utils/checking-functions';
+} from '../../Utils/util_functions';
 import {
     is_new_message_status,
     is_pending_status

@@ -50,7 +50,7 @@ import {
     toogleItemInArray,
     calculateProgramLockStatus,
     calculateApplicationLockStatus
-} from '../../Utils/checking-functions';
+} from '../../Utils/util_functions';
 import {
     SubmitMessageWithAttachment,
     deleteAMessageInThread,

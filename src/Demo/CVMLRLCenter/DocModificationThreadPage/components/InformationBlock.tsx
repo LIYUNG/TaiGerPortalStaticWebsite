@@ -45,7 +45,7 @@ import { stringAvatar } from '../../../../utils/contants';
 import {
     AGENT_SUPPORT_DOCUMENTS_A,
     FILE_TYPE_E
-} from '../../../Utils/checking-functions';
+} from '../../../Utils/util_functions';
 import { BASE_URL } from '../../../../api/request';
 import { TopBar } from '../../../../components/TopBar/TopBar';
 import DescriptionBlock from './DescriptionBlock';

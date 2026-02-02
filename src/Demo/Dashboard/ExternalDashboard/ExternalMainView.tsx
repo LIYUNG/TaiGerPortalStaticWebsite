@@ -4,7 +4,7 @@ import { Card, Grid, Typography } from '@mui/material';
 import {
     frequencyDistribution,
     open_tasks_with_editors
-} from '../../Utils/checking-functions';
+} from '../../Utils/util_functions';
 
 import { useTranslation } from 'react-i18next';
 import ProgramReportCard from '../../Program/ProgramReportCard';

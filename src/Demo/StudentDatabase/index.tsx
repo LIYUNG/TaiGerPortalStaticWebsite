@@ -15,7 +15,7 @@ import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { useTranslation } from 'react-i18next';
 import { getStudentsV3Query } from '../../api/query';
 import { StudentsTable } from './StudentsTable';
-import { student_transform } from '../Utils/checking-functions';
+import { student_transform } from '../Utils/util_functions';
 
 const StudentDatabase = () => {
     const { user } = useAuth();

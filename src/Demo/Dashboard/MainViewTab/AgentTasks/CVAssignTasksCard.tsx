@@ -16,7 +16,7 @@ import { Card, Typography } from '@mui/material';
 import {
     isCVFinished,
     is_cv_assigned
-} from '../../../Utils/checking-functions';
+} from '../../../Utils/util_functions';
 import DEMO from '../../../../store/constant';
 import { useAuth } from '../../../../components/AuthProvider';
 

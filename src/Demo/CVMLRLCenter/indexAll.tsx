@@ -11,7 +11,7 @@ import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';
 import Loading from '../../components/Loading/Loading';
 import { useTranslation } from 'react-i18next';
-import { open_tasks_v2 } from '../Utils/checking-functions';
+import { open_tasks_v2 } from '../Utils/util_functions';
 import { getActiveThreadsQuery } from '../../api/query';
 
 const CVMLRLCenterAll = () => {

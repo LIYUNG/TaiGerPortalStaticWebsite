@@ -1,4 +1,4 @@
-import { file_category_const } from './checking-functions';
+import { file_category_const } from './util_functions';
 
 interface DocumentEntryCounts {
     required?: number;

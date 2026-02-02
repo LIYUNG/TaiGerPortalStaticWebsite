@@ -26,7 +26,7 @@ import { TopToolbar } from '../../components/table/students-table/TopToolbar';
 import EditAgentsSubpage from '../Dashboard/MainViewTab/StudDocsOverview/EditAgentsSubpage';
 import EditEditorsSubpage from '../Dashboard/MainViewTab/StudDocsOverview/EditEditorsSubpage';
 import EditAttributesSubpage from '../Dashboard/MainViewTab/StudDocsOverview/EditAttributesSubpage';
-import { is_User_Archived } from '../Utils/checking-functions';
+import { is_User_Archived } from '../Utils/util_functions';
 
 const columnHelper = createMRTColumnHelper();
 

@@ -12,7 +12,7 @@ import { useAuth } from '../../../components/AuthProvider';
 import { appConfig } from '../../../config';
 import { BreadcrumbsNavigation } from '../../../components/BreadcrumbsNavigation/BreadcrumbsNavigation';
 import { getActiveThreadsQuery } from '../../../api/query';
-import { file_category_const } from '../../../Demo/Utils/checking-functions';
+import { file_category_const } from '../../../Demo/Utils/util_functions';
 import Loading from '../../../components/Loading/Loading';
 
 const AssignEssayWriters = () => {

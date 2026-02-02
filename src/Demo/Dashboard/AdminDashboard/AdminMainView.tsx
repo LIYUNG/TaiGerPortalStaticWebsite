@@ -18,7 +18,7 @@ import useStudents from '../../../hooks/useStudents';
 import ProgramReportCard from '../../Program/ProgramReportCard';
 import MiniAudit from '../../Audit/MiniAudit';
 import { StudentsTable } from '../../StudentDatabase/StudentsTable';
-import { student_transform } from '../../Utils/checking-functions';
+import { student_transform } from '../../Utils/util_functions';
 import { useQuery } from '@tanstack/react-query';
 import {
     getStudentsV3Query,

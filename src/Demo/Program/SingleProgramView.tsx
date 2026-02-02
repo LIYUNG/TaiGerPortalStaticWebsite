@@ -45,12 +45,11 @@ import {
     is_TaiGer_Student,
     isProgramWithdraw
 } from '@taiger-common/core';
-
+import { LinkableNewlineText } from '../Utils/checking-functions';
 import {
     isApplicationOpen,
-    LinkableNewlineText,
     calculateProgramLockStatus
-} from '../Utils/checking-functions';
+} from '../Utils/util_functions';
 import {
     IS_DEV,
     convertDate,

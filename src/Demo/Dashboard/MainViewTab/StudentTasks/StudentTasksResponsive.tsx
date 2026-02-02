@@ -20,7 +20,7 @@ import {
     all_applications_results_updated,
     has_admissions,
     calculateApplicationLockStatus
-} from '../../../Utils/checking-functions';
+} from '../../../Utils/util_functions';
 import { appConfig } from '../../../../config';
 
 const StudentTasksResponsive = (props) => {

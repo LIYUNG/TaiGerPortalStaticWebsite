@@ -28,7 +28,7 @@ import {
     open_tasks_v2,
     programs_refactor_v2,
     progressBarCounter
-} from '../../Utils/checking-functions';
+} from '../../Utils/util_functions';
 import DEMO from '../../../store/constant';
 import ApplicationProgressCardBody from '../../../components/ApplicationProgressCard/ApplicationProgressCardBody';
 import ProgramReportCard from '../../Program/ProgramReportCard';

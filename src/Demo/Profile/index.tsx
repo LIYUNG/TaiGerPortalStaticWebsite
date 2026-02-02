@@ -30,7 +30,7 @@ import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { updatePersonalData, getUser } from '../../api';
 import { TabTitle } from '../Utils/TabTitle';
-import { is_personal_data_filled } from '../Utils/checking-functions';
+import { is_personal_data_filled } from '../Utils/util_functions';
 import DEMO from '../../store/constant';
 import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';

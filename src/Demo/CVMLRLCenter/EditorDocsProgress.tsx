@@ -34,12 +34,12 @@ import type { Application } from '../../api/types';
 
 import ManualFiles from './ManualFiles';
 import ApplicationLockControl from '../../components/ApplicationLockControl/ApplicationLockControl';
+import { LinkableNewlineText } from '../Utils/checking-functions';
 import {
-    LinkableNewlineText,
     application_deadline_V2_calculator,
     calculateProgramLockStatus,
     calculateApplicationLockStatus
-} from '../Utils/checking-functions';
+} from '../Utils/util_functions';
 import { FILE_OK_SYMBOL, spinner_style2 } from '../../utils/contants';
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';

@@ -28,7 +28,7 @@ import {
     is_any_vpd_missing,
     programs_refactor,
     progressBarCounter
-} from '../../Utils/checking-functions';
+} from '../../Utils/util_functions';
 import NoProgramStudentTask from '../MainViewTab/AgentTasks/NoProgramStudentTask';
 import DEMO from '../../../store/constant';
 import ApplicationProgressCardBody from '../../../components/ApplicationProgressCard/ApplicationProgressCardBody';

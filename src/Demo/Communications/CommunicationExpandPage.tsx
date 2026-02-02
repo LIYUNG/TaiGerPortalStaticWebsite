@@ -38,7 +38,7 @@ import {
 import EmbeddedChatList from '../../components/EmbeddedChatList';
 import { FetchStudentLayer } from '../StudentDatabase/FetchStudentLayer';
 import CommunicationExpandPageMessagesComponent from './CommunicationExpandPageMessagesComponent';
-import { truncateText } from '../Utils/checking-functions';
+import { truncateText } from '../Utils/util_functions';
 import { getCommunicationQuery } from '../../api/query';
 import ChildLoading from '../../components/Loading/ChildLoading';
 

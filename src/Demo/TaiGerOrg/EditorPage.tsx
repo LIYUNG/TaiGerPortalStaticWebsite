@@ -33,7 +33,7 @@ import {
     formatDate,
     frequencyDistribution,
     open_tasks_v2
-} from '../Utils/checking-functions';
+} from '../Utils/util_functions';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '../../store/constant';
 import TasksDistributionBarChart from '../../components/Charts/TasksDistributionBarChart';

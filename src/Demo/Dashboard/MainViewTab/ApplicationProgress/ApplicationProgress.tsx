@@ -15,7 +15,7 @@ import {
     DECISION_STATUS_E,
     SUBMISSION_STATUS_E
 } from '../../../../utils/contants';
-import { application_deadline_V2_calculator } from '../../../Utils/checking-functions';
+import { application_deadline_V2_calculator } from '../../../Utils/util_functions';
 import DEMO from '../../../../store/constant';
 
 function ApplicationProgress(props) {

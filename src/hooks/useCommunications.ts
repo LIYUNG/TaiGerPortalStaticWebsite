@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { is_TaiGer_role } from '@taiger-common/core';
 
 import { useAuth } from '../components/AuthProvider';
-import { readDOCX, readPDF, readXLSX } from '../Demo/Utils/checking-functions';
+import { readDOCX, readPDF, readXLSX } from '../Demo/Utils/util_functions';
 import {
     deleteAMessageInCommunicationThreadV2,
     loadCommunicationThread,

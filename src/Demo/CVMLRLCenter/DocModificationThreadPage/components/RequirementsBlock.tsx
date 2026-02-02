@@ -2,10 +2,8 @@ import React from 'react';
 import { Box, Stack, Typography, useTheme } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
-import {
-    LinkableNewlineText,
-    getRequirement
-} from '../../../Utils/checking-functions';
+import { LinkableNewlineText } from '../../../Utils/checking-functions';
+import { getRequirement } from '../../../Utils/util_functions';
 
 const RequirementsBlock = ({ thread, isGeneralRL }) => {
     const theme = useTheme();

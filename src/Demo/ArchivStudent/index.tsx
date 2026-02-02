@@ -17,7 +17,7 @@ import Loading from '../../components/Loading/Loading';
 import { appConfig } from '../../config';
 import { BreadcrumbsNavigation } from '../../components/BreadcrumbsNavigation/BreadcrumbsNavigation';
 import { StudentsTable } from '../StudentDatabase/StudentsTable';
-import { student_transform } from '../Utils/checking-functions';
+import { student_transform } from '../Utils/util_functions';
 
 const ArchivStudents = () => {
     const { user } = useAuth();

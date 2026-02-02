@@ -26,7 +26,7 @@ import { MuiDataGrid } from '../../components/MuiDataGrid';
 import DEMO from '../../store/constant';
 import { ATTRIBUTES, COLORS } from '../../utils/contants';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-import { APPROVAL_COUNTRIES } from '../Utils/checking-functions';
+import { APPROVAL_COUNTRIES } from '../Utils/util_functions';
 
 CustomTabPanel.propTypes = {
     children: PropTypes.node,

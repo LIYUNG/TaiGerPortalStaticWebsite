@@ -44,7 +44,7 @@ import DEMO from '../../store/constant';
 import {
     application_deadline_V2_calculator,
     progressBarCounter
-} from '../../Demo/Utils/checking-functions';
+} from '../../Demo/Utils/util_functions';
 import { BASE_URL } from '../../api/request';
 import {
     FILE_NOT_OK_SYMBOL,

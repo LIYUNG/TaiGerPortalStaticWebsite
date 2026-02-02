@@ -58,7 +58,7 @@ import {
 import {
     needGraduatedApplicantsButStudentNotGraduated,
     needGraduatedApplicantsPrograms
-} from '../Utils/checking-functions';
+} from '../Utils/util_functions';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { updateArchivStudents } from '../../api';
 import { TabTitle } from '../Utils/TabTitle';

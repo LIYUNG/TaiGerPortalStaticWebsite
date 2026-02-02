@@ -82,7 +82,7 @@ export const getActiveThreadsQuery = (queryString: QueryString) => ({
     select: (data: { data?: unknown } | undefined) => data?.data || []
 });
 
-export const getProgramQuery = ({ programId }) => ({
+export const getProgramQuery = ({ programId }: { programId: string }) => ({
     queryKey: ['programs', programId],
     queryFn: () => getProgramV2(programId),
     staleTime: 1000 * 60 // 1 minutes
@@ -167,7 +167,7 @@ export const getUsersCountQuery = () => ({
     queryKey: ['users/count'],
     queryFn: () => getUsersCount(),
     staleTime: 1000 * 60 * 5, // 5 minutes
-    select: (data) => data.data?.data || []
+    select: (data: { data?: { data?: unknown[] } }) => data.data?.data || []
 });
 
 export const getUsersOverviewQuery = () => ({
@@ -188,7 +188,7 @@ export const getStudentsV3Query = (queryString: QueryString) => ({
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
 
-export const getStudentQuery = (studentId) => ({
+export const getStudentQuery = (studentId: StudentId) => ({
     queryKey: ['student', studentId],
     queryFn: () => getStudent(studentId),
     staleTime: 1000 * 60 * 5 // 5 minutes
@@ -230,7 +230,7 @@ export const getMyCommunicationQuery = () => ({
     staleTime: 1000 * 30 // 30 seconds
 });
 
-export const getPDFQuery = (apiPath) => ({
+export const getPDFQuery = (apiPath: string) => ({
     queryKey: ['get-pdf', apiPath],
     queryFn: () => getPdfV2({ apiPath }),
     staleTime: 1000 * 60 * 1 // 50 seconds
@@ -296,7 +296,7 @@ export const getApplicationStudentV2Query = ({
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
 
-export const getStudentAndDocLinksQuery = ({ studentId }) => ({
+export const getStudentAndDocLinksQuery = ({ studentId }: { studentId: StudentId }) => ({
     queryKey: ['students/doc-links', studentId],
     queryFn: () => getStudentAndDocLinks(studentId),
     staleTime: 1000 * 60 * 5 // 5 minutes
@@ -423,7 +423,7 @@ export const getTeamMembersQuery = () => ({
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
 
-export const getExpenseQuery = (taigerUserId) => ({
+export const getExpenseQuery = (taigerUserId: UserId) => ({
     queryKey: ['expenses', 'user', taigerUserId],
     queryFn: () => getExpense(taigerUserId),
     staleTime: 1000 * 60 * 5 // 5 minutes

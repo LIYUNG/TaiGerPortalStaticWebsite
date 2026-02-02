@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 
 import DEMO from '../../../../store/constant';
 import { convertDate } from '../../../../utils/contants';
-import { calculateApplicationLockStatus } from '../../../Utils/checking-functions';
+import { calculateApplicationLockStatus } from '../../../Utils/util_functions';
 
 const RespondedThreads = (props) => {
     const { t } = useTranslation();

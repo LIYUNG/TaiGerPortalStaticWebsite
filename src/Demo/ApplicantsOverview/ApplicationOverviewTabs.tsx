@@ -10,10 +10,9 @@ import {
 
 import {
     frequencyDistribution,
-    // programs_refactor,
     programs_refactor_v2,
     student_transform
-} from '../Utils/checking-functions';
+} from '../Utils/util_functions';
 import ApplicationProgressCardBody from '../../components/ApplicationProgressCard/ApplicationProgressCardBody';
 import DEMO from '../../store/constant';
 import { useAuth } from '../../components/AuthProvider';

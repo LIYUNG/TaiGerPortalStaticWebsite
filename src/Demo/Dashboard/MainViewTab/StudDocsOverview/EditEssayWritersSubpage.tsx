@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next';
 import SaveIcon from '@mui/icons-material/Save';
 
 import { getEssayWriters } from '../../../../api';
-import { FILE_TYPE_E } from '../../../Utils/checking-functions';
+import { FILE_TYPE_E } from '../../../Utils/util_functions';
 
 const EditEssayWritersSubpage = (props) => {
     const [checkboxState, setCheckboxState] = useState({});

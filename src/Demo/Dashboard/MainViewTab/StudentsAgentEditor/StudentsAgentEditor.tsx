@@ -27,7 +27,7 @@ import {
 
 import EditAgentsSubpage from '../StudDocsOverview/EditAgentsSubpage';
 import EditEditorsSubpage from '../StudDocsOverview/EditEditorsSubpage';
-import { is_User_Archived } from '../../../Utils/checking-functions';
+import { is_User_Archived } from '../../../Utils/util_functions';
 
 import DEMO from '../../../../store/constant';
 import { useAuth } from '../../../../components/AuthProvider';

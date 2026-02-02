@@ -6,7 +6,7 @@ import { isProgramSubmitted } from '@taiger-common/core';
 import type { ApplicationProps } from '@taiger-common/core';
 
 import DEMO from '../../store/constant';
-import { isEnglishOK } from '../../Demo/Utils/checking-functions';
+import { isEnglishOK } from '../../Demo/Utils/util_functions';
 import {
     FILE_MISSING_SYMBOL,
     FILE_OK_SYMBOL,

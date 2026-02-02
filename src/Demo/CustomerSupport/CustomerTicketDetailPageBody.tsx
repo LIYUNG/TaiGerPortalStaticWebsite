@@ -39,7 +39,7 @@ import MessageList from '../../components/Message/MessageList';
 import { stringAvatar } from '../../utils/contants';
 import { useAuth } from '../../components/AuthProvider';
 import DocThreadEditor from '../../components/Message/DocThreadEditor';
-import { readDOCX, readPDF, readXLSX } from '../Utils/checking-functions';
+import { readDOCX, readPDF, readXLSX } from '../Utils/util_functions';
 import { TopBar } from '../../components/TopBar/TopBar';
 
 const CustomerTicketDetailPageBody = ({ complaintTicket }) => {

@@ -58,7 +58,7 @@ import SimilarStudents from './components/SimilarStudents';
 import StatusMenu from './components/StatusMenu';
 import { getDealId, isTerminalStatus } from './components/statusUtils';
 import { sanitizeMeetingTitle } from './components/meetingUtils';
-import { flattenObject } from '../Utils/checking-functions';
+import { flattenObject } from '../Utils/util_functions';
 import { TabTitle } from '../Utils/TabTitle';
 
 const LeadPage = () => {

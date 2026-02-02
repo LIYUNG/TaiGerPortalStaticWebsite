@@ -55,7 +55,7 @@ import {
     check_languages_filled,
     check_application_preference_filled,
     MissingSurveyFieldsListArray
-} from '../Utils/checking-functions';
+} from '../Utils/util_functions';
 import {
     APPLICATION_YEARS_FUTURE,
     EXPECTATION_APPLICATION_YEARS

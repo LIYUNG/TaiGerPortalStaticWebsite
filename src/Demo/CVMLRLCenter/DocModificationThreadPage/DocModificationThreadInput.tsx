@@ -33,10 +33,8 @@ import { is_TaiGer_role } from '@taiger-common/core';
 import ErrorPage from '../../Utils/ErrorPage';
 import ModalMain from '../../Utils/ModalHandler/ModalMain';
 import { prepQuestions, convertDate } from '../../../utils/contants';
-import {
-    LinkableNewlineText,
-    getRequirement
-} from '../../Utils/checking-functions';
+import { LinkableNewlineText } from '../../Utils/checking-functions';
+import { getRequirement } from '../../Utils/util_functions';
 import {
     cvmlrlAi2,
     getSurveyInputs,

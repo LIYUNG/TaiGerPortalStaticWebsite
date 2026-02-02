@@ -21,7 +21,7 @@ import {
     is_the_uni_assist_vpd_uploaded,
     is_program_closed,
     application_deadline_V2_calculator
-} from '../../../Utils/checking-functions';
+} from '../../../Utils/util_functions';
 import DEMO from '../../../../store/constant';
 import { isInTheFuture } from '../../../../utils/contants';
 

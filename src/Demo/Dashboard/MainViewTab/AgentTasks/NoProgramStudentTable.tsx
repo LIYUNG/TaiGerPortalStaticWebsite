@@ -12,7 +12,7 @@ import {
     Typography
 } from '@mui/material';
 
-import { anyStudentWithoutApplicationSelection } from '../../../Utils/checking-functions';
+import { anyStudentWithoutApplicationSelection } from '../../../Utils/util_functions';
 import NoProgramStudentTask from '../../MainViewTab/AgentTasks/NoProgramStudentTask';
 import { useAuth } from '../../../../components/AuthProvider';
 

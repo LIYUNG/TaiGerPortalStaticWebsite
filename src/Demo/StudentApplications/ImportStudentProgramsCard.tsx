@@ -21,7 +21,7 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import EmailIcon from '@mui/icons-material/Email';
-import { highlightText } from '../Utils/checking-functions';
+import { HighlightText } from '../Utils/checking-functions';
 import {
     createApplicationV2,
     getQueryStudentsResults,
@@ -98,8 +98,9 @@ export const ImportStudentProgramsCard = (props) => {
                         selectedStudentName: `${result.firstname} ${result.lastname} ${
                             result.firstname_chinese || ''
                         } ${result.lastname_chinese || ''}`,
-                        program_ids: data.applications?.map((app: Application) =>
-                            String(app.programId?._id ?? '')
+                        program_ids: data.applications?.map(
+                            (app: Application) =>
+                                String(app.programId?._id ?? '')
                         ),
                         res_modal_status: status
                     }));
@@ -307,13 +308,15 @@ export const ImportStudentProgramsCard = (props) => {
                                                 <ListItemText
                                                     primary={
                                                         <>
-                                                            {highlightText(
-                                                                `${result.firstname} ${result.lastname} ${
+                                                            <HighlightText
+                                                                highlight={
+                                                                    importStudentProgramsCard.searchTerm
+                                                                }
+                                                                text={`${result.firstname} ${result.lastname} ${
                                                                     result.firstname_chinese ||
                                                                     ''
-                                                                } ${result.lastname_chinese || ''}`,
-                                                                importStudentProgramsCard.searchTerm
-                                                            )}
+                                                                } ${result.lastname_chinese || ''}`}
+                                                            />
                                                             {result.email ? (
                                                                 <Box
                                                                     component="span"
@@ -330,10 +333,14 @@ export const ImportStudentProgramsCard = (props) => {
                                                                             mr: 0.5
                                                                         }}
                                                                     />
-                                                                    {highlightText(
-                                                                        result.email,
-                                                                        importStudentProgramsCard.searchTerm
-                                                                    )}
+                                                                    <HighlightText
+                                                                        highlight={
+                                                                            importStudentProgramsCard.searchTerm
+                                                                        }
+                                                                        text={
+                                                                            result.email
+                                                                        }
+                                                                    />
                                                                 </Box>
                                                             ) : null}
                                                         </>

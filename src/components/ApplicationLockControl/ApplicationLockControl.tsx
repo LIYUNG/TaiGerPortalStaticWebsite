@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next';
 import {
     calculateApplicationLockStatus,
     APPROVAL_COUNTRIES
-} from '../../Demo/Utils/checking-functions';
+} from '../../Demo/Utils/util_functions';
 import { refreshApplication } from '../../api';
 import {
     is_TaiGer_Admin,

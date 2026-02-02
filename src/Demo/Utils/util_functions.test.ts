@@ -24,7 +24,8 @@ import {
     is_uni_assist_paid_and_docs_uploaded,
     isUniAssistVPDNeeded,
     is_all_uni_assist_vpd_uploaded
-} from './checking-functions';
+} from './util_functions';
+
 import {
     getProgramDocumentStatus,
     getGeneralDocumentStatus

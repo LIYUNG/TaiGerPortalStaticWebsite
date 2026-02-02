@@ -33,7 +33,7 @@ import {
     isBaseDocumentsRejected,
     needGraduatedApplicantsButStudentNotGraduated,
     needGraduatedApplicantsPrograms
-} from '../../Utils/checking-functions';
+} from '../../Utils/util_functions';
 import ErrorPage from '../../Utils/ErrorPage';
 import { updateBanner } from '../../../api';
 import DEMO from '../../../store/constant';

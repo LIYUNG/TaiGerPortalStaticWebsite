@@ -47,7 +47,7 @@ import {
     getMyStudentsApplicationsV2Query,
     getStudentsV3Query
 } from '../../api/query';
-import { formatDate } from '../Utils/checking-functions';
+import { formatDate } from '../Utils/util_functions';
 
 const AgentPage = () => {
     const { user_id } = useParams();

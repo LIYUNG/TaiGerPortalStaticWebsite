@@ -41,7 +41,7 @@ import {
 } from '../../../../api';
 import { EmbeddedThreadComponent } from './EmbeddedThreadComponent';
 import ChildLoading from '../../../../components/Loading/ChildLoading';
-import { APPROVAL_COUNTRIES } from '../../../Utils/checking-functions';
+import { APPROVAL_COUNTRIES } from '../../../Utils/util_functions';
 import { useTranslation } from 'react-i18next';
 
 const categories = {

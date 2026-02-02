@@ -52,7 +52,7 @@ import {
     is_the_uni_assist_vpd_uploaded,
     isCVFinished,
     application_deadline_V2_calculator
-} from '../Utils/checking-functions';
+} from '../Utils/util_functions';
 import OverlayButton from '../../components/Overlay/OverlayButton';
 import Banner from '../../components/Banner/Banner';
 import {

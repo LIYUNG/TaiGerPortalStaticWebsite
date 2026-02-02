@@ -12,7 +12,7 @@ import {
     calculateProgramLockStatus,
     calculateApplicationLockStatus,
     file_category_const
-} from '../Utils/checking-functions';
+} from '../Utils/util_functions';
 import {
     checkGeneralDocs,
     getGeneralDocumentStatus,

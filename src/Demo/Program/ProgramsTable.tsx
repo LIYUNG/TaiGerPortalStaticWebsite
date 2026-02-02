@@ -16,7 +16,7 @@ import { TopToolbar } from '../../components/table/programs-table/TopToolbar';
 import { AssignProgramsToStudentDialog } from './AssignProgramsToStudentDialog';
 import { COUNTRIES_ARRAY_OPTIONS } from '../../utils/contants';
 import { PROGRAM_SUBJECTS } from '@taiger-common/core';
-import { calculateProgramLockStatus } from '../Utils/checking-functions';
+import { calculateProgramLockStatus } from '../Utils/util_functions';
 import { MRT_ColumnDef } from 'material-react-table';
 
 export const ProgramsTable = ({ isLoading, data, student }) => {

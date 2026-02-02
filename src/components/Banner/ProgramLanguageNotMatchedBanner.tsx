@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import { Alert, Card, Link, ListItem } from '@mui/material';
 import i18next from 'i18next';
@@ -6,7 +5,7 @@ import i18next from 'i18next';
 import {
     isLanguageNotMatchedInAnyProgram,
     languageNotMatchedPrograms
-} from '../../Demo/Utils/checking-functions';
+} from '../../Demo/Utils/util_functions';
 import DEMO from '../../store/constant';
 
 interface ProgramLanguageNotMatchedBannerProps {

@@ -21,7 +21,7 @@ import {
     latestReplyInfo,
     APPROVAL_COUNTRIES,
     calculateApplicationLockStatus
-} from '../Utils/checking-functions';
+} from '../Utils/util_functions';
 import {
     FILE_OK_SYMBOL,
     FILE_MISSING_SYMBOL,
