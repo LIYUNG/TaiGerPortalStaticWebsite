@@ -7,6 +7,7 @@ import { pdfjs } from 'react-pdf';
 import { convertDate, twoYearsInDays } from '../../utils/contants';
 import { Application } from "../../api/types";
 import { IUserAcademicBackground, IUserApplicationPreference } from "@taiger-common/model/dist/types";
+import { ProfileNameType } from "@taiger-common/core";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 export const file_category_const = {

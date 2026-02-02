@@ -50,11 +50,11 @@ import {
     PROGRAM_SUBJECTS_DETAILED,
     convertDate
 } from '../../utils/contants';
+import { MissingSurveyFieldsListArray } from '../Utils/checking-functions';
 import {
     check_academic_background_filled,
     check_languages_filled,
-    check_application_preference_filled,
-    MissingSurveyFieldsListArray
+    check_application_preference_filled
 } from '../Utils/util_functions';
 import {
     APPLICATION_YEARS_FUTURE,

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Navigate, useLoaderData, Link as LinkDom } from 'react-router-dom';
 import { Box, Breadcrumbs, Link, Typography } from '@mui/material';
 import { is_TaiGer_role, is_TaiGer_Student } from '@taiger-common/core';
