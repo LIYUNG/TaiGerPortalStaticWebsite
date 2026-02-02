@@ -56,8 +56,8 @@ export async function CommunicationThreadLoader({
 }: {
     params: Params<string>;
 }) {
-    const student_id = params.student_id;
-    const response = await getCommunicationThread(student_id!);
+    const student_id = params.student_id ?? '';
+    const response = await getCommunicationThread(student_id);
     if (response.status >= 400) {
         throw json(
             { message: response.statusText },
@@ -73,8 +73,8 @@ export function getCommunicationThreadLoader({
 }: {
     params: Params<string>;
 }) {
-    const studentId = params.studentId;
-    return queryClient.fetchQuery(getCommunicationQuery(studentId!));
+    const studentId = params.studentId ?? '';
+    return queryClient.fetchQuery(getCommunicationQuery(studentId));
     //  return defer({ data: CommunicationThreadLoader({ params }) });
 }
 
@@ -85,8 +85,8 @@ export async function ComplaintTicketLoader({
 }: {
     params: Params<string>;
 }) {
-    const complaintTicketId = params.complaintTicketId;
-    const response = await getComplaintsTicket(complaintTicketId!);
+    const complaintTicketId = params.complaintTicketId ?? '';
+    const response = await getComplaintsTicket(complaintTicketId);
     if (response.status >= 400) {
         throw json(
             { message: response.statusText },
@@ -241,8 +241,8 @@ export async function ProgramRequirementLoader({
 }: {
     params: Params<string>;
 }) {
-    const requirementId = params.requirementId;
-    const response = await getProgramRequirement(requirementId!);
+    const requirementId = params.requirementId ?? '';
+    const response = await getProgramRequirement(requirementId);
     if (response.status >= 400) {
         throw json(
             { message: response.statusText },

@@ -55,7 +55,7 @@ const ApplicationOverviewTabs = ({ students: stds, applications }) => {
         setValue(newValue);
     };
 
-    const handleRowClick = (row: any, event: MouseEvent) => {
+    const handleRowClick = (row: Record<string, unknown>, event: MouseEvent) => {
         setPopoverAnchorEl(event.currentTarget as HTMLElement);
         setSelectedRowData(row);
     };

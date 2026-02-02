@@ -1,12 +1,12 @@
-import { DocumentStatusType, isProgramDecided, isProgramSubmitted } from "@taiger-common/core";
+import { ApplicationProps, DocumentStatusType, isProgramDecided, isProgramSubmitted, isProgramWithdraw } from "@taiger-common/core";
 import JSZip from 'jszip';
 import * as XLSX from 'xlsx';
 import { differenceInDays } from 'date-fns';
 import { pdfjs } from 'react-pdf';
 
 import { convertDate, twoYearsInDays } from '../../utils/contants';
-import { Application } from "../../api/types";
-import { IUserAcademicBackground, IUserApplicationPreference } from "@taiger-common/model/dist/types";
+import { Application, IUserWithId } from "../../api/types";
+import { IUser, IUserAcademicBackground, IUserApplicationPreference } from "@taiger-common/model/dist/types";
 import { ProfileNameType } from "@taiger-common/core";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
@@ -36,8 +36,8 @@ export const AGENT_SUPPORT_DOCUMENTS_A = [
 export const is_User_Archived = (user: IUserWithId): boolean =>
     user?.archiv === true;
 
-export const student_transform = (students: IUserWithId[]): any[] =>
-    students?.map((student: any) => ({
+export const student_transform = (students: IUserWithId[]): Record<string, unknown>[] =>
+    students?.map((student: IUserWithId) => ({
         ...student,
         name: `${student.firstname} ${student.lastname} | ${student.firstname_chinese} ${student.lastname_chinese}`,
         name_zh: `${student.lastname_chinese}${student.firstname_chinese}`,
@@ -52,9 +52,8 @@ export const student_transform = (students: IUserWithId[]): any[] =>
         attended_university_program:
             student.academic_background?.university
                 ?.attended_university_program,
-        agentNames: student.agents.map((agent) => agent.firstname)?.join(', '),
-        editorNames: student.editors
-            .map((editor) => editor.firstname)
+        agentNames: student.agents?.map((agent: IUser) => agent.firstname)?.join(', '),
+        editorNames: student.editors?.map((editor: IUser) => editor.firstname)
             ?.join(', '),
         attributesString: student.attributes
             ?.map((attribute) => attribute.name)
@@ -75,7 +74,7 @@ export const isLanguageInfoComplete = (
 };
 
 // Tested
-export const getRequirement = (thread: any): string | boolean => {
+export const getRequirement = (thread: Record<string, unknown>): string | boolean => {
     if (!thread) return false;
 
     const { file_type: fileType, program_id: program } = thread;
@@ -267,7 +266,7 @@ export const check_german_language_Notneeded = (
 };
 
 //Testd
-export const based_documents_init = (student: any): any => {
+export const based_documents_init = (student: IUserWithId): { object_init: Record<string, string> } => {
     const documentlist2_keys = Object.keys(ProfileNameType);
 
     const object_init = documentlist2_keys.reduce((acc, key) => {
@@ -275,7 +274,7 @@ export const based_documents_init = (student: any): any => {
         return acc;
     }, {});
 
-    student.profile.forEach((doc) => {
+    student.profile?.forEach((doc) => {
         switch (doc.status) {
             case DocumentStatusType.Uploaded:
             case DocumentStatusType.Accepted:
@@ -292,7 +291,7 @@ export const based_documents_init = (student: any): any => {
     return { object_init };
 };
 
-export const are_base_documents_missing = (student: any): boolean => {
+export const are_base_documents_missing = (student: IUserWithId): boolean => {
     if (student.profile?.length > 0) {
         const documentlist2_keys = Object.keys(ProfileNameType);
         const { object_init } = based_documents_init(student);
@@ -312,7 +311,7 @@ export const are_base_documents_missing = (student: any): boolean => {
 };
 
 // Tested
-export const is_any_base_documents_uploaded = (students: any[]): boolean => {
+export const is_any_base_documents_uploaded = (students: IUserWithId[]): boolean => {
     if (!students?.length) return false;
 
     // Create a map of initial document statuses
@@ -341,7 +340,7 @@ export const is_any_base_documents_uploaded = (students: any[]): boolean => {
     });
 };
 
-export const needUpdateCourseSelection = (student: any): string => {
+export const needUpdateCourseSelection = (student: IUserWithId): string => {
     // necessary if never updated course and is studying
     if (!student.courses) {
         return 'No Input';
@@ -389,7 +388,7 @@ export const needUpdateCourseSelection = (student: any): string => {
     return 'OK';
 };
 
-export const to_register_application_portals = (student: any): boolean => {
+export const to_register_application_portals = (student: IUserWithId): boolean => {
     for (const application of student.applications) {
         if (isProgramDecided(application) && application.closed === '-') {
             if (
@@ -403,7 +402,7 @@ export const to_register_application_portals = (student: any): boolean => {
     return false;
 };
 
-export const isBaseDocumentsRejected = (student: any): boolean => {
+export const isBaseDocumentsRejected = (student: IUserWithId): boolean => {
     if (student.profile === undefined) {
         return false;
     }
@@ -512,14 +511,14 @@ export const check_academic_background_filled = (
     return true;
 };
 
-export const isProgramNotSelectedEnough = (students: any[]): boolean => {
+export const isProgramNotSelectedEnough = (students: IUserWithId[]): boolean => {
     return students.some(
         (student) =>
             student.applications.length < student.applying_program_count
     );
 };
 
-export const numApplicationsDecided = (student: any): number => {
+export const numApplicationsDecided = (student: IUserWithId): number => {
     if (student.applications === undefined) {
         return 0;
     }
@@ -529,7 +528,7 @@ export const numApplicationsDecided = (student: any): number => {
     return num_apps_decided;
 };
 
-export const numApplicationsSubmitted = (student: any): number => {
+export const numApplicationsSubmitted = (student: IUserWithId): number => {
     if (student.applications === undefined) {
         return 0;
     }
@@ -539,7 +538,7 @@ export const numApplicationsSubmitted = (student: any): number => {
     return num_apps_closed;
 };
 
-export const areProgramsDecidedMoreThanContract = (student: any): boolean => {
+export const areProgramsDecidedMoreThanContract = (student: IUserWithId): boolean => {
     if (
         !student.applications ||
         student.applying_program_count === 0 ||
@@ -555,7 +554,7 @@ export const areProgramsDecidedMoreThanContract = (student: any): boolean => {
     return num_decided >= student.applying_program_count;
 };
 
-export const check_all_applications_decided = (student: any): boolean => {
+export const check_all_applications_decided = (student: IUserWithId): boolean => {
     if (
         !student.applications ||
         student.applying_program_count === 0 ||
@@ -581,7 +580,7 @@ export const check_all_applications_decided = (student: any): boolean => {
 };
 
 export const check_all_decided_applications_submitted = (
-    student: any
+    student: IUserWithId
 ): boolean => {
     if (!student.applications || student.applications.length === 0) {
         return false;
@@ -595,7 +594,7 @@ export const check_all_decided_applications_submitted = (
         );
 };
 
-export const check_program_uni_assist_needed = (application: any): boolean => {
+export const check_program_uni_assist_needed = (application: Application): boolean => {
     if (application.programId?.uni_assist?.includes('Yes')) {
         return true;
     }
@@ -604,7 +603,7 @@ export const check_program_uni_assist_needed = (application: any): boolean => {
 };
 
 // Tested
-export const isUniAssistVPDNeeded = (application: any): boolean => {
+export const isUniAssistVPDNeeded = (application: Application): boolean => {
     if (
         isProgramDecided(application) &&
         application.programId.uni_assist &&
@@ -643,7 +642,7 @@ export const is_uni_assist_paid_and_docs_uploaded = (
 };
 
 // Tested
-export const check_student_needs_uni_assist = (student: any): boolean => {
+export const check_student_needs_uni_assist = (student: IUserWithId): boolean => {
     if (!student.applications) {
         return false;
     }
@@ -659,7 +658,7 @@ export const check_student_needs_uni_assist = (student: any): boolean => {
 };
 
 // Tested
-export const num_uni_assist_vpd_uploaded = (student: any): number => {
+export const num_uni_assist_vpd_uploaded = (student: IUserWithId): number => {
     let counter = 0;
     if (!student.applications) {
         return counter;
@@ -681,7 +680,7 @@ export const num_uni_assist_vpd_uploaded = (student: any): number => {
 };
 
 // Tested
-export const num_uni_assist_vpd_needed = (student: any): number => {
+export const num_uni_assist_vpd_needed = (student: IUserWithId): number => {
     let counter = 0;
     if (!student.applications) {
         return counter;
@@ -709,7 +708,7 @@ export const num_uni_assist_vpd_needed = (student: any): number => {
 };
 
 // Tested
-export const is_program_ml_rl_essay_finished = (application: any): boolean => {
+export const is_program_ml_rl_essay_finished = (application: Application): boolean => {
     // check ML, RL, Essay
     return (
         application.doc_modification_thread?.length === 0 ||
@@ -720,7 +719,7 @@ export const is_program_ml_rl_essay_finished = (application: any): boolean => {
 };
 
 // Tested
-export const is_cv_assigned = (student: any): boolean => {
+export const is_cv_assigned = (student: IUserWithId): boolean => {
     // check CV
     return (
         student.generaldocs_threads?.findIndex(
@@ -730,14 +729,14 @@ export const is_cv_assigned = (student: any): boolean => {
 };
 
 // Tested
-export const isCVFinished = (student: any): boolean => {
+export const isCVFinished = (student: IUserWithId): boolean => {
     const cv_thread = student?.generaldocs_threads?.find(
         (thread) => thread.doc_thread_id?.file_type === 'CV'
     );
     return !!(cv_thread && cv_thread.isFinalVersion);
 };
 
-export const isAnyCVNotAssigned = (students: any[]): boolean => {
+export const isAnyCVNotAssigned = (students: IUserWithId[]): boolean => {
     let flag = false;
     for (let i = 0; i < students.length; i += 1) {
         flag =
@@ -750,28 +749,28 @@ export const isAnyCVNotAssigned = (students: any[]): boolean => {
     return false;
 };
 
-export const is_program_ml_rl_essay_ready = (application: any): boolean => {
+export const is_program_ml_rl_essay_ready = (application: Application): boolean => {
     // check ML, RL, Essay
-    for (let i = 0; i < application.doc_modification_thread?.length; i += 1) {
-        if (!application.doc_modification_thread[i]?.isFinalVersion) {
+    for (let i = 0; i < application?.doc_modification_thread?.length; i += 1) {
+        if (!application?.doc_modification_thread[i]?.isFinalVersion) {
             return false;
         }
     }
     return true;
 };
 
-export const isApplicationOpen = (application: any): boolean => {
+export const isApplicationOpen = (application: ApplicationProps): boolean => {
     return !isProgramSubmitted(application) && !isProgramWithdraw(application);
 };
 
-export const is_program_closed = (application: any): boolean => {
+export const is_program_closed = (application: ApplicationProps): boolean => {
     if (isProgramSubmitted(application) || isProgramWithdraw(application)) {
         return true;
     }
     return false;
 };
 
-export const is_any_programs_ready_to_submit = (students: any[]): boolean => {
+export const is_any_programs_ready_to_submit = (students: IUserWithId[]): boolean => {
     if (students) {
         for (let i = 0; i < students.length; i += 1) {
             if (students[i].applications) {
@@ -797,7 +796,7 @@ export const is_any_programs_ready_to_submit = (students: any[]): boolean => {
     return false;
 };
 
-export const is_vpd_missing = (application: any): boolean => {
+export const is_vpd_missing = (application: Application): boolean => {
     if (!application.uni_assist) {
         return true;
     }
@@ -812,10 +811,10 @@ export const is_vpd_missing = (application: any): boolean => {
     return false;
 };
 
-export const is_any_vpd_missing_v2 = (applications) => {
+export const is_any_vpd_missing_v2 = (applications: Application[]) => {
     for (let j = 0; j < applications.length; j += 1) {
         if (
-            isProgramDecided(applications[j]) &&
+            isProgramDecided(applications[j] as ApplicationProps) &&
             applications[j].programId.uni_assist &&
             applications[j].programId.uni_assist.includes('VPD')
         ) {
@@ -882,7 +881,7 @@ export const is_any_vpd_missing = (students) => {
     return false;
 };
 
-export const is_the_uni_assist_vpd_uploaded = (application) => {
+export const is_the_uni_assist_vpd_uploaded = (application: Application) => {
     if (application === undefined) {
         return false;
     }
@@ -1167,7 +1166,7 @@ export const prepTaskStudent = (student) => {
     };
 };
 
-export const all_applications_results_updated = (student: any): boolean => {
+export const all_applications_results_updated = (student: IUserWithId): boolean => {
     if (!student.applications || student.applications.length === 0) {
         return true;
     }
@@ -1177,11 +1176,11 @@ export const all_applications_results_updated = (student: any): boolean => {
     );
 };
 
-export const hasApplications = (student: any): boolean => {
+export const hasApplications = (student: IUserWithId): boolean => {
     return student.applications && student.applications.length > 0;
 };
 
-export const has_agent_program_specific_tasks = (student: any): boolean => {
+export const has_agent_program_specific_tasks = (student: IUserWithId): boolean => {
     if (!student.applications) {
         return false;
     }
@@ -1205,16 +1204,16 @@ export const has_agent_program_specific_tasks = (student: any): boolean => {
 };
 
 export const anyStudentWithoutApplicationSelection = (
-    students: any[]
+    students: IUserWithId[]
 ): boolean => {
     return students.some((student) => !hasApplications(student));
 };
 
-export const is_num_Program_Not_specified = (student: any): boolean => {
+export const is_num_Program_Not_specified = (student: IUserWithId): boolean => {
     return !student.applying_program_count;
 };
 
-export const progressBarCounter = (student: any, application: any): any => {
+export const progressBarCounter = (student: IUserWithId, application: Application): number => {
     const programId = application?.programId || {};
 
     const all_points = [
@@ -1283,7 +1282,7 @@ export const progressBarCounter = (student: any, application: any): any => {
     return Math.floor(percentage);
 };
 
-export const isEnglishOK = (program: any, student: any): boolean => {
+export const isEnglishOK = (program: Record<string, unknown>, student: IUserWithId): boolean => {
     const lang = student?.academic_background?.language || {};
     const {
         english_certificate,
@@ -1332,7 +1331,7 @@ export const isEnglishOK = (program: any, student: any): boolean => {
     return true;
 };
 
-export const getApplicationYear = (student: any): number | string => {
+export const getApplicationYear = (student: IUserWithId): number | string => {
     return student.application_preference?.expected_application_date
         ? parseInt(student.application_preference.expected_application_date)
         : '<TBD>';
@@ -1362,8 +1361,8 @@ export const formatApplicationDate = (
 };
 
 export const application_date_calculator = (
-    student: any,
-    application: any
+    student: IUserWithId,
+    application: Application
 ): string => {
     if (isProgramSubmitted(application)) {
         return 'CLOSE';
@@ -1398,7 +1397,7 @@ export const application_date_calculator = (
 };
 
 export const application_deadline_V2_calculator = (
-    application: any
+    application: Application
 ): string => {
     if (isProgramWithdraw(application)) {
         return 'WITHDRAW';
@@ -1431,13 +1430,13 @@ export const application_deadline_V2_calculator = (
 };
 
 
-export const does_student_have_agents = (students: any[]): boolean => {
+export const does_student_have_agents = (students: IUserWithId[]): boolean => {
     return students.every(
         (student) => student.agents !== undefined && student.agents.length > 0
     );
 };
 
-export const getStudentEditorStatus = (students: any[]): any => {
+export const getStudentEditorStatus = (students: IUserWithId[]): { allHaveEditors: boolean; countWithoutEditors: number } => {
     const studentsWithoutEditors = students.filter(
         (student) => !student.editors || student.editors.length === 0
     );
@@ -1450,7 +1449,7 @@ export const getStudentEditorStatus = (students: any[]): any => {
     };
 };
 
-export const check_applications_to_decided = (student: any): boolean => {
+export const check_applications_to_decided = (student: IUserWithId): boolean => {
     if (!student.applications || student.applications.length === 0) {
         return true;
     }
@@ -1459,7 +1458,7 @@ export const check_applications_to_decided = (student: any): boolean => {
     );
 };
 
-export const has_admissions = (student: any): boolean => {
+export const has_admissions = (student: IUserWithId): boolean => {
     if (!student.applications || student.applications.length === 0) {
         return false;
     }
@@ -2200,7 +2199,7 @@ export const LOCK_REASON = {
     STALE_DATA: 'STALE_DATA'
 };
 
-export const calculateProgramLockStatus = (program: any) => {
+export const calculateProgramLockStatus = (program: Record<string, unknown>) => {
     if (!program) {
         return { isLocked: true, reason: null };
     }
@@ -2226,7 +2225,7 @@ export const calculateProgramLockStatus = (program: any) => {
     return { isLocked: false, reason: null };
 };
 
-export const calculateApplicationLockStatus = (application: any) => {
+export const calculateApplicationLockStatus = (application: Application) => {
     if (!application || !application.programId) {
         return { isLocked: true, reason: null };
     }
@@ -2355,7 +2354,7 @@ export const GetCVDeadlineV2 = (applications: Application[]) => {
         : { daysLeftMin, CVDeadline };
 };
 
-export const GetCVDeadline = (student: any): any => {
+export const GetCVDeadline = (student: IUserWithId): { daysLeftMin: number | string; CVDeadline: string } => {
     const today = new Date();
     let daysLeftMin = 3000;
     let CVDeadline = '';

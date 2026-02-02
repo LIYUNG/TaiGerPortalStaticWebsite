@@ -5,8 +5,6 @@ import { useTranslation } from 'react-i18next';
 import {
     MaterialReactTable,
     MRT_ColumnDef,
-    MRT_Row,
-    MRT_SortingFn,
     useMaterialReactTable
 } from 'material-react-table';
 import {

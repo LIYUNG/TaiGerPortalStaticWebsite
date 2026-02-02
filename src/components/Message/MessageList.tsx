@@ -35,8 +35,7 @@ const MessageList = (props: MessageListProps) => {
         props.thread?.messages?.slice(-visibleMessageCount) ?? [];
     const hasMoreMessages = messageCount > visibleMessageCount;
 
-    const thread = messagesToShow.map((message, i) => {
-        const originalIndex = messageCount - visibleMessageCount + i;
+    const thread = messagesToShow.map((message) => {
         return (
             <MessageCard
                 apiPrefix={props.apiPrefix}

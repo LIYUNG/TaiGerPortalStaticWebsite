@@ -232,7 +232,7 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
             if (!is_TaiGer_role(user)) {
                 setCommunicationsState((prevState) => ({
                     ...prevState,
-                    files: Array.from(e.target.files!)
+                    files: Array.from(e.target.files ?? [])
                 }));
                 return;
             }
@@ -257,7 +257,7 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
                     setCheckResult(results);
                     setCommunicationsState((prevState) => ({
                         ...prevState,
-                        files: Array.from(e.target.files!)
+                        files: Array.from(e.target.files ?? [])
                     }));
                 })
                 .catch((error: unknown) => {

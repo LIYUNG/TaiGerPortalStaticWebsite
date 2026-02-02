@@ -33,12 +33,10 @@ import { ApplicationId, ProgramId } from '../../api/types';
 
 interface ApplicationLockControlProps {
     application: IApplication;
-    onLockChange?: () => void;
 }
 
 const ApplicationLockControl = ({
-    application,
-    onLockChange
+    application
 }: ApplicationLockControlProps): JSX.Element | null => {
     const { user } = useAuth();
     const { t } = useTranslation();

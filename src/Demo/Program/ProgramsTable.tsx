@@ -35,7 +35,7 @@ export const ProgramsTable = ({ isLoading, data, student }) => {
         })
     );
 
-    const columns: Array<MRT_ColumnDef<any>> = [
+    const columns: Array<MRT_ColumnDef<Record<string, unknown>>> = [
         {
             accessorFn: (row) => {
                 const lockStatus = calculateProgramLockStatus(row.original);

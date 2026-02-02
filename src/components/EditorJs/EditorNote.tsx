@@ -38,7 +38,7 @@ const EditorNote = (props: EditorNoteProps) => {
         }) => {
             if (!props.readOnly && props.handleEditorChange) {
                 api.saver.save().then((outputData) => {
-                    props.handleEditorChange!(outputData);
+                    props.handleEditorChange?.(outputData);
                 });
             }
         },

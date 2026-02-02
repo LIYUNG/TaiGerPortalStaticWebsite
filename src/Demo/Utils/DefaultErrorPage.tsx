@@ -1,4 +1,3 @@
-import React from 'react';
 import { Box, Button, Card, Stack, Typography } from '@mui/material';
 import { useRouteError } from 'react-router-dom';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';

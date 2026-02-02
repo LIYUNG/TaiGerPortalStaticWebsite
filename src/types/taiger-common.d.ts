@@ -3,7 +3,7 @@
  * Extends Mongoose-based types for frontend use (string IDs instead of ObjectId)
  */
 
-import type { IApplication, IProgram, IUser } from '@taiger-common/model';
+import type { IApplication, ICourse, IProgram, IStudent, IUserProfileItem } from '@taiger-common/model';
 
 // Re-export UserProps from @taiger-common/core (it exists but isn't exported)
 declare module '@taiger-common/core' {
@@ -45,8 +45,10 @@ export interface IProgramWithId extends Omit<IProgram, 'vcId'> {
 }
 
 // Frontend-friendly User type with string _id
-export interface IUserWithId extends Omit<IUser, 'agents' | 'editors'> {
+export interface IUserWithId extends Omit<IStudent, 'agents' | 'editors' | 'profile'> {
   _id: string;
+  profile?: IUserProfileItem[];
+  courses?: ICourse;
   agents?: string[];
   editors?: string[];
 }

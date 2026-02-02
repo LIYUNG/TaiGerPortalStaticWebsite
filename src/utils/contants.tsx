@@ -31,8 +31,8 @@ import { is_TaiGer_Student } from '@taiger-common/core';
 import i18next from 'i18next';
 import { APPROVAL_COUNTRIES } from '../Demo/Utils/util_functions';
 import { MRT_ColumnDef } from 'material-react-table';
-import type { IUserWithId, IApplicationWithId, IProgramWithId } from '../types/taiger-common';
-import type { DocumentThreadResponse, AgentResponse } from '../api/types';
+import type { IUserWithId, IProgramWithId } from '../types/taiger-common';
+import type { DocumentThreadResponse } from '../api/types';
 
 export const IS_DEV =
     !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
@@ -209,7 +209,7 @@ export const questionType = {
     essay: 'essay'
 };
 
-export const prepQuestions = (thread: DocumentThreadResponse, isSpecific: boolean): any[] => {
+export const prepQuestions = (thread: DocumentThreadResponse, isSpecific: boolean): unknown[] => {
     let questions = [];
     if (
         thread?.file_type?.includes('RL') ||
@@ -263,7 +263,7 @@ export const CVQuestions = () => {
     ];
 };
 
-export const RLQuestions = (thread?: DocumentThreadResponse): any[] => {
+export const RLQuestions = (_thread?: DocumentThreadResponse): unknown[] => {
     return [
         {
             questionId: 'q1',
@@ -403,7 +403,7 @@ export const RLQuestions = (thread?: DocumentThreadResponse): any[] => {
     ];
 };
 
-export const MLQuestions = (thread: DocumentThreadResponse, isSpecific: boolean): any[] => {
+export const MLQuestions = (thread: DocumentThreadResponse, isSpecific: boolean): unknown[] => {
     if (isSpecific) {
         return [
             {
@@ -539,7 +539,7 @@ export const NoonNightLabel = (start: string | Date): string => {
           : '';
 };
 
-export const transformObjectToArray = (inputObject: Record<string, any>): Array<{
+export const transformObjectToArray = (inputObject: Record<string, Record<string, number>>): Array<{
     date: string;
     apiCallCount: number;
     get: number;
@@ -572,9 +572,9 @@ export const getLast180DaysSet = () => {
     return last180DaysSet;
 };
 
-export const getLast180DaysObject = (): Record<string, any> => {
+export const getLast180DaysObject = (): Record<string, Record<string, number>> => {
     const today = new Date();
-    const last180DaysObject: Record<string, any> = {};
+    const last180DaysObject: Record<string, Record<string, number>> = {};
 
     for (let i = 0; i < 180; i++) {
         const currentDate = new Date(today);
@@ -1579,7 +1579,7 @@ export const internal_documentation_categories = {
     others: 'Others'
 };
 
-export const col_keywords: Array<MRT_ColumnDef<any>> = [
+export const col_keywords: Array<MRT_ColumnDef<Record<string, unknown>>> = [
     {
         accessorKey: 'categoryName', //accessorKey used to define `data` column. `id` gets set to accessorKey automatically
         filterVariant: 'autocomplete',
@@ -1660,7 +1660,7 @@ export const col_keywords: Array<MRT_ColumnDef<any>> = [
     }
 ];
 
-export const c1_mrt: Array<MRT_ColumnDef<any>> = [
+export const c1_mrt: Array<MRT_ColumnDef<Record<string, unknown>>> = [
     {
         accessorKey: 'firstname_lastname', //accessorKey used to define `data` column. `id` gets set to accessorKey automatically
         filterVariant: 'autocomplete',
@@ -1700,7 +1700,7 @@ export const c1_mrt: Array<MRT_ColumnDef<any>> = [
         size: 120,
         Cell: (params) => {
             return params.row.original.file_type === 'Essay'
-                ? params.row.original.outsourced_user_id?.map((outsourcer: any) => (
+                ? params.row.original.outsourced_user_id?.map((outsourcer: IUserWithId) => (
                       <Box
                           key={`${outsourcer._id.toString()}`}
                           sx={{
@@ -1722,7 +1722,7 @@ export const c1_mrt: Array<MRT_ColumnDef<any>> = [
                           </Link>
                       </Box>
                   )) || []
-                : params.row.original.editors?.map((editor: any) => (
+                : params.row.original.editors?.map((editor: IUserWithId) => (
                       <Link
                           component={LinkDom}
                           key={`${editor._id.toString()}`}
@@ -1857,7 +1857,7 @@ export const c1_mrt: Array<MRT_ColumnDef<any>> = [
             return (
                 <Box>
                     {row.original?.attributes?.map(
-                        (attribute: any) =>
+                        (attribute: { _id?: string; name?: string; value?: number }) =>
                             [1, 3, 9, 10, 11].includes(attribute.value) && (
                                 <Tooltip
                                     key={attribute._id}
@@ -2020,7 +2020,7 @@ export const c1 = [
         align: 'left',
         headerAlign: 'left',
         width: 150,
-        renderCell: (params: any) => {
+        renderCell: (params: Record<string, unknown>) => {
             const linkUrl = `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
                 params.row.student_id,
                 DEMO.PROFILE_HASH
@@ -2044,9 +2044,9 @@ export const c1 = [
         align: 'left',
         headerAlign: 'left',
         minWidth: 150,
-        renderCell: (params: any) => {
+        renderCell: (params: Record<string, unknown>) => {
             return params.row.file_type === 'Essay'
-                ? params.row.outsourced_user_id?.map((outsourcer: any) => (
+                ? params.row.outsourced_user_id?.map((outsourcer: IUserWithId) => (
                       <Link
                           component={LinkDom}
                           key={`${outsourcer._id.toString()}`}
@@ -2058,7 +2058,7 @@ export const c1 = [
                           {`${outsourcer.firstname} `}
                       </Link>
                   )) || []
-                : params.value?.map((editor: any) => (
+                : params.value?.map((editor: IUserWithId) => (
                       <Link
                           component={LinkDom}
                           key={`${editor._id.toString()}`}
@@ -2086,7 +2086,7 @@ export const c1 = [
         field: 'document_name',
         headerName: 'Document name',
         minWidth: 380,
-        renderCell: (params: any) => {
+        renderCell: (params: Record<string, unknown>) => {
             const linkUrl = `${DEMO.DOCUMENT_MODIFICATION_LINK(
                 params.row.thread_id
             )}`;
@@ -2111,7 +2111,7 @@ export const c1 = [
             return (
                 <>
                     {params.row?.attributes?.map(
-                        (attribute: any) =>
+                        (attribute: { _id?: string; name?: string; value?: number }) =>
                             [1, 3, 9, 10, 11].includes(attribute.value) && (
                                 <Tooltip
                                     key={attribute._id}

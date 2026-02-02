@@ -70,7 +70,7 @@ export function MuiDataGrid<T extends Record<string, unknown>>(
                               row: row.original,
                               field: column.field
                           };
-                          return column.renderCell!(params);
+                          return column.renderCell?.(params);
                       }
                     : undefined,
             muiTableHeadCellProps: {

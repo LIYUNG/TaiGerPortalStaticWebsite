@@ -16,7 +16,7 @@ export const AllCoursesTable = ({ isLoading, data }) => {
     const tableConfig = getTableConfig(customTableStyles, isLoading);
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
-    const columns: Array<MRT_ColumnDef<any>> = [
+    const columns: Array<MRT_ColumnDef<Record<string, unknown>>> = [
         {
             accessorKey: 'all_course_chinese',
             header: t('Course Name (ZH)', { ns: 'common' }),

@@ -97,9 +97,8 @@ export interface TransformedStudentRow {
     editors?: Array<{ _id?: string; firstname?: string }>;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const transform = (
-    stds: any[] | null | undefined,
+    stds: Record<string, unknown>[] | null | undefined,
     riskOnly = false
 ): TransformedStudentRow[] => {
     const transformedStudents: TransformedStudentRow[] = [];

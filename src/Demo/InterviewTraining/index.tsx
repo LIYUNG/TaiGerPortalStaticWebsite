@@ -141,7 +141,7 @@ const InterviewTraining = () => {
     };
 
     TabTitle('Interview training');
-    const columns: Array<MRT_ColumnDef<any>> = [
+    const columns: Array<MRT_ColumnDef<Record<string, unknown>>> = [
         {
             accessorKey: 'status',
             filterVariant: 'multi-select',

@@ -10,7 +10,7 @@ import {
     defer,
     type RouteObject
 } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { SnackBarProvider } from './contexts/use-snack-bar';
 import { CustomThemeProvider } from './components/ThemeProvider';
 import { renderWithProviders, createTestQueryClient } from './test/test-utils';

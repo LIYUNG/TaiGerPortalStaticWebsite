@@ -292,7 +292,6 @@ const SurveyEditableComponent = (props) => {
                                 }
                                 id="high_school_isGraduated"
                                 label={t('High School already graduated')}
-                                labelid="high_school_isGraduated"
                                 name="high_school_isGraduated"
                                 onChange={(e) => handleChangeAcademic(e)}
                                 select
@@ -384,7 +383,6 @@ const SurveyEditableComponent = (props) => {
                                 }
                                 id="isGraduated"
                                 label={t('Already Bachelor graduated ?')}
-                                labelid="isGraduated"
                                 name="isGraduated"
                                 onChange={(e) => handleChangeAcademic(e)}
                                 select
@@ -509,7 +507,6 @@ const SurveyEditableComponent = (props) => {
                                                             'Expected Graduate Year'
                                                         )
                                             }`}
-                                            labelid="expected_grad_date"
                                             name="expected_grad_date"
                                             onChange={(e) =>
                                                 handleChangeAcademic(e)
@@ -555,7 +552,6 @@ const SurveyEditableComponent = (props) => {
                                         label={t(
                                             'Exchange Student Experience ?'
                                         )}
-                                        labelid="Has_Exchange_Experience"
                                         name="Has_Exchange_Experience"
                                         onChange={(e) =>
                                             handleChangeAcademic(e)
@@ -840,7 +836,6 @@ const SurveyEditableComponent = (props) => {
                                         label={t(
                                             'Already Second Degree graduated ?'
                                         )}
-                                        labelid="isSecondGraduated"
                                         name="isSecondGraduated"
                                         onChange={(e) =>
                                             handleChangeAcademic(e)
@@ -980,7 +975,6 @@ const SurveyEditableComponent = (props) => {
                                                                     'Expected Graduate Year'
                                                                 )
                                                     }`}
-                                                    labelid="expectedSecondDegreeGradDate"
                                                     name="expectedSecondDegreeGradDate"
                                                     onChange={(e) =>
                                                         handleChangeAcademic(e)
@@ -1163,7 +1157,6 @@ const SurveyEditableComponent = (props) => {
                                 }
                                 id={t('Internship Experience ?')}
                                 label={t('Internship Experience ?')}
-                                labelid="Has_Internship_Experience"
                                 name="Has_Internship_Experience"
                                 onChange={(e) => handleChangeAcademic(e)}
                                 select
@@ -1335,7 +1328,6 @@ const SurveyEditableComponent = (props) => {
                                         'Agent fill',
                                         { ns: 'survey' }
                                     )})`}
-                                    labelid="expected_application_semester"
                                     name="expected_application_semester"
                                     onChange={(e) =>
                                         handleChangeApplicationPreference(e)
@@ -1415,7 +1407,6 @@ const SurveyEditableComponent = (props) => {
                                 }
                                 id="target_degree"
                                 label={t('Target Degree Programs')}
-                                labelid="target_degree"
                                 name="target_degree"
                                 onChange={(e) =>
                                     handleChangeApplicationPreference(e)
@@ -1451,7 +1442,6 @@ const SurveyEditableComponent = (props) => {
                                 }
                                 id="target_program_language"
                                 label={t('Target Program Language')}
-                                labelid="target_program_language"
                                 name="target_program_language"
                                 onChange={(e) =>
                                     handleChangeApplicationPreference(e)
@@ -1491,7 +1481,6 @@ const SurveyEditableComponent = (props) => {
                                 label={t(
                                     'Considering universities outside Germany?'
                                 )}
-                                labelid="application_outside_germany"
                                 name="application_outside_germany"
                                 onChange={(e) =>
                                     handleChangeApplicationPreference(e)
@@ -1529,7 +1518,6 @@ const SurveyEditableComponent = (props) => {
                                 label={t(
                                     'Considering private universities? (Tuition Fee: ~15000 EURO/year)'
                                 )}
-                                labelid="considered_privat_universities"
                                 name="considered_privat_universities"
                                 onChange={(e) =>
                                     handleChangeApplicationPreference(e)
@@ -1640,7 +1628,6 @@ const SurveyEditableComponent = (props) => {
                                     link_name=""
                                     notification_key={undefined}
                                     path="/"
-                                    removeBanner={null}
                                     text={
                                         <>
                                             報名考試時，請確認 <b>護照</b>{' '}
@@ -1668,7 +1655,6 @@ const SurveyEditableComponent = (props) => {
                                 label={t(
                                     'English Passed ? (IELTS 6.5 / TOEFL 88)'
                                 )}
-                                labelid="english_isPassed"
                                 name="english_isPassed"
                                 onChange={handleChangeLanguage}
                                 select
@@ -1919,7 +1905,6 @@ const SurveyEditableComponent = (props) => {
                                 label={t(
                                     'German Passed ? (Set Not need if applying English taught programs.)'
                                 )}
-                                labelid="german_isPassed"
                                 name="german_isPassed"
                                 onChange={handleChangeLanguage}
                                 select
@@ -2042,7 +2027,6 @@ const SurveyEditableComponent = (props) => {
                                 }
                                 id="gre_isPassed"
                                 label="GRE Test ? (At least V145 Q160 )"
-                                labelid="gre_isPassed"
                                 name="gre_isPassed"
                                 onChange={handleChangeLanguage}
                                 select
@@ -2169,7 +2153,6 @@ const SurveyEditableComponent = (props) => {
                                 }
                                 id="gmat_isPassed"
                                 label="GMAT Test ? (At least 600 )"
-                                labelid="gmat_isPassed"
                                 name="gmat_isPassed"
                                 onChange={handleChangeLanguage}
                                 select

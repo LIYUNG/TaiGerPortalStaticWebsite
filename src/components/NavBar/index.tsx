@@ -45,16 +45,6 @@ import type { AuthUserData } from '../../api/types';
 
 const drawerWidth = 300;
 
-interface MainProps {
-    theme: {
-        spacing: (n: number) => string;
-        transitions: unknown;
-        mixins: unknown;
-    };
-    open?: boolean;
-    ismobile?: string;
-}
-
 const Main = styled('main', {
     shouldForwardProp: (prop) => prop !== 'open' && prop !== 'ismobile'
 })<{ open?: boolean; ismobile?: string }>(({ theme, open, ismobile }) => ({

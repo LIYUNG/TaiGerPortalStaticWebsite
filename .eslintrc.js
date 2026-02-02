@@ -30,7 +30,8 @@ module.exports = {
             extends: ['plugin:@typescript-eslint/recommended'],
             rules: {
                 'react/prop-types': 'off',
-                '@typescript-eslint/no-empty-function': ['error', { allow: ['arrowFunctions'] }]
+                '@typescript-eslint/no-empty-function': ['error', { allow: ['arrowFunctions'] }],
+                '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }]
             }
         },
         {
@@ -50,10 +51,7 @@ module.exports = {
     },
     plugins: ['react-refresh', 'react', 'prettier', '@tanstack/query'],
     rules: {
-        'react-refresh/only-export-components': [
-            'warn',
-            { allowConstantExport: true }
-        ],
+        'react-refresh/only-export-components': 'off',
         'react/prop-types': 'off',
         'react/react-in-jsx-scope': 'off',
         'react/prefer-stateless-function': 'error',

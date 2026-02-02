@@ -81,9 +81,15 @@ console.error = (...args: unknown[]) => {
 
 // ResizeObserver is not available in happy-dom; many MUI/components use it
 class ResizeObserverMock {
-    observe(): void {}
-    disconnect(): void {}
-    unobserve(): void {}
+    observe(): void {
+        // intentional no-op for test mock
+    }
+    disconnect(): void {
+        // intentional no-op for test mock
+    }
+    unobserve(): void {
+        // intentional no-op for test mock
+    }
 }
 if (typeof window !== 'undefined' && !window.ResizeObserver) {
     window.ResizeObserver = ResizeObserverMock as unknown as typeof ResizeObserver;

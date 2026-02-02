@@ -347,7 +347,7 @@ export default function ApplicationProgressCard(
                                 onClick={(e) =>
                                     openSetResultModal(
                                         e,
-                                        application.admission!
+                                        application.admission ?? ''
                                     )
                                 }
                                 size="small"
@@ -569,7 +569,7 @@ export default function ApplicationProgressCard(
                 )} ${application.programId?.school} - ${application.programId?.degree} - ${application.programId?.program_name}?`}
                 isLoading={isLoading}
                 onClose={closeUndoModal}
-                onConfirm={() => handleUpdateResult(undefined!, '-')}
+                onConfirm={() => handleUpdateResult('', '-')}
                 open={showUndoModal}
                 title={i18next.t('Attention')}
             />
