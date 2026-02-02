@@ -296,7 +296,11 @@ export const getApplicationStudentV2Query = ({
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
 
-export const getStudentAndDocLinksQuery = ({ studentId }: { studentId: StudentId }) => ({
+export const getStudentAndDocLinksQuery = ({
+    studentId
+}: {
+    studentId: StudentId;
+}) => ({
     queryKey: ['students/doc-links', studentId],
     queryFn: () => getStudentAndDocLinks(studentId),
     staleTime: 1000 * 60 * 5 // 5 minutes

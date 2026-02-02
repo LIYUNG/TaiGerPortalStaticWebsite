@@ -128,12 +128,20 @@ const StudentsAgentEditor = (props) => {
         }));
     };
 
-    const submitUpdateAgentlist = (e: React.FormEvent<HTMLFormElement>, updateAgentList: unknown, student_id: string) => {
+    const submitUpdateAgentlist = (
+        e: React.FormEvent<HTMLFormElement>,
+        updateAgentList: unknown,
+        student_id: string
+    ) => {
         props.submitUpdateAgentlist(e, updateAgentList, student_id);
         setAgentModalhide();
     };
 
-    const submitUpdateEditorlist = (e: React.FormEvent<HTMLFormElement>, updateEditorList: unknown, student_id: string) => {
+    const submitUpdateEditorlist = (
+        e: React.FormEvent<HTMLFormElement>,
+        updateEditorList: unknown,
+        student_id: string
+    ) => {
         setEditorModalhide();
         props.submitUpdateEditorlist(e, updateEditorList, student_id);
     };

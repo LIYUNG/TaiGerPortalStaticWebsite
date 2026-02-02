@@ -239,7 +239,8 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
             const checkPromises = Array.from(e.target.files).map(
                 (file: File) => {
                     const extension = file.name.split('.').pop()?.toLowerCase();
-                    const studentName = communicationsState.student?.firstname ?? '';
+                    const studentName =
+                        communicationsState.student?.firstname ?? '';
 
                     if (extension === 'pdf') {
                         return readPDF(file, studentName);

@@ -31,7 +31,11 @@ const MessageEdit = (props) => {
         deleteMessageModalShow: false
     });
 
-    const onOpendeleteMessageModalShow = (e: React.MouseEvent<HTMLElement>, message_id: string, createdAt: string) => {
+    const onOpendeleteMessageModalShow = (
+        e: React.MouseEvent<HTMLElement>,
+        message_id: string,
+        createdAt: string
+    ) => {
         setMessageEditState((prevState) => ({
             ...prevState,
             message_id,

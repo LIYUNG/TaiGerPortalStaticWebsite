@@ -127,111 +127,111 @@ export type KeywordsSetId = string;
 
 /** Import extended types from taiger-common */
 import type {
-  IApplicationWithId,
-  IProgramWithId,
-  IUserWithId,
-  IStudentResponse
+    IApplicationWithId,
+    IProgramWithId,
+    IUserWithId,
+    IStudentResponse
 } from '../types/taiger-common';
 
 /** Re-export for convenience */
 export type {
-  IApplicationWithId,
-  IProgramWithId,
-  IUserWithId,
-  IStudentResponse
+    IApplicationWithId,
+    IProgramWithId,
+    IUserWithId,
+    IStudentResponse
 };
 
 /** Program response from API (includes string _id) */
 export interface ProgramResponse extends IProgramWithId {
-  _id: string;
-  updatedAt?: string | Date;
-  createdAt?: string | Date;
+    _id: string;
+    updatedAt?: string | Date;
+    createdAt?: string | Date;
 }
 
 /** Agent/Editor user response */
 export interface AgentResponse extends IUserWithId {
-  _id: string;
-  email?: string;
-  firstname?: string;
-  lastname?: string;
-  role?: string;
+    _id: string;
+    email?: string;
+    firstname?: string;
+    lastname?: string;
+    role?: string;
 }
 
 /** Communication message response */
 export interface CommunicationResponse {
-  _id: string;
-  student_id?: string | IStudentResponse;
-  user_id?: string | AgentResponse;
-  message?: string;
-  readBy?: string[];
-  timeStampReadBy?: Record<string, string | Date>;
-  files?: Array<{ name: string; path: string }>;
-  createdAt?: string | Date;
-  ignore_message?: boolean;
-  ignoredMessageUpdatedAt?: string | Date;
-  ignoredMessageBy?: string;
+    _id: string;
+    student_id?: string | IStudentResponse;
+    user_id?: string | AgentResponse;
+    message?: string;
+    readBy?: string[];
+    timeStampReadBy?: Record<string, string | Date>;
+    files?: Array<{ name: string; path: string }>;
+    createdAt?: string | Date;
+    ignore_message?: boolean;
+    ignoredMessageUpdatedAt?: string | Date;
+    ignoredMessageBy?: string;
 }
 
 /** Event response */
 export interface EventResponse {
-  _id: string;
-  requester_id?: string[];
-  receiver_id?: string[];
-  isConfirmedRequester?: boolean;
-  isConfirmedReceiver?: boolean;
-  meetingLink?: string;
-  event_type?: string;
-  title?: string;
-  description?: string;
-  start?: string | Date;
-  end?: string | Date;
+    _id: string;
+    requester_id?: string[];
+    receiver_id?: string[];
+    isConfirmedRequester?: boolean;
+    isConfirmedReceiver?: boolean;
+    meetingLink?: string;
+    event_type?: string;
+    title?: string;
+    description?: string;
+    start?: string | Date;
+    end?: string | Date;
 }
 
 /** Interview response */
 export interface InterviewResponse {
-  _id: string;
-  student_id?: string | IStudentResponse;
-  trainer_id?: string[];
-  thread_id?: string;
-  program_id?: string | ProgramResponse;
-  event_id?: string | EventResponse;
-  interview_description?: string;
-  interviewer?: string;
-  interview_duration?: string;
-  interview_date?: string | Date;
-  isClosed?: boolean;
-  start?: string | Date;
-  end?: string | Date;
+    _id: string;
+    student_id?: string | IStudentResponse;
+    trainer_id?: string[];
+    thread_id?: string;
+    program_id?: string | ProgramResponse;
+    event_id?: string | EventResponse;
+    interview_description?: string;
+    interviewer?: string;
+    interview_duration?: string;
+    interview_date?: string | Date;
+    isClosed?: boolean;
+    start?: string | Date;
+    end?: string | Date;
 }
 
 /** Document thread response */
 export interface DocumentThreadResponse {
-  _id: string;
-  student_id?: string;
-  user_id?: string;
-  isFinalVersion?: boolean;
-  latest_message_left_by_id?: string;
-  messages?: Array<{
-    _id?: string;
+    _id: string;
+    student_id?: string;
     user_id?: string;
-    message?: string;
-    file_path?: string;
+    isFinalVersion?: boolean;
+    latest_message_left_by_id?: string;
+    messages?: Array<{
+        _id?: string;
+        user_id?: string;
+        message?: string;
+        file_path?: string;
+        createdAt?: string | Date;
+    }>;
     createdAt?: string | Date;
-  }>;
-  createdAt?: string | Date;
-  updatedAt?: string | Date;
+    updatedAt?: string | Date;
 }
 
 /** Student response with all populated fields */
 export interface StudentResponseFull extends IStudentResponse {
-  _id: string;
-  firstname?: string;
-  lastname?: string;
-  email?: string;
-  role?: string;
-  applications?: IApplicationWithId[];
-  agents?: AgentResponse[];
-  editors?: AgentResponse[];
-  archiv?: boolean;
-  [key: string]: unknown;
+    _id: string;
+    firstname?: string;
+    lastname?: string;
+    email?: string;
+    role?: string;
+    applications?: IApplicationWithId[];
+    agents?: AgentResponse[];
+    editors?: AgentResponse[];
+    archiv?: boolean;
+    [key: string]: unknown;
 }

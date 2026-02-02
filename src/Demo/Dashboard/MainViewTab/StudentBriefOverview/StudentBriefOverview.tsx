@@ -81,7 +81,11 @@ const StudentBriefOverview = (props) => {
         setShouldInform(false);
     };
 
-    const submitUpdateAgentlist = (e: React.FormEvent<HTMLFormElement>, updateAgentList: unknown, student_id: string) => {
+    const submitUpdateAgentlist = (
+        e: React.FormEvent<HTMLFormElement>,
+        updateAgentList: unknown,
+        student_id: string
+    ) => {
         updateAgents(updateAgentList, student_id).then(
             (resp) => {
                 const { data, success } = resp.data;
@@ -98,7 +102,11 @@ const StudentBriefOverview = (props) => {
         );
     };
 
-    const submitUpdateEditorlist = (e: React.FormEvent<HTMLFormElement>, updateEditorList: unknown, student_id: string) => {
+    const submitUpdateEditorlist = (
+        e: React.FormEvent<HTMLFormElement>,
+        updateEditorList: unknown,
+        student_id: string
+    ) => {
         updateEditors(updateEditorList, student_id).then(
             (resp) => {
                 const { data, success } = resp.data;

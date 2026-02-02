@@ -156,7 +156,9 @@ const Friend = (props: EmbeddedFriendProps) => {
                     <ListItemText
                         primary={
                             <Typography style={{ fontWeight: 'bold' }}>
-                                <AttributeChips attributes={props.data?.attributes} />
+                                <AttributeChips
+                                    attributes={props.data?.attributes}
+                                />
                                 {truncateText(
                                     `${
                                         props.data.lastname_chinese

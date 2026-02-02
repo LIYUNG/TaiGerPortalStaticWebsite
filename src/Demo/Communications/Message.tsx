@@ -99,7 +99,11 @@ const Message = (props) => {
         }));
     }, [props.message.message]);
 
-    const onOpendeleteMessageModalShow = (e: React.MouseEvent<HTMLElement>, message_id: string, createdAt: string) => {
+    const onOpendeleteMessageModalShow = (
+        e: React.MouseEvent<HTMLElement>,
+        message_id: string,
+        createdAt: string
+    ) => {
         setMessageState((prevState) => ({
             ...prevState,
             message_id,

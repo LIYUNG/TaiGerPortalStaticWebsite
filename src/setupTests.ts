@@ -7,9 +7,12 @@ import { jest } from '@jest/globals';
 
 // Defaults for env.ts when running in Jest (no import.meta.env)
 if (typeof process !== 'undefined') {
-    if (!process.env.VITE_DEV_URL) process.env.VITE_DEV_URL = 'http://localhost:3000';
-    if (!process.env.VITE_PROD_URL) process.env.VITE_PROD_URL = 'https://example.com';
-    if (!process.env.VITE_DEV_TENANT_ID) process.env.VITE_DEV_TENANT_ID = 'TaiGer';
+    if (!process.env.VITE_DEV_URL)
+        process.env.VITE_DEV_URL = 'http://localhost:3000';
+    if (!process.env.VITE_PROD_URL)
+        process.env.VITE_PROD_URL = 'https://example.com';
+    if (!process.env.VITE_DEV_TENANT_ID)
+        process.env.VITE_DEV_TENANT_ID = 'TaiGer';
     if (!process.env.VITE_TENANT_ID) process.env.VITE_TENANT_ID = 'TaiGer_Prod';
 }
 
@@ -27,7 +30,9 @@ jest.mock('i18next', () => ({
 jest.mock('react-i18next', () => ({
     useTranslation: () => ({
         t: (str: string) => str,
-        i18n: { changeLanguage: (): Promise<void> => new Promise(() => undefined) }
+        i18n: {
+            changeLanguage: (): Promise<void> => new Promise(() => undefined)
+        }
     }),
     initReactI18next: { type: '3rdParty', init: (): void => undefined }
 }));
@@ -66,9 +71,11 @@ const originalConsoleError = console.error;
 console.error = (...args: unknown[]) => {
     const msg = typeof args[0] === 'string' ? args[0] : String(args[0]);
     if (
-        (msg.includes('An update to ') && msg.includes('inside a test was not wrapped in act(...)')) ||
+        (msg.includes('An update to ') &&
+            msg.includes('inside a test was not wrapped in act(...)')) ||
         msg.includes('Error handled by React Router default ErrorBoundary') ||
-        (msg.includes('No route matches') || msg.includes('No routes matched'))
+        msg.includes('No route matches') ||
+        msg.includes('No routes matched')
     ) {
         return;
     }
@@ -92,5 +99,6 @@ class ResizeObserverMock {
     }
 }
 if (typeof window !== 'undefined' && !window.ResizeObserver) {
-    window.ResizeObserver = ResizeObserverMock as unknown as typeof ResizeObserver;
+    window.ResizeObserver =
+        ResizeObserverMock as unknown as typeof ResizeObserver;
 }

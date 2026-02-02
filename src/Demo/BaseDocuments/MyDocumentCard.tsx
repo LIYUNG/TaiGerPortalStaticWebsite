@@ -361,7 +361,12 @@ const MyDocumentCard = (props) => {
         }));
     };
 
-    const onDeleteFileWarningPopUp = (e: React.MouseEvent<HTMLElement>, category: string, student_id: string, docName: string) => {
+    const onDeleteFileWarningPopUp = (
+        e: React.MouseEvent<HTMLElement>,
+        category: string,
+        student_id: string,
+        docName: string
+    ) => {
         e.preventDefault();
         setMyDocumentCardState((prevState) => ({
             ...prevState,
@@ -372,7 +377,10 @@ const MyDocumentCard = (props) => {
         }));
     };
 
-    const handleRejectMessage = (e: React.FormEvent<HTMLFormElement>, rejectmessage: string) => {
+    const handleRejectMessage = (
+        e: React.FormEvent<HTMLFormElement>,
+        rejectmessage: string
+    ) => {
         e.preventDefault();
         setMyDocumentCardState((prevState) => ({
             ...prevState,
@@ -380,7 +388,12 @@ const MyDocumentCard = (props) => {
         }));
     };
 
-    const onUpdateProfileDocStatus = (e: React.MouseEvent<HTMLElement>, category: string, student_id: string, status: string) => {
+    const onUpdateProfileDocStatus = (
+        e: React.MouseEvent<HTMLElement>,
+        category: string,
+        student_id: string,
+        status: string
+    ) => {
         e.preventDefault();
         setMyDocumentCardState((prevState) => ({
             ...prevState,
@@ -433,7 +446,11 @@ const MyDocumentCard = (props) => {
             delete_field: e.target.value
         }));
     };
-    const handleGeneralDocSubmitV2 = (e: React.ChangeEvent<HTMLInputElement>, category: string, studentId: string) => {
+    const handleGeneralDocSubmitV2 = (
+        e: React.ChangeEvent<HTMLInputElement>,
+        category: string,
+        studentId: string
+    ) => {
         const formData = new FormData();
         formData.append('file', e.target.files[0]);
         mutateUploadFile({ category, studentId, formData });

@@ -51,7 +51,11 @@ const ManagerMainView = (props) => {
         collapsedRows: {}
     });
 
-    const removeAgentBanner = (e: React.MouseEvent<HTMLElement>, notification_key: string, student_id: string) => {
+    const removeAgentBanner = (
+        e: React.MouseEvent<HTMLElement>,
+        notification_key: string,
+        student_id: string
+    ) => {
         e.preventDefault();
         const temp_user = { ...user };
         const idx = temp_user.agent_notification[

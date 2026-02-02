@@ -121,7 +121,11 @@ export const StudentsTable = ({
         }));
     };
 
-    const submitUpdateAgentlistLocal = (e: React.FormEvent<HTMLFormElement>, updateAgentList: unknown, student_id: string) => {
+    const submitUpdateAgentlistLocal = (
+        e: React.FormEvent<HTMLFormElement>,
+        updateAgentList: unknown,
+        student_id: string
+    ) => {
         table.resetRowSelection();
         submitUpdateAgentlist(e, updateAgentList, student_id);
         setAgentModalhide();

@@ -192,7 +192,10 @@ const DocCreatePage = (props) => {
         }));
     };
 
-    const handleClickSave = (e: React.MouseEvent<HTMLElement>, editorState: unknown) => {
+    const handleClickSave = (
+        e: React.MouseEvent<HTMLElement>,
+        editorState: unknown
+    ) => {
         e.preventDefault();
         // Editorjs. editorState is in JSON form
         const message = JSON.stringify(editorState);

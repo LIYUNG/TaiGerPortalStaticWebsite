@@ -259,7 +259,10 @@ const LeadPage = () => {
         setShowDealModal(true);
     };
 
-    const openStatusMenu = (e: React.MouseEvent<HTMLElement>, deal: unknown) => {
+    const openStatusMenu = (
+        e: React.MouseEvent<HTMLElement>,
+        deal: unknown
+    ) => {
         if (isTerminalStatus(deal?.status)) return;
         setStatusMenu({ anchorEl: e.currentTarget, row: deal });
     };

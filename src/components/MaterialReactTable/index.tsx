@@ -49,7 +49,7 @@ function MRTable<T extends Record<string, unknown>>({
             showColumnFilters: true,
             showGlobalFilter: true,
             density: 'compact',
-            columnVisibility: { ...columnVisibilityModel },    
+            columnVisibility: { ...columnVisibilityModel },
             columnPinning: {
                 left: ['mrt-row-expand', 'mrt-row-select'],
                 right: ['mrt-row-actions']

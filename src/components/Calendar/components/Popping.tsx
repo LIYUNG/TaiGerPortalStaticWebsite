@@ -122,8 +122,7 @@ const Popping = ({
                                 name="Agent"
                                 onChange={handleChangeReceiver}
                                 value={
-                                    user &&
-                                    is_TaiGer_Student(user as UserProps)
+                                    user && is_TaiGer_Student(user as UserProps)
                                         ? user.agents && user.agents.length > 0
                                             ? newReceiver
                                             : ''

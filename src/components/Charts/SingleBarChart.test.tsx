@@ -11,6 +11,8 @@ describe('SingleBarChart', () => {
                 ]}
             />
         );
-        expect(document.querySelector('[class*="MuiCharts"]')).toBeInTheDocument();
+        expect(
+            document.querySelector('[class*="MuiCharts"]')
+        ).toBeInTheDocument();
     });
 });

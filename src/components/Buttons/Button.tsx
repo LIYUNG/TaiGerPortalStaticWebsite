@@ -102,7 +102,10 @@ export const UploadIconButton = ({
     ) : (
         <Tooltip title={i18next.t('Upload', { ns: 'common' })}>
             <label>
-                <IconButton component="span" sx={{ border: 1, borderColor: 'divider' }}>
+                <IconButton
+                    component="span"
+                    sx={{ border: 1, borderColor: 'divider' }}
+                >
                     <CloudUploadIcon />
                 </IconButton>
                 <input

@@ -69,7 +69,11 @@ const MessageContainer = (props) => {
         }));
     }, []);
 
-    const updateMessage = (e: React.FormEvent<HTMLFormElement>, editorState: unknown, messageId: string) => {
+    const updateMessage = (
+        e: React.FormEvent<HTMLFormElement>,
+        editorState: unknown,
+        messageId: string
+    ) => {
         e.preventDefault();
         mutate({
             communication_id: props.student_id,

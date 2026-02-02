@@ -56,7 +56,10 @@ const SingleDocEdit = ({
         }));
     };
 
-    const handleClickSave2 = (e: React.MouseEvent<HTMLElement>, editorState: unknown) => {
+    const handleClickSave2 = (
+        e: React.MouseEvent<HTMLElement>,
+        editorState: unknown
+    ) => {
         e.preventDefault();
         handleClickSave(
             e,

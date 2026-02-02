@@ -42,10 +42,12 @@ describe('ApplicationLockControl', () => {
     it('renders chip when application and programId provided', () => {
         render(
             <ApplicationLockControl
-                application={{
-                    programId: { country: 'de', _id: 'p1' },
-                    _id: 'a1'
-                } as never}
+                application={
+                    {
+                        programId: { country: 'de', _id: 'p1' },
+                        _id: 'a1'
+                    } as never
+                }
             />
         );
         expect(screen.getByText(/Locked|Unlocked/)).toBeInTheDocument();

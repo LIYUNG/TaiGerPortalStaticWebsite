@@ -13,19 +13,13 @@ describe('Banner', () => {
     });
 
     it('renders title when provided', () => {
-        renderWithRouter(
-            <Banner text="Message" title="warning" />
-        );
+        renderWithRouter(<Banner text="Message" title="warning" />);
         expect(screen.getByText(/Warning/)).toBeInTheDocument();
     });
 
     it('renders link when link_name and path provided', () => {
         renderWithRouter(
-            <Banner
-                link_name="Go here"
-                path="/some-path"
-                text="Message"
-            />
+            <Banner link_name="Go here" path="/some-path" text="Message" />
         );
         expect(screen.getByRole('link', { name: /Go here/ })).toHaveAttribute(
             'href',

@@ -87,13 +87,8 @@ export const deleteUser = ({ id }: { id: string }) =>
 export const updateUser = (user: AuthUserData) =>
     postData(`/api/users/${user._id}`, user);
 
-export const changeUserRole = ({
-    id,
-    role
-}: {
-    id: string;
-    role: string;
-}) => updateUser({ _id: id, role } as AuthUserData);
+export const changeUserRole = ({ id, role }: { id: string; role: string }) =>
+    updateUser({ _id: id, role } as AuthUserData);
 
 export const getEssayWriters = () => request.get('/api/essay-writers');
 
@@ -214,8 +209,7 @@ export const updateEditors = (editorsId: string[], studentId: StudentId) =>
 export const updateAttributes = (
     attributesId: string[],
     studentId: StudentId
-) =>
-    request.post(`/api/students/${studentId}/attributes`, attributesId);
+) => request.post(`/api/students/${studentId}/attributes`, attributesId);
 
 export const downloadProfile = (category: string, studentId: StudentId) =>
     request.get(`/api/students/${studentId}/files/${category}`, {
@@ -235,8 +229,7 @@ export const uploadforstudentV2 = ({
     category: string;
     studentId: StudentId;
     formData: FormData;
-}) =>
-    postData(`/api/students/${studentId}/files/${category}`, formData);
+}) => postData(`/api/students/${studentId}/files/${category}`, formData);
 
 export const getStudentAndDocLinks = (studentId: StudentId) =>
     request.get(`/api/students/doc-links/${studentId}`);
@@ -282,8 +275,7 @@ export const deleteVPDFileV2 = ({
     studentId: StudentId;
     applicationId: ApplicationId;
     fileType: string;
-}) =>
-    deleteData(`/api/students/${studentId}/vpd/${applicationId}/${fileType}`);
+}) => deleteData(`/api/students/${studentId}/vpd/${applicationId}/${fileType}`);
 
 export const SetAsNotNeededV2 = ({
     studentId,
@@ -291,8 +283,7 @@ export const SetAsNotNeededV2 = ({
 }: {
     studentId: StudentId;
     applicationId: ApplicationId;
-}) =>
-    putData(`/api/students/${studentId}/vpd/${applicationId}/VPD`, {});
+}) => putData(`/api/students/${studentId}/vpd/${applicationId}/VPD`, {});
 
 export const SetUniAssistPaidV2 = ({
     studentId,
@@ -416,11 +407,7 @@ export const getProgramRequirements = () =>
 export const getProgramRequirementsV2 = () =>
     getData(`/api/program-requirements`);
 
-export const getSameProgramStudents = ({
-    programId
-}: {
-    programId: string;
-}) =>
+export const getSameProgramStudents = ({ programId }: { programId: string }) =>
     getData(`/api/programs/same-program-students/${programId}`);
 
 export const postProgramRequirements = (payload: ApiPayload) =>
@@ -432,11 +419,7 @@ export const getProgramRequirement = (programRequirementId: string) =>
 export const putProgramRequirement = (
     programRequirementId: string,
     payload: ApiPayload
-) =>
-    request.put(
-        `/api/program-requirements/${programRequirementId}`,
-        payload
-    );
+) => request.put(`/api/program-requirements/${programRequirementId}`, payload);
 export const deleteProgramRequirement = (programRequirementId: string) =>
     request.delete(`/api/program-requirements/${programRequirementId}`);
 
@@ -455,8 +438,7 @@ export const updateStudentApplicationResult = (
 export const deleteGenralFileThread = (
     documentsthreadId: string,
     studentId: StudentId
-) =>
-    request.delete(`/api/document-threads/${documentsthreadId}/${studentId}`);
+) => request.delete(`/api/document-threads/${documentsthreadId}/${studentId}`);
 
 export const deleteProgramSpecificFileThread = (
     documentsthreadId: string,
@@ -508,10 +490,7 @@ export const updateEssayWriter = (
     editor_id: string,
     documentsthreadId: string
 ) =>
-    request.post(
-        `/api/document-threads/${documentsthreadId}/essay`,
-        editor_id
-    );
+    request.post(`/api/document-threads/${documentsthreadId}/essay`, editor_id);
 
 export const putThreadFavorite = (documentsthreadId: string) =>
     request.put(`/api/document-threads/${documentsthreadId}/favorite`);
@@ -580,9 +559,7 @@ export const getProgramsOverview = () => getData('/api/programs/overview');
 export const getSchoolsDistribution = () =>
     getData('/api/programs/schools-distribution');
 export const getDistinctSchools = () => request.get('/api/programs/schools');
-export const updateSchoolAttributes = (
-    schoolAttributes: ApiPayload
-) =>
+export const updateSchoolAttributes = (schoolAttributes: ApiPayload) =>
     request.put('/api/programs/schools', schoolAttributes);
 
 export const getProgram = (programId: string) =>
@@ -597,11 +574,16 @@ export const deleteProgramV2 = ({ program_id }: { program_id: string }) =>
 export const createProgramV2 = ({ program }: { program: ApiPayload }) =>
     postData('/api/programs', program);
 
-export const updateProgram = (program: { _id: string;[key: string]: unknown }) =>
-    request.put(`/api/programs/${program._id}`, program);
+export const updateProgram = (program: {
+    _id: string;
+    [key: string]: unknown;
+}) => request.put(`/api/programs/${program._id}`, program);
 
-export const updateProgramV2 = ({ program }: { program: { _id: string;[key: string]: unknown } }) =>
-    putData(`/api/programs/${program._id}`, program);
+export const updateProgramV2 = ({
+    program
+}: {
+    program: { _id: string; [key: string]: unknown };
+}) => putData(`/api/programs/${program._id}`, program);
 
 export const getProgramChangeRequests = (programId: string) =>
     request.get(`/api/programs/${programId}/change-requests`);
@@ -680,21 +662,22 @@ export const getMyCommunicationThreadV2 = () =>
     getData('/api/communications/all');
 export const getCommunicationThread = (studentId: StudentId) =>
     request.get(`/api/communications/${studentId}`);
-export const getCommunicationThreadV2 = ({ studentId }: { studentId: StudentId }) =>
-    getData(`/api/communications/${studentId}`);
+export const getCommunicationThreadV2 = ({
+    studentId
+}: {
+    studentId: StudentId;
+}) => getData(`/api/communications/${studentId}`);
 export const loadCommunicationThread = (
     studentId: StudentId,
     pageNumber: number
-) =>
-    request.get(`/api/communications/${studentId}/pages/${pageNumber}`);
+) => request.get(`/api/communications/${studentId}/pages/${pageNumber}`);
 export const postCommunicationThreadV2 = ({
     studentId,
     formData
 }: {
     studentId: StudentId;
     formData: FormData | ApiPayload;
-}) =>
-    postData(`/api/communications/${studentId}`, formData);
+}) => postData(`/api/communications/${studentId}`, formData);
 export const updateAMessageInCommunicationThreadV2 = ({
     communication_id,
     communication_messageId,
@@ -744,7 +727,11 @@ export const IgnoreMessageV2 = ({
 export const getSurveyInputs = (documentsthreadId: string) =>
     request.get(`/api/document-threads/${documentsthreadId}/survey-inputs`);
 
-export const putSurveyInput = (surveyId: string, input: ApiPayload, informEditor: boolean) =>
+export const putSurveyInput = (
+    surveyId: string,
+    input: ApiPayload,
+    informEditor: boolean
+) =>
     request.put(`/api/document-threads/survey-input/${surveyId}`, {
         input,
         informEditor
@@ -803,14 +790,20 @@ export const updateBanner = (notification_key: string) =>
         notification_key
     });
 
-export const updateAgentBanner = (notification_key: string, student_id: string) =>
+export const updateAgentBanner = (
+    notification_key: string,
+    student_id: string
+) =>
     request.post(`/api/account/agent/notifications`, {
         notification_key,
         student_id
     });
 
 //Survey:
-export const updateAcademicBackground = (university: string, student_id: string) =>
+export const updateAcademicBackground = (
+    university: string,
+    student_id: string
+) =>
     request.post(`/api/account/survey/university/${student_id}`, {
         university
     });
@@ -835,7 +828,13 @@ export const updateStudentNotes = (student_id: string, notes: ApiPayload) =>
 export const getActiveEventsNumber = () => request.get(`/api/events/ping`);
 export const getEvents = (queryString: QueryString) =>
     request.get(`/api/events?${queryString}`);
-export const getBookedEvents = ({ startTime, endTime }: { startTime: string, endTime: string }) =>
+export const getBookedEvents = ({
+    startTime,
+    endTime
+}: {
+    startTime: string;
+    endTime: string;
+}) =>
     request.get(`/api/events/booked?startTime=${startTime}&endTime=${endTime}`);
 export const postEvent = (event: ApiPayload) => postData(`/api/events`, event);
 export const confirmEvent = (event_id: string, updated_event: ApiPayload) =>
@@ -844,7 +843,11 @@ export const updateEvent = (event_id: string, updated_event: ApiPayload) =>
     request.put(`/api/events/${event_id}`, updated_event);
 export const deleteEvent = (event_id: string) =>
     request.delete(`/api/events/${event_id}`);
-export const updateOfficehours = (user_id: string, officehours: ApiPayload, timezone: string) =>
+export const updateOfficehours = (
+    user_id: string,
+    officehours: ApiPayload,
+    timezone: string
+) =>
     request.put(`/api/account/profile/officehours/${user_id}`, {
         officehours,
         timezone
@@ -869,15 +872,20 @@ export const getAgentProfile = (agent_id: string) =>
     request.get(`/api/agents/profile/${agent_id}`);
 export const getExpense = (taiger_user_id: string) =>
     request.get(`/api/expenses/users/${taiger_user_id}`);
-export const updateUserPermission = (taiger_user_id: string, permissions: ApiPayload) =>
-    request.post(`/api/permissions/${taiger_user_id}`, permissions);
+export const updateUserPermission = (
+    taiger_user_id: string,
+    permissions: ApiPayload
+) => request.post(`/api/permissions/${taiger_user_id}`, permissions);
 
 //Personal Data:
 export const updatePersonalData = (user_id: string, personaldata: ApiPayload) =>
     request.post(`/api/account/profile/${user_id}`, { personaldata });
 
-export const updateCredentials = (credentials: ApiPayload, email: string, password: string) =>
-    request.post(`/api/account/credentials`, { credentials, email, password });
+export const updateCredentials = (
+    credentials: ApiPayload,
+    email: string,
+    password: string
+) => request.post(`/api/account/credentials`, { credentials, email, password });
 
 //TaiGer AI:
 export const processProgramList = (programId: ProgramId) =>
@@ -963,13 +971,11 @@ export const deleteInterview = (interview_id: InterviewId) =>
 export const updateInterview = (
     interview_id: InterviewId,
     payload: ApiPayload
-) =>
-    request.put(`/api/interviews/${interview_id}`, payload);
+) => request.put(`/api/interviews/${interview_id}`, payload);
 export const updateInterviewSurvey = (
     interview_id: InterviewId,
     payload: ApiPayload
-) =>
-    request.put(`/api/interviews/${interview_id}/survey`, payload);
+) => request.put(`/api/interviews/${interview_id}/survey`, payload);
 export const getInterviewSurvey = (interview_id: InterviewId) =>
     request.get(`/api/interviews/${interview_id}/survey`);
 export const getMyInterviews = () =>
@@ -983,8 +989,7 @@ export const createInterview = (
 export const addInterviewTrainingDateTime = (
     interview_id: InterviewId,
     payload: ApiPayload
-) =>
-    request.post(`/api/interviews/time/${interview_id}`, payload);
+) => request.post(`/api/interviews/time/${interview_id}`, payload);
 
 export const getInterviewsByProgramId = (program_id: ProgramId) =>
     getData(`/api/interviews/interview/${program_id}`);
@@ -996,15 +1001,13 @@ export const createProgramReport = (
     program_id: ProgramId,
     description: string,
     type: string
-) =>
-    request.post(`/api/tickets/`, { program_id, description, type });
+) => request.post(`/api/tickets/`, { program_id, description, type });
 export const getProgramTicket = (type: string, program_id: ProgramId) =>
     request.get(`/api/tickets?type=${type}&program_id=${program_id}`);
 export const updateProgramTicket = (
     ticket_id: TicketId,
     updatedTicket: ApiPayload
-) =>
-    request.put(`/api/tickets/${ticket_id}`, updatedTicket);
+) => request.put(`/api/tickets/${ticket_id}`, updatedTicket);
 export const deleteProgramTicket = (ticket_id: TicketId) =>
     request.delete(`/api/tickets/${ticket_id}`);
 export const getProgramTickets = (type: string, status: string) =>
@@ -1015,8 +1018,7 @@ export const getProgramTicketsV2 = ({
 }: {
     type: string;
     status: string;
-}) =>
-    getData(`/api/tickets?type=${type}&status=${status}`);
+}) => getData(`/api/tickets?type=${type}&status=${status}`);
 
 // Complaint
 export const createComplaintTicket = (ticket: ApiPayload) =>
@@ -1028,8 +1030,7 @@ export const getComplaintsTickets = (type?: string) =>
 export const updateComplaintsTicket = (
     ticketId: TicketId,
     updatedTicket: ApiPayload
-) =>
-    request.put(`/api/complaints/${ticketId}`, updatedTicket);
+) => request.put(`/api/complaints/${ticketId}`, updatedTicket);
 export const deleteComplaintsTicket = (ticketId: TicketId) =>
     request.delete(`/api/complaints/${ticketId}`);
 export const submitMessageInTicketWithAttachment = (
@@ -1044,8 +1045,7 @@ export const submitMessageInTicketWithAttachment = (
 export const deleteAMessageinTicket = (
     ticketId: TicketId,
     message_id: string
-) =>
-    request.delete(`/api/complaints/${ticketId}/${message_id}`);
+) => request.delete(`/api/complaints/${ticketId}/${message_id}`);
 
 // CRM
 export const getCRMStats = () => request.get(`/api/crm/stats`);
@@ -1059,10 +1059,7 @@ export const createLeadFromStudent = (userId: UserId) =>
 export const getCRMMeetings = () => request.get(`/api/crm/meetings`);
 export const getCRMMeeting = (meetingId: MeetingId) =>
     request.get(`/api/crm/meetings/${meetingId}`);
-export const updateCRMMeeting = (
-    meetingId: MeetingId,
-    payload: ApiPayload
-) =>
+export const updateCRMMeeting = (meetingId: MeetingId, payload: ApiPayload) =>
     request.put(`/api/crm/meetings/${meetingId}`, payload);
 export const getCRMDeals = () => request.get(`/api/crm/deals`);
 export const createCRMDeal = (payload: ApiPayload) =>
@@ -1079,24 +1076,18 @@ export const instantInviteTA = (meetingSummary: string, meetingLink: string) =>
 // Student Meetings APIs
 export const getStudentMeetings = (studentId: StudentId) =>
     getData(`/api/students/${studentId}/meetings`);
-export const getStudentMeeting = (
-    studentId: StudentId,
-    meetingId: MeetingId
-) =>
+export const getStudentMeeting = (studentId: StudentId, meetingId: MeetingId) =>
     getData(`/api/students/${studentId}/meetings/${meetingId}`);
 export const createStudentMeeting = (
     studentId: StudentId,
     payload: ApiPayload
-) =>
-    postData(`/api/students/${studentId}/meetings`, payload);
+) => postData(`/api/students/${studentId}/meetings`, payload);
 export const updateStudentMeeting = (
     studentId: StudentId,
     meetingId: MeetingId,
     payload: ApiPayload
-) =>
-    putData(`/api/students/${studentId}/meetings/${meetingId}`, payload);
+) => putData(`/api/students/${studentId}/meetings/${meetingId}`, payload);
 export const deleteStudentMeeting = (
     studentId: StudentId,
     meetingId: MeetingId
-) =>
-    deleteData(`/api/students/${studentId}/meetings/${meetingId}`);
+) => deleteData(`/api/students/${studentId}/meetings/${meetingId}`);

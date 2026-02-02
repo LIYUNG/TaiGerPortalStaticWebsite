@@ -177,7 +177,10 @@ export const UniAssistProgramBlock = ({ application, student }) => {
             fileType: ''
         });
 
-    const onDeleteVPDFileWarningPopUp = (e: React.MouseEvent<HTMLElement>, fileType: string) => {
+    const onDeleteVPDFileWarningPopUp = (
+        e: React.MouseEvent<HTMLElement>,
+        fileType: string
+    ) => {
         e.preventDefault();
         setUniAssistProgramBlockState((prevState) => ({
             ...prevState,
@@ -186,7 +189,11 @@ export const UniAssistProgramBlock = ({ application, student }) => {
         setDeleteVPDFileWarningModelOpen(true);
     };
 
-    const handleUniAssistDocSubmit = (e: React.ChangeEvent<HTMLInputElement>, student_id: string, application_id: string) => {
+    const handleUniAssistDocSubmit = (
+        e: React.ChangeEvent<HTMLInputElement>,
+        student_id: string,
+        application_id: string
+    ) => {
         e.preventDefault();
         onSubmitVPDFileV2(
             e,
@@ -239,7 +246,12 @@ export const UniAssistProgramBlock = ({ application, student }) => {
             'VPDConfirmation'
         );
     };
-    const onCheckHandlerV2 = (e: React.MouseEvent<HTMLElement>, studentId: string, applicationId: string, isPaid: boolean) => {
+    const onCheckHandlerV2 = (
+        e: React.MouseEvent<HTMLElement>,
+        studentId: string,
+        applicationId: string,
+        isPaid: boolean
+    ) => {
         e.preventDefault();
         mutateCheck({ studentId, applicationId, isPaid });
     };

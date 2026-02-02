@@ -30,14 +30,18 @@ jest.mock('./components/AuthProvider', () => ({
 
 jest.mock('./api', () => ({
     ...jest.requireActual('./api'),
-    getProgramTickets: jest.fn().mockResolvedValue({ data: { success: true, data: [] } }),
+    getProgramTickets: jest
+        .fn()
+        .mockResolvedValue({ data: { success: true, data: [] } }),
     getAdmissions: jest.fn().mockResolvedValue({ data: { result: [] } }),
     getArchivStudents: jest.fn().mockResolvedValue({ data: [], status: 200 }),
     getStudents: jest.fn().mockResolvedValue({ data: [], status: 200 }),
     getProgramsAndCourseKeywordSetsLoader: jest.fn().mockResolvedValue({}),
     getApplicationStudentV2: jest.fn().mockResolvedValue({ data: null }),
     getComplaintsTickets: jest.fn().mockResolvedValue({ data: { data: [] } }),
-    getComplaintsTicket: jest.fn().mockResolvedValue({ data: { data: {} }, status: 200 }),
+    getComplaintsTicket: jest
+        .fn()
+        .mockResolvedValue({ data: { data: {} }, status: 200 }),
     getMyAcademicBackground: jest.fn().mockResolvedValue({ data: {} }),
     getProgram: jest.fn().mockResolvedValue({ data: {} }),
     getAllOpenInterviews: jest.fn().mockResolvedValue({ data: [] })
@@ -76,7 +80,9 @@ jest.mock('./hooks/useStudents', () => ({
     })
 }));
 
-const wrapWithSuspense = (Component: React.LazyExoticComponent<React.ComponentType<unknown>>) => (
+const wrapWithSuspense = (
+    Component: React.LazyExoticComponent<React.ComponentType<unknown>>
+) => (
     <Suspense fallback={<div data-testid="loading">Loading...</div>}>
         <Component />
     </Suspense>
@@ -125,7 +131,9 @@ describe('Page smoke tests – all pages render without crashing', () => {
     });
 
     test('Admissions page renders', async () => {
-        const Admissions = React.lazy(() => import('./Demo/Admissions/Admissions'));
+        const Admissions = React.lazy(
+            () => import('./Demo/Admissions/Admissions')
+        );
         renderWithProviders(wrapWithSuspense(Admissions), {
             initialEntries: ['/admissions-overview']
         });
@@ -134,20 +142,21 @@ describe('Page smoke tests – all pages render without crashing', () => {
         });
     });
 
-    test(
-        'Student Database page renders',
-        async () => {
-            const StudentDatabase = React.lazy(() => import('./Demo/StudentDatabase/index'));
-            renderPageRoute(
-                { path: '/student-database', element: wrapWithSuspense(StudentDatabase) },
-                '/student-database'
-            );
-            await waitFor(() => {
-                expect(document.body.textContent).toBeDefined();
-            });
-        },
-        25000
-    );
+    test('Student Database page renders', async () => {
+        const StudentDatabase = React.lazy(
+            () => import('./Demo/StudentDatabase/index')
+        );
+        renderPageRoute(
+            {
+                path: '/student-database',
+                element: wrapWithSuspense(StudentDatabase)
+            },
+            '/student-database'
+        );
+        await waitFor(() => {
+            expect(document.body.textContent).toBeDefined();
+        });
+    }, 25000);
 
     test('Student Database Overview renders', async () => {
         const StudentDatabaseOverview = React.lazy(
@@ -166,7 +175,9 @@ describe('Page smoke tests – all pages render without crashing', () => {
     });
 
     test('Archiv Students page renders', async () => {
-        const ArchivStudent = React.lazy(() => import('./Demo/ArchivStudent/index'));
+        const ArchivStudent = React.lazy(
+            () => import('./Demo/ArchivStudent/index')
+        );
         renderPageRoute(
             {
                 path: '/archiv/students',
@@ -180,7 +191,9 @@ describe('Page smoke tests – all pages render without crashing', () => {
     });
 
     test('Program List page renders', async () => {
-        const ProgramList = React.lazy(() => import('./Demo/Program/ProgramList'));
+        const ProgramList = React.lazy(
+            () => import('./Demo/Program/ProgramList')
+        );
         renderPageRoute(
             { path: '/programs', element: wrapWithSuspense(ProgramList) },
             '/programs'
@@ -202,7 +215,9 @@ describe('Page smoke tests – all pages render without crashing', () => {
     });
 
     test('CVMLRL Center / Overview renders', async () => {
-        const CVMLRLOverview = React.lazy(() => import('./Demo/CVMLRLCenter/index'));
+        const CVMLRLOverview = React.lazy(
+            () => import('./Demo/CVMLRLCenter/index')
+        );
         renderPageRoute(
             {
                 path: '/cv-ml-rl-center',
@@ -216,9 +231,14 @@ describe('Page smoke tests – all pages render without crashing', () => {
     });
 
     test('Base Documents page renders', async () => {
-        const BaseDocuments = React.lazy(() => import('./Demo/BaseDocuments/BaseDocuments'));
+        const BaseDocuments = React.lazy(
+            () => import('./Demo/BaseDocuments/BaseDocuments')
+        );
         renderPageRoute(
-            { path: '/base-documents', element: wrapWithSuspense(BaseDocuments) },
+            {
+                path: '/base-documents',
+                element: wrapWithSuspense(BaseDocuments)
+            },
             '/base-documents'
         );
         await waitFor(() => {
@@ -265,7 +285,9 @@ describe('Page smoke tests – all pages render without crashing', () => {
     });
 
     test('Download page renders', async () => {
-        const Download = React.lazy(() => import('./Demo/DownloadCenter/DownloadPage'));
+        const Download = React.lazy(
+            () => import('./Demo/DownloadCenter/DownloadPage')
+        );
         renderPageRoute(
             { path: '/download', element: wrapWithSuspense(Download) },
             '/download'
@@ -362,7 +384,9 @@ describe('Page smoke tests – all pages render without crashing', () => {
     });
 
     test('Customer Support page renders', async () => {
-        const CustomerSupport = React.lazy(() => import('./Demo/CustomerSupport'));
+        const CustomerSupport = React.lazy(
+            () => import('./Demo/CustomerSupport')
+        );
         renderPageRoute(
             {
                 path: '/customer-center',

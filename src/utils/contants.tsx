@@ -209,7 +209,10 @@ export const questionType = {
     essay: 'essay'
 };
 
-export const prepQuestions = (thread: DocumentThreadResponse, isSpecific: boolean): unknown[] => {
+export const prepQuestions = (
+    thread: DocumentThreadResponse,
+    isSpecific: boolean
+): unknown[] => {
     let questions = [];
     if (
         thread?.file_type?.includes('RL') ||
@@ -403,7 +406,10 @@ export const RLQuestions = (_thread?: DocumentThreadResponse): unknown[] => {
     ];
 };
 
-export const MLQuestions = (thread: DocumentThreadResponse, isSpecific: boolean): unknown[] => {
+export const MLQuestions = (
+    thread: DocumentThreadResponse,
+    isSpecific: boolean
+): unknown[] => {
     if (isSpecific) {
         return [
             {
@@ -539,7 +545,9 @@ export const NoonNightLabel = (start: string | Date): string => {
           : '';
 };
 
-export const transformObjectToArray = (inputObject: Record<string, Record<string, number>>): Array<{
+export const transformObjectToArray = (
+    inputObject: Record<string, Record<string, number>>
+): Array<{
     date: string;
     apiCallCount: number;
     get: number;
@@ -572,7 +580,10 @@ export const getLast180DaysSet = () => {
     return last180DaysSet;
 };
 
-export const getLast180DaysObject = (): Record<string, Record<string, number>> => {
+export const getLast180DaysObject = (): Record<
+    string,
+    Record<string, number>
+> => {
     const today = new Date();
     const last180DaysObject: Record<string, Record<string, number>> = {};
 
@@ -605,7 +616,13 @@ const convertISOToCustomFormat = (isoString: string): string => {
     return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.000+00:00`;
 };
 
-export const getUTCWithDST = (year: number, month: number, day: number, timezone: string, timeslot: string): string => {
+export const getUTCWithDST = (
+    year: number,
+    month: number,
+    day: number,
+    timezone: string,
+    timeslot: string
+): string => {
     // Create a Moment object for the current date and time in the specified timezone
     const localTime = moment.tz(timezone);
     const [hours, minutes] = timeslot.split(':').map(Number);
@@ -640,7 +657,10 @@ export const getLocalTime = (utc_time: Date, timezone: string): string => {
     const localTime = utcMoment.tz(timezone);
     return localTime.format();
 };
-export const getUTCTimezoneOffset = (utc_time: Date, timezone: string): number => {
+export const getUTCTimezoneOffset = (
+    utc_time: Date,
+    timezone: string
+): number => {
     const utcMoment = moment.utc(`${utc_time.toISOString()}`);
     const localTime = utcMoment.clone().tz(timezone);
     const timeZoneOffsetMinutes = localTime.utcOffset();
@@ -664,7 +684,10 @@ export const showTimezoneOffset = () => {
         : getTimezoneOffset(Intl.DateTimeFormat().resolvedOptions().timeZone);
 };
 
-export const shiftDateByOffset = (originalDate: Date, offsetHours: number): Date => {
+export const shiftDateByOffset = (
+    originalDate: Date,
+    offsetHours: number
+): Date => {
     const shiftedDate = new Date(originalDate);
     const hours = Math.floor(offsetHours); // Get the whole number of hours
     const minutes = (offsetHours - hours) * 60; // Convert decimal to minutes
@@ -674,7 +697,12 @@ export const shiftDateByOffset = (originalDate: Date, offsetHours: number): Date
     return shiftedDate;
 };
 
-export const getNextDayDate = (reorder_weekday: string[], dayOfWeek: string, timezone: string, nextN: number): { weekdayLong: string | null; year: number; month: number; day: number } => {
+export const getNextDayDate = (
+    reorder_weekday: string[],
+    dayOfWeek: string,
+    timezone: string,
+    nextN: number
+): { weekdayLong: string | null; year: number; month: number; day: number } => {
     const now = DateTime.fromObject({}, { zone: timezone });
     const targetDayIndex = reorder_weekday.indexOf(dayOfWeek); // dayOfWeek is explicitly predefined. (Monday....) 0-6
 
@@ -890,7 +918,9 @@ const getBrightness = (hexColor: string): number => {
     return (r * 299 + g * 587 + b * 114) / 1000;
 };
 
-export const stringAvatar = (name: string): { sx: { bgcolor: string; color: string }; children: string } => {
+export const stringAvatar = (
+    name: string
+): { sx: { bgcolor: string; color: string }; children: string } => {
     const backgroundColor = stringToColor(name);
 
     const textColor =
@@ -1170,10 +1200,13 @@ export const program_fields = [
     ...program_fields_others
 ];
 
-export const programField2Label = program_fields.reduce((acc, field) => {
-    acc[field.prop] = field.name;
-    return acc;
-}, {} as Record<string, string>);
+export const programField2Label = program_fields.reduce(
+    (acc, field) => {
+        acc[field.prop] = field.name;
+        return acc;
+    },
+    {} as Record<string, string>
+);
 
 export const programFieldOrder = program_fields.map((field) => field.prop);
 
@@ -1190,7 +1223,9 @@ export const convertDateUXFriendly = (date: string | Date): string => {
     const currentDate = new Date();
     const input_date_point = new Date(date);
     // Calculate the time difference in milliseconds
-    const timeDiff = Math.abs(currentDate.getTime() - input_date_point.getTime());
+    const timeDiff = Math.abs(
+        currentDate.getTime() - input_date_point.getTime()
+    );
 
     // Convert milliseconds to minutes, hours, days, and weeks
     const minutes = Math.floor(timeDiff / (1000 * 60));
@@ -1519,7 +1554,10 @@ export const DEGREE_ARRAY_OPTIONS = [
     { value: 'BachelorMaster', label: 'BachelorMaster' }
 ];
 
-export const is_new_message_status = (user: IUserWithId, thread: DocumentThreadResponse): boolean => {
+export const is_new_message_status = (
+    user: IUserWithId,
+    thread: DocumentThreadResponse
+): boolean => {
     if (thread.isFinalVersion) {
         return false;
     }
@@ -1537,11 +1575,17 @@ export const is_new_message_status = (user: IUserWithId, thread: DocumentThreadR
     }
 };
 
-export const is_my_fav_message_status = (user: IUserWithId, thread: DocumentThreadResponse): boolean => {
+export const is_my_fav_message_status = (
+    user: IUserWithId,
+    thread: DocumentThreadResponse
+): boolean => {
     return thread.flag_by_user_id?.includes(user._id.toString());
 };
 
-export const is_pending_status = (user: IUserWithId, thread: DocumentThreadResponse): boolean => {
+export const is_pending_status = (
+    user: IUserWithId,
+    thread: DocumentThreadResponse
+): boolean => {
     return !is_new_message_status(user, thread);
 };
 
@@ -1700,28 +1744,30 @@ export const c1_mrt: Array<MRT_ColumnDef<Record<string, unknown>>> = [
         size: 120,
         Cell: (params) => {
             return params.row.original.file_type === 'Essay'
-                ? params.row.original.outsourced_user_id?.map((outsourcer: IUserWithId) => (
-                      <Box
-                          key={`${outsourcer._id.toString()}`}
-                          sx={{
-                              whiteSpace: 'nowrap',
-                              overflow: 'hidden'
-                              // textOverflow: 'ellipsis'
-                          }}
-                      >
-                          <Link
-                              component={LinkDom}
-                              target="_blank"
-                              title={outsourcer.firstname}
-                              to={DEMO.TEAM_EDITOR_LINK(
-                                  outsourcer._id.toString()
-                              )}
-                              underline="hover"
+                ? params.row.original.outsourced_user_id?.map(
+                      (outsourcer: IUserWithId) => (
+                          <Box
+                              key={`${outsourcer._id.toString()}`}
+                              sx={{
+                                  whiteSpace: 'nowrap',
+                                  overflow: 'hidden'
+                                  // textOverflow: 'ellipsis'
+                              }}
                           >
-                              {`${outsourcer.firstname} `}
-                          </Link>
-                      </Box>
-                  )) || []
+                              <Link
+                                  component={LinkDom}
+                                  target="_blank"
+                                  title={outsourcer.firstname}
+                                  to={DEMO.TEAM_EDITOR_LINK(
+                                      outsourcer._id.toString()
+                                  )}
+                                  underline="hover"
+                              >
+                                  {`${outsourcer.firstname} `}
+                              </Link>
+                          </Box>
+                      )
+                  ) || []
                 : params.row.original.editors?.map((editor: IUserWithId) => (
                       <Link
                           component={LinkDom}
@@ -1857,7 +1903,11 @@ export const c1_mrt: Array<MRT_ColumnDef<Record<string, unknown>>> = [
             return (
                 <Box>
                     {row.original?.attributes?.map(
-                        (attribute: { _id?: string; name?: string; value?: number }) =>
+                        (attribute: {
+                            _id?: string;
+                            name?: string;
+                            value?: number;
+                        }) =>
                             [1, 3, 9, 10, 11].includes(attribute.value) && (
                                 <Tooltip
                                     key={attribute._id}
@@ -2046,18 +2096,22 @@ export const c1 = [
         minWidth: 150,
         renderCell: (params: Record<string, unknown>) => {
             return params.row.file_type === 'Essay'
-                ? params.row.outsourced_user_id?.map((outsourcer: IUserWithId) => (
-                      <Link
-                          component={LinkDom}
-                          key={`${outsourcer._id.toString()}`}
-                          target="_blank"
-                          title={outsourcer.firstname}
-                          to={DEMO.TEAM_EDITOR_LINK(outsourcer._id.toString())}
-                          underline="hover"
-                      >
-                          {`${outsourcer.firstname} `}
-                      </Link>
-                  )) || []
+                ? params.row.outsourced_user_id?.map(
+                      (outsourcer: IUserWithId) => (
+                          <Link
+                              component={LinkDom}
+                              key={`${outsourcer._id.toString()}`}
+                              target="_blank"
+                              title={outsourcer.firstname}
+                              to={DEMO.TEAM_EDITOR_LINK(
+                                  outsourcer._id.toString()
+                              )}
+                              underline="hover"
+                          >
+                              {`${outsourcer.firstname} `}
+                          </Link>
+                      )
+                  ) || []
                 : params.value?.map((editor: IUserWithId) => (
                       <Link
                           component={LinkDom}
@@ -2111,7 +2165,11 @@ export const c1 = [
             return (
                 <>
                     {params.row?.attributes?.map(
-                        (attribute: { _id?: string; name?: string; value?: number }) =>
+                        (attribute: {
+                            _id?: string;
+                            name?: string;
+                            value?: number;
+                        }) =>
                             [1, 3, 9, 10, 11].includes(attribute.value) && (
                                 <Tooltip
                                     key={attribute._id}

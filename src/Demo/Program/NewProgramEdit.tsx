@@ -83,7 +83,11 @@ const NewProgramEdit = (props) => {
         setIsChanged(Object.keys(newState).length > 0 ? true : false);
     };
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>, program: unknown, programChanges: unknown) => {
+    const handleSubmit = (
+        e: React.FormEvent<HTMLFormElement>,
+        program: unknown,
+        programChanges: unknown
+    ) => {
         if (isProgramValid(program)) {
             e.preventDefault();
             props.handleSubmit_Program({ _id: program._id, ...programChanges });

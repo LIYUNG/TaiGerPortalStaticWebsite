@@ -108,7 +108,11 @@ const AssignInterviewTrainersPage = ({ interviews }) => {
     );
 
     const handleSubmit = useCallback(
-        (e: React.FormEvent<HTMLFormElement>, updateTrainerList: unknown, interview_id: string) => {
+        (
+            e: React.FormEvent<HTMLFormElement>,
+            updateTrainerList: unknown,
+            interview_id: string
+        ) => {
             e.preventDefault();
             updateInterviewTrainerList(updateTrainerList, interview_id);
         },

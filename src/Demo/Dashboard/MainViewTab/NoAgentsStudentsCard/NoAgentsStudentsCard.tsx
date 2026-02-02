@@ -42,7 +42,11 @@ const NoAgentsStudentsCard = (props) => {
         });
     };
 
-    const submitUpdateAgentlist = (e: React.FormEvent<HTMLFormElement>, updateAgentList: unknown, student_id: string) => {
+    const submitUpdateAgentlist = (
+        e: React.FormEvent<HTMLFormElement>,
+        updateAgentList: unknown,
+        student_id: string
+    ) => {
         e.preventDefault();
         setAgentModalhide();
         props.submitUpdateAgentlist(e, updateAgentList, student_id);

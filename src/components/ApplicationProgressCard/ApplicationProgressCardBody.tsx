@@ -383,7 +383,9 @@ export default function ApplicationProgressCardBody(
                         )}
                         underline="hover"
                     >
-                        {isProgramSubmitted((application as unknown) as ApplicationProps) ? (
+                        {isProgramSubmitted(
+                            application as unknown as ApplicationProps
+                        ) ? (
                             <IconButton>
                                 <DocumentOkIcon />
                             </IconButton>

@@ -2,7 +2,8 @@
  * Jest mock for src/env.ts – uses only process.env (no import.meta).
  * Real env.ts uses import.meta.env in Vite, which Jest cannot parse.
  */
-const env = typeof process !== 'undefined' ? process.env : ({} as NodeJS.ProcessEnv);
+const env =
+    typeof process !== 'undefined' ? process.env : ({} as NodeJS.ProcessEnv);
 
 export const isDev =
     env.MODE === 'development' ||

@@ -62,7 +62,10 @@ const StudentDashboard = (props) => {
         getApplicationStudentV2Query({ studentId })
     );
 
-    const removeBanner = (e: React.MouseEvent<HTMLElement>, notification_key: string) => {
+    const removeBanner = (
+        e: React.MouseEvent<HTMLElement>,
+        notification_key: string
+    ) => {
         e.preventDefault();
         const temp_student = data.data.data;
         temp_student.notification[`${notification_key}`] = true;

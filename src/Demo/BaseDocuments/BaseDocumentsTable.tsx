@@ -61,7 +61,9 @@ export const BaseDocumentsTable = ({ students }) => {
         feedback: ''
     });
 
-    const onUpdateProfileFilefromstudent = (e: React.FormEvent<HTMLFormElement>) => {
+    const onUpdateProfileFilefromstudent = (
+        e: React.FormEvent<HTMLFormElement>
+    ) => {
         e.preventDefault();
         setBaseDocumentsTableState((prevState) => ({
             ...prevState,
@@ -143,7 +145,10 @@ export const BaseDocumentsTable = ({ students }) => {
         }));
     };
 
-    const handleRejectMessage = (e: React.FormEvent<HTMLFormElement>, rejectmessage: string) => {
+    const handleRejectMessage = (
+        e: React.FormEvent<HTMLFormElement>,
+        rejectmessage: string
+    ) => {
         e.preventDefault();
         setBaseDocumentsTableState((prevState) => ({
             ...prevState,
@@ -151,7 +156,13 @@ export const BaseDocumentsTable = ({ students }) => {
         }));
     };
 
-    const showPreview = (e: React.MouseEvent<HTMLElement>, path: string, doc_key: string, category: string, student_id: string) => {
+    const showPreview = (
+        e: React.MouseEvent<HTMLElement>,
+        path: string,
+        doc_key: string,
+        category: string,
+        student_id: string
+    ) => {
         e.preventDefault();
         setBaseDocumentsTableState((prevState) => ({
             ...prevState,
@@ -163,7 +174,12 @@ export const BaseDocumentsTable = ({ students }) => {
         }));
     };
 
-    const onUpdateProfileDocStatus = (e: React.MouseEvent<HTMLElement>, category: string, student_id: string, status: string) => {
+    const onUpdateProfileDocStatus = (
+        e: React.MouseEvent<HTMLElement>,
+        category: string,
+        student_id: string,
+        status: string
+    ) => {
         e.preventDefault();
         if (status === DocumentStatusType.Accepted) {
             setBaseDocumentsTableState((prevState) => ({

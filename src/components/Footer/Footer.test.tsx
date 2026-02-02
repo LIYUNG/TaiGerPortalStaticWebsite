@@ -10,6 +10,8 @@ describe('Footer', () => {
     it('shows copyright and TaiGer link', () => {
         render(<Footer />);
         expect(screen.getByText(/Copyright/)).toBeInTheDocument();
-        expect(screen.getByRole('link', { name: /TaiGer Consultancy/ })).toBeInTheDocument();
+        expect(
+            screen.getByRole('link', { name: /TaiGer Consultancy/ })
+        ).toBeInTheDocument();
     });
 });

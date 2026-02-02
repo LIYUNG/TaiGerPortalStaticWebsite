@@ -40,11 +40,7 @@ export async function getAllCoursesLoader() {
     return queryClient.fetchQuery(getAllCoursessQuery());
 }
 
-export async function getCourseLoader({
-    params
-}: {
-    params: Params<string>;
-}) {
+export async function getCourseLoader({ params }: { params: Params<string> }) {
     const courseId = params.courseId ?? '';
     return queryClient.fetchQuery(getCoursessQuery(courseId));
 }
@@ -287,11 +283,7 @@ export async function getProgramRequirementsV2Loader() {
 
 ///
 
-export async function ProgramLoader({
-    params
-}: {
-    params: Params<string>;
-}) {
+export async function ProgramLoader({ params }: { params: Params<string> }) {
     const programId = params.programId ?? '';
 
     const response = await getProgram(programId);
@@ -305,11 +297,7 @@ export async function ProgramLoader({
     }
 }
 
-export function getProgramLoader({
-    params
-}: {
-    params: Params<string>;
-}) {
+export function getProgramLoader({ params }: { params: Params<string> }) {
     // { data, success, students, vc } = resp.data;
     return defer({ data: ProgramLoader({ params }) });
 }

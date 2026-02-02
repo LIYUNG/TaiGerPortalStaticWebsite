@@ -18,7 +18,9 @@ describe('ConfirmationModal', () => {
         );
         expect(screen.getByText('Confirm action')).toBeInTheDocument();
         expect(screen.getByText('Are you sure?')).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: /Confirm/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('button', { name: /Confirm/i })
+        ).toBeInTheDocument();
     });
 
     it('calls onConfirm when confirm button clicked', async () => {

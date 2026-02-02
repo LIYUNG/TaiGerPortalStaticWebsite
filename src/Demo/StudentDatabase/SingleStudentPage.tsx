@@ -423,7 +423,9 @@ export const SingleStudentPageMainContent = ({
                             {needGraduatedApplicantsPrograms(
                                 singleStudentPage.student.applications
                             )?.map((app: Application) => (
-                                <ListItem key={app.programId?._id?.toString() ?? ''}>
+                                <ListItem
+                                    key={app.programId?._id?.toString() ?? ''}
+                                >
                                     <Link
                                         component={LinkDom}
                                         target="_blank"

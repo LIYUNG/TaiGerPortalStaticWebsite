@@ -1,13 +1,23 @@
-import { ApplicationProps, DocumentStatusType, isProgramDecided, isProgramSubmitted, isProgramWithdraw } from "@taiger-common/core";
+import {
+    ApplicationProps,
+    DocumentStatusType,
+    isProgramDecided,
+    isProgramSubmitted,
+    isProgramWithdraw
+} from '@taiger-common/core';
 import JSZip from 'jszip';
 import * as XLSX from 'xlsx';
 import { differenceInDays } from 'date-fns';
 import { pdfjs } from 'react-pdf';
 
 import { convertDate, twoYearsInDays } from '../../utils/contants';
-import { Application, IUserWithId } from "../../api/types";
-import { IUser, IUserAcademicBackground, IUserApplicationPreference } from "@taiger-common/model/dist/types";
-import { ProfileNameType } from "@taiger-common/core";
+import { Application, IUserWithId } from '../../api/types';
+import {
+    IUser,
+    IUserAcademicBackground,
+    IUserApplicationPreference
+} from '@taiger-common/model/dist/types';
+import { ProfileNameType } from '@taiger-common/core';
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 export const file_category_const = {
@@ -36,7 +46,9 @@ export const AGENT_SUPPORT_DOCUMENTS_A = [
 export const is_User_Archived = (user: IUserWithId): boolean =>
     user?.archiv === true;
 
-export const student_transform = (students: IUserWithId[]): Record<string, unknown>[] =>
+export const student_transform = (
+    students: IUserWithId[]
+): Record<string, unknown>[] =>
     students?.map((student: IUserWithId) => ({
         ...student,
         name: `${student.firstname} ${student.lastname} | ${student.firstname_chinese} ${student.lastname_chinese}`,
@@ -52,8 +64,11 @@ export const student_transform = (students: IUserWithId[]): Record<string, unkno
         attended_university_program:
             student.academic_background?.university
                 ?.attended_university_program,
-        agentNames: student.agents?.map((agent: IUser) => agent.firstname)?.join(', '),
-        editorNames: student.editors?.map((editor: IUser) => editor.firstname)
+        agentNames: student.agents
+            ?.map((agent: IUser) => agent.firstname)
+            ?.join(', '),
+        editorNames: student.editors
+            ?.map((editor: IUser) => editor.firstname)
             ?.join(', '),
         attributesString: student.attributes
             ?.map((attribute) => attribute.name)
@@ -67,14 +82,16 @@ export const isLanguageInfoComplete = (
     const language = academic_background?.language;
     return language
         ? !(
-            language.english_isPassed === '-' &&
-            language.german_isPassed === '-'
-        )
+              language.english_isPassed === '-' &&
+              language.german_isPassed === '-'
+          )
         : false;
 };
 
 // Tested
-export const getRequirement = (thread: Record<string, unknown>): string | boolean => {
+export const getRequirement = (
+    thread: Record<string, unknown>
+): string | boolean => {
     if (!thread) return false;
 
     const { file_type: fileType, program_id: program } = thread;
@@ -153,7 +170,6 @@ export const getRequirement = (thread: Record<string, unknown>): string | boolea
 
     return 'No';
 };
-
 
 // Tested
 export const calculateDisplayLength = (text: string): number => {
@@ -266,7 +282,9 @@ export const check_german_language_Notneeded = (
 };
 
 //Testd
-export const based_documents_init = (student: IUserWithId): { object_init: Record<string, string> } => {
+export const based_documents_init = (
+    student: IUserWithId
+): { object_init: Record<string, string> } => {
     const documentlist2_keys = Object.keys(ProfileNameType);
 
     const object_init = documentlist2_keys.reduce((acc, key) => {
@@ -299,9 +317,9 @@ export const are_base_documents_missing = (student: IUserWithId): boolean => {
         for (let i = 0; i < documentlist2_keys.length; i++) {
             if (
                 object_init[documentlist2_keys[i]] !==
-                DocumentStatusType.Accepted &&
+                    DocumentStatusType.Accepted &&
                 object_init[documentlist2_keys[i]] !==
-                DocumentStatusType.NotNeeded
+                    DocumentStatusType.NotNeeded
             ) {
                 return true;
             }
@@ -311,7 +329,9 @@ export const are_base_documents_missing = (student: IUserWithId): boolean => {
 };
 
 // Tested
-export const is_any_base_documents_uploaded = (students: IUserWithId[]): boolean => {
+export const is_any_base_documents_uploaded = (
+    students: IUserWithId[]
+): boolean => {
     if (!students?.length) return false;
 
     // Create a map of initial document statuses
@@ -388,7 +408,9 @@ export const needUpdateCourseSelection = (student: IUserWithId): string => {
     return 'OK';
 };
 
-export const to_register_application_portals = (student: IUserWithId): boolean => {
+export const to_register_application_portals = (
+    student: IUserWithId
+): boolean => {
     for (const application of student.applications) {
         if (isProgramDecided(application) && application.closed === '-') {
             if (
@@ -511,7 +533,9 @@ export const check_academic_background_filled = (
     return true;
 };
 
-export const isProgramNotSelectedEnough = (students: IUserWithId[]): boolean => {
+export const isProgramNotSelectedEnough = (
+    students: IUserWithId[]
+): boolean => {
     return students.some(
         (student) =>
             student.applications.length < student.applying_program_count
@@ -538,7 +562,9 @@ export const numApplicationsSubmitted = (student: IUserWithId): number => {
     return num_apps_closed;
 };
 
-export const areProgramsDecidedMoreThanContract = (student: IUserWithId): boolean => {
+export const areProgramsDecidedMoreThanContract = (
+    student: IUserWithId
+): boolean => {
     if (
         !student.applications ||
         student.applying_program_count === 0 ||
@@ -554,7 +580,9 @@ export const areProgramsDecidedMoreThanContract = (student: IUserWithId): boolea
     return num_decided >= student.applying_program_count;
 };
 
-export const check_all_applications_decided = (student: IUserWithId): boolean => {
+export const check_all_applications_decided = (
+    student: IUserWithId
+): boolean => {
     if (
         !student.applications ||
         student.applying_program_count === 0 ||
@@ -594,7 +622,9 @@ export const check_all_decided_applications_submitted = (
         );
 };
 
-export const check_program_uni_assist_needed = (application: Application): boolean => {
+export const check_program_uni_assist_needed = (
+    application: Application
+): boolean => {
     if (application.programId?.uni_assist?.includes('Yes')) {
         return true;
     }
@@ -642,7 +672,9 @@ export const is_uni_assist_paid_and_docs_uploaded = (
 };
 
 // Tested
-export const check_student_needs_uni_assist = (student: IUserWithId): boolean => {
+export const check_student_needs_uni_assist = (
+    student: IUserWithId
+): boolean => {
     if (!student.applications) {
         return false;
     }
@@ -697,7 +729,7 @@ export const num_uni_assist_vpd_needed = (student: IUserWithId): number => {
             if (
                 student.applications[j].uni_assist &&
                 student.applications[j].uni_assist.status ===
-                DocumentStatusType.NotNeeded
+                    DocumentStatusType.NotNeeded
             ) {
                 continue;
             }
@@ -708,7 +740,9 @@ export const num_uni_assist_vpd_needed = (student: IUserWithId): number => {
 };
 
 // Tested
-export const is_program_ml_rl_essay_finished = (application: Application): boolean => {
+export const is_program_ml_rl_essay_finished = (
+    application: Application
+): boolean => {
     // check ML, RL, Essay
     return (
         application.doc_modification_thread?.length === 0 ||
@@ -749,7 +783,9 @@ export const isAnyCVNotAssigned = (students: IUserWithId[]): boolean => {
     return false;
 };
 
-export const is_program_ml_rl_essay_ready = (application: Application): boolean => {
+export const is_program_ml_rl_essay_ready = (
+    application: Application
+): boolean => {
     // check ML, RL, Essay
     for (let i = 0; i < application?.doc_modification_thread?.length; i += 1) {
         if (!application?.doc_modification_thread[i]?.isFinalVersion) {
@@ -770,7 +806,9 @@ export const is_program_closed = (application: ApplicationProps): boolean => {
     return false;
 };
 
-export const is_any_programs_ready_to_submit = (students: IUserWithId[]): boolean => {
+export const is_any_programs_ready_to_submit = (
+    students: IUserWithId[]
+): boolean => {
     if (students) {
         for (let i = 0; i < students.length; i += 1) {
             if (students[i].applications) {
@@ -824,7 +862,7 @@ export const is_any_vpd_missing_v2 = (applications: Application[]) => {
             if (
                 applications[j].uni_assist &&
                 applications[j].uni_assist.status ===
-                DocumentStatusType.NotNeeded
+                    DocumentStatusType.NotNeeded
             ) {
                 continue;
             }
@@ -860,7 +898,7 @@ export const is_any_vpd_missing = (students) => {
                         if (
                             students[i].applications[j].uni_assist &&
                             students[i].applications[j].uni_assist.status ===
-                            DocumentStatusType.NotNeeded
+                                DocumentStatusType.NotNeeded
                         ) {
                             continue;
                         }
@@ -1082,7 +1120,7 @@ export const is_all_uni_assist_vpd_uploaded = (student) => {
             if (
                 student.applications[j].uni_assist &&
                 student.applications[j].uni_assist.status ===
-                DocumentStatusType.NotNeeded
+                    DocumentStatusType.NotNeeded
             ) {
                 continue;
             }
@@ -1166,7 +1204,9 @@ export const prepTaskStudent = (student) => {
     };
 };
 
-export const all_applications_results_updated = (student: IUserWithId): boolean => {
+export const all_applications_results_updated = (
+    student: IUserWithId
+): boolean => {
     if (!student.applications || student.applications.length === 0) {
         return true;
     }
@@ -1180,7 +1220,9 @@ export const hasApplications = (student: IUserWithId): boolean => {
     return student.applications && student.applications.length > 0;
 };
 
-export const has_agent_program_specific_tasks = (student: IUserWithId): boolean => {
+export const has_agent_program_specific_tasks = (
+    student: IUserWithId
+): boolean => {
     if (!student.applications) {
         return false;
     }
@@ -1213,7 +1255,10 @@ export const is_num_Program_Not_specified = (student: IUserWithId): boolean => {
     return !student.applying_program_count;
 };
 
-export const progressBarCounter = (student: IUserWithId, application: Application): number => {
+export const progressBarCounter = (
+    student: IUserWithId,
+    application: Application
+): number => {
     const programId = application?.programId || {};
 
     const all_points = [
@@ -1235,30 +1280,30 @@ export const progressBarCounter = (student: IUserWithId, application: Applicatio
         ).length,
 
         (programId?.ielts || programId?.toefl) &&
-            student?.academic_background?.language?.english_isPassed === 'O' &&
-            isEnglishOK(programId, student)
+        student?.academic_background?.language?.english_isPassed === 'O' &&
+        isEnglishOK(programId, student)
             ? 1
             : 0,
         programId?.testdaf &&
-            programId?.testdaf !== '-' &&
-            student?.academic_background?.language?.german_isPassed === 'O'
+        programId?.testdaf !== '-' &&
+        student?.academic_background?.language?.german_isPassed === 'O'
             ? 1
             : 0,
         programId?.gre &&
-            programId?.gre !== '-' &&
-            student?.academic_background?.language?.gre_isPassed === 'O'
+        programId?.gre !== '-' &&
+        student?.academic_background?.language?.gre_isPassed === 'O'
             ? 1
             : 0,
         programId?.gmat &&
-            programId?.gmat !== '-' &&
-            student?.academic_background?.language?.gmat_isPassed === 'O'
+        programId?.gmat !== '-' &&
+        student?.academic_background?.language?.gmat_isPassed === 'O'
             ? 1
             : 0,
         (programId?.application_portal_a || programId?.application_portal_b) &&
-            ((programId?.application_portal_a &&
-                !application.credential_a_filled) ||
-                (programId?.application_portal_b &&
-                    !application.credential_b_filled))
+        ((programId?.application_portal_a &&
+            !application.credential_a_filled) ||
+            (programId?.application_portal_b &&
+                !application.credential_b_filled))
             ? 0
             : 1,
         application?.doc_modification_thread?.filter(
@@ -1282,7 +1327,10 @@ export const progressBarCounter = (student: IUserWithId, application: Applicatio
     return Math.floor(percentage);
 };
 
-export const isEnglishOK = (program: Record<string, unknown>, student: IUserWithId): boolean => {
+export const isEnglishOK = (
+    program: Record<string, unknown>,
+    student: IUserWithId
+): boolean => {
     const lang = student?.academic_background?.language || {};
     const {
         english_certificate,
@@ -1429,14 +1477,15 @@ export const application_deadline_V2_calculator = (
     return formatApplicationDate(application_year, application_deadline);
 };
 
-
 export const does_student_have_agents = (students: IUserWithId[]): boolean => {
     return students.every(
         (student) => student.agents !== undefined && student.agents.length > 0
     );
 };
 
-export const getStudentEditorStatus = (students: IUserWithId[]): { allHaveEditors: boolean; countWithoutEditors: number } => {
+export const getStudentEditorStatus = (
+    students: IUserWithId[]
+): { allHaveEditors: boolean; countWithoutEditors: number } => {
     const studentsWithoutEditors = students.filter(
         (student) => !student.editors || student.editors.length === 0
     );
@@ -1449,7 +1498,9 @@ export const getStudentEditorStatus = (students: IUserWithId[]): { allHaveEditor
     };
 };
 
-export const check_applications_to_decided = (student: IUserWithId): boolean => {
+export const check_applications_to_decided = (
+    student: IUserWithId
+): boolean => {
     if (!student.applications || student.applications.length === 0) {
         return true;
     }
@@ -1705,23 +1756,23 @@ export const programs_refactor_v2 = (applications) => {
         const base_docs = isProgramSubmitted(application)
             ? '-'
             : isMissingBaseDocs
-                ? 'X'
-                : 'O';
+              ? 'X'
+              : 'O';
         const uniassist = is_program_submitted
             ? '-'
             : check_program_uni_assist_needed(application)
-                ? application.uni_assist &&
-                    application.uni_assist.status === DocumentStatusType.Uploaded
-                    ? 'O'
-                    : 'X'
-                : 'Not Needed';
+              ? application.uni_assist &&
+                application.uni_assist.status === DocumentStatusType.Uploaded
+                  ? 'O'
+                  : 'X'
+              : 'Not Needed';
         const cv = is_program_submitted ? '-' : is_cv_done ? 'O' : 'X';
         const ml_rl = is_program_decided
             ? is_program_submitted
                 ? '-'
                 : is_program_ml_rl_essay_finished(application)
-                    ? 'O'
-                    : 'X'
+                  ? 'O'
+                  : 'X'
             : 'X';
         const ready = is_program_decided
             ? is_program_submitted
@@ -1731,11 +1782,11 @@ export const programs_refactor_v2 = (applications) => {
                         (check_program_uni_assist_needed(application) &&
                             application.uni_assist &&
                             application.uni_assist.status ===
-                            DocumentStatusType.Uploaded)) &&
+                                DocumentStatusType.Uploaded)) &&
                     is_cv_done &&
                     is_program_ml_rl_essay_finished(application)
-                    ? 'Ready!'
-                    : 'No'
+                  ? 'Ready!'
+                  : 'No'
             : 'Undecided';
 
         // Calculate lock status for the application
@@ -1746,8 +1797,9 @@ export const programs_refactor_v2 = (applications) => {
         acc.push({
             ...application,
             id: `${application.studentId._id.toString()}-${application.programId._id.toString()}`,
-            target_year: `${application.application_year} ${application.programId.semester
-                }`,
+            target_year: `${application.application_year} ${
+                application.programId.semester
+            }`,
             school: application.programId.school,
             country: application.programId.country,
             application,
@@ -1825,11 +1877,13 @@ export const programs_refactor = (students) => {
         if (!student.applications || student.applications.length === 0) {
             acc.push({
                 id: `${student._id.toString()}-`,
-                target_year: `${student.application_preference?.expected_application_date ||
+                target_year: `${
+                    student.application_preference?.expected_application_date ||
                     '-'
-                    } ${student.application_preference
+                } ${
+                    student.application_preference
                         ?.expected_application_semester || '-'
-                    }`,
+                }`,
                 school: 'No University',
                 application: {},
                 student: student,
@@ -1874,24 +1928,24 @@ export const programs_refactor = (students) => {
                 const base_docs = isProgramSubmitted(application)
                     ? '-'
                     : isMissingBaseDocs
-                        ? 'X'
-                        : 'O';
+                      ? 'X'
+                      : 'O';
                 const uniassist = is_program_submitted
                     ? '-'
                     : check_program_uni_assist_needed(application)
-                        ? application.uni_assist &&
-                            application.uni_assist.status ===
+                      ? application.uni_assist &&
+                        application.uni_assist.status ===
                             DocumentStatusType.Uploaded
-                            ? 'O'
-                            : 'X'
-                        : 'Not Needed';
+                          ? 'O'
+                          : 'X'
+                      : 'Not Needed';
                 const cv = is_program_submitted ? '-' : is_cv_done ? 'O' : 'X';
                 const ml_rl = is_program_decided
                     ? is_program_submitted
                         ? '-'
                         : is_program_ml_rl_essay_finished(application)
-                            ? 'O'
-                            : 'X'
+                          ? 'O'
+                          : 'X'
                     : 'X';
                 const ready = is_program_decided
                     ? is_program_submitted
@@ -1901,20 +1955,22 @@ export const programs_refactor = (students) => {
                                 (check_program_uni_assist_needed(application) &&
                                     application.uni_assist &&
                                     application.uni_assist.status ===
-                                    DocumentStatusType.Uploaded)) &&
+                                        DocumentStatusType.Uploaded)) &&
                             is_cv_done &&
                             is_program_ml_rl_essay_finished(application)
-                            ? 'Ready!'
-                            : 'No'
+                          ? 'Ready!'
+                          : 'No'
                     : 'Undecided';
 
                 acc.push({
                     id: `${student._id.toString()}-${application.programId?._id?.toString()}`,
-                    target_year: `${student.application_preference
-                        ?.expected_application_date || '-'
-                        } ${student.application_preference
+                    target_year: `${
+                        student.application_preference
+                            ?.expected_application_date || '-'
+                    } ${
+                        student.application_preference
                             ?.expected_application_semester || '-'
-                        }`,
+                    }`,
                     school: application.programId.school,
                     application,
                     student: student,
@@ -1963,14 +2019,12 @@ export const programs_refactor = (students) => {
     return applications;
 };
 
-
-
 export const toogleItemInArray = (arr, item) => {
     return arr?.includes(item)
         ? arr?.filter((userId) => userId !== item)
         : arr?.length > 0
-            ? [...arr, item]
-            : [item];
+          ? [...arr, item]
+          : [item];
 };
 
 const getNextProgram = (student) => {
@@ -2016,9 +2070,9 @@ export const numStudentYearDistribution = (students) => {
                     students[i].application_preference.expected_application_date
                 ]
                     ? map[
-                    students[i].application_preference
-                        .expected_application_date
-                    ] + 1
+                          students[i].application_preference
+                              .expected_application_date
+                      ] + 1
                     : 1;
         } else {
             map['TBD'] = map['TBD'] ? map['TBD'] + 1 : 1;
@@ -2036,23 +2090,23 @@ export const frequencyDistribution = (tasks) => {
         map[tasks[i].deadline] = map[tasks[i].deadline]
             ? tasks[i].show
                 ? {
-                    show: map[tasks[i].deadline].show + 1,
-                    potentials: map[tasks[i].deadline].potentials
-                }
+                      show: map[tasks[i].deadline].show + 1,
+                      potentials: map[tasks[i].deadline].potentials
+                  }
                 : tasks[i].isPotentials
-                    ? {
+                  ? {
                         show: map[tasks[i].deadline].show,
                         potentials: map[tasks[i].deadline].potentials + 1
                     }
-                    : {
+                  : {
                         show: map[tasks[i].deadline].show,
                         potentials: map[tasks[i].deadline].potentials
                     }
             : tasks[i].show
-                ? { show: 1, potentials: 0 }
-                : tasks[i].isPotentials
-                    ? { show: 0, potentials: 1 }
-                    : { show: 0, potentials: 0 };
+              ? { show: 1, potentials: 0 }
+              : tasks[i].isPotentials
+                ? { show: 0, potentials: 1 }
+                : { show: 0, potentials: 0 };
     }
     const filteredMap = Object.fromEntries(
         Object.entries(map).filter(
@@ -2199,7 +2253,9 @@ export const LOCK_REASON = {
     STALE_DATA: 'STALE_DATA'
 };
 
-export const calculateProgramLockStatus = (program: Record<string, unknown>) => {
+export const calculateProgramLockStatus = (
+    program: Record<string, unknown>
+) => {
     if (!program) {
         return { isLocked: true, reason: null };
     }
@@ -2347,14 +2403,16 @@ export const GetCVDeadlineV2 = (applications: Application[]) => {
     return daysLeftMin === 3000
         ? hasRolling
             ? {
-                daysLeftMin: daysLeftRollingMin,
-                CVDeadline: CVDeadlineRolling
-            }
+                  daysLeftMin: daysLeftRollingMin,
+                  CVDeadline: CVDeadlineRolling
+              }
             : { daysLeftMin: '-', CVDeadline: '-' }
         : { daysLeftMin, CVDeadline };
 };
 
-export const GetCVDeadline = (student: IUserWithId): { daysLeftMin: number | string; CVDeadline: string } => {
+export const GetCVDeadline = (
+    student: IUserWithId
+): { daysLeftMin: number | string; CVDeadline: string } => {
     const today = new Date();
     let daysLeftMin = 3000;
     let CVDeadline = '';
@@ -2380,9 +2438,9 @@ export const GetCVDeadline = (student: IUserWithId): { daysLeftMin: number | str
     return daysLeftMin === 3000
         ? hasRolling
             ? {
-                daysLeftMin: daysLeftRollingMin,
-                CVDeadline: CVDeadlineRolling
-            }
+                  daysLeftMin: daysLeftRollingMin,
+                  CVDeadline: CVDeadlineRolling
+              }
             : { daysLeftMin: '-', CVDeadline: '-' }
         : { daysLeftMin, CVDeadline };
 };

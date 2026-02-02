@@ -5,7 +5,9 @@
 const env =
     typeof import.meta !== 'undefined' && import.meta.env
         ? import.meta.env
-        : (typeof process !== 'undefined' ? process.env : ({} as NodeJS.ProcessEnv));
+        : typeof process !== 'undefined'
+          ? process.env
+          : ({} as NodeJS.ProcessEnv);
 
 export const isDev =
     env.MODE === 'development' ||

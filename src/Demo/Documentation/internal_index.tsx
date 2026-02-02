@@ -78,7 +78,11 @@ const InternaldocsPage = (props) => {
             isEdit: !internalDocsPageState.isEdit
         }));
     };
-    const handleClickSave = (e: React.MouseEvent<HTMLElement>, doc_title: string, editorState: unknown) => {
+    const handleClickSave = (
+        e: React.MouseEvent<HTMLElement>,
+        doc_title: string,
+        editorState: unknown
+    ) => {
         e.preventDefault();
         const message = JSON.stringify(editorState);
         const msg = {

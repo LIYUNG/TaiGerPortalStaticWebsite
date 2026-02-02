@@ -27,7 +27,10 @@ import { useSnackBar } from '../../contexts/use-snack-bar';
 const EditCard = (props) => {
     const [attributes, setAttributes] = useState(props.data);
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
-    const handleChange = async (e: React.ChangeEvent<HTMLInputElement>, school: unknown) => {
+    const handleChange = async (
+        e: React.ChangeEvent<HTMLInputElement>,
+        school: unknown
+    ) => {
         e.preventDefault();
         setAttributes({
             ...attributes,
