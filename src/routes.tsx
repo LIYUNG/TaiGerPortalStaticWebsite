@@ -17,248 +17,325 @@ import {
     getCourseLoader,
     getAllOpenInterviewsLoader
 } from './api/dataLoader';
-import DefaultErrorPage from './Demo/Utils/DefaultErrorPage';
-import StudentApplicationsAssignPage from './Demo/StudentApplications/assignPage';
-import CourseKeywordsOverviewNew from './Demo/CourseAnalysis/CourseKeywordsEdit/CourseKeywordsNew';
-import ProgramRequirementsNewIndex from './Demo/CourseAnalysis/ProgramRequirements/ProgramRequirementsNewIndex';
-import ProgramRequirementsEditIndex from './Demo/CourseAnalysis/ProgramRequirements/ProgramRequirementsEditIndex';
-
-const CreateComplaintTicket = React.lazy(
-    () => import('./Demo/CustomerSupport/CreateTicket')
-);
 const Questionnaire = React.lazy(
-    () => import('./Demo/InterviewTraining/InterviewSurveyForm')
+    async () => await import('./Demo/InterviewTraining/InterviewSurveyForm')
 );
 const AddInterview = React.lazy(
-    () => import('./Demo/InterviewTraining/AddInterview')
+    async () => await import('./Demo/InterviewTraining/AddInterview')
+);
+const CreateComplaintTicket = React.lazy(
+    async () => await import('./Demo/CustomerSupport/CreateTicket')
+);
+const CourseKeywordsOverviewNew = React.lazy(
+    async () =>
+        await import(
+            './Demo/CourseAnalysis/CourseKeywordsEdit/CourseKeywordsNew'
+        )
 );
 
-const DashboardDefault = React.lazy(() => import('./Demo/Dashboard'));
+const DefaultErrorPage = React.lazy(
+    async () => await import('./Demo/Utils/DefaultErrorPage')
+);
+
+const StudentApplicationsAssignPage = React.lazy(
+    async () => await import('./Demo/StudentApplications/assignPage')
+);
+const ProgramRequirementsNewIndex = React.lazy(
+    async () =>
+        await import(
+            './Demo/CourseAnalysis/ProgramRequirements/ProgramRequirementsNewIndex'
+        )
+);
+const ProgramRequirementsEditIndex = React.lazy(
+    async () =>
+        await import(
+            './Demo/CourseAnalysis/ProgramRequirements/ProgramRequirementsEditIndex'
+        )
+);
+
+const DashboardDefault = React.lazy(
+    async () => await import('./Demo/Dashboard')
+);
 
 const CourseKeywordsEdit = React.lazy(
-    () => import('./Demo/CourseAnalysis/CourseKeywordsEdit')
+    async () => await import('./Demo/CourseAnalysis/CourseKeywordsEdit')
 );
 
 const AllCourses = React.lazy(
-    () => import('./Demo/CourseAnalysis/AllCourses/AllCourses')
+    async () => await import('./Demo/CourseAnalysis/AllCourses/AllCourses')
 );
 
 const CourseNew = React.lazy(
-    () => import('./Demo/CourseAnalysis/AllCourses/CourseNew')
+    async () => await import('./Demo/CourseAnalysis/AllCourses/CourseNew')
 );
 
 const CourseEdit = React.lazy(
-    () => import('./Demo/CourseAnalysis/AllCourses/CourseEdit')
+    async () => await import('./Demo/CourseAnalysis/AllCourses/CourseEdit')
 );
 
 const ProgramRequirements = React.lazy(
-    () => import('./Demo/CourseAnalysis/ProgramRequirements')
+    async () => await import('./Demo/CourseAnalysis/ProgramRequirements')
 );
 
-const ArchivStudent = React.lazy(() => import('./Demo/ArchivStudent/index'));
+const ArchivStudent = React.lazy(
+    async () => await import('./Demo/ArchivStudent/index')
+);
 
 const CommunicationSinglePage = React.lazy(
-    () => import('./Demo/Communications/CommunicationSinglePage')
+    async () => await import('./Demo/Communications/CommunicationSinglePage')
 );
 
 const CommunicationExpandPage = React.lazy(
-    () => import('./Demo/Communications/CommunicationExpandPage')
+    async () => await import('./Demo/Communications/CommunicationExpandPage')
 );
 
 const DocumentCommunicatiomExpandPage = React.lazy(
-    () =>
-        import(
+    async () =>
+        await import(
             './Demo/CVMLRLCenter/DocModificationThreadPage/DocumentThreadsPage/DocumentCommunicatiomExpandPage'
         )
 );
 
-const UniAssist = React.lazy(() => import('./Demo/UniAssist/index'));
+const UniAssist = React.lazy(
+    async () => await import('./Demo/UniAssist/index')
+);
 const PortalCredentialPage = React.lazy(
-    () => import('./Demo/PortalCredentialPage/index')
+    async () => await import('./Demo/PortalCredentialPage/index')
 );
 const BaseDocuments = React.lazy(
-    () => import('./Demo/BaseDocuments/BaseDocuments')
+    async () => await import('./Demo/BaseDocuments/BaseDocuments')
 );
 
 const AllBaseDocuments = React.lazy(
-    () => import('./Demo/BaseDocuments/AllBaseDocuments')
+    async () => await import('./Demo/BaseDocuments/AllBaseDocuments')
 );
 
-const MyCourses = React.lazy(() => import('./Demo/MyCourses/index'));
+const MyCourses = React.lazy(
+    async () => await import('./Demo/MyCourses/index')
+);
 
 const MyCoursesAnalysisV2 = React.lazy(
-    () => import('./Demo/MyCourses/CourseAnalysisV2')
+    async () => await import('./Demo/MyCourses/CourseAnalysisV2')
 );
 
 const CoursesAnalysisWidget = React.lazy(
-    () => import('./Demo/MyCourses/CourseWidget')
+    async () => await import('./Demo/MyCourses/CourseWidget')
 );
 const CVMLRLGenerator = React.lazy(
-    () => import('./Demo/TaiGerAI/CVMLRLGenerator')
+    async () => await import('./Demo/TaiGerAI/CVMLRLGenerator')
 );
 const AgentSupportDocuments = React.lazy(
-    () => import('./Demo/AgentSupportDocuments/index')
+    async () => await import('./Demo/AgentSupportDocuments/index')
 );
-const CVMLRLOverview = React.lazy(() => import('./Demo/CVMLRLCenter/index'));
+const CVMLRLOverview = React.lazy(
+    async () => await import('./Demo/CVMLRLCenter/index')
+);
 const CVMLRLDashboard = React.lazy(
-    () => import('./Demo/CVMLRLCenter/indexAll')
+    async () => await import('./Demo/CVMLRLCenter/indexAll')
 );
-const EssayDashboard = React.lazy(() => import('./Demo/EssayDashboard/index'));
+const EssayDashboard = React.lazy(
+    async () => await import('./Demo/EssayDashboard/index')
+);
 const AllApplicantsOverview = React.lazy(
-    () => import('./Demo/ApplicantsOverview/allStudentIndex')
+    async () => await import('./Demo/ApplicantsOverview/allStudentIndex')
 );
-const CustomerSupport = React.lazy(() => import('./Demo/CustomerSupport'));
+const CustomerSupport = React.lazy(
+    async () => await import('./Demo/CustomerSupport')
+);
 
 const CustomerTicketDetailPage = React.lazy(
-    () => import('./Demo/CustomerSupport/CustomerTicketDetailPage')
+    async () => await import('./Demo/CustomerSupport/CustomerTicketDetailPage')
 );
 
 const MyStudentOverviewPage = React.lazy(
-    () => import('./Demo/StudentOverview/MyStudentsOverview')
+    async () => await import('./Demo/StudentOverview/MyStudentsOverview')
 );
 
 const StudentOverviewPage = React.lazy(
-    () => import('./Demo/StudentOverview/index')
+    async () => await import('./Demo/StudentOverview/index')
 );
 
-const CRMDashboard = React.lazy(() => import('./Demo/CRM/index'));
-const CRMLeadDashboard = React.lazy(() => import('./Demo/CRM/LeadDashboard'));
-const CRMLeadPage = React.lazy(() => import('./Demo/CRM/LeadPage'));
-const CRMMeetingDashboard = React.lazy(
-    () => import('./Demo/CRM/MeetingDashboard')
+const CRMDashboard = React.lazy(async () => await import('./Demo/CRM/index'));
+const CRMLeadDashboard = React.lazy(
+    async () => await import('./Demo/CRM/LeadDashboard')
 );
-const CRMMeetingPage = React.lazy(() => import('./Demo/CRM/MeetingPage'));
-const CRMDealDashboard = React.lazy(() => import('./Demo/CRM/DealDashboard'));
+const CRMLeadPage = React.lazy(async () => await import('./Demo/CRM/LeadPage'));
+const CRMMeetingDashboard = React.lazy(
+    async () => await import('./Demo/CRM/MeetingDashboard')
+);
+const CRMMeetingPage = React.lazy(
+    async () => await import('./Demo/CRM/MeetingPage')
+);
+const CRMDealDashboard = React.lazy(
+    async () => await import('./Demo/CRM/DealDashboard')
+);
 
 const InternalDashboard = React.lazy(
-    () => import('./Demo/TaiGerOrg/InternalDashboard/index')
+    async () => await import('./Demo/TaiGerOrg/InternalDashboard/index')
 );
-const Accounting = React.lazy(() => import('./Demo/Accounting/index'));
+const Accounting = React.lazy(
+    async () => await import('./Demo/Accounting/index')
+);
 const SingleBalanceSheetOverview = React.lazy(
-    () => import('./Demo/Accounting/SingleBalanceSheetOverview')
+    async () => await import('./Demo/Accounting/SingleBalanceSheetOverview')
 );
 const ProgramConflict = React.lazy(
-    () => import('./Demo/TaiGerOrg/ProgramConflict/index')
+    async () => await import('./Demo/TaiGerOrg/ProgramConflict/index')
 );
 const ProgramTaskDelta = React.lazy(
-    () => import('./Demo/TaiGerOrg/ProgramTaskDelta/index')
+    async () => await import('./Demo/TaiGerOrg/ProgramTaskDelta/index')
 );
-const TaiGerPermissions = React.lazy(() => import('./Demo/TaiGerOrg/index'));
+const TaiGerPermissions = React.lazy(
+    async () => await import('./Demo/TaiGerOrg/index')
+);
 const TaiGerOrg = React.lazy(
-    () => import('./Demo/TaiGerOrg/TaiGerMember/index')
+    async () => await import('./Demo/TaiGerOrg/TaiGerMember/index')
 );
-const TaiGerOrgAgent = React.lazy(() => import('./Demo/TaiGerOrg/AgentPage'));
+const TaiGerOrgAgent = React.lazy(
+    async () => await import('./Demo/TaiGerOrg/AgentPage')
+);
 const TaiGerMemberProfile = React.lazy(
-    () => import('./Demo/TaiGerPublicProfile/AgentProfile')
+    async () => await import('./Demo/TaiGerPublicProfile/AgentProfile')
 );
-const AllOfficeHours = React.lazy(() => import('./Demo/OfficeHours/all_index'));
+const AllOfficeHours = React.lazy(
+    async () => await import('./Demo/OfficeHours/all_index')
+);
 const TaiGerOfficeHours = React.lazy(
-    () => import('./Demo/OfficeHours/taiger_index')
+    async () => await import('./Demo/OfficeHours/taiger_index')
 );
-const OfficeHours = React.lazy(() => import('./Demo/OfficeHours/index'));
-const TaiGerOrgEditor = React.lazy(() => import('./Demo/TaiGerOrg/EditorPage'));
-const TaiGerOrgAdmin = React.lazy(() => import('./Demo/TaiGerOrg/AdminPage'));
-const ProgramList = React.lazy(() => import('./Demo/Program/ProgramList'));
+const OfficeHours = React.lazy(
+    async () => await import('./Demo/OfficeHours/index')
+);
+const TaiGerOrgEditor = React.lazy(
+    async () => await import('./Demo/TaiGerOrg/EditorPage')
+);
+const TaiGerOrgAdmin = React.lazy(
+    async () => await import('./Demo/TaiGerOrg/AdminPage')
+);
+const ProgramList = React.lazy(
+    async () => await import('./Demo/Program/ProgramList')
+);
 const ProgramsOverviewPage = React.lazy(
-    () => import('./Demo/Program/ProgramsOverviewPage')
+    async () => await import('./Demo/Program/ProgramsOverviewPage')
 );
 const ProgramDistributionDetailPage = React.lazy(
-    () => import('./Demo/Program/ProgramDistributionDetailPage')
+    async () => await import('./Demo/Program/ProgramDistributionDetailPage')
 );
 const SchoolDistributionPage = React.lazy(
-    () => import('./Demo/Program/SchoolDistributionPage')
+    async () => await import('./Demo/Program/SchoolDistributionPage')
 );
 const ApplicationsOverview = React.lazy(
-    () => import('./Demo/ApplicantsOverview/index')
+    async () => await import('./Demo/ApplicantsOverview/index')
 );
 const LearningResources = React.lazy(
-    () => import('./Demo/LearningResources/index')
+    async () => await import('./Demo/LearningResources/index')
 );
-const ContactUs = React.lazy(() => import('./Demo/Contact/index'));
+const ContactUs = React.lazy(async () => await import('./Demo/Contact/index'));
 const StudentApplications = React.lazy(
-    () => import('./Demo/StudentApplications/StudentApplicationsIndividual')
+    async () =>
+        await import('./Demo/StudentApplications/StudentApplicationsIndividual')
 );
-const SingleProgram = React.lazy(() => import('./Demo/Program/SingleProgram'));
+const SingleProgram = React.lazy(
+    async () => await import('./Demo/Program/SingleProgram')
+);
 const ProgramEditPage = React.lazy(
-    () => import('./Demo/Program/ProgramEditPage')
+    async () => await import('./Demo/Program/ProgramEditPage')
 );
 const ProgramChangeRequestPage = React.lazy(
-    () => import('./Demo/Program/ProgramChangeRequestPage')
+    async () => await import('./Demo/Program/ProgramChangeRequestPage')
 );
 const ProgramCreatePage = React.lazy(
-    () => import('./Demo/Program/ProgramCreatePage')
+    async () => await import('./Demo/Program/ProgramCreatePage')
 );
-const SchoolConfig = React.lazy(() => import('./Demo/Program/SchoolConfig'));
-const UsersTable = React.lazy(() => import('./Demo/Users/UsersTable'));
-const Survey = React.lazy(() => import('./Demo/Survey/index'));
-const Settings = React.lazy(() => import('./Demo/Settings/index'));
-const Profile = React.lazy(() => import('./Demo/Profile/index'));
-const Admissions = React.lazy(() => import('./Demo/Admissions/Admissions'));
+const SchoolConfig = React.lazy(
+    async () => await import('./Demo/Program/SchoolConfig')
+);
+const UsersTable = React.lazy(
+    async () => await import('./Demo/Users/UsersTable')
+);
+const Survey = React.lazy(async () => await import('./Demo/Survey/index'));
+const Settings = React.lazy(async () => await import('./Demo/Settings/index'));
+const Profile = React.lazy(async () => await import('./Demo/Profile/index'));
+const Admissions = React.lazy(
+    async () => await import('./Demo/Admissions/Admissions')
+);
 const StudentDatabase = React.lazy(
-    () => import('./Demo/StudentDatabase/index')
+    async () => await import('./Demo/StudentDatabase/index')
 );
 const StudentDatabaseOverview = React.lazy(
-    () => import('./Demo/StudentDatabase/StudentDatabaseOverview')
+    async () => await import('./Demo/StudentDatabase/StudentDatabaseOverview')
 );
 const CVMLRL_Modification_Thread = React.lazy(
-    () =>
-        import(
+    async () =>
+        await import(
             './Demo/CVMLRLCenter/DocModificationThreadPage/DocumentThreadsPage/SingleThreadPage'
         )
 );
 
 const CVMLRL_Modification_ThreadInput = React.lazy(
-    () =>
-        import(
+    async () =>
+        await import(
             './Demo/CVMLRLCenter/DocModificationThreadPage/DocModificationThreadInput'
         )
 );
 const SingleStudentPage = React.lazy(
-    () => import('./Demo/StudentDatabase/SingleStudentPage')
+    async () => await import('./Demo/StudentDatabase/SingleStudentPage')
 );
 
-const DocsApplication = React.lazy(() => import('./Demo/Documentation/index'));
-const InternaldocsPage = React.lazy(
-    () => import('./Demo/Documentation/internal_index')
+const DocsApplication = React.lazy(
+    async () => await import('./Demo/Documentation/index')
 );
-const DocsPage = React.lazy(() => import('./Demo/Documentation/SingleDoc'));
+const InternaldocsPage = React.lazy(
+    async () => await import('./Demo/Documentation/internal_index')
+);
+const DocsPage = React.lazy(
+    async () => await import('./Demo/Documentation/SingleDoc')
+);
 const DocsInternalPage = React.lazy(
-    () => import('./Demo/Documentation/SingleInternalDoc')
+    async () => await import('./Demo/Documentation/SingleInternalDoc')
 );
 const DocCreatePage = React.lazy(
-    () => import('./Demo/Documentation/DocCreatePage')
+    async () => await import('./Demo/Documentation/DocCreatePage')
 );
 
 const InternalDocCreatePage = React.lazy(
-    () => import('./Demo/Documentation/InternalDocCreatePage')
+    async () => await import('./Demo/Documentation/InternalDocCreatePage')
 );
 
 const InterviewTraining = React.lazy(
-    () => import('./Demo/InterviewTraining/index')
+    async () => await import('./Demo/InterviewTraining/index')
 );
 
 const SingleInterview = React.lazy(
-    () => import('./Demo/InterviewTraining/SingleInterview')
+    async () => await import('./Demo/InterviewTraining/SingleInterview')
 );
 
-const Download = React.lazy(() => import('./Demo/DownloadCenter/DownloadPage'));
+const Download = React.lazy(
+    async () => await import('./Demo/DownloadCenter/DownloadPage')
+);
 
 const AgentsAssignment = React.lazy(
-    () => import('./Demo/AssignmentAgentsEditors/AssignAgents/index')
+    async () =>
+        await import('./Demo/AssignmentAgentsEditors/AssignAgents/index')
 );
 
 const EditorsAssignment = React.lazy(
-    () => import('./Demo/AssignmentAgentsEditors/AssignEditors/index')
+    async () =>
+        await import('./Demo/AssignmentAgentsEditors/AssignEditors/index')
 );
 
 const EssayWritersAssignment = React.lazy(
-    () => import('./Demo/AssignmentAgentsEditors/AssignEssayWriters/index')
+    async () =>
+        await import('./Demo/AssignmentAgentsEditors/AssignEssayWriters/index')
 );
 
 const InterviewTrainersAssignment = React.lazy(
-    () => import('./Demo/AssignmentAgentsEditors/AssignInterviewTrainers/index')
+    async () =>
+        await import(
+            './Demo/AssignmentAgentsEditors/AssignInterviewTrainers/index'
+        )
 );
-// TODO: conditional configuration.
+
 const routes = [
     {
         path: '/assignment',

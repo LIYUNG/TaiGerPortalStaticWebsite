@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import { Suspense } from 'react';
 import { Await, useLoaderData, Link as LinkDom } from 'react-router-dom';
 import i18next from 'i18next';
 import { Box, Breadcrumbs, Link, Typography } from '@mui/material';
