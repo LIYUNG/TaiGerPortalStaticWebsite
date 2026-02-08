@@ -2,6 +2,7 @@
     "name": "taiger-portal",
     "version": "0.1.0",
     "private": true,
+    "type": "module",
     "dependencies": {
         "@aldabil/react-scheduler": "^2.8.2",
         "@canburaks/text-align-editorjs": "^1.1.0",
@@ -81,17 +82,16 @@
         "preview": "vite preview",
         "analyze": "source-map-explorer 'dist/assets/*.js'",
         "format": "prettier --write --cache src/** --ignore-path .prettierignore",
-        "translations-scan": "i18next-scanner --config i18next-scanner.config.engine.js",
+        "translations-scan": "i18next-scanner --config i18next-scanner.config.engine.cjs",
         "test": "vitest",
-        "test:run": "vitest run",
+        "test:ci": "vitest run",
         "test:coverage": "vitest run --coverage",
-        "test:ci": "vitest run --reporter=verbose",
         "prebuild": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
         "prepare": "husky",
         "pre-commit": "lint-staged"
     },
     "lint-staged": {
-        "**/*.{js,jsx,ts,tsx}": [
+        "**/*.{ts,tsx}": [
             "prettier --write",
             "eslint --fix --cache",
             "git add"
