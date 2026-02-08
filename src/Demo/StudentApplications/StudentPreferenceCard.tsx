@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import React, { Fragment } from 'react';
+import React from 'react';
 import { List, ListItem, TextField, Typography } from '@mui/material';
 
 export const StudentPreferenceCard = (props) => {

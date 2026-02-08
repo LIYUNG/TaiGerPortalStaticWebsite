@@ -26,8 +26,21 @@ import DEMO from '../../store/constant';
 import { ATTRIBUTES, COLORS } from '../../utils/contants';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { APPROVAL_COUNTRIES } from '../Utils/util_functions';
+import type { OpenTaskRow } from '../../api/types';
 
-const EssayOverview = (props) => {
+export interface EssayOverviewProps {
+    handleFavoriteToggle: (id: string) => void;
+    new_message_tasks?: OpenTaskRow[];
+    fav_message_tasks?: OpenTaskRow[];
+    followup_tasks?: OpenTaskRow[];
+    pending_progress_tasks?: OpenTaskRow[];
+    closed_tasks?: OpenTaskRow[];
+    no_essay_writer_tasks?: OpenTaskRow[];
+    all_active_message_tasks?: OpenTaskRow[];
+    isLoading?: boolean;
+}
+
+const EssayOverview = (props: EssayOverviewProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const [cVMLRLOverviewState, setCVMLRLOverviewState] = useState({

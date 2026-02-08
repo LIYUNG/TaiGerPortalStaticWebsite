@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import {
     Box,
@@ -262,7 +262,7 @@ export const BaseDocumentsTable = ({ students }) => {
     }, [baseDocumentsTableState.students]);
 
     // Helper function to render document status cell
-    const renderDocumentStatusCell = (params, profileKey) => {
+    const renderDocumentStatusCell = useCallback((params, profileKey) => {
         const value = params.row.original[profileKey];
 
         if (value?.status === DocumentStatusType.Uploaded) {
@@ -316,7 +316,7 @@ export const BaseDocumentsTable = ({ students }) => {
         } else {
             return <IconButton size="small">{FILE_MISSING_SYMBOL}</IconButton>;
         }
-    };
+    }, [showPreview]);
 
     // Build profile document columns dynamically
     const profileColumns = useMemo(() => {
@@ -330,7 +330,7 @@ export const BaseDocumentsTable = ({ students }) => {
             size: 150,
             Cell: (params) => renderDocumentStatusCell(params, baseDoc[0])
         }));
-    }, [t]);
+    }, [t, renderDocumentStatusCell]);
 
     // Define table columns
     const columns = useMemo(

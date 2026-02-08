@@ -8,11 +8,14 @@ const DocPageEdit = (props) => {
     });
 
     useEffect(() => {
-        setDocPageEditState((prevState) => ({
-            ...prevState,
-            doc_title: props.document_title
-        }));
-    }, []);
+        const docTitle = props.document_title;
+        queueMicrotask(() => {
+            setDocPageEditState((prevState) => ({
+                ...prevState,
+                doc_title: docTitle
+            }));
+        });
+    }, [props.document_title]);
 
     const handleClickSave = (
         e: React.MouseEvent<HTMLElement>,

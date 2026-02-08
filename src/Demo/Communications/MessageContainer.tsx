@@ -57,17 +57,19 @@ const MessageContainer = (props) => {
         if (props.message.message && props.message.message !== '{}') {
             try {
                 initialEditorState = JSON.parse(props.message.message);
-            } catch (e) {
+            } catch {
                 initialEditorState = { time: new Date(), blocks: [] };
             }
         } else {
             initialEditorState = { time: new Date(), blocks: [] };
         }
-        setMessageContainerState((prevState) => ({
-            ...prevState,
-            editorState: initialEditorState
-        }));
-    }, []);
+        queueMicrotask(() => {
+            setMessageContainerState((prevState) => ({
+                ...prevState,
+                editorState: initialEditorState
+            }));
+        });
+    }, [props.message.message]);
 
     const updateMessage = (
         e: React.FormEvent<HTMLFormElement>,

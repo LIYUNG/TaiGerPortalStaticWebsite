@@ -87,7 +87,7 @@ const ProgramChangeRequestPage = () => {
             const { data } = res.data;
             setOriginalProgram(data);
         });
-    }, [programId]);
+    }, [programId, navigate]);
 
     return (
         <>

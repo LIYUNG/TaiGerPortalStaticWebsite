@@ -28,11 +28,14 @@ function useStudents(props: UseStudentsProps) {
     });
 
     useEffect(() => {
-        setStudentsState((prevState) => ({
-            ...prevState,
-            students: props.students
-        }));
-    }, [props.students?.length]);
+        const students = props.students;
+        queueMicrotask(() => {
+            setStudentsState((prevState) => ({
+                ...prevState,
+                students
+            }));
+        });
+    }, [props.students]);
 
     const submitUpdateAgentlist = (
         e: React.FormEvent,

@@ -94,7 +94,13 @@ const getThreadByStudentQuery = (studentId: string) => ({
     cacheTime: 10 * 60 * 1000 // 10 minutes
 });
 
-const StudentItem = ({ student, selectedStudentId, onClick }) => {
+export interface StudentItemProps {
+    student: Record<string, unknown>;
+    selectedStudentId?: string;
+    onClick: () => void;
+}
+
+const StudentItem = ({ student, selectedStudentId, onClick }: StudentItemProps) => {
     const theme = useTheme();
     const isStudentComplete =
         student?.threadCount === student?.completeThreadCount;
@@ -156,7 +162,12 @@ const StudentItem = ({ student, selectedStudentId, onClick }) => {
     );
 };
 
-const ThreadItem = ({ thread, onClick }) => {
+export interface ThreadItemProps {
+    thread: Record<string, unknown>;
+    onClick: () => void;
+}
+
+const ThreadItem = ({ thread, onClick }: ThreadItemProps) => {
     const theme = useTheme();
     const { t } = useTranslation();
     const isFinal = thread?.isFinalVersion;
@@ -420,8 +431,10 @@ const DocumentCommunicationExpandPage = () => {
             firstname = '',
             lastname = ''
         } = student || { _id: '', firstname: '', lastname: '' };
-        setStudentId(studentId);
-        setStudentName(`${firstname} ${lastname}`);
+        queueMicrotask(() => {
+            setStudentId(studentId);
+            setStudentName(`${firstname} ${lastname}`);
+        });
     }, [students, threadId, navigate]);
 
     useEffect(() => {

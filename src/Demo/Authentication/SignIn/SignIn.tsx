@@ -55,7 +55,7 @@ export default function SignIn() {
                 setLoginsuccess(false);
                 setButtondisable(false);
             }
-        } catch (e) {
+        } catch {
             // TODO: Error handler
             setButtondisable(false);
         }

@@ -38,7 +38,7 @@ export default function Activation() {
             } else {
                 alert(resp.data.message);
             }
-        } catch (err) {
+        } catch {
             // TODO: handle error
         }
     };

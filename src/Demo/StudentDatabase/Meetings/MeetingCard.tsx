@@ -10,6 +10,7 @@ import {
     Link,
     Button
 } from '@mui/material';
+import type { MeetingResponse } from '../../../api/types';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EventIcon from '@mui/icons-material/Event';
@@ -22,6 +23,15 @@ import ScheduleIcon from '@mui/icons-material/Schedule';
 import LaunchIcon from '@mui/icons-material/Launch';
 import { useTranslation } from 'react-i18next';
 
+export interface MeetingCardProps {
+    meeting: MeetingResponse;
+    isPast: boolean;
+    onEdit: (meeting: MeetingResponse) => void;
+    onDelete: (meeting: MeetingResponse) => void;
+    onConfirm: (meeting: MeetingResponse) => void;
+    showActions?: boolean;
+}
+
 export const MeetingCard = ({
     meeting,
     isPast,
@@ -29,7 +39,7 @@ export const MeetingCard = ({
     onDelete,
     onConfirm,
     showActions = true
-}) => {
+}: MeetingCardProps) => {
     const { t } = useTranslation();
     const isReadOnly = isPast || !showActions;
     const needsConfirmation =
@@ -38,7 +48,9 @@ export const MeetingCard = ({
         showActions &&
         !meeting.isConfirmedReceiver;
 
-    const formatDateTime = (dateTime) => {
+    const formatDateTime = (
+        dateTime: string | null | undefined
+    ): string => {
         if (!dateTime) return t('Not set', { ns: 'common' });
         try {
             const date = new Date(dateTime);

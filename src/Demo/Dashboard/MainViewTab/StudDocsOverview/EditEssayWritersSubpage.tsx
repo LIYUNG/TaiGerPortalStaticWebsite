@@ -79,10 +79,12 @@ const EditEssayWritersSubpage = (props) => {
                 }),
                 {}
             );
-            setCheckboxState({ editors, updateEditorList });
-            setIsLoaded(true);
+            queueMicrotask(() => {
+                setCheckboxState({ editors, updateEditorList });
+                setIsLoaded(true);
+            });
         }
-    }, [props.essayDocumentThread.outsourced_user_id]);
+    }, [props.essayDocumentThread.outsourced_user_id, props.editors, props.essayDocumentThread]);
 
     const handleChangeEditorlist = (e: React.SyntheticEvent) => {
         const { value } = e.target;

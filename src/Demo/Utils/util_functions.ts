@@ -1724,7 +1724,8 @@ export const open_tasks_with_editors = (students) => {
     }
     return tasks;
 };
-export const programs_refactor_v2 = (applications) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- complex reduce shape; type incrementally
+export const programs_refactor_v2 = (applications: any[]) => {
     const applicationsNew = applications.reduce((acc, application) => {
         let isMissingBaseDocs = false;
 
@@ -2081,26 +2082,41 @@ export const numStudentYearDistribution = (students) => {
     return map;
 };
 
-export const frequencyDistribution = (tasks) => {
-    const map = {};
+export interface FrequencyDistributionTask {
+    closed?: string;
+    deadline?: string;
+    show?: boolean;
+    isPotentials?: boolean;
+}
+
+export interface FrequencyDistributionEntry {
+    show: number;
+    potentials: number;
+}
+
+export const frequencyDistribution = (
+    tasks: FrequencyDistributionTask[]
+): Record<string, FrequencyDistributionEntry> => {
+    const map: Record<string, FrequencyDistributionEntry> = {};
     for (let i = 0; i < tasks.length; i++) {
         if (tasks[i].closed === 'O' || tasks[i].closed === 'X') {
             continue;
         }
-        map[tasks[i].deadline] = map[tasks[i].deadline]
+        const deadline = tasks[i].deadline as string;
+        map[deadline] = map[deadline]
             ? tasks[i].show
                 ? {
-                      show: map[tasks[i].deadline].show + 1,
-                      potentials: map[tasks[i].deadline].potentials
+                      show: map[deadline].show + 1,
+                      potentials: map[deadline].potentials
                   }
                 : tasks[i].isPotentials
                   ? {
-                        show: map[tasks[i].deadline].show,
-                        potentials: map[tasks[i].deadline].potentials + 1
+                        show: map[deadline].show,
+                        potentials: map[deadline].potentials + 1
                     }
                   : {
-                        show: map[tasks[i].deadline].show,
-                        potentials: map[tasks[i].deadline].potentials
+                        show: map[deadline].show,
+                        potentials: map[deadline].potentials
                     }
             : tasks[i].show
               ? { show: 1, potentials: 0 }
@@ -2115,7 +2131,7 @@ export const frequencyDistribution = (tasks) => {
                     differenceInDays(key, new Date()) < 365) ||
                 key.includes('Rolling')
         )
-    );
+    ) as Record<string, FrequencyDistributionEntry>;
     return filteredMap;
 };
 

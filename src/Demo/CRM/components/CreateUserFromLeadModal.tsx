@@ -131,7 +131,7 @@ const CreateUserFromLeadModal = ({ open, onClose, lead, onSuccess }) => {
                 const response = await addUser(userInformation);
 
                 if (response.data.success) {
-                    onSuccess && onSuccess(response.data);
+                    if (onSuccess) onSuccess(response.data);
                     handleClose();
                 } else {
                     setError(

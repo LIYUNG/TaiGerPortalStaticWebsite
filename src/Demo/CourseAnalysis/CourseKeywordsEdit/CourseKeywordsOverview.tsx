@@ -593,7 +593,7 @@ const CourseKeywordsOverview = ({ courseKeywordSets }) => {
     };
 
     const handleDeleteConfirm = async () => {
-        setIsDeleteDialogOpen;
+        setIsDeleteDialogOpen(false);
         setRowSelection({});
         setCourseKeywordSetsState((prevState) =>
             prevState.filter((item) => item._id !== itemToBeDeleted._id)

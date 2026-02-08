@@ -36,8 +36,9 @@ const StudentCard = ({ student, matchReason }) => {
     const { t } = useTranslation();
     const [expanded, setExpanded] = useState(false);
 
+    const applications = student?.applications;
     const sortedApplications = useMemo(() => {
-        return (student?.applications || [])
+        return (applications || [])
             .filter((application) =>
                 ['O', 'X'].includes(application?.admission)
             )
@@ -52,7 +53,7 @@ const StudentCard = ({ student, matchReason }) => {
 
                 return 0;
             });
-    }, [student?.applications]);
+    }, [applications]);
 
     return (
         <Box

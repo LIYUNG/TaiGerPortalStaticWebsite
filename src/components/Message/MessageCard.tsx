@@ -81,6 +81,7 @@ export interface MessageCardProps {
 
 const MessageCard = (props: MessageCardProps) => {
     const { user } = useAuth();
+    const theme = useTheme();
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
     const [messageState, setMessageState] = useState<MessageCardState>({
         editorState: null,
@@ -196,7 +197,6 @@ const MessageCard = (props: MessageCardProps) => {
         return `${BASE_URL}${apiPrefix}/${key_path}`;
     };
 
-    const theme = useTheme();
     const files_info = (props.message.file ?? []).map((file, i) => (
         <Chip
             avatar={

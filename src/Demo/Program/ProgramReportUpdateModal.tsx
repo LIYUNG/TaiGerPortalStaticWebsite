@@ -21,10 +21,12 @@ const ProgramReportUpdateModal = (props) => {
             ticket: props.ticket
         });
     useEffect(() => {
-        ProgramReportUpdateModalState((prevState) => ({
-            ...prevState,
-            ticket: props.ticket
-        }));
+        queueMicrotask(() => {
+            ProgramReportUpdateModalState((prevState) => ({
+                ...prevState,
+                ticket: props.ticket
+            }));
+        });
     }, [props.ticket]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

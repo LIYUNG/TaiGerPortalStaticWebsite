@@ -1,6 +1,15 @@
 import { Box, Typography, Divider } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import type { MeetingResponse } from '../../../api/types';
 import { MeetingCard } from './MeetingCard';
+
+export interface MeetingListProps {
+    meetings?: MeetingResponse[];
+    onEdit: (meeting: MeetingResponse) => void;
+    onDelete: (meeting: MeetingResponse) => void;
+    onConfirm: (meeting: MeetingResponse) => void;
+    showActions?: boolean;
+}
 
 export const MeetingList = ({
     meetings = [],
@@ -8,7 +17,7 @@ export const MeetingList = ({
     onDelete,
     onConfirm,
     showActions = true
-}) => {
+}: MeetingListProps) => {
     const { t } = useTranslation();
 
     if (!meetings || meetings.length === 0) {
@@ -37,11 +46,17 @@ export const MeetingList = ({
     );
 
     // Sort past meetings by date (most recent first)
-    pastMeetings.sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime));
+    pastMeetings.sort(
+        (a, b) =>
+            new Date(b.dateTime ?? 0).getTime() -
+            new Date(a.dateTime ?? 0).getTime()
+    );
 
     // Sort upcoming meetings by date (soonest first)
     upcomingMeetings.sort(
-        (a, b) => new Date(a.dateTime || 0) - new Date(b.dateTime || 0)
+        (a, b) =>
+            new Date(a.dateTime ?? 0).getTime() -
+            new Date(b.dateTime ?? 0).getTime()
     );
 
     return (

@@ -204,7 +204,7 @@ export const EstimationCard = ({
             germanGPA = parseFloat(
                 Bayerische_Formel(Highest_GPA_Uni, Passing_GPA_Uni, My_GPA_Uni)
             );
-        } catch (e) {
+        } catch {
             germanGPA = 0;
         }
     }

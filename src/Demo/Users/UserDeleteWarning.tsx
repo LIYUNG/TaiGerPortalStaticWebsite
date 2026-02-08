@@ -9,8 +9,21 @@ import {
     DialogActions
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import type { ChangeEvent } from 'react';
 
-const UserDeleteWarning = (props) => {
+export interface UserDeleteWarningProps {
+    deleteUserWarning: boolean;
+    setModalHideDDelete: () => void;
+    firstname: string;
+    lastname: string;
+    delete_field: string;
+    onChangeDeleteField: (e: ChangeEvent<HTMLInputElement>) => void;
+    isDeletingUser?: boolean;
+    selected_user_id: string;
+    handleDeleteUser: (id: string) => void;
+}
+
+const UserDeleteWarning = (props: UserDeleteWarningProps) => {
     const { t } = useTranslation();
     return (
         <Dialog

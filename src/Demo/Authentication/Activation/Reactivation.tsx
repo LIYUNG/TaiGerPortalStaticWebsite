@@ -21,7 +21,7 @@ export default function Reactivation(props) {
             } else {
                 alert(resp.data.message);
             }
-        } catch (err) {
+        } catch {
             // TODO: handle error
         }
     };

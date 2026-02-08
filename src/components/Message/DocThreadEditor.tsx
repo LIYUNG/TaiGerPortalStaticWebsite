@@ -70,10 +70,13 @@ const DocThreadEditor = ({
     });
 
     useEffect(() => {
-        setStatedata((state) => ({
-            ...state,
-            editorState: editorState ?? { time: 0, blocks: [] }
-        }));
+        const nextEditorState = editorState ?? { time: 0, blocks: [] };
+        queueMicrotask(() => {
+            setStatedata((state) => ({
+                ...state,
+                editorState: nextEditorState
+            }));
+        });
     }, [editorState]);
 
     const handleEditorChange = (content: EditorStateData) => {

@@ -16,7 +16,8 @@ export default function AdmissionTable({ query }) {
         getAdmissionsQuery(queryString.stringify(query))
     );
 
-    const admisstionTableColumns = [
+    const memoizedColumns = useMemo(
+        () => [
         {
             field: 'firstname_chinese',
             headerName: t('First Name Chinese', { ns: 'common' }),
@@ -179,10 +180,8 @@ export default function AdmissionTable({ query }) {
             headerName: t('Decision', { ns: 'common' }),
             width: 150
         }
-    ];
-    const memoizedColumns = useMemo(
-        () => admisstionTableColumns,
-        [admisstionTableColumns]
+    ],
+        [t]
     );
 
     return (

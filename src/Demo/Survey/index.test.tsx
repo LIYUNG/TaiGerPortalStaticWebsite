@@ -78,16 +78,19 @@ describe('Survey', () => {
         });
         render(<RouterProvider router={router} />);
 
-        await waitFor(() => {
-            expect(
-                screen.getByPlaceholderText("Taipei First Girls' High School")
-            ).toHaveValue('Song Shan senior high school');
-            expect(screen.getByPlaceholderText('2016')).toHaveValue('2020');
-            expect(
-                screen.getByPlaceholderText('National Yilan University')
-            ).toHaveValue(
-                'National Taichung University of Science and Technology'
-            );
-        });
+        await waitFor(
+            () => {
+                expect(
+                    screen.getByPlaceholderText("Taipei First Girls' High School")
+                ).toHaveValue('Song Shan senior high school');
+                expect(screen.getByPlaceholderText('2016')).toHaveValue('2020');
+                expect(
+                    screen.getByPlaceholderText('National Yilan University')
+                ).toHaveValue(
+                    'National Taichung University of Science and Technology'
+                );
+            },
+            { timeout: 3000 }
+        );
     });
 });

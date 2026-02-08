@@ -74,7 +74,7 @@ const ProgramReport = (props) => {
                 }));
             }
         );
-    }, []);
+    }, [props.program_id]);
 
     const handleReportClick = () => {
         setProgramReportState((prevState) => ({

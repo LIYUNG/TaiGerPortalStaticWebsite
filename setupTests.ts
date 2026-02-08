@@ -53,8 +53,10 @@ const { mockAxiosInstance } = vi.hoisted(() => {
 });
 vi.mock('axios', () => ({
     create: () => mockAxiosInstance,
-    default: mockAxiosInstance,
-    ...mockAxiosInstance
+    default: {
+        create: () => mockAxiosInstance,
+        ...mockAxiosInstance
+    }
 }));
 
 // Suppress React Router v7 future-flag deprecation warnings in tests (we opt-in via createMemoryRouter where used)

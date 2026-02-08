@@ -75,7 +75,7 @@ const SingleDoc = (props) => {
                 }));
             }
         );
-    }, []);
+    }, [documentation_id]);
 
     const handleClickEditToggle = () => {
         setSingleInternalDocState((prevState) => ({

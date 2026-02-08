@@ -1,11 +1,21 @@
 import { render, screen, waitFor } from '@testing-library/react';
+import type { ReactElement } from 'react';
 import Admissions from './Admissions';
 import { getAdmissions, getActiveStudents } from '../../api';
 import { useAuth } from '../../components/AuthProvider';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import type { AuthContextValue } from '../../api/types';
 
 import { mockAdmissionsData } from '../../test/testingAdmissionsData';
+
+const mockAuthAgent: AuthContextValue = {
+    user: { role: 'Agent', _id: '639baebf8b84944b872cf648' },
+    isAuthenticated: true,
+    isLoaded: true,
+    login: () => {},
+    logout: () => {}
+};
 
 vi.mock('axios');
 vi.mock('../../api', async (importOriginal) => ({
@@ -24,7 +34,7 @@ const createTestQueryClient = () =>
         }
     });
 
-const renderWithQueryClient = (ui) => {
+const renderWithQueryClient = (ui: ReactElement) => {
     const testQueryClient = createTestQueryClient();
     return render(
         <QueryClientProvider client={testQueryClient}>{ui}</QueryClientProvider>
@@ -62,9 +72,7 @@ describe('Admissions page checking', () => {
                 }
             ]
         });
-        vi.mocked(useAuth).mockReturnValue({
-            user: { role: 'Agent', _id: '639baebf8b84944b872cf648' }
-        });
+        vi.mocked(useAuth).mockReturnValue(mockAuthAgent);
 
         renderWithQueryClient(
             <MemoryRouter>
@@ -85,13 +93,7 @@ describe('Admissions page checking', () => {
                 result: []
             });
             vi.mocked(getActiveStudents).mockResolvedValue({ data: [] });
-            vi.mocked(useAuth).mockReturnValue({
-                user: { role: 'Agent', _id: '639baebf8b84944b872cf648' },
-                isAuthenticated: true,
-                isLoaded: true,
-                login: () => {},
-                logout: () => {}
-            } as import('../../api/types').AuthContextValue);
+            vi.mocked(useAuth).mockReturnValue(mockAuthAgent);
 
             renderWithQueryClient(
                 <MemoryRouter
@@ -107,7 +109,7 @@ describe('Admissions page checking', () => {
                 () => {
                     expect(screen.getByTestId('admissinos_page')).toBeInTheDocument();
                 },
-                { timeout: 15000 }
+                { timeout: 5000 }
             );
 
             // The Student tab panel renders its nested tablist
@@ -117,14 +119,12 @@ describe('Admissions page checking', () => {
                 })
             ).toBeInTheDocument();
         },
-        15000
+        5000
     );
 
     test('Admissions page shows loading state', () => {
         vi.mocked(getAdmissions).mockImplementation(() => new Promise(() => {})); // Never resolves
-        vi.mocked(useAuth).mockReturnValue({
-            user: { role: 'Agent', _id: '639baebf8b84944b872cf648' }
-        });
+        vi.mocked(useAuth).mockReturnValue(mockAuthAgent);
 
         renderWithQueryClient(
             <MemoryRouter>
@@ -137,6 +137,7 @@ describe('Admissions page checking', () => {
 
     test('Admissions page redirects non-TaiGer users', () => {
         vi.mocked(useAuth).mockReturnValue({
+            ...mockAuthAgent,
             user: { role: 'Student', _id: '639baebf8b84944b872cf648' }
         });
 
@@ -152,9 +153,7 @@ describe('Admissions page checking', () => {
 
     test('Admissions page handles API error', async () => {
         vi.mocked(getAdmissions).mockRejectedValue(new Error('API Error'));
-        vi.mocked(useAuth).mockReturnValue({
-            user: { role: 'Agent', _id: '639baebf8b84944b872cf648' }
-        });
+        vi.mocked(useAuth).mockReturnValue(mockAuthAgent);
 
         renderWithQueryClient(
             <MemoryRouter>

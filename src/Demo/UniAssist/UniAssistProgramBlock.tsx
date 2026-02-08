@@ -38,8 +38,13 @@ import {
 import { useMutation } from '@tanstack/react-query';
 import { queryClient } from '../../api/client';
 import { useSnackBar } from '../../contexts/use-snack-bar';
+import type { Application, IStudentResponse } from '../../api/types';
 
-const IconStatus = ({ condition }) =>
+export interface IconStatusProps {
+    condition: boolean;
+}
+
+const IconStatus = ({ condition }: IconStatusProps) =>
     condition ? (
         <CheckCircleIcon size={18} style={{ color: green[500] }} />
     ) : (
@@ -58,7 +63,11 @@ const VisuallyHiddenInput = styled('input')({
     width: 1
 });
 
-const ProgramName = ({ application }) => {
+export interface ProgramNameProps {
+    application: Application;
+}
+
+const ProgramName = ({ application }: ProgramNameProps) => {
     return (
         <Typography sx={{ mr: 2 }} variant="body1">
             <Link
@@ -72,7 +81,12 @@ const ProgramName = ({ application }) => {
     );
 };
 
-const SetNeedButtons = ({ application, setAsNotNeededModelOpen }) => {
+export interface SetNeedButtonsProps {
+    application: Application;
+    setAsNotNeededModelOpen: (open?: boolean) => void;
+}
+
+const SetNeedButtons = ({ application, setAsNotNeededModelOpen }: SetNeedButtonsProps) => {
     const { user } = useAuth();
 
     const opensetAsNotNeededWindow = (e: React.MouseEvent<HTMLElement>) => {
@@ -111,7 +125,12 @@ const SetNeedButtons = ({ application, setAsNotNeededModelOpen }) => {
     );
 };
 
-export const UniAssistProgramBlock = ({ application, student }) => {
+export interface UniAssistProgramBlockProps {
+    application: Application;
+    student: IStudentResponse;
+}
+
+export const UniAssistProgramBlock = ({ application, student }: UniAssistProgramBlockProps) => {
     const { user } = useAuth();
 
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();

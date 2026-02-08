@@ -81,23 +81,26 @@ const Message = (props) => {
         }
     });
     useEffect(() => {
-        let initialEditorState = null;
+        let initialEditorState: unknown = null;
         if (props.message.message && props.message.message !== '{}') {
             try {
                 initialEditorState = JSON.parse(props.message.message);
-            } catch (e) {
+            } catch {
                 initialEditorState = { time: new Date(), blocks: [] };
             }
         } else {
             initialEditorState = { time: new Date(), blocks: [] };
         }
-        setMessageState((prevState) => ({
-            ...prevState,
-            editorState: initialEditorState,
-            isLoaded: props.isLoaded,
-            deleteMessageModalShow: false
-        }));
-    }, [props.message.message]);
+        const isLoaded = props.isLoaded;
+        queueMicrotask(() => {
+            setMessageState((prevState) => ({
+                ...prevState,
+                editorState: initialEditorState,
+                isLoaded,
+                deleteMessageModalShow: false
+            }));
+        });
+    }, [props.message.message, props.isLoaded]);
 
     const onOpendeleteMessageModalShow = (
         e: React.MouseEvent<HTMLElement>,

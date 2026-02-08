@@ -15,6 +15,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { SnackBarProvider } from './contexts/use-snack-bar';
 import { CustomThemeProvider } from './components/ThemeProvider';
 import { renderWithProviders, createTestQueryClient } from './test/test-utils';
+import Settings from './Demo/Settings/index';
 
 vi.mock('./components/AuthProvider', () => ({
     useAuth: () => ({
@@ -37,6 +38,10 @@ vi.mock('./api', async (importOriginal) => ({
     getAdmissions: vi.fn().mockResolvedValue({ data: { result: [] } }),
     getArchivStudents: vi.fn().mockResolvedValue({ data: [], status: 200 }),
     getStudents: vi.fn().mockResolvedValue({ data: [], status: 200 }),
+    getStudentsAndDocLinks2: vi.fn().mockResolvedValue({
+        data: [],
+        base_docs_link: []
+    }),
     getProgramsAndCourseKeywordSetsLoader: vi.fn().mockResolvedValue({}),
     getApplicationStudentV2: vi.fn().mockResolvedValue({ data: null }),
     getComplaintsTickets: vi.fn().mockResolvedValue({ data: { data: [] } }),
@@ -45,7 +50,21 @@ vi.mock('./api', async (importOriginal) => ({
         .mockResolvedValue({ data: { data: {} }, status: 200 }),
     getMyAcademicBackground: vi.fn().mockResolvedValue({ data: {} }),
     getProgram: vi.fn().mockResolvedValue({ data: {} }),
-    getAllOpenInterviews: vi.fn().mockResolvedValue({ data: [] })
+    getAllOpenInterviews: vi.fn().mockResolvedValue({ data: [] }),
+    getMyStudentsThreads: vi.fn().mockResolvedValue({
+        data: { threads: [] },
+        success: true,
+        status: 200
+    }),
+    getThreadsByStudent: vi.fn().mockResolvedValue({
+        data: { threads: [] },
+        success: true,
+        status: 200
+    }),
+    updateCredentials: vi.fn().mockResolvedValue({
+        data: { success: true },
+        status: 200
+    })
 }));
 
 vi.mock('@mui/x-charts/BarChart', () => ({
@@ -55,17 +74,32 @@ vi.mock('@mui/x-charts/ChartsAxis', () => ({
     axisClasses: {}
 }));
 
-// Prevent useQuery from hanging in pages that fetch on mount
+// Prevent useQuery from hanging in pages that fetch on mount (return shape matches common API responses)
 vi.mock('@tanstack/react-query', async (importOriginal) => ({
     ...(await importOriginal<typeof import('@tanstack/react-query')>()),
     useQuery: vi.fn().mockReturnValue({
-        data: { data: [], success: true },
+        data: { data: [], success: true, base_docs_link: [] },
         isLoading: false,
         isError: false,
         error: null,
         refetch: vi.fn()
     })
 }));
+
+// Base Documents (and AllBaseDocuments) use getStudentsAndDocLinks2Query; ensure queryFn resolves immediately
+vi.mock('./api/query', async (importOriginal) => {
+    const actual =
+        await importOriginal<typeof import('./api/query')>();
+    return {
+        ...actual,
+        getStudentsAndDocLinks2Query: (queryString: string) => ({
+            queryKey: ['students/doc-links', queryString],
+            queryFn: () =>
+                Promise.resolve({ data: [], base_docs_link: [] }),
+            staleTime: 1000 * 60 * 1
+        })
+    };
+});
 
 vi.mock('./hooks/useStudents', () => ({
     __esModule: true,
@@ -154,10 +188,13 @@ describe('Page smoke tests – all pages render without crashing', () => {
             },
             '/student-database'
         );
-        await waitFor(() => {
-            expect(document.body.textContent).toBeDefined();
-        });
-    }, 25000);
+        await waitFor(
+            () => {
+                expect(document.body.textContent).toBeDefined();
+            },
+            { timeout: 10000 }
+        );
+    }, 10000);
 
     test('Student Database Overview renders', async () => {
         const StudentDatabaseOverview = lazy(
@@ -175,28 +212,24 @@ describe('Page smoke tests – all pages render without crashing', () => {
         });
     });
 
-    test(
-        'Archiv Students page renders',
-        async () => {
-            const ArchivStudent = lazy(
-                () => import('./Demo/ArchivStudent/index')
-            );
-            renderPageRoute(
-                {
-                    path: '/archiv/students',
-                    element: wrapWithSuspense(ArchivStudent)
-                },
-                '/archiv/students'
-            );
-            await waitFor(
-                () => {
-                    expect(document.body.textContent).toBeDefined();
-                },
-                { timeout: 40000 }
-            );
-        },
-        40000
-    );
+    test('Archiv Students page renders', async () => {
+        const ArchivStudent = lazy(
+            () => import('./Demo/ArchivStudent/index')
+        );
+        renderPageRoute(
+            {
+                path: '/archiv/students',
+                element: wrapWithSuspense(ArchivStudent)
+            },
+            '/archiv/students'
+        );
+        await waitFor(
+            () => {
+                expect(document.body.textContent).toBeDefined();
+            },
+            { timeout: 10000 }
+        );
+    }, 10000);
 
     test('Program List page renders', async () => {
         const ProgramList = lazy(
@@ -211,79 +244,76 @@ describe('Page smoke tests – all pages render without crashing', () => {
         });
     });
 
-    test(
-        'Users Table page renders',
-        async () => {
-            const UsersTable = lazy(() => import('./Demo/Users/UsersTable'));
-            renderPageRoute(
-                { path: '/users', element: wrapWithSuspense(UsersTable) },
-                '/users'
-            );
-            await waitFor(
-                () => {
-                    expect(document.body.textContent).toBeDefined();
-                },
-                { timeout: 45000 }
-            );
-        },
-        45000
-    );
+    test('Users Table page renders', async () => {
+        const UsersTable = lazy(() => import('./Demo/Users/UsersTable'));
+        renderPageRoute(
+            { path: '/users', element: wrapWithSuspense(UsersTable) },
+            '/users'
+        );
+        await waitFor(
+            () => {
+                expect(document.body.textContent).toBeDefined();
+            },
+            { timeout: 10000 }
+        );
+    }, 10000);
 
-    test(
-        'CVMLRL Center / Overview renders',
-        async () => {
-            const CVMLRLOverview = lazy(
-                () => import('./Demo/CVMLRLCenter/index')
-            );
-            renderPageRoute(
-                {
-                    path: '/cv-ml-rl-center',
-                    element: wrapWithSuspense(CVMLRLOverview)
-                },
-                '/cv-ml-rl-center'
-            );
-            await waitFor(
-                () => {
-                    expect(document.body.textContent).toBeDefined();
-                },
-                { timeout: 40000 }
-            );
-        },
-        40000
-    );
+    test('CVMLRL Center / Overview renders', async () => {
+        const CVMLRLOverview = lazy(
+            () => import('./Demo/CVMLRLCenter/index')
+        );
+        renderPageRoute(
+            {
+                path: '/cv-ml-rl-center',
+                element: wrapWithSuspense(CVMLRLOverview)
+            },
+            '/cv-ml-rl-center'
+        );
+        await waitFor(
+            () => {
+                expect(document.body.textContent).toBeDefined();
+            },
+            { timeout: 10000 }
+        );
+    }, 10000);
 
-    test(
-        'Base Documents page renders',
-        async () => {
-            const BaseDocuments = lazy(
-                () => import('./Demo/BaseDocuments/BaseDocuments')
-            );
-            renderPageRoute(
-                {
-                    path: '/base-documents',
-                    element: wrapWithSuspense(BaseDocuments)
-                },
-                '/base-documents'
-            );
-            await waitFor(
-                () => {
-                    expect(document.body.textContent).toBeDefined();
-                },
-                { timeout: 15000 }
-            );
-        },
-        15000
-    );
+    test('Base Documents page renders', async () => {
+        const BaseDocuments = lazy(
+            () => import('./Demo/BaseDocuments/BaseDocuments')
+        );
+        renderPageRoute(
+            {
+                path: '/base-documents',
+                element: wrapWithSuspense(BaseDocuments)
+            },
+            '/base-documents'
+        );
+        await waitFor(
+            () => {
+                expect(document.body.textContent).toBeDefined();
+            },
+            { timeout: 3000 }
+        );
+    });
 
     test('Settings page renders', async () => {
-        const Settings = lazy(() => import('./Demo/Settings/index'));
         renderPageRoute(
-            { path: '/settings', element: wrapWithSuspense(Settings) },
+            {
+                path: '/settings',
+                element: (
+                    <Suspense fallback={<div data-testid="loading">Loading...</div>}>
+                        <Settings />
+                    </Suspense>
+                )
+            },
             '/settings'
         );
-        await waitFor(() => {
-            expect(document.body.textContent).toBeDefined();
-        });
+        await waitFor(
+            () => {
+                expect(document.body.textContent).toBeDefined();
+            },
+            { timeout: 3000 }
+        );
     });
 
     test('Profile page renders', async () => {

@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
+import type { SyntheticEvent } from 'react';
 import { Box, Tabs, Tab } from '@mui/material';
 // import { useTranslation } from 'react-i18next';
 import i18next from 'i18next';
@@ -11,21 +12,21 @@ import FinalDecisionOverview from '../../components/StudentOverviewTable/finalDe
 import Loading from '../../components/Loading/Loading';
 import { getActiveStudentsQuery } from '../../api/query';
 
+const STUDENT_TAB_KEYS = ['risk', 'final'];
+
 const StudentAdmissionsTables = () => {
     // const { t } = useTranslation();
-    const [tab, setTab] = useState(0);
     const location = useLocation();
     const navigate = useNavigate();
-    const STUDENT_TAB_KEYS = ['risk', 'final'];
 
-    useEffect(() => {
+    const tab = useMemo(() => {
         const params = new URLSearchParams(location.search);
         const key = (params.get('studentTab') || '').toLowerCase();
         const idx = STUDENT_TAB_KEYS.indexOf(key);
-        setTab(idx >= 0 ? idx : 0);
+        return idx >= 0 ? idx : 0;
     }, [location.search]);
 
-    const handleTabChange = (_e, newValue) => {
+    const handleTabChange = (_e: SyntheticEvent, newValue: number) => {
         setTab(newValue);
         const params = new URLSearchParams(location.search);
         params.set('studentTab', STUDENT_TAB_KEYS[newValue]);

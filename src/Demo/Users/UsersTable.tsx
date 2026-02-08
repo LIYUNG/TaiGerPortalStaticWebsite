@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, type SyntheticEvent } from 'react';
 import { Navigate, Link as LinkDom } from 'react-router-dom';
 import {
     Tabs,
@@ -27,6 +27,9 @@ import { queryClient } from '../../api/client';
 import { useSnackBar } from '../../contexts/use-snack-bar';
 import { getUsersCountQuery } from '../../api/query';
 
+/** Reserved for future props */
+export type UsersTableProps = object;
+
 const UsersTable = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
@@ -50,7 +53,8 @@ const UsersTable = () => {
     const { data: usersCount } = useQuery(getUsersCountQuery());
 
     const { mutate: addUserMutation, isPending: isAddingUser } = useMutation({
-        mutationFn: (user_information) => addUser(user_information),
+        mutationFn: (user_information: Parameters<typeof addUser>[0]) =>
+            addUser(user_information),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['users'] });
             queryClient.invalidateQueries({ queryKey: ['users/count'] });

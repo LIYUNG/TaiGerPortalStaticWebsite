@@ -90,7 +90,7 @@ const CVMLRLCenter = () => {
                 }));
             }
         );
-    }, []);
+    }, [user]);
 
     const { res_status, isLoaded, open_tasks_arr } = indexState;
     TabTitle('CV ML RL Overview');

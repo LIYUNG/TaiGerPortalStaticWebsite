@@ -26,8 +26,21 @@ import { useSnackBar } from '../../contexts/use-snack-bar';
 import { useTableStyles } from '../../components/table/users-table/styles';
 import { getTableConfig } from '../../components/table/users-table/table-config';
 import { TopToolbar } from '../../components/table/users-table/TopToolbar';
+import type { QueryString } from '../../api/types';
 
-const UsersList = (props) => {
+export interface UsersListProps {
+    queryString: QueryString;
+    openAddUserModal: () => void;
+    readOnly?: boolean;
+    /** @deprecated Legacy - not passed by UsersTable */
+    users?: unknown;
+    /** @deprecated Legacy - not passed by UsersTable */
+    success?: boolean;
+    /** @deprecated Legacy - not passed by UsersTable */
+    isLoaded?: boolean;
+}
+
+const UsersList = (props: UsersListProps) => {
     const { t } = useTranslation();
     const { data: usersList, isLoading } = useQuery(
         getUsersQuery(props.queryString)
@@ -66,7 +79,7 @@ const UsersList = (props) => {
         });
     };
 
-    const link = (user) => {
+    const link = (user: Record<string, unknown>) => {
         if (is_TaiGer_Student(user)) {
             return `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(user._id)}`;
         } else if (is_TaiGer_Agent(user)) {

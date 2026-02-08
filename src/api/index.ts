@@ -24,7 +24,21 @@ import type {
     TicketId,
     MeetingId,
     InterviewId,
-    LeadId
+    LeadId,
+    AuthVerifyResponse,
+    GetProgramResponse,
+    GetProgramsResponse,
+    GetProgramsOverviewResponse,
+    GetStudentsResponse,
+    GetApplicationsResponse,
+    GetAdmissionsResponse,
+    GetAdmissionsOverviewResponse,
+    GetUsersOverviewResponse,
+    GetStudentMeetingsResponse,
+    GetStudentMeetingResponse,
+    GetCommunicationThreadResponse,
+    GetMyCommunicationThreadResponse,
+    GetUsersCountResponse
 } from './types';
 
 export const login = (credentials: LoginCredentials) =>
@@ -56,7 +70,7 @@ export const resendActivation = ({ email }: ForgotPasswordPayload) =>
     request.post('/auth/resend-activation', { email });
 
 export const verify = () => request.get('/auth/verify');
-export const verifyV2 = () => getData('/auth/verify');
+export const verifyV2 = () => getData<AuthVerifyResponse>('/auth/verify');
 
 // Audit Log APIs
 export const getAuditLog = (queryString: QueryString) =>
@@ -74,8 +88,10 @@ export const getQueryStudentResults = (keywords: string) =>
 // User APIs
 export const getUsers = (queryString: QueryString) =>
     request.get(`/api/users?${queryString}`);
-export const getUsersCount = () => request.get(`/api/users/count`);
-export const getUsersOverview = () => getData('/api/users/overview');
+export const getUsersCount = () =>
+    getData<GetUsersCountResponse>('/api/users/count');
+export const getUsersOverview = () =>
+    getData<GetUsersOverviewResponse>('/api/users/overview');
 export const getUser = (user_id: UserId) =>
     request.get(`/api/users/${user_id}`);
 export const addUser = (user_information: ApiPayload) =>
@@ -95,13 +111,13 @@ export const getEssayWriters = () => request.get('/api/essay-writers');
 export const getStudents = () => request.get(`/api/students`);
 
 export const getStudentsV3 = (queryString: QueryString) =>
-    getData(`/api/students/v3?${queryString}`);
+    getData<GetStudentsResponse>(`/api/students/v3?${queryString}`);
 
 export const getStudent = (studentId: string) =>
     request.get(`/api/students/${studentId}`);
 
 export const getApplications = (queryString: QueryString) =>
-    getData(`/api/applications?${queryString}`);
+    getData<GetApplicationsResponse>(`/api/applications?${queryString}`);
 
 export const getMyStudentsApplications = ({
     userId,
@@ -118,9 +134,10 @@ export const getActiveStudents = (queryString: QueryString) =>
     getData(`/api/students/active?${queryString}`);
 
 export const getAdmissions = (queryString: QueryString) =>
-    getData(`/api/admissions?${queryString}`);
+    getData<GetAdmissionsResponse>(`/api/admissions?${queryString}`);
 
-export const getAdmissionsOverview = () => getData(`/api/admissions/overview`);
+export const getAdmissionsOverview = () =>
+    getData<GetAdmissionsOverviewResponse>(`/api/admissions/overview`);
 
 export const getApplicationConflicts = () =>
     request.get(`/api/student-applications/conflicts`);
@@ -554,8 +571,10 @@ export const deleteInternalDocumentation = (doc_id: string) =>
     request.delete(`/api/docs/internal/${doc_id}`);
 
 // Program APIs
-export const getProgramsV2 = () => getData('/api/programs');
-export const getProgramsOverview = () => getData('/api/programs/overview');
+export const getProgramsV2 = () =>
+    getData<GetProgramsResponse>('/api/programs');
+export const getProgramsOverview = () =>
+    getData<GetProgramsOverviewResponse>('/api/programs/overview');
 export const getSchoolsDistribution = () =>
     getData('/api/programs/schools-distribution');
 export const getDistinctSchools = () => request.get('/api/programs/schools');
@@ -566,7 +585,7 @@ export const getProgram = (programId: string) =>
     request.get(`/api/programs/${programId}`);
 
 export const getProgramV2 = (programId: string) =>
-    getData(`/api/programs/${programId}`);
+    getData<GetProgramResponse>(`/api/programs/${programId}`);
 
 export const deleteProgramV2 = ({ program_id }: { program_id: string }) =>
     deleteData(`/api/programs/${program_id}`);
@@ -659,14 +678,14 @@ export const getMyCommunicationUnreadNumber = () =>
 export const getMyCommunicationThread = () =>
     request.get('/api/communications/all');
 export const getMyCommunicationThreadV2 = () =>
-    getData('/api/communications/all');
+    getData<GetMyCommunicationThreadResponse>('/api/communications/all');
 export const getCommunicationThread = (studentId: StudentId) =>
     request.get(`/api/communications/${studentId}`);
 export const getCommunicationThreadV2 = ({
     studentId
 }: {
     studentId: StudentId;
-}) => getData(`/api/communications/${studentId}`);
+}) => getData<GetCommunicationThreadResponse>(`/api/communications/${studentId}`);
 export const loadCommunicationThread = (
     studentId: StudentId,
     pageNumber: number
@@ -1075,9 +1094,13 @@ export const instantInviteTA = (meetingSummary: string, meetingLink: string) =>
 
 // Student Meetings APIs
 export const getStudentMeetings = (studentId: StudentId) =>
-    getData(`/api/students/${studentId}/meetings`);
+    getData<GetStudentMeetingsResponse>(
+        `/api/students/${studentId}/meetings`
+    );
 export const getStudentMeeting = (studentId: StudentId, meetingId: MeetingId) =>
-    getData(`/api/students/${studentId}/meetings/${meetingId}`);
+    getData<GetStudentMeetingResponse>(
+        `/api/students/${studentId}/meetings/${meetingId}`
+    );
 export const createStudentMeeting = (
     studentId: StudentId,
     payload: ApiPayload

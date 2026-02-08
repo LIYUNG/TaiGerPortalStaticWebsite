@@ -10,7 +10,13 @@ import { TopToolbar } from '../../../components/table/all-courses-table/TopToolb
 import { DeleteCourseDialog } from './DeleteCourseDialog';
 import { MRT_ColumnDef } from 'material-react-table';
 
-export const AllCoursesTable = ({ isLoading, data }) => {
+export const AllCoursesTable = ({
+    isLoading,
+    data
+}: {
+    isLoading: boolean;
+    data: Record<string, unknown>[];
+}) => {
     const customTableStyles = useTableStyles();
     const { t } = useTranslation();
     const tableConfig = getTableConfig(customTableStyles, isLoading);
@@ -43,25 +49,28 @@ export const AllCoursesTable = ({ isLoading, data }) => {
         }
     ];
 
+    const handleOnSuccess = () => {
+        setOpenDeleteDialog(false);
+    };
+
     const table = useMaterialReactTable({
         ...tableConfig,
         columns,
         state: { isLoading },
-        data: data || []
+        data: data || [],
+        renderTopToolbar: () => (
+            <TopToolbar
+                onDeleteClick={() => setOpenDeleteDialog(true)}
+                table={table}
+                toolbarStyle={customTableStyles.toolbarStyle}
+            />
+        )
     });
 
-    const handleOnSuccess = () => {
+    const handleOnSuccessWithReset = () => {
         table.resetRowSelection();
-        setOpenDeleteDialog(false);
+        handleOnSuccess();
     };
-
-    table.options.renderTopToolbar = (
-        <TopToolbar
-            onDeleteClick={() => setOpenDeleteDialog(true)}
-            table={table}
-            toolbarStyle={customTableStyles.toolbarStyle}
-        />
-    );
 
     return (
         <>
@@ -82,7 +91,7 @@ export const AllCoursesTable = ({ isLoading, data }) => {
                             all_course_english
                         })
                     )}
-                handleOnSuccess={handleOnSuccess}
+                handleOnSuccess={handleOnSuccessWithReset}
                 onClose={() => setOpenDeleteDialog(false)}
                 open={openDeleteDialog}
             />

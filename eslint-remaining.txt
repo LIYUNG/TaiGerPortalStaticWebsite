@@ -1,0 +1,404 @@
+﻿
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\Admissions\Admissions.tsx
+  40:8  warning  React Hook useMemo has an unnecessary dependency: 'TAB_KEYS'. Either exclude it or remove the dependency array. Outer scope values like 'TAB_KEYS' aren't valid dependencies because mutating them doesn't re-render the component  react-hooks/exhaustive-deps
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\Admissions\AdmissionsTables.tsx
+  29:8  warning  React Hook useMemo has an unnecessary dependency: 'SUBTAB_KEYS'. Either exclude it or remove the dependency array. Outer scope values like 'SUBTAB_KEYS' aren't valid dependencies because mutating them doesn't re-render the component  react-hooks/exhaustive-deps
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\Authentication\Activation\Activation.tsx
+  41:18  error  '_err' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\Authentication\Activation\Reactivation.tsx
+  24:18  error  '_err' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\Authentication\ResetPasswordRequest\ResetPasswordRequest.tsx
+  45:22  error  '_err' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\Authentication\ResetPassword\ResetPassword.tsx
+  61:22  error  '_err' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\Authentication\SignIn\SignIn.tsx
+  58:18  error  '_e' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\BaseDocuments\BaseDocumentStudentView.tsx
+  34:15  error  'studentId' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\BaseDocuments\BaseDocumentsTable.tsx
+  159:11  warning  The 'showPreview' function makes the dependencies of useCallback Hook (at line 319) change on every render. Move it inside the useCallback callback. Alternatively, wrap the definition of 'showPreview' in its own useCallback() Hook  react-hooks/exhaustive-deps
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\CRM\DealDashboard.tsx
+  51:14  error  '_e' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\CRM\LeadPage.tsx
+  163:8  warning  React Hook useMemo has a missing dependency: 'form'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\CRM\index.tsx
+  424:50  error  '_e' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\CVMLRLCenter\DocModificationThreadPage\DocModificationThreadInput.tsx
+  416:22  error  '_error' is defined but never used  @typescript-eslint/no-unused-vars
+  547:18  error  '_error' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\CVMLRLCenter\DocModificationThreadPage\DocModificationThreadPage.tsx
+  158:8   warning  React Hook useEffect has a missing dependency: 'threadProps'. Either include it or remove the dependency array. If 'setDocModificationThreadPageState' needs the current value of 'threadProps', you can also switch to useReducer instead of useState and read 'threadProps' in the reducer  react-hooks/exhaustive-deps
+  168:8   warning  React Hook useEffect has a missing dependency: 'scrollableRef'. Either include it or remove the dependency array                                                                                                                                                                              react-hooks/exhaustive-deps
+  666:21  error    React Hook "useMemo" is called conditionally. React Hooks must be called in the exact same order in every component render. Did you accidentally call a React Hook after an early return?                                                                                                     react-hooks/rules-of-hooks
+  677:8   warning  React Hook useMemo has missing dependencies: 'TAB_KEYS.audit', 'TAB_KEYS.database', 'TAB_KEYS.discussion', 'TAB_KEYS.files', and 'TAB_KEYS.generalRL'. Either include them or remove the dependency array                                                                                     react-hooks/exhaustive-deps
+  679:25  error    React Hook "useMemo" is called conditionally. React Hooks must be called in the exact same order in every component render. Did you accidentally call a React Hook after an early return?                                                                                                     react-hooks/rules-of-hooks
+  687:27  error    React Hook "useMemo" is called conditionally. React Hooks must be called in the exact same order in every component render. Did you accidentally call a React Hook after an early return?                                                                                                     react-hooks/rules-of-hooks
+  707:5   error    React Hook "useEffect" is called conditionally. React Hooks must be called in the exact same order in every component render. Did you accidentally call a React Hook after an early return?                                                                                                   react-hooks/rules-of-hooks
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\CVMLRLCenter\DocModificationThreadPage\DocumentCheckingResultModal.tsx
+  49:8  warning  React Hook useEffect has missing dependencies: 'fetchData', 'file_type', and 'isFinalVersion'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\CVMLRLCenter\DocModificationThreadPage\DocumentThreadsPage\GeneralRLRequirementsTab.tsx
+  51:11  warning  The 'apps' logical expression could make the dependencies of useMemo Hook (at line 65) change on every render. Move it inside the useMemo callback. Alternatively, wrap the initialization of 'apps' in its own useMemo() Hook  react-hooks/exhaustive-deps
+  54:34  error    React Hook "useMemo" is called conditionally. React Hooks must be called in the exact same order in every component render. Did you accidentally call a React Hook after an early return?                                       react-hooks/rules-of-hooks
+  67:20  error    React Hook "useMemo" is called conditionally. React Hooks must be called in the exact same order in every component render. Did you accidentally call a React Hook after an early return?                                       react-hooks/rules-of-hooks
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\Communications\CommunicationThreadEditor.tsx
+   43:9   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\Communications\CommunicationThreadEditor.tsx:43:9
+  41 |     });
+  42 |     useEffect(() => {
+> 43 |         setStatedata((state) => ({
+     |         ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  44 |             ...state,
+  45 |             editorState: props.editorState
+  46 |         }));                           react-hooks/set-state-in-effect
+   89:34  error    Compilation Skipped: Existing memoization could not be preserved
+
+React Compiler has skipped optimizing this component because the existing manual memoization could not be preserved. The inferred dependencies did not match the manually specified dependencies, which could cause the value to change more or less frequently than expected. The inferred dependency was `props.editorState`, but the source dependencies were [props.count]. Inferred different dependency than source.
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\Communications\CommunicationThreadEditor.tsx:89:34
+   87 |     };
+   88 |
+>  89 |     const EditorV2 = useCallback(() => {
+      |                                  ^^^^^^^
+>  90 |         return (
+      | ^^^^^^^^^^^^^^^^
+>  91 |             <EditorSimple
+      ÔÇª
+      | ^^^^^^^^^^^^^^^^
+> 102 |         );
+      | ^^^^^^^^^^^^^^^^
+> 103 |     }, [props.count]);
+      | ^^^^^^ Could not preserve existing manual memoization
+  104 |     return (
+  105 |         <>
+  106 |             <Box                                                               react-hooks/preserve-manual-memoization
+   89:34  error    Compilation Skipped: Existing memoization could not be preserved
+
+React Compiler has skipped optimizing this component because the existing manual memoization could not be preserved. The inferred dependencies did not match the manually specified dependencies, which could cause the value to change more or less frequently than expected. The inferred dependency was `props.handleClickSave`, but the source dependencies were [props.count]. Inferred different dependency than source.
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\Communications\CommunicationThreadEditor.tsx:89:34
+   87 |     };
+   88 |
+>  89 |     const EditorV2 = useCallback(() => {
+      |                                  ^^^^^^^
+>  90 |         return (
+      | ^^^^^^^^^^^^^^^^
+>  91 |             <EditorSimple
+      ÔÇª
+      | ^^^^^^^^^^^^^^^^
+> 102 |         );
+      | ^^^^^^^^^^^^^^^^
+> 103 |     }, [props.count]);
+      | ^^^^^^ Could not preserve existing manual memoization
+  104 |     return (
+  105 |         <>
+  106 |             <Box                                                           react-hooks/preserve-manual-memoization
+   89:34  error    Compilation Skipped: Existing memoization could not be preserved
+
+React Compiler has skipped optimizing this component because the existing manual memoization could not be preserved. The inferred dependencies did not match the manually specified dependencies, which could cause the value to change more or less frequently than expected. The inferred dependency was `props.thread`, but the source dependencies were [props.count]. Inferred different dependency than source.
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\Communications\CommunicationThreadEditor.tsx:89:34
+   87 |     };
+   88 |
+>  89 |     const EditorV2 = useCallback(() => {
+      |                                  ^^^^^^^
+>  90 |         return (
+      | ^^^^^^^^^^^^^^^^
+>  91 |             <EditorSimple
+      ÔÇª
+      | ^^^^^^^^^^^^^^^^
+> 102 |         );
+      | ^^^^^^^^^^^^^^^^
+> 103 |     }, [props.count]);
+      | ^^^^^^ Could not preserve existing manual memoization
+  104 |     return (
+  105 |         <>
+  106 |             <Box                                                                    react-hooks/preserve-manual-memoization
+  103:8   warning  React Hook useCallback has missing dependencies: 'props.editorState', 'props.handleClickSave', and 'props.thread'. Either include them or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              react-hooks/exhaustive-deps
+  130:18  error    Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\Communications\CommunicationThreadEditor.tsx:130:18
+  128 |                 }}
+  129 |             >
+> 130 |                 <EditorV2 />
+      |                  ^^^^^^^^ This component is created during render
+  131 |             </Box>
+  132 |             <Box>
+  133 |                 {is_TaiGer_role(user)
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\Communications\CommunicationThreadEditor.tsx:89:34
+   87 |     };
+   88 |
+>  89 |     const EditorV2 = useCallback(() => {
+      |                                  ^^^^^^^
+>  90 |         return (
+      | ^^^^^^^^^^^^^^^^
+>  91 |             <EditorSimple
+      ÔÇª
+      | ^^^^^^^^^^^^^^^^
+> 102 |         );
+      | ^^^^^^^^^^^^^^^^
+> 103 |     }, [props.count]);
+      | ^^^^^^ The component is created during render here
+  104 |     return (
+  105 |         <>
+  106 |             <Box  react-hooks/static-components
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\CourseAnalysis\CourseKeywordsEdit\CourseKeywordsOverview.tsx
+  588:45  warning  React Hook useMemo has an unnecessary dependency: 'col_keywords'. Either exclude it or remove the dependency array. Outer scope values like 'col_keywords' aren't valid dependencies because mutating them doesn't re-render the component  react-hooks/exhaustive-deps
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\CourseAnalysis\ProgramRequirements\ProgramRequirementsOverview.tsx
+   71:9  error    Compilation Skipped: Existing memoization could not be preserved
+
+React Compiler has skipped optimizing this component because the existing manual memoization could not be preserved. The inferred dependencies did not match the manually specified dependencies, which could cause the value to change more or less frequently than expected. The inferred dependency was `handleRequirementEdit`, but the source dependencies were []. Inferred dependency not present in source.
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\CourseAnalysis\ProgramRequirements\ProgramRequirementsOverview.tsx:71:9
+   69 |
+   70 |     const columns = useMemo(
+>  71 |         () => [
+      |         ^^^^^^^
+>  72 |             {
+      | ^^^^^^^^^^^^^
+>  73 |                 accessorFn: (row) => row.programId[0].school,
+      ÔÇª
+      | ^^^^^^^^^^^^^
+> 130 |             }
+      | ^^^^^^^^^^^^^
+> 131 |         ],
+      | ^^^^^^^^^^ Could not preserve existing manual memoization
+  132 |         []
+  133 |     );
+  134 |  react-hooks/preserve-manual-memoization
+   71:9  error    Compilation Skipped: Existing memoization could not be preserved
+
+React Compiler has skipped optimizing this component because the existing manual memoization could not be preserved. The inferred dependencies did not match the manually specified dependencies, which could cause the value to change more or less frequently than expected. The inferred dependency was `handleDeleteModal`, but the source dependencies were []. Inferred dependency not present in source.
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\CourseAnalysis\ProgramRequirements\ProgramRequirementsOverview.tsx:71:9
+   69 |
+   70 |     const columns = useMemo(
+>  71 |         () => [
+      |         ^^^^^^^
+>  72 |             {
+      | ^^^^^^^^^^^^^
+>  73 |                 accessorFn: (row) => row.programId[0].school,
+      ÔÇª
+      | ^^^^^^^^^^^^^
+> 130 |             }
+      | ^^^^^^^^^^^^^
+> 131 |         ],
+      | ^^^^^^^^^^ Could not preserve existing manual memoization
+  132 |         []
+  133 |     );
+  134 |      react-hooks/preserve-manual-memoization
+  132:9  warning  React Hook useMemo has missing dependencies: 'handleDeleteModal' and 'handleRequirementEdit'. Either include them or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    react-hooks/exhaustive-deps
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\Dashboard\MainViewTab\StudDocsOverview\EditAgentsSubpage.tsx
+  63:8  warning  React Hook useEffect has a missing dependency: 'props.student'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\Dashboard\MainViewTab\StudDocsOverview\EditEditorsSubpage.tsx
+  58:8  warning  React Hook useEffect has a missing dependency: 'props.student'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\Dashboard\MainViewTab\StudDocsOverview\EditInterviewTrainersSubpage.tsx
+  56:8  warning  React Hook useEffect has a missing dependency: 'props.interview'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\InterviewTraining\InterviewSurveyForm.tsx
+  83:8  warning  React Hook useEffect has a missing dependency: 'fetchInterviewAndSurvey'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\InterviewTraining\index.tsx
+  129:8  warning  React Hook useEffect has missing dependencies: 'interviewslist' and 'user'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\MyCourses\CourseAnalysisV2.tsx
+  1726:8  warning  React Hook useEffect has a missing dependency: 'user_id'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\MyCourses\index.tsx
+  139:8  warning  React Hook useEffect has missing dependencies: 'student_id' and 'user._id'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\Program\SchoolConfigContent.tsx
+  197:11  warning  The 'c1_mrt' array makes the dependencies of useMemo Hook (at line 293) change on every render. Move it inside the useMemo callback. Alternatively, wrap the initialization of 'c1_mrt' in its own useMemo() Hook  react-hooks/exhaustive-deps
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\Program\SchoolDistributionPage.tsx
+  66:11  warning  The 'allSchools' logical expression could make the dependencies of useMemo Hook (at line 76) change on every render. To fix this, wrap the initialization of 'allSchools' in its own useMemo() Hook   react-hooks/exhaustive-deps
+  66:11  warning  The 'allSchools' logical expression could make the dependencies of useMemo Hook (at line 97) change on every render. To fix this, wrap the initialization of 'allSchools' in its own useMemo() Hook   react-hooks/exhaustive-deps
+  66:11  warning  The 'allSchools' logical expression could make the dependencies of useMemo Hook (at line 109) change on every render. To fix this, wrap the initialization of 'allSchools' in its own useMemo() Hook  react-hooks/exhaustive-deps
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\StudentApplications\ImportStudentProgramsCard.tsx
+  72:8  warning  React Hook useEffect has a missing dependency: 'fetchSearchResults'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\StudentDatabase\SingleStudentPage.tsx
+  112:8  warning  React Hook useEffect has a missing dependency: 'data'. Either include it or remove the dependency array. If 'setSingleStudentPage' needs the current value of 'data', you can also switch to useReducer instead of useState and read 'data' in the reducer  react-hooks/exhaustive-deps
+  114:9  warning  React Hook useEffect has a complex expression in the dependency array. Extract it to a separate variable so it can be statically checked                                                                                                                    react-hooks/exhaustive-deps
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\TaiGerOrg\EditorPage.tsx
+  211:8  warning  React Hook useMemo has an unnecessary dependency: 'user'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\TaiGerOrg\InternalDashboard\ResponseTimeDashboardTab.tsx
+  409:8  warning  React Hook useEffect has missing dependencies: 'searchParams' and 'setSearchParams'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\TaiGerOrg\InternalDashboard\index.tsx
+  81:30  error  React Hook "useMemo" is called conditionally. React Hooks must be called in the exact same order in every component render  react-hooks/rules-of-hooks
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\Demo\Users\UsersList.tsx
+  304:9  warning  React Hook useMemo has an unnecessary dependency: 'props.readOnly'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\components\ChatList\index.tsx
+  133:8  warning  React Hook useEffect has missing dependencies: 'chatListState.searchMode' and 'fetchSearchResults'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\components\EditorJs\EditorNew.tsx
+  45:9   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\components\EditorJs\EditorNew.tsx:45:9
+  43 |
+  44 |     useEffect(() => {
+> 45 |         setEditorState(props.editorState ?? { time: 0, blocks: [] });
+     |         ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  46 |     }, [props.editorState]);
+  47 |
+  48 |     useEffect(() => {                                                                                                                                                                                               react-hooks/set-state-in-effect
+  48:15  error    Error: Cannot modify local variables after render completes
+
+This argument is a function which may reassign or mutate `editor` after render, which can cause inconsistent behavior on subsequent renders. Consider using state instead.
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\components\EditorJs\EditorNew.tsx:48:15
+   46 |     }, [props.editorState]);
+   47 |
+>  48 |     useEffect(() => {
+      |               ^^^^^^^
+>  49 |         const initEditor = () => {
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  50 |             editor = new EditorJS({
+      ÔÇª
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 216 |         };
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 217 |     }, [props.editorState]);
+      | ^^^^^^ This function may (indirectly) reassign or modify `editor` after render
+  218 |
+  219 |     return (
+  220 |         <>
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\components\EditorJs\EditorNew.tsx:50:13
+  48 |     useEffect(() => {
+  49 |         const initEditor = () => {
+> 50 |             editor = new EditorJS({
+     |             ^^^^^^ This modifies `editor`
+  51 |                 holder: 'editorjs',
+  52 |                 logLevel: 'ERROR',
+  53 |                 data: props.editorState,  react-hooks/immutability
+  50:22  warning  Assignments to the 'editor' variable from inside React Hook useEffect will be lost after each render. To preserve the value over time, store it in a useRef Hook and keep the mutable value in the '.current' property. Otherwise, you can move this variable directly inside useEffect                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  react-hooks/exhaustive-deps
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\components\EditorJs\EditorNote.tsx
+  126:15  error    Error: Cannot modify local variables after render completes
+
+This argument is a function which may reassign or mutate `editor` after render, which can cause inconsistent behavior on subsequent renders. Consider using state instead.
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\components\EditorJs\EditorNote.tsx:126:15
+  124 |     };
+  125 |
+> 126 |     useEffect(() => {
+      |               ^^^^^^^
+> 127 |         const initEditor = () => {
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 128 |             editor = new EditorJS(
+      ÔÇª
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 140 |         };
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 141 |     }, []);
+      | ^^^^^^ This function may (indirectly) reassign or modify `editor` after render
+  142 |
+  143 |     return <div id={`${props.holder}`} />;
+  144 | };
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\components\EditorJs\EditorNote.tsx:128:13
+  126 |     useEffect(() => {
+  127 |         const initEditor = () => {
+> 128 |             editor = new EditorJS(
+      |             ^^^^^^ This modifies `editor`
+  129 |                 configuration as Parameters<typeof EditorJS>[0]
+  130 |             ) as EditorJS;
+  131 |         };  react-hooks/immutability
+  128:22  warning  Assignments to the 'editor' variable from inside React Hook useEffect will be lost after each render. To preserve the value over time, store it in a useRef Hook and keep the mutable value in the '.current' property. Otherwise, you can move this variable directly inside useEffect                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                react-hooks/exhaustive-deps
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\components\EditorJs\EditorSimple.tsx
+  176:15  error    Error: Cannot modify local variables after render completes
+
+This argument is a function which may reassign or mutate `editor` after render, which can cause inconsistent behavior on subsequent renders. Consider using state instead.
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\components\EditorJs\EditorSimple.tsx:176:15
+  174 |     };
+  175 |
+> 176 |     useEffect(() => {
+      |               ^^^^^^^
+> 177 |         const initEditor = () => {
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 178 |             editor = new EditorJS(
+      ÔÇª
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 190 |         };
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 191 |     }, [props.editorState]);
+      | ^^^^^^ This function may (indirectly) reassign or modify `editor` after render
+  192 |
+  193 |     return <div id={`${props.holder}`} />;
+  194 | };
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\components\EditorJs\EditorSimple.tsx:178:13
+  176 |     useEffect(() => {
+  177 |         const initEditor = () => {
+> 178 |             editor = new EditorJS(
+      |             ^^^^^^ This modifies `editor`
+  179 |                 fullConfig as Parameters<typeof EditorJS>[0]
+  180 |             ) as EditorJS;
+  181 |         };  react-hooks/immutability
+  178:22  warning  Assignments to the 'editor' variable from inside React Hook useEffect will be lost after each render. To preserve the value over time, store it in a useRef Hook and keep the mutable value in the '.current' property. Otherwise, you can move this variable directly inside useEffect                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  react-hooks/exhaustive-deps
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\components\Message\MessageCard.tsx
+  114:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\components\Message\MessageCard.tsx:114:9
+  112 |             initialEditorState = { time: Date.now(), blocks: [] };
+  113 |         }
+> 114 |         setMessageState((prevState) => ({
+      |         ^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  115 |             ...prevState,
+  116 |             editorState: initialEditorState,
+  117 |             ConvertedContent: initialEditorState,  react-hooks/set-state-in-effect
+
+Ô£û 62 problems (29 errors, 33 warnings)
+

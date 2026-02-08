@@ -31,12 +31,6 @@ import {
 const InternalDashboard = () => {
     const { user } = useAuth();
     const { hash } = useLocation();
-
-    // Early return for permission check - must be before other hooks
-    if (!is_TaiGer_role(user)) {
-        return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
-    }
-
     const [value, setValue] = useState(
         INTERNAL_DASHBOARD_TABS[hash.replace('#', '')] || 0
     );
@@ -77,6 +71,10 @@ const InternalDashboard = () => {
         ...getStatisticsResponseTimeQuery(),
         enabled: value === 3 // Only load when Response Time tab is active
     });
+
+    if (!is_TaiGer_role(user)) {
+        return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
+    }
 
     // Process KPI data only when KPI tab data is available
     // useMemo must be called before any conditional returns

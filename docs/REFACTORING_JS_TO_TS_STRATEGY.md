@@ -48,6 +48,24 @@ Fix one category across the repo, then run npx tsc --noEmit before the next. Pre
 
 ---
 
+## 0. Shared interfaces and where to add them
+
+**Location:** `src/api/types.ts`
+
+Use these when typing components, API callbacks, and auth:
+
+| Use case | Interface / type |
+|----------|------------------|
+| User from `useAuth()` | `AuthContextValue` (full context), `AuthUserData` (user object) |
+| Items in `student.applications` | `Application` (from api/types or @taiger-common/core) |
+| API response shape | `ApiResponse<T>`, or response types like `GetStudentsResponse`, `GetProgramResponse` |
+| Login/credentials | `LoginCredentials`, `ResetPasswordPayload`, `ForgotPasswordPayload` |
+| Component props | Prefer `ComponentNameProps` in the component file; extend or reuse api types when the prop is an API entity |
+
+**When you need a new shared type:** Add it to `src/api/types.ts` if it is used by more than one module or matches an API/domain concept. Keep component-specific props in the component file (e.g. `ProgramListProps` in `ProgramList.tsx`).
+
+---
+
 ## 1. Implicit `any` on callback/function parameters
 
 ### 1.1 Event handlers – parameter `e` (and similar)
@@ -354,7 +372,71 @@ Do these in order so later steps don’t re-trigger earlier errors:
 
 ---
 
-## 7. Quick reference – where types live in this project
+## 7. Centralized API types and component usage
+
+### 7.1 API types (`src/api/types.ts`)
+
+API response interfaces are centralized in `src/api/types.ts` and reused across the codebase:
+
+| API function | Response type | Used in |
+|--------------|---------------|---------|
+| `verifyV2()` | `AuthVerifyResponse` | AuthProvider |
+| `getUsersOverview()` | `GetUsersOverviewResponse` | StudentDatabaseOverview |
+| `getUsersCount()` | `GetUsersCountResponse` | UsersTable |
+| `getStudentsV3()` | `GetStudentsResponse` | Students list, loaders |
+| `getApplications()` | `GetApplicationsResponse` | AdmissionsOverview, loaders |
+| `getAdmissions()` | `GetAdmissionsResponse` | Admissions |
+| `getAdmissionsOverview()` | `GetAdmissionsOverviewResponse` | Admissions |
+| `getProgramV2()` | `GetProgramResponse` | SingleProgram, ProgramLoader |
+| `getProgramsV2()` | `GetProgramsResponse` | Programs list |
+| `getProgramsOverview()` | `GetProgramsOverviewResponse` | Overviews |
+| `getCommunicationThreadV2()` | `GetCommunicationThreadResponse` | Communication |
+| `getMyCommunicationThreadV2()` | `GetMyCommunicationThreadResponse` | My communication |
+| `getStudentMeetings()` | `GetStudentMeetingsResponse` | MeetingList, MeetingTab |
+| `getStudentMeeting()` | `GetStudentMeetingResponse` | MeetingFormModal |
+
+**Entity types** (used in components): `MeetingResponse`, `IStudentResponse`, `Application`, `ProgramResponse`, `AgentResponse`, `CommunicationResponse`, `EventResponse`, `InterviewResponse`, `DocumentThreadResponse`, `DocumentThreadMessage`, `AdmissionsStatRow`, `OpenTaskRow`.
+
+### 7.2 Components with typed props (API data)
+
+| Component | Props interface | API type used |
+|-----------|-----------------|---------------|
+| `MeetingList` | `MeetingListProps` | `MeetingResponse[]` |
+| `MeetingCard` | `MeetingCardProps` | `MeetingResponse` |
+| `MeetingFormModal` | `MeetingFormModalProps` | `MeetingResponse`, `IStudentResponse` |
+| `MeetingTab` | `MeetingTabProps` | `StudentId`, `IStudentResponse`, `EventResponse` |
+| `SingleProgram` | loader data | `GetProgramResponse` |
+| `ApplicationOverviewTabs` | `ApplicationOverviewTabsProps` | `IStudentResponse[]`, `IApplicationWithId[]` |
+| `AdmissionsStat` | `AdmissionsStatProps` | `AdmissionsStatRow[]` |
+| `UsersList` | `UsersListProps` | `QueryString` |
+| `AddUserModal` | `AddUserModalProps` | — |
+| `UsersListSubpage` | `UsersListSubpageProps` | — |
+| `FileItem` | `FileItemProps` | `DocumentThreadMessage` |
+| `FilesList` | `FilesListProps` | `DocumentThreadResponse` |
+| `EssayOverview` | `EssayOverviewProps` | `OpenTaskRow[]` |
+| `CVMLRLOverview` | `CVMLRLOverviewProps` | `OpenTaskRow[]` |
+| `CVMLRLDashboard` | `CVMLRLDashboardProps` | `OpenTaskRow[]`, `AuthUserData` |
+| `UserDeleteWarning` | `UserDeleteWarningProps` | — |
+| `UserArchivWarning` | `UserArchivWarningProps` | — |
+| `DocPageView` | `DocPageViewProps` | — |
+| `ProgramList` | `ProgramListProps` | `IStudentResponse` |
+| `UniAssistProgramBlock` | `UniAssistProgramBlockProps` | `Application`, `IStudentResponse` |
+| `UniAssistListCard` | `UniAssistListCardProps` | `IStudentResponse` |
+| `HighlightTextDiff` | `HighlightTextDiffProps` | — |
+| `MessageEdit` | `MessageEditProps` | — |
+| `StudentItem` | `StudentItemProps` | — |
+| `ThreadItem` | `ThreadItemProps` | — |
+| `StudentApplicationsAssignProgramlistPage` | `StudentApplicationsAssignProgramlistPageProps` | `IStudentResponse` |
+
+### 7.3 Still to wire up
+
+- `dataLoader.ts` – type loader return values with `GetProgramResponse` etc.
+- `ManualFilesList` and other components with untyped props
+- Other API functions in `index.ts` still using `request.get/post` – add response types where applicable
+
+---
+
+## 8. Quick reference – where types live in this project
 
 | Use case | Import from / define in |
 |----------|-------------------------|
@@ -362,12 +444,13 @@ Do these in order so later steps don’t re-trigger earlier errors:
 | ApplicationProps (decided, closed, admission) | `import { ApplicationProps } from '@taiger-common/core';` or from `api/types` if re-exported |
 | Auth user | `import type { AuthUserData } from '../../api/types';` |
 | API response | `import type { ApiResponse } from '../../api/types';` |
+| Meeting data | `import type { MeetingResponse } from '../../api/types';` |
 | Event types | `React.ChangeEvent<HTMLInputElement>`, etc. (no extra import if you use `React.` from 'react') |
 | MUI Select change | `import type { SelectChangeEvent } from '@mui/material';` |
 
 ---
 
-## 8. Commands
+## 9. Commands
 
 ```bash
 # List all TypeScript errors

@@ -20,11 +20,12 @@ import { getAdmissionsQuery } from '../../api/query';
 import { BreadcrumbsNavigation } from '../../components/BreadcrumbsNavigation/BreadcrumbsNavigation';
 import { useEffect, useMemo, useState, type SyntheticEvent } from 'react';
 
+const TAB_KEYS = ['overview', 'application', 'student', 'program'];
+
 const Admissions = () => {
     const { user } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
-    const TAB_KEYS = ['overview', 'application', 'student', 'program'];
 
     // Read search params from router location
     const searchParams = useMemo(

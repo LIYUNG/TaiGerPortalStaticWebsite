@@ -234,6 +234,8 @@ export const ProgramsTable = ({ isLoading, data, student }) => {
         setOpenAssignDialog(false);
     };
 
+    /* material-react-table expects toolbar to be assigned to options */
+    // eslint-disable-next-line react-hooks/immutability
     table.options.renderTopToolbar = (
         <TopToolbar
             onAssignClick={handleAssignClick}

@@ -240,12 +240,15 @@ const EditorDocsProgress = (props) => {
         res_modal_status: 0
     });
     useEffect(() => {
-        setEditorDocsProgressState((prevState) => ({
-            ...prevState,
-            isLoaded: true,
-            student: props.student
-        }));
-    }, [props.student._id]);
+        const student = props.student;
+        queueMicrotask(() => {
+            setEditorDocsProgressState((prevState) => ({
+                ...prevState,
+                isLoaded: true,
+                student
+            }));
+        });
+    }, [props.student]);
 
     const closeSetProgramStatusModel = () => {
         setEditorDocsProgressState((prevState) => ({

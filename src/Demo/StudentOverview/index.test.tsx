@@ -1,4 +1,4 @@
-import { render, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import type { ReactElement } from 'react';
 import StudentOverviewPage from '.';
 import { useAuth } from '../../components/AuthProvider/index';
@@ -48,29 +48,27 @@ const routes = [
 
 describe('StudentOverviewPage', () => {
     window.ResizeObserver = ResizeObserver;
-    test(
-        'StudentOverview page not crash',
-        async () => {
-            vi.mocked(getActiveStudents).mockResolvedValue({ data: mockSingleData });
-            vi.mocked(useAuth).mockReturnValue({
-                user: { role: 'Agent', _id: '639baebf8b84944b872cf648' },
-                isAuthenticated: true,
-                isLoaded: true,
-                login: () => {},
-                logout: () => {}
-            } as AuthContextValue);
-            const router = createMemoryRouter(routes, {
-                initialEntries: ['/students-overview/all']
-            });
-            renderWithQueryClient(<RouterProvider router={router} />);
+    test('StudentOverview page not crash', async () => {
+        vi.mocked(getActiveStudents).mockResolvedValue({ data: mockSingleData });
+        vi.mocked(useAuth).mockReturnValue({
+            user: { role: 'Agent', _id: '639baebf8b84944b872cf648' },
+            isAuthenticated: true,
+            isLoaded: true,
+            login: () => {},
+            logout: () => {}
+        } as AuthContextValue);
+        const router = createMemoryRouter(routes, {
+            initialEntries: ['/students-overview/all']
+        });
+        renderWithQueryClient(<RouterProvider router={router} />);
 
-            await waitFor(
-                () => {
-                    expect(1).toBe(1);
-                },
-                { timeout: 10000 }
-            );
-        },
-        10000
-    );
+        await waitFor(
+            () => {
+                expect(
+                    screen.getByTestId('student_overview')
+                ).toBeInTheDocument();
+            },
+            { timeout: 5000 }
+        );
+    });
 });

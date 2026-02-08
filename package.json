@@ -82,6 +82,7 @@
         "translations-scan": "i18next-scanner --config i18next-scanner.config.engine.cjs",
         "test": "vitest",
         "test:ci": "vitest run",
+        "typecheck": "tsc --noEmit",
         "test:coverage": "vitest run --coverage",
         "prebuild": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
         "prepare": "husky",

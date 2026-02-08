@@ -4,8 +4,13 @@ import { isProgramDecided } from '@taiger-common/core';
 
 import { check_student_needs_uni_assist } from '../Utils/util_functions';
 import { UniAssistProgramBlock } from './UniAssistProgramBlock';
+import type { IStudentResponse } from '../../api/types';
 
-const UniAssistListCard = (props) => {
+export interface UniAssistListCardProps {
+    student: IStudentResponse;
+}
+
+const UniAssistListCard = (props: UniAssistListCardProps) => {
     const { t } = useTranslation();
 
     const app_name = props.student.applications

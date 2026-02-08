@@ -56,12 +56,12 @@ const MeetingPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
 
     const { user } = useAuth();
+    const { data, isLoading } = useQuery(getCRMMeetingQuery(meetingId));
+    const { data: leadsData } = useQuery(getCRMLeadsQuery());
+
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
-
-    const { data, isLoading } = useQuery(getCRMMeetingQuery(meetingId));
-    const { data: leadsData } = useQuery(getCRMLeadsQuery());
     const meeting = data?.data?.data || {};
     const meetingTitle = sanitizeMeetingTitle(meeting.title || 'N/A');
     const leads = leadsData?.data?.data || [];

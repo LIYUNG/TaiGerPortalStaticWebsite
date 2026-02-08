@@ -26,10 +26,13 @@ const NotesCard = (props: NotesCardProps) => {
     });
 
     useEffect(() => {
-        setNotesCardState((prevState) => ({
-            ...prevState,
-            isLoaded: props.isLoaded
-        }));
+        const isLoaded = props.isLoaded;
+        queueMicrotask(() => {
+            setNotesCardState((prevState) => ({
+                ...prevState,
+                isLoaded
+            }));
+        });
     }, [props.isLoaded]);
 
     const handleEditorChange = (content: unknown) => {

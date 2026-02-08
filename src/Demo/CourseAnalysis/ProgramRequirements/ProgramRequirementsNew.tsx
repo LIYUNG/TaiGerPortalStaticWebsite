@@ -168,7 +168,7 @@ const ProgramRequirementsNew = ({ programsAndCourseKeywordSets }) => {
                     navigate(DEMO.PROGRAM_ANALYSIS);
                 }
             }
-        } catch (e) {
+        } catch {
             alert(`Creation Failed: server issue`);
             setIsSubmitting(false);
         }

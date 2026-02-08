@@ -17,7 +17,12 @@ const useHighlightColors = () => {
     return { addTextColor, addTextBg, removeTextColor, removeTextBg };
 };
 
-const HighlightTextDiff = ({ original = '', updated = '' }) => {
+export interface HighlightTextDiffProps {
+    original?: string;
+    updated?: string;
+}
+
+const HighlightTextDiff = ({ original = '', updated = '' }: HighlightTextDiffProps) => {
     const { addTextColor, addTextBg, removeTextColor, removeTextBg } =
         useHighlightColors();
 

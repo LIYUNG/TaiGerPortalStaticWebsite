@@ -413,7 +413,7 @@ const DocModificationThreadInput = () => {
                         res_status: status
                     }));
                 }
-            } catch (error) {
+            } catch {
                 setDocModificationThreadInputState((prevState) => ({
                     ...prevState,
                     res_status: 500
@@ -544,7 +544,7 @@ const DocModificationThreadInput = () => {
                 ...prevState,
                 res_status: allStatus
             }));
-        } catch (error) {
+        } catch {
             setDocModificationThreadInputState((prevState) => ({
                 ...prevState,
                 res_status: 500

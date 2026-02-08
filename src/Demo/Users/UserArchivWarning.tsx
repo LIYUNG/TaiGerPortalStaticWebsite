@@ -8,7 +8,18 @@ import {
 } from '@mui/material';
 import i18next from 'i18next';
 
-const UserArchivWarning = (props) => {
+export interface UserArchivWarningProps {
+    archivUserWarning: boolean;
+    setModalArchivHide: () => void;
+    firstname: string;
+    lastname: string;
+    isUpdatingArchivUser?: boolean;
+    selected_user_id: string;
+    archiv?: boolean;
+    updateUserArchivStatus: (params: { user_id: string; isArchived: boolean }) => void;
+}
+
+const UserArchivWarning = (props: UserArchivWarningProps) => {
     return (
         <Dialog
             aria-labelledby="contained-modal-title-vcenter"
