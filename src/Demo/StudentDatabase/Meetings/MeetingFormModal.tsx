@@ -14,7 +14,6 @@ import {
 import PersonIcon from '@mui/icons-material/Person';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { useTranslation } from 'react-i18next';
-import PropTypes from 'prop-types';
 
 export const MeetingFormModal = ({
     open,
@@ -275,13 +274,4 @@ export const MeetingFormModal = ({
             </DialogActions>
         </Dialog>
     );
-};
-
-MeetingFormModal.propTypes = {
-    open: PropTypes.bool.isRequired,
-    onClose: PropTypes.func.isRequired,
-    onSave: PropTypes.func.isRequired,
-    meeting: PropTypes.object,
-    isLoading: PropTypes.bool,
-    student: PropTypes.object
 };

@@ -9,7 +9,6 @@ import {
     Breadcrumbs,
     Button
 } from '@mui/material';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 import queryString from 'query-string';
 
@@ -27,12 +26,6 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { queryClient } from '../../api/client';
 import { useSnackBar } from '../../contexts/use-snack-bar';
 import { getUsersCountQuery } from '../../api/query';
-
-CustomTabPanel.propTypes = {
-    children: PropTypes.node,
-    index: PropTypes.number.isRequired,
-    value: PropTypes.number.isRequired
-};
 
 const UsersTable = () => {
     const { user } = useAuth();

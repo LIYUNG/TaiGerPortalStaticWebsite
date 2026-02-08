@@ -1,6 +1,5 @@
 import { SyntheticEvent, useMemo, useState } from 'react';
 import { Link, Tabs, Tab, Box, Typography, Card, Popover } from '@mui/material';
-import PropTypes from 'prop-types';
 import { Link as LinkDom } from 'react-router-dom';
 import {
     is_TaiGer_role,
@@ -25,12 +24,6 @@ import useStudents from '../../hooks/useStudents';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { DECISION_STATUS_E, SUBMISSION_STATUS_E } from '../../utils/contants';
 import { StudentsTable } from '../StudentDatabase/StudentsTable';
-
-CustomTabPanel.propTypes = {
-    children: PropTypes.node,
-    index: PropTypes.number.isRequired,
-    value: PropTypes.number.isRequired
-};
 
 const ApplicationOverviewTabs = ({ students: stds, applications }) => {
     const { user } = useAuth();

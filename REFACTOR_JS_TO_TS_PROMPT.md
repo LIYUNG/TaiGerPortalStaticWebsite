@@ -42,7 +42,6 @@ Use this prompt in Cursor to refactor the **entire** TaiGerPortalStaticWebsite p
 - **i18n**: `react-i18next` + `i18next`; namespaces under `src/i18n/{en,zh-CN,zh-TW}/`.
 - **Context**: `AuthProvider` (`src/components/AuthProvider`), `SnackBarProvider` (`src/contexts/use-snack-bar.js`).
 - **External**: `@taiger-common/core` (workspace package) — keep imports; add `@types` or type declarations only if needed.
-- **PropTypes**: Used in ~16 files (e.g. `Demo/StudentDatabase/Meetings/MeetingCard.jsx`, `Admissions/AdmissionsTables.js`, `CVMLRLCenter/FileItem.js`). Replace with TypeScript interfaces/types; remove `prop-types` from those files.
 
 ---
 
@@ -138,14 +137,6 @@ Use this prompt in Cursor to refactor the **entire** TaiGerPortalStaticWebsite p
 
 ---
 
-## 6. PropTypes → TypeScript
-
-- In every file that uses `PropTypes`, remove the `prop-types` import and the `*.propTypes` and `*.defaultProps` (if any).
-- Replace with a TypeScript interface (e.g. `interface MeetingCardProps { meeting: Meeting; isPast: boolean; ... }`) and use it for the component’s props. Use optional properties and default parameters instead of `defaultProps` where appropriate.
-- After all such files are converted, you can remove the `prop-types` dependency from `package.json` if it’s unused elsewhere.
-
----
-
 ## 7. Strictness and Pitfalls
 
 - Avoid `any` unless necessary (e.g. third-party with no types). Prefer `unknown` and type guards when the shape is unclear.
@@ -178,8 +169,7 @@ After refactor:
 1. Apply **Section 3** (config) and **Section 5** (shared types / `react-app-env.d.ts`, `api/types.ts`, `taiger-common.d.ts`) in one pass.
 2. Convert entry and app shell (**Section 4**, steps 2–3), then store, API, config, contexts, hooks, i18n, menu.
 3. Convert `src/components` and then `src/Demo` in batches (e.g. by folder). After each batch, run `npm run build` and fix errors.
-4. Replace PropTypes in the 16 files and remove `prop-types` where unused (**Section 6**).
-5. Run full build, tests, and lint; fix remaining type and lint issues.
-6. Set `allowJs: false`, fix any stragglers, then run the **Section 8** checklist again.
+4. Run full build, tests, and lint; fix remaining type and lint issues.
+5. Set `allowJs: false`, fix any stragglers, then run the **Section 8** checklist again.
 
 Use this prompt as the single source of requirements for the TaiGerPortalStaticWebsite JavaScript → TypeScript refactor.

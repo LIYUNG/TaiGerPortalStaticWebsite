@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react';
 import { Tabs, Tab, Box, Typography, Breadcrumbs } from '@mui/material';
-import PropTypes from 'prop-types';
 import { Navigate, Link as LinkDom, useLocation } from 'react-router-dom';
 import { Link } from '@mui/material';
 import { is_TaiGer_role } from '@taiger-common/core';
@@ -28,12 +27,6 @@ import {
     getStatisticsKPIQuery,
     getStatisticsResponseTimeQuery
 } from '../../../api/query';
-
-CustomTabPanel.propTypes = {
-    children: PropTypes.node,
-    index: PropTypes.number.isRequired,
-    value: PropTypes.number.isRequired
-};
 
 const InternalDashboard = () => {
     const { user } = useAuth();

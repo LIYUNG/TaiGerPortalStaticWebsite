@@ -1,8 +1,6 @@
-import React from 'react';
 import { Box, Typography, Divider } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { MeetingCard } from './MeetingCard';
-import PropTypes from 'prop-types';
 
 export const MeetingList = ({
     meetings = [],
@@ -88,12 +86,4 @@ export const MeetingList = ({
             )}
         </Box>
     );
-};
-
-MeetingList.propTypes = {
-    meetings: PropTypes.array,
-    onEdit: PropTypes.func,
-    onDelete: PropTypes.func,
-    onConfirm: PropTypes.func,
-    showActions: PropTypes.bool
 };

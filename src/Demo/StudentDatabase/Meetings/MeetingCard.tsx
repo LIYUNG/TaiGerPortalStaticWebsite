@@ -21,7 +21,6 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import LaunchIcon from '@mui/icons-material/Launch';
 import { useTranslation } from 'react-i18next';
-import PropTypes from 'prop-types';
 
 export const MeetingCard = ({
     meeting,
@@ -279,13 +278,4 @@ export const MeetingCard = ({
             </CardContent>
         </Card>
     );
-};
-
-MeetingCard.propTypes = {
-    meeting: PropTypes.object.isRequired,
-    isPast: PropTypes.bool,
-    onEdit: PropTypes.func,
-    onDelete: PropTypes.func,
-    onConfirm: PropTypes.func,
-    showActions: PropTypes.bool
 };

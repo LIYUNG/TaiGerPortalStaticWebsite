@@ -1,7 +1,5 @@
-/* eslint-disable react/prop-types */
 import { useEffect, useMemo, useState } from 'react';
 import { Tabs, Tab, Box } from '@mui/material';
-import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -9,12 +7,6 @@ import { CustomTabPanel, a11yProps } from '../../components/Tabs';
 import { useTranslation } from 'react-i18next';
 import AdmissionTable from './AdmissionTable';
 import { getAdmissionsOverviewQuery } from '../../api/query';
-
-CustomTabPanel.propTypes = {
-    children: PropTypes.node,
-    index: PropTypes.number.isRequired,
-    value: PropTypes.number.isRequired
-};
 
 const AdmissionsTables = () => {
     const [value, setValue] = useState(0);

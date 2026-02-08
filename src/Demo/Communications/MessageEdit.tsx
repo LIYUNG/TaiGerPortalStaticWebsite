@@ -18,7 +18,6 @@ import { Accordion, Avatar } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useTranslation } from 'react-i18next';
 
-// import Output from 'editorjs-react-renderer';
 import EditorSimple from '../../components/EditorJs/EditorSimple';
 import { stringAvatar, convertDate } from '../../utils/contants';
 import Loading from '../../components/Loading/Loading';

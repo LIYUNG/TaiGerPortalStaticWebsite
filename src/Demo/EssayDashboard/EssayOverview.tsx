@@ -14,7 +14,6 @@ import StarBorderRoundedIcon from '@mui/icons-material/StarBorderRounded';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
-import PropTypes from 'prop-types';
 import { is_TaiGer_role } from '@taiger-common/core';
 
 import ModalMain from '../Utils/ModalHandler/ModalMain';
@@ -27,12 +26,6 @@ import DEMO from '../../store/constant';
 import { ATTRIBUTES, COLORS } from '../../utils/contants';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { APPROVAL_COUNTRIES } from '../Utils/util_functions';
-
-CustomTabPanel.propTypes = {
-    children: PropTypes.node,
-    index: PropTypes.number.isRequired,
-    value: PropTypes.number.isRequired
-};
 
 const EssayOverview = (props) => {
     const { user } = useAuth();

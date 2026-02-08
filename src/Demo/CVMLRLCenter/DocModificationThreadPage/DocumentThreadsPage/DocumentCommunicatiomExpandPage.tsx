@@ -147,8 +147,7 @@ const StudentItem = ({ student, selectedStudentId, onClick }) => {
                     />
                     {highlightItem ? (
                         <FiberManualRecordIcon
-                            fontSize="tiny"
-                            title="Not Reply Yet"
+                            fontSize="small"
                         />
                     ) : null}
                 </Stack>
@@ -250,8 +249,7 @@ const ThreadItem = ({ thread, onClick }) => {
 
                     {highlightItem ? (
                         <FiberManualRecordIcon
-                            fontSize="tiny"
-                            title="Not Reply Yet"
+                            fontSize="small"
                         />
                     ) : null}
                 </Stack>

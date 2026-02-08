@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link as LinkDom, useLocation } from 'react-router-dom';
 import { Tabs, Tab, Box, Typography, Link, Tooltip, Chip } from '@mui/material';
-import PropTypes from 'prop-types';
 import IconButton from '@mui/material/IconButton';
 import StarBorderRoundedIcon from '@mui/icons-material/StarBorderRounded';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
@@ -24,12 +23,6 @@ import { useTranslation } from 'react-i18next';
 import { MuiDataGrid } from '../../components/MuiDataGrid';
 import DEMO from '../../store/constant';
 import { APPROVAL_COUNTRIES } from '../Utils/util_functions';
-
-CustomTabPanel.propTypes = {
-    children: PropTypes.node,
-    index: PropTypes.number.isRequired,
-    value: PropTypes.number.isRequired
-};
 
 const CVMLRLOverview = (props) => {
     const { user } = useAuth();

@@ -1,5 +1,4 @@
 import { Box, Typography } from '@mui/material';
-import PropTypes from 'prop-types';
 
 import FileItem from './FileItem';
 
@@ -36,17 +35,6 @@ const FilesList = ({ thread }) => {
             ))}
         </Box>
     );
-};
-
-FilesList.propTypes = {
-    thread: PropTypes.shape({
-        messages: PropTypes.arrayOf(
-            PropTypes.shape({
-                _id: PropTypes.string.isRequired,
-                file: PropTypes.array
-            })
-        )
-    })
 };
 
 export default FilesList;

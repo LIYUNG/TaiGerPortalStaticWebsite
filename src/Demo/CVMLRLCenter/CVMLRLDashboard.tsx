@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 import { Tabs, Tab, Box, Typography } from '@mui/material';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import { c1_mrt } from '../../utils/contants';
@@ -8,12 +7,6 @@ import ModalMain from '../Utils/ModalHandler/ModalMain';
 import Banner from '../../components/Banner/Banner';
 import { CustomTabPanel, a11yProps } from '../../components/Tabs';
 import ExampleWithLocalizationProvider from '../../components/MaterialReactTable';
-
-CustomTabPanel.propTypes = {
-    children: PropTypes.node,
-    index: PropTypes.number.isRequired,
-    value: PropTypes.number.isRequired
-};
 
 const CVMLRLDashboard = (props) => {
     const { t } = useTranslation();

@@ -8,6 +8,7 @@ export default defineConfig({
     },
     build: {
         outDir: 'dist',
+        minify: 'esbuild',
         sourcemap: true,
         chunkSizeWarningLimit: 800,
         rollupOptions: {
@@ -17,9 +18,9 @@ export default defineConfig({
                         if (id.includes('@mui/icons-material')) {
                             return 'vendor-mui-icons';
                         }
+                        if (id.includes('@emotion')) { return 'vendor-emotion'; }
                         if (
-                            id.includes('@mui') ||
-                            id.includes('@emotion')
+                            id.includes('@mui')
                         ) {
                             return 'vendor-mui';
                         }
@@ -46,8 +47,7 @@ export default defineConfig({
                             return 'vendor-i18n';
                         }
                         if (
-                            id.includes('react-big-calendar') ||
-                            id.includes('@aldabil/react-scheduler')
+                            id.includes('react-big-calendar')
                         ) {
                             return 'vendor-calendar';
                         }

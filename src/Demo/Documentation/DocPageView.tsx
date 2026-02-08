@@ -1,4 +1,3 @@
-import React from 'react';
 import { Button, Card, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { is_TaiGer_AdminAgent } from '@taiger-common/core';
@@ -6,7 +5,6 @@ import { is_TaiGer_AdminAgent } from '@taiger-common/core';
 import EditorNew from '../../components/EditorJs/EditorNew';
 import { convertDate } from '../../utils/contants';
 // import Blocks from 'editorjs-blocks-react-renderer';
-// import Output from 'editorjs-react-renderer';
 import { useAuth } from '../../components/AuthProvider';
 
 const DocPageView = (props) => {

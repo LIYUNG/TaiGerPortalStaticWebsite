@@ -1,19 +1,10 @@
-/* eslint-disable react/prop-types */
 import { useMemo } from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import { Link } from '@mui/material';
-import PropTypes from 'prop-types';
 
 import DEMO from '../../store/constant';
-import { CustomTabPanel } from '../../components/Tabs';
 import { useTranslation } from 'react-i18next';
 import { MuiDataGrid } from '../../components/MuiDataGrid';
-
-CustomTabPanel.propTypes = {
-    children: PropTypes.node,
-    index: PropTypes.number.isRequired,
-    value: PropTypes.number.isRequired
-};
 
 const AdmissionsStat = ({ result }) => {
     const { t } = useTranslation();

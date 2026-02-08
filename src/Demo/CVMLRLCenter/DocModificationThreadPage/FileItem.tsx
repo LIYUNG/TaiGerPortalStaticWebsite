@@ -1,7 +1,6 @@
 import { Link as LinkDom } from 'react-router-dom';
 import { Card, Link, Box, Typography } from '@mui/material';
 import { FileIcon, defaultStyles } from 'react-file-icon';
-import PropTypes from 'prop-types';
 
 import { BASE_URL } from '../../../api/request';
 
@@ -65,21 +64,6 @@ const FileItem = ({ message }) => {
     });
 
     return filesInfo;
-};
-
-FileItem.propTypes = {
-    message: PropTypes.shape({
-        file: PropTypes.arrayOf(
-            PropTypes.shape({
-                name: PropTypes.string.isRequired,
-                path: PropTypes.string.isRequired
-            })
-        ),
-        user_id: PropTypes.shape({
-            firstname: PropTypes.string,
-            lastname: PropTypes.string
-        })
-    })
 };
 
 export default FileItem;

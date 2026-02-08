@@ -29,7 +29,6 @@ import {
     Badge,
     CircularProgress
 } from '@mui/material';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getLeadIdByUserId, createLeadFromStudent } from '../../api';
@@ -76,12 +75,6 @@ import Audit from '../Audit';
 import EnglishCertificateExpiredBeforeDeadlineBanner from '../../components/Banner/EnglishCertificateExpiredBeforeDeadlineBanner';
 import { getStudentAndDocLinksQuery } from '../../api/query';
 import { MeetingTab } from './MeetingTab';
-
-CustomTabPanel.propTypes = {
-    children: PropTypes.node,
-    index: PropTypes.number.isRequired,
-    value: PropTypes.number.isRequired
-};
 
 export const SingleStudentPageMainContent = ({
     survey_link,

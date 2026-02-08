@@ -31,7 +31,6 @@ import {
 import { MeetingList } from './Meetings/MeetingList';
 import { MeetingFormModal } from './Meetings/MeetingFormModal';
 import { ConfirmationModal } from '../../components/Modal/ConfirmationModal';
-import PropTypes from 'prop-types';
 
 // Helper function to transform Event data to Meeting display format
 const transformEventToMeeting = (event) => {
@@ -586,7 +585,3 @@ export const MeetingTab = ({ studentId, student }) => {
     );
 };
 
-MeetingTab.propTypes = {
-    studentId: PropTypes.string.isRequired,
-    student: PropTypes.object
-};
