@@ -5,7 +5,8 @@ import { useAuth } from '../../components/AuthProvider';
 import {
     createMemoryRouter,
     RouterProvider,
-    useParams
+    useParams,
+    defer
 } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -49,12 +50,13 @@ const routes = [
         element: <SingleProgram />,
         errorElement: <div>Error</div>,
         loader: () => {
-            return {
-                studentAndEssaysAndInterview: {
-                    data: [],
-                    essays: { data: [] }
-                }
-            };
+            return defer({
+                data: Promise.resolve({
+                    data: mockSingleProgramNoStudentsData.data,
+                    students: [],
+                    vc: []
+                })
+            });
         }
     }
 ];

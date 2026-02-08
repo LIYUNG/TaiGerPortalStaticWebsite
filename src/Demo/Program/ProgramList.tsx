@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link as LinkDom, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Breadcrumbs, Link, Typography, Box, Button } from '@mui/material';

@@ -20,12 +20,13 @@ import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '../../store/constant';
-import ProgramList from '../Program/ProgramList';
 import { appConfig } from '../../config';
 import { useAuth } from '../../components/AuthProvider';
 import Loading from '../../components/Loading/Loading';
 import { ImportStudentProgramsCard } from './ImportStudentProgramsCard';
 import { StudentPreferenceCard } from './StudentPreferenceCard';
+
+const ProgramList = React.lazy(() => import('../Program/ProgramList'));
 
 const StudentApplicationsAssignProgramlistPage = (props) => {
     const { user } = useAuth();
