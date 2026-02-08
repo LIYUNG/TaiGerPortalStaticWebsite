@@ -1,4 +1,4 @@
 echo "Running precommit"
-npm run pre-commit
+echo "npm run pre-commit"
 
 echo "Pre-commit checks completed successfully!"

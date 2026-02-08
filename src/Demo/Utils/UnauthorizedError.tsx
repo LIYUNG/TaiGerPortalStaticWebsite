@@ -1,0 +1,15 @@
+import { Box, Card } from '@mui/material';
+
+import { appConfig } from '../../config';
+
+const UnauthorizedError = () => {
+    return (
+        <Box>
+            <Card>
+                Permission Denied. 請跟您的 {appConfig.companyName} 顧問聯繫
+            </Card>
+        </Box>
+    );
+};
+
+export default UnauthorizedError;
