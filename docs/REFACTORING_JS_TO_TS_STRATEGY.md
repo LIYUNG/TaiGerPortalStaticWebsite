@@ -315,20 +315,6 @@ if (user != null) {
 
 ## 5. Modules and declarations
 
-### 5.1 Cannot find module 'date-fns' (or similar)
-
-**Error:** `Cannot find module 'date-fns' or its corresponding type declarations.`
-
-**Fix:** Install types if they exist:
-
-```bash
-npm install --save-dev @types/date-fns
-```
-
-If the package ships its own types, ensure `node_modules` is up to date and `tsconfig` doesn’t exclude it.
-
----
-
 ### 5.2 Global types (e.g. Jest, i18next)
 
 **Fix:** Use a `.d.ts` file (e.g. `src/react-app-env.d.ts` or `src/jest-globals.d.ts`) and ensure `tsconfig.json` includes it. For Jest, `"types": ["node", "jest"]` is usually enough.
