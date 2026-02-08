@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { CustomThemeProvider } from './index';
 
 describe('CustomThemeProvider', () => {
-    it('renders children without crashing', () => {
+    test('renders children without crashing', () => {
         render(
             <CustomThemeProvider>
                 <div>Child content</div>

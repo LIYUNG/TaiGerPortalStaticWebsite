@@ -1,4 +1,6 @@
+import type React from 'react';
 import { render, screen } from '@testing-library/react';
+import { DocumentStatusType } from '@taiger-common/core';
 import {
     DownloadIconButton,
     CommentsIconButton,
@@ -8,8 +10,8 @@ import {
 } from './Button';
 
 describe('Buttons', () => {
-    it('DownloadIconButton renders and is clickable', () => {
-        const showPreview = jest.fn();
+    test('DownloadIconButton renders and is clickable', () => {
+        const showPreview = vi.fn(() => {});
         render(<DownloadIconButton showPreview={showPreview} />);
         const button = screen.getByRole('button');
         expect(button).toBeInTheDocument();
@@ -17,8 +19,8 @@ describe('Buttons', () => {
         expect(showPreview).toHaveBeenCalled();
     });
 
-    it('CommentsIconButton renders and calls openCommentWindow on click', () => {
-        const openCommentWindow = jest.fn();
+    test('CommentsIconButton renders and calls openCommentWindow on click', () => {
+        const openCommentWindow = vi.fn((_studentId: string, _category: string) => {});
         render(
             <CommentsIconButton
                 buttonState={{ student_id: 's1' }}
@@ -30,36 +32,55 @@ describe('Buttons', () => {
         expect(openCommentWindow).toHaveBeenCalledWith('s1', 'cv');
     });
 
-    it('DeleteIconButton renders and is disabled when isLoading', () => {
+    test('DeleteIconButton renders and is disabled when isLoading', () => {
+        const onDeleteFileWarningPopUp = vi.fn(
+            (_e: React.MouseEvent, _category: string, _studentId: string, _docName: string) => {}
+        );
         render(
             <DeleteIconButton
                 category="cv"
                 docName="doc.pdf"
                 isLoading={true}
-                onDeleteFileWarningPopUp={jest.fn()}
+                onDeleteFileWarningPopUp={onDeleteFileWarningPopUp}
                 student_id="s1"
             />
         );
         expect(screen.getByRole('button')).toBeDisabled();
     });
 
-    it('SetNotNeededIconButton renders', () => {
+    test('SetNotNeededIconButton renders', () => {
+        const onUpdateProfileDocStatus = vi.fn(
+            (
+                _e: React.MouseEvent,
+                _category: string,
+                _studentId: string,
+                _status: DocumentStatusType
+            ) => {}
+        );
         render(
             <SetNotNeededIconButton
                 buttonState={{ student_id: 's1' }}
                 category="cv"
-                onUpdateProfileDocStatus={jest.fn()}
+                onUpdateProfileDocStatus={onUpdateProfileDocStatus}
             />
         );
         expect(screen.getByRole('button')).toBeInTheDocument();
     });
 
-    it('SetNeededIconButton renders', () => {
+    test('SetNeededIconButton renders', () => {
+        const onUpdateProfileDocStatus = vi.fn(
+            (
+                _e: React.MouseEvent,
+                _category: string,
+                _studentId: string,
+                _status: DocumentStatusType
+            ) => {}
+        );
         render(
             <SetNeededIconButton
                 buttonState={{ student_id: 's1' }}
                 category="cv"
-                onUpdateProfileDocStatus={jest.fn()}
+                onUpdateProfileDocStatus={onUpdateProfileDocStatus}
             />
         );
         expect(screen.getByRole('button')).toBeInTheDocument();

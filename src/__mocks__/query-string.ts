@@ -1,8 +1,8 @@
 // Mock for query-string module
 /* eslint-disable no-undef */
-const parse = jest.fn(() => ({}));
-const stringify = jest.fn(() => '');
-const parseUrl = jest.fn(() => ({ url: '', query: {} }));
+const parse = vi.fn(() => ({}));
+const stringify = vi.fn(() => '');
+const parseUrl = vi.fn(() => ({ url: '', query: {} }));
 
 module.exports = {
     parse,

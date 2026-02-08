@@ -7,12 +7,12 @@ const renderWithRouter = (ui: React.ReactElement) =>
     render(<BrowserRouter>{ui}</BrowserRouter>);
 
 describe('SurveyHeader', () => {
-    it('renders without crashing', () => {
+    test('renders without crashing', () => {
         renderWithRouter(<SurveyHeader title="Survey" />);
         expect(screen.getByText('Survey')).toBeInTheDocument();
     });
 
-    it('renders subtitle when provided', () => {
+    test('renders subtitle when provided', () => {
         renderWithRouter(
             <SurveyHeader subtitle="Subtitle text" title="Survey" />
         );

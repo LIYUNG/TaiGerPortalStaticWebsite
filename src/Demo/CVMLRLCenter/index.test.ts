@@ -7,9 +7,9 @@
 
 // import { mockSingleStudentCVMLRLFormatData } from '../../test/testingStudentDataCVMLRLCenter';
 
-jest.mock('axios');
-jest.mock('../../api');
-jest.mock('../../components/AuthProvider');
+vi.mock('axios');
+vi.mock('../../api');
+vi.mock('../../components/AuthProvider');
 
 class ResizeObserver {
     observe() {}

@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, waitFor } from '@testing-library/react';
 import SingleProgram from './SingleProgram';
 import { getProgram, getProgramTicket } from '../../api';
@@ -12,14 +11,21 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { mockSingleProgramNoStudentsData } from '../../test/testingSingleProgramPageData';
 
-jest.mock('axios');
-jest.mock('../../api');
-jest.mock('react-router-dom', () => ({
-    ...jest.requireActual('react-router-dom'),
-    useParams: jest.fn()
+vi.mock('axios');
+vi.mock('../../api');
+vi.mock('react-router-dom', async (importOriginal) => ({
+    ...(await importOriginal<typeof import('react-router-dom')>()),
+    useParams: vi.fn()
 }));
 
-jest.mock('../../components/AuthProvider');
+vi.mock('../../components/AuthProvider');
+vi.mock('../../contexts/use-snack-bar', () => ({
+    useSnackBar: () => ({
+        setMessage: () => {},
+        setSeverity: () => {},
+        setOpenSnackbar: () => {}
+    })
+}));
 
 const createTestQueryClient = () =>
     new QueryClient({
@@ -62,14 +68,14 @@ class ResizeObserver {
 describe('Single Program Page checking', () => {
     window.ResizeObserver = ResizeObserver;
     test('page not crash', async () => {
-        getProgram.mockResolvedValue({ data: mockSingleProgramNoStudentsData });
-        getProgramTicket.mockResolvedValue({
+        vi.mocked(getProgram).mockResolvedValue({ data: mockSingleProgramNoStudentsData });
+        vi.mocked(getProgramTicket).mockResolvedValue({
             data: { success: true, data: [] }
         });
-        useAuth.mockReturnValue({
+        vi.mocked(useAuth).mockReturnValue({
             user: { role: 'Student', _id: '639baebf8b84944b872cf648' }
         });
-        useParams.mockReturnValue({ programId: '2532fde46751651538084485' });
+        vi.mocked(useParams).mockReturnValue({ programId: '2532fde46751651538084485' });
 
         const router = createMemoryRouter(routes, {
             initialEntries: ['/programs/2532fde46751651538084485']

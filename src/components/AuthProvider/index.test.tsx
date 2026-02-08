@@ -1,14 +1,13 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { AuthProvider } from './index';
 
-jest.mock('../../api/index', () => ({
-    verify: jest.fn().mockResolvedValue({ data: { success: false } }),
-    logout: jest.fn()
+vi.mock('../../api/index', () => ({
+    verify: vi.fn().mockResolvedValue({ data: { success: false } }),
+    logout: vi.fn()
 }));
 
 describe('AuthProvider', () => {
-    it('renders without crashing', () => {
+    test('renders without crashing', () => {
         const { container } = render(
             <AuthProvider>
                 <div>Child</div>

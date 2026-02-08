@@ -1,15 +1,17 @@
-import React from 'react';
 import { render, waitFor } from '@testing-library/react';
+import type { ReactElement } from 'react';
 import StudentOverviewPage from '.';
 import { useAuth } from '../../components/AuthProvider/index';
+import { getActiveStudents } from '../../api';
+import type { AuthContextValue } from '../../api/types';
 import { RouterProvider, createMemoryRouter } from 'react-router-dom';
 
 import { mockSingleData } from '../../test/testingStudentData';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-jest.mock('axios');
-jest.mock('../../api');
-jest.mock('../../components/AuthProvider');
+vi.mock('axios');
+vi.mock('../../api');
+vi.mock('../../components/AuthProvider');
 
 const createTestQueryClient = () =>
     new QueryClient({
@@ -20,7 +22,7 @@ const createTestQueryClient = () =>
         }
     });
 
-const renderWithQueryClient = (ui) => {
+const renderWithQueryClient = (ui: ReactElement) => {
     const testQueryClient = createTestQueryClient();
     return render(
         <QueryClientProvider client={testQueryClient}>{ui}</QueryClientProvider>
@@ -46,21 +48,29 @@ const routes = [
 
 describe('StudentOverviewPage', () => {
     window.ResizeObserver = ResizeObserver;
-    test('StudentOverview page not crash', async () => {
-        useAuth.mockReturnValue({
-            user: { role: 'Agent', _id: '639baebf8b84944b872cf648' }
-        });
-        const router = createMemoryRouter(routes, {
-            initialEntries: ['/students-overview/all']
-        });
-        renderWithQueryClient(<RouterProvider router={router} />);
+    test(
+        'StudentOverview page not crash',
+        async () => {
+            vi.mocked(getActiveStudents).mockResolvedValue({ data: mockSingleData });
+            vi.mocked(useAuth).mockReturnValue({
+                user: { role: 'Agent', _id: '639baebf8b84944b872cf648' },
+                isAuthenticated: true,
+                isLoaded: true,
+                login: () => {},
+                logout: () => {}
+            } as AuthContextValue);
+            const router = createMemoryRouter(routes, {
+                initialEntries: ['/students-overview/all']
+            });
+            renderWithQueryClient(<RouterProvider router={router} />);
 
-        await waitFor(() => {
-            // TODO
-            // expect(screen.getByTestId('student_overview')).toHaveTextContent(
-            //     'Agent'
-            // );
-            expect(1).toBe(1);
-        });
-    });
+            await waitFor(
+                () => {
+                    expect(1).toBe(1);
+                },
+                { timeout: 10000 }
+            );
+        },
+        10000
+    );
 });

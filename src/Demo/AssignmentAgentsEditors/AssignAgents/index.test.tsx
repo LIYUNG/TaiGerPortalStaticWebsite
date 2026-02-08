@@ -8,9 +8,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { mockTwoNoAgentNoStudentsData } from '../../../test/testingNoAgentNoEditorStudentData';
 import { RouterProvider } from 'react-router-dom';
 
-jest.mock('axios');
-jest.mock('../../../api');
-jest.mock('../../../components/AuthProvider');
+vi.mock('axios');
+vi.mock('../../../api');
+vi.mock('../../../components/AuthProvider');
 
 const createTestQueryClient = () =>
     new QueryClient({
@@ -34,13 +34,13 @@ const routes = [
 
 describe('Admin AssignAgents', () => {
     test('admin assign agent not crash', async () => {
-        getProgramTickets.mockResolvedValue({
+        vi.mocked(getProgramTickets).mockResolvedValue({
             data: { success: true, data: [] }
         });
-        getStudentsV3.mockResolvedValue({
+        vi.mocked(getStudentsV3).mockResolvedValue({
             data: { success: true, data: mockTwoNoAgentNoStudentsData }
         });
-        useAuth.mockReturnValue({
+        vi.mocked(useAuth).mockReturnValue({
             user: { role: 'Admin', _id: '609c498ae2f954388837d2f9' }
         });
 
@@ -70,13 +70,13 @@ describe('Admin AssignAgents', () => {
     });
 
     test('students rendered correctly', async () => {
-        getProgramTickets.mockResolvedValue({
+        vi.mocked(getProgramTickets).mockResolvedValue({
             data: { success: true, data: [] }
         });
-        getStudentsV3.mockResolvedValue({
+        vi.mocked(getStudentsV3).mockResolvedValue({
             data: { success: true, data: mockTwoNoAgentNoStudentsData }
         });
-        useAuth.mockReturnValue({
+        vi.mocked(useAuth).mockReturnValue({
             user: { role: 'Admin', _id: '609c498ae2f954388837d2f9' }
         });
 

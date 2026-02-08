@@ -1,16 +1,18 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import UsersTable from './UsersTable';
-import { getUsers } from '../../api';
+import { getUsers, getUsersCount } from '../../api';
 import { useAuth } from '../../components/AuthProvider';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { testingUsersData } from '../../test/testingUsersData';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AuthContextValue } from '../../api/types';
+import { AxiosResponse } from 'axios';
 
-jest.mock('axios');
-jest.mock('../../api');
-jest.mock('../../components/AuthProvider');
+vi.mock('axios');
+vi.mock('../../api');
+vi.mock('../../components/AuthProvider');
 
-jest.mock('../../contexts/use-snack-bar', () => ({
+vi.mock('../../contexts/use-snack-bar', () => ({
     useSnackBar: () => ({
         setMessage: () => {},
         setSeverity: () => {},
@@ -43,11 +45,18 @@ const routes = [
 describe('Users Table page checking', () => {
     window.ResizeObserver = ResizeObserver;
     test('Users Table page not crash', async () => {
-        getUsers.mockResolvedValue({ data: testingUsersData.data });
+        vi.mocked(getUsers).mockResolvedValue({
+            data: testingUsersData.data
+        } as AxiosResponse<typeof testingUsersData.data>);
+        vi.mocked(getUsersCount).mockResolvedValue({ data: { count: 0 } });
 
-        useAuth.mockReturnValue({
-            user: { role: 'Admin', _id: '639baebf8b84944b872cf648' }
-        });
+        vi.mocked(useAuth).mockReturnValue({
+            user: { role: 'Admin', _id: '639baebf8b84944b872cf648' },
+            isAuthenticated: true,
+            isLoaded: true,
+            login: () => {},
+            logout: () => {}
+        } as AuthContextValue);
 
         const testQueryClient = createTestQueryClient();
         const router = createMemoryRouter(routes, {

@@ -1,17 +1,18 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ConfirmationModal } from './ConfirmationModal';
 
 describe('ConfirmationModal', () => {
-    it('renders when open', () => {
+    test('renders when open', () => {
+        const onClose = vi.fn(() => {});
+        const onConfirm = vi.fn(() => {});
         render(
             <ConfirmationModal
                 closeText="Cancel"
                 confirmText="Confirm"
                 content="Are you sure?"
-                onClose={jest.fn()}
-                onConfirm={jest.fn()}
+                onClose={onClose}
+                onConfirm={onConfirm}
                 open={true}
                 title="Confirm action"
             />
@@ -23,14 +24,15 @@ describe('ConfirmationModal', () => {
         ).toBeInTheDocument();
     });
 
-    it('calls onConfirm when confirm button clicked', async () => {
-        const onConfirm = jest.fn();
+    test('calls onConfirm when confirm button clicked', async () => {
+        const onConfirm = vi.fn(() => {});
+        const onClose = vi.fn(() => {});
         render(
             <ConfirmationModal
                 closeText="Cancel"
                 confirmText="Confirm"
                 content="Content"
-                onClose={jest.fn()}
+                onClose={onClose}
                 onConfirm={onConfirm}
                 open={true}
                 title="Title"

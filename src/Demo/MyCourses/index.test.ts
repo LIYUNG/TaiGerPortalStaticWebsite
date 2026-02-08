@@ -11,14 +11,14 @@ import { getMycourses } from '../../api';
 import { exampleCourse } from '../../test/testingCourseData';
 // import { SnackBarProvider } from '../../contexts/use-snack-bar';
 
-jest.mock('axios');
-jest.mock('../../api');
-jest.mock('react-router-dom', () => ({
-    ...jest.requireActual('react-router-dom'),
-    useParams: jest.fn()
+vi.mock('axios');
+vi.mock('../../api');
+vi.mock('react-router-dom', async (importOriginal) => ({
+    ...(await importOriginal<typeof import('react-router-dom')>()),
+    useParams: vi.fn()
 }));
 
-jest.mock('../../components/AuthProvider');
+vi.mock('../../components/AuthProvider');
 
 class ResizeObserver {
     observe() {}
@@ -30,7 +30,7 @@ describe('Course input pag checking', () => {
     window.ResizeObserver = ResizeObserver;
 
     test('My Course not crash', async () => {
-        getMycourses.mockResolvedValue({ data: exampleCourse });
+        vi.mocked(getMycourses).mockResolvedValue({ data: exampleCourse });
         // useAuth.mockReturnValue({
         //     user: { role: 'Agent', _id: '639baebf8b84944b872cf648' }
         // });

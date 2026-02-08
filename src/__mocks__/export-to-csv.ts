@@ -1,8 +1,8 @@
 // Mock for export-to-csv module
 /* eslint-disable no-undef */
-const mkConfig = jest.fn(() => ({}));
-const generateCsv = jest.fn(() => jest.fn(() => 'mock-csv-data'));
-const download = jest.fn(() => jest.fn(() => {}));
+const mkConfig = vi.fn(() => ({}));
+const generateCsv = vi.fn(() => vi.fn(() => 'mock-csv-data'));
+const download = vi.fn(() => vi.fn(() => {}));
 
 module.exports = {
     mkConfig,

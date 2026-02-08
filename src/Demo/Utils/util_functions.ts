@@ -11,12 +11,12 @@ import { differenceInDays } from 'date-fns';
 import { pdfjs } from 'react-pdf';
 
 import { convertDate, twoYearsInDays } from '../../utils/contants';
-import { Application, IUserWithId } from '../../api/types';
+import { type Application, type IUserWithId } from '../../api/types';
 import {
     IUser,
     IUserAcademicBackground,
     IUserApplicationPreference
-} from '@taiger-common/model/dist/types';
+} from '@taiger-common/model';
 import { ProfileNameType } from '@taiger-common/core';
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 

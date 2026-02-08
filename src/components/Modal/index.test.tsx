@@ -2,18 +2,20 @@ import { render, screen } from '@testing-library/react';
 import ModalNew from './index';
 
 describe('ModalNew', () => {
-    it('renders without crashing when open', () => {
+    test('renders without crashing when open', () => {
+        const onClose = vi.fn(() => {});
         render(
-            <ModalNew onClose={jest.fn()} open={true}>
+            <ModalNew onClose={onClose} open={true}>
                 <div>Modal content</div>
             </ModalNew>
         );
         expect(screen.getByText('Modal content')).toBeInTheDocument();
     });
 
-    it('does not render children when closed', () => {
+    test('does not render children when closed', () => {
+        const onClose = vi.fn(() => {});
         render(
-            <ModalNew onClose={jest.fn()} open={false}>
+            <ModalNew onClose={onClose} open={false}>
                 <div>Modal content</div>
             </ModalNew>
         );

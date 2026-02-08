@@ -1,19 +1,17 @@
-jest.mock('axios');
-jest.mock('crypto');
-jest.mock('../../api');
-jest.mock('remark-gfm', () => () => undefined);
+vi.mock('axios');
+vi.mock('crypto', async (importOriginal) => ({
+    ...(await importOriginal<typeof import('crypto')>()),
+    getRandomValues: vi.fn()
+}));
+vi.mock('../../api');
+vi.mock('remark-gfm', () => () => undefined);
 
-jest.mock('react-router-dom', () => ({
-    ...jest.requireActual('react-router-dom'),
-    useParams: jest.fn()
+vi.mock('react-router-dom', async (importOriginal) => ({
+    ...(await importOriginal<typeof import('react-router-dom')>()),
+    useParams: vi.fn()
 }));
 
-jest.mock('crypto', () => ({
-    ...jest.requireActual('react-router-dom'),
-    getRandomValues: jest.fn()
-}));
-
-jest.mock('../../components/AuthProvider');
+vi.mock('../../components/AuthProvider');
 
 class ResizeObserver {
     observe() {}

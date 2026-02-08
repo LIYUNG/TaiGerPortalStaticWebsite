@@ -1,11 +1,9 @@
-// jest-dom adds custom jest matchers for asserting on DOM nodes.
-// allows you to do things like:
-// expect(element).toHaveTextContent(/react/i)
-// learn more: https://github.com/testing-library/jest-dom
+/// <reference types="vitest/globals" />
+// jest-dom adds custom matchers for asserting on DOM nodes (works with Vitest).
+// e.g. expect(element).toHaveTextContent(/react/i)
 import '@testing-library/jest-dom';
-import { jest } from '@jest/globals';
 
-// Defaults for env.ts when running in Jest (no import.meta.env)
+// Defaults for env when running in Vitest (no import.meta.env)
 if (typeof process !== 'undefined') {
     if (!process.env.VITE_DEV_URL)
         process.env.VITE_DEV_URL = 'http://localhost:3000';
@@ -16,39 +14,46 @@ if (typeof process !== 'undefined') {
     if (!process.env.VITE_TENANT_ID) process.env.VITE_TENANT_ID = 'TaiGer_Prod';
 }
 
-// Expose jest globally so test files can use jest.mock(), jest.fn(), etc.
-// without importing from '@jest/globals' (avoids "Cannot use namespace 'jest' as a value").
-if (typeof (globalThis as Record<string, unknown>).jest === 'undefined') {
-    (globalThis as Record<string, unknown>).jest = jest;
-}
-
-// Central mocks so test files do not need to include them
-jest.mock('i18next', () => ({
-    t: (key: string) => key
+// Central mocks so test files do not need to include them.
+// Code uses "import i18next from 'i18next'" so the mock must provide default export.
+const { i18nextMock } = vi.hoisted(() => {
+    const i18nextMock = {
+        t: (key: string, _options?: unknown) => key
+    };
+    return { i18nextMock };
+});
+vi.mock('i18next', () => ({
+    default: i18nextMock,
+    ...i18nextMock
 }));
 
-jest.mock('react-i18next', () => ({
+vi.mock('react-i18next', () => ({
     useTranslation: () => ({
         t: (str: string) => str,
         i18n: {
-            changeLanguage: (): Promise<void> => new Promise(() => undefined)
+            changeLanguage: () => new Promise(() => undefined)
         }
     }),
-    initReactI18next: { type: '3rdParty', init: (): void => undefined }
+    initReactI18next: { type: '3rdParty', init: () => undefined }
 }));
 
 // Note: export-to-csv and query-string are mocked in src/__mocks__/ directory
 
-// Prevent real HTTP requests in tests (avoids Cross-Origin / Network Error warnings)
-const mockAxiosInstance = {
-    get: jest.fn().mockResolvedValue({ data: {}, status: 200 }),
-    post: jest.fn().mockResolvedValue({ data: {}, status: 200 }),
-    put: jest.fn().mockResolvedValue({ data: {}, status: 200 }),
-    delete: jest.fn().mockResolvedValue({ data: {}, status: 200 }),
-    request: jest.fn().mockResolvedValue({ data: {}, status: 200 })
-};
-jest.mock('axios', () => ({
+// Prevent real HTTP requests in tests (avoids Cross-Origin / Network Error warnings).
+// vi.hoisted ensures the instance is available inside vi.mock (which is hoisted).
+const { mockAxiosInstance } = vi.hoisted(() => {
+    const mockAxiosInstance = {
+        get: vi.fn().mockResolvedValue({ data: {}, status: 200 }),
+        post: vi.fn().mockResolvedValue({ data: {}, status: 200 }),
+        put: vi.fn().mockResolvedValue({ data: {}, status: 200 }),
+        delete: vi.fn().mockResolvedValue({ data: {}, status: 200 }),
+        request: vi.fn().mockResolvedValue({ data: {}, status: 200 })
+    };
+    return { mockAxiosInstance };
+});
+vi.mock('axios', () => ({
     create: () => mockAxiosInstance,
+    default: mockAxiosInstance,
     ...mockAxiosInstance
 }));
 

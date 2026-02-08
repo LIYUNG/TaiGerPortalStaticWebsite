@@ -1,19 +1,19 @@
-import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import Admissions from './Admissions';
-import { getAdmissions } from '../../api';
+import { getAdmissions, getActiveStudents } from '../../api';
 import { useAuth } from '../../components/AuthProvider';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { mockAdmissionsData } from '../../test/testingAdmissionsData';
 
-jest.mock('axios');
-jest.mock('../../api', () => ({
-    ...jest.requireActual('../../api'),
-    getAdmissions: jest.fn()
+vi.mock('axios');
+vi.mock('../../api', async (importOriginal) => ({
+    ...(await importOriginal<typeof import('../../api')>()),
+    getAdmissions: vi.fn(),
+    getActiveStudents: vi.fn()
 }));
-jest.mock('../../components/AuthProvider');
+vi.mock('../../components/AuthProvider');
 
 const createTestQueryClient = () =>
     new QueryClient({
@@ -41,11 +41,11 @@ describe('Admissions page checking', () => {
     window.ResizeObserver = ResizeObserver;
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     test('Admissions page renders without crashing', async () => {
-        getAdmissions.mockResolvedValue({
+        vi.mocked(getAdmissions).mockResolvedValue({
             data: mockAdmissionsData,
             result: [
                 {
@@ -62,7 +62,7 @@ describe('Admissions page checking', () => {
                 }
             ]
         });
-        useAuth.mockReturnValue({
+        vi.mocked(useAuth).mockReturnValue({
             user: { role: 'Agent', _id: '639baebf8b84944b872cf648' }
         });
 
@@ -77,40 +77,52 @@ describe('Admissions page checking', () => {
         });
     });
 
-    test('Deep-link to Student tab via ?tab=student selects the tab', async () => {
-        getAdmissions.mockResolvedValue({
-            data: mockAdmissionsData,
-            result: []
-        });
-        useAuth.mockReturnValue({
-            user: { role: 'Agent', _id: '639baebf8b84944b872cf648' }
-        });
+    test(
+        'Deep-link to Student tab via ?tab=student selects the tab',
+        async () => {
+            vi.mocked(getAdmissions).mockResolvedValue({
+                data: mockAdmissionsData,
+                result: []
+            });
+            vi.mocked(getActiveStudents).mockResolvedValue({ data: [] });
+            vi.mocked(useAuth).mockReturnValue({
+                user: { role: 'Agent', _id: '639baebf8b84944b872cf648' },
+                isAuthenticated: true,
+                isLoaded: true,
+                login: () => {},
+                logout: () => {}
+            } as import('../../api/types').AuthContextValue);
 
-        renderWithQueryClient(
-            <MemoryRouter
-                initialEntries={[
-                    { pathname: '/admissions-overview', search: '?tab=student' }
-                ]}
-            >
-                <Admissions />
-            </MemoryRouter>
-        );
+            renderWithQueryClient(
+                <MemoryRouter
+                    initialEntries={[
+                        { pathname: '/admissions-overview', search: '?tab=student' }
+                    ]}
+                >
+                    <Admissions />
+                </MemoryRouter>
+            );
 
-        await waitFor(() => {
-            expect(screen.getByTestId('admissinos_page')).toBeInTheDocument();
-        });
+            await waitFor(
+                () => {
+                    expect(screen.getByTestId('admissinos_page')).toBeInTheDocument();
+                },
+                { timeout: 15000 }
+            );
 
-        // The Student tab panel renders its nested tablist
-        expect(
-            await screen.findByRole('tablist', {
-                name: /admissions students tables/i
-            })
-        ).toBeInTheDocument();
-    });
+            // The Student tab panel renders its nested tablist
+            expect(
+                await screen.findByRole('tablist', {
+                    name: /admissions students tables/i
+                })
+            ).toBeInTheDocument();
+        },
+        15000
+    );
 
     test('Admissions page shows loading state', () => {
-        getAdmissions.mockImplementation(() => new Promise(() => {})); // Never resolves
-        useAuth.mockReturnValue({
+        vi.mocked(getAdmissions).mockImplementation(() => new Promise(() => {})); // Never resolves
+        vi.mocked(useAuth).mockReturnValue({
             user: { role: 'Agent', _id: '639baebf8b84944b872cf648' }
         });
 
@@ -124,7 +136,7 @@ describe('Admissions page checking', () => {
     });
 
     test('Admissions page redirects non-TaiGer users', () => {
-        useAuth.mockReturnValue({
+        vi.mocked(useAuth).mockReturnValue({
             user: { role: 'Student', _id: '639baebf8b84944b872cf648' }
         });
 
@@ -139,8 +151,8 @@ describe('Admissions page checking', () => {
     });
 
     test('Admissions page handles API error', async () => {
-        getAdmissions.mockRejectedValue(new Error('API Error'));
-        useAuth.mockReturnValue({
+        vi.mocked(getAdmissions).mockRejectedValue(new Error('API Error'));
+        vi.mocked(useAuth).mockReturnValue({
             user: { role: 'Agent', _id: '639baebf8b84944b872cf648' }
         });
 

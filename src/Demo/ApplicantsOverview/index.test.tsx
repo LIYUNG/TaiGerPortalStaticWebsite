@@ -1,23 +1,27 @@
-import React from 'react';
 import { render, waitFor } from '@testing-library/react';
 // import { userEvent } from '@testing-library/user-event';
 import ApplicantsOverview from '.';
-import { getStudents, getProgramTickets } from '../../api';
+import {
+    getStudents,
+    getProgramTickets,
+    getStudentsV3,
+    getMyStudentsApplications
+} from '../../api';
 import { useAuth } from '../../components/AuthProvider/index';
 import { RouterProvider, createMemoryRouter } from 'react-router-dom';
 
 import { mockSingleData } from '../../test/testingStudentData';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-jest.mock('axios');
-jest.mock('../../api');
-jest.mock('@mui/x-charts/BarChart', () => ({
-    BarChart: jest.fn().mockImplementation(({ children }) => children)
+vi.mock('axios');
+vi.mock('../../api');
+vi.mock('@mui/x-charts/BarChart', () => ({
+    BarChart: vi.fn().mockImplementation(({ children }) => children)
 }));
-jest.mock('@mui/x-charts/ChartsAxis', () => ({
-    axisClasses: jest.fn().mockImplementation(({ children }) => children)
+vi.mock('@mui/x-charts/ChartsAxis', () => ({
+    axisClasses: vi.fn().mockImplementation(({ children }) => children)
 }));
-jest.mock('../../components/AuthProvider');
+vi.mock('../../components/AuthProvider');
 const createTestQueryClient = () =>
     new QueryClient({
         defaultOptions: {
@@ -53,11 +57,15 @@ const routes = [
 describe('ApplicantsOverview', () => {
     window.ResizeObserver = ResizeObserver;
     test('ApplicationsOverview not crash', async () => {
-        getStudents.mockResolvedValue({ data: mockSingleData });
-        getProgramTickets.mockResolvedValue({
+        vi.mocked(getStudents).mockResolvedValue({ data: mockSingleData });
+        vi.mocked(getProgramTickets).mockResolvedValue({
             data: { success: true, data: [] }
         });
-        useAuth.mockReturnValue({
+        vi.mocked(getStudentsV3).mockResolvedValue({ data: mockSingleData });
+        vi.mocked(getMyStudentsApplications).mockResolvedValue({
+            data: { applications: [] }
+        });
+        vi.mocked(useAuth).mockReturnValue({
             user: { role: 'Agent', _id: '639baebf8b84944b872cf648' }
         });
         const router = createMemoryRouter(routes, {

@@ -78,12 +78,12 @@ describe('Role checking', () => {
 });
 
 describe('getRequirement', () => {
-    it('should return false if thread is not provided', () => {
+    test('should return false if thread is not provided', () => {
         expect(getRequirement(null)).toBe(false);
         expect(getRequirement(undefined)).toBe(false);
     });
 
-    it('should return false if fileType or program is not provided', () => {
+    test('should return false if fileType or program is not provided', () => {
         expect(getRequirement({})).toBe(false);
         expect(getRequirement({ file_type: 'Essay' })).toBe(false);
         expect(getRequirement({ program_id: { essay_required: 'yes' } })).toBe(
@@ -91,7 +91,7 @@ describe('getRequirement', () => {
         );
     });
 
-    it('should return the correct essay requirement', () => {
+    test('should return the correct essay requirement', () => {
         const thread = {
             file_type: 'Essay',
             program_id: {
@@ -102,7 +102,7 @@ describe('getRequirement', () => {
         expect(getRequirement(thread)).toBe('500 words');
     });
 
-    it('should return "No" if essay requirement is not specified', () => {
+    test('should return "No" if essay requirement is not specified', () => {
         const thread = {
             file_type: 'Essay',
             program_id: { essay_required: 'yes' }
@@ -110,7 +110,7 @@ describe('getRequirement', () => {
         expect(getRequirement(thread)).toBe('No');
     });
 
-    it('should return the correct ML requirement', () => {
+    test('should return the correct ML requirement', () => {
         const thread = {
             file_type: 'ML',
             program_id: {
@@ -121,7 +121,7 @@ describe('getRequirement', () => {
         expect(getRequirement(thread)).toBe('ML requirement text');
     });
 
-    it('should return the correct portfolio requirement', () => {
+    test('should return the correct portfolio requirement', () => {
         const thread = {
             file_type: 'Portfolio',
             program_id: {
@@ -132,7 +132,7 @@ describe('getRequirement', () => {
         expect(getRequirement(thread)).toBe('Portfolio requirement text');
     });
 
-    it('should return the correct supplementary form requirement', () => {
+    test('should return the correct supplementary form requirement', () => {
         const thread = {
             file_type: 'Supplementary_Form',
             program_id: {
@@ -143,7 +143,7 @@ describe('getRequirement', () => {
         expect(getRequirement(thread)).toBe('Supplementary form text');
     });
 
-    it('should return the correct curriculum analysis requirement', () => {
+    test('should return the correct curriculum analysis requirement', () => {
         const thread = {
             file_type: 'Curriculum_Analysis',
             program_id: {
@@ -154,7 +154,7 @@ describe('getRequirement', () => {
         expect(getRequirement(thread)).toBe('Curriculum analysis text');
     });
 
-    it('should return the correct scholarship form requirement', () => {
+    test('should return the correct scholarship form requirement', () => {
         const thread = {
             file_type: 'Scholarship_Form',
             program_id: {
@@ -165,7 +165,7 @@ describe('getRequirement', () => {
         expect(getRequirement(thread)).toBe('Scholarship form text');
     });
 
-    it('should return the correct RL requirement', () => {
+    test('should return the correct RL requirement', () => {
         const thread = {
             file_type: 'RL',
             program_id: {
@@ -176,7 +176,7 @@ describe('getRequirement', () => {
         expect(getRequirement(thread)).toBe('RL requirement text');
     });
 
-    it('should return "No" if RL requirement is not specified', () => {
+    test('should return "No" if RL requirement is not specified', () => {
         const thread = {
             file_type: 'RL',
             program_id: { rl_required: '2' }
@@ -184,7 +184,7 @@ describe('getRequirement', () => {
         expect(getRequirement(thread)).toBe('No');
     });
 
-    it('should return "No" if file type does not match any condition', () => {
+    test('should return "No" if file type does not match any condition', () => {
         const thread = {
             file_type: 'Unknown_Type',
             program_id: {
@@ -197,17 +197,17 @@ describe('getRequirement', () => {
 });
 
 describe('isLanguageInfoComplete', () => {
-    it('should return false if academic_background is not provided', () => {
+    test('should return false if academic_background is not provided', () => {
         expect(isLanguageInfoComplete(null)).toBe(false);
         expect(isLanguageInfoComplete(undefined)).toBe(false);
     });
 
-    it('should return false if academic_background.language is not provided', () => {
+    test('should return false if academic_background.language is not provided', () => {
         const academic_background = {};
         expect(isLanguageInfoComplete(academic_background)).toBe(false);
     });
 
-    it('should return false if both english_isPassed and german_isPassed are "-"', () => {
+    test('should return false if both english_isPassed and german_isPassed are "-"', () => {
         const academic_background = {
             language: {
                 english_isPassed: '-',
@@ -217,7 +217,7 @@ describe('isLanguageInfoComplete', () => {
         expect(isLanguageInfoComplete(academic_background)).toBe(false);
     });
 
-    it('should return true if english_isPassed is not "-"', () => {
+    test('should return true if english_isPassed is not "-"', () => {
         const academic_background = {
             language: {
                 english_isPassed: 'yes',
@@ -227,7 +227,7 @@ describe('isLanguageInfoComplete', () => {
         expect(isLanguageInfoComplete(academic_background)).toBe(true);
     });
 
-    it('should return true if german_isPassed is not "-"', () => {
+    test('should return true if german_isPassed is not "-"', () => {
         const academic_background = {
             language: {
                 english_isPassed: '-',
@@ -237,7 +237,7 @@ describe('isLanguageInfoComplete', () => {
         expect(isLanguageInfoComplete(academic_background)).toBe(true);
     });
 
-    it('should return true if both english_isPassed and german_isPassed are not "-"', () => {
+    test('should return true if both english_isPassed and german_isPassed are not "-"', () => {
         const academic_background = {
             language: {
                 english_isPassed: 'yes',
@@ -249,17 +249,17 @@ describe('isLanguageInfoComplete', () => {
 });
 
 describe('isEnglishLanguageInfoComplete', () => {
-    it('should return false if academic_background is not provided', () => {
+    test('should return false if academic_background is not provided', () => {
         expect(isEnglishLanguageInfoComplete(null)).toBe(false);
         expect(isEnglishLanguageInfoComplete(undefined)).toBe(false);
     });
 
-    it('should return false if academic_background.language is not provided', () => {
+    test('should return false if academic_background.language is not provided', () => {
         const academic_background = {};
         expect(isEnglishLanguageInfoComplete(academic_background)).toBe(false);
     });
 
-    it('should return false if english_isPassed is "-"', () => {
+    test('should return false if english_isPassed is "-"', () => {
         const academic_background = {
             language: {
                 english_isPassed: '-'
@@ -268,7 +268,7 @@ describe('isEnglishLanguageInfoComplete', () => {
         expect(isEnglishLanguageInfoComplete(academic_background)).toBe(false);
     });
 
-    it('should return true if english_isPassed is not "-"', () => {
+    test('should return true if english_isPassed is not "-"', () => {
         const academic_background = {
             language: {
                 english_isPassed: 'yes'
@@ -277,7 +277,7 @@ describe('isEnglishLanguageInfoComplete', () => {
         expect(isEnglishLanguageInfoComplete(academic_background)).toBe(true);
     });
 
-    it('should return true if english_isPassed is an empty string', () => {
+    test('should return true if english_isPassed is an empty string', () => {
         const academic_background = {
             language: {
                 english_isPassed: ''
@@ -286,7 +286,7 @@ describe('isEnglishLanguageInfoComplete', () => {
         expect(isEnglishLanguageInfoComplete(academic_background)).toBe(true);
     });
 
-    it('should return true if english_isPassed is a value other than "-"', () => {
+    test('should return true if english_isPassed is a value other than "-"', () => {
         const academic_background = {
             language: {
                 english_isPassed: 'no'
@@ -297,19 +297,19 @@ describe('isEnglishLanguageInfoComplete', () => {
 });
 
 describe('check_if_there_is_german_language_info', () => {
-    it('should return false if academic_background is not provided', () => {
+    test('should return false if academic_background is not provided', () => {
         expect(check_if_there_is_german_language_info(null)).toBe(false);
         expect(check_if_there_is_german_language_info(undefined)).toBe(false);
     });
 
-    it('should return false if academic_background.language is not provided', () => {
+    test('should return false if academic_background.language is not provided', () => {
         const academic_background = {};
         expect(
             check_if_there_is_german_language_info(academic_background)
         ).toBe(false);
     });
 
-    it('should return false if german_isPassed is "-"', () => {
+    test('should return false if german_isPassed is "-"', () => {
         const academic_background = {
             language: {
                 german_isPassed: '-'
@@ -320,7 +320,7 @@ describe('check_if_there_is_german_language_info', () => {
         ).toBe(false);
     });
 
-    it('should return true if german_isPassed is not "-"', () => {
+    test('should return true if german_isPassed is not "-"', () => {
         const academic_background = {
             language: {
                 german_isPassed: 'yes'
@@ -331,7 +331,7 @@ describe('check_if_there_is_german_language_info', () => {
         ).toBe(true);
     });
 
-    it('should return true if german_isPassed is an empty string', () => {
+    test('should return true if german_isPassed is an empty string', () => {
         const academic_background = {
             language: {
                 german_isPassed: ''
@@ -342,7 +342,7 @@ describe('check_if_there_is_german_language_info', () => {
         ).toBe(true);
     });
 
-    it('should return true if german_isPassed is a value other than "-"', () => {
+    test('should return true if german_isPassed is a value other than "-"', () => {
         const academic_background = {
             language: {
                 german_isPassed: 'no'
@@ -356,21 +356,21 @@ describe('check_if_there_is_german_language_info', () => {
 
 describe('Language Check Functions', () => {
     describe('check_english_language_passed', () => {
-        it('should return true if english_isPassed is "O"', () => {
+        test('should return true if english_isPassed is "O"', () => {
             const academic_background = { language: { english_isPassed: 'O' } };
             expect(check_english_language_passed(academic_background)).toBe(
                 true
             );
         });
 
-        it('should return false if english_isPassed is not "O"', () => {
+        test('should return false if english_isPassed is not "O"', () => {
             const academic_background = { language: { english_isPassed: 'X' } };
             expect(check_english_language_passed(academic_background)).toBe(
                 false
             );
         });
 
-        it('should return false if academic_background or language is not provided', () => {
+        test('should return false if academic_background or language is not provided', () => {
             expect(check_english_language_passed(null)).toBe(false);
             expect(check_english_language_passed(undefined)).toBe(false);
             expect(check_english_language_passed({})).toBe(false);
@@ -378,7 +378,7 @@ describe('Language Check Functions', () => {
     });
 
     describe('check_english_language_Notneeded', () => {
-        it('should return true if english_isPassed is "--"', () => {
+        test('should return true if english_isPassed is "--"', () => {
             const academic_background = {
                 language: { english_isPassed: '--' }
             };
@@ -387,14 +387,14 @@ describe('Language Check Functions', () => {
             );
         });
 
-        it('should return false if english_isPassed is not "--"', () => {
+        test('should return false if english_isPassed is not "--"', () => {
             const academic_background = { language: { english_isPassed: 'X' } };
             expect(check_english_language_Notneeded(academic_background)).toBe(
                 false
             );
         });
 
-        it('should return false if academic_background or language is not provided', () => {
+        test('should return false if academic_background or language is not provided', () => {
             expect(check_english_language_Notneeded(null)).toBe(false);
             expect(check_english_language_Notneeded(undefined)).toBe(false);
             expect(check_english_language_Notneeded({})).toBe(false);
@@ -402,21 +402,21 @@ describe('Language Check Functions', () => {
     });
 
     describe('check_german_language_passed', () => {
-        it('should return true if german_isPassed is "O"', () => {
+        test('should return true if german_isPassed is "O"', () => {
             const academic_background = { language: { german_isPassed: 'O' } };
             expect(check_german_language_passed(academic_background)).toBe(
                 true
             );
         });
 
-        it('should return false if german_isPassed is not "O"', () => {
+        test('should return false if german_isPassed is not "O"', () => {
             const academic_background = { language: { german_isPassed: 'X' } };
             expect(check_german_language_passed(academic_background)).toBe(
                 false
             );
         });
 
-        it('should return false if academic_background or language is not provided', () => {
+        test('should return false if academic_background or language is not provided', () => {
             expect(check_german_language_passed(null)).toBe(false);
             expect(check_german_language_passed(undefined)).toBe(false);
             expect(check_german_language_passed({})).toBe(false);
@@ -424,21 +424,21 @@ describe('Language Check Functions', () => {
     });
 
     describe('check_german_language_Notneeded', () => {
-        it('should return true if german_isPassed is "--"', () => {
+        test('should return true if german_isPassed is "--"', () => {
             const academic_background = { language: { german_isPassed: '--' } };
             expect(check_german_language_Notneeded(academic_background)).toBe(
                 true
             );
         });
 
-        it('should return false if german_isPassed is not "--"', () => {
+        test('should return false if german_isPassed is not "--"', () => {
             const academic_background = { language: { german_isPassed: 'X' } };
             expect(check_german_language_Notneeded(academic_background)).toBe(
                 false
             );
         });
 
-        it('should return false if academic_background or language is not provided', () => {
+        test('should return false if academic_background or language is not provided', () => {
             expect(check_german_language_Notneeded(null)).toBe(false);
             expect(check_german_language_Notneeded(undefined)).toBe(false);
             expect(check_german_language_Notneeded({})).toBe(false);
@@ -447,7 +447,7 @@ describe('Language Check Functions', () => {
 });
 
 describe('based_documents_init', () => {
-    it('should initialize all document statuses to Missing', () => {
+    test('should initialize all document statuses to Missing', () => {
         const student = { profile: [] };
         const { object_init } = based_documents_init(student);
         const documentlist2_keys = Object.keys(ProfileNameType);
@@ -457,7 +457,7 @@ describe('based_documents_init', () => {
         }
     });
 
-    it('should update document statuses based on student profile', () => {
+    test('should update document statuses based on student profile', () => {
         const student = {
             profile: [
                 {
@@ -487,7 +487,7 @@ describe('based_documents_init', () => {
         );
     });
 
-    it('should handle documents with status Missing', () => {
+    test('should handle documents with status Missing', () => {
         const student = {
             profile: [
                 {
@@ -503,7 +503,7 @@ describe('based_documents_init', () => {
         );
     });
 
-    it('should handle documents with status NotNeeded', () => {
+    test('should handle documents with status NotNeeded', () => {
         const student = {
             profile: [
                 {
@@ -519,7 +519,7 @@ describe('based_documents_init', () => {
         );
     });
 
-    it('should not change the status of documents not in the student profile', () => {
+    test('should not change the status of documents not in the student profile', () => {
         const student = {
             profile: [
                 {
@@ -563,11 +563,11 @@ describe('is_any_base_documents_uploaded', () => {
 
     const students = [studentWithUploadedDocument, studentWithoutDocuments];
 
-    it('should return true if any base document is uploaded', () => {
+    test('should return true if any base document is uploaded', () => {
         expect(is_any_base_documents_uploaded(students)).toBe(true);
     });
 
-    it('should return false if no base document is uploaded', () => {
+    test('should return false if no base document is uploaded', () => {
         const studentsNoDocs = [
             {
                 profile: [
@@ -589,24 +589,24 @@ describe('is_any_base_documents_uploaded', () => {
         expect(is_any_base_documents_uploaded(studentsNoDocs)).toBe(false);
     });
 
-    it('should return false if students array is empty', () => {
+    test('should return false if students array is empty', () => {
         expect(is_any_base_documents_uploaded([])).toBe(false);
     });
 
-    it('should return false if students array is null or undefined', () => {
+    test('should return false if students array is null or undefined', () => {
         expect(is_any_base_documents_uploaded(null)).toBe(false);
         expect(is_any_base_documents_uploaded(undefined)).toBe(false);
     });
 });
 
 describe('is_all_uni_assist_vpd_uploaded', () => {
-    it('should return false if student applications is undefined', () => {
+    test('should return false if student applications is undefined', () => {
         const student = { applications: undefined };
         const result = is_all_uni_assist_vpd_uploaded(student);
         expect(result).toBe(false);
     });
 
-    it('should ignore applications without "VPD" in uni_assist', () => {
+    test('should ignore applications without "VPD" in uni_assist', () => {
         const student = {
             applications: [
                 {
@@ -623,7 +623,7 @@ describe('is_all_uni_assist_vpd_uploaded', () => {
         expect(result).toBe(true); // Should ignore this application since 'VPD' is not in uni_assist
     });
 
-    it('should return false if uni_assist is missing', () => {
+    test('should return false if uni_assist is missing', () => {
         const student = {
             applications: [
                 {
@@ -637,7 +637,7 @@ describe('is_all_uni_assist_vpd_uploaded', () => {
         expect(result).toBe(false);
     });
 
-    it('should continue if uni_assist status is NotNeeded', () => {
+    test('should continue if uni_assist status is NotNeeded', () => {
         const student = {
             applications: [
                 {
@@ -659,7 +659,7 @@ describe('is_all_uni_assist_vpd_uploaded', () => {
         expect(result).toBe(true); // Should skip the first application due to status NotNeeded
     });
 
-    it('should return false if uni_assist status is not Uploaded or vpd_file_path is empty', () => {
+    test('should return false if uni_assist status is not Uploaded or vpd_file_path is empty', () => {
         const student = {
             applications: [
                 {
@@ -676,7 +676,7 @@ describe('is_all_uni_assist_vpd_uploaded', () => {
         expect(result).toBe(false); // Should return false since status is not 'Uploaded' and file path is empty
     });
 
-    it('should return true if all VPD documents are uploaded', () => {
+    test('should return true if all VPD documents are uploaded', () => {
         const student = {
             applications: [
                 {
@@ -703,13 +703,13 @@ describe('is_all_uni_assist_vpd_uploaded', () => {
 });
 
 describe('check_languages_filled', () => {
-    it('should return false if academic_background or language is not provided', () => {
+    test('should return false if academic_background or language is not provided', () => {
         expect(check_languages_filled(null)).toBe(false);
         expect(check_languages_filled(undefined)).toBe(false);
         expect(check_languages_filled({})).toBe(false);
     });
 
-    it('should return false if any language test is missing or marked as "-"', () => {
+    test('should return false if any language test is missing or marked as "-"', () => {
         const academic_background = {
             language: {
                 english_isPassed: '-',
@@ -721,7 +721,7 @@ describe('check_languages_filled', () => {
         expect(check_languages_filled(academic_background)).toBe(false);
     });
 
-    it('should return false if any language test date is expired', () => {
+    test('should return false if any language test date is expired', () => {
         const academic_background = {
             language: {
                 english_isPassed: 'X',
@@ -737,7 +737,7 @@ describe('check_languages_filled', () => {
         expect(check_languages_filled(academic_background)).toBe(false);
     });
 
-    it('should return true if all language tests are filled and not expired', () => {
+    test('should return true if all language tests are filled and not expired', () => {
         const academic_background = {
             language: {
                 english_isPassed: 'O',
@@ -753,7 +753,7 @@ describe('check_languages_filled', () => {
         expect(check_languages_filled(academic_background)).toBe(true);
     });
 
-    it('should handle edge cases where test dates are empty strings', () => {
+    test('should handle edge cases where test dates are empty strings', () => {
         const academic_background = {
             language: {
                 english_isPassed: 'X',
@@ -773,7 +773,7 @@ describe('check_languages_filled', () => {
 });
 
 describe('check_academic_background_filled', () => {
-    it('should return false if academic_background or university is not provided', () => {
+    test('should return false if academic_background or university is not provided', () => {
         expect(check_academic_background_filled(null)).toBe(false);
         expect(check_academic_background_filled(undefined)).toBe(false);
         expect(check_academic_background_filled({})).toBe(false);
@@ -782,7 +782,7 @@ describe('check_academic_background_filled', () => {
         );
     });
 
-    it('should return false if any mandatory field is missing or marked as "-"', () => {
+    test('should return false if any mandatory field is missing or marked as "-"', () => {
         const academic_background = {
             university: {
                 attended_high_school: true,
@@ -799,7 +799,7 @@ describe('check_academic_background_filled', () => {
         );
     });
 
-    it('should return true if all mandatory fields are filled', () => {
+    test('should return true if all mandatory fields are filled', () => {
         const academic_background = {
             university: {
                 attended_high_school: true,
@@ -816,7 +816,7 @@ describe('check_academic_background_filled', () => {
         );
     });
 
-    it('should handle edge cases where fields are missing or optional fields are not required', () => {
+    test('should handle edge cases where fields are missing or optional fields are not required', () => {
         const academic_background = {
             university: {
                 attended_high_school: true,
@@ -835,12 +835,12 @@ describe('check_academic_background_filled', () => {
 });
 
 describe('getProgramDocumentStatus', () => {
-    it('returns empty arrays when no application is provided', () => {
+    test('returns empty arrays when no application is provided', () => {
         const result = getProgramDocumentStatus(null);
         expect(result).toEqual({ missing: [], extra: [] });
     });
 
-    it('flags missing program-specific documents', () => {
+    test('flags missing program-specific documents', () => {
         const application = {
             programId: {
                 essay_required: 'yes',
@@ -861,7 +861,7 @@ describe('getProgramDocumentStatus', () => {
         expect(result.extra).toEqual([]);
     });
 
-    it('flags extra program-specific documents', () => {
+    test('flags extra program-specific documents', () => {
         const application = {
             programId: {
                 ml_required: 'no'
@@ -881,7 +881,7 @@ describe('getProgramDocumentStatus', () => {
         ]);
     });
 
-    it('returns structured RL info for missing recommendation letters', () => {
+    test('returns structured RL info for missing recommendation letters', () => {
         const application = {
             programId: {
                 is_rl_specific: true,
@@ -907,7 +907,7 @@ describe('getProgramDocumentStatus', () => {
         expect(result.extra).toEqual([]);
     });
 
-    it('returns structured RL info for extra recommendation letters', () => {
+    test('returns structured RL info for extra recommendation letters', () => {
         const application = {
             programId: {
                 is_rl_specific: true,
@@ -942,12 +942,12 @@ describe('getGeneralDocumentStatus', () => {
         doc_thread_id: { file_type: fileType }
     });
 
-    it('returns empty arrays when applications are not provided', () => {
+    test('returns empty arrays when applications are not provided', () => {
         const result = getGeneralDocumentStatus([], null);
         expect(result).toEqual({ missing: [], extra: [], rlApplications: [] });
     });
 
-    it('flags missing general recommendation letters', () => {
+    test('flags missing general recommendation letters', () => {
         const applications = [
             {
                 programId: {
@@ -984,7 +984,7 @@ describe('getGeneralDocumentStatus', () => {
         ]);
     });
 
-    it('flags extra general recommendation letters', () => {
+    test('flags extra general recommendation letters', () => {
         const applications = [
             {
                 programId: {
@@ -1025,7 +1025,7 @@ describe('getGeneralDocumentStatus', () => {
         ]);
     });
 
-    it('ignores RL-specific programs when collecting application metadata', () => {
+    test('ignores RL-specific programs when collecting application metadata', () => {
         const applications = [
             {
                 programId: {
@@ -1069,7 +1069,7 @@ describe('getGeneralDocumentStatus', () => {
 
 describe('num_uni_assist_vpd_uploaded', () => {
     // Test case 1: No applications
-    it('returns 0 when no applications are provided', () => {
+    test('returns 0 when no applications are provided', () => {
         const student = {
             applications: []
         };
@@ -1078,7 +1078,7 @@ describe('num_uni_assist_vpd_uploaded', () => {
     });
 
     // Test case 2: Applications with no VPD needed
-    it('returns 0 when no applications need uni assist for VPD', () => {
+    test('returns 0 when no applications need uni assist for VPD', () => {
         const student = {
             applications: [
                 {
@@ -1092,7 +1092,7 @@ describe('num_uni_assist_vpd_uploaded', () => {
     });
 
     // Test case 3: Applications needing VPD but none uploaded
-    it('returns 0 when no VPD documents are uploaded', () => {
+    test('returns 0 when no VPD documents are uploaded', () => {
         const student = {
             applications: [
                 {
@@ -1112,7 +1112,7 @@ describe('num_uni_assist_vpd_uploaded', () => {
     });
 
     // Test case 4: Applications needing VPD and some uploaded
-    it('returns the number of applications with uploaded VPD documents', () => {
+    test('returns the number of applications with uploaded VPD documents', () => {
         const student = {
             applications: [
                 {
@@ -1149,7 +1149,7 @@ describe('num_uni_assist_vpd_uploaded', () => {
 
 describe('num_uni_assist_vpd_needed', () => {
     // Test case 1: No applications
-    it('returns 0 when no applications are provided', () => {
+    test('returns 0 when no applications are provided', () => {
         const student = {
             applications: []
         };
@@ -1158,7 +1158,7 @@ describe('num_uni_assist_vpd_needed', () => {
     });
 
     // Test case 2: Applications with no VPD needed
-    it('returns 0 when no applications need uni assist VPD', () => {
+    test('returns 0 when no applications need uni assist VPD', () => {
         const student = {
             applications: [
                 {
@@ -1177,7 +1177,7 @@ describe('num_uni_assist_vpd_needed', () => {
     });
 
     // Test case 3: Applications needing VPD
-    it('returns the number of applications needing uni assist for VPD', () => {
+    test('returns the number of applications needing uni assist for VPD', () => {
         const student = {
             applications: [
                 {
@@ -1209,7 +1209,7 @@ describe('num_uni_assist_vpd_needed', () => {
 
 describe('is_program_ml_rl_essay_finished', () => {
     // Test case 1: No threads provided
-    it('returns true when no document modification threads are provided', () => {
+    test('returns true when no document modification threads are provided', () => {
         const application = {
             doc_modification_thread: []
         };
@@ -1218,7 +1218,7 @@ describe('is_program_ml_rl_essay_finished', () => {
     });
 
     // Test case 2: Some threads are not finished
-    it('returns false when some document modification threads are not finished', () => {
+    test('returns false when some document modification threads are not finished', () => {
         const application = {
             doc_modification_thread: [
                 { isFinalVersion: true },
@@ -1231,7 +1231,7 @@ describe('is_program_ml_rl_essay_finished', () => {
     });
 
     // Test case 3: All threads are finished
-    it('returns true when all document modification threads are finished', () => {
+    test('returns true when all document modification threads are finished', () => {
         const application = {
             doc_modification_thread: [
                 { isFinalVersion: true },
@@ -1245,25 +1245,25 @@ describe('is_program_ml_rl_essay_finished', () => {
 });
 
 describe('isUniAssistVPDNeeded', () => {
-    it('returns false when the program is not decided', () => {
+    test('returns false when the program is not decided', () => {
         const application = {};
         const result = isUniAssistVPDNeeded(application);
         expect(result).toBe(false);
     });
 
-    it('returns false when programId does not have uni_assist', () => {
+    test('returns false when programId does not have uni_assist', () => {
         const application = { programId: {} };
         const result = isUniAssistVPDNeeded(application);
         expect(result).toBe(false);
     });
 
-    it('returns false when uni_assist does not include VPD', () => {
+    test('returns false when uni_assist does not include VPD', () => {
         const application = { programId: { uni_assist: 'Yes-FULL' } };
         const result = isUniAssistVPDNeeded(application);
         expect(result).toBe(false);
     });
 
-    it('returns true when uni_assist includes VPD but no uni_assist property', () => {
+    test('returns true when uni_assist includes VPD but no uni_assist property', () => {
         const application = {
             programId: { uni_assist: 'Yes-VPD' },
             uni_assist: {},
@@ -1273,7 +1273,7 @@ describe('isUniAssistVPDNeeded', () => {
         expect(result).toBe(true);
     });
 
-    it('returns false when uni_assist includes VPD and status is NotNeeded', () => {
+    test('returns false when uni_assist includes VPD and status is NotNeeded', () => {
         const application = {
             programId: { uni_assist: 'Yes-VPD' },
             uni_assist: { status: DocumentStatusType.NotNeeded },
@@ -1283,7 +1283,7 @@ describe('isUniAssistVPDNeeded', () => {
         expect(result).toBe(false);
     });
 
-    it('returns true when uni_assist includes VPD, status is not Uploaded, and vpd_file_path is empty', () => {
+    test('returns true when uni_assist includes VPD, status is not Uploaded, and vpd_file_path is empty', () => {
         const application = {
             programId: { uni_assist: 'Yes-VPD' },
             uni_assist: {
@@ -1296,7 +1296,7 @@ describe('isUniAssistVPDNeeded', () => {
         expect(result).toBe(true);
     });
 
-    it('returns false when uni_assist includes VPD, status is Uploaded, and vpd_file_path is not empty', () => {
+    test('returns false when uni_assist includes VPD, status is Uploaded, and vpd_file_path is not empty', () => {
         const application = {
             programId: { uni_assist: 'Yes-VPD' },
             uni_assist: {
@@ -1312,14 +1312,14 @@ describe('isUniAssistVPDNeeded', () => {
 
 describe('is_uni_assist_paid_and_docs_uploaded', () => {
     // Test case 1: No uni assist
-    it('returns false when uni assist is not provided', () => {
+    test('returns false when uni assist is not provided', () => {
         const application = {};
         const result = is_uni_assist_paid_and_docs_uploaded(application);
         expect(result).toBe(false);
     });
 
     // Test case 2: Uni assist not paid
-    it('returns false when uni assist is not paid', () => {
+    test('returns false when uni assist is not paid', () => {
         const application = {
             uni_assist: {
                 isPaid: false
@@ -1330,7 +1330,7 @@ describe('is_uni_assist_paid_and_docs_uploaded', () => {
     });
 
     // Test case 3: Uni assist paid
-    it('returns true when uni assist is paid', () => {
+    test('returns true when uni assist is paid', () => {
         const application = {
             uni_assist: {
                 isPaid: true
@@ -1343,14 +1343,14 @@ describe('is_uni_assist_paid_and_docs_uploaded', () => {
 
 describe('check_student_needs_uni_assist', () => {
     // Test case 1: No applications
-    it('returns false when no applications are provided', () => {
+    test('returns false when no applications are provided', () => {
         const student = { applications: [] };
         const result = check_student_needs_uni_assist(student);
         expect(result).toBe(false);
     });
 
     // Test case 2: Applications with no uni assist needed
-    it('returns false when no applications need uni assist', () => {
+    test('returns false when no applications need uni assist', () => {
         const student = {
             applications: [{ programId: { uni_assist: 'No' }, decided: 'O' }]
         };
@@ -1359,7 +1359,7 @@ describe('check_student_needs_uni_assist', () => {
     });
 
     // Test case 3: Applications needing VPD
-    it('returns true when at least one application needs uni assist for VPD', () => {
+    test('returns true when at least one application needs uni assist for VPD', () => {
         const student = {
             applications: [
                 { programId: { uni_assist: 'Yes_VPD' }, decided: 'O' },
@@ -1371,7 +1371,7 @@ describe('check_student_needs_uni_assist', () => {
     });
 
     // Test case 4: Applications needing FULL
-    it('returns true when at least one application needs uni assist for FULL', () => {
+    test('returns true when at least one application needs uni assist for FULL', () => {
         const student = {
             applications: [
                 { programId: { uni_assist: 'Yes_FULL' }, decided: 'O' },
@@ -1383,7 +1383,7 @@ describe('check_student_needs_uni_assist', () => {
     });
 
     // Test case 6: No decided programs
-    it('returns false when no programs are decided', () => {
+    test('returns false when no programs are decided', () => {
         const student = {
             applications: [
                 { programId: { uni_assist: 'Yes_FULL' }, decided: 'X' },

@@ -4,7 +4,7 @@ import { Link as LinkDom } from 'react-router-dom';
 import {
     IUserAcademicBackground,
     IUserApplicationPreference
-} from '@taiger-common/model/dist/types';
+} from '@taiger-common/model';
 
 export const HighlightText = ({
     text,

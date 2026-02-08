@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react';
+import type { AxiosResponse } from 'axios';
 import Survey from '.';
 import {
     getStudents,
@@ -6,14 +7,15 @@ import {
     getMyAcademicBackground
 } from '../../api';
 import { useAuth } from '../../components/AuthProvider/index';
+import type { AuthContextValue } from '../../api/types';
 import { RouterProvider, createMemoryRouter } from 'react-router-dom';
 
 import { mockSingleData } from '../../test/testingStudentData';
 import { SurveyProvider } from '../../components/SurveyProvider';
 
-jest.mock('axios');
-jest.mock('../../api');
-jest.mock('../../components/AuthProvider');
+vi.mock('axios');
+vi.mock('../../api');
+vi.mock('../../components/AuthProvider');
 
 const routes = [
     {
@@ -50,20 +52,26 @@ class ResizeObserver {
 describe('Survey', () => {
     window.ResizeObserver = ResizeObserver;
     test('student survey page not crash', async () => {
-        getStudents.mockResolvedValue({ data: mockSingleData });
-        getMyAcademicBackground.mockResolvedValue({
+        vi.mocked(getStudents).mockResolvedValue({
+            data: mockSingleData
+        } as AxiosResponse<typeof mockSingleData>);
+        vi.mocked(getMyAcademicBackground).mockResolvedValue({
             data: {
                 success: true,
                 data: mockSingleData.data[0],
                 survey_link: [{ key: 'Grading_System', link: 'some_link' }]
             }
-        });
-        getProgramTickets.mockResolvedValue({
+        } as AxiosResponse);
+        vi.mocked(getProgramTickets).mockResolvedValue({
             data: { success: true, data: [] }
-        });
-        useAuth.mockReturnValue({
-            user: { role: 'Student', _id: '6366287a94358b085b0fccf7' }
-        });
+        } as AxiosResponse);
+        vi.mocked(useAuth).mockReturnValue({
+            user: { role: 'Student', _id: '6366287a94358b085b0fccf7' },
+            isAuthenticated: true,
+            isLoaded: true,
+            login: () => {},
+            logout: () => {}
+        } as AuthContextValue);
 
         const router = createMemoryRouter(routes, {
             initialEntries: ['/survey']

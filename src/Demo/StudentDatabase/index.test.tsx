@@ -11,12 +11,12 @@ import {
     QueryClientProvider
 } from '@tanstack/react-query';
 
-jest.mock('axios');
-jest.mock('../../api');
-jest.mock('../../components/AuthProvider');
-jest.mock('@tanstack/react-query', () => ({
-    ...jest.requireActual('@tanstack/react-query'),
-    useQuery: jest.fn()
+vi.mock('axios');
+vi.mock('../../api');
+vi.mock('../../components/AuthProvider');
+vi.mock('@tanstack/react-query', async (importOriginal) => ({
+    ...(await importOriginal<typeof import('@tanstack/react-query')>()),
+    useQuery: vi.fn()
 }));
 
 const createTestQueryClient = () =>
@@ -55,14 +55,14 @@ const routes = [
 describe('StudentDatabase', () => {
     window.ResizeObserver = ResizeObserver;
     test('Student dashboard not crash', async () => {
-        getProgramTickets.mockResolvedValue({
+        vi.mocked(getProgramTickets).mockResolvedValue({
             data: { success: true, data: [] }
         });
-        useAuth.mockReturnValue({
+        vi.mocked(useAuth).mockReturnValue({
             user: { role: 'Agent', _id: '639baebf8b84944b872cf648' }
         });
 
-        useQuery.mockImplementation(() => ({
+        vi.mocked(useQuery).mockImplementation(() => ({
             data: mockSingleData,
             isLoading: false,
             isError: false

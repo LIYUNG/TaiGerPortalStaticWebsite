@@ -1,4 +1,3 @@
-import React from 'react';
 import { render } from '@testing-library/react';
 import Dashboard from './';
 import { getProgramTickets } from '../../api';
@@ -10,16 +9,16 @@ import { RouterProvider } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SnackBarProvider } from '../../contexts/use-snack-bar';
 
-jest.mock('axios');
-jest.mock('../../api');
-jest.mock('@mui/x-charts/BarChart', () => ({
-    BarChart: jest.fn().mockImplementation(({ children }) => children)
+vi.mock('axios');
+vi.mock('../../api');
+vi.mock('@mui/x-charts/BarChart', () => ({
+    BarChart: vi.fn().mockImplementation(({ children }) => children)
 }));
-jest.mock('@mui/x-charts/ChartsAxis', () => ({
-    axisClasses: jest.fn().mockImplementation(({ children }) => children)
+vi.mock('@mui/x-charts/ChartsAxis', () => ({
+    axisClasses: vi.fn().mockImplementation(({ children }) => children)
 }));
 
-jest.mock('../../components/AuthProvider');
+vi.mock('../../components/AuthProvider');
 const createTestQueryClient = () =>
     new QueryClient({
         defaultOptions: {
@@ -36,9 +35,9 @@ const renderWithQueryClient = (ui) => {
     );
 };
 
-// jest.mock('react-router-dom', () => ({
-//   ...jest.requireActual('react-router-dom'),
-//   useLoaderData: jest.fn()
+// vi.mock('react-router-dom', async (importOriginal) => ({
+//   ...(await importOriginal<typeof import('react-router-dom')>()),
+//   useLoaderData: vi.fn()
 // }));
 
 class ResizeObserver {
@@ -71,10 +70,10 @@ const routes = [
 describe('Dashboard', () => {
     window.ResizeObserver = ResizeObserver;
     test('agent dashboard not crash', async () => {
-        getProgramTickets.mockResolvedValue({
+        vi.mocked(getProgramTickets).mockResolvedValue({
             data: { success: true, data: [] }
         });
-        useAuth.mockReturnValue({
+        vi.mocked(useAuth).mockReturnValue({
             user: { role: 'Agent', _id: '639baebf8b84944b872cf648' }
         });
         const testQueryClient = createTestQueryClient();

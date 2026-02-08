@@ -1,20 +1,22 @@
-import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
+import type { ReactElement } from 'react';
+import type { AxiosResponse } from 'axios';
 import ArchivStudents from '.';
 import { getArchivStudents } from '../../api';
 import { useAuth } from '../../components/AuthProvider/index';
+import type { AuthContextValue } from '../../api/types';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { mockSingleArchivStudentData } from '../../test/testingArchivStudentData';
 
-jest.mock('axios');
-jest.mock('../../api', () => ({
-    ...jest.requireActual('../../api'),
-    getArchivStudents: jest.fn(),
-    updateArchivStudents: jest.fn()
+vi.mock('axios');
+vi.mock('../../api', async (importOriginal) => ({
+    ...(await importOriginal<typeof import('../../api')>()),
+    getArchivStudents: vi.fn(),
+    updateArchivStudents: vi.fn()
 }));
-jest.mock('../../components/AuthProvider');
+vi.mock('../../components/AuthProvider');
 
 const createTestQueryClient = () =>
     new QueryClient({
@@ -25,7 +27,7 @@ const createTestQueryClient = () =>
         }
     });
 
-const renderWithQueryClient = (ui) => {
+const renderWithQueryClient = (ui: ReactElement) => {
     const testQueryClient = createTestQueryClient();
     return render(
         <QueryClientProvider client={testQueryClient}>{ui}</QueryClientProvider>
@@ -42,17 +44,24 @@ describe('ArchivStudents', () => {
     window.ResizeObserver = ResizeObserver;
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     test('Agent: archiv student page not crash', async () => {
-        getArchivStudents.mockResolvedValue({
+        vi.mocked(getArchivStudents).mockResolvedValue({
             data: mockSingleArchivStudentData,
-            status: 200
-        });
-        useAuth.mockReturnValue({
-            user: { role: 'Agent', _id: '639baebf8b84944b872cf648' }
-        });
+            status: 200,
+            statusText: 'OK',
+            headers: {},
+            config: {} as import('axios').InternalAxiosRequestConfig
+        } as AxiosResponse);
+        vi.mocked(useAuth).mockReturnValue({
+            user: { role: 'Agent', _id: '639baebf8b84944b872cf648' },
+            isAuthenticated: true,
+            isLoaded: true,
+            login: () => {},
+            logout: () => {}
+        } as AuthContextValue);
 
         renderWithQueryClient(
             <MemoryRouter>
@@ -75,10 +84,14 @@ describe('ArchivStudents', () => {
     });
 
     test('Shows loading state initially', () => {
-        getArchivStudents.mockImplementation(() => new Promise(() => {})); // Never resolves
-        useAuth.mockReturnValue({
-            user: { role: 'Agent', _id: '639baebf8b84944b872cf648' }
-        });
+        vi.mocked(getArchivStudents).mockImplementation(() => new Promise(() => {})); // Never resolves
+        vi.mocked(useAuth).mockReturnValue({
+            user: { role: 'Agent', _id: '639baebf8b84944b872cf648' },
+            isAuthenticated: true,
+            isLoaded: true,
+            login: () => {},
+            logout: () => {}
+        } as AuthContextValue);
 
         renderWithQueryClient(
             <MemoryRouter>
@@ -91,9 +104,13 @@ describe('ArchivStudents', () => {
     });
 
     test('Redirects non-TaiGer users', () => {
-        useAuth.mockReturnValue({
-            user: { role: 'Student', _id: '639baebf8b84944b872cf648' }
-        });
+        vi.mocked(useAuth).mockReturnValue({
+            user: { role: 'Student', _id: '639baebf8b84944b872cf648' },
+            isAuthenticated: true,
+            isLoaded: true,
+            login: () => {},
+            logout: () => {}
+        } as AuthContextValue);
 
         renderWithQueryClient(
             <MemoryRouter>

@@ -2,15 +2,18 @@ import { render, screen } from '@testing-library/react';
 import OffcanvasBaseDocument from './OffcanvasBaseDocument';
 
 describe('OffcanvasBaseDocument', () => {
-    it('renders when open', () => {
+    test('renders when open', () => {
+        const onChangeURL = vi.fn(() => {});
+        const onHide = vi.fn(() => {});
+        const updateDocLink = vi.fn(() => {});
         render(
             <OffcanvasBaseDocument
                 docName="Test Doc"
                 link="https://example.com"
-                onChangeURL={jest.fn()}
-                onHide={jest.fn()}
+                onChangeURL={onChangeURL}
+                onHide={onHide}
                 open={true}
-                updateDocLink={jest.fn()}
+                updateDocLink={updateDocLink}
             />
         );
         expect(screen.getByText(/Edit/i)).toBeInTheDocument();
@@ -18,15 +21,18 @@ describe('OffcanvasBaseDocument', () => {
         expect(screen.getByText('Test Doc')).toBeInTheDocument();
     });
 
-    it('does not render content when closed', () => {
+    test('does not render content when closed', () => {
+        const onChangeURL = vi.fn(() => {});
+        const onHide = vi.fn(() => {});
+        const updateDocLink = vi.fn(() => {});
         render(
             <OffcanvasBaseDocument
                 docName="Test Doc"
                 link=""
-                onChangeURL={jest.fn()}
-                onHide={jest.fn()}
+                onChangeURL={onChangeURL}
+                onHide={onHide}
                 open={false}
-                updateDocLink={jest.fn()}
+                updateDocLink={updateDocLink}
             />
         );
         expect(screen.queryByText('Test Doc')).not.toBeInTheDocument();

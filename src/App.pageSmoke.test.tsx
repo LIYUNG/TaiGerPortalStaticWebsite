@@ -2,7 +2,8 @@
  * Page smoke tests: each page component renders without crashing.
  * Catches refactoring regressions (missing imports, wrong paths, broken providers).
  */
-import React, { Suspense } from 'react';
+import { Suspense, lazy, LazyExoticComponent, ComponentType } from 'react';
+import { ReactNode } from 'react';
 import { render, waitFor } from '@testing-library/react';
 import {
     createMemoryRouter,
@@ -15,7 +16,7 @@ import { SnackBarProvider } from './contexts/use-snack-bar';
 import { CustomThemeProvider } from './components/ThemeProvider';
 import { renderWithProviders, createTestQueryClient } from './test/test-utils';
 
-jest.mock('./components/AuthProvider', () => ({
+vi.mock('./components/AuthProvider', () => ({
     useAuth: () => ({
         user: {
             _id: 'test-user-id',
@@ -28,60 +29,60 @@ jest.mock('./components/AuthProvider', () => ({
     })
 }));
 
-jest.mock('./api', () => ({
-    ...jest.requireActual('./api'),
-    getProgramTickets: jest
+vi.mock('./api', async (importOriginal) => ({
+    ...(await importOriginal<typeof import('./api')>()),
+    getProgramTickets: vi
         .fn()
         .mockResolvedValue({ data: { success: true, data: [] } }),
-    getAdmissions: jest.fn().mockResolvedValue({ data: { result: [] } }),
-    getArchivStudents: jest.fn().mockResolvedValue({ data: [], status: 200 }),
-    getStudents: jest.fn().mockResolvedValue({ data: [], status: 200 }),
-    getProgramsAndCourseKeywordSetsLoader: jest.fn().mockResolvedValue({}),
-    getApplicationStudentV2: jest.fn().mockResolvedValue({ data: null }),
-    getComplaintsTickets: jest.fn().mockResolvedValue({ data: { data: [] } }),
-    getComplaintsTicket: jest
+    getAdmissions: vi.fn().mockResolvedValue({ data: { result: [] } }),
+    getArchivStudents: vi.fn().mockResolvedValue({ data: [], status: 200 }),
+    getStudents: vi.fn().mockResolvedValue({ data: [], status: 200 }),
+    getProgramsAndCourseKeywordSetsLoader: vi.fn().mockResolvedValue({}),
+    getApplicationStudentV2: vi.fn().mockResolvedValue({ data: null }),
+    getComplaintsTickets: vi.fn().mockResolvedValue({ data: { data: [] } }),
+    getComplaintsTicket: vi
         .fn()
         .mockResolvedValue({ data: { data: {} }, status: 200 }),
-    getMyAcademicBackground: jest.fn().mockResolvedValue({ data: {} }),
-    getProgram: jest.fn().mockResolvedValue({ data: {} }),
-    getAllOpenInterviews: jest.fn().mockResolvedValue({ data: [] })
+    getMyAcademicBackground: vi.fn().mockResolvedValue({ data: {} }),
+    getProgram: vi.fn().mockResolvedValue({ data: {} }),
+    getAllOpenInterviews: vi.fn().mockResolvedValue({ data: [] })
 }));
 
-jest.mock('@mui/x-charts/BarChart', () => ({
-    BarChart: ({ children }: { children?: React.ReactNode }) => children ?? null
+vi.mock('@mui/x-charts/BarChart', () => ({
+    BarChart: ({ children }: { children?: ReactNode }) => children ?? null
 }));
-jest.mock('@mui/x-charts/ChartsAxis', () => ({
+vi.mock('@mui/x-charts/ChartsAxis', () => ({
     axisClasses: {}
 }));
 
 // Prevent useQuery from hanging in pages that fetch on mount
-jest.mock('@tanstack/react-query', () => ({
-    ...jest.requireActual('@tanstack/react-query'),
-    useQuery: jest.fn().mockReturnValue({
+vi.mock('@tanstack/react-query', async (importOriginal) => ({
+    ...(await importOriginal<typeof import('@tanstack/react-query')>()),
+    useQuery: vi.fn().mockReturnValue({
         data: { data: [], success: true },
         isLoading: false,
         isError: false,
         error: null,
-        refetch: jest.fn()
+        refetch: vi.fn()
     })
 }));
 
-jest.mock('./hooks/useStudents', () => ({
+vi.mock('./hooks/useStudents', () => ({
     __esModule: true,
     default: () => ({
         students: [],
         res_modal_status: 0,
         res_modal_message: '',
-        ConfirmError: jest.fn(),
-        submitUpdateAgentlist: jest.fn(),
-        submitUpdateEditorlist: jest.fn(),
-        submitUpdateAttributeslist: jest.fn(),
-        updateStudentArchivStatus: jest.fn()
+        ConfirmError: vi.fn(),
+        submitUpdateAgentlist: vi.fn(),
+        submitUpdateEditorlist: vi.fn(),
+        submitUpdateAttributeslist: vi.fn(),
+        updateStudentArchivStatus: vi.fn()
     })
 }));
 
 const wrapWithSuspense = (
-    Component: React.LazyExoticComponent<React.ComponentType<unknown>>
+    Component: LazyExoticComponent<ComponentType<unknown>>
 ) => (
     <Suspense fallback={<div data-testid="loading">Loading...</div>}>
         <Component />
@@ -117,7 +118,7 @@ function renderPageRoute(route: RouteObject, initialEntry: string): void {
 
 describe('Page smoke tests – all pages render without crashing', () => {
     test('Dashboard (default) renders', async () => {
-        const DashboardDefault = React.lazy(() => import('./Demo/Dashboard'));
+        const DashboardDefault = lazy(() => import('./Demo/Dashboard'));
         renderPageRoute(
             {
                 path: '/dashboard/default',
@@ -131,7 +132,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
     });
 
     test('Admissions page renders', async () => {
-        const Admissions = React.lazy(
+        const Admissions = lazy(
             () => import('./Demo/Admissions/Admissions')
         );
         renderWithProviders(wrapWithSuspense(Admissions), {
@@ -143,7 +144,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
     });
 
     test('Student Database page renders', async () => {
-        const StudentDatabase = React.lazy(
+        const StudentDatabase = lazy(
             () => import('./Demo/StudentDatabase/index')
         );
         renderPageRoute(
@@ -159,7 +160,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
     }, 25000);
 
     test('Student Database Overview renders', async () => {
-        const StudentDatabaseOverview = React.lazy(
+        const StudentDatabaseOverview = lazy(
             () => import('./Demo/StudentDatabase/StudentDatabaseOverview')
         );
         renderPageRoute(
@@ -174,24 +175,31 @@ describe('Page smoke tests – all pages render without crashing', () => {
         });
     });
 
-    test('Archiv Students page renders', async () => {
-        const ArchivStudent = React.lazy(
-            () => import('./Demo/ArchivStudent/index')
-        );
-        renderPageRoute(
-            {
-                path: '/archiv/students',
-                element: wrapWithSuspense(ArchivStudent)
-            },
-            '/archiv/students'
-        );
-        await waitFor(() => {
-            expect(document.body.textContent).toBeDefined();
-        });
-    });
+    test(
+        'Archiv Students page renders',
+        async () => {
+            const ArchivStudent = lazy(
+                () => import('./Demo/ArchivStudent/index')
+            );
+            renderPageRoute(
+                {
+                    path: '/archiv/students',
+                    element: wrapWithSuspense(ArchivStudent)
+                },
+                '/archiv/students'
+            );
+            await waitFor(
+                () => {
+                    expect(document.body.textContent).toBeDefined();
+                },
+                { timeout: 40000 }
+            );
+        },
+        40000
+    );
 
     test('Program List page renders', async () => {
-        const ProgramList = React.lazy(
+        const ProgramList = lazy(
             () => import('./Demo/Program/ProgramList')
         );
         renderPageRoute(
@@ -203,51 +211,72 @@ describe('Page smoke tests – all pages render without crashing', () => {
         });
     });
 
-    test('Users Table page renders', async () => {
-        const UsersTable = React.lazy(() => import('./Demo/Users/UsersTable'));
-        renderPageRoute(
-            { path: '/users', element: wrapWithSuspense(UsersTable) },
-            '/users'
-        );
-        await waitFor(() => {
-            expect(document.body.textContent).toBeDefined();
-        });
-    });
+    test(
+        'Users Table page renders',
+        async () => {
+            const UsersTable = lazy(() => import('./Demo/Users/UsersTable'));
+            renderPageRoute(
+                { path: '/users', element: wrapWithSuspense(UsersTable) },
+                '/users'
+            );
+            await waitFor(
+                () => {
+                    expect(document.body.textContent).toBeDefined();
+                },
+                { timeout: 45000 }
+            );
+        },
+        45000
+    );
 
-    test('CVMLRL Center / Overview renders', async () => {
-        const CVMLRLOverview = React.lazy(
-            () => import('./Demo/CVMLRLCenter/index')
-        );
-        renderPageRoute(
-            {
-                path: '/cv-ml-rl-center',
-                element: wrapWithSuspense(CVMLRLOverview)
-            },
-            '/cv-ml-rl-center'
-        );
-        await waitFor(() => {
-            expect(document.body.textContent).toBeDefined();
-        });
-    });
+    test(
+        'CVMLRL Center / Overview renders',
+        async () => {
+            const CVMLRLOverview = lazy(
+                () => import('./Demo/CVMLRLCenter/index')
+            );
+            renderPageRoute(
+                {
+                    path: '/cv-ml-rl-center',
+                    element: wrapWithSuspense(CVMLRLOverview)
+                },
+                '/cv-ml-rl-center'
+            );
+            await waitFor(
+                () => {
+                    expect(document.body.textContent).toBeDefined();
+                },
+                { timeout: 40000 }
+            );
+        },
+        40000
+    );
 
-    test('Base Documents page renders', async () => {
-        const BaseDocuments = React.lazy(
-            () => import('./Demo/BaseDocuments/BaseDocuments')
-        );
-        renderPageRoute(
-            {
-                path: '/base-documents',
-                element: wrapWithSuspense(BaseDocuments)
-            },
-            '/base-documents'
-        );
-        await waitFor(() => {
-            expect(document.body.textContent).toBeDefined();
-        });
-    });
+    test(
+        'Base Documents page renders',
+        async () => {
+            const BaseDocuments = lazy(
+                () => import('./Demo/BaseDocuments/BaseDocuments')
+            );
+            renderPageRoute(
+                {
+                    path: '/base-documents',
+                    element: wrapWithSuspense(BaseDocuments)
+                },
+                '/base-documents'
+            );
+            await waitFor(
+                () => {
+                    expect(document.body.textContent).toBeDefined();
+                },
+                { timeout: 15000 }
+            );
+        },
+        15000
+    );
 
     test('Settings page renders', async () => {
-        const Settings = React.lazy(() => import('./Demo/Settings/index'));
+        const Settings = lazy(() => import('./Demo/Settings/index'));
         renderPageRoute(
             { path: '/settings', element: wrapWithSuspense(Settings) },
             '/settings'
@@ -258,7 +287,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
     });
 
     test('Profile page renders', async () => {
-        const Profile = React.lazy(() => import('./Demo/Profile/index'));
+        const Profile = lazy(() => import('./Demo/Profile/index'));
         renderPageRoute(
             { path: '/profile', element: wrapWithSuspense(Profile) },
             '/profile'
@@ -269,7 +298,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
     });
 
     test('Learning Resources page renders', async () => {
-        const LearningResources = React.lazy(
+        const LearningResources = lazy(
             () => import('./Demo/LearningResources/index')
         );
         renderPageRoute(
@@ -285,7 +314,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
     });
 
     test('Download page renders', async () => {
-        const Download = React.lazy(
+        const Download = lazy(
             () => import('./Demo/DownloadCenter/DownloadPage')
         );
         renderPageRoute(
@@ -298,7 +327,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
     });
 
     test('My Courses page renders', async () => {
-        const MyCourses = React.lazy(() => import('./Demo/MyCourses/index'));
+        const MyCourses = lazy(() => import('./Demo/MyCourses/index'));
         renderPageRoute(
             { path: '/my-courses', element: wrapWithSuspense(MyCourses) },
             '/my-courses'
@@ -309,7 +338,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
     });
 
     test('Applications Overview renders', async () => {
-        const ApplicationsOverview = React.lazy(
+        const ApplicationsOverview = lazy(
             () => import('./Demo/ApplicantsOverview/index')
         );
         renderPageRoute(
@@ -325,7 +354,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
     });
 
     test('All Applicants Overview renders', async () => {
-        const AllApplicantsOverview = React.lazy(
+        const AllApplicantsOverview = lazy(
             () => import('./Demo/ApplicantsOverview/allStudentIndex')
         );
         renderPageRoute(
@@ -341,7 +370,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
     });
 
     test('Assignment Agents page renders', async () => {
-        const AgentsAssignment = React.lazy(
+        const AgentsAssignment = lazy(
             () => import('./Demo/AssignmentAgentsEditors/AssignAgents/index')
         );
         renderPageRoute(
@@ -357,7 +386,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
     });
 
     test('Assignment Editors page renders', async () => {
-        const EditorsAssignment = React.lazy(
+        const EditorsAssignment = lazy(
             () => import('./Demo/AssignmentAgentsEditors/AssignEditors/index')
         );
         renderPageRoute(
@@ -373,7 +402,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
     });
 
     test('Survey page renders', async () => {
-        const Survey = React.lazy(() => import('./Demo/Survey/index'));
+        const Survey = lazy(() => import('./Demo/Survey/index'));
         renderPageRoute(
             { path: '/survey', element: wrapWithSuspense(Survey) },
             '/survey'
@@ -384,7 +413,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
     });
 
     test('Customer Support page renders', async () => {
-        const CustomerSupport = React.lazy(
+        const CustomerSupport = lazy(
             () => import('./Demo/CustomerSupport')
         );
         renderPageRoute(

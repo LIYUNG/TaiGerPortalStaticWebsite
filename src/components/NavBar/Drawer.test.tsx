@@ -1,32 +1,35 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { CustomDrawer } from './Drawer'; // Update the import path accordingly
+import { CustomDrawer } from './Drawer';
 import { useAuth } from '../../components/AuthProvider/index';
+import type { AuthContextValue } from '../../api/types';
 import { BrowserRouter } from 'react-router-dom';
 import type { Theme } from '@mui/material/styles';
 
-// Mock the hooks
-jest.mock('../../components/AuthProvider/index', () => ({
-    useAuth: jest.fn()
+vi.mock('../../components/AuthProvider/index', () => ({
+    useAuth: vi.fn()
 }));
 
 describe('CustomDrawer Component', () => {
     const mockProps = {
         open: true,
         ismobile: false,
-        handleDrawerClose: jest.fn(),
+        handleDrawerClose: vi.fn(() => {}),
         theme: { direction: 'ltr' } as unknown as Theme
     };
 
     beforeEach(() => {
-        (useAuth as jest.Mock).mockReturnValue({
+        vi.mocked(useAuth).mockReturnValue({
             user: {
                 role: 'Student',
                 _id: '639baebf8b84944b872cf648',
                 firstname: 'test',
                 lastname: 'student'
-            } // Mock user role
-        });
+            },
+            isAuthenticated: true,
+            isLoaded: true,
+            login: () => {},
+            logout: () => {}
+        } as AuthContextValue);
     });
 
     test('renders the correct menu items For Student', () => {
