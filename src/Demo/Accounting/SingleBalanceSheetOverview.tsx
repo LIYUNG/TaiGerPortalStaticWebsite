@@ -1,4 +1,3 @@
-import React from 'react';
 import { Navigate, useParams, Link as LinkDom } from 'react-router-dom';
 import { Box, Card, Button, Typography } from '@mui/material';
 import { is_TaiGer_role } from '@taiger-common/core';

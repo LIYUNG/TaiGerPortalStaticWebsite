@@ -3,7 +3,7 @@ import { Link as LinkDom } from 'react-router-dom';
 
 export interface BreadcrumbItem {
     label: string;
-    link: string;
+    link?: string;
 }
 
 interface BreadcrumbsNavigationProps {
@@ -26,7 +26,7 @@ export const BreadcrumbsNavigation = ({
                         color="inherit"
                         component={LinkDom}
                         key={index}
-                        to={item.link}
+                        to={item.link!}
                         underline="hover"
                     >
                         {item.label}

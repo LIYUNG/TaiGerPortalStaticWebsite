@@ -59,6 +59,10 @@ describe('ApplicantsOverview', () => {
     test('ApplicationsOverview not crash', async () => {
         vi.mocked(getStudents).mockResolvedValue({ data: mockSingleData });
         vi.mocked(getProgramTickets).mockResolvedValue({
+            status: 200,
+            statusText: 'OK',
+            headers: {},
+            config: {},
             data: { success: true, data: [] }
         });
         vi.mocked(getStudentsV3).mockResolvedValue({ data: mockSingleData });

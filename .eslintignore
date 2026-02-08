@@ -1,7 +1,0 @@
-/build
-/dist
-/node_modules
-/public
-/src/**/*css
-/src/i18n
-i18next-scanner.config.engine.js
