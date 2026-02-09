@@ -86,7 +86,8 @@ vi.mock('@tanstack/react-query', async (importOriginal) => ({
     })
 }));
 
-// Base Documents (and AllBaseDocuments) use getStudentsAndDocLinks2Query; ensure queryFn resolves immediately
+// Base Documents (and AllBaseDocuments) use getStudentsAndDocLinks2Query; ensure queryFn resolves immediately.
+// UsersTable uses getUsersCountQuery and UsersList uses getUsersQuery; mock them so queries resolve immediately.
 vi.mock('./api/query', async (importOriginal) => {
     const actual =
         await importOriginal<typeof import('./api/query')>();
@@ -97,6 +98,25 @@ vi.mock('./api/query', async (importOriginal) => {
             queryFn: () =>
                 Promise.resolve({ data: [], base_docs_link: [] }),
             staleTime: 1000 * 60 * 1
+        }),
+        getUsersCountQuery: () => ({
+            queryKey: ['users/count'],
+            queryFn: () =>
+                Promise.resolve({
+                    data: {
+                        studentCount: 0,
+                        agentCount: 0,
+                        editorCount: 0,
+                        externalCount: 0,
+                        adminCount: 0
+                    }
+                }),
+            staleTime: 1000 * 60 * 5
+        }),
+        getUsersQuery: () => ({
+            queryKey: ['users'],
+            queryFn: () => Promise.resolve({ data: { data: [] } }),
+            staleTime: 1000 * 60 * 5
         })
     };
 });
@@ -245,18 +265,25 @@ describe('Page smoke tests – all pages render without crashing', () => {
     });
 
     test('Users Table page renders', async () => {
-        const UsersTable = lazy(() => import('./Demo/Users/UsersTable'));
+        // Static import avoids slow lazy() chunk load in test env; useQuery is already mocked
+        const { default: UsersTable } = await import(
+            './Demo/Users/UsersTable'
+        );
         renderPageRoute(
-            { path: '/users', element: wrapWithSuspense(UsersTable) },
+            {
+                path: '/users',
+                element: (
+                    <Suspense fallback={<div data-testid="loading">Loading...</div>}>
+                        <UsersTable />
+                    </Suspense>
+                )
+            },
             '/users'
         );
-        await waitFor(
-            () => {
-                expect(document.body.textContent).toBeDefined();
-            },
-            { timeout: 10000 }
-        );
-    }, 10000);
+        await waitFor(() => {
+            expect(document.body.textContent).toBeDefined();
+        });
+    });
 
     test('CVMLRL Center / Overview renders', async () => {
         const CVMLRLOverview = lazy(

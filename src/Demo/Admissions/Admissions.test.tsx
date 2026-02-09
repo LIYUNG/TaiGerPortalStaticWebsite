@@ -88,31 +88,49 @@ describe('Admissions page checking', () => {
     test(
         'Deep-link to Student tab via ?tab=student selects the tab',
         async () => {
-            vi.mocked(getAdmissions).mockResolvedValue({
+            const admissionsResponse = {
                 data: mockAdmissionsData,
-                result: []
-            });
-            vi.mocked(getActiveStudents).mockResolvedValue({ data: [] });
+                result: [] as unknown[],
+                success: true
+            };
+            const activeStudentsResponse = { data: [] };
+            vi.mocked(getAdmissions).mockResolvedValue(admissionsResponse);
+            vi.mocked(getActiveStudents).mockResolvedValue(activeStudentsResponse);
             vi.mocked(useAuth).mockReturnValue(mockAuthAgent);
 
-            renderWithQueryClient(
-                <MemoryRouter
-                    initialEntries={[
-                        { pathname: '/admissions-overview', search: '?tab=student' }
-                    ]}
-                >
-                    <Admissions />
-                </MemoryRouter>
+            const testQueryClient = createTestQueryClient();
+            // Pre-seed cache so useQuery returns immediately (no async delay)
+            // Pre-seed with key matching queryString.stringify({ decided: 'O', closed, admission })
+            testQueryClient.setQueryData(
+                ['admissions', 'decided=O&closed=&admission='],
+                admissionsResponse as unknown
+            );
+            testQueryClient.setQueryData(
+                ['students/active', 'archiv=false'],
+                activeStudentsResponse
             );
 
-            await waitFor(
-                () => {
-                    expect(screen.getByTestId('admissinos_page')).toBeInTheDocument();
-                },
-                { timeout: 5000 }
+            render(
+                <QueryClientProvider client={testQueryClient}>
+                    <MemoryRouter
+                        initialEntries={[
+                            {
+                                pathname: '/admissions-overview',
+                                search: '?tab=student'
+                            }
+                        ]}
+                    >
+                        <Admissions />
+                    </MemoryRouter>
+                </QueryClientProvider>
             );
 
-            // The Student tab panel renders its nested tablist
+            await waitFor(() => {
+                expect(
+                    screen.getByTestId('admissinos_page')
+                ).toBeInTheDocument();
+            });
+
             expect(
                 await screen.findByRole('tablist', {
                     name: /admissions students tables/i
