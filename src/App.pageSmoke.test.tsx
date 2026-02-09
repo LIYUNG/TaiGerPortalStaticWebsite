@@ -35,9 +35,20 @@ vi.mock('./api', async (importOriginal) => ({
     getProgramTickets: vi
         .fn()
         .mockResolvedValue({ data: { success: true, data: [] } }),
-    getAdmissions: vi.fn().mockResolvedValue({ data: { result: [] } }),
+    getAdmissions: vi.fn().mockResolvedValue({ data: { result: [] }, success: true }),
     getArchivStudents: vi.fn().mockResolvedValue({ data: [], status: 200 }),
     getStudents: vi.fn().mockResolvedValue({ data: [], status: 200 }),
+    getUsersCount: vi.fn().mockResolvedValue({
+        data: {
+            studentCount: 0,
+            agentCount: 0,
+            editorCount: 0,
+            externalCount: 0,
+            adminCount: 0
+        }
+    }),
+    getUsers: vi.fn().mockResolvedValue({ data: { data: [] } }),
+    getUsersOverview: vi.fn().mockResolvedValue({ data: [] }),
     getStudentsAndDocLinks2: vi.fn().mockResolvedValue({
         data: [],
         base_docs_link: []
@@ -74,11 +85,11 @@ vi.mock('@mui/x-charts/ChartsAxis', () => ({
     axisClasses: {}
 }));
 
-// Prevent useQuery from hanging in pages that fetch on mount (return shape matches common API responses)
+// Mock useQuery so all pages get sync mock data (no async API calls = faster tests)
 vi.mock('@tanstack/react-query', async (importOriginal) => ({
     ...(await importOriginal<typeof import('@tanstack/react-query')>()),
     useQuery: vi.fn().mockReturnValue({
-        data: { data: [], success: true, base_docs_link: [] },
+        data: { data: [], success: true, base_docs_link: [], result: [] },
         isLoading: false,
         isError: false,
         error: null,
@@ -247,9 +258,9 @@ describe('Page smoke tests – all pages render without crashing', () => {
             () => {
                 expect(document.body.textContent).toBeDefined();
             },
-            { timeout: 10000 }
+            { timeout: 5000 }
         );
-    }, 10000);
+    }, 5000);
 
     test('Program List page renders', async () => {
         const ProgramList = lazy(
@@ -265,7 +276,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
     });
 
     test('Users Table page renders', async () => {
-        // Static import avoids slow lazy() chunk load in test env; useQuery is already mocked
+        // Static import + useQuery/api mocks = no network; timeout avoids long hang if import is slow
         const { default: UsersTable } = await import(
             './Demo/Users/UsersTable'
         );
@@ -280,10 +291,13 @@ describe('Page smoke tests – all pages render without crashing', () => {
             },
             '/users'
         );
-        await waitFor(() => {
-            expect(document.body.textContent).toBeDefined();
-        });
-    });
+        await waitFor(
+            () => {
+                expect(document.body.textContent).toBeDefined();
+            },
+            { timeout: 5000 }
+        );
+    }, 10000);
 
     test('CVMLRL Center / Overview renders', async () => {
         const CVMLRLOverview = lazy(
@@ -300,9 +314,9 @@ describe('Page smoke tests – all pages render without crashing', () => {
             () => {
                 expect(document.body.textContent).toBeDefined();
             },
-            { timeout: 10000 }
+            { timeout: 5000 }
         );
-    }, 10000);
+    }, 5000);
 
     test('Base Documents page renders', async () => {
         const BaseDocuments = lazy(

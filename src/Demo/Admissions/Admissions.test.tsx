@@ -17,6 +17,14 @@ const mockAuthAgent: AuthContextValue = {
     logout: () => {}
 };
 
+/** Mock responses for synchronous use in tests (no async API calls) */
+const mockAdmissionsResponse = {
+    data: mockAdmissionsData,
+    result: [] as unknown[],
+    success: true
+};
+const mockActiveStudentsResponse = { data: [] };
+
 vi.mock('axios');
 vi.mock('../../api', async (importOriginal) => ({
     ...(await importOriginal<typeof import('../../api')>()),
@@ -24,6 +32,41 @@ vi.mock('../../api', async (importOriginal) => ({
     getActiveStudents: vi.fn()
 }));
 vi.mock('../../components/AuthProvider');
+
+/** When true, useQuery returns mock data for admissions/students/active (no async). Set only in deep-link test. */
+declare global {
+    var __ADMISSIONS_USE_MOCK_QUERY: boolean | undefined;
+}
+vi.mock('@tanstack/react-query', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('@tanstack/react-query')>();
+    return {
+        ...actual,
+        useQuery: vi.fn((options: { queryKey?: unknown[] }) => {
+            if (globalThis.__ADMISSIONS_USE_MOCK_QUERY && Array.isArray(options?.queryKey)) {
+                const key = options.queryKey[0];
+                if (key === 'admissions') {
+                    return {
+                        data: mockAdmissionsResponse,
+                        isLoading: false,
+                        isError: false,
+                        error: null,
+                        refetch: vi.fn()
+                    };
+                }
+                if (key === 'students/active') {
+                    return {
+                        data: mockActiveStudentsResponse,
+                        isLoading: false,
+                        isError: false,
+                        error: null,
+                        refetch: vi.fn()
+                    };
+                }
+            }
+            return (actual.useQuery as (...args: unknown[]) => unknown)(options);
+        })
+    };
+});
 
 const createTestQueryClient = () =>
     new QueryClient({
@@ -52,26 +95,14 @@ describe('Admissions page checking', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+        globalThis.__ADMISSIONS_USE_MOCK_QUERY = false;
+    });
+    afterEach(() => {
+        globalThis.__ADMISSIONS_USE_MOCK_QUERY = false;
     });
 
-    test('Admissions page renders without crashing', async () => {
-        vi.mocked(getAdmissions).mockResolvedValue({
-            data: mockAdmissionsData,
-            result: [
-                {
-                    applicationCount: 10,
-                    admissionCount: 3,
-                    rejectionCount: 2,
-                    pendingResultCount: 5,
-                    id: '2532fde46751651537926662',
-                    school: 'ETH Zurich',
-                    program_name: 'Mechanical Engineering',
-                    semester: 'WS',
-                    degree: 'M. Sc.',
-                    lang: 'English'
-                }
-            ]
-        });
+    test('Admissions page renders without crashing', () => {
+        globalThis.__ADMISSIONS_USE_MOCK_QUERY = true;
         vi.mocked(useAuth).mockReturnValue(mockAuthAgent);
 
         renderWithQueryClient(
@@ -80,65 +111,35 @@ describe('Admissions page checking', () => {
             </MemoryRouter>
         );
 
-        await waitFor(() => {
-            expect(screen.getByTestId('admissinos_page')).toBeInTheDocument();
-        });
+        expect(screen.getByTestId('admissinos_page')).toBeInTheDocument();
     });
 
-    test(
-        'Deep-link to Student tab via ?tab=student selects the tab',
-        async () => {
-            const admissionsResponse = {
-                data: mockAdmissionsData,
-                result: [] as unknown[],
-                success: true
-            };
-            const activeStudentsResponse = { data: [] };
-            vi.mocked(getAdmissions).mockResolvedValue(admissionsResponse);
-            vi.mocked(getActiveStudents).mockResolvedValue(activeStudentsResponse);
-            vi.mocked(useAuth).mockReturnValue(mockAuthAgent);
+    test('Deep-link to Student tab via ?tab=student selects the tab', () => {
+        globalThis.__ADMISSIONS_USE_MOCK_QUERY = true;
+        vi.mocked(useAuth).mockReturnValue(mockAuthAgent);
 
-            const testQueryClient = createTestQueryClient();
-            // Pre-seed cache so useQuery returns immediately (no async delay)
-            // Pre-seed with key matching queryString.stringify({ decided: 'O', closed, admission })
-            testQueryClient.setQueryData(
-                ['admissions', 'decided=O&closed=&admission='],
-                admissionsResponse as unknown
-            );
-            testQueryClient.setQueryData(
-                ['students/active', 'archiv=false'],
-                activeStudentsResponse
-            );
+        render(
+            <QueryClientProvider client={createTestQueryClient()}>
+                <MemoryRouter
+                    initialEntries={[
+                        {
+                            pathname: '/admissions-overview',
+                            search: '?tab=student'
+                        }
+                    ]}
+                >
+                    <Admissions />
+                </MemoryRouter>
+            </QueryClientProvider>
+        );
 
-            render(
-                <QueryClientProvider client={testQueryClient}>
-                    <MemoryRouter
-                        initialEntries={[
-                            {
-                                pathname: '/admissions-overview',
-                                search: '?tab=student'
-                            }
-                        ]}
-                    >
-                        <Admissions />
-                    </MemoryRouter>
-                </QueryClientProvider>
-            );
-
-            await waitFor(() => {
-                expect(
-                    screen.getByTestId('admissinos_page')
-                ).toBeInTheDocument();
-            });
-
-            expect(
-                await screen.findByRole('tablist', {
-                    name: /admissions students tables/i
-                })
-            ).toBeInTheDocument();
-        },
-        5000
-    );
+        expect(screen.getByTestId('admissinos_page')).toBeInTheDocument();
+        expect(
+            screen.getByRole('tablist', {
+                name: /admissions students tables/i
+            })
+        ).toBeInTheDocument();
+    });
 
     test('Admissions page shows loading state', () => {
         vi.mocked(getAdmissions).mockImplementation(() => new Promise(() => {})); // Never resolves
