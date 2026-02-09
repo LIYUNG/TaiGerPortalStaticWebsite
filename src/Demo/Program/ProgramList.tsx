@@ -11,8 +11,13 @@ import { useAuth } from '../../components/AuthProvider';
 import { appConfig } from '../../config';
 import { getProgramsQuery } from '../../api/query';
 import { ProgramsTable } from './ProgramsTable';
+import type { IStudentResponse } from '../../api/types';
 
-const ProgramList = (props) => {
+export interface ProgramListProps {
+    student?: IStudentResponse | null;
+}
+
+const ProgramList = (props: ProgramListProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const { data, isLoading, isError, error } = useQuery(getProgramsQuery());
@@ -20,12 +25,16 @@ const ProgramList = (props) => {
 
     TabTitle(t('Program List', { ns: 'common' }));
 
-    if (!is_TaiGer_role(user)) {
+    if (!user || !is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
     if (isError) {
-        return error;
+        return (
+            <Typography color="error">
+                {error instanceof Error ? error.message : String(error)}
+            </Typography>
+        );
     }
 
     return (

@@ -12,7 +12,17 @@ import {
 
 import { useTranslation } from 'react-i18next';
 
-const UsersListSubpage = (props) => {
+export interface UsersListSubpageProps {
+    show: boolean;
+    setModalHide: () => void;
+    firstname: string;
+    lastname: string;
+    selected_user_role: string;
+    handleChange2: (e: unknown) => void;
+    onSubmit2: (e: unknown) => void;
+}
+
+const UsersListSubpage = (props: UsersListSubpageProps) => {
     const { t } = useTranslation();
     const user_roles = ['Student', 'Editor', 'Agent', 'External'];
     return (

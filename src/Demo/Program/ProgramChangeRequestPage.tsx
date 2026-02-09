@@ -21,7 +21,17 @@ import { appConfig } from '../../config';
 import DEMO from '../../store/constant';
 import { convertDate } from '../../utils/contants';
 
-const CustomBreadcrumbs = ({ program }) => {
+export interface ProgramChangeRequestBreadcrumbProgram {
+    _id: string | number;
+    school: string;
+    program_name: string;
+}
+
+export interface CustomBreadcrumbsProps {
+    program: ProgramChangeRequestBreadcrumbProgram;
+}
+
+const CustomBreadcrumbs = ({ program }: CustomBreadcrumbsProps) => {
     const { t } = useTranslation();
     return (
         <Breadcrumbs aria-label="breadcrumb">
@@ -44,7 +54,7 @@ const CustomBreadcrumbs = ({ program }) => {
             <Link
                 color="inherit"
                 component={LinkDom}
-                to={`${DEMO.SINGLE_PROGRAM_LINK(program._id)}`}
+                to={DEMO.SINGLE_PROGRAM_LINK(String(program._id))}
                 underline="hover"
             >
                 {`${program.school}-${program.program_name}`}
@@ -87,7 +97,7 @@ const ProgramChangeRequestPage = () => {
             const { data } = res.data;
             setOriginalProgram(data);
         });
-    }, [programId]);
+    }, [programId, navigate]);
 
     return (
         <>

@@ -113,12 +113,12 @@ const MeetingPage = () => {
     };
 
     const { user } = useAuth();
+    const { data, isLoading } = useQuery(getCRMMeetingsQuery());
+    const { data: leadsData } = useQuery(getCRMLeadsQuery());
+
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
-
-    const { data, isLoading } = useQuery(getCRMMeetingsQuery());
-    const { data: leadsData } = useQuery(getCRMLeadsQuery());
 
     const handleMeetingUpdate = async (meetingId, payload) => {
         try {

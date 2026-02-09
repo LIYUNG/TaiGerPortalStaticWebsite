@@ -128,8 +128,7 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
     });
 
     useEffect(() => {
-        setCommunicationsState((prevState) => ({
-            ...prevState,
+        const nextState = {
             upperThread: [],
             editorState: {},
             files: [],
@@ -142,8 +141,14 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
                     i >= data.length - 2 ? i : -1
                 ),
             loadButtonDisabled: false
-        }));
-    }, [data]);
+        };
+        queueMicrotask(() => {
+            setCommunicationsState((prevState) => ({
+                ...prevState,
+                ...nextState
+            }));
+        });
+    }, [data, student]);
 
     const handleLoadMessages = (): void => {
         setCommunicationsState((prevState) => ({

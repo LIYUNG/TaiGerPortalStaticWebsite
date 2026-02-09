@@ -9,6 +9,7 @@ import {
 import { useMutation } from '@tanstack/react-query';
 
 import { deleteProgramV2, processProgramList, refreshProgram } from '../../api';
+import type { GetProgramResponse } from '../../api/types';
 import SingleProgramView from './SingleProgramView';
 import ProgramDeleteWarning from './ProgramDeleteWarning';
 import { useAuth } from '../../components/AuthProvider';
@@ -20,7 +21,7 @@ import DEMO from '../../store/constant';
 import { useSnackBar } from '../../contexts/use-snack-bar';
 
 const SingleProgram = () => {
-    const { data } = useLoaderData();
+    const { data } = useLoaderData() as { data: Promise<GetProgramResponse> };
     const { user } = useAuth();
     const navigate = useNavigate();
     const revalidator = useRevalidator();

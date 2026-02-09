@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { SyntheticEvent, useEffect, useMemo, useState } from 'react';
 import { Tabs, Tab, Box } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -8,11 +8,15 @@ import { useTranslation } from 'react-i18next';
 import AdmissionTable from './AdmissionTable';
 import { getAdmissionsOverviewQuery } from '../../api/query';
 
+/** Reserved for future props */
+export type AdmissionsTablesProps = object;
+
+const SUBTAB_KEYS = ['admission', 'rejection', 'pending', 'not-closed'];
+
 const AdmissionsTables = () => {
     const [value, setValue] = useState(0);
     const location = useLocation();
     const navigate = useNavigate();
-    const SUBTAB_KEYS = ['admission', 'rejection', 'pending', 'not-closed'];
 
     const searchParams = useMemo(
         () => new URLSearchParams(location.search),
@@ -28,7 +32,7 @@ const AdmissionsTables = () => {
         setValue(initialIdx);
     }, [initialIdx]);
     const { t } = useTranslation();
-    const handleChange = (event, newValue) => {
+    const handleChange = (_event: SyntheticEvent, newValue: number) => {
         setValue(newValue);
         const params = new URLSearchParams(location.search);
         params.set('subtab', SUBTAB_KEYS[newValue]);
@@ -37,7 +41,13 @@ const AdmissionsTables = () => {
         navigate(`${location.pathname}?${params.toString()}`);
     };
     const { data } = useQuery(getAdmissionsOverviewQuery());
-    const result = data?.data || [];
+    type OverviewCounts = {
+        admission?: number;
+        rejection?: number;
+        pending?: number;
+        notYetSubmitted?: number;
+    };
+    const result: OverviewCounts = (data?.data as OverviewCounts) ?? {};
 
     return (
         <>

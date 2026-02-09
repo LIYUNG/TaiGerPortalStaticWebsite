@@ -10,8 +10,15 @@ import { AssignTrainerDialog } from './AssignTrainerDialog';
 import { getEssayWriters, updateInterview } from '../../api';
 import { useSnackBar } from '../../contexts/use-snack-bar';
 import { useAuth } from '../../components/AuthProvider';
+import type { MRT_ColumnDef } from 'material-react-table';
 
-export const InterviewsTable = ({ isLoading, data, columns }) => {
+export interface InterviewsTableProps {
+    isLoading: boolean;
+    data: Record<string, unknown>[] | undefined;
+    columns: MRT_ColumnDef<Record<string, unknown>>[];
+}
+
+export const InterviewsTable = ({ isLoading, data, columns }: InterviewsTableProps) => {
     const { user } = useAuth();
     const customTableStyles = useTableStyles();
     const tableConfig = getTableConfig(customTableStyles, isLoading);
@@ -90,6 +97,8 @@ export const InterviewsTable = ({ isLoading, data, columns }) => {
         setOpenAssignDialog(false);
     };
 
+    /* material-react-table expects toolbar to be assigned to options */
+    // eslint-disable-next-line react-hooks/immutability
     table.options.renderTopToolbar = (
         <TopToolbar
             onAssignClick={handleAssignClick}

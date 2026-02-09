@@ -7,8 +7,14 @@ import { useAuth } from '../../components/AuthProvider';
 import { useMutation } from '@tanstack/react-query';
 import { queryClient } from '../../api/client';
 import { useSnackBar } from '../../contexts/use-snack-bar';
+import type { ThreadMessage } from '../../components/Message/MessageCard';
 
-const MessageContainer = (props) => {
+export interface MessageContainerProps {
+    message: ThreadMessage;
+    student_id: string;
+}
+
+const MessageContainer = (props: MessageContainerProps) => {
     const { user } = useAuth();
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
 
@@ -57,17 +63,19 @@ const MessageContainer = (props) => {
         if (props.message.message && props.message.message !== '{}') {
             try {
                 initialEditorState = JSON.parse(props.message.message);
-            } catch (e) {
+            } catch {
                 initialEditorState = { time: new Date(), blocks: [] };
             }
         } else {
             initialEditorState = { time: new Date(), blocks: [] };
         }
-        setMessageContainerState((prevState) => ({
-            ...prevState,
-            editorState: initialEditorState
-        }));
-    }, []);
+        queueMicrotask(() => {
+            setMessageContainerState((prevState) => ({
+                ...prevState,
+                editorState: initialEditorState
+            }));
+        });
+    }, [props.message.message]);
 
     const updateMessage = (
         e: React.FormEvent<HTMLFormElement>,

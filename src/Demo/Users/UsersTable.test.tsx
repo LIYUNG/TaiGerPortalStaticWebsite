@@ -69,11 +69,13 @@ describe('Users Table page checking', () => {
             </QueryClientProvider>
         );
 
-        await waitFor(() => {
-            expect(screen.getByTestId('users_table_page')).toHaveTextContent(
-                'User List'
-            );
-            // expect(1).toBe(1);
-        });
+        await waitFor(
+            () => {
+                expect(screen.getByTestId('users_table_page')).toHaveTextContent(
+                    'User List'
+                );
+            },
+            { timeout: 3000 }
+        );
     });
 });

@@ -5,17 +5,27 @@ import { Link } from '@mui/material';
 import DEMO from '../../store/constant';
 import { useTranslation } from 'react-i18next';
 import { MuiDataGrid } from '../../components/MuiDataGrid';
+import type { AdmissionsStatRow } from '../../api/types';
 
-const AdmissionsStat = ({ result }) => {
+export interface AdmissionsStatProps {
+    result: AdmissionsStatRow[];
+}
+
+const AdmissionsStat = ({ result }: AdmissionsStatProps) => {
     const { t } = useTranslation();
 
-    const admisstionStatColumns = [
+    type RenderCellParams = {
+        value: unknown;
+        row: Record<string, unknown>;
+        field: string;
+    };
+    const memoizedColumns = useMemo(() => [
         {
             field: 'school',
             headerName: t('School', { ns: 'common' }),
             width: 300,
-            renderCell: (params) => {
-                const linkUrl = `${DEMO.SINGLE_PROGRAM_LINK(params.row.id)}`;
+            renderCell: (params: RenderCellParams) => {
+                const linkUrl = `${DEMO.SINGLE_PROGRAM_LINK(params.row.id as string)}`;
                 return (
                     <Link
                         component={LinkDom}
@@ -23,7 +33,7 @@ const AdmissionsStat = ({ result }) => {
                         to={linkUrl}
                         underline="hover"
                     >
-                        {params.value}
+                        {String(params.value)}
                     </Link>
                 );
             }
@@ -32,8 +42,8 @@ const AdmissionsStat = ({ result }) => {
             field: 'program_name',
             headerName: t('Program', { ns: 'common' }),
             width: 300,
-            renderCell: (params) => {
-                const linkUrl = `${DEMO.SINGLE_PROGRAM_LINK(params.row.id)}`;
+            renderCell: (params: RenderCellParams) => {
+                const linkUrl = `${DEMO.SINGLE_PROGRAM_LINK(params.row.id as string)}`;
                 return (
                     <Link
                         component={LinkDom}
@@ -41,7 +51,7 @@ const AdmissionsStat = ({ result }) => {
                         to={linkUrl}
                         underline="hover"
                     >
-                        {params.value}
+                        {String(params.value)}
                     </Link>
                 );
             }
@@ -77,13 +87,14 @@ const AdmissionsStat = ({ result }) => {
             headerName: t('Pending Result', { ns: 'common' }),
             width: 100
         }
-    ];
-    const memoizedColumns = useMemo(
-        () => admisstionStatColumns,
-        [admisstionStatColumns]
-    );
+    ], [t]);
 
-    return <MuiDataGrid columns={memoizedColumns} rows={result} />;
+    return (
+        <MuiDataGrid
+            columns={memoizedColumns}
+            rows={result as unknown as Record<string, unknown>[]}
+        />
+    );
 };
 
 export default AdmissionsStat;

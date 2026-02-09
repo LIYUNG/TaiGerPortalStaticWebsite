@@ -58,7 +58,7 @@ export default function ResetPassword() {
                     setButtonDisable(false);
                     alert('Password did not match!');
                 }
-            } catch (err) {
+            } catch {
                 setButtonDisable(false);
                 // TODO: error handler
             }

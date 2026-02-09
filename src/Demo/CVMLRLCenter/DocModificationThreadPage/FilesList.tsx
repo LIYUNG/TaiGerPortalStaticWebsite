@@ -1,8 +1,13 @@
 import { Box, Typography } from '@mui/material';
 
 import FileItem from './FileItem';
+import type { DocumentThreadResponse } from '../../../api/types';
 
-const FilesList = ({ thread }) => {
+export interface FilesListProps {
+    thread: DocumentThreadResponse | null;
+}
+
+const FilesList = ({ thread }: FilesListProps) => {
     if (!thread?.messages || thread.messages.length === 0) {
         return (
             <Box sx={{ px: 2, py: 3, textAlign: 'center' }}>

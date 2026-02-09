@@ -19,7 +19,27 @@ import { PROGRAM_SUBJECTS } from '@taiger-common/core';
 import { calculateProgramLockStatus } from '../Utils/util_functions';
 import { MRT_ColumnDef } from 'material-react-table';
 
-export const ProgramsTable = ({ isLoading, data, student }) => {
+/** Program row in ProgramsTable (data array item) */
+export interface ProgramsTableProgramRow {
+    _id?: string | number;
+    school?: string;
+    program_name?: string;
+    programSubjects?: string[];
+    tags?: string[];
+}
+
+/** Student passed to AssignProgramsToStudentDialog */
+export interface ProgramsTableStudent {
+    _id?: string;
+}
+
+export interface ProgramsTableProps {
+    isLoading: boolean;
+    data: ProgramsTableProgramRow[] | undefined;
+    student: ProgramsTableStudent;
+}
+
+export const ProgramsTable = ({ isLoading, data, student }: ProgramsTableProps) => {
     const customTableStyles = useTableStyles();
     const { t } = useTranslation();
     const tableConfig = getTableConfig(customTableStyles, isLoading);
@@ -35,7 +55,7 @@ export const ProgramsTable = ({ isLoading, data, student }) => {
         })
     );
 
-    const columns: Array<MRT_ColumnDef<Record<string, unknown>>> = [
+    const columns: Array<MRT_ColumnDef<ProgramsTableProgramRow>> = [
         {
             accessorFn: (row) => {
                 const lockStatus = calculateProgramLockStatus(row.original);
@@ -234,6 +254,8 @@ export const ProgramsTable = ({ isLoading, data, student }) => {
         setOpenAssignDialog(false);
     };
 
+    /* material-react-table expects toolbar to be assigned to options */
+    // eslint-disable-next-line react-hooks/immutability
     table.options.renderTopToolbar = (
         <TopToolbar
             onAssignClick={handleAssignClick}

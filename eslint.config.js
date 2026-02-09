@@ -20,4 +20,19 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  // Files that intentionally export both components and non-components (contexts, providers, utils)
+  {
+    files: [
+      'src/utils/contants.tsx',
+      'src/contexts/use-snack-bar.tsx',
+      'src/components/AuthProvider/index.tsx',
+      'src/components/SurveyProvider/index.tsx',
+      'src/components/Tabs/index.tsx',
+      'src/components/ThemeProvider/index.tsx',
+      'src/test/test-utils.tsx',
+    ],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
 ])

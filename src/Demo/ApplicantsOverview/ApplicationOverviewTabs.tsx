@@ -1,6 +1,7 @@
 import { SyntheticEvent, useMemo, useState } from 'react';
 import { Link, Tabs, Tab, Box, Typography, Card, Popover } from '@mui/material';
 import { Link as LinkDom } from 'react-router-dom';
+import type { ApplicationProps } from '@taiger-common/core';
 import {
     is_TaiGer_role,
     isProgramDecided,
@@ -24,13 +25,30 @@ import useStudents from '../../hooks/useStudents';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { DECISION_STATUS_E, SUBMISSION_STATUS_E } from '../../utils/contants';
 import { StudentsTable } from '../StudentDatabase/StudentsTable';
+import type {
+    IStudentResponse,
+    IApplicationWithId
+} from '../../api/types';
 
-const ApplicationOverviewTabs = ({ students: stds, applications }) => {
+export interface ApplicationOverviewTabsProps {
+    students: IStudentResponse[];
+    applications: IApplicationWithId[];
+}
+
+const ApplicationOverviewTabs = ({
+    students: stds,
+    applications
+}: ApplicationOverviewTabsProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const [value, setValue] = useState(0);
-    const [popoverAnchorEl, setPopoverAnchorEl] = useState(null);
-    const [selectedRowData, setSelectedRowData] = useState(null);
+    const [popoverAnchorEl, setPopoverAnchorEl] = useState<HTMLElement | null>(
+        null
+    );
+    const [selectedRowData, setSelectedRowData] = useState<Record<
+        string,
+        unknown
+    > | null>(null);
     const {
         res_modal_status,
         res_modal_message,
@@ -41,7 +59,7 @@ const ApplicationOverviewTabs = ({ students: stds, applications }) => {
         submitUpdateAttributeslist,
         updateStudentArchivStatus
     } = useStudents({
-        students: stds
+        students: stds as unknown as Array<{ _id: string; [key: string]: unknown }>
     });
 
     const handleChange = (_event: SyntheticEvent, newValue: number) => {
@@ -50,9 +68,9 @@ const ApplicationOverviewTabs = ({ students: stds, applications }) => {
 
     const handleRowClick = (
         row: Record<string, unknown>,
-        event: MouseEvent
+        event: React.MouseEvent<HTMLTableRowElement>
     ) => {
-        setPopoverAnchorEl(event.currentTarget as HTMLElement);
+        setPopoverAnchorEl(event.currentTarget);
         setSelectedRowData(row);
     };
 
@@ -64,21 +82,45 @@ const ApplicationOverviewTabs = ({ students: stds, applications }) => {
         return programs_refactor_v2(applications);
     }, [applications]);
 
+    interface ApplicationDistributionItem {
+        closed?: string;
+        deadline?: string;
+        file_type?: string;
+        isPotentials?: boolean;
+        show?: boolean;
+    }
     const applications_distribution = open_applications_arr.map(
-        ({ closed, deadline, file_type, isPotentials, show }) => {
-            return { closed, deadline, file_type, isPotentials, show };
-        }
+        ({
+            closed,
+            deadline,
+            file_type,
+            isPotentials,
+            show
+        }: ApplicationDistributionItem) => ({
+            closed,
+            deadline,
+            file_type,
+            isPotentials,
+            show
+        })
     );
     const open_distr = frequencyDistribution(applications_distribution);
 
     const sort_date = Object.keys(open_distr).sort();
 
-    const sorted_date_freq_pair = [];
-    sort_date.forEach((date) => {
+    const sorted_date_freq_pair: Array<
+        Record<string, string | number> & {
+            name: string;
+            active: number;
+            potentials: number;
+        }
+    > = [];
+    sort_date.forEach((date: string) => {
+        const entry = open_distr[date];
         sorted_date_freq_pair.push({
             name: `${date}`,
-            active: open_distr[date].show,
-            potentials: open_distr[date].potentials
+            active: entry?.show ?? 0,
+            potentials: entry?.potentials ?? 0
         });
     });
 
@@ -86,17 +128,21 @@ const ApplicationOverviewTabs = ({ students: stds, applications }) => {
         {
             field: 'target_year',
             headerName: t('Target', { ns: 'common' }),
-            align: 'left',
-            headerAlign: 'left',
+            align: 'left' as const,
+            headerAlign: 'left' as const,
             width: 100
         },
         {
             field: 'firstname_lastname',
             headerName: t('First-, Last Name', { ns: 'common' }),
             width: 180,
-            renderCell: (params) => {
+            renderCell: (params: {
+                value: unknown;
+                row: Record<string, unknown>;
+                field: string;
+            }) => {
                 const linkUrl = `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                    params.row.student_id,
+                    params.row.student_id as string,
                     DEMO.PROFILE_HASH
                 )}`;
                 return (
@@ -106,7 +152,7 @@ const ApplicationOverviewTabs = ({ students: stds, applications }) => {
                         to={linkUrl}
                         underline="hover"
                     >
-                        {params.value}
+                        {String(params.value)}
                     </Link>
                 );
             }
@@ -130,8 +176,12 @@ const ApplicationOverviewTabs = ({ students: stds, applications }) => {
             field: 'program',
             headerName: t('Program', { ns: 'common' }),
             width: 250,
-            renderCell: (params) => {
-                const linkUrl = `${DEMO.SINGLE_PROGRAM_LINK(params.row.program_id)}`;
+            renderCell: (params: {
+                value: unknown;
+                row: Record<string, unknown>;
+                field: string;
+            }) => {
+                const linkUrl = `${DEMO.SINGLE_PROGRAM_LINK(params.row.program_id as string)}`;
                 return (
                     <Link
                         component={LinkDom}
@@ -139,7 +189,7 @@ const ApplicationOverviewTabs = ({ students: stds, applications }) => {
                         to={linkUrl}
                         underline="hover"
                     >
-                        {params.value}
+                        {String(params.value)}
                     </Link>
                 );
             }
@@ -148,10 +198,16 @@ const ApplicationOverviewTabs = ({ students: stds, applications }) => {
             field: 'decided',
             headerName: t('Decided', { ns: 'common' }),
             width: 120,
-            renderCell: (params) => {
+            renderCell: (params: {
+                value: unknown;
+                row: Record<string, unknown>;
+                field: string;
+            }) => {
                 return params.row.decided === '-'
                     ? DECISION_STATUS_E.UNKNOWN_SYMBOL
-                    : isProgramDecided(params.row)
+                    : isProgramDecided(
+                          params.row as unknown as ApplicationProps
+                      )
                       ? DECISION_STATUS_E.OK_SYMBOL
                       : DECISION_STATUS_E.NOT_OK_SYMBOL;
             }
@@ -160,10 +216,16 @@ const ApplicationOverviewTabs = ({ students: stds, applications }) => {
             field: 'closed',
             headerName: t('Closed', { ns: 'common' }),
             width: 120,
-            renderCell: (params) => {
+            renderCell: (params: {
+                value: unknown;
+                row: Record<string, unknown>;
+                field: string;
+            }) => {
                 return params.row.closed === '-'
                     ? SUBMISSION_STATUS_E.UNKNOWN_SYMBOL
-                    : isProgramSubmitted(params.row)
+                    : isProgramSubmitted(
+                          params.row as unknown as ApplicationProps
+                      )
                       ? SUBMISSION_STATUS_E.OK_SYMBOL
                       : SUBMISSION_STATUS_E.NOT_OK_SYMBOL;
             }
@@ -246,7 +308,9 @@ const ApplicationOverviewTabs = ({ students: stds, applications }) => {
                     </Tabs>
                 </Box>
                 <CustomTabPanel index={0} value={value}>
-                    {is_TaiGer_role(user) ? (
+                    {user &&
+                    user.role &&
+                    is_TaiGer_role(user as unknown as { role: string }) ? (
                         <StudentsTable
                             data={studentsTransformed}
                             isLoading={false}
@@ -264,7 +328,9 @@ const ApplicationOverviewTabs = ({ students: stds, applications }) => {
                 <CustomTabPanel index={1} value={value}>
                     <MuiDataGrid
                         columns={applicationFileOverviewMuiHeader}
-                        getRowId={(row) => row.id}
+                        getRowId={(row: Record<string, unknown>) =>
+                            String(row.id)
+                        }
                         onRowClick={handleRowClick}
                         rows={open_applications_arr}
                     />
@@ -283,24 +349,30 @@ const ApplicationOverviewTabs = ({ students: stds, applications }) => {
                     >
                         <Box sx={{ p: 2, maxWidth: 400 }}>
                             <Typography gutterBottom variant="h6">
-                                {selectedRowData?.firstname_lastname}
+                                {String(
+                                    selectedRowData?.firstname_lastname ?? ''
+                                )}
                             </Typography>
                             <Typography
                                 color="text.secondary"
                                 gutterBottom
                                 variant="body2"
                             >
-                                {selectedRowData?.program}
+                                {String(selectedRowData?.program ?? '')}
                             </Typography>
                             {selectedRowData?.application &&
-                                selectedRowData?.student && (
+                            selectedRowData?.student
+                                ? (
                                     <ApplicationProgressCardBody
                                         application={
-                                            selectedRowData.application
+                                            selectedRowData.application as Record<string, unknown>
                                         }
-                                        student={selectedRowData.student}
+                                        student={
+                                            selectedRowData.student as Record<string, unknown>
+                                        }
                                     />
-                                )}
+                                )
+                                : null}
                         </Box>
                     </Popover>
                 </CustomTabPanel>
@@ -310,7 +382,9 @@ const ApplicationOverviewTabs = ({ students: stds, applications }) => {
                 <CustomTabPanel index={3} value={value}>
                     <ProgramUpdateStatusTable
                         data={open_applications_arr.filter((application) =>
-                            isProgramDecided(application)
+                            isProgramDecided(
+                                application as unknown as import('@taiger-common/core').ApplicationProps
+                            )
                         )}
                     />
                 </CustomTabPanel>

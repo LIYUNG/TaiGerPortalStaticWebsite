@@ -3,8 +3,13 @@ import { Card, Link, Box, Typography } from '@mui/material';
 import { FileIcon, defaultStyles } from 'react-file-icon';
 
 import { BASE_URL } from '../../../api/request';
+import type { DocumentThreadMessage } from '../../../api/types';
 
-const FileItem = ({ message }) => {
+export interface FileItemProps {
+    message: DocumentThreadMessage;
+}
+
+const FileItem = ({ message }: FileItemProps) => {
     if (!message?.file || message.file.length === 0) {
         return null;
     }

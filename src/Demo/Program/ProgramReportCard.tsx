@@ -42,7 +42,7 @@ const ProgramReportCard = () => {
     }
     const tickets = data?.data || [];
 
-    const Tickets = () =>
+    const renderTicketRows = () =>
         tickets.map((ticket, i) => (
             <TableRow key={i}>
                 <TableCell>
@@ -96,7 +96,7 @@ const ProgramReportCard = () => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    <Tickets />
+                    {renderTicketRows()}
                 </TableBody>
             </Table>
         </Card>

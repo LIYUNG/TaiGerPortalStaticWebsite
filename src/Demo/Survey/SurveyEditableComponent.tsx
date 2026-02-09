@@ -67,7 +67,13 @@ import { useSurvey } from '../../components/SurveyProvider';
 import { grey } from '@mui/material/colors';
 import i18next from 'i18next';
 
-const SurveyEditableComponent = (props) => {
+export interface SurveyEditableComponentProps {
+    [key: string]: unknown;
+}
+
+const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
+    const surveyContext = useSurvey();
+    if (!surveyContext) return null;
     const {
         handleChangeAcademic,
         handleTestDate,
@@ -80,7 +86,7 @@ const SurveyEditableComponent = (props) => {
         updateDocLink,
         onChangeURL,
         survey
-    } = useSurvey();
+    } = surveyContext;
 
     const [surveyEditableComponentState, setSurveyEditableComponentState] =
         useState({
@@ -126,19 +132,6 @@ const SurveyEditableComponent = (props) => {
         }));
     };
 
-    // const renderTooltipApplicationYear = (props) => (
-    //   <Tooltip id="tooltip-disabled" {...props}>
-    //     請填上預計申請入學年度，您的申請必須要在這個預計入學年度和預計入學學期前完成。各學校申請截止
-    //     Deadline 會依照你的預計入學年度和學期為您做計算。
-    //   </Tooltip>
-    // );
-
-    // const renderTooltipApplicationSemester = (props) => (
-    //   <Tooltip id="tooltip-disabled" {...props}>
-    //     請填上預計入學學期，您的申請必須會在這個時間之前結束。各學校申請截止
-    //     Deadline 會依照你的預計入學年度和學期為您做計算。
-    //   </Tooltip>
-    // );
     return (
         <Box>
             {!check_academic_background_filled(survey.academic_background) ||
@@ -170,8 +163,13 @@ const SurveyEditableComponent = (props) => {
                           ?.english_isPassed === 'X' &&
                       differenceInDays(
                           new Date(),
-                          survey.academic_background?.language
-                              ?.english_test_date
+                          new Date(
+                              (survey.academic_background?.language
+                                  ?.english_test_date ?? new Date()) as
+                                  | string
+                                  | number
+                                  | Date
+                          )
                       ) > 1 ? (
                         <li>{t('English Passed ? (IELTS 6.5 / TOEFL 88)')}</li>
                     ) : survey.academic_background?.language
@@ -192,7 +190,13 @@ const SurveyEditableComponent = (props) => {
                           ?.german_isPassed === 'X' &&
                       differenceInDays(
                           new Date(),
-                          survey.academic_background?.language?.german_test_date
+                          new Date(
+                              (survey.academic_background?.language
+                                  ?.german_test_date ?? new Date()) as
+                                  | string
+                                  | number
+                                  | Date
+                          )
                       ) > 1 ? (
                         <li>
                             {t(
@@ -213,7 +217,13 @@ const SurveyEditableComponent = (props) => {
                           'X' &&
                       differenceInDays(
                           new Date(),
-                          survey.academic_background?.language?.gre_test_date
+                          new Date(
+                              (survey.academic_background?.language
+                                  ?.gre_test_date ?? new Date()) as
+                                  | string
+                                  | number
+                                  | Date
+                          )
                       ) > 1 ? (
                         <li>{t('GRE Test passed ?')}</li>
                     ) : survey.academic_background?.language?.gre_isPassed ===
@@ -230,7 +240,13 @@ const SurveyEditableComponent = (props) => {
                           'X' &&
                       differenceInDays(
                           new Date(),
-                          survey.academic_background?.language?.gmat_test_date
+                          new Date(
+                              (survey.academic_background?.language
+                                  ?.gmat_test_date ?? new Date()) as
+                                  | string
+                                  | number
+                                  | Date
+                          )
                       ) > 1 ? (
                         <li>{t('GMAT Test passed ?')}</li>
                     ) : survey.academic_background?.language?.gmat_isPassed ===
@@ -736,11 +752,14 @@ const SurveyEditableComponent = (props) => {
                                         <b>
                                             {Bayerische_Formel(
                                                 survey.academic_background
-                                                    .university.Highest_GPA_Uni,
+                                                    ?.university
+                                                    ?.Highest_GPA_Uni ?? 0,
                                                 survey.academic_background
-                                                    .university.Passing_GPA_Uni,
+                                                    ?.university
+                                                    ?.Passing_GPA_Uni ?? 0,
                                                 survey.academic_background
-                                                    .university.My_GPA_Uni
+                                                    ?.university?.My_GPA_Uni ??
+                                                    0
                                             )}
                                         </b>{' '}
                                         = 1 + (3 * (highest - my)) / (highest -
@@ -2307,7 +2326,7 @@ const SurveyEditableComponent = (props) => {
                 <DialogTitle>{t('Edit', { ns: 'common' })}</DialogTitle>
                 <DialogContent>
                     <TextField
-                        label={`Documentation Link for ${props.docName}`}
+                        label={`Documentation Link for ${props?.docName ?? 'Grading System'}`}
                         onChange={(e) => onChangeURL(e)}
                         placeholder="https://taigerconsultancy-portal.com/docs/search/12345678"
                         value={survey.survey_link}

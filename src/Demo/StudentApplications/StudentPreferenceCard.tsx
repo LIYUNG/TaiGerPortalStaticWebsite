@@ -1,8 +1,19 @@
 import { useTranslation } from 'react-i18next';
-import React, { Fragment } from 'react';
+import React from 'react';
 import { List, ListItem, TextField, Typography } from '@mui/material';
 
-export const StudentPreferenceCard = (props) => {
+export interface StudentPreferenceCardProps {
+    student: {
+        application_preference?: {
+            target_application_field?: string;
+            targetApplicationSubjects?: string[];
+            [key: string]: unknown;
+        };
+        [key: string]: unknown;
+    };
+}
+
+export const StudentPreferenceCard = (props: StudentPreferenceCardProps) => {
     const { t } = useTranslation();
     return (
         <>

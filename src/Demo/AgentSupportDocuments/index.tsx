@@ -87,7 +87,7 @@ const AgentSupportDocuments = () => {
                 }));
             }
         );
-    }, []);
+    }, [user._id]);
 
     const handleFavoriteToggle = (id: string) => {
         const updatedOpenTasksArr = indexState.open_tasks_arr?.map((row) =>

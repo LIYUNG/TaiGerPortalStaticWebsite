@@ -25,6 +25,7 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import LaunchIcon from '@mui/icons-material/Launch';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import type { ApplicationProps } from '@taiger-common/core';
 import {
     isProgramDecided,
     isProgramSubmitted,
@@ -55,24 +56,29 @@ import DEMO from '../../store/constant';
 import Loading from '../../components/Loading/Loading';
 import i18next from 'i18next';
 
-const ApplicationAccordionSummary = ({ application }) => {
+interface ApplicationAccordionSummaryProps {
+    application: Application;
+    onStudentUpdate?: () => void;
+    student?: EditorDocsProgressStudent;
+}
+
+const ApplicationAccordionSummary = ({ application }: ApplicationAccordionSummaryProps) => {
     // For approval countries: use program-level lock status (check program staleness)
     // For non-approval countries: use application-level lock status (check program staleness + application.isLocked)
     // Always use calculateApplicationLockStatus for consistency - it handles both cases correctly
     let lockStatus = null;
     if (application && application.programId) {
-        // Always use calculateApplicationLockStatus - it correctly handles approval countries
-        // by checking program staleness and returning unlocked if not stale
-        lockStatus = calculateApplicationLockStatus(application);
+        lockStatus = calculateApplicationLockStatus(application as ApplicationProps);
     } else {
-        // Fallback: if no application or programId, use program lock status
-        lockStatus = calculateProgramLockStatus(application?.programId);
+        lockStatus = application?.programId
+            ? calculateProgramLockStatus(application.programId as Record<string, unknown>)
+            : calculateProgramLockStatus({});
     }
     const isLocked = lockStatus.isLocked;
 
     // Determine status text
     const getStatusText = () => {
-        if (isProgramSubmitted(application)) {
+        if (isProgramSubmitted(application as ApplicationProps)) {
             return null; // Will show FILE_OK_SYMBOL instead
         }
 
@@ -92,7 +98,7 @@ const ApplicationAccordionSummary = ({ application }) => {
             );
         }
 
-        if (isProgramWithdraw(application)) {
+        if (isProgramWithdraw(application as ApplicationProps)) {
             return (
                 <Typography fontWeight="bold">
                     {i18next.t('WITHDRAW', { ns: 'common' })}
@@ -108,7 +114,7 @@ const ApplicationAccordionSummary = ({ application }) => {
     };
 
     const statusNode = (() => {
-        if (isProgramSubmitted(application)) {
+        if (isProgramSubmitted(application as ApplicationProps)) {
             return <IconButton>{FILE_OK_SYMBOL}</IconButton>;
         }
 
@@ -150,8 +156,8 @@ const ApplicationAccordionSummary = ({ application }) => {
 
     const progressColor = isLocked
         ? 'text.disabled'
-        : isProgramDecided(application)
-          ? isProgramSubmitted(application)
+        : isProgramDecided(application as ApplicationProps)
+          ? isProgramSubmitted(application as ApplicationProps)
               ? 'success.light'
               : 'error.main'
           : 'grey';
@@ -169,7 +175,7 @@ const ApplicationAccordionSummary = ({ application }) => {
                         variant="body1"
                     >
                         {
-                            application.doc_modification_thread?.filter(
+                            (application.doc_modification_thread as { isFinalVersion?: boolean }[] | undefined)?.filter(
                                 (doc) => doc.isFinalVersion
                             ).length
                         }
@@ -184,15 +190,15 @@ const ApplicationAccordionSummary = ({ application }) => {
                             variant="body1"
                         >
                             <b>
-                                {application.programId.school} -{' '}
-                                {application.programId.degree} -{' '}
-                                {application.programId.program_name}
+                                {application.programId?.school} -{' '}
+                                {application.programId?.degree} -{' '}
+                                {application.programId?.program_name}
                             </b>
                         </Typography>
                         <Link
                             component={LinkDom}
                             target="_blank"
-                            to={`${DEMO.SINGLE_PROGRAM_LINK(application.programId._id)}`}
+                            to={DEMO.SINGLE_PROGRAM_LINK(String(application.programId?._id ?? ''))}
                         >
                             <LaunchIcon />
                         </Link>
@@ -208,9 +214,9 @@ const ApplicationAccordionSummary = ({ application }) => {
                     >
                         <Typography>
                             Deadline:{' '}
-                            {application_deadline_V2_calculator(application)}
+                            {application_deadline_V2_calculator(application as ApplicationProps)}
                         </Typography>
-                        <ApplicationLockControl application={application} />
+                        <ApplicationLockControl application={application as ApplicationProps} />
                     </Box>
                 </Grid>
             </Grid>
@@ -218,8 +224,51 @@ const ApplicationAccordionSummary = ({ application }) => {
     );
 };
 
-const EditorDocsProgress = (props) => {
-    const [editorDocsProgressState, setEditorDocsProgressState] = useState({
+/** Thread/item in generaldocs_threads */
+export interface EditorDocsProgressDocThread {
+    _id?: string;
+    doc_thread_id?: { _id?: { toString(): string } };
+    [k: string]: string | number | boolean | { _id?: { toString(): string } } | undefined;
+}
+
+/** Student shape for EditorDocsProgress (exact fields used in the component) */
+export interface EditorDocsProgressStudent {
+    _id?: string;
+    firstname?: string;
+    applications?: Application[];
+    generaldocs_threads?: EditorDocsProgressDocThread[];
+}
+
+export interface EditorDocsProgressProps {
+    student: EditorDocsProgressStudent;
+    onStudentUpdate?: () => void;
+}
+
+interface EditorDocsProgressState {
+    error: string;
+    delete_field: string;
+    student: EditorDocsProgressStudent;
+    deleteFileWarningModel: boolean;
+    SetProgramStatusModel: boolean;
+    SetAsFinalFileModel: boolean;
+    Requirements_Modal: boolean;
+    isFinal: boolean;
+    studentId: string;
+    student_id: string;
+    doc_thread_id: string;
+    docName: string;
+    isLoaded: boolean;
+    requirements: string;
+    file: string;
+    res_status: number;
+    res_modal_message: string;
+    res_modal_status: number;
+    application_id?: string;
+    isApplicationSubmitted?: boolean;
+}
+
+const EditorDocsProgress = (props: EditorDocsProgressProps) => {
+    const [editorDocsProgressState, setEditorDocsProgressState] = useState<EditorDocsProgressState>({
         error: '',
         delete_field: '',
         student: props.student,
@@ -240,12 +289,15 @@ const EditorDocsProgress = (props) => {
         res_modal_status: 0
     });
     useEffect(() => {
-        setEditorDocsProgressState((prevState) => ({
-            ...prevState,
-            isLoaded: true,
-            student: props.student
-        }));
-    }, [props.student._id]);
+        const student = props.student;
+        queueMicrotask(() => {
+            setEditorDocsProgressState((prevState) => ({
+                ...prevState,
+                isLoaded: true,
+                student
+            }));
+        });
+    }, [props.student]);
 
     const closeSetProgramStatusModel = () => {
         setEditorDocsProgressState((prevState) => ({
@@ -259,7 +311,7 @@ const EditorDocsProgress = (props) => {
             SetAsFinalFileModel: false
         }));
     };
-    const openRequirements_ModalWindow = (ml_requirements) => {
+    const openRequirements_ModalWindow = (ml_requirements: string) => {
         setEditorDocsProgressState((prevState) => ({
             ...prevState,
             Requirements_Modal: true,
@@ -300,12 +352,12 @@ const EditorDocsProgress = (props) => {
                             ...editorDocsProgressState.student
                         };
                         const general_docs_idx =
-                            student_temp.generaldocs_threads.findIndex(
-                                (thread) =>
-                                    thread.doc_thread_id._id.toString() ===
+                            student_temp.generaldocs_threads?.findIndex(
+                                (thread: EditorDocsProgressDocThread) =>
+                                    thread.doc_thread_id?._id?.toString() ===
                                     editorDocsProgressState.doc_thread_id
-                            );
-                        if (general_docs_idx !== -1) {
+                            ) ?? -1;
+                        if (general_docs_idx !== -1 && student_temp.generaldocs_threads) {
                             student_temp.generaldocs_threads.splice(
                                 general_docs_idx,
                                 1
@@ -347,7 +399,7 @@ const EditorDocsProgress = (props) => {
         } else {
             deleteProgramSpecificFileThread(
                 editorDocsProgressState.doc_thread_id,
-                editorDocsProgressState.application_id,
+                editorDocsProgressState.application_id ?? '',
                 editorDocsProgressState.student_id
             ).then(
                 (resp) => {
@@ -358,23 +410,21 @@ const EditorDocsProgress = (props) => {
                             ...editorDocsProgressState.student
                         };
                         const application_idx =
-                            student_temp.applications.findIndex(
-                                (application) =>
-                                    application._id.toString() ===
+                            student_temp.applications?.findIndex(
+                                (application: Application) =>
+                                    application._id?.toString() ===
                                     editorDocsProgressState.application_id
-                            );
-                        if (application_idx !== -1) {
-                            const doc_thread_idx = student_temp.applications[
-                                application_idx
-                            ].doc_modification_thread.findIndex(
-                                (thread) =>
-                                    thread.doc_thread_id._id.toString() ===
+                            ) ?? -1;
+                        if (application_idx !== -1 && student_temp.applications) {
+                            const app = student_temp.applications[application_idx];
+                            const doc_mod = app?.doc_modification_thread;
+                            const doc_thread_idx = doc_mod?.findIndex(
+                                (thread: unknown) =>
+                                    (thread as { doc_thread_id?: { _id?: { toString(): string } } }).doc_thread_id?._id?.toString() ===
                                     editorDocsProgressState.doc_thread_id
-                            );
-                            if (doc_thread_idx !== -1) {
-                                student_temp.applications[
-                                    application_idx
-                                ].doc_modification_thread.splice(
+                            ) ?? -1;
+                            if (doc_thread_idx !== -1 && doc_mod) {
+                                doc_mod.splice(
                                     doc_thread_idx,
                                     1
                                 );
@@ -425,45 +475,44 @@ const EditorDocsProgress = (props) => {
         SetFileAsFinal(
             editorDocsProgressState.doc_thread_id,
             editorDocsProgressState.student_id,
-            editorDocsProgressState.application_id
+            editorDocsProgressState.application_id ?? ''
         ).then(
             (resp) => {
                 const { data, success } = resp.data;
                 const { status } = resp;
                 if (success) {
                     const student_temp = { ...editorDocsProgressState.student };
-                    let targetThread;
+                    type ThreadWithFinal = { isFinalVersion?: boolean; updatedAt?: string; doc_thread_id?: { updatedAt?: string } };
+                    let targetThread: ThreadWithFinal | undefined;
                     if (editorDocsProgressState.application_id) {
                         const application_idx =
-                            student_temp.applications.findIndex(
-                                (application) =>
-                                    application._id.toString() ===
+                            student_temp.applications?.findIndex(
+                                (application: Application) =>
+                                    application._id?.toString() ===
                                     editorDocsProgressState.application_id
-                            );
-
-                        const thread_idx = student_temp.applications[
-                            application_idx
-                        ].doc_modification_thread.findIndex(
-                            (thread) =>
-                                thread.doc_thread_id._id.toString() ===
+                            ) ?? -1;
+                        const app = application_idx !== -1 ? student_temp.applications?.[application_idx] : undefined;
+                        const doc_mod = app?.doc_modification_thread as { doc_thread_id?: { _id?: { toString(): string }; updatedAt?: string }; isFinalVersion?: boolean; updatedAt?: string }[] | undefined;
+                        const thread_idx = doc_mod?.findIndex(
+                            (thread: unknown) =>
+                                (thread as { doc_thread_id?: { _id?: { toString(): string } } }).doc_thread_id?._id?.toString() ===
                                 editorDocsProgressState.doc_thread_id
-                        );
-                        targetThread =
-                            student_temp.applications[application_idx]
-                                .doc_modification_thread[thread_idx];
+                        ) ?? -1;
+                        targetThread = thread_idx !== -1 ? doc_mod?.[thread_idx] : undefined;
                     } else {
                         const general_doc_idx =
-                            student_temp.generaldocs_threads.findIndex(
-                                (docs) =>
-                                    docs.doc_thread_id._id.toString() ===
+                            student_temp.generaldocs_threads?.findIndex(
+                                (docs: EditorDocsProgressDocThread) =>
+                                    docs.doc_thread_id?._id?.toString() ===
                                     editorDocsProgressState.doc_thread_id
-                            );
-                        targetThread =
-                            student_temp.generaldocs_threads[general_doc_idx];
+                            ) ?? -1;
+                        targetThread = general_doc_idx !== -1 ? student_temp.generaldocs_threads?.[general_doc_idx] as ThreadWithFinal : undefined;
                     }
-                    targetThread.isFinalVersion = data.isFinalVersion;
-                    targetThread.updatedAt = data.updatedAt;
-                    targetThread.doc_thread_id.updatedAt = data.updatedAt;
+                    if (targetThread) {
+                        targetThread.isFinalVersion = data.isFinalVersion;
+                        targetThread.updatedAt = data.updatedAt;
+                        if (targetThread.doc_thread_id) targetThread.doc_thread_id.updatedAt = data.updatedAt;
+                    }
 
                     setEditorDocsProgressState((prevState) => ({
                         ...prevState,
@@ -498,19 +547,16 @@ const EditorDocsProgress = (props) => {
     };
 
     const handleProgramStatus = (
-        student_id,
-        application_id,
-        isApplicationSubmitted
+        student_id: string,
+        application_id: string,
+        isApplicationSubmitted: boolean
     ) => {
-        // Find the application to check lock status
         const application = editorDocsProgressState.student?.applications?.find(
-            (app) => app._id.toString() === application_id
+            (app: Application) => app._id?.toString() === application_id
         );
 
         if (application && application.programId) {
-            // Always use calculateApplicationLockStatus for consistency
-            // It correctly handles approval countries by checking program staleness
-            const lockStatus = calculateApplicationLockStatus(application);
+            const lockStatus = calculateApplicationLockStatus(application as ApplicationProps);
 
             // Prevent submission if locked
             if (lockStatus.isLocked) {
@@ -542,7 +588,7 @@ const EditorDocsProgress = (props) => {
         }));
         updateStudentApplication(
             editorDocsProgressState.student_id,
-            editorDocsProgressState.application_id,
+            editorDocsProgressState.application_id ?? '',
             {
                 closed: editorDocsProgressState.isApplicationSubmitted
                     ? '-'
@@ -554,13 +600,13 @@ const EditorDocsProgress = (props) => {
                 const { status } = resp;
                 if (success) {
                     const student_temp = { ...editorDocsProgressState.student };
-                    const application_idx = student_temp.applications.findIndex(
-                        (application) =>
-                            application._id.toString() ===
+                    const application_idx = student_temp.applications?.findIndex(
+                        (application: Application) =>
+                            application._id?.toString() ===
                             editorDocsProgressState.application_id
-                    );
-                    student_temp.applications[application_idx].closed =
-                        data.closed;
+                    ) ?? -1;
+                    const appAtIdx = application_idx !== -1 ? student_temp.applications?.[application_idx] : undefined;
+                    if (appAtIdx) appAtIdx.closed = data.closed;
 
                     setEditorDocsProgressState((prevState) => ({
                         ...prevState,
@@ -594,11 +640,11 @@ const EditorDocsProgress = (props) => {
     };
 
     const handleAsFinalFile = (
-        doc_thread_id,
-        student_id,
-        application_id,
-        isFinal,
-        docName
+        doc_thread_id: string,
+        student_id: string,
+        application_id: string,
+        isFinal: boolean,
+        docName: string
     ) => {
         setEditorDocsProgressState((prevState) => ({
             ...prevState,
@@ -611,7 +657,7 @@ const EditorDocsProgress = (props) => {
         }));
     };
 
-    const onChangeDeleteField = (e: ChangeEvent<HTMLInputElement>) => {
+    const onChangeDeleteField = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setEditorDocsProgressState((prevState) => ({
             ...prevState,
             delete_field: e.target.value
@@ -619,15 +665,15 @@ const EditorDocsProgress = (props) => {
     };
 
     const onDeleteFileThread = (
-        doc_thread_id,
-        application,
-        studentId,
-        docName
+        doc_thread_id: string,
+        application: Application | null,
+        studentId: string,
+        docName: string
     ) => {
         setEditorDocsProgressState((prevState) => ({
             ...prevState,
             doc_thread_id,
-            application_id: application ? application._id : null,
+            application_id: application?._id?.toString() ?? '',
             student_id: studentId,
             docName,
             deleteFileWarningModel: true
@@ -647,13 +693,13 @@ const EditorDocsProgress = (props) => {
                 const { status } = resp;
                 if (success) {
                     const student_temp = { ...editorDocsProgressState.student };
-                    const application_idx = student_temp.applications.findIndex(
-                        (application) =>
-                            application._id.toString() === applicationId
-                    );
-                    student_temp.applications[
-                        application_idx
-                    ].doc_modification_thread.push(data);
+                    const application_idx = student_temp.applications?.findIndex(
+                        (application: Application) =>
+                            application._id?.toString() === applicationId
+                    ) ?? -1;
+                    const appAtIdx = application_idx !== -1 ? student_temp.applications?.[application_idx] : undefined;
+                    const docMod = appAtIdx?.doc_modification_thread as unknown[] | undefined;
+                    if (docMod) docMod.push(data);
 
                     setEditorDocsProgressState((prevState) => ({
                         ...prevState,
@@ -689,13 +735,8 @@ const EditorDocsProgress = (props) => {
         studentId: string,
         document_catgory: string
     ) => {
-        // eslint-disable-next-line no-constant-condition
-        if ('1' === '') {
-            e.preventDefault();
-            alert('Please select file group');
-        } else {
-            e.preventDefault();
-            initGeneralMessageThread(studentId, document_catgory)
+        e.preventDefault();
+        initGeneralMessageThread(studentId, document_catgory)
                 .then((resp) => {
                     const { data, success } = resp.data;
                     const { status } = resp;
@@ -703,7 +744,8 @@ const EditorDocsProgress = (props) => {
                         const student_temp = {
                             ...editorDocsProgressState.student
                         };
-                        student_temp.generaldocs_threads.push(data);
+                        if (!student_temp.generaldocs_threads) student_temp.generaldocs_threads = [];
+                        student_temp.generaldocs_threads.push(data as EditorDocsProgressDocThread);
                         setEditorDocsProgressState((prevState) => ({
                             ...prevState,
                             isLoaded: true, //false to reload everything
@@ -732,7 +774,6 @@ const EditorDocsProgress = (props) => {
                         res_modal_message: ''
                     }));
                 });
-        }
     };
 
     const ConfirmError = () => {
@@ -766,7 +807,7 @@ const EditorDocsProgress = (props) => {
             <ManualFiles
                 application={null}
                 applications={editorDocsProgressState.student.applications?.filter(
-                    (app: Application) => isProgramDecided(app)
+                    (app: Application) => isProgramDecided(app as ApplicationProps)
                 )}
                 filetype="General"
                 handleAsFinalFile={handleAsFinalFile}
@@ -781,10 +822,10 @@ const EditorDocsProgress = (props) => {
             </Typography>
             {/* TODO: simplify this! with array + function! */}
             {editorDocsProgressState.student.applications
-                ?.filter((app) => isProgramDecided(app))
-                .map((application, i) => {
+                ?.filter((app: Application) => isProgramDecided(app as ApplicationProps))
+                .map((application: Application, i: number) => {
                     const lockStatus =
-                        calculateApplicationLockStatus(application);
+                        calculateApplicationLockStatus(application as ApplicationProps);
                     const isLocked = lockStatus.isLocked;
                     return (
                         <div key={i}>
@@ -836,10 +877,10 @@ const EditorDocsProgress = (props) => {
                     );
                 })}
             {editorDocsProgressState.student.applications
-                ?.filter((app) => !isProgramDecided(app))
-                .map((application, i) => {
+                ?.filter((app: Application) => !isProgramDecided(app as ApplicationProps))
+                .map((application: Application, i: number) => {
                     const lockStatus =
-                        calculateApplicationLockStatus(application);
+                        calculateApplicationLockStatus(application as ApplicationProps);
                     const isLocked = lockStatus.isLocked;
                     return (
                         <div key={i}>
@@ -936,7 +977,7 @@ const EditorDocsProgress = (props) => {
                         {isLoaded ? (
                             i18next.t('Yes', { ns: 'common' })
                         ) : (
-                            <div style={spinner_style2}>
+                            <div style={spinner_style2 as React.CSSProperties}>
                                 <CircularProgress />
                             </div>
                         )}
@@ -985,7 +1026,7 @@ const EditorDocsProgress = (props) => {
                         {isLoaded ? (
                             i18next.t('Yes', { ns: 'common' })
                         ) : (
-                            <div style={spinner_style2}>
+                            <div style={spinner_style2 as React.CSSProperties}>
                                 <CircularProgress />
                             </div>
                         )}

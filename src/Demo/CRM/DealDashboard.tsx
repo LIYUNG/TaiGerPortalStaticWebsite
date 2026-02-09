@@ -48,7 +48,7 @@ const currencyFormatter = (value, options = {}) => {
             maximumFractionDigits: 0,
             ...options
         }).format(n);
-    } catch (e) {
+    } catch {
         return n.toLocaleString();
     }
 };
@@ -63,13 +63,27 @@ const DealDashboard = () => {
     const [statusMenu, setStatusMenu] = useState({ anchorEl: null, row: null });
 
     const { user } = useAuth();
+    // prepare query so we can reuse its key for invalidation
+    const dealsQuery = getCRMDealsQuery();
+    const { data, isLoading } = useQuery(dealsQuery);
+    const queryClient = useQueryClient();
+    const updateStatusMutation = useMutation({
+        mutationFn: async ({ id, status, closedAt }) => {
+            await updateCRMDeal(id, {
+                status,
+                ...(status === 'closed' && closedAt ? { closedAt } : {})
+            });
+            return { ok: true };
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: dealsQuery.queryKey });
+        }
+    });
+
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
-    // prepare query so we can reuse its key for invalidation
-    const dealsQuery = getCRMDealsQuery();
-    const { data, isLoading } = useQuery(dealsQuery);
     const allDeals = data?.data?.data || [];
 
     const handleCreateDeal = () => {
@@ -102,21 +116,6 @@ const DealDashboard = () => {
     };
     const closeStatusMenu = () => setStatusMenu({ anchorEl: null, row: null });
     // Note: status changes are handled in StatusMenu onChoose
-
-    // Mutation to update deal status (adjust endpoint if needed)
-    const queryClient = useQueryClient();
-    const updateStatusMutation = useMutation({
-        mutationFn: async ({ id, status, closedAt }) => {
-            await updateCRMDeal(id, {
-                status,
-                ...(status === 'closed' && closedAt ? { closedAt } : {})
-            });
-            return { ok: true };
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: dealsQuery.queryKey });
-        }
-    });
 
     const columns = [
         {

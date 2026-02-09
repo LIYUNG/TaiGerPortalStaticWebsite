@@ -20,7 +20,22 @@ import SaveIcon from '@mui/icons-material/Save';
 import { getEssayWriters } from '../../../../api';
 import { FILE_TYPE_E } from '../../../Utils/util_functions';
 
-const EditEssayWritersSubpage = (props) => {
+export interface EditEssayWritersSubpageProps {
+    show: boolean;
+    onHide: () => void;
+    actor: string;
+    essayDocumentThread: {
+        file_type: string;
+        outsourced_user_id?: Array<{ _id: string }>;
+        program_id?: { school?: string; program_name?: string; degree?: string; semester?: string };
+        student_id?: { firstname?: string; lastname?: string };
+        _id: string;
+        [key: string]: unknown;
+    };
+    editors?: Array<{ _id: string }>;
+}
+
+const EditEssayWritersSubpage = (props: EditEssayWritersSubpageProps) => {
     const [checkboxState, setCheckboxState] = useState({});
     const [isLoaded, setIsLoaded] = useState(false);
     const { t } = useTranslation();
@@ -79,10 +94,12 @@ const EditEssayWritersSubpage = (props) => {
                 }),
                 {}
             );
-            setCheckboxState({ editors, updateEditorList });
-            setIsLoaded(true);
+            queueMicrotask(() => {
+                setCheckboxState({ editors, updateEditorList });
+                setIsLoaded(true);
+            });
         }
-    }, [props.essayDocumentThread.outsourced_user_id]);
+    }, [props.essayDocumentThread.outsourced_user_id, props.editors, props.essayDocumentThread]);
 
     const handleChangeEditorlist = (e: React.SyntheticEvent) => {
         const { value } = e.target;

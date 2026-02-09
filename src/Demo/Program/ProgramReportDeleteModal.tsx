@@ -11,7 +11,13 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
-const ProgramReportDeleteModal = (props) => {
+export interface ProgramReportDeleteModalProps {
+    isReportDelete: boolean;
+    setReportDeleteModalHide: () => void;
+    onDeleteConfirm?: (ticket: Record<string, unknown>, deleteReason: string) => void;
+}
+
+const ProgramReportDeleteModal = (props: ProgramReportDeleteModalProps) => {
     const [programReportDeleteModal, setProgramReportDeleteModalState] =
         useState({
             ticket: {},

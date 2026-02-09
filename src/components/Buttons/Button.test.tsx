@@ -9,6 +9,8 @@ import {
     SetNeededIconButton
 } from './Button';
 
+/* Unused callback params are intentional in vi.fn() for signature matching */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 describe('Buttons', () => {
     test('DownloadIconButton renders and is clickable', () => {
         const showPreview = vi.fn(() => {});

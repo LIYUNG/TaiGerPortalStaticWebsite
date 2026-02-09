@@ -14,7 +14,10 @@ import { useAuth } from '../../components/AuthProvider';
 import Loading from '../../components/Loading/Loading';
 import DocPageView from './DocPageView';
 
-const SingleDoc = (props) => {
+/** Props reserved for parent; documentation_id comes from useParams */
+export type SingleDocProps = Record<string, never>;
+
+const SingleDoc = () => {
     const { documentation_id } = useParams();
     const { user } = useAuth();
     const [singleInternalDocState, setSingleInternalDocState] = useState({
@@ -75,7 +78,7 @@ const SingleDoc = (props) => {
                 }));
             }
         );
-    }, []);
+    }, [documentation_id]);
 
     const handleClickEditToggle = () => {
         setSingleInternalDocState((prevState) => ({

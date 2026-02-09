@@ -7,8 +7,14 @@ import ModalMain from '../Utils/ModalHandler/ModalMain';
 import Banner from '../../components/Banner/Banner';
 import { CustomTabPanel, a11yProps } from '../../components/Tabs';
 import ExampleWithLocalizationProvider from '../../components/MaterialReactTable';
+import type { AuthUserData, OpenTaskRow } from '../../api/types';
 
-const CVMLRLDashboard = (props) => {
+export interface CVMLRLDashboardProps {
+    open_tasks_arr: OpenTaskRow[];
+    user?: AuthUserData | null;
+}
+
+const CVMLRLDashboard = (props: CVMLRLDashboardProps) => {
     const { t } = useTranslation();
     const memoizedColumnsMrt = useMemo(() => c1_mrt, []);
     const [cVMLRLDashboardState, setCVMLRLDashboardState] = useState({

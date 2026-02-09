@@ -30,7 +30,18 @@ import {
 import { TaiGerChatAssistant } from '../../api';
 import { appConfig } from '../../config';
 
-const CommunicationThreadEditor = (props) => {
+export interface CommunicationThreadEditorProps {
+    editorState: unknown;
+    handleClickSave?: (
+        e: React.MouseEvent,
+        editorState: unknown
+    ) => void;
+    thread: unknown;
+    files?: Array<{ name: string; path?: string }>;
+    count?: number;
+}
+
+const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
     const { t } = useTranslation();
     const { studentId } = useParams();
 
@@ -40,10 +51,13 @@ const CommunicationThreadEditor = (props) => {
         data: ''
     });
     useEffect(() => {
-        setStatedata((state) => ({
-            ...state,
-            editorState: props.editorState
-        }));
+        const editorState = props.editorState;
+        queueMicrotask(() => {
+            setStatedata((state) => ({
+                ...state,
+                editorState
+            }));
+        });
     }, [props.editorState]);
     const handleEditorChange = (content) => {
         setStatedata((state) => ({
@@ -100,7 +114,7 @@ const CommunicationThreadEditor = (props) => {
                 thread={props.thread}
             />
         );
-    }, [props.count]);
+    }, [props.editorState, props.handleClickSave, props.thread]);
     return (
         <>
             <Box
@@ -127,7 +141,7 @@ const CommunicationThreadEditor = (props) => {
                     border: '1px solid #ccc'
                 }}
             >
-                <EditorV2 />
+                {EditorV2()}
             </Box>
             <Box>
                 {is_TaiGer_role(user)

@@ -9,7 +9,12 @@ import { updateDocumentationHelperLink } from '../../api';
 import Loading from '../../components/Loading/Loading';
 import MyDocumentCard from './MyDocumentCard';
 
-const BaseDocumentStudentView = ({ student, base_docs_link }) => {
+export interface BaseDocumentStudentViewProps {
+    student: Record<string, unknown>;
+    base_docs_link: string;
+}
+
+const BaseDocumentStudentView = ({ student, base_docs_link }: BaseDocumentStudentViewProps) => {
     const { t } = useTranslation();
 
     const [baseDocumentStudentViewState, setBaseDocumentStudentViewState] =
@@ -27,17 +32,19 @@ const BaseDocumentStudentView = ({ student, base_docs_link }) => {
 
     useEffect(() => {
         const keys2 = Object.keys(PROFILE_NAME);
-        const temp_isLoaded = {};
+        const temp_isLoaded: Record<string, boolean> = {};
         for (let i = 0; i < keys2.length; i++) {
             temp_isLoaded[keys2[i]] = true;
         }
-        setBaseDocumentStudentViewState((prevState) => ({
-            ...prevState,
-            isLoaded: temp_isLoaded,
-            student: student,
-            ready: true
-        }));
-    }, [student._id.toString()]);
+        queueMicrotask(() => {
+            setBaseDocumentStudentViewState((prevState) => ({
+                ...prevState,
+                isLoaded: temp_isLoaded,
+                student,
+                ready: true
+            }));
+        });
+    }, [student]);
 
     const ConfirmError = () => {
         setBaseDocumentStudentViewState((prevState) => ({

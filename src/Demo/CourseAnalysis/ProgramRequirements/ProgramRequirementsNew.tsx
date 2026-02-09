@@ -29,7 +29,39 @@ import {
 } from '../../../utils/contants';
 import SearchableMultiSelect from '../../../components/Input/searchableMuliselect';
 
-const ProgramRequirementsNew = ({ programsAndCourseKeywordSets }) => {
+/** Program option in requirement form */
+export interface ProgramRequirementProgramOption {
+    school?: string;
+    program_name?: string;
+    degree?: string;
+}
+
+/** Requirement shape used in ProgramRequirementsNew (score keys from SCORES_TYPE are also on requirement) */
+export interface ProgramRequirementRequirement {
+    program_categories?: Array<{
+        program_category?: string;
+        category_description?: string;
+        requiredECTS?: number;
+        keywordSets?: string[];
+        maxScore?: number;
+    }>;
+    fpso?: string;
+    admissionDescription?: string;
+    programId?: Array<ProgramRequirementProgramOption>;
+    attributes?: string[];
+    firstRoundConsidered?: string[];
+    secondRoundConsidered?: string[];
+}
+
+export interface ProgramRequirementsNewProps {
+    programsAndCourseKeywordSets: {
+        distinctPrograms?: ProgramRequirementProgramOption[];
+        keywordsets?: { id?: string; name?: string }[];
+        requirement?: ProgramRequirementRequirement;
+    };
+}
+
+const ProgramRequirementsNew = ({ programsAndCourseKeywordSets }: ProgramRequirementsNewProps) => {
     const { requirementId } = useParams();
     const { t } = useTranslation();
     const { distinctPrograms, keywordsets, requirement } =
@@ -168,7 +200,7 @@ const ProgramRequirementsNew = ({ programsAndCourseKeywordSets }) => {
                     navigate(DEMO.PROGRAM_ANALYSIS);
                 }
             }
-        } catch (e) {
+        } catch {
             alert(`Creation Failed: server issue`);
             setIsSubmitting(false);
         }

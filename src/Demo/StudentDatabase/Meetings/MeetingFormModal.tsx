@@ -14,6 +14,19 @@ import {
 import PersonIcon from '@mui/icons-material/Person';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { useTranslation } from 'react-i18next';
+import type {
+    MeetingResponse,
+    IStudentResponse
+} from '../../../api/types';
+
+export interface MeetingFormModalProps {
+    open: boolean;
+    onClose: () => void;
+    onSave: (data: Partial<MeetingResponse> & { dateTime?: string | null }) => void;
+    meeting?: MeetingResponse | null;
+    isLoading?: boolean;
+    student?: IStudentResponse | null;
+}
 
 export const MeetingFormModal = ({
     open,
@@ -22,7 +35,7 @@ export const MeetingFormModal = ({
     meeting = null,
     isLoading = false,
     student = null
-}) => {
+}: MeetingFormModalProps) => {
     const { t } = useTranslation();
     const isEdit = !!meeting;
 
@@ -30,7 +43,7 @@ export const MeetingFormModal = ({
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
     // Format timezone for display (e.g., "America/New_York" -> "EST (UTC-5)")
-    const formatTimezoneDisplay = (tz) => {
+    const formatTimezoneDisplay = (tz: string): string => {
         try {
             const formatter = new Intl.DateTimeFormat('en-US', {
                 timeZone: tz,
@@ -48,7 +61,13 @@ export const MeetingFormModal = ({
 
     const timezoneDisplay = formatTimezoneDisplay(timezone);
 
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<{
+        title: string;
+        dateTime: string | null;
+        location: string;
+        description: string;
+        notes: string;
+    }>({
         title: '',
         dateTime: null,
         location: '',
@@ -56,7 +75,7 @@ export const MeetingFormModal = ({
         notes: ''
     });
 
-    const [errors, setErrors] = useState({});
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
     useEffect(() => {
         if (meeting) {
@@ -83,7 +102,7 @@ export const MeetingFormModal = ({
         setErrors({});
     }, [meeting, open]);
 
-    const handleChange = (field, value) => {
+    const handleChange = (field: string, value: string | null) => {
         setFormData((prev) => ({
             ...prev,
             [field]: value
@@ -97,8 +116,8 @@ export const MeetingFormModal = ({
         }
     };
 
-    const validate = () => {
-        const newErrors = {};
+    const validate = (): boolean => {
+        const newErrors: Record<string, string> = {};
 
         if (!formData.title.trim()) {
             newErrors.title = t('Title is required', { ns: 'common' });

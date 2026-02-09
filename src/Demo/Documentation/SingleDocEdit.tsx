@@ -30,11 +30,13 @@ const SingleDocEdit = ({
     });
 
     useEffect(() => {
-        setSingleDocEdit((prevState) => ({
-            ...prevState,
-            doc_title: document_title
-        }));
-    }, []);
+        queueMicrotask(() => {
+            setSingleDocEdit((prevState) => ({
+                ...prevState,
+                doc_title: document_title
+            }));
+        });
+    }, [document_title]);
 
     const handleChange_category = (e: React.ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();

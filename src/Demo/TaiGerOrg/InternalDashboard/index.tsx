@@ -31,12 +31,6 @@ import {
 const InternalDashboard = () => {
     const { user } = useAuth();
     const { hash } = useLocation();
-
-    // Early return for permission check - must be before other hooks
-    if (!is_TaiGer_role(user)) {
-        return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
-    }
-
     const [value, setValue] = useState(
         INTERNAL_DASHBOARD_TABS[hash.replace('#', '')] || 0
     );
@@ -78,8 +72,7 @@ const InternalDashboard = () => {
         enabled: value === 3 // Only load when Response Time tab is active
     });
 
-    // Process KPI data only when KPI tab data is available
-    // useMemo must be called before any conditional returns
+    // Process KPI data; useMemo must run before any conditional return (rules-of-hooks)
     const kpiProcessedData = useMemo(() => {
         if (!kpiData?.finished_docs) {
             return {
@@ -170,6 +163,10 @@ const InternalDashboard = () => {
 
         return { CVdataWithDuration, MLdataWithDuration, RLdataWithDuration };
     }, [kpiData]);
+
+    if (!is_TaiGer_role(user)) {
+        return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
+    }
 
     // Determine if we need to show loading (after all hooks)
     const shouldShowLoading =

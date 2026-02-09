@@ -18,10 +18,9 @@ export default defineConfig({
                         if (id.includes('@mui/icons-material')) {
                             return 'vendor-mui-icons';
                         }
-                        if (id.includes('@emotion')) { return 'vendor-emotion'; }
-                        if (
-                            id.includes('@mui')
-                        ) {
+                        // Keep @emotion with @mui in one chunk to avoid "Cannot access before initialization"
+                        // (emotion-use-insertion-effect and other internals must load in same bundle as MUI)
+                        if (id.includes('@emotion') || id.includes('@mui')) {
                             return 'vendor-mui';
                         }
                         if (

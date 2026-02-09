@@ -14,7 +14,23 @@ import {
 import i18next from 'i18next';
 import { Role } from '@taiger-common/core';
 
-const AddUserModal = (props) => {
+export interface AddUserModalProps {
+    addUserModalState: boolean;
+    cloaseAddUserModal: () => void;
+    AddUserSubmit: (
+        e: FormEvent<HTMLFormElement>,
+        user_information: {
+            firstname: string;
+            lastname: string;
+            email: string;
+            role?: string;
+        }
+    ) => void;
+    isloading?: boolean;
+    selected_user_id?: string;
+}
+
+const AddUserModal = (props: AddUserModalProps) => {
     const [addUserModal, setAddUserModal] = useState({
         user_information: { role: Role.Student }
     });

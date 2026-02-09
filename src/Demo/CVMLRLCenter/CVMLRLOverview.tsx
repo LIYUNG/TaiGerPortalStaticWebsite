@@ -23,8 +23,20 @@ import { useTranslation } from 'react-i18next';
 import { MuiDataGrid } from '../../components/MuiDataGrid';
 import DEMO from '../../store/constant';
 import { APPROVAL_COUNTRIES } from '../Utils/util_functions';
+import type { OpenTaskRow } from '../../api/types';
 
-const CVMLRLOverview = (props) => {
+export interface CVMLRLOverviewProps {
+    handleFavoriteToggle: (id: string) => void;
+    new_message_tasks?: OpenTaskRow[];
+    fav_message_tasks?: OpenTaskRow[];
+    followup_tasks?: OpenTaskRow[];
+    pending_progress_tasks?: OpenTaskRow[];
+    closed_tasks?: OpenTaskRow[];
+    isLoaded?: boolean;
+    success?: boolean;
+}
+
+const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const { hash } = useLocation();

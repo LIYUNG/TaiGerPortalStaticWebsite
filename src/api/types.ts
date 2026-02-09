@@ -209,13 +209,15 @@ export interface DocumentThreadResponse {
     _id: string;
     student_id?: string;
     user_id?: string;
+    flag_by_user_id: string[],
     isFinalVersion?: boolean;
     latest_message_left_by_id?: string;
     messages?: Array<{
         _id?: string;
-        user_id?: string;
+        user_id?: string | { firstname?: string; lastname?: string; [key: string]: unknown };
         message?: string;
         file_path?: string;
+        file?: Array<{ name: string; path: string }>;
         createdAt?: string | Date;
     }>;
     createdAt?: string | Date;
@@ -233,5 +235,150 @@ export interface StudentResponseFull extends IStudentResponse {
     agents?: AgentResponse[];
     editors?: AgentResponse[];
     archiv?: boolean;
+    [key: string]: unknown;
+}
+
+// --- API Response types (backend returns ApiResponse<T> or similar) ---
+
+/** getProgram response: { success, data, students?, vc? } */
+export interface GetProgramResponse {
+    success: boolean;
+    data: ProgramResponse & Record<string, unknown>;
+    students?: IStudentResponse[];
+    vc?: unknown[];
+}
+
+/** getProgramTicket response */
+export interface GetProgramTicketResponse {
+    success: boolean;
+    data?: unknown[];
+}
+
+/** getStudents / getStudentsV3 response */
+export type GetStudentsResponse = ApiResponse<IStudentResponse[]>;
+
+/** getStudent response */
+export type GetStudentResponse = ApiResponse<IStudentResponse>;
+
+/** getApplications response */
+export type GetApplicationsResponse = ApiResponse<IApplicationWithId[]>;
+
+/** getAdmissions response */
+export type GetAdmissionsResponse = ApiResponse<unknown[]>;
+
+/** getAdmissionsOverview response */
+export type GetAdmissionsOverviewResponse = ApiResponse<Record<string, unknown>>;
+
+/** getUsers response */
+export type GetUsersResponse = ApiResponse<AgentResponse[]>;
+
+/** getUsersOverview response */
+export type GetUsersOverviewResponse = ApiResponse<Record<string, unknown>>;
+
+/** getPrograms response */
+export type GetProgramsResponse = ApiResponse<ProgramResponse[]>;
+
+/** getProgramsOverview response */
+export type GetProgramsOverviewResponse =
+    ApiResponse<Record<string, unknown>>;
+
+/** getSchoolsDistribution response */
+export type GetSchoolsDistributionResponse = ApiResponse<unknown[]>;
+
+/** getCommunicationThread / getCommunicationThreadV2 response */
+export type GetCommunicationThreadResponse = ApiResponse<CommunicationResponse[]>;
+
+/** getMyCommunicationThreadV2 response */
+export type GetMyCommunicationThreadResponse = ApiResponse<CommunicationResponse[]>;
+
+/** Meeting item (student meetings) */
+export interface MeetingResponse {
+    _id: string;
+    title?: string;
+    dateTime?: string;
+    location?: string;
+    description?: string;
+    notes?: string;
+    isConfirmed?: boolean;
+    isConfirmedReceiver?: boolean;
+    isConfirmedRequester?: boolean;
+    attended?: boolean;
+    meetingLink?: string;
+    requester_id?: string[];
+    receiver_id?: string[];
+    [key: string]: unknown;
+}
+
+/** getStudentMeetings response */
+export type GetStudentMeetingsResponse = ApiResponse<MeetingResponse[]>;
+
+/** getStudentMeeting response */
+export type GetStudentMeetingResponse = ApiResponse<MeetingResponse>;
+
+/** getActiveThreads response */
+export type GetActiveThreadsResponse = ApiResponse<DocumentThreadResponse[]>;
+
+/** getThreadsByStudent response */
+export type GetThreadsByStudentResponse = ApiResponse<DocumentThreadResponse[]>;
+
+/** getInterviews response */
+export type GetInterviewsResponse = ApiResponse<InterviewResponse[]>;
+
+/** getInterview response */
+export type GetInterviewResponse = ApiResponse<InterviewResponse>;
+
+/** getUsersCount response */
+export interface GetUsersCountResponse {
+    success?: boolean;
+    studentCount?: number;
+    agentCount?: number;
+    editorCount?: number;
+    externalCount?: number;
+    adminCount?: number;
+    [key: string]: unknown;
+}
+
+/** getProgramTicketsV2 response */
+export type GetProgramTicketsResponse = ApiResponse<unknown[]>;
+
+/** Paginated list response (many APIs return { data: T[], total?: number }) */
+export interface PaginatedResponse<T> extends ApiResponse<T[]> {
+    total?: number;
+}
+
+// --- Component-shared types (for props / display) ---
+
+/** Document thread message with optional file attachments (FileItem, FilesList) */
+export interface DocumentThreadMessage {
+    _id?: string;
+    user_id?: { firstname?: string; lastname?: string; [key: string]: unknown };
+    message?: string;
+    file_path?: string;
+    file?: Array<{ name: string; path: string }>;
+    createdAt?: string | Date;
+}
+
+/** Admissions stat table row (AdmissionsStat) */
+export interface AdmissionsStatRow {
+    id: string;
+    school?: string;
+    program_name?: string;
+    degree?: string;
+    semester?: string;
+    applicationCount?: number;
+    finalEnrolmentCount?: number;
+    admissionCount?: number;
+    rejectionCount?: number;
+    pendingResultCount?: number;
+}
+
+/** Open task row (CVMLRL Overview/Dashboard, Essay Overview) */
+export interface OpenTaskRow {
+    id: string;
+    show?: boolean;
+    isFinalVersion?: boolean;
+    flag_by_user_id?: string[];
+    file_type?: string;
+    latest_message_left_by_id?: string;
     [key: string]: unknown;
 }

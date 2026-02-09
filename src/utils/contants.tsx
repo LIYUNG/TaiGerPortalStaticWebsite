@@ -266,6 +266,8 @@ export const CVQuestions = () => {
     ];
 };
 
+/** Optional thread param reserved for future use */
+/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 export const RLQuestions = (_thread?: DocumentThreadResponse): unknown[] => {
     return [
         {
@@ -863,7 +865,7 @@ export const spinner_style2 = {
     transform: 'rotate(360deg)',
     textAlign: 'left',
     verticalAlign: 'left',
-    overflowWrap: 'break-word'
+    overflowWrap: 'break-word' as const
 };
 
 export const valid_internal_categories = [

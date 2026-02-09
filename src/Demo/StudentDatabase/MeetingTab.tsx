@@ -20,6 +20,7 @@ import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import queryString from 'query-string';
 
+import type { StudentId, IStudentResponse, EventResponse } from '../../api/types';
 import { useAuth } from '../../components/AuthProvider';
 import {
     getEvents,
@@ -33,7 +34,9 @@ import { MeetingFormModal } from './Meetings/MeetingFormModal';
 import { ConfirmationModal } from '../../components/Modal/ConfirmationModal';
 
 // Helper function to transform Event data to Meeting display format
-const transformEventToMeeting = (event) => {
+const transformEventToMeeting = (
+    event: EventResponse
+): Record<string, unknown> => {
     const isPast = new Date(event.start) < new Date();
     const isConfirmed = event.isConfirmedRequester && event.isConfirmedReceiver;
     const agent =
@@ -75,7 +78,21 @@ const transformEventToMeeting = (event) => {
     };
 };
 
-export const MeetingTab = ({ studentId, student }) => {
+export interface MeetingTabProps {
+    studentId: StudentId;
+    student: IStudentResponse | null;
+}
+
+/** Meeting-shaped object from transformEventToMeeting (for handlers) */
+interface MeetingDisplay {
+    _id: string;
+    dateTime?: string;
+    endTime?: string;
+    isPast?: boolean;
+    [key: string]: unknown;
+}
+
+export const MeetingTab = ({ studentId, student }: MeetingTabProps) => {
     const { t } = useTranslation();
     const { user } = useAuth();
     const queryClient = useQueryClient();
@@ -83,9 +100,13 @@ export const MeetingTab = ({ studentId, student }) => {
     const [formModalOpen, setFormModalOpen] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [confirmModalOpen, setConfirmModalOpen] = useState(false);
-    const [selectedMeeting, setSelectedMeeting] = useState(null);
-    const [meetingToDelete, setMeetingToDelete] = useState(null);
-    const [meetingToConfirm, setMeetingToConfirm] = useState(null);
+    const [selectedMeeting, setSelectedMeeting] =
+        useState<MeetingDisplay | null>(null);
+    const [meetingToDelete, setMeetingToDelete] = useState<MeetingDisplay | null>(
+        null
+    );
+    const [meetingToConfirm, setMeetingToConfirm] =
+        useState<MeetingDisplay | null>(null);
     const [addAssistant, setAddAssistant] = useState(false);
 
     // Fetch events with a wide time range
@@ -127,7 +148,8 @@ export const MeetingTab = ({ studentId, student }) => {
 
     // Create mutation
     const createMutation = useMutation({
-        mutationFn: (eventData) => postEvent(eventData),
+        mutationFn: (eventData: Record<string, unknown>) =>
+            postEvent(eventData),
         onSuccess: async () => {
             // Invalidate all event queries to ensure fresh data
             await queryClient.invalidateQueries({
@@ -148,7 +170,13 @@ export const MeetingTab = ({ studentId, student }) => {
 
     // Update mutation
     const updateMutation = useMutation({
-        mutationFn: ({ eventId, eventData }) => updateEvent(eventId, eventData),
+        mutationFn: ({
+            eventId,
+            eventData
+        }: {
+            eventId: string;
+            eventData: Record<string, unknown>;
+        }) => updateEvent(eventId, eventData as Parameters<typeof updateEvent>[1]),
         onSuccess: async () => {
             await queryClient.invalidateQueries({
                 queryKey: ['events'],
@@ -167,8 +195,14 @@ export const MeetingTab = ({ studentId, student }) => {
 
     // Confirm mutation
     const confirmMutation = useMutation({
-        mutationFn: ({ eventId, eventData }) =>
-            confirmEvent(eventId, eventData),
+        mutationFn: ({
+            eventId,
+            eventData
+        }: {
+            eventId: string;
+            eventData: Record<string, unknown>;
+        }) =>
+            confirmEvent(eventId, eventData as Parameters<typeof confirmEvent>[1]),
         onSuccess: async () => {
             await queryClient.invalidateQueries({
                 queryKey: ['events'],
@@ -187,7 +221,7 @@ export const MeetingTab = ({ studentId, student }) => {
 
     // Delete mutation
     const deleteMutation = useMutation({
-        mutationFn: (eventId) => deleteEvent(eventId),
+        mutationFn: (eventId: string) => deleteEvent(eventId),
         onSuccess: async () => {
             await queryClient.invalidateQueries({
                 queryKey: ['events'],
@@ -209,23 +243,23 @@ export const MeetingTab = ({ studentId, student }) => {
         setFormModalOpen(true);
     };
 
-    const handleEditMeeting = (meeting) => {
+    const handleEditMeeting = (meeting: MeetingDisplay) => {
         setSelectedMeeting(meeting);
         setFormModalOpen(true);
     };
 
-    const handleDeleteMeeting = (meeting) => {
+    const handleDeleteMeeting = (meeting: MeetingDisplay) => {
         setMeetingToDelete(meeting);
         setDeleteModalOpen(true);
     };
 
-    const handleConfirmMeeting = (meeting) => {
+    const handleConfirmMeeting = (meeting: MeetingDisplay) => {
         setMeetingToConfirm(meeting);
         setAddAssistant(true);
         setConfirmModalOpen(true);
     };
 
-    const handleSaveMeeting = (formData) => {
+    const handleSaveMeeting = (formData: Record<string, unknown>) => {
         if (selectedMeeting) {
             // Update existing event
             const eventData = {

@@ -27,11 +27,11 @@ const CRMDashboard = () => {
     const { t } = useTranslation();
     TabTitle(t('breadcrumbs.dashboard', { ns: 'crm' }));
     const { user } = useAuth();
+    const { data, isLoading } = useQuery(getCRMStatsQuery());
+
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
-
-    const { data, isLoading } = useQuery(getCRMStatsQuery());
     const stats = data?.data?.data || {};
 
     if (isLoading) {
@@ -421,7 +421,7 @@ const CRMDashboard = () => {
                                                     </tspan>
                                                 );
                                             }
-                                        } catch (e) {
+                                        } catch {
                                             // fall through to no label
                                         }
                                         return null;

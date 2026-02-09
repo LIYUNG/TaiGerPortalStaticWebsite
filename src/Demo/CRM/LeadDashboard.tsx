@@ -39,11 +39,11 @@ const LeadDashboard = () => {
     const [tabValue, setTabValue] = useState(1);
 
     const { user } = useAuth();
+    const { data, isLoading } = useQuery(getCRMLeadsQuery());
+
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
-
-    const { data, isLoading } = useQuery(getCRMLeadsQuery());
     const leads = data?.data?.data || [];
     const allLeads = leads.filter((lead) => lead.status !== 'migrated');
 

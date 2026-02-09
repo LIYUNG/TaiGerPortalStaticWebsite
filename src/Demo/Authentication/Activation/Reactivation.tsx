@@ -5,7 +5,11 @@ import { useTranslation } from 'react-i18next';
 import { resendActivation } from '../../../api/index';
 import AuthWrapper from '../../../components/AuthWrapper';
 
-export default function Reactivation(props) {
+export interface ReactivationProps {
+    email: string;
+}
+
+export default function Reactivation(props: ReactivationProps) {
     const [emailsent, setEmailsent] = React.useState(false);
     const { t } = useTranslation();
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -21,7 +25,7 @@ export default function Reactivation(props) {
             } else {
                 alert(resp.data.message);
             }
-        } catch (err) {
+        } catch {
             // TODO: handle error
         }
     };

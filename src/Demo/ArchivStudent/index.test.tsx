@@ -75,7 +75,7 @@ describe('ArchivStudents', () => {
                     screen.getByTestId('archiv_student_component')
                 ).toBeInTheDocument();
             },
-            { timeout: 3000 }
+            { timeout: 2000 }
         );
 
         expect(

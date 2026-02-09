@@ -27,8 +27,14 @@ import { ImportStudentProgramsCard } from './ImportStudentProgramsCard';
 import { StudentPreferenceCard } from './StudentPreferenceCard';
 
 const ProgramList = React.lazy(() => import('../Program/ProgramList'));
+import type { IStudentResponse } from '../../api/types';
 
-const StudentApplicationsAssignProgramlistPage = (props) => {
+export interface StudentApplicationsAssignProgramlistPageProps {
+    student: IStudentResponse;
+    isLoaded?: boolean;
+}
+
+const StudentApplicationsAssignProgramlistPage = (props: StudentApplicationsAssignProgramlistPageProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const navigate = useNavigate();

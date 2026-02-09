@@ -28,7 +28,11 @@ import ModalMain from '../Utils/ModalHandler/ModalMain';
 import ProgramReportDeleteModal from './ProgramReportDeleteModal';
 import { useAuth } from '../../components/AuthProvider';
 
-const ProgramReport = (props) => {
+export interface ProgramReportProps {
+    program_id: string;
+}
+
+const ProgramReport = (props: ProgramReportProps) => {
     const { t } = useTranslation();
     const { user } = useAuth();
     const [programReportState, setProgramReportState] = useState({
@@ -74,7 +78,7 @@ const ProgramReport = (props) => {
                 }));
             }
         );
-    }, []);
+    }, [props.program_id]);
 
     const handleReportClick = () => {
         setProgramReportState((prevState) => ({

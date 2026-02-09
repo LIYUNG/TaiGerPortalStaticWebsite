@@ -74,8 +74,41 @@ import { useAuth } from '../../components/AuthProvider';
 import { a11yProps, CustomTabPanel } from '../../components/Tabs';
 import { useQuery } from '@tanstack/react-query';
 import { getSameProgramStudentsQuery } from '../../api/query';
+import type { AuthUserData } from '../../api/types';
 
-const SingleProgramView = (props) => {
+/** Program shape in SingleProgramView (school, program_name, country + fields from programField2Label) */
+export interface SingleProgramViewProgram {
+    school?: string;
+    program_name?: string;
+    country?: string;
+    [fieldKey: string]: string | number | boolean | undefined;
+}
+
+/** Student row in Same Program students tab */
+export interface SingleProgramViewStudent {
+    _id?: string | { toString(): string };
+    firstname?: string;
+    lastname?: string;
+    agents?: Array<{ _id?: string; firstname?: string; lastname?: string }>;
+    editors?: Array<{ _id?: string; firstname?: string; lastname?: string }>;
+    application_year?: string | number;
+    admission?: string;
+}
+
+export interface SingleProgramViewProps {
+    program?: SingleProgramViewProgram;
+    versions?: { [versionId: string]: { [k: string]: string | number | boolean } };
+    students?: SingleProgramViewStudent[];
+    isRefreshing?: boolean;
+    onRefreshProgram?: () => void;
+    programListAssistant?: unknown;
+    setDeleteProgramWarningOpen?: (open: boolean) => void;
+    setDiffModalShow?: () => void;
+    setModalShowAssignWindow?: (open: boolean) => void;
+    user?: AuthUserData | null;
+}
+
+const SingleProgramView = (props: SingleProgramViewProps) => {
     const { programId } = useParams();
     const { user } = useAuth();
     const { t } = useTranslation();

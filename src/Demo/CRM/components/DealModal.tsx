@@ -131,7 +131,7 @@ const DealModal = ({
                 };
                 form.reset(init);
                 initialRef.current = init;
-                setUiStatus(init.status || 'initiated');
+                queueMicrotask(() => setUiStatus(init.status || 'initiated'));
             } else {
                 // Reset for create mode with explicit defaults
                 const init = {
@@ -147,10 +147,11 @@ const DealModal = ({
                 };
                 form.reset(init);
                 initialRef.current = init;
-                setUiStatus('initiated');
+                queueMicrotask(() => setUiStatus('initiated'));
             }
-            setErrors({});
+            queueMicrotask(() => setErrors({}));
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- form identity stable from useForm
     }, [open, preselectedLeadId, preselectedSalesUserId, deal, isEditMode]);
 
     const resetForm = () => {

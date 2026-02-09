@@ -43,8 +43,25 @@ import { appConfig } from '../../config';
 import { useMutation } from '@tanstack/react-query';
 import { useSnackBar } from '../../contexts/use-snack-bar';
 import { queryClient } from '../../api/client';
+import type { ThreadMessage } from '../../components/Message/MessageCard';
 
-const Message = (props) => {
+export interface MessageProps {
+    message: ThreadMessage & {
+        ignoredMessageBy?: unknown;
+        ignoredMessageUpdatedAt?: unknown;
+        files?: Array<{ name: string; path: string }>;
+    };
+    isLoaded: boolean;
+    documentsthreadId: string;
+    apiPrefix: string;
+    onDeleteSingleMessage: (e: React.MouseEvent, messageId: string) => void;
+    handleClickSave?: (
+        e: React.MouseEvent,
+        editorState: { time?: number; blocks?: unknown[] }
+    ) => void;
+}
+
+const Message = (props: MessageProps) => {
     // const onlyWidth = useWindowWidth();
     const { user } = useAuth();
     const { t } = useTranslation();
@@ -81,23 +98,26 @@ const Message = (props) => {
         }
     });
     useEffect(() => {
-        let initialEditorState = null;
+        let initialEditorState: unknown = null;
         if (props.message.message && props.message.message !== '{}') {
             try {
                 initialEditorState = JSON.parse(props.message.message);
-            } catch (e) {
+            } catch {
                 initialEditorState = { time: new Date(), blocks: [] };
             }
         } else {
             initialEditorState = { time: new Date(), blocks: [] };
         }
-        setMessageState((prevState) => ({
-            ...prevState,
-            editorState: initialEditorState,
-            isLoaded: props.isLoaded,
-            deleteMessageModalShow: false
-        }));
-    }, [props.message.message]);
+        const isLoaded = props.isLoaded;
+        queueMicrotask(() => {
+            setMessageState((prevState) => ({
+                ...prevState,
+                editorState: initialEditorState,
+                isLoaded,
+                deleteMessageModalShow: false
+            }));
+        });
+    }, [props.message.message, props.isLoaded]);
 
     const onOpendeleteMessageModalShow = (
         e: React.MouseEvent<HTMLElement>,

@@ -7,7 +7,14 @@ import { convertDate } from '../../utils/contants';
 // import Blocks from 'editorjs-blocks-react-renderer';
 import { useAuth } from '../../components/AuthProvider';
 
-const DocPageView = (props) => {
+export interface DocPageViewProps {
+    editorState: { time?: string | number | Date; [key: string]: unknown };
+    handleClickEditToggle: () => void;
+    handleClickSave: () => void;
+    author?: string;
+}
+
+const DocPageView = (props: DocPageViewProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
     return (

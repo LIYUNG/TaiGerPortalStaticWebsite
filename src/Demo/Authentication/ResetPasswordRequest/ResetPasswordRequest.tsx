@@ -42,7 +42,7 @@ export default function ResetPasswordRequest() {
                     setButtonDisable(false);
                     alert('Email is not existed!');
                 }
-            } catch (err) {
+            } catch {
                 setButtonDisable(false);
                 // TODO: error handler
             }

@@ -107,6 +107,8 @@ const Profile = () => {
 
     useEffect(() => {
         getUser_function();
+    // getUser_function is defined below and depends on user_id
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user_id]);
 
     const getUser_function = () => {

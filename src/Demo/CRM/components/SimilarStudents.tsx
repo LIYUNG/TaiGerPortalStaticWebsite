@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -31,13 +31,37 @@ import DEMO from '../../../store/constant';
 
 const { STUDENT_DATABASE_STUDENTID_LINK, SINGLE_PROGRAM_LINK } = DEMO;
 
+/** Application item used in similar-student card */
+export interface SimilarStudentApplication {
+    admission?: string;
+    finalEnrolment?: boolean;
+}
+
+/** Student shape for SimilarStudents card */
+export interface SimilarStudentCardStudent {
+    _id: string | number;
+    firstname?: string;
+    lastname?: string;
+    applications?: SimilarStudentApplication[];
+    application_preference?: {
+        target_degree?: string;
+        expected_application_date?: string;
+        expected_application_semester?: string;
+    };
+}
+
+interface StudentCardProps {
+    student: SimilarStudentCardStudent;
+    matchReason?: string;
+}
 // Extracted student card component for better organization
-const StudentCard = ({ student, matchReason }) => {
+const StudentCard = ({ student, matchReason }: StudentCardProps) => {
     const { t } = useTranslation();
     const [expanded, setExpanded] = useState(false);
 
+    const applications = student?.applications;
     const sortedApplications = useMemo(() => {
-        return (student?.applications || [])
+        return (applications || [])
             .filter((application) =>
                 ['O', 'X'].includes(application?.admission)
             )
@@ -52,7 +76,7 @@ const StudentCard = ({ student, matchReason }) => {
 
                 return 0;
             });
-    }, [student?.applications]);
+    }, [applications]);
 
     return (
         <Box
@@ -77,7 +101,7 @@ const StudentCard = ({ student, matchReason }) => {
             >
                 <SchoolIcon color="primary" fontSize="small" />
                 <Link
-                    href={STUDENT_DATABASE_STUDENTID_LINK(student._id)}
+                    href={STUDENT_DATABASE_STUDENTID_LINK(String(student._id))}
                     rel="noopener noreferrer"
                     sx={{
                         color: 'primary.main',
@@ -114,12 +138,12 @@ const StudentCard = ({ student, matchReason }) => {
                         variant="filled"
                     />
                 )}
-                {(student.application_preference.expected_application_date ||
+                {(student.application_preference?.expected_application_date ||
                     student.application_preference
-                        .expected_application_semester) && (
+                        ?.expected_application_semester) && (
                     <Chip
                         color="primary"
-                        label={`${student.application_preference.expected_application_date} ${student.application_preference.expected_application_semester}`}
+                        label={`${student.application_preference?.expected_application_date ?? ''} ${student.application_preference?.expected_application_semester ?? ''}`}
                         size="small"
                         sx={{
                             '& .MuiChip-label': {
@@ -332,8 +356,12 @@ const StudentCard = ({ student, matchReason }) => {
     );
 };
 
+interface StudentDetailRowProps {
+    label: string;
+    value?: ReactNode;
+}
 // Helper component for consistent student detail rows
-const StudentDetailRow = ({ label, value }) => {
+const StudentDetailRow = ({ label, value }: StudentDetailRowProps) => {
     const { t } = useTranslation();
     return (
         <Typography
@@ -407,7 +435,17 @@ const StudentCardSkeleton = () => (
     </Box>
 );
 
-const SimilarStudents = ({ leadId, similarUsers = [] }) => {
+/** Item from similar-users list (prop or API matches) */
+export interface SimilarUserMatchItem {
+    mongoId: string;
+    reason?: string;
+}
+
+export interface SimilarStudentsProps {
+    leadId?: string;
+    similarUsers?: SimilarUserMatchItem[];
+}
+const SimilarStudents = ({ leadId, similarUsers = [] }: SimilarStudentsProps) => {
     // Reference to the scrollable container
     const scrollContainerRef = useRef(null);
     const { t } = useTranslation();
@@ -448,9 +486,9 @@ const SimilarStudents = ({ leadId, similarUsers = [] }) => {
 
     // Extract student IDs from either prop or API response and create a map of reasons
     const { studentIds, reasonMap } = useMemo(() => {
-        const buildData = (list) => {
+        const buildData = (list: SimilarUserMatchItem[]) => {
             const studentIds = list.map((item) => item.mongoId);
-            const reasonMap = list.reduce((map, item) => {
+            const reasonMap = list.reduce<Record<string, string | undefined>>((map, item) => {
                 map[item.mongoId] = item.reason;
                 return map;
             }, {});

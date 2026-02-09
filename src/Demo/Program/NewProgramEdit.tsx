@@ -38,7 +38,16 @@ import {
 import { appConfig } from '../../config';
 import { useAuth } from '../../components/AuthProvider';
 
-const NewProgramEdit = (props) => {
+export interface NewProgramEditProps {
+    program?: Record<string, unknown> & { is_rl_specific?: boolean };
+    programs?: { school?: string; [key: string]: unknown }[];
+    type?: 'edit' | 'new';
+    isSubmitting?: boolean;
+    handleSubmit_Program: (payload: Record<string, unknown>) => void;
+    handleClick: () => void;
+}
+
+const NewProgramEdit = (props: NewProgramEditProps) => {
     const { t } = useTranslation();
     const { user } = useAuth();
     const [isChanged, setIsChanged] = useState(false);

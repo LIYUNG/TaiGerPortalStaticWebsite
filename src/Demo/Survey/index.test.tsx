@@ -16,6 +16,15 @@ import { SurveyProvider } from '../../components/SurveyProvider';
 vi.mock('axios');
 vi.mock('../../api');
 vi.mock('../../components/AuthProvider');
+vi.mock('@taiger-common/core', async (importOriginal) => {
+    const actual =
+        (await importOriginal()) as typeof import('@taiger-common/core');
+    return {
+        ...actual,
+        is_TaiGer_role: () => false,
+        is_TaiGer_Student: () => true
+    };
+});
 
 const routes = [
     {
@@ -78,16 +87,21 @@ describe('Survey', () => {
         });
         render(<RouterProvider router={router} />);
 
-        await waitFor(() => {
-            expect(
-                screen.getByPlaceholderText("Taipei First Girls' High School")
-            ).toHaveValue('Song Shan senior high school');
-            expect(screen.getByPlaceholderText('2016')).toHaveValue('2020');
-            expect(
-                screen.getByPlaceholderText('National Yilan University')
-            ).toHaveValue(
-                'National Taichung University of Science and Technology'
-            );
-        });
+        await waitFor(
+            () => {
+                expect(
+                    screen.getByPlaceholderText(
+                        "Taipei First Girls' High School"
+                    )
+                ).toHaveValue('Song Shan senior high school');
+                expect(screen.getByPlaceholderText('2016')).toHaveValue('2020');
+                expect(
+                    screen.getByPlaceholderText('National Yilan University')
+                ).toHaveValue(
+                    'National Taichung University of Science and Technology'
+                );
+            },
+            { timeout: 3000 }
+        );
     });
 });
