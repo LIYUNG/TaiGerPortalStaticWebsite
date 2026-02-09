@@ -43,8 +43,25 @@ import { appConfig } from '../../config';
 import { useMutation } from '@tanstack/react-query';
 import { useSnackBar } from '../../contexts/use-snack-bar';
 import { queryClient } from '../../api/client';
+import type { ThreadMessage } from '../../components/Message/MessageCard';
 
-const Message = (props) => {
+export interface MessageProps {
+    message: ThreadMessage & {
+        ignoredMessageBy?: unknown;
+        ignoredMessageUpdatedAt?: unknown;
+        files?: Array<{ name: string; path: string }>;
+    };
+    isLoaded: boolean;
+    documentsthreadId: string;
+    apiPrefix: string;
+    onDeleteSingleMessage: (e: React.MouseEvent, messageId: string) => void;
+    handleClickSave?: (
+        e: React.MouseEvent,
+        editorState: { time?: number; blocks?: unknown[] }
+    ) => void;
+}
+
+const Message = (props: MessageProps) => {
     // const onlyWidth = useWindowWidth();
     const { user } = useAuth();
     const { t } = useTranslation();

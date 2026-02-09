@@ -27,7 +27,17 @@ import { col_keywords } from '../../../utils/contants';
 import DEMO from '../../../store/constant';
 import { useSnackBar } from '../../../contexts/use-snack-bar';
 
-const EditCard = (props) => {
+export interface CourseKeywordsEditCardData {
+    keywords?: { zh?: string[]; en?: string[] };
+    antiKeywords?: { zh?: string[]; en?: string[] };
+    [key: string]: unknown;
+}
+
+export interface CourseKeywordsEditCardProps {
+    data: CourseKeywordsEditCardData;
+}
+
+const EditCard = (props: CourseKeywordsEditCardProps) => {
     const [selectedCategory, setSelectedCategory] = useState(props.data);
     const [isEditMode, setIsEditMode] = useState(false);
     const [keywordsZH, setKeywordsZH] = useState('');
@@ -557,7 +567,11 @@ const EditCard = (props) => {
     );
 };
 
-const CourseKeywordsOverview = ({ courseKeywordSets }) => {
+export interface CourseKeywordsOverviewProps {
+    courseKeywordSets: CourseKeywordsEditCardData[];
+}
+
+const CourseKeywordsOverview = ({ courseKeywordSets }: CourseKeywordsOverviewProps) => {
     const [courseKeywordSetsState, setCourseKeywordSetsState] = useState(
         courseKeywordSets.map((courseKeywordSet) => ({
             ...courseKeywordSet,

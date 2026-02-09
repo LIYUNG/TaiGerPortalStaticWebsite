@@ -29,7 +29,11 @@ import {
 } from '../../api';
 import type { Application } from '../../api/types';
 
-export const ImportStudentProgramsCard = (props) => {
+export interface ImportStudentProgramsCardProps {
+    student: Record<string, unknown> & { applications?: Application[] };
+}
+
+export const ImportStudentProgramsCard = (props: ImportStudentProgramsCardProps) => {
     const { t } = useTranslation();
     const [importStudentProgramsCard, setImportStudentProgramsCardState] =
         useState({

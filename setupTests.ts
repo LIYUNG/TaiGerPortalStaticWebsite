@@ -18,7 +18,7 @@ if (typeof process !== 'undefined') {
 // Code uses "import i18next from 'i18next'" so the mock must provide default export.
 const { i18nextMock } = vi.hoisted(() => {
     const i18nextMock = {
-        t: (key: string, _options?: unknown) => key
+        t: (key: string) => key
     };
     return { i18nextMock };
 });

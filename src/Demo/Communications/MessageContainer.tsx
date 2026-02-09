@@ -7,8 +7,14 @@ import { useAuth } from '../../components/AuthProvider';
 import { useMutation } from '@tanstack/react-query';
 import { queryClient } from '../../api/client';
 import { useSnackBar } from '../../contexts/use-snack-bar';
+import type { ThreadMessage } from '../../components/Message/MessageCard';
 
-const MessageContainer = (props) => {
+export interface MessageContainerProps {
+    message: ThreadMessage;
+    student_id: string;
+}
+
+const MessageContainer = (props: MessageContainerProps) => {
     const { user } = useAuth();
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
 

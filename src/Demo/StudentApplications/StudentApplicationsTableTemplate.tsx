@@ -77,8 +77,16 @@ import { useNavigate } from 'react-router-dom';
 import { ImportStudentProgramsCard } from './ImportStudentProgramsCard';
 import { StudentPreferenceCard } from './StudentPreferenceCard';
 import { ConfirmationModal } from '../../components/Modal/ConfirmationModal';
+import type { Application } from '../../api/types';
 
-const StudentApplicationsTableTemplate = (props) => {
+export interface StudentApplicationsTableTemplateProps {
+    student: {
+        applications?: Application[];
+        applying_program_count?: number;
+    };
+}
+
+const StudentApplicationsTableTemplate = (props: StudentApplicationsTableTemplateProps) => {
     const { user } = useAuth();
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
     const { t } = useTranslation();

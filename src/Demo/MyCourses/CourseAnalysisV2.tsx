@@ -145,7 +145,18 @@ const getMaxScoreECTS = (table) => {
     return table[table.length - 1].maxScore || 0;
 };
 
-const CourseTable = ({ data = [], tableKey }) => {
+/** Row in CourseTable: dynamic course name key (tableKey) plus credits and grades */
+export interface CourseTableRow {
+    credits?: number | string;
+    grades?: string;
+    [courseNameKey: string]: string | number | undefined;
+}
+
+interface CourseTableProps {
+    data?: CourseTableRow[];
+    tableKey?: string;
+}
+const CourseTable = ({ data = [], tableKey }: CourseTableProps) => {
     return (
         <TableContainer style={{ overflowX: 'auto' }}>
             <Table size="small">

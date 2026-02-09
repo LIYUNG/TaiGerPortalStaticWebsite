@@ -13,7 +13,16 @@ import { is_TaiGer_role } from '@taiger-common/core';
 
 import { useAuth } from '../../components/AuthProvider';
 
-const ProgramReportUpdateModal = (props) => {
+export interface ProgramReportUpdateModalProps {
+    ticket: Record<string, unknown>;
+    isUpdateReport: boolean;
+    setReportUpdateModalHide: () => void;
+    uni_name: string;
+    program_name: string;
+    onReportUpdate?: () => void;
+}
+
+const ProgramReportUpdateModal = (props: ProgramReportUpdateModalProps) => {
     const { t } = useTranslation();
     const { user } = useAuth();
     const [programReportUpdateModalState, ProgramReportUpdateModalState] =

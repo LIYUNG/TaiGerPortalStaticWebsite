@@ -9,7 +9,12 @@ import { updateDocumentationHelperLink } from '../../api';
 import Loading from '../../components/Loading/Loading';
 import MyDocumentCard from './MyDocumentCard';
 
-const BaseDocumentStudentView = ({ student, base_docs_link }) => {
+export interface BaseDocumentStudentViewProps {
+    student: Record<string, unknown>;
+    base_docs_link: string;
+}
+
+const BaseDocumentStudentView = ({ student, base_docs_link }: BaseDocumentStudentViewProps) => {
     const { t } = useTranslation();
 
     const [baseDocumentStudentViewState, setBaseDocumentStudentViewState] =

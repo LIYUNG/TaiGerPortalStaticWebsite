@@ -95,8 +95,9 @@ export const SingleStudentPageMainContent = ({
         detailedView: false,
         student: data,
         base_docs_link: base_docs_link,
-        survey_link: survey_link.find((link) => link.key === 'Grading_System')
-            .link,
+        survey_link:
+            survey_link?.find((link) => link.key === 'Grading_System')?.link ??
+            '',
         success: false,
         res_status: 0,
         res_modal_message: '',
@@ -185,9 +186,17 @@ export const SingleStudentPageMainContent = ({
     });
 
     const { hash } = useLocation();
-    const [value, setValue] = useState(
-        SINGLE_STUDENT_TABS[hash.replace('#', '')] || 0
-    );
+    const [value, setValue] = useState(() => {
+        const key = hash.replace('#', '') as keyof typeof SINGLE_STUDENT_TABS;
+        return SINGLE_STUDENT_TABS[key] ?? 0;
+    });
+
+    // Keep tab in sync with URL hash (e.g. direct load with #portal or back/forward)
+    useEffect(() => {
+        const key = hash.replace('#', '') as keyof typeof SINGLE_STUDENT_TABS;
+        setValue(SINGLE_STUDENT_TABS[key] ?? 0);
+    }, [hash]);
+
     const handleChange = (event, newValue) => {
         setValue(newValue);
         window.location.hash = SINGLE_STUDENT_REVERSED_TABS[newValue];

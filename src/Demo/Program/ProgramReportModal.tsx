@@ -10,7 +10,15 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
-const ProgramReportModal = (props) => {
+export interface ProgramReportModalProps {
+    isReport: boolean;
+    setReportModalHideDelete: () => void;
+    uni_name: string;
+    program_name: string;
+    onReportSubmit?: (description: string) => void;
+}
+
+const ProgramReportModal = (props: ProgramReportModalProps) => {
     const { t } = useTranslation();
     const [programReportModalState, setProgramReportModalState] = useState({
         description: ''

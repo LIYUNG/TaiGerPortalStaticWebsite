@@ -31,7 +31,7 @@ function parseGPA(value) {
     };
 }
 
-function mapLeadToStudentAcademic(lead) {
+function mapLeadToStudentAcademic(lead: CreateUserFromLeadLead) {
     const { gpa: bachelorGPA, maxGpa: bachelorHighestGPA } = parseGPA(
         lead.bachelorGPA
     );
@@ -94,7 +94,37 @@ function mapLeadToStudentAcademic(lead) {
     };
 }
 
-const CreateUserFromLeadModal = ({ open, onClose, lead, onSuccess }) => {
+/** Lead fields used when creating a user from lead (form prefill + mapLeadToStudentAcademic) */
+export interface CreateUserFromLeadLead {
+    fullName?: string;
+    email?: string;
+    bachelorGPA?: string | number;
+    masterGPA?: string | number;
+    highschoolName?: string;
+    masterSchool?: string;
+    bachelorSchool?: string;
+    bachelorProgramName?: string;
+    masterProgramName?: string;
+    currentYearOrGraduated?: string;
+    highestEducation?: string;
+    workExperience?: string;
+    otherActivities?: string;
+    englishLevel?: string;
+    germanLevel?: string;
+    intendedStartTime?: string;
+    intendedProgramLevel?: string;
+    intendedDirection?: string;
+    intendedPrograms?: string;
+    additionalInfo?: string;
+}
+
+export interface CreateUserFromLeadModalProps {
+    open: boolean;
+    onClose: () => void;
+    lead: CreateUserFromLeadLead;
+    onSuccess?: () => void;
+}
+const CreateUserFromLeadModal = ({ open, onClose, lead, onSuccess }: CreateUserFromLeadModalProps) => {
     const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');

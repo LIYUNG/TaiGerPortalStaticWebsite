@@ -74,7 +74,11 @@ const ProgressButton = ({
     );
 };
 
-const CheckboxSection = ({ isChecked, onChange }) => (
+interface CheckboxSectionProps {
+    isChecked: boolean;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+const CheckboxSection = ({ isChecked, onChange }: CheckboxSectionProps) => (
     <Grid item xs={12}>
         <FormControl>
             <FormControlLabel
@@ -92,7 +96,10 @@ const CheckboxSection = ({ isChecked, onChange }) => (
     </Grid>
 );
 
-const LanguageSelect = ({ onChange }) => (
+interface LanguageSelectProps {
+    onChange: (e: { target: { value: string } }) => void;
+}
+const LanguageSelect = ({ onChange }: LanguageSelectProps) => (
     <Grid item xs={12}>
         <FormControl fullWidth>
             <InputLabel id="output-lang-label">Output language</InputLabel>
@@ -111,7 +118,10 @@ const LanguageSelect = ({ onChange }) => (
     </Grid>
 );
 
-const GPTModelSelect = ({ onChange }) => (
+interface GPTModelSelectProps {
+    onChange: (e: { target: { value: string } }) => void;
+}
+const GPTModelSelect = ({ onChange }: GPTModelSelectProps) => (
     <Grid item xs={12}>
         <FormControl fullWidth>
             <InputLabel id="gpt-model-label">GPT Model</InputLabel>
@@ -132,7 +142,14 @@ const GPTModelSelect = ({ onChange }) => (
     </Grid>
 );
 
-const LastModifiedText = ({ updatedAt, isFinalVersion }) => {
+interface LastModifiedTextProps {
+    updatedAt?: string | number;
+    isFinalVersion?: boolean;
+}
+const LastModifiedText = ({
+    updatedAt,
+    isFinalVersion
+}: LastModifiedTextProps) => {
     return updatedAt ? (
         <Box
             sx={{
@@ -248,35 +265,39 @@ const SurveyForm = ({
             ) : null}
             <Collapse in={collapseOpen}>
                 <Grid container sx={{ gap: 1 }}>
-                    {surveyInput.surveyContent.map((questionItem, index) => (
-                        <Grid
-                            item
-                            key={index}
-                            sm={type2width[questionItem.type] || 3}
-                            xs={12}
-                        >
-                            <FormControl fullWidth>
-                                <FormLabel>{questionItem.question}</FormLabel>
-                                <TextField
-                                    disabled={
-                                        surveyInput?.isFinalVersion ||
-                                        disableEdit ||
-                                        !editMode
-                                    }
-                                    inputProps={{
-                                        id: questionItem.questionId,
-                                        survey: surveyType
-                                    }}
-                                    key={index}
-                                    multiline
-                                    onChange={onChange}
-                                    placeholder={questionItem.placeholder}
-                                    rows={type2rows[questionItem.type] || 3}
-                                    value={questionItem.answer}
-                                />
-                            </FormControl>
-                        </Grid>
-                    ))}
+                    {surveyInput.surveyContent.map(
+                        (questionItem, index: number) => (
+                            <Grid
+                                item
+                                key={index}
+                                sm={type2width[questionItem.type] || 3}
+                                xs={12}
+                            >
+                                <FormControl fullWidth>
+                                    <FormLabel>
+                                        {questionItem.question}
+                                    </FormLabel>
+                                    <TextField
+                                        disabled={
+                                            surveyInput?.isFinalVersion ||
+                                            disableEdit ||
+                                            !editMode
+                                        }
+                                        inputProps={{
+                                            id: questionItem.questionId,
+                                            survey: surveyType
+                                        }}
+                                        key={index}
+                                        multiline
+                                        onChange={onChange}
+                                        placeholder={questionItem.placeholder}
+                                        rows={type2rows[questionItem.type] || 3}
+                                        value={questionItem.answer}
+                                    />
+                                </FormControl>
+                            </Grid>
+                        )
+                    )}
                 </Grid>
             </Collapse>
         </Box>
@@ -345,12 +366,40 @@ const InputGenerator = ({
     );
 };
 
+/** General or specific survey input; may have isFinalVersion and surveyContent */
+interface SurveyInputItem {
+    isFinalVersion?: boolean;
+    surveyContent?: unknown[];
+    [key: string]: unknown;
+}
+
+/** Thread data from getSurveyInputs API, used for file_type, program_id, student_id */
+interface DocModificationThreadInputThread {
+    _id?: string | { toString(): string };
+    file_type?: string;
+    program_id?: {
+        school?: string;
+        country?: string;
+        semester?: string;
+        application_deadline?: string;
+        degree?: string;
+        program_name?: string;
+        _id?: string;
+        lang?: string;
+    };
+    student_id?: {
+        firstname?: string;
+        lastname?: string;
+        _id?: { toString(): string };
+    };
+}
+
 const DocModificationThreadInput = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const { documentsthreadId } = useParams();
     const [isLoaded, setIsLoaded] = useState(false);
-    const [thread, setThread] = useState({});
+    const [thread, setThread] = useState<DocModificationThreadInputThread>({});
     const [isChanged, setIsChanged] = useState({
         general: false,
         specific: false
@@ -359,7 +408,10 @@ const DocModificationThreadInput = () => {
     const [isGenerating, setIsGenerating] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showUnchangeAlert, setShowUnchangeAlert] = useState(false);
-    const [surveyInputs, setSurveyInputs] = useState({
+    const [surveyInputs, setSurveyInputs] = useState<{
+        general: SurveyInputItem;
+        specific: SurveyInputItem;
+    }>({
         general: {},
         specific: {}
     });
@@ -599,7 +651,7 @@ const DocModificationThreadInput = () => {
             editor_requirements: JSON.stringify(
                 docModificationThreadInputState.editorRequirements
             ),
-            student_id: thread.student_id._id.toString(),
+            student_id: thread.student_id?._id?.toString() ?? '',
             program_full_name: programFullName,
             file_type: thread.file_type
         });
@@ -620,7 +672,6 @@ const DocModificationThreadInput = () => {
                 .pipeThrough(new TextDecoderStream())
                 .getReader();
 
-             
             while (true) {
                 const { value, done } = await reader.read();
                 if (done) {
@@ -692,7 +743,7 @@ const DocModificationThreadInput = () => {
                     color="inherit"
                     component={LinkDom}
                     to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                        thread?.student_id?._id.toString(),
+                        thread?.student_id?._id?.toString() ?? '',
                         DEMO.CVMLRL_HASH
                     )}`}
                     underline="hover"
@@ -702,7 +753,7 @@ const DocModificationThreadInput = () => {
                 <Link
                     color="inherit"
                     component={LinkDom}
-                    to={`${DEMO.DOCUMENT_MODIFICATION_LINK(thread?._id.toString())}`}
+                    to={`${DEMO.DOCUMENT_MODIFICATION_LINK(thread?._id?.toString() ?? '')}`}
                     underline="hover"
                 >
                     {docName}

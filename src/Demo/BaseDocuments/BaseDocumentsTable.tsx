@@ -44,10 +44,66 @@ import { updateProfileDocumentStatus } from '../../api';
 import DEMO from '../../store/constant';
 import AcceptProfileFileModel from './AcceptedFilePreviewModal';
 
-export const BaseDocumentsTable = ({ students }) => {
+/** Profile document entry for a student */
+export interface BaseDocumentProfileItem {
+    name: string;
+    status?: string;
+    path?: string;
+    [key: string]: unknown;
+}
+
+/** Agent reference in student row */
+export interface BaseDocumentAgent {
+    _id: { toString(): string };
+    firstname?: string;
+    lastname?: string;
+}
+
+/** Student row with profile documents and agents */
+export interface BaseDocumentStudentRow {
+    _id: { toString(): string };
+    profile: BaseDocumentProfileItem[];
+    firstname?: string;
+    lastname?: string;
+    firstname_chinese?: string;
+    lastname_chinese?: string;
+    agents?: BaseDocumentAgent[];
+}
+
+/** Table row original (id, studentName, agents + profile keys as BaseDocumentProfileItem) */
+export interface BaseDocumentsTableRowOriginal {
+    id: string;
+    studentName: string;
+    agents?: BaseDocumentAgent[];
+    [profileKey: string]: string | BaseDocumentProfileItem | BaseDocumentAgent[] | undefined;
+}
+
+export interface BaseDocumentsTableProps {
+    students: BaseDocumentStudentRow[];
+}
+
+interface BaseDocumentsTableState {
+    students: BaseDocumentStudentRow[];
+    isLoaded: boolean | Record<string, boolean>;
+    rejectProfileFileModel: boolean;
+    preview_path: string;
+    doc_key: string;
+    showPreview: boolean;
+    acceptProfileFileModel: boolean;
+    student_id: string;
+    status: string;
+    category: string;
+    feedback: string;
+    error?: unknown;
+    success?: boolean;
+    res_modal_status?: number;
+    res_modal_message?: string;
+}
+
+export const BaseDocumentsTable = ({ students }: BaseDocumentsTableProps) => {
     const { t } = useTranslation();
 
-    const [baseDocumentsTableState, setBaseDocumentsTableState] = useState({
+    const [baseDocumentsTableState, setBaseDocumentsTableState] = useState<BaseDocumentsTableState>({
         students: students,
         isLoaded: true,
         rejectProfileFileModel: false,
@@ -62,9 +118,9 @@ export const BaseDocumentsTable = ({ students }) => {
     });
 
     const onUpdateProfileFilefromstudent = (
-        e: React.FormEvent<HTMLFormElement>
+        e?: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>
     ) => {
-        e.preventDefault();
+        e?.preventDefault();
         setBaseDocumentsTableState((prevState) => ({
             ...prevState,
             isLoaded: false
@@ -79,17 +135,20 @@ export const BaseDocumentsTable = ({ students }) => {
                 const { data, success } = resp.data;
                 const { status } = resp;
                 if (success) {
-                    const students_temp = [...baseDocumentsTableState.students];
+                    const students_temp: BaseDocumentStudentRow[] = [...baseDocumentsTableState.students];
                     const student_index = students_temp.findIndex(
                         (student) =>
-                            student._id === baseDocumentsTableState.student_id
+                            String(student._id) === baseDocumentsTableState.student_id
                     );
-                    const profile_idx = students_temp[
-                        student_index
-                    ].profile?.findIndex(
-                        (p) => p.name === baseDocumentsTableState.category
-                    );
-                    students_temp[student_index].profile[profile_idx] = data;
+                    if (student_index === -1) return;
+                    const profile = students_temp[student_index].profile;
+                    const profile_idx = Array.isArray(profile)
+                        ? profile.findIndex(
+                            (p: BaseDocumentProfileItem) => p.name === baseDocumentsTableState.category
+                        )
+                        : -1;
+                    if (profile_idx === -1) return;
+                    students_temp[student_index].profile[profile_idx] = data as BaseDocumentProfileItem;
                     setBaseDocumentsTableState((prevState) => ({
                         ...prevState,
                         students: students_temp,
@@ -114,18 +173,21 @@ export const BaseDocumentsTable = ({ students }) => {
                 }
             },
             (error) => {
-                setBaseDocumentsTableState((prevState) => ({
-                    ...prevState,
-                    isLoaded: {
-                        ...prevState.isLoaded,
-                        [baseDocumentsTableState.category]: true
-                    },
-                    error,
-                    showPreview: false,
-                    rejectProfileFileModel: false,
-                    res_modal_status: 500,
-                    res_modal_message: ''
-                }));
+                setBaseDocumentsTableState((prevState) => {
+                    const prevLoaded = prevState.isLoaded;
+                    const isLoadedObj = typeof prevLoaded === 'object' && prevLoaded !== null
+                        ? { ...(prevLoaded as Record<string, boolean>), [baseDocumentsTableState.category]: true }
+                        : { [baseDocumentsTableState.category]: true };
+                    return {
+                        ...prevState,
+                        isLoaded: isLoadedObj,
+                        error,
+                        showPreview: false,
+                        rejectProfileFileModel: false,
+                        res_modal_status: 500,
+                        res_modal_message: ''
+                    };
+                });
             }
         );
     };
@@ -146,10 +208,10 @@ export const BaseDocumentsTable = ({ students }) => {
     };
 
     const handleRejectMessage = (
-        e: React.FormEvent<HTMLFormElement>,
+        e: React.FormEvent<HTMLFormElement> | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
         rejectmessage: string
     ) => {
-        e.preventDefault();
+        if ('preventDefault' in e) e.preventDefault();
         setBaseDocumentsTableState((prevState) => ({
             ...prevState,
             feedback: rejectmessage
@@ -212,8 +274,8 @@ export const BaseDocumentsTable = ({ students }) => {
         let missing = 0;
         let notNeeded = 0;
 
-        baseDocumentsTableState.students.forEach((student) => {
-            student.profile.forEach((doc) => {
+        baseDocumentsTableState.students.forEach((student: BaseDocumentStudentRow) => {
+            (student.profile ?? []).forEach((doc: BaseDocumentProfileItem) => {
                 if (doc.status === DocumentStatusType.Uploaded) {
                     uploaded++;
                 } else if (doc.status === DocumentStatusType.Accepted) {
@@ -248,13 +310,13 @@ export const BaseDocumentsTable = ({ students }) => {
 
     // Transform students data for the table
     const tableData = useMemo(() => {
-        return baseDocumentsTableState.students.map((student) => ({
+        return baseDocumentsTableState.students.map((student: BaseDocumentStudentRow) => ({
             id: student._id.toString(),
             studentName: `${student?.lastname_chinese || ''}${
                 student?.firstname_chinese || ''
             } ${student.firstname} ${student.lastname}`,
             agents: student.agents,
-            ...student.profile.reduce((acc, curr) => {
+            ...(student.profile ?? []).reduce((acc: Record<string, BaseDocumentProfileItem>, curr: BaseDocumentProfileItem) => {
                 acc[curr.name] = curr;
                 return acc;
             }, {})
@@ -262,8 +324,11 @@ export const BaseDocumentsTable = ({ students }) => {
     }, [baseDocumentsTableState.students]);
 
     // Helper function to render document status cell
-    const renderDocumentStatusCell = useCallback((params, profileKey) => {
-        const value = params.row.original[profileKey];
+    const renderDocumentStatusCell = useCallback((
+        params: { row: { original: BaseDocumentsTableRowOriginal } },
+        profileKey: string
+    ) => {
+        const value = params.row.original[profileKey] as BaseDocumentProfileItem | undefined;
 
         if (value?.status === DocumentStatusType.Uploaded) {
             return (
@@ -273,7 +338,7 @@ export const BaseDocumentsTable = ({ students }) => {
                 </Box>
             );
         } else if (value?.status === DocumentStatusType.Accepted) {
-            const document_split = value?.path.replace(/\\/g, '/');
+            const document_split = (value?.path ?? '').toString().replace(/\\/g, '/');
             const document_name = document_split.split('/')[1];
             return (
                 <Box
@@ -281,9 +346,9 @@ export const BaseDocumentsTable = ({ students }) => {
                         showPreview(
                             e,
                             document_name,
-                            value?.name,
+                            value?.name ?? '',
                             document_name,
-                            params.row.original.id
+                            String(params.row.original.id ?? '')
                         );
                     }}
                     style={{
@@ -328,7 +393,7 @@ export const BaseDocumentsTable = ({ students }) => {
             accessorKey: baseDoc[0],
             header: t(baseDoc[1], { ns: 'common' }),
             size: 150,
-            Cell: (params) => renderDocumentStatusCell(params, baseDoc[0])
+            Cell: (params: { row: { original: BaseDocumentsTableRowOriginal } }) => renderDocumentStatusCell(params, baseDoc[0])
         }));
     }, [t, renderDocumentStatusCell]);
 
@@ -339,20 +404,21 @@ export const BaseDocumentsTable = ({ students }) => {
                 accessorKey: 'studentName',
                 header: t('First / Last Name', { ns: 'common' }),
                 size: 200,
-                Cell: (params) => {
+                Cell: (params: { row: { original: BaseDocumentsTableRowOriginal } }) => {
                     const linkUrl = `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
                         params.row.original.id,
                         DEMO.PROFILE_HASH
                     )}`;
+                    const studentName = params.row.original.studentName;
                     return (
                         <Link
                             component={LinkDom}
                             target="_blank"
-                            title={params.row.original.studentName}
+                            title={studentName}
                             to={linkUrl}
                             underline="hover"
                         >
-                            {params.row.original.studentName}
+                            {studentName}
                         </Link>
                     );
                 }
@@ -361,22 +427,23 @@ export const BaseDocumentsTable = ({ students }) => {
                 accessorKey: 'agents',
                 header: t('Agents', { ns: 'common' }),
                 size: 150,
-                accessorFn: (row) =>
+                accessorFn: (row: BaseDocumentsTableRowOriginal) =>
                     row.agents
-                        ?.map((agent) => `${agent.firstname} ${agent.lastname}`)
+                        ?.map((agent) => `${agent.firstname ?? ''} ${agent.lastname ?? ''}`.trim())
                         .join(', ') || '',
-                Cell: (params) => {
-                    return params.row.original.agents?.map((agent, idx) => (
+                Cell: (params: { row: { original: BaseDocumentsTableRowOriginal } }) => {
+                    const agents = params.row.original.agents;
+                    return agents?.map((agent, idx) => (
                         <Link
                             component={LinkDom}
-                            key={`${agent._id.toString()}-${idx}`}
+                            key={`${String(agent._id)}-${idx}`}
                             target="_blank"
-                            title={`${agent.firstname} ${agent.lastname}`}
-                            to={DEMO.TEAM_AGENT_LINK(agent._id.toString())}
+                            title={`${agent.firstname ?? ''} ${agent.lastname ?? ''}`}
+                            to={DEMO.TEAM_AGENT_LINK(String(agent._id))}
                             underline="hover"
                         >
-                            {`${agent.firstname}${
-                                idx < params.row.original.agents.length - 1
+                            {`${agent.firstname ?? ''}${
+                                agents && idx < agents.length - 1
                                     ? ', '
                                     : ''
                             }`}

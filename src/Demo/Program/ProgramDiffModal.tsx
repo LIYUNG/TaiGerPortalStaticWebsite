@@ -16,7 +16,13 @@ import ProgramCompare from './ProgramCompare';
 
 import { getProgramChangeRequests } from '../../api/index';
 
-const ProgramDiffModal = (props) => {
+export interface ProgramDiffModalProps {
+    open: boolean;
+    setModalHide: () => void;
+    originalProgram: { _id: string; [key: string]: unknown };
+}
+
+const ProgramDiffModal = (props: ProgramDiffModalProps) => {
     const { t } = useTranslation();
     const { originalProgram } = props;
     const programId = originalProgram._id;

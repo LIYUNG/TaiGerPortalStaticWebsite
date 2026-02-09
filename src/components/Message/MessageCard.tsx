@@ -111,6 +111,7 @@ const MessageCard = (props: MessageCardProps) => {
         } else {
             initialEditorState = { time: Date.now(), blocks: [] };
         }
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- sync message payload into local state for editor
         setMessageState((prevState) => ({
             ...prevState,
             editorState: initialEditorState,

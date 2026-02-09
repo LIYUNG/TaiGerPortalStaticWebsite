@@ -41,18 +41,15 @@ export const GeneralRLRequirementsTab = ({
         getStudentAndDocLinksQuery({ studentId })
     );
 
-    if (!studentId)
-        return (
-            <Alert severity="error" sx={statusAlertSx}>
-                {t('generalRLTable.missingStudentId')}
-            </Alert>
-        );
     const student = response?.data?.data || null;
-    const apps = student?.applications || [];
+    const apps = useMemo(
+        () => student?.applications ?? [],
+        [student?.applications]
+    );
 
-    // decided field in sample data: "-" = pending/undecided, "O" = decided, "X" = excluded
+    // decided field in sample data: "-" = pending/undecided, "O" = decided, "X" = excluded (hooks must run before any return)
     const relevantApplications = useMemo(() => {
-        return (apps || []).filter((app: Application) => {
+        return apps.filter((app: Application) => {
             const program = app.programId || null;
             const generalRLNotRequired =
                 !app ||
@@ -112,6 +109,14 @@ export const GeneralRLRequirementsTab = ({
 
         return rowsWithMeta;
     }, [relevantApplications]);
+
+    if (!studentId) {
+        return (
+            <Alert severity="error" sx={statusAlertSx}>
+                {t('generalRLTable.missingStudentId')}
+            </Alert>
+        );
+    }
 
     const legendDescription = t('generalRLTable.legendDescription', {
         defaultValue: 'Green rows = decided, Grey rows = pending/undecided.'

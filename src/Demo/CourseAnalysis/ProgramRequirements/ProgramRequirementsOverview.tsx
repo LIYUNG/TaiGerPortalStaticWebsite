@@ -129,7 +129,7 @@ const ProgramRequirementsOverview = ({ programRequirements }) => {
                 )
             }
         ],
-        []
+        [handleDeleteModal, handleRequirementEdit]
     );
 
     const renderDetailPanel = ({ row }) => {

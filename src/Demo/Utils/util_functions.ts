@@ -82,15 +82,20 @@ export const isLanguageInfoComplete = (
     const language = academic_background?.language;
     return language
         ? !(
-              language.english_isPassed === '-' &&
-              language.german_isPassed === '-'
-          )
+            language.english_isPassed === '-' &&
+            language.german_isPassed === '-'
+        )
         : false;
 };
 
 // Tested
 export const getRequirement = (
-    thread: Record<string, unknown>
+    thread: {
+        file_type?: string;
+        program_id?: {
+            [key: string]: string;
+        };
+    }
 ): string | boolean => {
     if (!thread) return false;
 
@@ -287,8 +292,8 @@ export const based_documents_init = (
 ): { object_init: Record<string, string> } => {
     const documentlist2_keys = Object.keys(ProfileNameType);
 
-    const object_init = documentlist2_keys.reduce((acc, key) => {
-        acc[key] = DocumentStatusType.Missing;
+    const object_init = documentlist2_keys.reduce((acc: Record<string, DocumentStatusType>, key: string) => {
+        acc[key!] = DocumentStatusType.Missing;
         return acc;
     }, {});
 
@@ -299,7 +304,7 @@ export const based_documents_init = (
             case DocumentStatusType.Rejected:
             case DocumentStatusType.Missing:
             case DocumentStatusType.NotNeeded:
-                object_init[doc.name] = doc.status;
+                object_init[doc.name!] = doc.status!;
                 break;
             default:
                 break;
@@ -310,16 +315,16 @@ export const based_documents_init = (
 };
 
 export const are_base_documents_missing = (student: IUserWithId): boolean => {
-    if (student.profile?.length > 0) {
+    if (student?.profile?.length > 0) {
         const documentlist2_keys = Object.keys(ProfileNameType);
         const { object_init } = based_documents_init(student);
 
         for (let i = 0; i < documentlist2_keys.length; i++) {
             if (
                 object_init[documentlist2_keys[i]] !==
-                    DocumentStatusType.Accepted &&
+                DocumentStatusType.Accepted &&
                 object_init[documentlist2_keys[i]] !==
-                    DocumentStatusType.NotNeeded
+                DocumentStatusType.NotNeeded
             ) {
                 return true;
             }
@@ -381,7 +386,7 @@ export const needUpdateCourseSelection = (student: IUserWithId): string => {
     // necessary if courses or analysis expired 39 daays and is studying
     const course_aged_days = differenceInDays(
         new Date(),
-        student.courses.updatedAt
+        student.courses?.updatedAt!
     );
     const analyse_aged_days = differenceInDays(
         new Date(),
@@ -729,7 +734,7 @@ export const num_uni_assist_vpd_needed = (student: IUserWithId): number => {
             if (
                 student.applications[j].uni_assist &&
                 student.applications[j].uni_assist.status ===
-                    DocumentStatusType.NotNeeded
+                DocumentStatusType.NotNeeded
             ) {
                 continue;
             }
@@ -862,7 +867,7 @@ export const is_any_vpd_missing_v2 = (applications: Application[]) => {
             if (
                 applications[j].uni_assist &&
                 applications[j].uni_assist.status ===
-                    DocumentStatusType.NotNeeded
+                DocumentStatusType.NotNeeded
             ) {
                 continue;
             }
@@ -898,7 +903,7 @@ export const is_any_vpd_missing = (students) => {
                         if (
                             students[i].applications[j].uni_assist &&
                             students[i].applications[j].uni_assist.status ===
-                                DocumentStatusType.NotNeeded
+                            DocumentStatusType.NotNeeded
                         ) {
                             continue;
                         }
@@ -1120,7 +1125,7 @@ export const is_all_uni_assist_vpd_uploaded = (student) => {
             if (
                 student.applications[j].uni_assist &&
                 student.applications[j].uni_assist.status ===
-                    DocumentStatusType.NotNeeded
+                DocumentStatusType.NotNeeded
             ) {
                 continue;
             }
@@ -1280,30 +1285,30 @@ export const progressBarCounter = (
         ).length,
 
         (programId?.ielts || programId?.toefl) &&
-        student?.academic_background?.language?.english_isPassed === 'O' &&
-        isEnglishOK(programId, student)
+            student?.academic_background?.language?.english_isPassed === 'O' &&
+            isEnglishOK(programId, student)
             ? 1
             : 0,
         programId?.testdaf &&
-        programId?.testdaf !== '-' &&
-        student?.academic_background?.language?.german_isPassed === 'O'
+            programId?.testdaf !== '-' &&
+            student?.academic_background?.language?.german_isPassed === 'O'
             ? 1
             : 0,
         programId?.gre &&
-        programId?.gre !== '-' &&
-        student?.academic_background?.language?.gre_isPassed === 'O'
+            programId?.gre !== '-' &&
+            student?.academic_background?.language?.gre_isPassed === 'O'
             ? 1
             : 0,
         programId?.gmat &&
-        programId?.gmat !== '-' &&
-        student?.academic_background?.language?.gmat_isPassed === 'O'
+            programId?.gmat !== '-' &&
+            student?.academic_background?.language?.gmat_isPassed === 'O'
             ? 1
             : 0,
         (programId?.application_portal_a || programId?.application_portal_b) &&
-        ((programId?.application_portal_a &&
-            !application.credential_a_filled) ||
-            (programId?.application_portal_b &&
-                !application.credential_b_filled))
+            ((programId?.application_portal_a &&
+                !application.credential_a_filled) ||
+                (programId?.application_portal_b &&
+                    !application.credential_b_filled))
             ? 0
             : 1,
         application?.doc_modification_thread?.filter(
@@ -1757,23 +1762,23 @@ export const programs_refactor_v2 = (applications: any[]) => {
         const base_docs = isProgramSubmitted(application)
             ? '-'
             : isMissingBaseDocs
-              ? 'X'
-              : 'O';
+                ? 'X'
+                : 'O';
         const uniassist = is_program_submitted
             ? '-'
             : check_program_uni_assist_needed(application)
-              ? application.uni_assist &&
-                application.uni_assist.status === DocumentStatusType.Uploaded
-                  ? 'O'
-                  : 'X'
-              : 'Not Needed';
+                ? application.uni_assist &&
+                    application.uni_assist.status === DocumentStatusType.Uploaded
+                    ? 'O'
+                    : 'X'
+                : 'Not Needed';
         const cv = is_program_submitted ? '-' : is_cv_done ? 'O' : 'X';
         const ml_rl = is_program_decided
             ? is_program_submitted
                 ? '-'
                 : is_program_ml_rl_essay_finished(application)
-                  ? 'O'
-                  : 'X'
+                    ? 'O'
+                    : 'X'
             : 'X';
         const ready = is_program_decided
             ? is_program_submitted
@@ -1783,11 +1788,11 @@ export const programs_refactor_v2 = (applications: any[]) => {
                         (check_program_uni_assist_needed(application) &&
                             application.uni_assist &&
                             application.uni_assist.status ===
-                                DocumentStatusType.Uploaded)) &&
+                            DocumentStatusType.Uploaded)) &&
                     is_cv_done &&
                     is_program_ml_rl_essay_finished(application)
-                  ? 'Ready!'
-                  : 'No'
+                    ? 'Ready!'
+                    : 'No'
             : 'Undecided';
 
         // Calculate lock status for the application
@@ -1798,9 +1803,8 @@ export const programs_refactor_v2 = (applications: any[]) => {
         acc.push({
             ...application,
             id: `${application.studentId._id.toString()}-${application.programId._id.toString()}`,
-            target_year: `${application.application_year} ${
-                application.programId.semester
-            }`,
+            target_year: `${application.application_year} ${application.programId.semester
+                }`,
             school: application.programId.school,
             country: application.programId.country,
             application,
@@ -1878,13 +1882,11 @@ export const programs_refactor = (students) => {
         if (!student.applications || student.applications.length === 0) {
             acc.push({
                 id: `${student._id.toString()}-`,
-                target_year: `${
-                    student.application_preference?.expected_application_date ||
+                target_year: `${student.application_preference?.expected_application_date ||
                     '-'
-                } ${
-                    student.application_preference
+                    } ${student.application_preference
                         ?.expected_application_semester || '-'
-                }`,
+                    }`,
                 school: 'No University',
                 application: {},
                 student: student,
@@ -1929,24 +1931,24 @@ export const programs_refactor = (students) => {
                 const base_docs = isProgramSubmitted(application)
                     ? '-'
                     : isMissingBaseDocs
-                      ? 'X'
-                      : 'O';
+                        ? 'X'
+                        : 'O';
                 const uniassist = is_program_submitted
                     ? '-'
                     : check_program_uni_assist_needed(application)
-                      ? application.uni_assist &&
-                        application.uni_assist.status ===
+                        ? application.uni_assist &&
+                            application.uni_assist.status ===
                             DocumentStatusType.Uploaded
-                          ? 'O'
-                          : 'X'
-                      : 'Not Needed';
+                            ? 'O'
+                            : 'X'
+                        : 'Not Needed';
                 const cv = is_program_submitted ? '-' : is_cv_done ? 'O' : 'X';
                 const ml_rl = is_program_decided
                     ? is_program_submitted
                         ? '-'
                         : is_program_ml_rl_essay_finished(application)
-                          ? 'O'
-                          : 'X'
+                            ? 'O'
+                            : 'X'
                     : 'X';
                 const ready = is_program_decided
                     ? is_program_submitted
@@ -1956,22 +1958,20 @@ export const programs_refactor = (students) => {
                                 (check_program_uni_assist_needed(application) &&
                                     application.uni_assist &&
                                     application.uni_assist.status ===
-                                        DocumentStatusType.Uploaded)) &&
+                                    DocumentStatusType.Uploaded)) &&
                             is_cv_done &&
                             is_program_ml_rl_essay_finished(application)
-                          ? 'Ready!'
-                          : 'No'
+                            ? 'Ready!'
+                            : 'No'
                     : 'Undecided';
 
                 acc.push({
                     id: `${student._id.toString()}-${application.programId?._id?.toString()}`,
-                    target_year: `${
-                        student.application_preference
+                    target_year: `${student.application_preference
                             ?.expected_application_date || '-'
-                    } ${
-                        student.application_preference
+                        } ${student.application_preference
                             ?.expected_application_semester || '-'
-                    }`,
+                        }`,
                     school: application.programId.school,
                     application,
                     student: student,
@@ -2024,8 +2024,8 @@ export const toogleItemInArray = (arr, item) => {
     return arr?.includes(item)
         ? arr?.filter((userId) => userId !== item)
         : arr?.length > 0
-          ? [...arr, item]
-          : [item];
+            ? [...arr, item]
+            : [item];
 };
 
 const getNextProgram = (student) => {
@@ -2071,9 +2071,9 @@ export const numStudentYearDistribution = (students) => {
                     students[i].application_preference.expected_application_date
                 ]
                     ? map[
-                          students[i].application_preference
-                              .expected_application_date
-                      ] + 1
+                    students[i].application_preference
+                        .expected_application_date
+                    ] + 1
                     : 1;
         } else {
             map['TBD'] = map['TBD'] ? map['TBD'] + 1 : 1;
@@ -2106,23 +2106,23 @@ export const frequencyDistribution = (
         map[deadline] = map[deadline]
             ? tasks[i].show
                 ? {
-                      show: map[deadline].show + 1,
-                      potentials: map[deadline].potentials
-                  }
+                    show: map[deadline].show + 1,
+                    potentials: map[deadline].potentials
+                }
                 : tasks[i].isPotentials
-                  ? {
+                    ? {
                         show: map[deadline].show,
                         potentials: map[deadline].potentials + 1
                     }
-                  : {
+                    : {
                         show: map[deadline].show,
                         potentials: map[deadline].potentials
                     }
             : tasks[i].show
-              ? { show: 1, potentials: 0 }
-              : tasks[i].isPotentials
-                ? { show: 0, potentials: 1 }
-                : { show: 0, potentials: 0 };
+                ? { show: 1, potentials: 0 }
+                : tasks[i].isPotentials
+                    ? { show: 0, potentials: 1 }
+                    : { show: 0, potentials: 0 };
     }
     const filteredMap = Object.fromEntries(
         Object.entries(map).filter(
@@ -2419,9 +2419,9 @@ export const GetCVDeadlineV2 = (applications: Application[]) => {
     return daysLeftMin === 3000
         ? hasRolling
             ? {
-                  daysLeftMin: daysLeftRollingMin,
-                  CVDeadline: CVDeadlineRolling
-              }
+                daysLeftMin: daysLeftRollingMin,
+                CVDeadline: CVDeadlineRolling
+            }
             : { daysLeftMin: '-', CVDeadline: '-' }
         : { daysLeftMin, CVDeadline };
 };
@@ -2454,9 +2454,9 @@ export const GetCVDeadline = (
     return daysLeftMin === 3000
         ? hasRolling
             ? {
-                  daysLeftMin: daysLeftRollingMin,
-                  CVDeadline: CVDeadlineRolling
-              }
+                daysLeftMin: daysLeftRollingMin,
+                CVDeadline: CVDeadlineRolling
+            }
             : { daysLeftMin: '-', CVDeadline: '-' }
         : { daysLeftMin, CVDeadline };
 };

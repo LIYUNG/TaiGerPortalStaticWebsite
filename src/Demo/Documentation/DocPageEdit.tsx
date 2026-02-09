@@ -2,7 +2,19 @@ import React, { useEffect, useState } from 'react';
 import DocumentsListItemsEditor from './DocumentsListItemsEditor';
 import { Card } from '@mui/material';
 
-const DocPageEdit = (props) => {
+export interface DocPageEditProps {
+    document_title: string;
+    category: string;
+    editorState: unknown;
+    handleClickEditToggle: () => void;
+    handleClickSave: (
+        e: React.MouseEvent<HTMLElement>,
+        docTitle: string,
+        editorState: unknown
+    ) => void;
+}
+
+const DocPageEdit = (props: DocPageEditProps) => {
     const [docPageEditState, setDocPageEditState] = useState({
         doc_title: props.document_title
     });

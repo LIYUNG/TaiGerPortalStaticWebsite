@@ -3,8 +3,9 @@ import {
     useMemo,
     useState,
     type ChangeEvent,
+    type FormEvent,
     type MouseEvent,
-    type FormEvent
+    type RefObject
 } from 'react';
 import { Link as LinkDom, useLocation, useParams } from 'react-router-dom';
 import ArticleIcon from '@mui/icons-material/Article';
@@ -76,6 +77,30 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 
+/** Thread object from state; may be empty before load */
+interface DocModificationThreadPageThread {
+    _id?: string | { toString(): string };
+    application_id?: { programId?: unknown; [key: string]: unknown };
+    program_id?: { school?: string; degree?: string; program_name?: string; [key: string]: unknown };
+    file_type?: string;
+    student_id?: { firstname?: string; lastname?: string; _id?: { toString(): string }; [key: string]: unknown };
+    isFinalVersion?: boolean;
+    flag_by_user_id?: string[];
+    messages?: unknown[];
+    [key: string]: unknown;
+}
+
+export interface DocModificationThreadPageProps {
+    agents?: unknown;
+    conflictList?: unknown;
+    deadline?: unknown;
+    editors?: unknown;
+    threadProps?: unknown;
+    similarThreads?: unknown;
+    scrollableRef?: RefObject<HTMLElement | null>;
+    threadauditLog?: unknown;
+}
+
 const DocModificationThreadPage = ({
     agents,
     conflictList,
@@ -85,7 +110,7 @@ const DocModificationThreadPage = ({
     similarThreads,
     scrollableRef,
     threadauditLog
-}) => {
+}: DocModificationThreadPageProps) => {
     const { user } = useAuth();
     const theme = useTheme();
     const { documentsthreadId } = useParams();
@@ -116,7 +141,8 @@ const DocModificationThreadPage = ({
         });
     const [checkResult, setCheckResult] = useState([]);
     const { hash } = useLocation();
-    const thread = docModificationThreadPageState.thread || {};
+    const thread: DocModificationThreadPageThread =
+        (docModificationThreadPageState.thread as DocModificationThreadPageThread) || {};
 
     // Use application-level lock status if application_id exists and has programId
     // Otherwise fall back to program-level lock status
@@ -155,6 +181,7 @@ const DocModificationThreadPage = ({
             ...prevState,
             thread: threadProps
         }));
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- sync only when route id changes
     }, [documentsthreadId]);
     useEffect(() => {
         if (scrollableRef?.current) {
@@ -165,6 +192,7 @@ const DocModificationThreadPage = ({
                 });
             }, 100);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount to scroll into view
     }, []);
 
     const closeSetAsFinalFileModelWindow = () => {
@@ -346,11 +374,11 @@ const DocModificationThreadPage = ({
     // }
 
     const handleAsFinalFile = (
-        doc_thread_id,
-        student_id,
-        program_id,
-        isFinalVersion,
-        application_id
+        doc_thread_id: string | { toString(): string } | undefined,
+        student_id: unknown,
+        program_id: DocModificationThreadPageThread['program_id'],
+        isFinalVersion: boolean,
+        application_id: unknown
     ) => {
         if (isLocked) {
             setSeverity('warning');
@@ -369,7 +397,7 @@ const DocModificationThreadPage = ({
         }));
     };
 
-    const ConfirmSetAsFinalFileHandler = (e) => {
+    const ConfirmSetAsFinalFileHandler = (e: React.FormEvent) => {
         e.preventDefault();
         if (isLocked) {
             setSeverity('warning');
@@ -623,29 +651,29 @@ const DocModificationThreadPage = ({
         res_modal_message
     } = docModificationThreadPageState;
 
-    if (res_status >= 400) {
-        return <ErrorPage res_status={res_status} />;
-    }
-
-    // Only CV, ML RL has instructions and template.
-    const template_obj = templatelist.find(
-        ({ prop, alias }) =>
-            prop.includes(thread.file_type.split('_')[0]) ||
-            alias.includes(thread.file_type.split('_')[0])
-    );
-    let docName;
-    const student_name = `${thread.student_id.firstname} ${thread.student_id.lastname}`;
-    const isGeneralRL =
-        !thread.program_id &&
-        (template_obj?.prop.includes('RL') ||
-            template_obj?.alias.includes('Recommendation'));
-
-    if (thread.program_id) {
+    // Only CV, ML RL has instructions and template. (Computed before any return so hooks below run unconditionally.)
+    const template_obj = thread?.file_type
+        ? templatelist.find(
+              ({ prop, alias }) =>
+                  prop.includes(thread.file_type.split('_')[0]) ||
+                  alias.includes(thread.file_type.split('_')[0])
+          )
+        : null;
+    let docName = '';
+    if (thread?.program_id) {
         const { school, degree, program_name } = thread.program_id;
         docName = `${school} - ${degree} - ${program_name} ${thread.file_type}`;
-    } else {
+    } else if (thread?.file_type) {
         docName = thread.file_type;
     }
+    const student_name =
+        thread?.student_id != null
+            ? `${thread.student_id.firstname ?? ''} ${thread.student_id.lastname ?? ''}`
+            : '';
+    const isGeneralRL =
+        !thread?.program_id &&
+        (template_obj?.prop.includes('RL') ||
+            template_obj?.alias.includes('Recommendation'));
 
     const isTaiGerUser = is_TaiGer_role(user);
 
@@ -663,6 +691,7 @@ const DocModificationThreadPage = ({
         audit: TAB_KEYS.audit
     };
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- TAB_KEYS are constants, not reactive deps
     const tabKeys = useMemo(() => {
         const keys = [TAB_KEYS.discussion];
         if (isGeneralRL) {
@@ -718,6 +747,10 @@ const DocModificationThreadPage = ({
             setValue(maxIndex);
         }
     }, [desiredValueFromHash, tabKeys.length, value]);
+
+    if (res_status >= 400) {
+        return <ErrorPage res_status={res_status} />;
+    }
 
     const handleChange = (event, newValue) => {
         setValue(newValue);

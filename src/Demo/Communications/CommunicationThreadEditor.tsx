@@ -30,7 +30,18 @@ import {
 import { TaiGerChatAssistant } from '../../api';
 import { appConfig } from '../../config';
 
-const CommunicationThreadEditor = (props) => {
+export interface CommunicationThreadEditorProps {
+    editorState: unknown;
+    handleClickSave?: (
+        e: React.MouseEvent,
+        editorState: unknown
+    ) => void;
+    thread: unknown;
+    files?: Array<{ name: string; path?: string }>;
+    count?: number;
+}
+
+const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
     const { t } = useTranslation();
     const { studentId } = useParams();
 
