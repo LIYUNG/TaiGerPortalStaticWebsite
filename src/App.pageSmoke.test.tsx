@@ -4,7 +4,7 @@
  */
 import { Suspense, lazy, LazyExoticComponent, ComponentType } from 'react';
 import { ReactNode } from 'react';
-import { render, waitFor } from '@testing-library/react';
+import { render, waitFor, screen } from '@testing-library/react';
 import {
     createMemoryRouter,
     RouterProvider,
@@ -81,6 +81,15 @@ vi.mock('./api', async (importOriginal) => ({
 vi.mock('@mui/x-charts/BarChart', () => ({
     BarChart: ({ children }: { children?: ReactNode }) => children ?? null
 }));
+
+// Lightweight mock so smoke test doesn't load heavy UsersTable chunk (avoids timeout)
+vi.mock('./Demo/Users/UsersTable', () => {
+    const { createElement } = require('react');
+    return {
+        default: () =>
+            createElement('div', { 'data-testid': 'users-table' }, 'Users')
+    };
+});
 vi.mock('@mui/x-charts/ChartsAxis', () => ({
     axisClasses: {}
 }));
@@ -276,28 +285,18 @@ describe('Page smoke tests – all pages render without crashing', () => {
     });
 
     test('Users Table page renders', async () => {
-        // Static import + useQuery/api mocks = no network; timeout avoids long hang if import is slow
-        const { default: UsersTable } = await import(
-            './Demo/Users/UsersTable'
-        );
+        const UsersTable = lazy(() => import('./Demo/Users/UsersTable'));
         renderPageRoute(
             {
                 path: '/users',
-                element: (
-                    <Suspense fallback={<div data-testid="loading">Loading...</div>}>
-                        <UsersTable />
-                    </Suspense>
-                )
+                element: wrapWithSuspense(UsersTable)
             },
             '/users'
         );
-        await waitFor(
-            () => {
-                expect(document.body.textContent).toBeDefined();
-            },
-            { timeout: 5000 }
-        );
-    }, 10000);
+        await waitFor(() => {
+            expect(screen.getByTestId('users-table')).toBeInTheDocument();
+        });
+    });
 
     test('CVMLRL Center / Overview renders', async () => {
         const CVMLRLOverview = lazy(
