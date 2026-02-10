@@ -130,7 +130,7 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => { setValue(e.ta
 data.applications?.map((app) => app.programId._id)
 
 // After
-import type { Application } from '../../api/types';
+import type { Application } from '@api/types';
 data.applications?.map((app: Application) => app.programId?._id)
 ```
 
@@ -440,11 +440,11 @@ API response interfaces are centralized in `src/api/types.ts` and reused across 
 
 | Use case | Import from / define in |
 |----------|-------------------------|
-| Application (student application item) | `import type { Application } from '../../api/types';` |
+| Application (student application item) | `import type { Application } from '@api/types';` |
 | ApplicationProps (decided, closed, admission) | `import { ApplicationProps } from '@taiger-common/core';` or from `api/types` if re-exported |
-| Auth user | `import type { AuthUserData } from '../../api/types';` |
-| API response | `import type { ApiResponse } from '../../api/types';` |
-| Meeting data | `import type { MeetingResponse } from '../../api/types';` |
+| Auth user | `import type { AuthUserData } from '@api/types';` |
+| API response | `import type { ApiResponse } from '@api/types';` |
+| Meeting data | `import type { MeetingResponse } from '@api/types';` |
 | Event types | `React.ChangeEvent<HTMLInputElement>`, etc. (no extra import if you use `React.` from 'react') |
 | MUI Select change | `import type { SelectChangeEvent } from '@mui/material';` |
 

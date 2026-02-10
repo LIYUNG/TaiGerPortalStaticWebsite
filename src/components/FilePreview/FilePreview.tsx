@@ -2,7 +2,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 import { Button } from '@mui/material';
 import i18next from 'i18next';
 
-import { BASE_URL } from '../../api/request';
+import { BASE_URL } from '@api/request';
 import PDFViewer from '../PDFViewer';
 
 export interface FilePreviewProps {

@@ -1,12 +1,12 @@
 import React, { useEffect, createContext, useContext, useState } from 'react';
 
-import { verify, logout } from '../../api/index';
+import { verify, logout } from '@api/index';
 import Loading from '../Loading/Loading';
 import type {
     AuthContextValue,
     AuthUserdataState,
     AuthUserData
-} from '../../api/types';
+} from '@api/types';
 
 export const AuthContext = createContext<AuthContextValue | undefined>(
     undefined

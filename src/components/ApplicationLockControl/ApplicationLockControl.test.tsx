@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import type { AuthContextValue } from '../../api/types';
+import type { AuthContextValue } from '@api/types';
 import ApplicationLockControl from './ApplicationLockControl';
 import { useAuth } from '../AuthProvider';
 import { useSnackBar } from '../../contexts/use-snack-bar';
@@ -10,7 +10,7 @@ vi.mock('../AuthProvider', () => ({
 vi.mock('../../contexts/use-snack-bar', () => ({
     useSnackBar: vi.fn()
 }));
-vi.mock('../../api/index', () => ({
+vi.mock('@api/index', () => ({
     refreshApplication: vi.fn()
 }));
 

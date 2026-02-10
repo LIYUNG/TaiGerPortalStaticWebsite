@@ -28,12 +28,12 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { is_TaiGer_Student } from '@taiger-common/core';
 import i18next from 'i18next';
 
-import { BASE_URL } from '../../api/request';
+import { BASE_URL } from '@api/request';
 import EditorSimple from '../EditorJs/EditorSimple';
-import { stringAvatar, convertDate } from '../../utils/contants';
+import { stringAvatar, convertDate } from '@utils/contants';
 import { useAuth } from '../AuthProvider';
 import Loading from '../Loading/Loading';
-import { IgnoreMessageThread } from '../../api/index';
+import { IgnoreMessageThread } from '@api/index';
 import { useSnackBar } from '../../contexts/use-snack-bar';
 
 export interface MessageUser {

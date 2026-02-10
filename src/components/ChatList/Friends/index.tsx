@@ -3,7 +3,7 @@ import { Box, Typography } from '@mui/material';
 
 import Friend from './Friend';
 import { useTranslation } from 'react-i18next';
-import { menuWidth } from '../../../utils/contants';
+import { menuWidth } from '@utils/contants';
 
 interface FriendsProps {
     students: unknown[];

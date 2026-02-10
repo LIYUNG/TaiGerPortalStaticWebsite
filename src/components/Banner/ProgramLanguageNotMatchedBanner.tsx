@@ -5,7 +5,7 @@ import i18next from 'i18next';
 import {
     isLanguageNotMatchedInAnyProgram,
     languageNotMatchedPrograms
-} from '../../Demo/Utils/util_functions';
+} from '../../pages/Utils/util_functions';
 import DEMO from '../../store/constant';
 
 interface ProgramLanguageNotMatchedBannerProps {

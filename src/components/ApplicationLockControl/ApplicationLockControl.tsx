@@ -18,8 +18,8 @@ import { useTranslation } from 'react-i18next';
 import {
     calculateApplicationLockStatus,
     APPROVAL_COUNTRIES
-} from '../../Demo/Utils/util_functions';
-import { refreshApplication } from '../../api';
+} from '../../pages/Utils/util_functions';
+import { refreshApplication } from '@api';
 import {
     is_TaiGer_Admin,
     is_TaiGer_Agent,
@@ -29,7 +29,7 @@ import { useAuth } from '../AuthProvider';
 import { useSnackBar } from '../../contexts/use-snack-bar';
 import DEMO from '../../store/constant';
 import { type IApplication, type IProgram } from '@taiger-common/model';
-import { ApplicationId, ProgramId } from '../../api/types';
+import { ApplicationId, ProgramId } from '@api/types';
 
 interface ApplicationLockControlProps {
     application: IApplication;

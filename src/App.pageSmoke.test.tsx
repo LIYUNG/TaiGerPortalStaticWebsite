@@ -13,11 +13,11 @@ import {
 } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { SnackBarProvider } from './contexts/use-snack-bar';
-import { CustomThemeProvider } from './components/ThemeProvider';
+import { CustomThemeProvider } from '@components/ThemeProvider';
 import { renderWithProviders, createTestQueryClient } from './test/test-utils';
-import Settings from './Demo/Settings/index';
+import Settings from './pages/Settings/index';
 
-vi.mock('./components/AuthProvider', () => ({
+vi.mock('@components/AuthProvider', () => ({
     useAuth: () => ({
         user: {
             _id: 'test-user-id',
@@ -30,8 +30,8 @@ vi.mock('./components/AuthProvider', () => ({
     })
 }));
 
-vi.mock('./api', async (importOriginal) => ({
-    ...(await importOriginal<typeof import('./api')>()),
+vi.mock('@api', async (importOriginal) => ({
+    ...(await importOriginal<typeof import('@api')>()),
     getProgramTickets: vi
         .fn()
         .mockResolvedValue({ data: { success: true, data: [] } }),
@@ -83,7 +83,7 @@ vi.mock('@mui/x-charts/BarChart', () => ({
 }));
 
 // Lightweight mock so smoke test doesn't load heavy UsersTable chunk (avoids timeout)
-vi.mock('./Demo/Users/UsersTable', () => {
+vi.mock('./pages/Users/UsersTable', () => {
     const { createElement } = require('react');
     return {
         default: () =>
@@ -108,9 +108,9 @@ vi.mock('@tanstack/react-query', async (importOriginal) => ({
 
 // Base Documents (and AllBaseDocuments) use getStudentsAndDocLinks2Query; ensure queryFn resolves immediately.
 // UsersTable uses getUsersCountQuery and UsersList uses getUsersQuery; mock them so queries resolve immediately.
-vi.mock('./api/query', async (importOriginal) => {
+vi.mock('@api/query', async (importOriginal) => {
     const actual =
-        await importOriginal<typeof import('./api/query')>();
+        await importOriginal<typeof import('@api/query')>();
     return {
         ...actual,
         getStudentsAndDocLinks2Query: (queryString: string) => ({
@@ -141,7 +141,7 @@ vi.mock('./api/query', async (importOriginal) => {
     };
 });
 
-vi.mock('./hooks/useStudents', () => ({
+vi.mock('@hooks/useStudents', () => ({
     __esModule: true,
     default: () => ({
         students: [],
@@ -192,7 +192,7 @@ function renderPageRoute(route: RouteObject, initialEntry: string): void {
 
 describe('Page smoke tests – all pages render without crashing', () => {
     test('Dashboard (default) renders', async () => {
-        const DashboardDefault = lazy(() => import('./Demo/Dashboard'));
+        const DashboardDefault = lazy(() => import('./pages/Dashboard'));
         renderPageRoute(
             {
                 path: '/dashboard/default',
@@ -207,7 +207,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
 
     test('Admissions page renders', async () => {
         const Admissions = lazy(
-            () => import('./Demo/Admissions/Admissions')
+            () => import('./pages/Admissions/Admissions')
         );
         renderWithProviders(wrapWithSuspense(Admissions), {
             initialEntries: ['/admissions-overview']
@@ -219,7 +219,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
 
     test('Student Database page renders', async () => {
         const StudentDatabase = lazy(
-            () => import('./Demo/StudentDatabase/index')
+            () => import('./pages/StudentDatabase/index')
         );
         renderPageRoute(
             {
@@ -238,7 +238,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
 
     test('Student Database Overview renders', async () => {
         const StudentDatabaseOverview = lazy(
-            () => import('./Demo/StudentDatabase/StudentDatabaseOverview')
+            () => import('./pages/StudentDatabase/StudentDatabaseOverview')
         );
         renderPageRoute(
             {
@@ -254,7 +254,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
 
     test('Archiv Students page renders', async () => {
         const ArchivStudent = lazy(
-            () => import('./Demo/ArchivStudent/index')
+            () => import('./pages/ArchivStudent/index')
         );
         renderPageRoute(
             {
@@ -273,7 +273,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
 
     test('Program List page renders', async () => {
         const ProgramList = lazy(
-            () => import('./Demo/Program/ProgramList')
+            () => import('./pages/Program/ProgramList')
         );
         renderPageRoute(
             { path: '/programs', element: wrapWithSuspense(ProgramList) },
@@ -285,7 +285,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
     });
 
     test('Users Table page renders', async () => {
-        const UsersTable = lazy(() => import('./Demo/Users/UsersTable'));
+        const UsersTable = lazy(() => import('./pages/Users/UsersTable'));
         renderPageRoute(
             {
                 path: '/users',
@@ -300,7 +300,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
 
     test('CVMLRL Center / Overview renders', async () => {
         const CVMLRLOverview = lazy(
-            () => import('./Demo/CVMLRLCenter/index')
+            () => import('./pages/CVMLRLCenter/index')
         );
         renderPageRoute(
             {
@@ -319,7 +319,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
 
     test('Base Documents page renders', async () => {
         const BaseDocuments = lazy(
-            () => import('./Demo/BaseDocuments/BaseDocuments')
+            () => import('./pages/BaseDocuments/BaseDocuments')
         );
         renderPageRoute(
             {
@@ -357,7 +357,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
     });
 
     test('Profile page renders', async () => {
-        const Profile = lazy(() => import('./Demo/Profile/index'));
+        const Profile = lazy(() => import('./pages/Profile/index'));
         renderPageRoute(
             { path: '/profile', element: wrapWithSuspense(Profile) },
             '/profile'
@@ -369,7 +369,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
 
     test('Learning Resources page renders', async () => {
         const LearningResources = lazy(
-            () => import('./Demo/LearningResources/index')
+            () => import('./pages/LearningResources/index')
         );
         renderPageRoute(
             {
@@ -385,7 +385,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
 
     test('Download page renders', async () => {
         const Download = lazy(
-            () => import('./Demo/DownloadCenter/DownloadPage')
+            () => import('./pages/DownloadCenter/DownloadPage')
         );
         renderPageRoute(
             { path: '/download', element: wrapWithSuspense(Download) },
@@ -397,7 +397,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
     });
 
     test('My Courses page renders', async () => {
-        const MyCourses = lazy(() => import('./Demo/MyCourses/index'));
+        const MyCourses = lazy(() => import('./pages/MyCourses/index'));
         renderPageRoute(
             { path: '/my-courses', element: wrapWithSuspense(MyCourses) },
             '/my-courses'
@@ -409,7 +409,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
 
     test('Applications Overview renders', async () => {
         const ApplicationsOverview = lazy(
-            () => import('./Demo/ApplicantsOverview/index')
+            () => import('./pages/ApplicantsOverview/index')
         );
         renderPageRoute(
             {
@@ -425,7 +425,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
 
     test('All Applicants Overview renders', async () => {
         const AllApplicantsOverview = lazy(
-            () => import('./Demo/ApplicantsOverview/allStudentIndex')
+            () => import('./pages/ApplicantsOverview/allStudentIndex')
         );
         renderPageRoute(
             {
@@ -441,7 +441,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
 
     test('Assignment Agents page renders', async () => {
         const AgentsAssignment = lazy(
-            () => import('./Demo/AssignmentAgentsEditors/AssignAgents/index')
+            () => import('./pages/AssignmentAgentsEditors/AssignAgents/index')
         );
         renderPageRoute(
             {
@@ -457,7 +457,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
 
     test('Assignment Editors page renders', async () => {
         const EditorsAssignment = lazy(
-            () => import('./Demo/AssignmentAgentsEditors/AssignEditors/index')
+            () => import('./pages/AssignmentAgentsEditors/AssignEditors/index')
         );
         renderPageRoute(
             {
@@ -472,7 +472,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
     });
 
     test('Survey page renders', async () => {
-        const Survey = lazy(() => import('./Demo/Survey/index'));
+        const Survey = lazy(() => import('./pages/Survey/index'));
         renderPageRoute(
             { path: '/survey', element: wrapWithSuspense(Survey) },
             '/survey'
@@ -484,7 +484,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
 
     test('Customer Support page renders', async () => {
         const CustomerSupport = lazy(
-            () => import('./Demo/CustomerSupport')
+            () => import('./pages/CustomerSupport')
         );
         renderPageRoute(
             {

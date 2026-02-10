@@ -1,7 +1,7 @@
 import { render } from '@testing-library/react';
 import EnglishCertificateExpiredBeforeDeadlineBanner from './EnglishCertificateExpiredBeforeDeadlineBanner';
 
-vi.mock('../../Demo/Utils/util_functions', () => ({
+vi.mock('../../pages/Utils/util_functions', () => ({
     isEnglishCertificateExpiredBeforeDeadline: vi.fn().mockReturnValue(false),
     englishCertificatedExpiredBeforeTheseProgramDeadlines: vi.fn(),
     application_deadline_V2_calculator: vi.fn()

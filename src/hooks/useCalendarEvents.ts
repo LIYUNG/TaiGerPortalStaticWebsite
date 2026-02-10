@@ -2,21 +2,21 @@ import { ChangeEvent, FormEvent, useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import queryString from 'query-string';
 
-import { confirmEvent, deleteEvent, postEvent, updateEvent } from '../api';
+import { confirmEvent, deleteEvent, postEvent, updateEvent } from '@api';
 import {
     getEventsQuery,
     getBookedEventsQuery,
     getStudentsV3Query
-} from '../api/query';
+} from '@api/query';
 import {
     is_TaiGer_Agent,
     is_TaiGer_Editor,
     is_TaiGer_Student
 } from '@taiger-common/core';
-import { useAuth } from '../components/AuthProvider';
-import { getUTCWithDST, time_slots } from '../utils/contants';
+import { useAuth } from '@components/AuthProvider';
+import { getUTCWithDST, time_slots } from '@utils/contants';
 import { useSnackBar } from '../contexts/use-snack-bar';
-import { queryClient } from '../api/client';
+import { queryClient } from '@api/client';
 
 export interface UseCalendarEventsProps {
     startTime: string;

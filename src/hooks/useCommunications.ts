@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react';
 import { is_TaiGer_role } from '@taiger-common/core';
 
-import { useAuth } from '../components/AuthProvider';
-import { readDOCX, readPDF, readXLSX } from '../Demo/Utils/util_functions';
+import { useAuth } from '@components/AuthProvider';
+import { readDOCX, readPDF, readXLSX } from '../pages/Utils/util_functions';
 import {
     deleteAMessageInCommunicationThreadV2,
     loadCommunicationThread,
     postCommunicationThreadV2
-} from '../api';
+} from '@api';
 import { useSnackBar } from '../contexts/use-snack-bar';
-import { queryClient } from '../api/client';
+import { queryClient } from '@api/client';
 import { useMutation } from '@tanstack/react-query';
 
 interface UseCommunicationsProps {

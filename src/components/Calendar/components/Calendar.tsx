@@ -6,7 +6,7 @@ import { Box } from '@mui/material';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import Popping from './Popping';
 import { useTheme } from '@mui/material';
-import { NoonNightLabel, stringToColor } from '../../../utils/contants';
+import { NoonNightLabel, stringToColor } from '@utils/contants';
 import {
     is_TaiGer_Agent,
     is_TaiGer_Editor,

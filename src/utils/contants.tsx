@@ -29,10 +29,10 @@ import { appConfig } from '../config';
 import DEMO from '../store/constant';
 import { is_TaiGer_Student } from '@taiger-common/core';
 import i18next from 'i18next';
-import { APPROVAL_COUNTRIES } from '../Demo/Utils/util_functions';
+import { APPROVAL_COUNTRIES } from '../pages/Utils/util_functions';
 import { MRT_ColumnDef } from 'material-react-table';
 import type { IUserWithId, IProgramWithId } from '../types/taiger-common';
-import type { DocumentThreadResponse } from '../api/types';
+import type { DocumentThreadResponse } from '@api/types';
 
 export const IS_DEV =
     !process.env.NODE_ENV || process.env.NODE_ENV === 'development';

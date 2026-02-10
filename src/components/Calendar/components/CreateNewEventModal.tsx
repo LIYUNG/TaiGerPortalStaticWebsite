@@ -20,7 +20,7 @@ import i18next from 'i18next';
 
 import DEMO from '../../../store/constant';
 import { useAuth } from '../../AuthProvider';
-import { getLocalTime, getUTCTimezoneOffset } from '../../../utils/contants';
+import { getLocalTime, getUTCTimezoneOffset } from '@utils/contants';
 
 interface TimeSlot {
     start: string;
