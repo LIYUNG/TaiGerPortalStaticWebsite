@@ -67,7 +67,7 @@ import {
 } from '@utils/contants';
 import { HighlightTextDiff } from '../Utils/diffChecker';
 import Banner from '@components/Banner/Banner';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import ProgramReport from './ProgramReport';
 import { appConfig } from '../../config';
 import { useAuth } from '@components/AuthProvider';

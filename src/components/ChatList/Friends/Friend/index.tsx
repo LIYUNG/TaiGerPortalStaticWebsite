@@ -15,8 +15,8 @@ import {
     menuWidth,
     stringAvatar
 } from '@utils/contants';
-import DEMO from '../../../../store/constant';
-import { truncateText } from '../../../../pages/Utils/util_functions';
+import DEMO from '@store/constant';
+import { truncateText } from '@pages/Utils/util_functions';
 import { useAuth } from '../../../AuthProvider';
 import { useTranslation } from 'react-i18next';
 

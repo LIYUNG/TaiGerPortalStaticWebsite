@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import { Link as LinkDom } from 'react-router-dom';
 
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import { useTranslation } from 'react-i18next';
 import { getProgramTicketsQuery } from '@api/query';
 import { useQuery } from '@tanstack/react-query';

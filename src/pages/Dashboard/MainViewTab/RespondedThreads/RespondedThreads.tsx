@@ -5,7 +5,7 @@ import { isProgramDecided } from '@taiger-common/core';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { useTranslation } from 'react-i18next';
 
-import DEMO from '../../../../store/constant';
+import DEMO from '@store/constant';
 import { convertDate } from '@utils/contants';
 import { calculateApplicationLockStatus } from '../../../Utils/util_functions';
 

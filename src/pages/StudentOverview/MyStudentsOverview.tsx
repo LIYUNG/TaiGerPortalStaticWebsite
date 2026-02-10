@@ -5,7 +5,7 @@ import queryString from 'query-string';
 
 import { TabTitle } from '../Utils/TabTitle';
 import { Navigate } from 'react-router-dom';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import StudentOverviewTable from '@components/StudentOverviewTable';
 import { useAuth } from '@components/AuthProvider';
 import { Box, Breadcrumbs, Link, Typography } from '@mui/material';

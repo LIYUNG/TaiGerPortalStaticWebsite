@@ -14,7 +14,7 @@ import NavBar from '@components/NavBar';
 import routes from './routes';
 import routes2 from './route';
 import { CssBaseline } from '@mui/material';
-import DEMO from './store/constant';
+import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';
 

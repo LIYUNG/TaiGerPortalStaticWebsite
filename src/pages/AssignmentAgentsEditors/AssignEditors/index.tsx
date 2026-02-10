@@ -8,7 +8,7 @@ import AssignEditorsPage from './AssignEditorsPage';
 import ModalMain from '../../Utils/ModalHandler/ModalMain';
 import { useAuth } from '@components/AuthProvider';
 import useStudents from '@hooks/useStudents';
-import DEMO from '../../../store/constant';
+import DEMO from '@store/constant';
 import { useQuery } from '@tanstack/react-query';
 import { getStudentsV3Query } from '@api/query';
 

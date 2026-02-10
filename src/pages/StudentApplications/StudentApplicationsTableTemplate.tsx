@@ -69,7 +69,7 @@ import {
     updateStudentApplication
 } from '@api';
 import { TabTitle } from '../Utils/TabTitle';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import { appConfig } from '../../config';
 import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';

@@ -5,7 +5,7 @@ import { Box, Breadcrumbs, Link, Typography } from '@mui/material';
 
 import { TabTitle } from '../../Utils/TabTitle';
 import Loading from '@components/Loading/Loading';
-import DEMO from '../../../store/constant';
+import DEMO from '@store/constant';
 import { appConfig } from '../../../config';
 import ProgramRequirementsNew from './ProgramRequirementsNew';
 

@@ -26,7 +26,7 @@ import { green, grey } from '@mui/material/colors';
 import { useState } from 'react';
 import i18next from 'i18next';
 
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { BASE_URL } from '@api/request';
 import {

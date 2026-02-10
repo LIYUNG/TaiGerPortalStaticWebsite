@@ -11,7 +11,7 @@ import {
     useTheme
 } from '@mui/material';
 import { useAuth } from '@components/AuthProvider';
-import DEMO from '../../../store/constant';
+import DEMO from '@store/constant';
 import AuthWrapper from '@components/AuthWrapper';
 import { t } from 'i18next';
 

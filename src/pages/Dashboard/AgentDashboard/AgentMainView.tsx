@@ -29,7 +29,7 @@ import {
     programs_refactor_v2,
     progressBarCounter
 } from '../../Utils/util_functions';
-import DEMO from '../../../store/constant';
+import DEMO from '@store/constant';
 import ApplicationProgressCardBody from '@components/ApplicationProgressCard/ApplicationProgressCardBody';
 import ProgramReportCard from '../../Program/ProgramReportCard';
 import CVAssignTasksCard from '../MainViewTab/AgentTasks/CVAssignTasksCard';

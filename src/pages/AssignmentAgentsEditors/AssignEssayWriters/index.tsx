@@ -7,12 +7,12 @@ import { is_TaiGer_role } from '@taiger-common/core';
 import { useQuery } from '@tanstack/react-query';
 import queryString from 'query-string';
 
-import DEMO from '../../../store/constant';
+import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../../config';
 import { BreadcrumbsNavigation } from '@components/BreadcrumbsNavigation/BreadcrumbsNavigation';
 import { getActiveThreadsQuery } from '@api/query';
-import { file_category_const } from '../../../pages/Utils/util_functions';
+import { file_category_const } from '@pages/Utils/util_functions';
 import Loading from '@components/Loading/Loading';
 
 const AssignEssayWriters = () => {

@@ -16,7 +16,7 @@ import {
     SUBMISSION_STATUS_E
 } from '@utils/contants';
 import { application_deadline_V2_calculator } from '../../../Utils/util_functions';
-import DEMO from '../../../../store/constant';
+import DEMO from '@store/constant';
 
 function ApplicationProgress(props) {
     const { t } = useTranslation();

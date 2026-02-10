@@ -6,7 +6,7 @@ import {
     MaterialReactTable,
     useMaterialReactTable
 } from 'material-react-table';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import { convertDate } from '@utils/contants';
 
 const ProgramUpdateStatusTable = ({ data, isLoading = false }) => {

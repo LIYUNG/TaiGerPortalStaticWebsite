@@ -13,7 +13,7 @@ import { Link as LinkDom } from 'react-router-dom';
 import { is_TaiGer_role } from '@taiger-common/core';
 
 import EditInterviewTrainersSubpage from '../StudDocsOverview/EditInterviewTrainersSubpage';
-import DEMO from '../../../../store/constant';
+import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { convertDate } from '@utils/contants';
 const NoTrainersInterviewsCard = (props) => {

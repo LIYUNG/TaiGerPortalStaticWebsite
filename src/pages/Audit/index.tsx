@@ -14,7 +14,7 @@ import {
 import { useTranslation } from 'react-i18next';
 
 import { convertDate } from '@utils/contants';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 
 const Audit = ({ audit }) => {
     const { t } = useTranslation();

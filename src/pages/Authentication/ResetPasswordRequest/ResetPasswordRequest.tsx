@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
 
 import { forgotPassword } from '@api';
 import AuthWrapper from '@components/AuthWrapper';
-import DEMO from '../../../store/constant';
+import DEMO from '@store/constant';
 
 export default function ResetPasswordRequest() {
     const { t } = useTranslation();

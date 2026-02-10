@@ -2,7 +2,7 @@ import { TableRow, TableCell, Link } from '@mui/material';
 import { Link as LinkDom } from 'react-router-dom';
 import { t } from 'i18next';
 
-import DEMO from '../../../../store/constant';
+import DEMO from '@store/constant';
 
 const AssignEssayWriterRow = (props) => {
     return (

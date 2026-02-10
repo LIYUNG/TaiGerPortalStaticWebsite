@@ -4,7 +4,7 @@ import { is_TaiGer_role, is_TaiGer_Student } from '@taiger-common/core';
 
 import SurveyComponent from './SurveyComponent';
 import { TabTitle } from '../Utils/TabTitle';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { SurveyProvider } from '@components/SurveyProvider';
 import { useTranslation } from 'react-i18next';

@@ -40,11 +40,11 @@ import type { Application } from '@api/types';
 import ApplicationProgressCardBody from './ApplicationProgressCardBody';
 import ApplicationLockControl from '../ApplicationLockControl/ApplicationLockControl';
 import { updateStudentApplicationResult } from '@api';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import {
     application_deadline_V2_calculator,
     progressBarCounter
-} from '../../pages/Utils/util_functions';
+} from '@pages/Utils/util_functions';
 import { BASE_URL } from '@api/request';
 import {
     FILE_NOT_OK_SYMBOL,

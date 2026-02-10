@@ -6,7 +6,7 @@ import LaunchIcon from '@mui/icons-material/Launch';
 import { isProgramDecided } from '@taiger-common/core';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 
-import DEMO from '../../../../store/constant';
+import DEMO from '@store/constant';
 import { convertDate } from '@utils/contants';
 import {
     check_academic_background_filled,

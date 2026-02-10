@@ -21,7 +21,7 @@ import { convertDateUXFriendly } from '@utils/contants';
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { WidgetTranscriptanalyserV2 } from '@api';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { a11yProps, CustomTabPanel } from '@components/Tabs';
 import { useSnackBar } from '../../contexts/use-snack-bar';

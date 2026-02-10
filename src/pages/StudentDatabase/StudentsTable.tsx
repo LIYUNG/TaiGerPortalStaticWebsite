@@ -21,11 +21,11 @@ import {
 } from '@mui/material';
 import { mkConfig, generateCsv, download } from 'export-to-csv';
 
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import { TopToolbar } from '@components/table/students-table/TopToolbar';
-import EditAgentsSubpage from '../Dashboard/MainViewTab/StudDocsOverview/EditAgentsSubpage';
-import EditEditorsSubpage from '../Dashboard/MainViewTab/StudDocsOverview/EditEditorsSubpage';
-import EditAttributesSubpage from '../Dashboard/MainViewTab/StudDocsOverview/EditAttributesSubpage';
+import EditAgentsSubpage from '@pages/Dashboard/MainViewTab/StudDocsOverview/EditAgentsSubpage';
+import EditEditorsSubpage from '@pages/Dashboard/MainViewTab/StudDocsOverview/EditEditorsSubpage';
+import EditAttributesSubpage from '@pages/Dashboard/MainViewTab/StudDocsOverview/EditAttributesSubpage';
 import { is_User_Archived } from '../Utils/util_functions';
 
 const columnHelper = createMRTColumnHelper();

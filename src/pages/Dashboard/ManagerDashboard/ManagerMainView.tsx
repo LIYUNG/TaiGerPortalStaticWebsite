@@ -30,7 +30,7 @@ import {
     progressBarCounter
 } from '../../Utils/util_functions';
 import NoProgramStudentTask from '../MainViewTab/AgentTasks/NoProgramStudentTask';
-import DEMO from '../../../store/constant';
+import DEMO from '@store/constant';
 import ApplicationProgressCardBody from '@components/ApplicationProgressCard/ApplicationProgressCardBody';
 import ProgramReportCard from '../../Program/ProgramReportCard';
 import CVAssignTasksCard from '../MainViewTab/AgentTasks/CVAssignTasksCard';

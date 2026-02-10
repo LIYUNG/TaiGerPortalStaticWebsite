@@ -36,7 +36,7 @@ import {
 } from '../../Utils/util_functions';
 import ErrorPage from '../../Utils/ErrorPage';
 import { updateBanner } from '@api';
-import DEMO from '../../../store/constant';
+import DEMO from '@store/constant';
 import ApplicationProgressCard from '@components/ApplicationProgressCard/ApplicationProgressCard';
 import { appConfig } from '../../../config';
 import ProgramLanguageNotMatchedBanner from '@components/Banner/ProgramLanguageNotMatchedBanner';

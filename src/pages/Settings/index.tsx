@@ -28,7 +28,7 @@ import { TabTitle } from '../Utils/TabTitle';
 import { useAuth } from '@components/AuthProvider';
 import { useCustomTheme } from '@components/ThemeProvider';
 import { appConfig } from '../../config';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 
 interface Credentials {
     current_password: string;

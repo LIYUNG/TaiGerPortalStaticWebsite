@@ -39,7 +39,7 @@ import { useTranslation } from 'react-i18next';
 
 import ApplicationOverviewTabs from '../ApplicantsOverview/ApplicationOverviewTabs';
 
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import { appConfig } from '../../config';
 import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';

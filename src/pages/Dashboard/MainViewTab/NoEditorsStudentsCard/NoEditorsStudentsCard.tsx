@@ -15,7 +15,7 @@ import { Link as LinkDom } from 'react-router-dom';
 import { is_TaiGer_role } from '@taiger-common/core';
 
 import EditEditorsSubpage from '../StudDocsOverview/EditEditorsSubpage';
-import DEMO from '../../../../store/constant';
+import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { ATTRIBUTES, COLORS } from '@utils/contants';
 

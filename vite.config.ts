@@ -18,6 +18,7 @@ export default defineConfig({
             '@utils': path.resolve(root, 'utils'),
             '@hooks': path.resolve(root, 'hooks'),
             '@pages': path.resolve(root, 'pages'),
+            '@store': path.resolve(root, 'store'),
         },
     },
     server: {

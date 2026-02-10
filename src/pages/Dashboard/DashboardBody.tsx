@@ -20,7 +20,7 @@ import StudentDashboard from './StudentDashboard/StudentDashboard';
 import GuestDashboard from './GuestDashboard/GuestDashboard';
 import { TabTitle } from '../Utils/TabTitle';
 import { useAuth } from '@components/AuthProvider';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import { appConfig } from '../../config';
 
 import ExternalMainView from './ExternalDashboard/ExternalMainView';

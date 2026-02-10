@@ -20,7 +20,7 @@ import AddIcon from '@mui/icons-material/Add';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import { appConfig } from '../../config';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 
 import { convertDateUXFriendly } from '@utils/contants';
 

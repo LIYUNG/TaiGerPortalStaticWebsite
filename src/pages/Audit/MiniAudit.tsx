@@ -14,7 +14,7 @@ import {
 import { useTranslation } from 'react-i18next';
 
 import { convertDate, convertDateUXFriendly } from '@utils/contants';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 
 const MiniAudit = ({ audit }) => {
     const { t } = useTranslation();

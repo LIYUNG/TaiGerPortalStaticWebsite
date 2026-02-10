@@ -6,7 +6,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import { Box } from '@mui/material';
 
 import { getQueryPublicResults, getQueryResults } from '@api';
-import ModalMain from '../../../pages/Utils/ModalHandler/ModalMain';
+import ModalMain from '@pages/Utils/ModalHandler/ModalMain';
 import './search.css';
 import { useAuth } from '../../AuthProvider';
 import {
@@ -14,7 +14,7 @@ import {
     SearchIconWrapper,
     StyledInputBase
 } from '@utils/contants';
-import DEMO from '../../../store/constant';
+import DEMO from '@store/constant';
 
 export interface SearchResultItem {
     _id: string;

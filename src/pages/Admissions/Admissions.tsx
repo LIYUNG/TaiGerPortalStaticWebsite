@@ -11,7 +11,7 @@ import StudentAdmissionsTables from './StudentAdmissionTables';
 import AdmissionsStat from './AdmissionsStat';
 
 import { TabTitle } from '../Utils/TabTitle';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import { appConfig } from '../../config';
 import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';

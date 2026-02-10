@@ -13,7 +13,7 @@ import { Link as LinkDom } from 'react-router-dom';
 import { is_TaiGer_role } from '@taiger-common/core';
 
 import EditEssayWritersSubpage from '../StudDocsOverview/EditEssayWritersSubpage';
-import DEMO from '../../../../store/constant';
+import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 
 const NoWritersEssaysCard = (props) => {

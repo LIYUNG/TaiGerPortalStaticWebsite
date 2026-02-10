@@ -60,10 +60,10 @@ import {
     putThreadFavorite
 } from '@api';
 import { TabTitle } from '../../Utils/TabTitle';
-import DEMO from '../../../store/constant';
+import DEMO from '@store/constant';
 import FilesList from './FilesList';
 import { useAuth } from '@components/AuthProvider';
-import EditEssayWritersSubpage from '../../Dashboard/MainViewTab/StudDocsOverview/EditEssayWritersSubpage';
+import EditEssayWritersSubpage from '@pages/Dashboard/MainViewTab/StudDocsOverview/EditEssayWritersSubpage';
 import MessageList from '@components/Message/MessageList';
 import DocumentCheckingResultModal from './DocumentCheckingResultModal';
 import { a11yProps, CustomTabPanel } from '@components/Tabs';

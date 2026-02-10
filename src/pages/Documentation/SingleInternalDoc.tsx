@@ -9,7 +9,7 @@ import {
     updateInternalDocumentation,
     getInternalDocumentation
 } from '@api';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';
 import DocPageView from './DocPageView';

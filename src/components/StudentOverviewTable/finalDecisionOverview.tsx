@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 import { MuiDataGrid } from '../MuiDataGrid';
 import type { MuiDataGridColumn } from '../MuiDataGrid';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 
 export interface FinalEnrolmentItem {
     key: string;

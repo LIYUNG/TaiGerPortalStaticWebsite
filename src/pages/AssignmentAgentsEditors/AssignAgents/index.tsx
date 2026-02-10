@@ -4,7 +4,7 @@ import { is_TaiGer_role } from '@taiger-common/core';
 
 import AssignAgentsPage from './AssignAgentsPage';
 import ModalMain from '../../Utils/ModalHandler/ModalMain';
-import DEMO from '../../../store/constant';
+import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import useStudents from '@hooks/useStudents';
 import { useQuery } from '@tanstack/react-query';

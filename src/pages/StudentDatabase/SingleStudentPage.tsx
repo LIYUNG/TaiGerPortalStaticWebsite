@@ -45,8 +45,8 @@ import EditorDocsProgress from '../CVMLRLCenter/EditorDocsProgress';
 import UniAssistListCard from '../UniAssist/UniAssistListCard';
 import SurveyComponent from '../Survey/SurveyComponent';
 import Notes from '../Notes/index';
-import ApplicationProgress from '../Dashboard/MainViewTab/ApplicationProgress/ApplicationProgress';
-import StudentDashboard from '../Dashboard/StudentDashboard/StudentDashboard';
+import ApplicationProgress from '@pages/Dashboard/MainViewTab/ApplicationProgress/ApplicationProgress';
+import StudentDashboard from '@pages/Dashboard/StudentDashboard/StudentDashboard';
 import {
     convertDate,
     programstatuslist,
@@ -61,7 +61,7 @@ import {
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { updateArchivStudents } from '@api';
 import { TabTitle } from '../Utils/TabTitle';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import PortalCredentialPage from '../PortalCredentialPage';
 import { appConfig } from '../../config';
 import { useAuth } from '@components/AuthProvider';
@@ -69,7 +69,7 @@ import { useSnackBar } from '../../contexts/use-snack-bar';
 import { CustomTabPanel, a11yProps } from '@components/Tabs';
 import { SurveyProvider } from '@components/SurveyProvider';
 import ProgramDetailsComparisonTable from '../Program/ProgramDetailsComparisonTable';
-import StudentBriefOverview from '../Dashboard/MainViewTab/StudentBriefOverview/StudentBriefOverview';
+import StudentBriefOverview from '@pages/Dashboard/MainViewTab/StudentBriefOverview/StudentBriefOverview';
 import ProgramLanguageNotMatchedBanner from '@components/Banner/ProgramLanguageNotMatchedBanner';
 import Audit from '../Audit';
 import EnglishCertificateExpiredBeforeDeadlineBanner from '@components/Banner/EnglishCertificateExpiredBeforeDeadlineBanner';

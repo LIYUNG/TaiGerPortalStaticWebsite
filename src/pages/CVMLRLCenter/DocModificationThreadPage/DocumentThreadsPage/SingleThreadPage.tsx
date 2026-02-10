@@ -9,7 +9,7 @@ import { getMessagThreadQuery } from '@api/query';
 import Loading from '@components/Loading/Loading';
 import DocModificationThreadPage from '../DocModificationThreadPage';
 import ErrorPage from '../../../Utils/ErrorPage';
-import DEMO from '../../../../store/constant';
+import DEMO from '@store/constant';
 import { appConfig } from '../../../../config';
 import { BreadcrumbsNavigation } from '@components/BreadcrumbsNavigation/BreadcrumbsNavigation';
 import { useAuth } from '@components/AuthProvider';

@@ -19,7 +19,7 @@ import {
     application_deadline_V2_calculator,
     is_uni_assist_paid_and_docs_uploaded
 } from '../../../Utils/util_functions';
-import DEMO from '../../../../store/constant';
+import DEMO from '@store/constant';
 
 const VPDToSubmitTasks = ({ application }) => {
     const { t } = useTranslation();

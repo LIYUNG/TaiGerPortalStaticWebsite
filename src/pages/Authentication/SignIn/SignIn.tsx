@@ -17,7 +17,7 @@ import { login as Login } from '@api/index';
 import Reactivation from '../Activation/Reactivation';
 import { useAuth } from '@components/AuthProvider';
 import AuthWrapper from '@components/AuthWrapper';
-import DEMO from '../../../store/constant';
+import DEMO from '@store/constant';
 import { GoogleLoginButton } from '@components/Buttons/GoolgeSignInButton';
 
 export default function SignIn() {

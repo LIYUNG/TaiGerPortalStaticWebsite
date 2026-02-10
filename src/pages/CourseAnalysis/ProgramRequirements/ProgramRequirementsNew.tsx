@@ -17,7 +17,7 @@ import { Link as LinkDom, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import CloseIcon from '@mui/icons-material/Close';
 
-import DEMO from '../../../store/constant';
+import DEMO from '@store/constant';
 import { postProgramRequirements, putProgramRequirement } from '@api';
 import {
     ADMISSION_DESCRIPTION,

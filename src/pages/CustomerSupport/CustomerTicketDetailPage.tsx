@@ -7,7 +7,7 @@ import { TabTitle } from '../Utils/TabTitle';
 import { useTranslation } from 'react-i18next';
 import Loading from '@components/Loading/Loading';
 import CustomerTicketDetailPageBody from './CustomerTicketDetailPageBody';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 
 const NotFound = () => {
     const { t } = useTranslation();

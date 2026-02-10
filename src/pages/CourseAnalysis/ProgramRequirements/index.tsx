@@ -5,7 +5,7 @@ import { TabTitle } from '../../Utils/TabTitle';
 import ProgramRequirementsOverview from './ProgramRequirementsOverview';
 import { Box, Breadcrumbs, Link, Typography } from '@mui/material';
 import Loading from '@components/Loading/Loading';
-import DEMO from '../../../store/constant';
+import DEMO from '@store/constant';
 import { appConfig } from '../../../config';
 import { useTranslation } from 'react-i18next';
 

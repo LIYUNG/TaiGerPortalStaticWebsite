@@ -18,7 +18,6 @@ import {
 
 import { BASE_URL } from '@api/request';
 import FilePreview from '@components/FilePreview/FilePreview';
-
 import { useAuth } from '@components/AuthProvider';
 
 const AcceptProfileFileModel = ({

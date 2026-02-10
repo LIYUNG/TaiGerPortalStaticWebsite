@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { is_TaiGer_Admin } from '@taiger-common/core';
 
 import EditAgentsSubpage from '../StudDocsOverview/EditAgentsSubpage';
-import DEMO from '../../../../store/constant';
+import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 
 const NoAgentsStudentsCard = (props) => {

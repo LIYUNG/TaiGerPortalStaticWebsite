@@ -7,7 +7,7 @@ import queryString from 'query-string';
 import { useQuery } from '@tanstack/react-query';
 
 import { TabTitle } from '../Utils/TabTitle';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
 import useStudents from '@hooks/useStudents';

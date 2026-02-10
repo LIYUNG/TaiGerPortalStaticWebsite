@@ -28,7 +28,7 @@ import {
 
 import { useAuth } from '@components/AuthProvider';
 import { is_TaiGer_role } from '@taiger-common/core';
-import DEMO from '../../../../store/constant';
+import DEMO from '@store/constant';
 import {
     FILE_OK_SYMBOL,
     FILE_MISSING_SYMBOL,

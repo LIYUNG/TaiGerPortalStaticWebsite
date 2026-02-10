@@ -19,7 +19,7 @@ import {
     getProgramDocumentStatus
 } from '../Utils/document-status';
 import { useAuth } from '@components/AuthProvider';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 
 const ManualFiles = (props) => {
     const { user } = useAuth();

@@ -24,7 +24,7 @@ import i18next from 'i18next';
 import { deleteKeywordSet, putKeywordSet } from '@api';
 import ExampleWithLocalizationProvider from '@components/MaterialReactTable';
 import { col_keywords } from '@utils/contants';
-import DEMO from '../../../store/constant';
+import DEMO from '@store/constant';
 import { useSnackBar } from '../../../contexts/use-snack-bar';
 
 export interface CourseKeywordsEditCardData {

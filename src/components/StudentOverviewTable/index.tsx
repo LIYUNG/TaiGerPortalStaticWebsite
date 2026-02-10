@@ -44,8 +44,8 @@ import {
     prepTaskStudent,
     to_register_application_portals,
     has_admissions
-} from '../../pages/Utils/util_functions';
-import DEMO from '../../store/constant';
+} from '@pages/Utils/util_functions';
+import DEMO from '@store/constant';
 import { green, grey } from '@mui/material/colors';
 import { useTranslation } from 'react-i18next';
 

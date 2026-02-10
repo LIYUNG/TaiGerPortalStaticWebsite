@@ -7,7 +7,7 @@ import queryString from 'query-string';
 
 import { TabTitle } from '../Utils/TabTitle';
 import { useAuth } from '@components/AuthProvider';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import { appConfig } from '../../config';
 import { BaseDocumentsTable } from './BaseDocumentsTable';
 import { getStudentsAndDocLinks2Query } from '@api/query';

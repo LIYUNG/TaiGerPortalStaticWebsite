@@ -7,7 +7,7 @@ import queryString from 'query-string';
 import BaseDocumentStudentView from './BaseDocumentStudentView';
 import { TabTitle } from '../Utils/TabTitle';
 import { useAuth } from '@components/AuthProvider';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import { appConfig } from '../../config';
 import Loading from '@components/Loading/Loading';
 import { BaseDocumentsTable } from './BaseDocumentsTable';

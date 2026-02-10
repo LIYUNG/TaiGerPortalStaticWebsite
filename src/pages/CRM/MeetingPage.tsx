@@ -38,7 +38,7 @@ import {
     ArrowDropDown as ArrowDropDownIcon
 } from '@mui/icons-material';
 
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import { TabTitle } from '../Utils/TabTitle';
 import Loading from '@components/Loading/Loading';
 import { useAuth } from '@components/AuthProvider';

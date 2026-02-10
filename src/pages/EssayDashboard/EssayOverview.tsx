@@ -22,7 +22,7 @@ import { useAuth } from '@components/AuthProvider';
 import { CustomTabPanel, a11yProps } from '@components/Tabs';
 import { useTranslation } from 'react-i18next';
 import { MuiDataGrid } from '@components/MuiDataGrid';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import { ATTRIBUTES, COLORS } from '@utils/contants';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { APPROVAL_COUNTRIES } from '../Utils/util_functions';

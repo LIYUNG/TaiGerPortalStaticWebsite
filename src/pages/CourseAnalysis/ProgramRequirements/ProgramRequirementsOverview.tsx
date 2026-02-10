@@ -23,7 +23,7 @@ import {
     MRT_ToggleFiltersButton as MRTToggleFiltersButton
 } from 'material-react-table';
 import React, { useState, useMemo } from 'react';
-import DEMO from '../../../store/constant';
+import DEMO from '@store/constant';
 import { useTranslation } from 'react-i18next';
 import { deleteProgramRequirement } from '@api';
 

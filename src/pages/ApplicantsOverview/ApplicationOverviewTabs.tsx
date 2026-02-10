@@ -14,7 +14,7 @@ import {
     student_transform
 } from '../Utils/util_functions';
 import ApplicationProgressCardBody from '@components/ApplicationProgressCard/ApplicationProgressCardBody';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { CustomTabPanel, a11yProps } from '@components/Tabs';
 import { useTranslation } from 'react-i18next';

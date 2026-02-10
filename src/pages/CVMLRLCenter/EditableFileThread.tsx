@@ -27,7 +27,7 @@ import {
     FILE_MISSING_SYMBOL,
     convertDate
 } from '@utils/contants';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 
 const EditableFileThread = (props) => {

@@ -6,7 +6,7 @@ import CourseKeywordsOverview from './CourseKeywordsOverview';
 import { Box, Breadcrumbs, Link, Typography } from '@mui/material';
 import Loading from '@components/Loading/Loading';
 import { appConfig } from '../../../config';
-import DEMO from '../../../store/constant';
+import DEMO from '@store/constant';
 import { useTranslation } from 'react-i18next';
 
 const CourseKeywords = () => {

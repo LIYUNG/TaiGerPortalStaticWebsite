@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { Link as LinkDom } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import { convertDate } from '@utils/contants';
 import { useAuth } from '@components/AuthProvider';
 import {

@@ -5,11 +5,11 @@ import i18next from 'i18next';
 import { Navigate, Link as LinkDom } from 'react-router-dom';
 
 import { TabTitle } from '../../Utils/TabTitle';
-import TabProgramTaskDelta from '../../Dashboard/MainViewTab/ProgramTaskDelta/TabProgramTaskDelta';
+import TabProgramTaskDelta from '@pages/Dashboard/MainViewTab/ProgramTaskDelta/TabProgramTaskDelta';
 import ErrorPage from '../../Utils/ErrorPage';
 import ModalMain from '../../Utils/ModalHandler/ModalMain';
 import { getApplicationTaskDeltas } from '@api';
-import DEMO from '../../../store/constant';
+import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../../config';
 import Loading from '@components/Loading/Loading';

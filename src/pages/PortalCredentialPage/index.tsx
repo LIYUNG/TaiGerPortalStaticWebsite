@@ -2,7 +2,7 @@ import React from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import { is_TaiGer_Student } from '@taiger-common/core';
 
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import PortalCredentialsCard from './PortalCredentialsCard';
 import { useAuth } from '@components/AuthProvider';
 

@@ -40,7 +40,7 @@ import { updateUserPermission } from '@api';
 import { getTeamMembersQuery } from '@api/query';
 import { queryClient } from '@api/client';
 import { TabTitle } from '../Utils/TabTitle';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import GrantPermissionModal from './GrantPermissionModal';
 import type { UserPermissions } from './GrantPermissionModal';
 import GrantManagerModal from './GrantManagerModal';

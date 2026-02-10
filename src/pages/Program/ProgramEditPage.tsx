@@ -5,7 +5,7 @@ import { Await, useLoaderData, useNavigate, useParams } from 'react-router-dom';
 import NewProgramEdit from './NewProgramEdit';
 import Loading from '@components/Loading/Loading';
 import { updateProgramV2 } from '@api';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { queryClient } from '@api/client';
 import { getProgramQuery } from '@api/query';

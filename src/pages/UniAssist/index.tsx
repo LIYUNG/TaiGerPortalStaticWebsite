@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import UniAssistListCard from './UniAssistListCard';
 import { TabTitle } from '../Utils/TabTitle';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import { check_student_needs_uni_assist } from '../Utils/util_functions';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';

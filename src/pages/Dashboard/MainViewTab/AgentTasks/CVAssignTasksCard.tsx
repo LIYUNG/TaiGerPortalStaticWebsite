@@ -14,7 +14,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, Typography } from '@mui/material';
 
 import { isCVFinished, is_cv_assigned } from '../../../Utils/util_functions';
-import DEMO from '../../../../store/constant';
+import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 
 const CVAssignTasks = (props) => {

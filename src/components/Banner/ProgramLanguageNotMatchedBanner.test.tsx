@@ -1,7 +1,7 @@
 import { render } from '@testing-library/react';
 import ProgramLanguageNotMatchedBanner from './ProgramLanguageNotMatchedBanner';
 
-vi.mock('../../pages/Utils/util_functions', () => ({
+vi.mock('@pages/Utils/util_functions', () => ({
     isLanguageNotMatchedInAnyProgram: vi.fn().mockReturnValue(false),
     languageNotMatchedPrograms: vi.fn().mockReturnValue([])
 }));

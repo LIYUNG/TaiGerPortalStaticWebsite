@@ -18,7 +18,7 @@ import ProgramCompare from './ProgramCompare';
 import { getProgramChangeRequests, getProgram } from '@api/index';
 
 import { appConfig } from '../../config';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import { convertDate } from '@utils/contants';
 
 export interface ProgramChangeRequestBreadcrumbProgram {

@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { is_TaiGer_role } from '@taiger-common/core';
 
 import { useAuth } from '@components/AuthProvider';
-import DEMO from '../../../../store/constant';
+import DEMO from '@store/constant';
 import { BASE_URL } from '@api/request';
 import { appConfig } from '../../../../config';
 

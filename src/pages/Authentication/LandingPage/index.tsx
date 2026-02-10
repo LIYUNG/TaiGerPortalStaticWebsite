@@ -6,7 +6,7 @@ import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
-import DEMO from '../../../store/constant';
+import DEMO from '@store/constant';
 import { appConfig } from '../../../config';
 import Footer from '@components/Footer/Footer';
 import { Box, useTheme } from '@mui/material';

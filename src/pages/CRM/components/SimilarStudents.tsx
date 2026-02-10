@@ -27,7 +27,7 @@ import {
 } from '@mui/icons-material';
 
 import { request } from '@api/request';
-import DEMO from '../../../store/constant';
+import DEMO from '@store/constant';
 
 const { STUDENT_DATABASE_STUDENTID_LINK, SINGLE_PROGRAM_LINK } = DEMO;
 

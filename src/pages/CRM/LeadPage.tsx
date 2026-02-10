@@ -40,7 +40,7 @@ import { getCRMLeadQuery, getStudentQuery } from '@api/query';
 import { request } from '@api/request';
 import { updateCRMDeal } from '@api';
 
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import { appConfig } from '../../config';
 
 import Loading from '@components/Loading/Loading';

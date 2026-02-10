@@ -9,7 +9,7 @@ import { getDocumentation, updateDocumentation } from '@api';
 import { TabTitle } from '../Utils/TabTitle';
 import Loading from '@components/Loading/Loading';
 import { appConfig } from '../../config';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import { documentation_categories } from '@utils/contants';
 import DocPageView from './DocPageView';
 

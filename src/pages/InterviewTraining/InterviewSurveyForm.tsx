@@ -11,7 +11,7 @@ import {
 import Loading from '@components/Loading/Loading';
 import ErrorPage from '../Utils/ErrorPage';
 import { appConfig } from '../../config';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { TopBar } from '@components/TopBar/TopBar';
 import { ConfirmationModal } from '@components/Modal/ConfirmationModal';

@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import ErrorPage from '../Utils/ErrorPage';
 import { getExpenseQuery } from '@api/query';
 import { TabTitle } from '../Utils/TabTitle';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import { ExtendableTable } from '@components/ExtendableTable/ExtendableTable';
 import { appConfig } from '../../config';
 import { useAuth } from '@components/AuthProvider';

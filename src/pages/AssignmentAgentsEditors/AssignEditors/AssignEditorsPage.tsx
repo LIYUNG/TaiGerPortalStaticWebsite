@@ -12,9 +12,9 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
-import NoEditorsStudentsCard from '../../Dashboard/MainViewTab/NoEditorsStudentsCard/NoEditorsStudentsCard';
+import NoEditorsStudentsCard from '@pages/Dashboard/MainViewTab/NoEditorsStudentsCard/NoEditorsStudentsCard';
 import { appConfig } from '../../../config';
-import DEMO from '../../../store/constant';
+import DEMO from '@store/constant';
 import { BreadcrumbsNavigation } from '@components/BreadcrumbsNavigation/BreadcrumbsNavigation';
 
 const NoEditorsTableHeader = () => {

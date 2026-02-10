@@ -21,7 +21,7 @@ import { getMessagThreadQuery } from '@api/query';
 import ErrorPage from '../../../Utils/ErrorPage';
 import DocModificationThreadPage from '../DocModificationThreadPage';
 import { APP_BAR_HEIGHT, stringAvatar } from '@utils/contants';
-import DEMO from '../../../../store/constant';
+import DEMO from '@store/constant';
 import { useTranslation } from 'react-i18next';
 import ChildLoading from '@components/Loading/ChildLoading';
 import { useRef } from 'react';

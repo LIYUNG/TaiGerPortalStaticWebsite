@@ -35,7 +35,7 @@ import {
     deleteInternalDocumentation
 } from '@api';
 import { TabTitle } from '../Utils/TabTitle';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';

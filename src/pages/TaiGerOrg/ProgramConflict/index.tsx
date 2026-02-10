@@ -4,10 +4,10 @@ import { is_TaiGer_role } from '@taiger-common/core';
 import { useQuery } from '@tanstack/react-query';
 
 import { TabTitle } from '../../Utils/TabTitle';
-import TabProgramConflict from '../../Dashboard/MainViewTab/ProgramConflict/TabProgramConflict';
+import TabProgramConflict from '@pages/Dashboard/MainViewTab/ProgramConflict/TabProgramConflict';
 import ErrorPage from '../../Utils/ErrorPage';
 import { getApplicationConflictsQuery } from '@api/query';
-import DEMO from '../../../store/constant';
+import DEMO from '@store/constant';
 import { Navigate, Link as LinkDom } from 'react-router-dom';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../../config';

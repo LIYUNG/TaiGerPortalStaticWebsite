@@ -3,7 +3,7 @@ import { Link as LinkDom } from 'react-router-dom';
 import { Link, TableCell, TableRow } from '@mui/material';
 
 import { hasApplications } from '../../../Utils/util_functions';
-import DEMO from '../../../../store/constant';
+import DEMO from '@store/constant';
 
 const NoProgramStudentTask = (props) => {
     return (

@@ -22,7 +22,7 @@ import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { deleteTemplateFile, getTemplates, uploadtemplate } from '@api';
 import { TabTitle } from '../Utils/TabTitle';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import Banner from '@components/Banner/Banner';
 import { appConfig } from '../../config';
 import { useAuth } from '@components/AuthProvider';

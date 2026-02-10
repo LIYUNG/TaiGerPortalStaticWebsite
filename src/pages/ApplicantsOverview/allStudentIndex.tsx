@@ -6,7 +6,7 @@ import queryString from 'query-string';
 
 import ApplicationOverviewTabs from './ApplicationOverviewTabs';
 import { TabTitle } from '../Utils/TabTitle';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import { appConfig } from '../../config';
 import {
     getActiveStudentsApplicationsV2Query,

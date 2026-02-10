@@ -4,7 +4,7 @@ import { Breadcrumbs, Link, Typography } from '@mui/material';
 import { getAllCoursessQuery } from '@api/query';
 import Loading from '@components/Loading/Loading';
 import { AllCoursesTable } from './AllCoursesTable';
-import DEMO from '../../../store/constant';
+import DEMO from '@store/constant';
 import { appConfig } from '../../../config';
 import i18next from 'i18next';
 

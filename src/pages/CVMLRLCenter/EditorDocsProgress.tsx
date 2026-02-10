@@ -52,7 +52,7 @@ import {
     initApplicationMessageThread,
     updateStudentApplication
 } from '@api';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import Loading from '@components/Loading/Loading';
 import i18next from 'i18next';
 

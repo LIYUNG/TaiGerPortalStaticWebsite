@@ -13,7 +13,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import ModalMain from '../../Utils/ModalHandler/ModalMain';
 import { updateInterview } from '@api';
-import NoTrainersInterviewsCard from '../../Dashboard/MainViewTab/NoTrainersInterviewsCard/NoTrainersInterviewsCard';
+import NoTrainersInterviewsCard from '@pages/Dashboard/MainViewTab/NoTrainersInterviewsCard/NoTrainersInterviewsCard';
 import i18next from 'i18next';
 
 const InterviewsTable = ({ noTrainerInterviews }) => (

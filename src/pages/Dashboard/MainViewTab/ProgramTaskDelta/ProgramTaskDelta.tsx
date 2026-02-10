@@ -2,7 +2,7 @@ import React from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import { Link, TableBody, TableCell, TableRow } from '@mui/material';
 
-import DEMO from '../../../../store/constant';
+import DEMO from '@store/constant';
 
 const ProgramTaskDelta = ({ program, students }) => {
     return (

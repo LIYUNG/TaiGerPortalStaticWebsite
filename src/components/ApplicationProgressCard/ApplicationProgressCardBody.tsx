@@ -5,8 +5,8 @@ import WarningIcon from '@mui/icons-material/Warning';
 import { isProgramSubmitted } from '@taiger-common/core';
 import type { ApplicationProps } from '@taiger-common/core';
 
-import DEMO from '../../store/constant';
-import { isEnglishOK } from '../../pages/Utils/util_functions';
+import DEMO from '@store/constant';
+import { isEnglishOK } from '@pages/Utils/util_functions';
 import {
     FILE_MISSING_SYMBOL,
     FILE_OK_SYMBOL,

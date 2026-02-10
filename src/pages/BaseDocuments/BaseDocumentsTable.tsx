@@ -41,7 +41,7 @@ import {
     FILE_UPLOADED_SYMBOL
 } from '@utils/contants';
 import { updateProfileDocumentStatus } from '@api';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import AcceptProfileFileModel from './AcceptedFilePreviewModal';
 
 /** Profile document entry for a student */

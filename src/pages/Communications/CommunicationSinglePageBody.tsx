@@ -18,7 +18,7 @@ import { is_TaiGer_Student, is_TaiGer_role } from '@taiger-common/core';
 import MessageList from './MessageList';
 import CommunicationThreadEditor from './CommunicationThreadEditor';
 import { TabTitle } from '../Utils/TabTitle';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import { appConfig } from '../../config';
 import { useAuth } from '@components/AuthProvider';
 import { TopBar } from '@components/TopBar/TopBar';

@@ -40,7 +40,7 @@ import {
 } from '@taiger-common/core';
 import { useTranslation } from 'react-i18next';
 
-import DEMO from '../../../../store/constant';
+import DEMO from '@store/constant';
 import { stringAvatar } from '@utils/contants';
 import {
     AGENT_SUPPORT_DOCUMENTS_A,

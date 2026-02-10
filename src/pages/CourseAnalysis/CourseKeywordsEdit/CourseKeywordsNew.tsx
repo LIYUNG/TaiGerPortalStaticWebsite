@@ -18,7 +18,7 @@ import { Link as LinkDom, useNavigate } from 'react-router-dom';
 import i18next from 'i18next';
 
 import { postKeywordSet } from '@api';
-import DEMO from '../../../store/constant';
+import DEMO from '@store/constant';
 import { appConfig } from '../../../config';
 
 const EditCard = () => {

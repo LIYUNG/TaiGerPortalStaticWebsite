@@ -2,7 +2,7 @@ import { Navigate } from 'react-router-dom';
 import { Box, Card, Typography } from '@mui/material';
 
 import { TabTitle } from '../Utils/TabTitle';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { is_TaiGer_Student, is_TaiGer_role } from '@taiger-common/core';
 

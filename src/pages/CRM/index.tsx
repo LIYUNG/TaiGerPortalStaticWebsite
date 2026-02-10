@@ -16,7 +16,7 @@ import { BarChart } from '@mui/x-charts/BarChart';
 import { useTranslation } from 'react-i18next';
 
 import { TabTitle } from '../Utils/TabTitle';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import Loading from '@components/Loading/Loading';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';

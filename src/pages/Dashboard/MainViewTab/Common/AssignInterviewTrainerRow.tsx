@@ -1,7 +1,7 @@
 import React from 'react';
 import { TableRow, TableCell, Link } from '@mui/material';
 import { Link as LinkDom } from 'react-router-dom';
-import DEMO from '../../../../store/constant';
+import DEMO from '@store/constant';
 import { t } from 'i18next';
 
 const AssignInterviewTrainerRow = (props) => {

@@ -61,7 +61,7 @@ import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { TabTitle } from '../Utils/TabTitle';
 import MyCalendar from '@components/Calendar/components/Calendar';
 import EventConfirmationCard from '@components/Calendar/components/EventConfirmationCard';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';
 import { appConfig } from '../../config';

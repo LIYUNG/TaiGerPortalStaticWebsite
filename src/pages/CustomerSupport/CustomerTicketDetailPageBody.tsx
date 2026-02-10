@@ -28,7 +28,7 @@ import {
 import { is_TaiGer_role } from '@taiger-common/core';
 
 import { appConfig } from '../../config';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import {
     deleteAMessageinTicket,
     deleteComplaintsTicket,

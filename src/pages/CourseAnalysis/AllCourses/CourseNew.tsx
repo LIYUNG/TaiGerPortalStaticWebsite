@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { Link as LinkDom, useNavigate } from 'react-router-dom';
 import { appConfig } from '../../../config';
-import DEMO from '../../../store/constant';
+import DEMO from '@store/constant';
 import i18next from 'i18next';
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';

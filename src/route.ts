@@ -1,23 +1,23 @@
 import React from 'react';
 
-const SignIn = React.lazy(() => import('./pages/Authentication/SignIn/SignIn'));
+const SignIn = React.lazy(() => import('@pages/Authentication/SignIn/SignIn'));
 const GoogleOAuthCallback = React.lazy(
-    () => import('./pages/Authentication/GoogleOauthCallback/index')
+    () => import('@pages/Authentication/GoogleOauthCallback/index')
 );
 const LandingPage = React.lazy(
-    () => import('./pages/Authentication/LandingPage/index')
+    () => import('@pages/Authentication/LandingPage/index')
 );
 const ResetPasswordRequest = React.lazy(
     () =>
         import(
-            './pages/Authentication/ResetPasswordRequest/ResetPasswordRequest'
+            '@pages/Authentication/ResetPasswordRequest/ResetPasswordRequest'
         )
 );
 const ResetPassword = React.lazy(
-    () => import('./pages/Authentication/ResetPassword/ResetPassword')
+    () => import('@pages/Authentication/ResetPassword/ResetPassword')
 );
 const AccountActivation = React.lazy(
-    () => import('./pages/Authentication/Activation/Activation')
+    () => import('@pages/Authentication/Activation/Activation')
 );
 
 const route = [

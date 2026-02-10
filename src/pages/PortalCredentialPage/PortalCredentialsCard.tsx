@@ -19,7 +19,7 @@ import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { getPortalCredentials, postPortalCredentials } from '@api';
 import Banner from '@components/Banner/Banner';
 import { TabTitle } from '../Utils/TabTitle';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import { appConfig } from '../../config';
 import Loading from '@components/Loading/Loading';
 import { LinkableNewlineText } from '../Utils/checking-functions';

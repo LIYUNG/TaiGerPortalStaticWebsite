@@ -6,7 +6,7 @@ import {
     does_student_have_agents,
     is_num_Program_Not_specified
 } from '../../../Utils/util_functions';
-import DEMO from '../../../../store/constant';
+import DEMO from '@store/constant';
 import { useTranslation } from 'react-i18next';
 import AssignEssayWriterRow from '../Common/AssignEssayWriterRow';
 import AssignEditorRow from '../Common/AssignEditorRow';

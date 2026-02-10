@@ -25,7 +25,7 @@ import {
     open_tasks_v2,
     toogleItemInArray
 } from '../Utils/util_functions';
-import DEMO from '../../store/constant';
+import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
 import Loading from '@components/Loading/Loading';
