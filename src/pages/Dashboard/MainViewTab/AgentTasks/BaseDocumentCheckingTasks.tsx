@@ -1,15 +1,19 @@
-import React from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import { Link, TableCell, TableRow } from '@mui/material';
 
 import { convertDate } from '@utils/contants';
 import DEMO from '@store/constant';
+import type { IStudentResponse } from '@/api/types';
 
-const BaseDocumentCheckingTasks = (props) => {
+const BaseDocumentCheckingTasks = ({
+    student
+}: {
+    student: IStudentResponse;
+}) => {
     return (
         <>
             {/* check program reday to be submitted */}
-            {props.student.profile.map(
+            {student.profile?.map(
                 (file, i) =>
                     file.status === 'uploaded' && (
                         <TableRow key={i}>
@@ -17,13 +21,12 @@ const BaseDocumentCheckingTasks = (props) => {
                                 <Link
                                     component={LinkDom}
                                     to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                                        props.student._id.toString(),
+                                        student._id.toString(),
                                         DEMO.PROFILE_HASH
                                     )}`}
                                 >
                                     <b>
-                                        {props.student.firstname}{' '}
-                                        {props.student.lastname}
+                                        {student.firstname} {student.lastname}
                                     </b>
                                 </Link>
                             </TableCell>

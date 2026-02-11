@@ -1,27 +1,32 @@
-import React from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Card, Alert, Typography, Link } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 
 import { useAuth } from '@components/AuthProvider';
 import { AGENT_SUPPORT_DOCUMENTS_A } from '../../../Utils/util_functions';
 import DEMO from '@store/constant';
 
-const ProgramSpecificDocumentCheckCard = (props) => {
+const ProgramSpecificDocumentCheckCard = ({
+    refactored_threads
+}: {
+    refactored_threads: any[];
+}) => {
     const { user } = useAuth();
     const { t } = useTranslation();
 
-    const no_programs_student_tasks = props.refactored_threads
-        .filter((student) =>
-            student.agents?.some((agent) => agent._id === user._id?.toString())
+    const no_programs_student_tasks = refactored_threads
+        .filter((open_task) =>
+            open_task.agents?.some(
+                (agent) => agent?._id === user?._id?.toString()
+            )
         )
         .filter((open_task) =>
             [...AGENT_SUPPORT_DOCUMENTS_A].includes(open_task.file_type)
         )
         .filter((open_task) => open_task.show && !open_task.isFinalVersion);
 
-    const programUpdateColumn = [
+    const programUpdateColumn: GridColDef[] = [
         {
             field: 'firstname_lastname',
             headerName: t('Name'),

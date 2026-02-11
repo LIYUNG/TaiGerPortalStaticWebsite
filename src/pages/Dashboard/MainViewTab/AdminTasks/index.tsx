@@ -13,7 +13,6 @@ import AssignInterviewTrainerRow from '../Common/AssignInterviewTrainerRow';
 import { IStudentResponse } from '@/types/taiger-common';
 
 const AdminTasks = ({
-    interviews,
     students,
     tasksOverview
 }: {

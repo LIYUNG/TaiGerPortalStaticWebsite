@@ -390,7 +390,6 @@ const AgentMainView = (props) => {
                 <Grid item md={4} sm={6} xs={12}>
                     <ProgramSpecificDocumentCheckCard
                         refactored_threads={refactored_threads}
-                        students={myStudents}
                     />
                 </Grid>
                 <Grid item md={4} sm={6} xs={12}>

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import {
     Link,
@@ -16,18 +15,19 @@ import { Card, Typography } from '@mui/material';
 import { isCVFinished, is_cv_assigned } from '../../../Utils/util_functions';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
+import { IStudentResponse } from '@/api/types';
 
-const CVAssignTasks = (props) => {
+const CVAssignTasks = ({ student }: { student: IStudentResponse }) => {
     return (
         <>
             {/* cv assign tasks */}
-            {!isCVFinished(props.student) && !is_cv_assigned(props.student) ? (
+            {!isCVFinished(student) && !is_cv_assigned(student) ? (
                 <>
                     <TableCell>
                         <Link
                             component={LinkDom}
                             to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                                props.student._id.toString(),
+                                student._id.toString(),
                                 DEMO.CVMLRL_HASH
                             )}`}
                         >
@@ -36,16 +36,16 @@ const CVAssignTasks = (props) => {
                     </TableCell>
                     <TableCell>
                         <b>
-                            {props.student.firstname} {props.student.lastname}
+                            {student.firstname} {student.lastname}
                         </b>
                     </TableCell>
                     <TableCell>
-                        {props.student.application_preference
+                        {student.application_preference
                             ?.expected_application_date || (
                             <span className="text-danger">TBD</span>
                         )}
                         /
-                        {props.student.application_preference
+                        {student.application_preference
                             ?.expected_application_semester || (
                             <span className="text-danger">TBD</span>
                         )}
@@ -56,13 +56,13 @@ const CVAssignTasks = (props) => {
     );
 };
 
-const CVAssignTasksCard = (props) => {
+const CVAssignTasksCard = ({ students }: { students: IStudentResponse[] }) => {
     const { user } = useAuth();
     const { t } = useTranslation();
 
-    const cv_assign_tasks = props.students
+    const cv_assign_tasks = students
         .filter((student) =>
-            student.agents.some((agent) => agent._id === user._id.toString())
+            student.agents?.some((agent) => agent._id === user?._id?.toString())
         )
         .map((student, i) => (
             <TableRow key={i}>

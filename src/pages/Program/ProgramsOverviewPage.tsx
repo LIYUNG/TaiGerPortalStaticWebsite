@@ -42,14 +42,13 @@ import {
     Person
 } from '@mui/icons-material';
 import { is_TaiGer_role } from '@taiger-common/core';
-import { useQuery } from '@tanstack/react-query';
 
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
-import { getProgramsOverviewQuery } from '@api/query';
 import { queryClient } from '@api/client';
+import { useProgramsOverview } from '@hooks/useProgramsOverview';
 import Loading from '@components/Loading/Loading';
 import ErrorPage from '../Utils/ErrorPage';
 
@@ -61,10 +60,8 @@ const ProgramsOverviewPage = () => {
     const [cooldownSeconds, setCooldownSeconds] = useState(0);
     const [lastRefreshTime, setLastRefreshTime] = useState(null);
 
-    const { data, isLoading, isError, error } = useQuery(
-        getProgramsOverviewQuery()
-    );
-    const overview = data?.data;
+    const { data: overview, isLoading, isError, error, queryKey } =
+        useProgramsOverview();
 
     TabTitle(t('Programs Overview', { ns: 'common' }));
 
@@ -88,7 +85,7 @@ const ProgramsOverviewPage = () => {
         setRefreshing(true);
         setLastRefreshTime(new Date());
         await queryClient.invalidateQueries({
-            queryKey: ['programs', 'overview']
+            queryKey
         });
 
         // Set cooldown period

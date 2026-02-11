@@ -1,15 +1,12 @@
-import React from 'react';
-import { Card } from '@mui/material';
+import { Card, Typography } from '@mui/material';
 
 const GuestMainView = () => {
     return (
         <Card className="mt-0">
-            <Card.Header as="h5">
-                <Card.Title>Welcome to Taiger!</Card.Title>
-            </Card.Header>
-            <Card.Body>
+            <Typography variant="h5">Welcome to Taiger!</Typography>
+            <Typography>
                 I hope you will enjoy the journey in the following months.
-            </Card.Body>
+            </Typography>
         </Card>
     );
 };
