@@ -953,38 +953,45 @@ const LeadPage = () => {
                                                     gap: 1
                                                 }}
                                             >
-                                                {lead.deals.map((deal, idx) => {
-                                                    const id = getDealId(deal);
-                                                    const isUpdating =
-                                                        updateStatusMutation.isPending &&
-                                                        updateStatusMutation
-                                                            .variables?.id ===
-                                                            id;
-                                                    const onEditDeal = (d) => {
-                                                        d.leadFullName =
-                                                            lead?.fullName;
-                                                        d.salesLabel =
-                                                            lead?.salesRep?.label;
-                                                        handleEditDeal(d);
-                                                    };
-                                                    return (
-                                                        <Box key={id || idx}>
-                                                            <DealItem
-                                                                deal={deal}
-                                                                isUpdating={
-                                                                    isUpdating
-                                                                }
-                                                                onEditDeal={
-                                                                    onEditDeal
-                                                                }
-                                                                onOpenStatusMenu={
-                                                                    openStatusMenu
-                                                                }
-                                                                t={t}
-                                                            />
-                                                        </Box>
-                                                    );
-                                                })}
+                                                {lead.deals.map(
+                                                    (deal, idx: number) => {
+                                                        const id =
+                                                            getDealId(deal);
+                                                        const isUpdating =
+                                                            updateStatusMutation.isPending &&
+                                                            updateStatusMutation
+                                                                .variables
+                                                                ?.id === id;
+                                                        const onEditDeal = (
+                                                            d
+                                                        ) => {
+                                                            d.leadFullName =
+                                                                lead?.fullName;
+                                                            d.salesLabel =
+                                                                lead?.salesRep?.label;
+                                                            handleEditDeal(d);
+                                                        };
+                                                        return (
+                                                            <Box
+                                                                key={id || idx}
+                                                            >
+                                                                <DealItem
+                                                                    deal={deal}
+                                                                    isUpdating={
+                                                                        isUpdating
+                                                                    }
+                                                                    onEditDeal={
+                                                                        onEditDeal
+                                                                    }
+                                                                    onOpenStatusMenu={
+                                                                        openStatusMenu
+                                                                    }
+                                                                    t={t}
+                                                                />
+                                                            </Box>
+                                                        );
+                                                    }
+                                                )}
                                             </Box>
                                         </Box>
                                     </Grid>

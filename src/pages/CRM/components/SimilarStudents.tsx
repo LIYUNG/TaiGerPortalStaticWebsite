@@ -42,9 +42,17 @@ export interface SimilarStudentCardStudent {
     _id: string | number;
     firstname?: string;
     lastname?: string;
+    academic_background?: {
+        university?: {
+            My_GPA_Uni?: string;
+            attended_university?: string;
+            attended_university_program?: string;
+        };
+    };
     applications?: SimilarStudentApplication[];
     application_preference?: {
         target_degree?: string;
+        target_application_field?: string;
         expected_application_date?: string;
         expected_application_semester?: string;
     };

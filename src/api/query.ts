@@ -1,3 +1,4 @@
+import { UseQueryOptions } from '@tanstack/react-query';
 import {
     getAdmissions,
     getAdmissionsOverview,
@@ -75,7 +76,7 @@ export const getMessagThreadQuery = (threadId: string) => ({
     cacheTime: 60 * 1000 // 1 minutes
 });
 
-export const getActiveThreadsQuery = (queryString: QueryString) => ({
+export const getActiveThreadsQuery = (queryString: QueryString): UseQueryOptions => ({
     queryKey: ['active-threads', queryString],
     queryFn: () => getActiveThreads(queryString),
     staleTime: 1000 * 60 * 5, // 5 minutes
