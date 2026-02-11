@@ -16,6 +16,7 @@ import { SnackBarProvider } from '@contexts/use-snack-bar';
 import { CustomThemeProvider } from '@components/ThemeProvider';
 import { renderWithProviders, createTestQueryClient } from './test/test-utils';
 import Settings from '@pages/Settings/index';
+import Survey from '@pages/Survey/index';
 
 vi.mock('@components/AuthProvider', () => ({
     useAuth: () => ({
@@ -466,10 +467,35 @@ describe('Page smoke tests – all pages render without crashing', () => {
     });
 
     test('Survey page renders', async () => {
-        const Survey = lazy(() => import('@pages/Survey/index'));
-        renderPageRoute(
-            { path: '/survey', element: wrapWithSuspense(Survey) },
-            '/survey'
+        const mockLoaderData = {
+            data: {
+                data: {
+                    academic_background: {},
+                    application_preference: {}
+                },
+                survey_link: ''
+            }
+        };
+        const routes: RouteObject[] = [
+            {
+                path: '/survey',
+                loader: () => mockLoaderData,
+                element: <Survey />
+            }
+        ];
+        const router = createMemoryRouter(routes, {
+            initialEntries: ['/survey'],
+            future: routerFutureFlags
+        });
+        const queryClient = createTestQueryClient();
+        render(
+            <CustomThemeProvider>
+                <QueryClientProvider client={queryClient}>
+                    <SnackBarProvider>
+                        <RouterProvider router={router} />
+                    </SnackBarProvider>
+                </QueryClientProvider>
+            </CustomThemeProvider>
         );
         await waitFor(() => {
             expect(document.body.textContent).toBeDefined();
