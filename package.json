@@ -84,6 +84,9 @@
         "test:ci": "vitest run",
         "typecheck": "tsc --noEmit",
         "test:coverage": "vitest run --coverage",
+        "test:coverage:html": "vitest run --coverage --reporter=html",
+        "test:coverage:json": "vitest run --coverage --reporter=json --outputFile=test-results.json",
+        "preview:test": "vite preview --outDir html",
         "prebuild": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
         "prepare": "husky",
         "pre-commit": "lint-staged"
@@ -117,6 +120,8 @@
         "@types/react-dom": "^18.2.0",
         "@types/react-linkify": "^1.0.4",
         "@vitejs/plugin-react": "^4.2.1",
+        "@vitest/coverage-v8": "^4.0.18",
+        "@vitest/ui": "^4.0.18",
         "eslint": "^9.39.1",
         "eslint-plugin-react-hooks": "^7.0.1",
         "eslint-plugin-react-refresh": "^0.4.24",
