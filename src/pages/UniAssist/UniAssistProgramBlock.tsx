@@ -37,7 +37,7 @@ import {
 } from '@api';
 import { useMutation } from '@tanstack/react-query';
 import { queryClient } from '@api/client';
-import { useSnackBar } from '../../contexts/use-snack-bar';
+import { useSnackBar } from '@contexts/use-snack-bar';
 import type { Application, IStudentResponse } from '@api/types';
 
 export interface IconStatusProps {

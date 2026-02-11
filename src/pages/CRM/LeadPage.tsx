@@ -45,19 +45,19 @@ import { appConfig } from '../../config';
 
 import Loading from '@components/Loading/Loading';
 import { useAuth } from '@components/AuthProvider';
-import CreateUserFromLeadModal from '@components/CreateUserFromLeadModal';
-import DealModal from '@components/DealModal';
-import EditableCard from '@components/EditableCard';
-import { GenericCardContent } from '@components/GenericCard';
+import CreateUserFromLeadModal from '@pages/CRM/components/CreateUserFromLeadModal';
+import DealModal from '@pages/CRM/components/DealModal';
+import EditableCard from '@pages/CRM/components/EditableCard';
+import { GenericCardContent } from '@pages/CRM/components/GenericCard';
 import {
     getStudentCardConfigurations,
     getLeadCardConfigurations
-} from '@components/CardConfigurations';
-import DealItem from '@components/DealItem';
-import SimilarStudents from '@components/SimilarStudents';
-import StatusMenu from '@components/StatusMenu';
-import { getDealId, isTerminalStatus } from '@components/statusUtils';
-import { sanitizeMeetingTitle } from '@components/meetingUtils';
+} from '@pages/CRM/components/CardConfigurations';
+import DealItem from '@pages/CRM/components/DealItem';
+import SimilarStudents from '@pages/CRM/components/SimilarStudents';
+import StatusMenu from '@pages/CRM/components/StatusMenu';
+import { getDealId, isTerminalStatus } from '@pages/CRM/components/statusUtils';
+import { sanitizeMeetingTitle } from '@pages/CRM/components/meetingUtils';
 import { flattenObject } from '../Utils/util_functions';
 import { TabTitle } from '../Utils/TabTitle';
 

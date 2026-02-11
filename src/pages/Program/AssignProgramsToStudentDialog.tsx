@@ -22,7 +22,7 @@ import queryString from 'query-string';
 
 import { createApplicationV2 } from '@api';
 import { getStudentsV3Query } from '@api/query';
-import { useSnackBar } from '../../contexts/use-snack-bar';
+import { useSnackBar } from '@contexts/use-snack-bar';
 import { useAuth } from '@components/AuthProvider';
 import { is_TaiGer_Editor, is_TaiGer_Agent } from '@taiger-common/core';
 

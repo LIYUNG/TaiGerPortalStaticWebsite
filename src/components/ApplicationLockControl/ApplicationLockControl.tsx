@@ -26,7 +26,7 @@ import {
     type UserProps
 } from '@taiger-common/core';
 import { useAuth } from '../AuthProvider';
-import { useSnackBar } from '../../contexts/use-snack-bar';
+import { useSnackBar } from '@contexts/use-snack-bar';
 import DEMO from '@store/constant';
 import { type IApplication, type IProgram } from '@taiger-common/model';
 import { ApplicationId, ProgramId } from '@api/types';

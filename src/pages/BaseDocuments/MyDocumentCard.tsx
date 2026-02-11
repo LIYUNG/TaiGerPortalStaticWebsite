@@ -60,7 +60,7 @@ import {
     uploadforstudentV2
 } from '@api';
 import { queryClient } from '@api/client';
-import { useSnackBar } from '../../contexts/use-snack-bar';
+import { useSnackBar } from '@contexts/use-snack-bar';
 import i18next from 'i18next';
 
 const StatusIcon = ({ st }) => {

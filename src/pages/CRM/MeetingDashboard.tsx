@@ -50,9 +50,9 @@ import { appConfig } from '../../config';
 
 import { getCRMMeetingsQuery, getCRMLeadsQuery } from '@api/query';
 import { updateCRMMeeting, instantInviteTA } from '@api';
-import { useSnackBar } from '../../contexts/use-snack-bar';
+import { useSnackBar } from '@contexts/use-snack-bar';
 
-import { sanitizeMeetingTitle } from '@components/meetingUtils';
+import { sanitizeMeetingTitle } from '@pages/CRM/components/meetingUtils';
 
 const MeetingPage = () => {
     const { t } = useTranslation();

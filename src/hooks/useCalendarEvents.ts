@@ -15,7 +15,7 @@ import {
 } from '@taiger-common/core';
 import { useAuth } from '@components/AuthProvider';
 import { getUTCWithDST, time_slots } from '@utils/contants';
-import { useSnackBar } from '../contexts/use-snack-bar';
+import { useSnackBar } from '@contexts/use-snack-bar';
 import { queryClient } from '@api/client';
 
 export interface UseCalendarEventsProps {

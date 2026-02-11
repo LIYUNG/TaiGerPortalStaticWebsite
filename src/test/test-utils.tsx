@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import { render, RenderOptions } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { SnackBarProvider } from '../contexts/use-snack-bar';
+import { SnackBarProvider } from '@contexts/use-snack-bar';
 import { CustomThemeProvider } from '@components/ThemeProvider';
 
 /** Default mock user for useAuth - avoids redirects and permission errors in smoke tests */

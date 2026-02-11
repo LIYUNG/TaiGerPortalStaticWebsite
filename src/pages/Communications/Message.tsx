@@ -41,7 +41,7 @@ import { BASE_URL } from '@api/request';
 import FilePreview from '@components/FilePreview/FilePreview';
 import { appConfig } from '../../config';
 import { useMutation } from '@tanstack/react-query';
-import { useSnackBar } from '../../contexts/use-snack-bar';
+import { useSnackBar } from '@contexts/use-snack-bar';
 import { queryClient } from '@api/client';
 import type { ThreadMessage } from '@components/Message/MessageCard';
 

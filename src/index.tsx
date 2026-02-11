@@ -9,7 +9,7 @@ import './index.css';
 import i18n from './i18n';
 import { CustomThemeProvider } from '@components/ThemeProvider';
 import { queryClient } from '@api/client';
-import { SnackBarProvider } from './contexts/use-snack-bar';
+import { SnackBarProvider } from '@contexts/use-snack-bar';
 
 const storedLanguage = localStorage.getItem('locale') || 'en';
 i18n.changeLanguage(storedLanguage);

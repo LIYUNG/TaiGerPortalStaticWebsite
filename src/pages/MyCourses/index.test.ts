@@ -9,7 +9,7 @@ import { getMycourses } from '@api';
 // import { MemoryRouter, useParams } from 'react-router-dom';
 
 import { exampleCourse } from '../../test/testingCourseData';
-// import { SnackBarProvider } from '../../contexts/use-snack-bar';
+// import { SnackBarProvider } from '@contexts/use-snack-bar';
 
 vi.mock('axios');
 vi.mock('@api');

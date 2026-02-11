@@ -8,7 +8,7 @@ import { createProgramV2 } from '@api';
 import DEMO from '@store/constant';
 import { useMutation } from '@tanstack/react-query';
 import { queryClient } from '@api/client';
-import { useSnackBar } from '../../contexts/use-snack-bar';
+import { useSnackBar } from '@contexts/use-snack-bar';
 
 const ProgramCreatePage = () => {
     const { distinctSchools } = useLoaderData();

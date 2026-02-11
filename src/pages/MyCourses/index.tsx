@@ -52,7 +52,7 @@ import { TopBar } from '@components/TopBar/TopBar';
 import { a11yProps, CustomTabPanel } from '@components/Tabs';
 import { ProgramRequirementsTableWrapper } from './ProgramRequirementsTableWrapper';
 import i18next from 'i18next';
-import { useSnackBar } from '../../contexts/use-snack-bar';
+import { useSnackBar } from '@contexts/use-snack-bar';
 
 export default function MyCourses() {
     const { student_id } = useParams();

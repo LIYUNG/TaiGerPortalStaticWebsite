@@ -53,7 +53,7 @@ import {
 } from '@utils/contants';
 import { appConfig } from '../../config';
 import { ConfirmationModal } from '../Modal/ConfirmationModal';
-import { useSnackBar } from '../../contexts/use-snack-bar';
+import { useSnackBar } from '@contexts/use-snack-bar';
 import { type IApplication } from '@taiger-common/model';
 
 interface ProgramLinkProps {

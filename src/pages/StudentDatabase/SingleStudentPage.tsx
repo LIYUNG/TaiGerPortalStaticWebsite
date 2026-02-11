@@ -65,7 +65,7 @@ import DEMO from '@store/constant';
 import PortalCredentialPage from '../PortalCredentialPage';
 import { appConfig } from '../../config';
 import { useAuth } from '@components/AuthProvider';
-import { useSnackBar } from '../../contexts/use-snack-bar';
+import { useSnackBar } from '@contexts/use-snack-bar';
 import { CustomTabPanel, a11yProps } from '@components/Tabs';
 import { SurveyProvider } from '@components/SurveyProvider';
 import ProgramDetailsComparisonTable from '../Program/ProgramDetailsComparisonTable';

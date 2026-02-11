@@ -34,7 +34,7 @@ import { stringAvatar, convertDate } from '@utils/contants';
 import { useAuth } from '../AuthProvider';
 import Loading from '../Loading/Loading';
 import { IgnoreMessageThread } from '@api/index';
-import { useSnackBar } from '../../contexts/use-snack-bar';
+import { useSnackBar } from '@contexts/use-snack-bar';
 
 export interface MessageUser {
     _id: string;

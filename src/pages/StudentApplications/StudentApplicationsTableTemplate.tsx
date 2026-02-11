@@ -62,7 +62,7 @@ import {
 } from '@utils/contants';
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
-import { useSnackBar } from '../../contexts/use-snack-bar';
+import { useSnackBar } from '@contexts/use-snack-bar';
 import {
     updateStudentApplications,
     deleteApplicationStudentV2,

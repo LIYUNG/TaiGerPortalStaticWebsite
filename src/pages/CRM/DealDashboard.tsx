@@ -21,12 +21,11 @@ import {
     FiberManualRecord as StatusIcon,
     Edit as EditIcon
 } from '@mui/icons-material';
-import StatusMenu from '@components/StatusMenu';
 import {
     isTerminalStatus,
     getDealId,
     getStatusColor
-} from '@components/statusUtils';
+} from '@pages/CRM/components/statusUtils';
 import { is_TaiGer_role } from '@taiger-common/core';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
@@ -35,7 +34,8 @@ import { appConfig } from '../../config';
 
 import { getCRMDealsQuery } from '@api/query';
 import { updateCRMDeal } from '@api';
-import DealModal from '@components/DealModal';
+import DealModal from '@pages/CRM/components/DealModal';
+import StatusMenu from '@pages/CRM/components/StatusMenu';
 
 // Simple currency formatter (defaults to TWD, no fraction digits)
 const currencyFormatter = (value, options = {}) => {
