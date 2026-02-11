@@ -46,7 +46,7 @@ import { is_TaiGer_role } from '@taiger-common/core';
 import { appConfig } from '../../config';
 import { getCRMMeetingQuery, getCRMLeadsQuery } from '@api/query';
 import { updateCRMMeeting } from '@api';
-import { sanitizeMeetingTitle } from '@components/meetingUtils';
+import { sanitizeMeetingTitle } from '@pages/CRM/components/meetingUtils';
 
 const MeetingPage = () => {
     const { meetingId } = useParams();

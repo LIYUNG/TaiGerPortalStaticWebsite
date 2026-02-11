@@ -16,15 +16,14 @@ import {
     FormGroup
 } from '@mui/material';
 import { useState } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import queryString from 'query-string';
 
 import { createApplicationV2 } from '@api';
-import { getStudentsV3Query } from '@api/query';
-import { useSnackBar } from '../../contexts/use-snack-bar';
+import { useSnackBar } from '@contexts/use-snack-bar';
 import { useAuth } from '@components/AuthProvider';
 import { is_TaiGer_Editor, is_TaiGer_Agent } from '@taiger-common/core';
+import { useStudentsV3 } from '@hooks/useStudentsV3';
 
 export const AssignProgramsToStudentDialog = ({
     open,
@@ -52,10 +51,7 @@ export const AssignProgramsToStudentDialog = ({
         isLoading,
         isError: isQueryError,
         error
-    } = useQuery({
-        ...getStudentsV3Query(queryString.stringify(currentFilter)),
-        enabled: open // Only fetch data when the modal is open
-    });
+    } = useStudentsV3(currentFilter, { enabled: open });
 
     // Refetch data when filter changes
     const handleFilterToggle = (event) => {
@@ -95,10 +91,7 @@ export const AssignProgramsToStudentDialog = ({
         mutate({ studentId, program_ids });
     };
 
-    let students;
-    if (data) {
-        students = student ? [student] : data?.data;
-    }
+    const students = data ? (student ? [student] : data) : [];
 
     return (
         <Dialog fullWidth maxWidth="sm" onClose={onClose} open={open}>

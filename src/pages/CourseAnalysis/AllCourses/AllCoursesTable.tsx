@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import {
     MaterialReactTable,
-    // MRT_TopToolbar,
     useMaterialReactTable
 } from 'material-react-table';
 import { useTranslation } from 'react-i18next';

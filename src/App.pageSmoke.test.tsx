@@ -12,7 +12,7 @@ import {
     type RouteObject
 } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { SnackBarProvider } from './contexts/use-snack-bar';
+import { SnackBarProvider } from '@contexts/use-snack-bar';
 import { CustomThemeProvider } from '@components/ThemeProvider';
 import { renderWithProviders, createTestQueryClient } from './test/test-utils';
 import Settings from '@pages/Settings/index';

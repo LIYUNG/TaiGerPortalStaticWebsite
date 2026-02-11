@@ -17,23 +17,15 @@ import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
 import { BreadcrumbsNavigation } from '@components/BreadcrumbsNavigation/BreadcrumbsNavigation';
 import Loading from '@components/Loading/Loading';
-import {
-    getMyStudentsApplicationsV2Query,
-    getStudentsV3Query
-} from '@api/query';
+import { getMyStudentsApplicationsV2Query } from '@api/query';
+import { useStudentsV3 } from '@hooks/useStudentsV3';
 
 const ApplicantsOverview = () => {
     const { user } = useAuth();
 
     const role = is_TaiGer_Editor(user) ? 'editors' : 'agents';
-    const {
-        data: { data: fetchedMyStudents } = { data: [] },
-        isLoading: isLoadingMyStudents
-    } = useQuery(
-        getStudentsV3Query(
-            queryString.stringify({ [role]: user._id, archiv: false })
-        )
-    );
+    const { data: fetchedMyStudents, isLoading: isLoadingMyStudents } =
+        useStudentsV3({ [role]: user._id, archiv: false });
 
     const { data: myStudentsApplications, isLoading } = useQuery(
         getMyStudentsApplicationsV2Query({

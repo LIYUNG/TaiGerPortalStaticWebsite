@@ -1,7 +1,6 @@
 import React from 'react';
 import { appConfig } from './config';
 import {
-    getApplicationStudentLoader,
     getMyAcademicBackgroundLoader,
     getStudentsLoader,
     getAllComplaintTicketsLoader,
@@ -525,13 +524,11 @@ const routes = [
             {
                 path: ':student_id',
                 errorElement: <DefaultErrorPage />,
-                loader: getApplicationStudentLoader,
                 element: <StudentApplications />
             },
             {
                 path: 'edit/:student_id',
                 errorElement: <DefaultErrorPage />,
-                loader: getApplicationStudentLoader,
                 element: <StudentApplicationsAssignPage />
             }
         ]

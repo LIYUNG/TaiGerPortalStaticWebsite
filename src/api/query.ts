@@ -1,3 +1,4 @@
+import { UseQueryOptions } from '@tanstack/react-query';
 import {
     getAdmissions,
     getAdmissionsOverview,
@@ -58,7 +59,7 @@ import {
     getEvents,
     getBookedEvents
 } from '.';
-import type { QueryString, StudentId, UserId } from './types';
+import type { DocumentThreadResponse, IStudentResponse, QueryString, StudentId, UserId } from './types';
 
 export const getMessagThreadQuery = (threadId: string) => ({
     queryKey: ['MessageThread', threadId],
@@ -75,11 +76,11 @@ export const getMessagThreadQuery = (threadId: string) => ({
     cacheTime: 60 * 1000 // 1 minutes
 });
 
-export const getActiveThreadsQuery = (queryString: QueryString) => ({
+export const getActiveThreadsQuery = (queryString: QueryString): UseQueryOptions => ({
     queryKey: ['active-threads', queryString],
     queryFn: () => getActiveThreads(queryString),
     staleTime: 1000 * 60 * 5, // 5 minutes
-    select: (data: { data?: unknown } | undefined) => data?.data || []
+    select: (data: unknown) => (data as { data?: DocumentThreadResponse[] })?.data || []
 });
 
 export const getProgramQuery = ({ programId }: { programId: string }) => ({
@@ -176,10 +177,11 @@ export const getUsersOverviewQuery = () => ({
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
 
-export const getActiveStudentsQuery = (queryString: QueryString) => ({
+export const getActiveStudentsQuery = (queryString: QueryString): UseQueryOptions => ({
     queryKey: ['students/active', queryString],
     queryFn: () => getActiveStudents(queryString),
-    staleTime: 1000 * 60 * 1 // 1 minutes
+    staleTime: 1000 * 60 * 1, // 1 minutes
+    select: (data: unknown) => (data as { data?: IStudentResponse[] })?.data || []
 });
 
 export const getStudentsV3Query = (queryString: QueryString) => ({
@@ -293,7 +295,8 @@ export const getApplicationStudentV2Query = ({
 }) => ({
     queryKey: ['applications/student', studentId],
     queryFn: () => getApplicationStudentV2(studentId),
-    staleTime: 1000 * 60 * 5 // 5 minutes
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    select: (data: unknown) => data?.data || null
 });
 
 export const getStudentAndDocLinksQuery = ({

@@ -62,12 +62,13 @@ import {
 } from '@utils/contants';
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
-import { useSnackBar } from '../../contexts/use-snack-bar';
+import { useSnackBar } from '@contexts/use-snack-bar';
 import {
     updateStudentApplications,
     deleteApplicationStudentV2,
     updateStudentApplication
 } from '@api';
+import { queryClient } from '@api/client';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { appConfig } from '../../config';
@@ -77,35 +78,53 @@ import { useNavigate } from 'react-router-dom';
 import { ImportStudentProgramsCard } from './ImportStudentProgramsCard';
 import { StudentPreferenceCard } from './StudentPreferenceCard';
 import { ConfirmationModal } from '@components/Modal/ConfirmationModal';
-import type { Application } from '@api/types';
 
 export interface StudentApplicationsTableTemplateProps {
     student: {
+        _id?: unknown;
+        firstname?: string;
+        lastname?: string;
         applications?: Application[];
         applying_program_count?: number;
     };
 }
+
+type StudentDraft = {
+    applications?: Application[];
+    applying_program_count?: number | string;
+};
 
 const StudentApplicationsTableTemplate = (props: StudentApplicationsTableTemplateProps) => {
     const { user } = useAuth();
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
     const { t } = useTranslation();
     const navigate = useNavigate();
+
+    const [draft, setDraft] = useState<StudentDraft | null>(null);
+    const studentToShow =
+        draft == null
+            ? props.student
+            : {
+                  ...props.student,
+                  applications: draft.applications ?? props.student.applications,
+                  applying_program_count:
+                      draft.applying_program_count ??
+                      props.student.applying_program_count
+              };
+
     const [
         studentApplicationsTableTemplateState,
         setStudentApplicationsTableTemplateState
     ] = useState({
         error: '',
-        student: props.student,
-        applications: props.student.applications,
         isLoaded: true,
         program_ids: [],
-        student_id: null,
-        application_id: null,
+        student_id: null as string | null,
+        application_id: null as string | null,
+        application_year: null as number | null,
         success: false,
-        application_status_changed: false,
-        applying_program_count: props.student.applying_program_count,
         modalDeleteApplication: false,
+        modalEditApplication: false,
         showProgramCorrectnessReminderModal: true,
         res_status: 0,
         res_modal_status: 0,
@@ -117,9 +136,8 @@ const StudentApplicationsTableTemplate = (props: StudentApplicationsTableTemplat
     ) => {
         e.preventDefault();
         const applying_program_count = e.target.value;
-        setStudentApplicationsTableTemplateState((prevState) => ({
-            ...prevState,
-            application_status_changed: true,
+        setDraft((prev) => ({
+            ...prev,
             applying_program_count
         }));
     };
@@ -129,13 +147,14 @@ const StudentApplicationsTableTemplate = (props: StudentApplicationsTableTemplat
         application_idx: number
     ) => {
         e.preventDefault();
-        const applications_temp = [
-            ...studentApplicationsTableTemplateState.student.applications
-        ];
-        applications_temp[application_idx][e.target.name] = e.target.value;
-        setStudentApplicationsTableTemplateState((prevState) => ({
-            ...prevState,
-            application_status_changed: true,
+        const base = studentToShow.applications ?? [];
+        const applications_temp = [...base];
+        applications_temp[application_idx] = {
+            ...applications_temp[application_idx],
+            [e.target.name]: e.target.value
+        };
+        setDraft((prev) => ({
+            ...prev,
             applications: applications_temp
         }));
     };
@@ -147,21 +166,22 @@ const StudentApplicationsTableTemplate = (props: StudentApplicationsTableTemplat
         e.preventDefault();
         setStudentApplicationsTableTemplateState((prevState) => ({
             ...prevState,
-            application_id: application_id,
+            application_id,
             [e.target.name]: e.target.value
         }));
     };
 
     const handleWithdraw = (e, application_idx, programWithdraw = '-') => {
         e.preventDefault();
-        const applications_temp = [
-            ...studentApplicationsTableTemplateState.student.applications
-        ];
-        applications_temp[application_idx].closed = programWithdraw;
-        setStudentApplicationsTableTemplateState((prevState) => ({
-            ...prevState,
-            applications: applications_temp,
-            application_status_changed: true
+        const base = studentToShow.applications ?? [];
+        const applications_temp = [...base];
+        applications_temp[application_idx] = {
+            ...applications_temp[application_idx],
+            closed: programWithdraw
+        };
+        setDraft((prev) => ({
+            ...prev,
+            applications: applications_temp
         }));
     };
 
@@ -186,15 +206,13 @@ const StudentApplicationsTableTemplate = (props: StudentApplicationsTableTemplat
         student_id: string
     ) => {
         e.preventDefault();
-        setStudentApplicationsTableTemplateState(
-            (prevState: StudentApplicationsTableTemplateState) => ({
-                ...prevState,
-                student_id,
-                application_id,
-                application_year,
-                modalEditApplication: true
-            })
-        );
+        setStudentApplicationsTableTemplateState((prevState) => ({
+            ...prevState,
+            student_id,
+            application_id,
+            application_year,
+            modalEditApplication: true
+        }));
     };
     const onHideModalEditApplication = () => {
         setStudentApplicationsTableTemplateState((prevState) => ({
@@ -209,32 +227,21 @@ const StudentApplicationsTableTemplate = (props: StudentApplicationsTableTemplat
                 studentApplicationsTableTemplateState.application_year
         };
         updateStudentApplication(
-            studentApplicationsTableTemplateState.student._id,
-            studentApplicationsTableTemplateState.application_id,
+            studentToShow._id,
+            studentApplicationsTableTemplateState.application_id!,
             payload
         ).then((resp) => {
             const { success, data } = resp.data;
             if (success) {
-                const applications_temp = [
-                    ...studentApplicationsTableTemplateState.student
-                        .applications
-                ];
-                applications_temp[
-                    applications_temp.findIndex(
-                        (app: Application) =>
-                            app._id ===
-                            studentApplicationsTableTemplateState.application_id
-                    )
-                ].application_year = data.application_year;
+                setDraft(null);
+                queryClient.invalidateQueries({
+                    queryKey: ['applications/student', String(studentToShow._id)]
+                });
                 setStudentApplicationsTableTemplateState((prevState) => ({
                     ...prevState,
                     isLoaded: true,
-                    success: success,
-                    modalEditApplication: false,
-                    student: {
-                        ...prevState.student,
-                        applications: applications_temp
-                    }
+                    success,
+                    modalEditApplication: false
                 }));
             } else {
                 const { message } = resp.data;
@@ -262,41 +269,31 @@ const StudentApplicationsTableTemplate = (props: StudentApplicationsTableTemplat
             ...prevState,
             isLoaded: false
         }));
-        // TODO: test render update.
         deleteApplicationStudentV2(
-            studentApplicationsTableTemplateState.application_id
+            studentApplicationsTableTemplateState.application_id!
         ).then(
             (resp) => {
                 const { success } = resp.data;
                 const { status } = resp;
                 if (success) {
+                    setDraft(null);
+                    queryClient.invalidateQueries({
+                        queryKey: [
+                            'applications/student',
+                            String(studentToShow._id)
+                        ]
+                    });
                     setSeverity('success');
                     setMessage(
                         t('The application deleted successfully!', {
                             ns: 'common'
                         })
                     );
-                    const applications_temp = [
-                        ...studentApplicationsTableTemplateState.student
-                            .applications
-                    ];
-                    applications_temp.splice(
-                        applications_temp.findIndex(
-                            (app: Application) =>
-                                app._id ===
-                                studentApplicationsTableTemplateState.application_id
-                        ),
-                        1
-                    );
                     setOpenSnackbar(true);
                     setStudentApplicationsTableTemplateState((prevState) => ({
                         ...prevState,
                         isLoaded: true,
-                        student: {
-                            ...prevState.student,
-                            applications: applications_temp
-                        },
-                        success: success,
+                        success,
                         modalDeleteApplication: false,
                         res_modal_status: status
                     }));
@@ -332,19 +329,17 @@ const StudentApplicationsTableTemplate = (props: StudentApplicationsTableTemplat
         student_id: string
     ) => {
         e.preventDefault();
-        const applications_temp =
-            studentApplicationsTableTemplateState.student.applications?.map(
-                (application) => ({
-                    _id: application._id,
-                    programId: application.programId._id,
-                    decided: application.decided,
-                    closed: application.closed,
-                    admission: application.admission,
-                    finalEnrolment: application.finalEnrolment
-                })
-            );
-        const applying_program_count =
-            studentApplicationsTableTemplateState.applying_program_count;
+        const applications_temp = studentToShow.applications?.map(
+            (application) => ({
+                _id: application._id,
+                programId: application.programId._id,
+                decided: application.decided,
+                closed: application.closed,
+                admission: application.admission,
+                finalEnrolment: application.finalEnrolment
+            })
+        );
+        const applying_program_count = studentToShow.applying_program_count;
         setStudentApplicationsTableTemplateState((prevState) => ({
             ...prevState,
             isLoaded: false
@@ -355,9 +350,13 @@ const StudentApplicationsTableTemplate = (props: StudentApplicationsTableTemplat
             applying_program_count
         ).then(
             (resp) => {
-                const { data, success } = resp.data;
+                const { success } = resp.data;
                 const { status } = resp;
                 if (success) {
+                    setDraft(null);
+                    queryClient.invalidateQueries({
+                        queryKey: ['applications/student', student_id]
+                    });
                     setSeverity('success');
                     setMessage(
                         t('Applications status updated successfully!', {
@@ -368,9 +367,7 @@ const StudentApplicationsTableTemplate = (props: StudentApplicationsTableTemplat
                     setStudentApplicationsTableTemplateState((prevState) => ({
                         ...prevState,
                         isLoaded: true,
-                        student: data,
-                        success: success,
-                        application_status_changed: false,
+                        success,
                         res_modal_status: status
                     }));
                 } else {
@@ -402,7 +399,7 @@ const StudentApplicationsTableTemplate = (props: StudentApplicationsTableTemplat
 
     const onClickProgramAssignHandler = () => {
         navigate(
-            `/student-applications/edit/${studentApplicationsTableTemplateState.student._id.toString()}`
+            `/student-applications/edit/${studentToShow._id.toString()}`
         );
     };
 
@@ -428,11 +425,11 @@ const StudentApplicationsTableTemplate = (props: StudentApplicationsTableTemplat
         showProgramCorrectnessReminderModal
     } = studentApplicationsTableTemplateState;
 
-    if (!isLoaded && !studentApplicationsTableTemplateState.student) {
+    if (!isLoaded || !props.student) {
         return <Loading />;
     }
     TabTitle(
-        `Student ${studentApplicationsTableTemplateState.student.firstname} ${studentApplicationsTableTemplateState.student.lastname} || Applications Status`
+        `Student ${studentToShow.firstname} ${studentToShow.lastname} || Applications Status`
     );
     if (res_status >= 400) {
         return <ErrorPage res_status={res_status} />;
@@ -440,9 +437,8 @@ const StudentApplicationsTableTemplate = (props: StudentApplicationsTableTemplat
     let applying_university_info;
     const today = new Date();
     if (
-        studentApplicationsTableTemplateState.student.applications ===
-            undefined ||
-        studentApplicationsTableTemplateState.student.applications.length === 0
+        studentToShow.applications === undefined ||
+        studentToShow.applications.length === 0
     ) {
         applying_university_info = (
             <TableRow>
@@ -486,8 +482,7 @@ const StudentApplicationsTableTemplate = (props: StudentApplicationsTableTemplat
             </TableRow>
         );
     } else {
-        applying_university_info =
-            studentApplicationsTableTemplateState.student.applications.map(
+        applying_university_info = studentToShow.applications!.map(
                 (application, application_idx) => (
                     <TableRow key={application_idx}>
                         {!is_TaiGer_Student(user) ? (
@@ -499,8 +494,7 @@ const StudentApplicationsTableTemplate = (props: StudentApplicationsTableTemplat
                                             handleDelete(
                                                 e,
                                                 application._id,
-                                                studentApplicationsTableTemplateState
-                                                    .student._id
+                                                studentToShow._id
                                             )
                                         }
                                         variant="contained"
@@ -514,8 +508,7 @@ const StudentApplicationsTableTemplate = (props: StudentApplicationsTableTemplat
                                                 e,
                                                 application._id,
                                                 application.application_year,
-                                                studentApplicationsTableTemplateState
-                                                    .student._id
+                                                studentToShow._id
                                             )
                                         }
                                         variant="contained"
@@ -637,9 +630,7 @@ const StudentApplicationsTableTemplate = (props: StudentApplicationsTableTemplat
                                 {/* When all thread finished */}
                                 {isProgramSubmitted(application) ||
                                 (is_program_ml_rl_essay_ready(application) &&
-                                    isCVFinished(
-                                        studentApplicationsTableTemplateState.student
-                                    ) &&
+                                    isCVFinished(studentToShow) &&
                                     (!appConfig.vpdEnable ||
                                         is_the_uni_assist_vpd_uploaded(
                                             application
@@ -647,7 +638,12 @@ const StudentApplicationsTableTemplate = (props: StudentApplicationsTableTemplat
                                     <FormControl fullWidth>
                                         <Select
                                             disabled={
-                                                application.admission !== '-'
+                                                !(
+                                                    application.closed !== '-' &&
+                                                    application.closed !== 'X'
+                                                ) ||
+                                                (application.finalEnrolment ??
+                                                    false)
                                             }
                                             id="closed"
                                             labelId="closed"
@@ -671,9 +667,7 @@ const StudentApplicationsTableTemplate = (props: StudentApplicationsTableTemplat
                                 ) : (
                                     <OverlayButton
                                         text={`Please make sure ${
-                                            !isCVFinished(
-                                                studentApplicationsTableTemplateState.student
-                                            )
+                                            !isCVFinished(studentToShow)
                                                 ? 'CV '
                                                 : ''
                                         }${
@@ -894,30 +888,26 @@ const StudentApplicationsTableTemplate = (props: StudentApplicationsTableTemplat
             <Box>
                 <Grid container spacing={2} sx={{ mt: 0 }}>
                     <Grid item md={is_TaiGer_role(user) ? 6 : 12} xs={12}>
-                        <StudentPreferenceCard student={props.student} />
+                        <StudentPreferenceCard student={studentToShow} />
                     </Grid>
                     {is_TaiGer_role(user) ? (
                         <Grid item md={6} xs={12}>
                             <ImportStudentProgramsCard
-                                student={props.student}
+                                student={studentToShow}
                             />
                         </Grid>
                     ) : null}
                 </Grid>
             </Box>
             <>
-                {isProgramNotSelectedEnough([
-                    studentApplicationsTableTemplateState.student
-                ]) ? (
+                {isProgramNotSelectedEnough([studentToShow]) ? (
                     <Card>
                         {props.student.firstname} {props.student.lastname} did
                         not choose enough programs.
                     </Card>
                 ) : null}
                 {is_TaiGer_Admin(user) &&
-                is_num_Program_Not_specified(
-                    studentApplicationsTableTemplateState.student
-                ) ? (
+                is_num_Program_Not_specified(studentToShow) ? (
                     <Card>
                         The number of student&apos;s applications is not
                         specified! Please determine the number of the programs
@@ -941,7 +931,7 @@ const StudentApplicationsTableTemplate = (props: StudentApplicationsTableTemplat
                                     }
                                     size="small"
                                     value={
-                                        studentApplicationsTableTemplateState.applying_program_count
+                                        studentToShow.applying_program_count
                                     }
                                 >
                                     <MenuItem value="0">Please Select</MenuItem>
@@ -962,8 +952,7 @@ const StudentApplicationsTableTemplate = (props: StudentApplicationsTableTemplat
                         <Grid item xs={2}>
                             <Typography variant="h6">
                                 {
-                                    studentApplicationsTableTemplateState
-                                        .student.applying_program_count
+                                    studentToShow.applying_program_count
                                 }
                             </Typography>
                         </Grid>
@@ -1033,15 +1022,13 @@ const StudentApplicationsTableTemplate = (props: StudentApplicationsTableTemplat
                         <Button
                             color="primary"
                             disabled={
-                                !studentApplicationsTableTemplateState.application_status_changed ||
-                                !studentApplicationsTableTemplateState.isLoaded
+                                !draft || !studentApplicationsTableTemplateState.isLoaded
                             }
                             fullWidth
                             onClick={(e) =>
                                 handleSubmit(
                                     e,
-                                    studentApplicationsTableTemplateState
-                                        .student._id
+                                    String(studentToShow._id)
                                 )
                             }
                             sx={{ mt: 2 }}

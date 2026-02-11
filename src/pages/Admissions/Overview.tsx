@@ -4,12 +4,9 @@ import { useTheme } from '@mui/material/styles';
 import { BarChart, PieChart } from '@mui/x-charts';
 import { Chart } from 'react-google-charts';
 import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
-import queryString from 'query-string';
-
 import { MuiDataGrid } from '@components/MuiDataGrid';
 import Loading from '@components/Loading/Loading';
-import { getApplicationsQuery } from '@api/query';
+import { useApplications } from '@hooks/useApplications';
 import cityCoord from './cityCoord.json';
 
 const toUpperSafe = (value) => value?.toString().toUpperCase() || '';
@@ -143,29 +140,26 @@ const Overview = () => {
     const [geoView, setGeoView] = useState('map');
     const [mainView, setMainView] = useState('student');
 
-    const handleGeoViewChange = (event, newValue) => {
+    const handleGeoViewChange = (_event, newValue: string) => {
         setGeoView(newValue);
     };
 
-    const handleMainViewChange = (event, newValue) => {
+    const handleMainViewChange = (_event, newValue: string) => {
         setMainView(newValue);
     };
 
     // Fetch all applications directly
-    const { data, isLoading } = useQuery(
-        getApplicationsQuery(queryString.stringify({ decided: 'O' }))
-    );
+    const { data: applicationsRaw, isLoading } = useApplications({
+        decided: 'O'
+    });
 
     // get final decision applications and poplate program details
-    const { data: finalData, isLoading: isFinalLoading } = useQuery(
-        getApplicationsQuery(
-            queryString.stringify({ finalEnrolment: true, populate: true })
-        )
-    );
+    const { data: finalApplicationsRaw, isLoading: isFinalLoading } =
+        useApplications({ finalEnrolment: true, populate: true });
 
     // Normalize final applications (populated program details)
     const finalApplications = useMemo(() => {
-        const items = finalData?.data || finalData?.result || [];
+        const items = finalApplicationsRaw || [];
         return (Array.isArray(items) ? items : []).map((a) => {
             const prog =
                 a && a.programId && typeof a.programId === 'object'
@@ -183,11 +177,11 @@ const Overview = () => {
                 finalEnrolment: true
             };
         });
-    }, [finalData]);
+    }, [finalApplicationsRaw]);
 
     // Normalize applications to the structure used by aggregations below
     const applications = useMemo(() => {
-        const items = data?.data || data?.result || [];
+        const items = applicationsRaw || [];
         return (Array.isArray(items) ? items : []).map((a) => ({
             id: a?._id,
             application_year: a?.application_year || 'Unknown',
@@ -202,7 +196,7 @@ const Overview = () => {
             degree: a?.degree || '',
             country: toUpperSafe(a?.country)
         }));
-    }, [data]);
+    }, [applicationsRaw]);
 
     // Overall KPIs
     const kpis = useMemo(() => {
@@ -257,7 +251,7 @@ const Overview = () => {
 
     // Student-level analysis: group by studentId and year
     const byStudentRows = useMemo(() => {
-        const items = data?.data || data?.result || [];
+        const items = applicationsRaw || [];
         const studentMap = new Map();
 
         for (const app of Array.isArray(items) ? items : []) {
@@ -333,7 +327,7 @@ const Overview = () => {
                 ...r,
                 acceptanceRate: formatAcceptanceRate(r.offer, r.rejected)
             }));
-    }, [data]);
+    }, [applicationsRaw]);
 
     // Chart dataset for students by degree (stacked)
     const byStudentChartDataset = useMemo(() => byStudentRows, [byStudentRows]);

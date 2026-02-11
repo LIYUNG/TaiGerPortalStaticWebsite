@@ -35,23 +35,17 @@ import AssignInterviewTrainerRow from '../MainViewTab/Common/AssignInterviewTrai
 import {
     getMyStudentsThreadsQuery,
     getTasksOverviewQuery,
-    getIsManagerQuery,
-    getStudentsV3Query
+    getIsManagerQuery
 } from '@api/query';
+import { useStudentsV3 } from '@hooks/useStudentsV3';
 import Loading from '@components/Loading/Loading';
 
 const EditorMainView = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
 
-    const {
-        data: { data: fetchedMyStudents } = { data: [] },
-        isLoading: isLoadingMyStudents
-    } = useQuery(
-        getStudentsV3Query(
-            queryString.stringify({ editors: user._id, archiv: false })
-        )
-    );
+    const { data: fetchedMyStudents, isLoading: isLoadingMyStudents } =
+        useStudentsV3({ editors: user._id, archiv: false });
     const { data: myStudentsThreads, isLoading: isLoadingThreads } = useQuery(
         getMyStudentsThreadsQuery({
             userId: user._id,

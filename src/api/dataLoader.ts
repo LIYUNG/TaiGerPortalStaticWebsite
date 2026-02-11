@@ -13,8 +13,7 @@ import {
     getProgramsAndCourseKeywordSets,
     getCommunicationThread,
     getProgram,
-    getAllOpenInterviews,
-    getApplicationStudentV2
+    getAllOpenInterviews
 } from '.';
 import { queryClient } from './client';
 import {
@@ -123,23 +122,6 @@ export function getAllComplaintTicketsLoader() {
 
 export async function getArchivStudentsLoader() {
     const response = await getArchivStudents();
-    if (response.status >= 400) {
-        throw json(
-            { message: response.statusText },
-            { status: response.status }
-        );
-    } else {
-        return response;
-    }
-}
-
-export async function getApplicationStudentLoader({
-    params
-}: {
-    params: Params<string>;
-}) {
-    const student_id = params.student_id ?? '';
-    const response = await getApplicationStudentV2(student_id);
     if (response.status >= 400) {
         throw json(
             { message: response.statusText },

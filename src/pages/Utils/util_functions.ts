@@ -1,6 +1,7 @@
 import {
     ApplicationProps,
     DocumentStatusType,
+    isProgramAdmitted,
     isProgramDecided,
     isProgramSubmitted,
     isProgramWithdraw
@@ -11,7 +12,7 @@ import { differenceInDays } from 'date-fns';
 import { pdfjs } from 'react-pdf';
 
 import { convertDate, twoYearsInDays } from '@utils/contants';
-import { type Application, type IUserWithId } from '@api/types';
+import { DocumentThreadResponse, IStudentResponse, OpenTaskRow, type Application, type IUserWithId } from '@api/types';
 import {
     IUser,
     IUserAcademicBackground,
@@ -248,7 +249,7 @@ export const calculateDuration = (
 
 //Testd
 export const check_english_language_passed = (
-    academic_background: IUserAcademicBackground
+    academic_background: IUserAcademicBackground | undefined
 ): boolean => {
     if (academic_background?.language?.english_isPassed === 'O') {
         return true;
@@ -258,7 +259,7 @@ export const check_english_language_passed = (
 
 //Testd
 export const check_english_language_Notneeded = (
-    academic_background: IUserAcademicBackground
+    academic_background: IUserAcademicBackground | undefined
 ): boolean => {
     if (academic_background?.language?.english_isPassed === '--') {
         return true;
@@ -268,7 +269,7 @@ export const check_english_language_Notneeded = (
 
 //Testd
 export const check_german_language_passed = (
-    academic_background: IUserAcademicBackground
+    academic_background: IUserAcademicBackground | undefined
 ): boolean => {
     if (academic_background?.language?.german_isPassed === 'O') {
         return true;
@@ -278,7 +279,7 @@ export const check_german_language_passed = (
 
 //Testd
 export const check_german_language_Notneeded = (
-    academic_background: IUserAcademicBackground
+    academic_background: IUserAcademicBackground | undefined
 ): boolean => {
     if (academic_background?.language?.german_isPassed === '--') {
         return true;
@@ -451,7 +452,7 @@ export const isBaseDocumentsRejected = (student: IUserWithId): boolean => {
 
 // Tested
 export const check_languages_filled = (
-    academic_background: IUserAcademicBackground
+    academic_background: IUserAcademicBackground | undefined
 ): boolean => {
     if (!academic_background || !academic_background.language) {
         return false;
@@ -511,7 +512,7 @@ export const check_languages_filled = (
 
 // Tested
 export const check_academic_background_filled = (
-    academic_background: IUserAcademicBackground
+    academic_background: IUserAcademicBackground | undefined
 ): boolean => {
     if (!academic_background || !academic_background.university) {
         return false;
@@ -547,7 +548,7 @@ export const isProgramNotSelectedEnough = (
     );
 };
 
-export const numApplicationsDecided = (student: IUserWithId): number => {
+export const numApplicationsDecided = (student: IStudentResponse): number => {
     if (student.applications === undefined) {
         return 0;
     }
@@ -557,7 +558,7 @@ export const numApplicationsDecided = (student: IUserWithId): number => {
     return num_apps_decided;
 };
 
-export const numApplicationsSubmitted = (student: IUserWithId): number => {
+export const numApplicationsSubmitted = (student: IStudentResponse): number => {
     if (student.applications === undefined) {
         return 0;
     }
@@ -568,7 +569,7 @@ export const numApplicationsSubmitted = (student: IUserWithId): number => {
 };
 
 export const areProgramsDecidedMoreThanContract = (
-    student: IUserWithId
+    student: IStudentResponse
 ): boolean => {
     if (
         !student.applications ||
@@ -586,7 +587,7 @@ export const areProgramsDecidedMoreThanContract = (
 };
 
 export const check_all_applications_decided = (
-    student: IUserWithId
+    student: IStudentResponse
 ): boolean => {
     if (
         !student.applications ||
@@ -613,7 +614,7 @@ export const check_all_applications_decided = (
 };
 
 export const check_all_decided_applications_submitted = (
-    student: IUserWithId
+    student: IStudentResponse
 ): boolean => {
     if (!student.applications || student.applications.length === 0) {
         return false;
@@ -638,11 +639,10 @@ export const check_program_uni_assist_needed = (
 };
 
 // Tested
-export const isUniAssistVPDNeeded = (application: Application): boolean => {
+export const isUniAssistVPDNeeded = (application: Application & ApplicationProps): boolean => {
     if (
         isProgramDecided(application) &&
-        application.programId.uni_assist &&
-        application.programId.uni_assist.includes('VPD')
+        application.programId?.uni_assist?.includes('VPD')
     ) {
         if (!application.uni_assist) {
             return true;
@@ -678,7 +678,7 @@ export const is_uni_assist_paid_and_docs_uploaded = (
 
 // Tested
 export const check_student_needs_uni_assist = (
-    student: IUserWithId
+    student: IStudentResponse
 ): boolean => {
     if (!student.applications) {
         return false;
@@ -687,9 +687,8 @@ export const check_student_needs_uni_assist = (
     return student.applications.some((app) => {
         return (
             isProgramDecided(app) &&
-            app.programId.uni_assist &&
-            (app.programId.uni_assist.includes('VPD') ||
-                app.programId.uni_assist.includes('FULL'))
+            (app.programId?.uni_assist?.includes('VPD') ||
+                app.programId?.uni_assist?.includes('FULL'))
         );
     });
 };
@@ -885,34 +884,34 @@ export const is_any_vpd_missing_v2 = (applications: Application[]) => {
     return false;
 };
 
-export const is_any_vpd_missing = (students) => {
+export const is_any_vpd_missing = (students: IStudentResponse[]): boolean => {
     if (students) {
         for (let i = 0; i < students.length; i += 1) {
             if (students[i].applications) {
-                for (let j = 0; j < students[i].applications.length; j += 1) {
+                const applications = students[i].applications as Application[];
+                if (!applications || applications.length === 0) {
+                    continue;
+                }
+                for (let j = 0; j < applications.length; j += 1) {
                     if (
-                        isProgramDecided(students[i].applications[j]) &&
-                        students[i].applications[j].programId.uni_assist &&
-                        students[i].applications[
-                            j
-                        ].programId.uni_assist.includes('VPD')
+                        isProgramDecided(applications[j]) &&
+                        applications[j].programId?.uni_assist &&
+                        applications[j].programId?.uni_assist?.includes('VPD')
                     ) {
-                        if (!students[i].applications[j].uni_assist) {
+                        if (!applications[j].uni_assist) {
                             return true;
                         }
                         if (
-                            students[i].applications[j].uni_assist &&
-                            students[i].applications[j].uni_assist.status ===
+                            applications[j].uni_assist?.status ===
                             DocumentStatusType.NotNeeded
                         ) {
                             continue;
                         }
                         if (
-                            students[i].applications[j].uni_assist &&
-                            (students[i].applications[j].uni_assist.status !==
+                            (applications[j].uni_assist?.status !==
                                 DocumentStatusType.Uploaded ||
-                                students[i].applications[j].uni_assist
-                                    .vpd_file_path === '')
+                                applications[j].uni_assist
+                                    ?.vpd_file_path === '')
                         ) {
                             return true;
                         }
@@ -930,15 +929,13 @@ export const is_the_uni_assist_vpd_uploaded = (application: Application) => {
     }
     if (
         isProgramDecided(application) &&
-        application.programId.uni_assist &&
-        application.programId.uni_assist.includes('FULL')
+        application.programId?.uni_assist?.includes('FULL')
     ) {
         return true;
     }
     if (
         isProgramDecided(application) &&
-        application.programId.uni_assist &&
-        application.programId.uni_assist.includes('VPD')
+        application.programId?.uni_assist?.includes('VPD')
     ) {
         if (!application.uni_assist) {
             return false;
@@ -995,7 +992,7 @@ export const needGraduatedApplicantsButStudentNotGraduated = (student) => {
     return false;
 };
 
-export const needGraduatedApplicantsPrograms = (applications) => {
+export const needGraduatedApplicantsPrograms = (applications: Application[]) => {
     return applications?.filter(
         (app: Application) =>
             isProgramDecided(app) && app.programId?.allowOnlyGraduatedApplicant
@@ -1035,7 +1032,7 @@ export const isLanguageNotMatchedInAnyProgram = (student) => {
     return false;
 };
 
-export const isEnglishProgram = (application) => {
+export const isEnglishProgram = (application: Application) => {
     return application?.programId?.lang?.toLowerCase().includes('english');
 };
 
@@ -1109,31 +1106,33 @@ export const englishCertificatedExpiredBeforeTheseProgramDeadlines = (
     );
 };
 
-export const is_all_uni_assist_vpd_uploaded = (student) => {
+export const is_all_uni_assist_vpd_uploaded = (student: IStudentResponse) => {
     if (student.applications === undefined) {
         return false;
     }
-    for (let j = 0; j < student.applications.length; j += 1) {
+    const applications = student.applications as Application[];
+    if (!applications || applications.length === 0) {
+        return false;
+    }
+    for (const app of applications) {
         if (
-            isProgramDecided(student.applications[j]) &&
-            student.applications[j].programId.uni_assist &&
-            student.applications[j].programId.uni_assist.includes('VPD')
+            isProgramDecided(app) &&
+            app.programId?.uni_assist &&
+            app.programId?.uni_assist?.includes('VPD')
         ) {
-            if (!student.applications[j].uni_assist) {
+            if (!app.uni_assist) {
                 return false;
             }
             if (
-                student.applications[j].uni_assist &&
-                student.applications[j].uni_assist.status ===
+                app.uni_assist?.status ===
                 DocumentStatusType.NotNeeded
             ) {
                 continue;
             }
             if (
-                student.applications[j].uni_assist &&
-                (student.applications[j].uni_assist.status !==
+                (app.uni_assist?.status !==
                     DocumentStatusType.Uploaded ||
-                    student.applications[j].uni_assist.vpd_file_path === '')
+                    app.uni_assist?.vpd_file_path === '')
             ) {
                 return false;
             }
@@ -1210,7 +1209,7 @@ export const prepTaskStudent = (student) => {
 };
 
 export const all_applications_results_updated = (
-    student: IUserWithId
+    student: IStudentResponse
 ): boolean => {
     if (!student.applications || student.applications.length === 0) {
         return true;
@@ -1221,20 +1220,19 @@ export const all_applications_results_updated = (
     );
 };
 
-export const hasApplications = (student: IUserWithId): boolean => {
-    return student.applications && student.applications.length > 0;
+export const hasApplications = (student: IStudentResponse): boolean => {
+    if (!student.applications || student.applications?.length === 0) {
+        return false;
+    }
+    return true;
 };
-
 export const has_agent_program_specific_tasks = (
-    student: IUserWithId
+    student: IStudentResponse
 ): boolean => {
-    if (!student.applications) {
+    if (!student.applications || student.applications?.length === 0) {
         return false;
     }
-    if (student.applications.length === 0) {
-        return false;
-    }
-    for (const application of student.applications) {
+    for (const application of student.applications as Application[]) {
         if (isProgramDecided(application)) {
             for (const thread of application.doc_modification_thread) {
                 if (
@@ -1251,9 +1249,9 @@ export const has_agent_program_specific_tasks = (
 };
 
 export const anyStudentWithoutApplicationSelection = (
-    students: IUserWithId[]
+    students: IStudentResponse[]
 ): boolean => {
-    return students.some((student) => !hasApplications(student));
+    return students.some((student: IStudentResponse) => !hasApplications(student));
 };
 
 export const is_num_Program_Not_specified = (student: IUserWithId): boolean => {
@@ -1264,7 +1262,7 @@ export const progressBarCounter = (
     student: IUserWithId,
     application: Application
 ): number => {
-    const programId = application?.programId || {};
+    const programId = application?.programId;
 
     const all_points = [
         student?.generaldocs_threads?.length || 0,
@@ -1669,10 +1667,10 @@ const prepApplicationTask = (student, application, thread) => {
     };
 };
 
-export const open_tasks_v2 = (threads) => {
-    const tasks = [];
+export const open_tasks_v2 = (threads: DocumentThreadResponse[]) => {
+    const tasks: OpenTaskRow[] = [];
     for (const thread of threads) {
-        if (thread.student_id.archiv !== true) {
+        if (thread.student_id?.archiv !== true) {
             if (!thread.application_id) {
                 tasks.push(prepGeneralTaskV2(thread.student_id, thread));
             } else {
@@ -1968,7 +1966,7 @@ export const programs_refactor = (students) => {
                 acc.push({
                     id: `${student._id.toString()}-${application.programId?._id?.toString()}`,
                     target_year: `${student.application_preference
-                            ?.expected_application_date || '-'
+                        ?.expected_application_date || '-'
                         } ${student.application_preference
                             ?.expected_application_semester || '-'
                         }`,

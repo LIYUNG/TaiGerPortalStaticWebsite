@@ -24,15 +24,15 @@ export type Application = Omit<
     closed?: string;
     admission?: string;
     _id?: string | { toString: () => string };
-    programId?: ApplicationProgramId;
+    programId?: IProgramWithId;
     application_year?: unknown;
     doc_modification_thread?: unknown[];
-    uni_assist?: unknown;
+    uni_assist?: { status?: string; vpd_file_path?: string, isPaid?: boolean };
     isLocked?: boolean;
     admission_letter?: { status?: string; admission_file_path?: string };
     interview_id?: string;
     interview_status?: string;
-    interview_training_event?: { start?: string; [key: string]: unknown };
+    interview_training_event?: { start?: string;[key: string]: unknown };
 };
 
 /** Generic API response wrapper used by the backend */
@@ -207,14 +207,15 @@ export interface InterviewResponse {
 /** Document thread response */
 export interface DocumentThreadResponse {
     _id: string;
-    student_id?: string;
+    student_id?: string | IStudentResponse;
+    application_id?: string;
     user_id?: string;
     flag_by_user_id: string[],
     isFinalVersion?: boolean;
     latest_message_left_by_id?: string;
     messages?: Array<{
         _id?: string;
-        user_id?: string | { firstname?: string; lastname?: string; [key: string]: unknown };
+        user_id?: string | { firstname?: string; lastname?: string;[key: string]: unknown };
         message?: string;
         file_path?: string;
         file?: Array<{ name: string; path: string }>;
@@ -351,7 +352,7 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
 /** Document thread message with optional file attachments (FileItem, FilesList) */
 export interface DocumentThreadMessage {
     _id?: string;
-    user_id?: { firstname?: string; lastname?: string; [key: string]: unknown };
+    user_id?: { firstname?: string; lastname?: string;[key: string]: unknown };
     message?: string;
     file_path?: string;
     file?: Array<{ name: string; path: string }>;
@@ -374,6 +375,9 @@ export interface AdmissionsStatRow {
 
 /** Open task row (CVMLRL Overview/Dashboard, Essay Overview) */
 export interface OpenTaskRow {
+    student_id?: string | IStudentResponse;
+    application_id?: string;
+    user_id?: string;
     id: string;
     show?: boolean;
     isFinalVersion?: boolean;

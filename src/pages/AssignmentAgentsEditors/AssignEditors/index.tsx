@@ -2,23 +2,20 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { Box } from '@mui/material';
 import { is_TaiGer_role } from '@taiger-common/core';
-import queryString from 'query-string';
 
 import AssignEditorsPage from './AssignEditorsPage';
 import ModalMain from '../../Utils/ModalHandler/ModalMain';
 import { useAuth } from '@components/AuthProvider';
 import useStudents from '@hooks/useStudents';
 import DEMO from '@store/constant';
-import { useQuery } from '@tanstack/react-query';
-import { getStudentsV3Query } from '@api/query';
+import { useStudentsV3 } from '@hooks/useStudentsV3';
 
 const AssignEditors = () => {
     const { user } = useAuth();
-    const { data: { data: fetchedAllStudents } = { data: [] } } = useQuery(
-        getStudentsV3Query(
-            queryString.stringify({ editors: [], archiv: false })
-        )
-    );
+    const { data: fetchedAllStudents } = useStudentsV3({
+        editors: [],
+        archiv: false
+    });
 
     const {
         students,

@@ -20,7 +20,7 @@ vi.mock('react-router-dom', async (importOriginal) => ({
 }));
 
 vi.mock('@components/AuthProvider');
-vi.mock('../../contexts/use-snack-bar', () => ({
+vi.mock('@contexts/use-snack-bar', () => ({
     useSnackBar: () => ({
         setMessage: () => {},
         setSeverity: () => {},

@@ -18,7 +18,7 @@ import ProgramDiffModal from './ProgramDiffModal';
 import { AssignProgramsToStudentDialog } from './AssignProgramsToStudentDialog';
 import { queryClient } from '@api/client';
 import DEMO from '@store/constant';
-import { useSnackBar } from '../../contexts/use-snack-bar';
+import { useSnackBar } from '@contexts/use-snack-bar';
 
 const SingleProgram = () => {
     const { data } = useLoaderData() as { data: Promise<GetProgramResponse> };

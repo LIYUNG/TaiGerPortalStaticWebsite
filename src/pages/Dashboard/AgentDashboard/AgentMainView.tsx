@@ -48,9 +48,9 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import {
     getMyStudentsThreadsQuery,
-    getMyStudentsApplicationsV2Query,
-    getStudentsV3Query
+    getMyStudentsApplicationsV2Query
 } from '@api/query';
+import { useStudentsV3 } from '@hooks/useStudentsV3';
 import Loading from '@components/Loading/Loading';
 
 const AgentMainView = (props) => {
@@ -66,14 +66,8 @@ const AgentMainView = (props) => {
             })
         );
 
-    const {
-        data: { data: fetchedMyStudents } = { data: [] },
-        isLoading: isLoadingMyStudents
-    } = useQuery(
-        getStudentsV3Query(
-            queryString.stringify({ agents: user._id, archiv: false })
-        )
-    );
+    const { data: fetchedMyStudents, isLoading: isLoadingMyStudents } =
+        useStudentsV3({ agents: user._id, archiv: false });
 
     const { data: myStudentsThreads, isLoading: isLoadingThreads } = useQuery(
         getMyStudentsThreadsQuery({

@@ -28,21 +28,8 @@ declare module '@taiger-common/core' {
 export interface IApplicationWithId
     extends Omit<IApplication, 'programId' | 'studentId'> {
     _id: string;
-    programId?: string | IApplicationProgramId;
+    programId?: string & IProgramWithId;
     studentId?: string;
-}
-
-// Program reference as nested in Application (populated)
-export interface IApplicationProgramId extends Omit<IProgram, 'vcId'> {
-    _id: string;
-    school: string;
-    program_name: string;
-    degree?: string;
-    semester?: string;
-    lang?: string;
-    uni_assist?: string | string[];
-    allowOnlyGraduatedApplicant?: boolean;
-    [key: string]: unknown;
 }
 
 // Frontend-friendly Program type with string _id
@@ -63,6 +50,8 @@ export interface IUserWithId
 
 // Student response with populated references (from API)
 export interface IStudentResponse extends IUserWithId {
+    archiv?: boolean;
+    applying_program_count: number;
     applications?: IApplicationWithId[];
     agents?: IUserWithId[];
     editors?: IUserWithId[];

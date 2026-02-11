@@ -23,7 +23,7 @@ import {
 } from '@utils/contants';
 import { updateSchoolAttributes } from '@api';
 import SearchableMultiSelect from '@components/Input/searchableMuliselect';
-import { useSnackBar } from '../../contexts/use-snack-bar';
+import { useSnackBar } from '@contexts/use-snack-bar';
 
 export interface SchoolConfigEditCardData {
     school?: string;

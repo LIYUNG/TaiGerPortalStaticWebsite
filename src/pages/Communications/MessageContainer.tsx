@@ -6,7 +6,7 @@ import MessageEdit from './MessageEdit';
 import { useAuth } from '@components/AuthProvider';
 import { useMutation } from '@tanstack/react-query';
 import { queryClient } from '@api/client';
-import { useSnackBar } from '../../contexts/use-snack-bar';
+import { useSnackBar } from '@contexts/use-snack-bar';
 import type { ThreadMessage } from '@components/Message/MessageCard';
 
 export interface MessageContainerProps {

@@ -7,15 +7,14 @@ import ModalMain from '../../Utils/ModalHandler/ModalMain';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import useStudents from '@hooks/useStudents';
-import { useQuery } from '@tanstack/react-query';
-import { getStudentsV3Query } from '@api/query';
-import queryString from 'query-string';
+import { useStudentsV3 } from '@hooks/useStudentsV3';
 
 const AssignAgents = () => {
     const { user } = useAuth();
-    const { data: { data: fetchedAllStudents } = { data: [] } } = useQuery(
-        getStudentsV3Query(queryString.stringify({ agents: [], archiv: false }))
-    );
+    const { data: fetchedAllStudents } = useStudentsV3({
+        agents: [],
+        archiv: false
+    });
 
     const {
         students,

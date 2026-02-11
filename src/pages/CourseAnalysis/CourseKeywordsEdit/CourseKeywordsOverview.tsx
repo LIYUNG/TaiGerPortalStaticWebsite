@@ -25,7 +25,7 @@ import { deleteKeywordSet, putKeywordSet } from '@api';
 import ExampleWithLocalizationProvider from '@components/MaterialReactTable';
 import { col_keywords } from '@utils/contants';
 import DEMO from '@store/constant';
-import { useSnackBar } from '../../../contexts/use-snack-bar';
+import { useSnackBar } from '@contexts/use-snack-bar';
 
 export interface CourseKeywordsEditCardData {
     keywords?: { zh?: string[]; en?: string[] };

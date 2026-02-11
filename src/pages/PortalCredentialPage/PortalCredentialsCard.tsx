@@ -23,7 +23,7 @@ import DEMO from '@store/constant';
 import { appConfig } from '../../config';
 import Loading from '@components/Loading/Loading';
 import { LinkableNewlineText } from '../Utils/checking-functions';
-import { useSnackBar } from '../../contexts/use-snack-bar';
+import { useSnackBar } from '@contexts/use-snack-bar';
 
 export default function PortalCredentialsCard(props) {
     const { t } = useTranslation();

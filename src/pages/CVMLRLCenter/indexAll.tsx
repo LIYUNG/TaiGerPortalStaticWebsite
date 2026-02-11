@@ -1,9 +1,6 @@
 import { Link as LinkDom, Navigate } from 'react-router-dom';
 import { Box, Breadcrumbs, Link, Typography } from '@mui/material';
 import { is_TaiGer_role } from '@taiger-common/core';
-import queryString from 'query-string';
-import { useQuery } from '@tanstack/react-query';
-
 import CVMLRLDashboard from './CVMLRLDashboard';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
@@ -12,15 +9,13 @@ import { appConfig } from '../../config';
 import Loading from '@components/Loading/Loading';
 import { useTranslation } from 'react-i18next';
 import { open_tasks_v2 } from '../Utils/util_functions';
-import { getActiveThreadsQuery } from '@api/query';
+import { useActiveThreads } from '@hooks/useActiveThreads';
 
 const CVMLRLCenterAll = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
 
-    const { data = [], isLoading } = useQuery(
-        getActiveThreadsQuery(queryString.stringify({}))
-    );
+    const { data, isLoading } = useActiveThreads();
 
     const open_tasks_arr = open_tasks_v2(data);
 

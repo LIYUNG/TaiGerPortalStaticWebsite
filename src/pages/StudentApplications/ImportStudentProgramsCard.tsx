@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import {
     Box,
     Button,
@@ -26,15 +27,26 @@ import {
     createApplicationV2,
     getQueryStudentsResults,
     getApplicationStudentV2
-} from '@api';
+} from '@api/index';
+import { queryClient } from '@api/client';
 import type { Application } from '@api/types';
+import { useSnackBar } from '@contexts/use-snack-bar';
 
 export interface ImportStudentProgramsCardProps {
     student: Record<string, unknown> & { applications?: Application[] };
 }
 
-export const ImportStudentProgramsCard = (props: ImportStudentProgramsCardProps) => {
+type CreateApplicationResponse = {
+    success: boolean;
+    data?: unknown;
+    message?: string;
+};
+
+export const ImportStudentProgramsCard = (
+    props: ImportStudentProgramsCardProps
+) => {
     const { t } = useTranslation();
+    const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
     const [importStudentProgramsCard, setImportStudentProgramsCardState] =
         useState({
             error: '',
@@ -92,8 +104,7 @@ export const ImportStudentProgramsCard = (props: ImportStudentProgramsCardProps)
         // Call api:
         getApplicationStudentV2(result._id.toString()).then(
             (res) => {
-                const { data, success } = res.data;
-                const { status } = res;
+                const { data, success, status } = res;
                 if (success) {
                     setImportStudentProgramsCardState((prevState) => ({
                         ...prevState,
@@ -105,11 +116,10 @@ export const ImportStudentProgramsCard = (props: ImportStudentProgramsCardProps)
                         program_ids: data.applications?.map(
                             (app: Application) =>
                                 String(app.programId?._id ?? '')
-                        ),
-                        res_modal_status: status
+                        )
                     }));
                 } else {
-                    const { message } = res.data;
+                    const { message } = res;
                     setImportStudentProgramsCardState((prevState) => ({
                         ...prevState,
                         isLoaded: true,
@@ -223,43 +233,60 @@ export const ImportStudentProgramsCard = (props: ImportStudentProgramsCardProps)
         }
     };
 
-    // TODO: test from end update
+    const importProgramsMutation = useMutation({
+        mutationFn: createApplicationV2,
+        onSuccess: (res: CreateApplicationResponse) => {
+            if (res.success) {
+                const studentId = String(
+                    importStudentProgramsCard.student._id
+                );
+                queryClient
+                    .refetchQueries({
+                        queryKey: ['applications/student', studentId]
+                    })
+                    .then(() => {
+                        setSeverity('success');
+                        setMessage(t('Program(s) imported successfully'));
+                        setOpenSnackbar(true);
+                    });
+                setImportStudentProgramsCardState((prevState) => ({
+                    ...prevState,
+                    importedStudentPrograms: res.data,
+                    importedStudentModalOpen: false,
+                    success: res.success
+                }));
+            } else {
+                const errRes = res as { data?: { message?: string } };
+                const message =
+                    errRes.data?.message ?? res.message ?? 'Import failed';
+                setImportStudentProgramsCardState((prevState) => ({
+                    ...prevState,
+                    isLoaded: true,
+                    importedStudentModalOpen: false,
+                    res_modal_message: message
+                }));
+            }
+        },
+        onError: (error: Error) => {
+            setImportStudentProgramsCardState((prevState) => ({
+                ...prevState,
+                isLoaded: true
+            }));
+            setSeverity('error');
+            setMessage(
+                error.message || t('An error occurred. Please try again.')
+            );
+            setOpenSnackbar(true);
+        }
+    });
+
+    const { mutate, isPending } = importProgramsMutation;
+
     const handleImportProgramsConfirm = () => {
-        const program_ids = importStudentProgramsCard.program_ids;
-        setImportStudentProgramsCardState((prevState) => ({
-            ...prevState,
-            isButtonDisable: true
-        }));
-        createApplicationV2({
-            studentId: importStudentProgramsCard.student._id.toString(),
-            program_ids
-        }).then(
-            (res) => {
-                const { success, data } = res.data;
-                const { status } = res;
-                if (success) {
-                    setImportStudentProgramsCardState((prevState) => ({
-                        ...prevState,
-                        isButtonDisable: false,
-                        importedStudentPrograms: data,
-                        importedStudentModalOpen: false,
-                        modalShowAssignSuccessWindow: true,
-                        success,
-                        res_modal_status: status
-                    }));
-                } else {
-                    const { message } = res.data;
-                    setImportStudentProgramsCardState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        importedStudentModalOpen: false,
-                        res_modal_message: message,
-                        res_modal_status: status
-                    }));
-                }
-            },
-            () => {}
-        );
+        mutate({
+            studentId: String(importStudentProgramsCard.student._id),
+            program_ids: importStudentProgramsCard.program_ids
+        });
     };
     return (
         <>
@@ -436,11 +463,11 @@ export const ImportStudentProgramsCard = (props: ImportStudentProgramsCardProps)
                 <DialogActions>
                     <Button
                         color="primary"
-                        disabled={importStudentProgramsCard.isButtonDisable}
+                        disabled={isPending}
                         onClick={handleImportProgramsConfirm}
                         variant="contained"
                     >
-                        {importStudentProgramsCard.isButtonDisable ? (
+                        {isPending ? (
                             <CircularProgress size={16} />
                         ) : (
                             t('Yes', { ns: 'common' })

@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next';
-import React from 'react';
 import { List, ListItem, TextField, Typography } from '@mui/material';
 
 export interface StudentPreferenceCardProps {

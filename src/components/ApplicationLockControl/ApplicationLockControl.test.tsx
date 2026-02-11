@@ -2,12 +2,12 @@ import { render, screen } from '@testing-library/react';
 import type { AuthContextValue } from '@api/types';
 import ApplicationLockControl from './ApplicationLockControl';
 import { useAuth } from '../AuthProvider';
-import { useSnackBar } from '../../contexts/use-snack-bar';
+import { useSnackBar } from '@contexts/use-snack-bar';
 
 vi.mock('../AuthProvider', () => ({
     useAuth: vi.fn()
 }));
-vi.mock('../../contexts/use-snack-bar', () => ({
+vi.mock('@contexts/use-snack-bar', () => ({
     useSnackBar: vi.fn()
 }));
 vi.mock('@api/index', () => ({

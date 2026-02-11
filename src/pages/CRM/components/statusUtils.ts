@@ -2,10 +2,10 @@
 
 export const STATUS_FLOW = ['initiated', 'sent', 'signed', 'closed'];
 
-export const isTerminalStatus = (status) =>
+export const isTerminalStatus = (status: string) =>
     status === 'closed' || status === 'canceled';
 
-export const getStatusColor = (status) =>
+export const getStatusColor = (status: string) =>
     ({
         initiated: 'info',
         sent: 'warning',

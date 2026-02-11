@@ -24,7 +24,7 @@ import { WidgetTranscriptanalyserV2 } from '@api';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { a11yProps, CustomTabPanel } from '@components/Tabs';
-import { useSnackBar } from '../../contexts/use-snack-bar';
+import { useSnackBar } from '@contexts/use-snack-bar';
 import { ProgramRequirementsTable } from '@components/ProgramRequirementsTable/ProgramRequirementsTable';
 
 export default function CourseWidgetBody({ programRequirements }) {

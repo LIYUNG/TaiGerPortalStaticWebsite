@@ -12,7 +12,7 @@ vi.mock('axios');
 vi.mock('@api');
 vi.mock('@components/AuthProvider');
 
-vi.mock('../../contexts/use-snack-bar', () => ({
+vi.mock('@contexts/use-snack-bar', () => ({
     useSnackBar: () => ({
         setMessage: () => {},
         setSeverity: () => {},

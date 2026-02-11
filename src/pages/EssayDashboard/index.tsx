@@ -1,10 +1,8 @@
-import React from 'react';
 import { Box, Breadcrumbs, Link, Typography } from '@mui/material';
 import { Navigate, Link as LinkDom } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { is_TaiGer_role } from '@taiger-common/core';
-import queryString from 'query-string';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 
 import { putThreadFavorite } from '@api';
 import { TabTitle } from '../Utils/TabTitle';
@@ -19,31 +17,20 @@ import {
     is_new_message_status,
     is_pending_status
 } from '@utils/contants';
-import { getActiveThreadsQuery } from '@api/query';
 import { queryClient } from '@api/client';
+import { useActiveThreads } from '@hooks/useActiveThreads';
 
 const EssayDashboard = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
 
-    const { data = [], isLoading } = useQuery(
-        getActiveThreadsQuery(
-            queryString.stringify({
-                file_type: file_category_const.essay_required
-            })
-        )
-    );
+    const essayDashboardParams = { file_type: file_category_const.essay_required };
+    const { data, isLoading, queryKey } = useActiveThreads(essayDashboardParams);
 
     const { mutate: handleFavoriteToggleMutation } = useMutation({
         mutationFn: (id: string) => putThreadFavorite(id),
         onSuccess: () => {
-            queryClient.invalidateQueries({
-                queryKey: getActiveThreadsQuery(
-                    queryString.stringify({
-                        file_type: file_category_const.essay_required
-                    })
-                ).queryKey
-            });
+            queryClient.invalidateQueries({ queryKey });
         }
     });
 

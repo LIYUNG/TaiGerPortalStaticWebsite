@@ -24,11 +24,8 @@ import { appConfig } from '../../config';
 import { CustomTabPanel, a11yProps } from '@components/Tabs';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { queryClient } from '@api/client';
-import { useSnackBar } from '../../contexts/use-snack-bar';
+import { useSnackBar } from '@contexts/use-snack-bar';
 import { getUsersCountQuery } from '@api/query';
-
-/** Reserved for future props */
-export type UsersTableProps = object;
 
 /** Reserved for future props */
 export type UsersTableProps = object;

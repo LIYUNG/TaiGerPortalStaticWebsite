@@ -3,11 +3,8 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import queryString from 'query-string';
 
 import { confirmEvent, deleteEvent, postEvent, updateEvent } from '@api';
-import {
-    getEventsQuery,
-    getBookedEventsQuery,
-    getStudentsV3Query
-} from '@api/query';
+import { getEventsQuery, getBookedEventsQuery } from '@api/query';
+import { useStudentsV3 } from '@hooks/useStudentsV3';
 import {
     is_TaiGer_Agent,
     is_TaiGer_Editor,
@@ -15,7 +12,7 @@ import {
 } from '@taiger-common/core';
 import { useAuth } from '@components/AuthProvider';
 import { getUTCWithDST, time_slots } from '@utils/contants';
-import { useSnackBar } from '../contexts/use-snack-bar';
+import { useSnackBar } from '@contexts/use-snack-bar';
 import { queryClient } from '@api/client';
 
 export interface UseCalendarEventsProps {
@@ -48,19 +45,10 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
         }),
         enabled: !props.isAll && is_TaiGer_Student(user)
     });
-    const query_string = queryString.stringify(
-        is_TaiGer_Agent(user)
-            ? {
-                  agents: user?._id,
-                  archiv: false
-              }
-            : {
-                  editors: user?._id,
-                  archiv: false
-              }
-    );
-    const studentsQuery = useQuery({
-        ...getStudentsV3Query(query_string),
+    const studentsParams = is_TaiGer_Agent(user)
+        ? { agents: user?._id, archiv: false }
+        : { editors: user?._id, archiv: false };
+    const studentsQuery = useStudentsV3(studentsParams, {
         enabled:
             !props.isAll &&
             (is_TaiGer_Agent(user) || is_TaiGer_Editor(user)) &&
@@ -71,7 +59,7 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
     const events = eventsResponse.data || [];
     const agents = eventsResponse.agents || {};
     const editors = eventsResponse.editors || [];
-    const students = studentsQuery.data?.data || [];
+    const students = studentsQuery.data || [];
     const hasEvents = eventsResponse.hasEvents || false;
     const booked_events = bookedEventsQuery.data?.data?.data || [];
     const res_status = eventsQuery.data?.status || 0;

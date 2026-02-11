@@ -43,10 +43,8 @@ import DEMO from '@store/constant';
 import { appConfig } from '../../config';
 import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';
-import {
-    getMyStudentsApplicationsV2Query,
-    getStudentsV3Query
-} from '@api/query';
+import { getMyStudentsApplicationsV2Query } from '@api/query';
+import { useStudentsV3 } from '@hooks/useStudentsV3';
 import { formatDate } from '../Utils/util_functions';
 
 const AgentPage = () => {
@@ -54,14 +52,8 @@ const AgentPage = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
 
-    const {
-        data: { data: fetchedMyStudents } = { data: [] },
-        isLoading: isLoadingMyStudents
-    } = useQuery(
-        getStudentsV3Query(
-            queryString.stringify({ agents: user_id, archiv: false })
-        )
-    );
+    const { data: fetchedMyStudents, isLoading: isLoadingMyStudents } =
+        useStudentsV3({ agents: user_id, archiv: false });
 
     const { data: myStudentsApplications, isLoading } = useQuery(
         getMyStudentsApplicationsV2Query({
