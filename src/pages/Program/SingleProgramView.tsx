@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import { Fragment, useState } from 'react';
 import { Link as LinkDom, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -97,7 +97,9 @@ export interface SingleProgramViewStudent {
 
 export interface SingleProgramViewProps {
     program?: SingleProgramViewProgram;
-    versions?: { [versionId: string]: { [k: string]: string | number | boolean } };
+    versions?: {
+        [versionId: string]: { [k: string]: string | number | boolean };
+    };
     students?: SingleProgramViewStudent[];
     isRefreshing?: boolean;
     onRefreshProgram?: () => void;

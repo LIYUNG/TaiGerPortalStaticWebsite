@@ -1,4 +1,4 @@
-import React, { Suspense, useState } from 'react';
+import { Suspense, useState } from 'react';
 import { Box } from '@mui/material';
 import {
     Await,

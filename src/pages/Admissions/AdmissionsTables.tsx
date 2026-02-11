@@ -13,6 +13,11 @@ export type AdmissionsTablesProps = object;
 
 const SUBTAB_KEYS = ['admission', 'rejection', 'pending', 'not-closed'];
 
+/** Reserved for future props */
+export type AdmissionsTablesProps = object;
+
+const SUBTAB_KEYS = ['admission', 'rejection', 'pending', 'not-closed'];
+
 const AdmissionsTables = () => {
     const [value, setValue] = useState(0);
     const location = useLocation();

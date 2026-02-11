@@ -14,6 +14,8 @@ import { getActiveStudentsQuery } from '@api/query';
 
 const STUDENT_TAB_KEYS = ['risk', 'final'];
 
+const STUDENT_TAB_KEYS = ['risk', 'final'];
+
 const StudentAdmissionsTables = () => {
     // const { t } = useTranslation();
     const location = useLocation();
