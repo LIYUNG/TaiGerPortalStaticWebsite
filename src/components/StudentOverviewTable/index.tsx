@@ -102,7 +102,7 @@ const transform = (
     riskOnly = false
 ): TransformedStudentRow[] => {
     const transformedStudents: TransformedStudentRow[] = [];
-    if (!stds) {
+    if (!stds || !Array.isArray(stds)) {
         return [];
     }
 
