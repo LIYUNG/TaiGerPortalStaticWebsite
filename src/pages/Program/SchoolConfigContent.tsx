@@ -349,7 +349,7 @@ const SchoolConfigContent = ({ data }: SchoolConfigContentProps) => {
 
     const [distinctSchoolsState, setDistinctSchoolsState] =
         useState<SchoolConfigEditCardData[]>(data);
-    const memoizedColumnsMrt = useMemo(() => c1_mrt, [c1_mrt]);
+    const memoizedColumnsMrt = useMemo(() => c1_mrt, []);
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [rowSelection, setRowSelection] = useState<Record<string, boolean>>(
         {}

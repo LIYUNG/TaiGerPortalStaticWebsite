@@ -131,6 +131,7 @@ const ChatList = (props: ChatListProps) => {
                 clearTimeout(delayDebounceFn);
             };
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchTerm]);
 
     const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {

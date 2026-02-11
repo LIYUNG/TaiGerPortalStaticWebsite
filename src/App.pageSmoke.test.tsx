@@ -85,12 +85,20 @@ vi.mock('@mui/x-charts/BarChart', () => ({
     BarChart: ({ children }: { children?: ReactNode }) => children ?? null
 }));
 
-// Lightweight mock so smoke test doesn't load heavy UsersTable chunk (avoids timeout)
-vi.mock('@pages/Users/UsersTable', () => {
-    const { createElement } = require('react');
+// Lightweight mocks so smoke test doesn't load heavy chunks (avoids timeout)
+vi.mock('@pages/Users/UsersTable', async () => {
+    const { createElement } = await import('react');
     return {
         default: () =>
             createElement('div', { 'data-testid': 'users-table' }, 'Users')
+    };
+});
+
+vi.mock('@pages/Survey/SurveyComponent', async () => {
+    const { createElement } = await import('react');
+    return {
+        default: () =>
+            createElement('div', { 'data-testid': 'survey-component' }, 'Survey')
     };
 });
 vi.mock('@mui/x-charts/ChartsAxis', () => ({

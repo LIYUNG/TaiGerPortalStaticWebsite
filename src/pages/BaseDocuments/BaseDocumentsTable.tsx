@@ -236,6 +236,7 @@ export const BaseDocumentsTable = ({ students }: BaseDocumentsTableProps) => {
         }));
     };
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const showPreview = (
         e: React.MouseEvent<HTMLElement>,
         path: string,

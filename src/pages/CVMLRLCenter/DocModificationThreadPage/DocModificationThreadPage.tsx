@@ -217,7 +217,7 @@ const DocModificationThreadPage = ({
             setOpenSnackbar(true);
             return;
         }
-        const file_num = e.target.files.length;
+        const file_num = e.target?.files?.length ?? 0;
         if (file_num <= 3) {
             if (!e.target.files) {
                 return;
@@ -231,21 +231,24 @@ const DocModificationThreadPage = ({
             }
             // Ensure a file is selected
             // TODO: make array
-            const checkPromises = Array.from(e.target.files).map((file) => {
-                const extension = file.name.split('.').pop()?.toLowerCase();
-                const studentName =
-                    docModificationThreadPageState.thread.student_id.firstname;
+            const checkPromises = Array.from(e.target?.files || []).map(
+                (file) => {
+                    const extension = file.name.split('.').pop()?.toLowerCase();
+                    const studentName =
+                        docModificationThreadPageState.thread.student_id
+                            .firstname;
 
-                if (extension === 'pdf') {
-                    return readPDF(file, studentName);
-                } else if (extension === 'docx') {
-                    return readDOCX(file, studentName);
-                } else if (extension === 'xlsx') {
-                    return readXLSX(file, studentName);
-                } else {
-                    return Promise.resolve({});
+                    if (extension === 'pdf') {
+                        return readPDF(file, studentName);
+                    } else if (extension === 'docx') {
+                        return readDOCX(file, studentName);
+                    } else if (extension === 'xlsx') {
+                        return readXLSX(file, studentName);
+                    } else {
+                        return Promise.resolve({});
+                    }
                 }
-            });
+            );
             Promise.all(checkPromises)
                 .then((results) => {
                     setCheckResult(results);
@@ -698,7 +701,6 @@ const DocModificationThreadPage = ({
         audit: TAB_KEYS.audit
     };
 
-     
     const tabKeys = useMemo(() => {
         const keys = [TAB_KEYS.discussion];
         if (isGeneralRL) {

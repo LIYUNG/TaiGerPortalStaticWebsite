@@ -1,8 +1,7 @@
-import React from 'react';
-
 import EditorNew from '@components/EditorJs/EditorNew';
+import type { EditorNewProps } from '@components/EditorJs/EditorNew';
 
-const DocumentsListItemsEditor = (props) => {
+const DocumentsListItemsEditor = (props: EditorNewProps) => {
     return (
         <EditorNew
             category={props.category}

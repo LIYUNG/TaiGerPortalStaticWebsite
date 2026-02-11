@@ -171,6 +171,7 @@ const EditorSimple = (props: EditorSimpleProps) => {
             ejInstance?.current?.destroy();
             ejInstance.current = null;
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return <div id={`${props.holder}`} />;

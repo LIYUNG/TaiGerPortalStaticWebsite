@@ -32,7 +32,7 @@ export type Application = Omit<
     admission_letter?: { status?: string; admission_file_path?: string };
     interview_id?: string;
     interview_status?: string;
-    interview_training_event?: { start?: string; [key: string]: unknown };
+    interview_training_event?: { start?: string;[key: string]: unknown };
 };
 
 /** Generic API response wrapper used by the backend */
@@ -132,6 +132,7 @@ import type {
     IUserWithId,
     IStudentResponse
 } from '../types/taiger-common';
+import { IDocumentthread } from '@taiger-common/model/dist/types';
 
 /** Re-export for convenience */
 export type {
@@ -210,6 +211,7 @@ export interface DocumentThreadResponse {
     _id: string;
     student_id?: string | IStudentResponse;
     application_id?: string;
+    doc_thread_id: IDocumentthread;
     user_id?: string;
     flag_by_user_id: string[];
     isFinalVersion?: boolean;
@@ -217,8 +219,8 @@ export interface DocumentThreadResponse {
     messages?: Array<{
         _id?: string;
         user_id?:
-            | string
-            | { firstname?: string; lastname?: string; [key: string]: unknown };
+        | string
+        | { firstname?: string; lastname?: string;[key: string]: unknown };
         message?: string;
         file_path?: string;
         file?: Array<{ name: string; path: string }>;
@@ -360,7 +362,7 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
 /** Document thread message with optional file attachments (FileItem, FilesList) */
 export interface DocumentThreadMessage {
     _id?: string;
-    user_id?: { firstname?: string; lastname?: string; [key: string]: unknown };
+    user_id?: { firstname?: string; lastname?: string;[key: string]: unknown };
     message?: string;
     file_path?: string;
     file?: Array<{ name: string; path: string }>;

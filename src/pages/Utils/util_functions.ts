@@ -14,6 +14,7 @@ import { pdfjs } from 'react-pdf';
 import { convertDate, twoYearsInDays } from '@utils/contants';
 import {
     DocumentThreadResponse,
+    IProgramWithId,
     IStudentResponse,
     OpenTaskRow,
     type Application,
@@ -322,7 +323,7 @@ export const based_documents_init = (
     return { object_init };
 };
 
-export const are_base_documents_missing = (student: IUserWithId): boolean => {
+export const are_base_documents_missing = (student: IStudentResponse): boolean => {
     if (student?.profile?.length > 0) {
         const documentlist2_keys = Object.keys(ProfileNameType);
         const { object_init } = based_documents_init(student);
@@ -629,10 +630,10 @@ export const check_all_decided_applications_submitted = (
     }
 
     return student.applications
-        .filter((app: Application) => isProgramDecided(app))
+        .filter((app) => isProgramDecided(app as ApplicationProps))
         .every(
-            (app: Application) =>
-                isProgramSubmitted(app) && isProgramDecided(app)
+            (app) =>
+                isProgramSubmitted(app as ApplicationProps) && isProgramDecided(app as ApplicationProps)
         );
 };
 
@@ -726,23 +727,22 @@ export const num_uni_assist_vpd_uploaded = (student: IUserWithId): number => {
 };
 
 // Tested
-export const num_uni_assist_vpd_needed = (student: IUserWithId): number => {
+export const num_uni_assist_vpd_needed = (student: IStudentResponse): number => {
     let counter = 0;
     if (!student.applications) {
         return counter;
     }
-    for (let j = 0; j < student.applications.length; j += 1) {
+    for (const application of student.applications) {
         if (
-            isProgramDecided(student.applications[j]) &&
-            student.applications[j].programId.uni_assist &&
-            student.applications[j].programId.uni_assist.includes('VPD')
+            isProgramDecided(application) &&
+            application.programId?.uni_assist?.includes('VPD')
         ) {
-            if (!student.applications[j].uni_assist) {
+            if (!application.uni_assist) {
                 continue;
             }
             if (
-                student.applications[j].uni_assist &&
-                student.applications[j].uni_assist.status ===
+                application.uni_assist &&
+                application.uni_assist.status ===
                 DocumentStatusType.NotNeeded
             ) {
                 continue;
@@ -800,9 +800,12 @@ export const isAnyCVNotAssigned = (students: IStudentResponse[]): boolean => {
 export const is_program_ml_rl_essay_ready = (
     application: Application
 ): boolean => {
+    if (!application?.doc_modification_thread) {
+        return false;
+    }
     // check ML, RL, Essay
-    for (let i = 0; i < application?.doc_modification_thread?.length; i += 1) {
-        if (!application?.doc_modification_thread[i]?.isFinalVersion) {
+    for (const thread of application.doc_modification_thread) {
+        if (!thread?.isFinalVersion) {
             return false;
         }
     }
@@ -813,40 +816,41 @@ export const isApplicationOpen = (application: ApplicationProps): boolean => {
     return !isProgramSubmitted(application) && !isProgramWithdraw(application);
 };
 
-export const is_program_closed = (application: ApplicationProps): boolean => {
-    if (isProgramSubmitted(application) || isProgramWithdraw(application)) {
+export const is_program_closed = (application: Application): boolean => {
+    if (isProgramSubmitted(application as ApplicationProps) || isProgramWithdraw(application as ApplicationProps)) {
         return true;
     }
     return false;
 };
 
 export const is_any_programs_ready_to_submit = (
-    students: IUserWithId[]
+    students: IStudentResponse[]
 ): boolean => {
-    if (students) {
-        for (let i = 0; i < students.length; i += 1) {
-            if (students[i].applications) {
-                for (let j = 0; j < students[i].applications.length; j += 1) {
-                    if (
-                        isProgramDecided(students[i].applications[j]) &&
-                        isCVFinished(students[i]) &&
-                        is_program_ml_rl_essay_ready(
-                            students[i].applications[j]
-                        ) &&
-                        is_the_uni_assist_vpd_uploaded(
-                            students[i].applications[j]
-                        ) &&
-                        !is_program_closed(students[i].applications[j])
-                    ) {
-                        return true;
-                    }
+    if (!students) {
+        return false;
+    }
+    for (const student of students) {
+        if (student.applications) {
+            for (const application of student.applications) {
+                if (
+                    isProgramDecided(application as ApplicationProps) &&
+                    isCVFinished(student) &&
+                    is_program_ml_rl_essay_ready(
+                        application
+                    ) &&
+                    is_the_uni_assist_vpd_uploaded(
+                        application
+                    ) &&
+                    !is_program_closed(application)
+                ) {
+                    return true;
                 }
             }
         }
     }
-
     return false;
-};
+}
+
 
 export const is_vpd_missing = (application: Application): boolean => {
     if (!application.uni_assist) {
@@ -1010,7 +1014,7 @@ export const needGraduatedApplicantsPrograms = (
     );
 };
 
-export const isLanguageNotMatchedInAnyProgram = (student) => {
+export const isLanguageNotMatchedInAnyProgram = (student: IStudentResponse) => {
     const { applications, academic_background } = student;
 
     if (!applications) {
@@ -1020,11 +1024,11 @@ export const isLanguageNotMatchedInAnyProgram = (student) => {
         isProgramDecided(app)
     );
     for (const app of decidedApplications) {
-        const programLang = app.programId.lang?.toLowerCase();
+        const programLang = app.programId?.lang?.toLowerCase();
         if (
             check_german_language_Notneeded(academic_background) &&
             check_english_language_Notneeded(academic_background) &&
-            (programLang.includes('german') || programLang.includes('english'))
+            (programLang?.includes('german') || programLang?.includes('english'))
         ) {
             return true;
         }
@@ -1047,7 +1051,7 @@ export const isEnglishProgram = (application: Application) => {
     return application?.programId?.lang?.toLowerCase().includes('english');
 };
 
-export const isEnglishCertificateExpiredBeforeDeadline = (student) => {
+export const isEnglishCertificateExpiredBeforeDeadline = (student: IStudentResponse) => {
     const { applications, academic_background } = student;
 
     if (!applications) {
@@ -1055,21 +1059,21 @@ export const isEnglishCertificateExpiredBeforeDeadline = (student) => {
     }
 
     for (const app of applications) {
-        if (!isProgramDecided(app)) {
+        if (!isProgramDecided(app as ApplicationProps)) {
             continue;
         }
 
-        if (isProgramSubmitted(app)) {
+        if (isProgramSubmitted(app as ApplicationProps)) {
             continue;
         }
-        if (!isEnglishProgram(app)) {
+        if (!isEnglishProgram(app as Application)) {
             continue;
         }
 
         if (
             differenceInDays(
                 application_deadline_V2_calculator(app),
-                academic_background.language.english_test_date
+                academic_background?.language?.english_test_date
             ) > twoYearsInDays
         ) {
             return true;
@@ -1079,24 +1083,24 @@ export const isEnglishCertificateExpiredBeforeDeadline = (student) => {
     return false;
 };
 
-export const languageNotMatchedPrograms = (student) => {
+export const languageNotMatchedPrograms = (student: IStudentResponse) => {
     const decidedApplications = student.applications?.filter((app) =>
-        isProgramDecided(app)
+        isProgramDecided(app as ApplicationProps)
     );
 
     return decidedApplications?.filter(
         (app) =>
             (check_german_language_Notneeded(student.academic_background) &&
                 check_english_language_Notneeded(student.academic_background) &&
-                (app.programId.lang?.toLowerCase().includes('german') ||
-                    app.programId.lang?.toLowerCase().includes('english'))) ||
-            ((app.programId.lang?.toLowerCase().includes('and-english') ||
-                app.programId.lang?.toLowerCase() === 'english') &&
+                (app.programId?.lang?.toLowerCase().includes('german') ||
+                    app.programId?.lang?.toLowerCase().includes('english'))) ||
+            ((app.programId?.lang?.toLowerCase().includes('and-english') ||
+                app.programId?.lang?.toLowerCase() === 'english') &&
                 check_english_language_Notneeded(
                     student.academic_background
                 )) ||
-            ((app.programId.lang?.toLowerCase().includes('german-and') ||
-                app.programId.lang?.toLowerCase() === 'german') &&
+            ((app.programId?.lang?.toLowerCase().includes('german-and') ||
+                app.programId?.lang?.toLowerCase() === 'german') &&
                 check_german_language_Notneeded(student.academic_background))
     );
 };
@@ -1511,7 +1515,7 @@ export const getStudentEditorStatus = (
 };
 
 export const check_applications_to_decided = (
-    student: IUserWithId
+    student: IStudentResponse
 ): boolean => {
     if (!student.applications || student.applications.length === 0) {
         return true;
@@ -1521,17 +1525,17 @@ export const check_applications_to_decided = (
     );
 };
 
-export const has_admissions = (student: IUserWithId): boolean => {
+export const has_admissions = (student: IStudentResponse): boolean => {
     if (!student.applications || student.applications.length === 0) {
         return false;
     }
 
     return student.applications.some(
-        (app: Application) => isProgramSubmitted(app) && isProgramAdmitted(app)
+        (app) => isProgramSubmitted(app as ApplicationProps) && isProgramAdmitted(app as ApplicationProps)
     );
 };
 
-const prepTaskV2 = (student, thread) => {
+const prepTaskV2 = (student: IStudentResponse, thread: DocumentThreadResponse) => {
     return {
         ...prepTaskStudent(student),
         id: thread._id.toString(),
@@ -1554,7 +1558,7 @@ const prepTaskV2 = (student, thread) => {
     };
 };
 
-const prepTask = (student, thread) => {
+const prepTask = (student: IStudentResponse, thread: DocumentThreadResponse) => {
     return {
         ...prepTaskStudent(student),
         id: thread.doc_thread_id?._id?.toString(),
@@ -2180,7 +2184,7 @@ export const readPDF = async (file: File, studentName: string) => {
     const result = await new Promise((resolve, reject) => {
         reader.onload = async (event) => {
             try {
-                const content = event.target.result;
+                const content = event.target?.result;
                 const typedarray = new Uint8Array(content);
                 const pdf = await pdfjs.getDocument(typedarray).promise;
                 let text = '';
@@ -2188,7 +2192,7 @@ export const readPDF = async (file: File, studentName: string) => {
                     const page = await pdf.getPage(pageNum);
                     const pageTextContent = await page.getTextContent();
                     pageTextContent.items.forEach((item) => {
-                        text += item.str + ' ';
+                        text += item?.str + ' ';
                     });
                 }
                 if (text.toLowerCase().includes(studentName.toLowerCase())) {
@@ -2277,13 +2281,13 @@ export const LOCK_REASON = {
 };
 
 export const calculateProgramLockStatus = (
-    program: Record<string, unknown>
+    program: IProgramWithId
 ) => {
     if (!program) {
         return { isLocked: true, reason: null };
     }
 
-    const lastUpdated = program.updatedAt ? new Date(program.updatedAt) : null;
+    const lastUpdated = program?.updatedAt ? new Date(program?.updatedAt) : null;
 
     // Calculate if program data is stale (6 months = 180 days)
     // Both approval and non-approval countries should lock if program updatedAt > 6 months
@@ -2369,7 +2373,7 @@ export const calculateApplicationLockStatus = (application: Application) => {
 };
 
 // Format date for display (e.g., "Mar 4, 2024")
-export const formatDate = (date) => {
+export const formatDate = (date: string | Date) => {
     if (!date) return '-';
     const d = new Date(date);
     return d.toLocaleDateString('en-US', {
@@ -2382,7 +2386,7 @@ export const formatDate = (date) => {
     });
 };
 
-export const flattenObject = (obj, parentKey = '', result = {}) => {
+export const flattenObject = (obj: Record<string, unknown>, parentKey = '', result = {}) => {
     for (const [key, value] of Object.entries(obj || {})) {
         const newKey = parentKey ? `${parentKey}_${key}` : key;
 
@@ -2408,7 +2412,7 @@ export const GetCVDeadlineV2 = (applications: Application[]) => {
     let CVDeadlineRolling = '';
     let hasRolling = false;
     applications.forEach((application) => {
-        if (isProgramDecided(application) && application.closed === '-') {
+        if (isProgramDecided(application as ApplicationProps) && application.closed === '-') {
             const applicationDeadline =
                 application_deadline_V2_calculator(application);
             if (applicationDeadline?.toLowerCase()?.includes('rolling')) {
@@ -2434,7 +2438,7 @@ export const GetCVDeadlineV2 = (applications: Application[]) => {
 };
 
 export const GetCVDeadline = (
-    student: IUserWithId
+    student: IStudentResponse
 ): { daysLeftMin: number | string; CVDeadline: string } => {
     const today = new Date();
     let daysLeftMin = 3000;
@@ -2442,8 +2446,8 @@ export const GetCVDeadline = (
     let daysLeftRollingMin = 0;
     let CVDeadlineRolling = '';
     let hasRolling = false;
-    student.applications.forEach((application) => {
-        if (isProgramDecided(application) && application.closed === '-') {
+    student.applications?.forEach((application) => {
+        if (isProgramDecided(application as ApplicationProps) && application.closed === '-') {
             const applicationDeadline =
                 application_deadline_V2_calculator(application);
             if (applicationDeadline?.toLowerCase()?.includes('rolling')) {
@@ -2484,7 +2488,7 @@ export const check_application_preference_filled = (
         targetApplicationSubjects
     } = application_preference;
 
-    return (
+    return Boolean(
         expected_application_date &&
         expected_application_semester &&
         target_program_language &&
