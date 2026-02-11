@@ -48,6 +48,7 @@ import {
 import DEMO from '@store/constant';
 import { green, grey } from '@mui/material/colors';
 import { useTranslation } from 'react-i18next';
+import type { IStudentResponse } from '@api/types';
 
 export interface TransformedStudentRow {
     id: string;
@@ -98,7 +99,7 @@ export interface TransformedStudentRow {
 }
 
 const transform = (
-    stds: Record<string, unknown>[] | null | undefined,
+    stds: IStudentResponse[] | null | undefined,
     riskOnly = false
 ): TransformedStudentRow[] => {
     const transformedStudents: TransformedStudentRow[] = [];

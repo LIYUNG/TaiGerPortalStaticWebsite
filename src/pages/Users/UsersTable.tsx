@@ -30,9 +30,6 @@ import { getUsersCountQuery } from '@api/query';
 /** Reserved for future props */
 export type UsersTableProps = object;
 
-/** Reserved for future props */
-export type UsersTableProps = object;
-
 const UsersTable = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
