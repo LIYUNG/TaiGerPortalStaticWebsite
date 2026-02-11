@@ -3,14 +3,12 @@ import type { SyntheticEvent } from 'react';
 import { Box, Tabs, Tab } from '@mui/material';
 // import { useTranslation } from 'react-i18next';
 import i18next from 'i18next';
-import { useQuery } from '@tanstack/react-query';
-import queryString from 'query-string';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import StudentOverviewTable from '@components/StudentOverviewTable';
 import FinalDecisionOverview from '@components/StudentOverviewTable/finalDecisionOverview';
 import Loading from '@components/Loading/Loading';
-import { getActiveStudentsQuery } from '@api/query';
+import { useActiveStudents } from '@hooks/useActiveStudents';
 
 const STUDENT_TAB_KEYS = ['risk', 'final'];
 
@@ -36,10 +34,7 @@ const StudentAdmissionsTables = () => {
     };
 
     // Fetch all active students (not archived)
-    const { data, isLoading } = useQuery(
-        getActiveStudentsQuery(queryString.stringify({ archiv: false }))
-    );
-    const students = data?.data || [];
+    const { data: students, isLoading } = useActiveStudents({ archiv: false });
 
     return (
         <Box>

@@ -3,9 +3,6 @@ import { Navigate, Link as LinkDom } from 'react-router-dom';
 import { Box, Breadcrumbs, Button, Link, Typography } from '@mui/material';
 import { Assessment } from '@mui/icons-material';
 import { is_TaiGer_role } from '@taiger-common/core';
-import queryString from 'query-string';
-import { useQuery } from '@tanstack/react-query';
-
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
@@ -13,15 +10,14 @@ import { appConfig } from '../../config';
 import useStudents from '@hooks/useStudents';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { useTranslation } from 'react-i18next';
-import { getStudentsV3Query } from '@api/query';
+import { useStudentsV3 } from '@hooks/useStudentsV3';
 import { StudentsTable } from './StudentsTable';
 import { student_transform } from '../Utils/util_functions';
 
 const StudentDatabase = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
-    const { data: { data: fetchedAllStudents } = { data: [] }, isLoading } =
-        useQuery(getStudentsV3Query(queryString.stringify()));
+    const { data: fetchedAllStudents, isLoading } = useStudentsV3();
 
     const {
         res_modal_status,

@@ -207,7 +207,8 @@ export interface InterviewResponse {
 /** Document thread response */
 export interface DocumentThreadResponse {
     _id: string;
-    student_id?: string;
+    student_id?: string | IStudentResponse;
+    application_id?: string;
     user_id?: string;
     flag_by_user_id: string[],
     isFinalVersion?: boolean;
@@ -374,6 +375,9 @@ export interface AdmissionsStatRow {
 
 /** Open task row (CVMLRL Overview/Dashboard, Essay Overview) */
 export interface OpenTaskRow {
+    student_id?: string | IStudentResponse;
+    application_id?: string;
+    user_id?: string;
     id: string;
     show?: boolean;
     isFinalVersion?: boolean;

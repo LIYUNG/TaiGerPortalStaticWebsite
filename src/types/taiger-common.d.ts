@@ -63,6 +63,7 @@ export interface IUserWithId
 
 // Student response with populated references (from API)
 export interface IStudentResponse extends IUserWithId {
+    archiv?: boolean;
     applications?: IApplicationWithId[];
     agents?: IUserWithId[];
     editors?: IUserWithId[];

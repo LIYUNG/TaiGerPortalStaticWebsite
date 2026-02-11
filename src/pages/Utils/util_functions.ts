@@ -1,6 +1,7 @@
 import {
     ApplicationProps,
     DocumentStatusType,
+    isProgramAdmitted,
     isProgramDecided,
     isProgramSubmitted,
     isProgramWithdraw
@@ -11,7 +12,7 @@ import { differenceInDays } from 'date-fns';
 import { pdfjs } from 'react-pdf';
 
 import { convertDate, twoYearsInDays } from '@utils/contants';
-import { type Application, type IUserWithId } from '@api/types';
+import { DocumentThreadResponse, OpenTaskRow, type Application, type IUserWithId } from '@api/types';
 import {
     IUser,
     IUserAcademicBackground,
@@ -1669,10 +1670,10 @@ const prepApplicationTask = (student, application, thread) => {
     };
 };
 
-export const open_tasks_v2 = (threads) => {
-    const tasks = [];
+export const open_tasks_v2 = (threads: DocumentThreadResponse[]) => {
+    const tasks: OpenTaskRow[] = [];
     for (const thread of threads) {
-        if (thread.student_id.archiv !== true) {
+        if (thread.student_id?.archiv !== true) {
             if (!thread.application_id) {
                 tasks.push(prepGeneralTaskV2(thread.student_id, thread));
             } else {
@@ -1968,7 +1969,7 @@ export const programs_refactor = (students) => {
                 acc.push({
                     id: `${student._id.toString()}-${application.programId?._id?.toString()}`,
                     target_year: `${student.application_preference
-                            ?.expected_application_date || '-'
+                        ?.expected_application_date || '-'
                         } ${student.application_preference
                             ?.expected_application_semester || '-'
                         }`,

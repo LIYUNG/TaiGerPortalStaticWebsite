@@ -1,4 +1,3 @@
-import React from 'react';
 import {
     Alert,
     Card,
@@ -11,8 +10,6 @@ import {
     Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import queryString from 'query-string';
-
 import AdminTasks from '../MainViewTab/AdminTasks/index';
 import useStudents from '@hooks/useStudents';
 import ProgramReportCard from '../../Program/ProgramReportCard';
@@ -21,26 +18,20 @@ import { StudentsTable } from '../../StudentDatabase/StudentsTable';
 import { student_transform } from '../../Utils/util_functions';
 import { useQuery } from '@tanstack/react-query';
 import {
-    getStudentsV3Query,
     getAuditLogQuery,
     getInterviewsQuery,
     getTasksOverviewQuery
 } from '@api/query';
 import Loading from '@components/Loading/Loading';
+import { useStudentsV3 } from '@hooks/useStudentsV3';
+import queryString from 'query-string';
 
 const AdminMainView = (props) => {
     const { t } = useTranslation();
 
-    const {
-        data: { data: allStudentsApplications } = { data: [] },
-        isLoading
-    } = useQuery(
-        getStudentsV3Query(
-            queryString.stringify({
-                archiv: false
-            })
-        )
-    );
+    const { data: allStudentsApplications, isLoading } = useStudentsV3({
+        archiv: false
+    });
 
     const { data: interviews } = useQuery(
         getInterviewsQuery(

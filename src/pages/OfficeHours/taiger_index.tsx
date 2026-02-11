@@ -227,6 +227,7 @@ const TaiGerOfficeHours = () => {
         newReceiver,
         newDescription,
         selectedEvent,
+        newEventStart,
         newEventEnd,
         isNewEventModalOpen,
         isDeleteModalOpen,
