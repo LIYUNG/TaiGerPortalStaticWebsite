@@ -124,7 +124,12 @@ export interface CreateUserFromLeadModalProps {
     lead: CreateUserFromLeadLead;
     onSuccess?: () => void;
 }
-const CreateUserFromLeadModal = ({ open, onClose, lead, onSuccess }: CreateUserFromLeadModalProps) => {
+const CreateUserFromLeadModal = ({
+    open,
+    onClose,
+    lead,
+    onSuccess
+}: CreateUserFromLeadModalProps) => {
     const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');

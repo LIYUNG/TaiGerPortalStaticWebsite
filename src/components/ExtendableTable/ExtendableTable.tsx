@@ -109,7 +109,11 @@ export const ExtendableTable = ({
         `${studentIdx}-${expenseIdx}`;
 
     const getExpense = useCallback(
-        (student: ExtendableTableStudent, studentIdx: number, expenseIdx: number) => {
+        (
+            student: ExtendableTableStudent,
+            studentIdx: number,
+            expenseIdx: number
+        ) => {
             const key = getExpenseKey(studentIdx, expenseIdx);
             return editedExpenses[key] ?? student.expenses[expenseIdx];
         },
@@ -134,7 +138,10 @@ export const ExtendableTable = ({
         onExpenseChange?.(studentIdx, expenseIdx, field, value);
     };
 
-    const getStudentTotal = (student: ExtendableTableStudent, studentIdx: number) => {
+    const getStudentTotal = (
+        student: ExtendableTableStudent,
+        studentIdx: number
+    ) => {
         return student.expenses.reduce((sum, _, idx) => {
             const exp = getExpense(student, studentIdx, idx);
             return sum + (exp?.amount ?? 0);
@@ -229,7 +236,13 @@ export const ExtendableTable = ({
                                             timeout="auto"
                                             unmountOnExit
                                         >
-                                            <Box sx={{ px: 3, py: 2, bgcolor: 'action.hover' }}>
+                                            <Box
+                                                sx={{
+                                                    px: 3,
+                                                    py: 2,
+                                                    bgcolor: 'action.hover'
+                                                }}
+                                            >
                                                 {/* Expenses section - editable */}
                                                 <Typography
                                                     variant="subtitle2"
@@ -242,7 +255,10 @@ export const ExtendableTable = ({
                                                     {t('Status')},{' '}
                                                     {t('UpdateAt')}
                                                 </Typography>
-                                                <Table size="small" sx={{ mb: 2 }}>
+                                                <Table
+                                                    size="small"
+                                                    sx={{ mb: 2 }}
+                                                >
                                                     <TableHead>
                                                         <TableRow>
                                                             <TableCell>
@@ -268,15 +284,19 @@ export const ExtendableTable = ({
                                                         </TableRow>
                                                     </TableHead>
                                                     <TableBody>
-                                                        {student.expenses.length >
-                                                        0 ? (
+                                                        {student.expenses
+                                                            .length > 0 ? (
                                                             student.expenses.map(
-                                                                (_, expenseIdx) => {
-                                                                    const expense = getExpense(
-                                                                        student,
-                                                                        index,
-                                                                        expenseIdx
-                                                                    );
+                                                                (
+                                                                    _,
+                                                                    expenseIdx
+                                                                ) => {
+                                                                    const expense =
+                                                                        getExpense(
+                                                                            student,
+                                                                            index,
+                                                                            expenseIdx
+                                                                        );
                                                                     return (
                                                                         <TableRow
                                                                             key={
@@ -397,7 +417,8 @@ export const ExtendableTable = ({
                                                                                             index,
                                                                                             expenseIdx,
                                                                                             'updatedAt',
-                                                                                            e.target
+                                                                                            e
+                                                                                                .target
                                                                                                 .value
                                                                                         )
                                                                                     }
@@ -416,9 +437,7 @@ export const ExtendableTable = ({
                                                         ) : (
                                                             <TableRow>
                                                                 <TableCell
-                                                                    colSpan={
-                                                                        5
-                                                                    }
+                                                                    colSpan={5}
                                                                     sx={{
                                                                         color: 'text.secondary',
                                                                         fontStyle:
@@ -442,10 +461,9 @@ export const ExtendableTable = ({
                                                     variant="subtitle2"
                                                     sx={{ mb: 1.5 }}
                                                 >
-                                                    {t(
-                                                        'Document Threads',
-                                                        { ns: 'common' }
-                                                    )}{' '}
+                                                    {t('Document Threads', {
+                                                        ns: 'common'
+                                                    })}{' '}
                                                     — {t('Status')},{' '}
                                                     {t('Document')},{' '}
                                                     {t('UpdateAt')}
@@ -453,16 +471,15 @@ export const ExtendableTable = ({
                                                 <Table size="small">
                                                     <TableHead>
                                                         <TableRow>
-                                                            <TableCell width={60}>
+                                                            <TableCell
+                                                                width={60}
+                                                            >
                                                                 {t('Status')}
                                                             </TableCell>
                                                             <TableCell>
-                                                                {t(
-                                                                    'Document',
-                                                                    {
-                                                                        ns: 'common'
-                                                                    }
-                                                                )}
+                                                                {t('Document', {
+                                                                    ns: 'common'
+                                                                })}
                                                             </TableCell>
                                                             <TableCell>
                                                                 {t('UpdateAt')}
@@ -529,9 +546,7 @@ export const ExtendableTable = ({
                                                         ) : (
                                                             <TableRow>
                                                                 <TableCell
-                                                                    colSpan={
-                                                                        3
-                                                                    }
+                                                                    colSpan={3}
                                                                     sx={{
                                                                         color: 'text.secondary',
                                                                         fontStyle:

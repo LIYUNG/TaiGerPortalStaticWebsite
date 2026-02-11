@@ -25,14 +25,25 @@ import type { MouseEvent } from 'react';
 
 export interface MessageEditProps {
     editorState: unknown;
-    onDeleteSingleMessage: (e: MouseEvent<HTMLElement>, message_id: string) => void;
+    onDeleteSingleMessage: (
+        e: MouseEvent<HTMLElement>,
+        message_id: string
+    ) => void;
     isTaiGerView?: boolean;
     idx: string | number;
     full_name: string;
-    message: { _id: string | { toString: () => string }; createdAt?: string; user_id?: { pictureUrl?: string } };
+    message: {
+        _id: string | { toString: () => string };
+        createdAt?: string;
+        user_id?: { pictureUrl?: string };
+    };
     editable?: boolean;
     buttonDisabled?: boolean;
-    handleClickSave: (e: MouseEvent<HTMLElement>, editorState: unknown, message_id: string) => void;
+    handleClickSave: (
+        e: MouseEvent<HTMLElement>,
+        editorState: unknown,
+        message_id: string
+    ) => void;
     handleCancelEdit: (e: MouseEvent<HTMLElement>) => void;
     isDeleting?: boolean;
 }
@@ -141,7 +152,9 @@ const MessageEdit = (props: MessageEditProps) => {
                                     <CloseIcon
                                         fontSize="small"
                                         style={{ cursor: 'pointer' }}
-                                        titleAccess={t('Delete this message and file')}
+                                        titleAccess={t(
+                                            'Delete this message and file'
+                                        )}
                                     />
                                 </IconButton>
                             ) : null}
@@ -159,8 +172,10 @@ const MessageEdit = (props: MessageEditProps) => {
                     />
                 </AccordionDetails>
 
-                {!(messageEditState.editorState as { blocks?: unknown[] })?.blocks ||
-                (messageEditState.editorState as { blocks?: unknown[] })?.blocks?.length === 0 ||
+                {!(messageEditState.editorState as { blocks?: unknown[] })
+                    ?.blocks ||
+                (messageEditState.editorState as { blocks?: unknown[] })?.blocks
+                    ?.length === 0 ||
                 props.buttonDisabled ? (
                     <Tooltip
                         placement="top"

@@ -18,7 +18,11 @@ export interface InterviewsTableProps {
     columns: MRT_ColumnDef<Record<string, unknown>>[];
 }
 
-export const InterviewsTable = ({ isLoading, data, columns }: InterviewsTableProps) => {
+export const InterviewsTable = ({
+    isLoading,
+    data,
+    columns
+}: InterviewsTableProps) => {
     const { user } = useAuth();
     const customTableStyles = useTableStyles();
     const tableConfig = getTableConfig(customTableStyles, isLoading);

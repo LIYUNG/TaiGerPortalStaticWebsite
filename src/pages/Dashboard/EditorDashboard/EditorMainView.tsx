@@ -22,10 +22,7 @@ import {
     AGENT_SUPPORT_DOCUMENTS_A,
     FILE_TYPE_E
 } from '../../Utils/util_functions';
-import {
-    is_new_message_status,
-    is_pending_status
-} from '@utils/contants';
+import { is_new_message_status, is_pending_status } from '@utils/contants';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { useTranslation } from 'react-i18next';
@@ -34,9 +31,9 @@ import AssignEditorRow from '../MainViewTab/Common/AssignEditorRow';
 import AssignInterviewTrainerRow from '../MainViewTab/Common/AssignInterviewTrainerRow';
 import {
     getMyStudentsThreadsQuery,
-    getTasksOverviewQuery,
     getIsManagerQuery
 } from '@api/query';
+import { useTasksOverview } from '@hooks/useTasksOverview';
 import { useStudentsV3 } from '@hooks/useStudentsV3';
 import Loading from '@components/Loading/Loading';
 
@@ -55,7 +52,7 @@ const EditorMainView = () => {
         })
     );
 
-    const { data: tasksOverview } = useQuery(getTasksOverviewQuery());
+    const { data: tasksOverview } = useTasksOverview();
 
     const { data: dataIsManager } = useQuery(
         getIsManagerQuery({ userId: user._id })
@@ -198,13 +195,13 @@ const EditorMainView = () => {
                             </TableHead>
                             <TableBody>
                                 <AssignEditorRow
-                                    tasksOverview={tasksOverview?.data || {}}
+                                    tasksOverview={tasksOverview}
                                 />
                                 <AssignEssayWriterRow
-                                    tasksOverview={tasksOverview?.data || {}}
+                                    tasksOverview={tasksOverview}
                                 />
                                 <AssignInterviewTrainerRow
-                                    tasksOverview={tasksOverview?.data || {}}
+                                    tasksOverview={tasksOverview}
                                 />
                             </TableBody>
                         </Table>

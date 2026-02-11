@@ -24,8 +24,11 @@ const EssayDashboard = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
 
-    const essayDashboardParams = { file_type: file_category_const.essay_required };
-    const { data, isLoading, queryKey } = useActiveThreads(essayDashboardParams);
+    const essayDashboardParams = {
+        file_type: file_category_const.essay_required
+    };
+    const { data, isLoading, queryKey } =
+        useActiveThreads(essayDashboardParams);
 
     const { mutate: handleFavoriteToggleMutation } = useMutation({
         mutationFn: (id: string) => putThreadFavorite(id),

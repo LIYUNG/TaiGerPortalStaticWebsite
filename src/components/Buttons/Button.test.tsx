@@ -22,7 +22,9 @@ describe('Buttons', () => {
     });
 
     test('CommentsIconButton renders and calls openCommentWindow on click', () => {
-        const openCommentWindow = vi.fn((_studentId: string, _category: string) => {});
+        const openCommentWindow = vi.fn(
+            (_studentId: string, _category: string) => {}
+        );
         render(
             <CommentsIconButton
                 buttonState={{ student_id: 's1' }}
@@ -36,7 +38,12 @@ describe('Buttons', () => {
 
     test('DeleteIconButton renders and is disabled when isLoading', () => {
         const onDeleteFileWarningPopUp = vi.fn(
-            (_e: React.MouseEvent, _category: string, _studentId: string, _docName: string) => {}
+            (
+                _e: React.MouseEvent,
+                _category: string,
+                _studentId: string,
+                _docName: string
+            ) => {}
         );
         render(
             <DeleteIconButton

@@ -12,11 +12,12 @@ import {
     StyledInputBase,
     menuWidth
 } from '@utils/contants';
+import { IStudentResponse } from '@/api/types';
 
 interface ChatListState {
     success: boolean;
     searchMode: boolean;
-    students: unknown[];
+    students: IStudentResponse[];
     isLoaded: boolean;
     res_status?: number;
     res_modal_status?: number;
@@ -31,7 +32,7 @@ interface ChatListProps {
 const ChatList = (props: ChatListProps) => {
     const { user } = useAuth();
     const [searchTerm, setSearchTerm] = useState('');
-    const [searchResults, setSearchResults] = useState<unknown[]>([]);
+    const [searchResults, setSearchResults] = useState<IStudentResponse[]>([]);
     const [chatListState, setChatListState] = useState<ChatListState>({
         success: false,
         searchMode: false,

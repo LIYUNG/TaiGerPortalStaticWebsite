@@ -71,9 +71,9 @@ describe('Users Table page checking', () => {
 
         await waitFor(
             () => {
-                expect(screen.getByTestId('users_table_page')).toHaveTextContent(
-                    'User List'
-                );
+                expect(
+                    screen.getByTestId('users_table_page')
+                ).toHaveTextContent('User List');
             },
             { timeout: 3000 }
         );

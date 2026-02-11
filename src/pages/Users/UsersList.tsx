@@ -301,7 +301,7 @@ const UsersList = (props: UsersListProps) => {
                 }
             }
         ],
-        [t, props.readOnly]
+        [t]
     );
 
     const { mutate: changeUserRoleMutation } = useMutation({

@@ -44,7 +44,10 @@ const SingleBalanceSheetOverview = () => {
         enabled: Boolean(taiger_user_id)
     });
 
-    if (!user || !is_TaiGer_role(user as Parameters<typeof is_TaiGer_role>[0])) {
+    if (
+        !user ||
+        !is_TaiGer_role(user as Parameters<typeof is_TaiGer_role>[0])
+    ) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
@@ -57,26 +60,28 @@ const SingleBalanceSheetOverview = () => {
     }
 
     if (isError || !response?.data?.success) {
-        const axiosError = error as { response?: { status?: number } } | undefined;
+        const axiosError = error as
+            | { response?: { status?: number } }
+            | undefined;
         const res_status =
             (response?.status || axiosError?.response?.status) ?? 500;
         return <ErrorPage res_status={res_status} />;
     }
 
-    const students: ExtendableTableStudent[] =
-        response.data.data.students;
+    const students: ExtendableTableStudent[] = response.data.data.students;
     const the_user = response.data.data.the_user;
-    const fullName = `${the_user.firstname ?? ''} ${the_user.lastname ?? ''}`.trim();
+    const fullName =
+        `${the_user.firstname ?? ''} ${the_user.lastname ?? ''}`.trim();
 
     // Payment summary: total amount, students, applications, doc threads
     const totalAmount = students.reduce(
         (sum, s) =>
-            sum +
-            (s.expenses?.reduce((a, e) => a + (e?.amount ?? 0), 0) ?? 0),
+            sum + (s.expenses?.reduce((a, e) => a + (e?.amount ?? 0), 0) ?? 0),
         0
     );
     const totalApplications =
-        students.reduce((s, st) => s + (st.applying_program_count ?? 0), 0) ?? 0;
+        students.reduce((s, st) => s + (st.applying_program_count ?? 0), 0) ??
+        0;
     const docThreadCounts = students.reduce(
         (acc, s) => {
             const general = s.generaldocs_threads?.length ?? 0;
@@ -87,8 +92,8 @@ const SingleBalanceSheetOverview = () => {
                 ) ?? 0;
             const total = general + appThreads;
             const completed =
-                (s.generaldocs_threads?.filter((t) => t.isFinalVersion).length ??
-                    0) +
+                (s.generaldocs_threads?.filter((t) => t.isFinalVersion)
+                    .length ?? 0) +
                 (s.applications?.reduce(
                     (a, app) =>
                         a +
@@ -129,9 +134,12 @@ const SingleBalanceSheetOverview = () => {
                     {t('Salary Overview', { ns: 'common' })}
                 </Typography>
                 <Typography color="text.secondary" variant="body2">
-                    {t('Balance sheet and expenses for students assigned to this team member', {
-                        ns: 'common'
-                    })}
+                    {t(
+                        'Balance sheet and expenses for students assigned to this team member',
+                        {
+                            ns: 'common'
+                        }
+                    )}
                 </Typography>
             </Box>
             <Card sx={{ mb: 3 }}>
@@ -187,19 +195,13 @@ const SingleBalanceSheetOverview = () => {
                         }}
                     >
                         <Box>
-                            <Typography
-                                color="text.secondary"
-                                variant="body2"
-                            >
+                            <Typography color="text.secondary" variant="body2">
                                 {t('Total Amount', { ns: 'common' })}
                             </Typography>
                             <Typography variant="h6">{totalAmount}</Typography>
                         </Box>
                         <Box>
-                            <Typography
-                                color="text.secondary"
-                                variant="body2"
-                            >
+                            <Typography color="text.secondary" variant="body2">
                                 {t('Students', { ns: 'common' })}
                             </Typography>
                             <Typography variant="h6">
@@ -207,10 +209,7 @@ const SingleBalanceSheetOverview = () => {
                             </Typography>
                         </Box>
                         <Box>
-                            <Typography
-                                color="text.secondary"
-                                variant="body2"
-                            >
+                            <Typography color="text.secondary" variant="body2">
                                 # {t('Applications')}
                             </Typography>
                             <Typography variant="h6">
@@ -218,10 +217,7 @@ const SingleBalanceSheetOverview = () => {
                             </Typography>
                         </Box>
                         <Box>
-                            <Typography
-                                color="text.secondary"
-                                variant="body2"
-                            >
+                            <Typography color="text.secondary" variant="body2">
                                 {t('Document Threads', { ns: 'common' })}
                             </Typography>
                             <Typography variant="h6">

@@ -17,32 +17,20 @@ import MiniAudit from '../../Audit/MiniAudit';
 import { StudentsTable } from '../../StudentDatabase/StudentsTable';
 import { student_transform } from '../../Utils/util_functions';
 import { useQuery } from '@tanstack/react-query';
-import {
-    getAuditLogQuery,
-    getInterviewsQuery,
-    getTasksOverviewQuery
-} from '@api/query';
+import { getAuditLogQuery } from '@api/query';
+import { useTasksOverview } from '@hooks/useTasksOverview';
 import Loading from '@components/Loading/Loading';
 import { useStudentsV3 } from '@hooks/useStudentsV3';
 import queryString from 'query-string';
 
-const AdminMainView = (props) => {
+const AdminMainView = () => {
     const { t } = useTranslation();
 
     const { data: allStudentsApplications, isLoading } = useStudentsV3({
         archiv: false
     });
 
-    const { data: interviews } = useQuery(
-        getInterviewsQuery(
-            queryString.stringify({
-                no_trainer: true,
-                isClosed: false
-            })
-        )
-    );
-
-    const { data: tasksOverview } = useQuery(getTasksOverviewQuery());
+    const { data: tasksOverview } = useTasksOverview();
 
     const { data: auditLog } = useQuery(
         getAuditLogQuery(
@@ -77,12 +65,7 @@ const AdminMainView = (props) => {
                   : 1
         );
     const admin_tasks = (
-        <AdminTasks
-            essayDocumentThreads={props.essayDocumentThreads}
-            interviews={interviews?.data || []}
-            students={students}
-            tasksOverview={tasksOverview?.data || {}}
-        />
+        <AdminTasks students={students} tasksOverview={tasksOverview} />
     );
 
     const studentsTransformed = student_transform(

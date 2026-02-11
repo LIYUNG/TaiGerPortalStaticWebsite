@@ -34,7 +34,9 @@ export interface StudentApplicationsAssignProgramlistPageProps {
     isLoaded?: boolean;
 }
 
-const StudentApplicationsAssignProgramlistPage = (props: StudentApplicationsAssignProgramlistPageProps) => {
+const StudentApplicationsAssignProgramlistPage = (
+    props: StudentApplicationsAssignProgramlistPageProps
+) => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const navigate = useNavigate();

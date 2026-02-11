@@ -13,7 +13,7 @@ interface StudentRecord {
 }
 
 interface UseStudentsProps {
-    students: StudentRecord[];
+    students: IStudentResponse[];
 }
 
 function useStudents(props: UseStudentsProps) {

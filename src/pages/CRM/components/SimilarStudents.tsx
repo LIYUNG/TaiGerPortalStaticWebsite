@@ -453,7 +453,10 @@ export interface SimilarStudentsProps {
     leadId?: string;
     similarUsers?: SimilarUserMatchItem[];
 }
-const SimilarStudents = ({ leadId, similarUsers = [] }: SimilarStudentsProps) => {
+const SimilarStudents = ({
+    leadId,
+    similarUsers = []
+}: SimilarStudentsProps) => {
     // Reference to the scrollable container
     const scrollContainerRef = useRef(null);
     const { t } = useTranslation();
@@ -496,10 +499,13 @@ const SimilarStudents = ({ leadId, similarUsers = [] }: SimilarStudentsProps) =>
     const { studentIds, reasonMap } = useMemo(() => {
         const buildData = (list: SimilarUserMatchItem[]) => {
             const studentIds = list.map((item) => item.mongoId);
-            const reasonMap = list.reduce<Record<string, string | undefined>>((map, item) => {
-                map[item.mongoId] = item.reason;
-                return map;
-            }, {});
+            const reasonMap = list.reduce<Record<string, string | undefined>>(
+                (map, item) => {
+                    map[item.mongoId] = item.reason;
+                    return map;
+                },
+                {}
+            );
             return { studentIds, reasonMap };
         };
 

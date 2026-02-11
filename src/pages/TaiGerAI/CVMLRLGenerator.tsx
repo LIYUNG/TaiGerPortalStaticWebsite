@@ -54,7 +54,6 @@ const CVMLRLGenerator = () => {
             .pipeThrough(new TextDecoderStream())
             .getReader();
 
-         
         while (true) {
             const { value, done } = await reader.read();
             if (done) {

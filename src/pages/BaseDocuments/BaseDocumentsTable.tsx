@@ -75,7 +75,11 @@ export interface BaseDocumentsTableRowOriginal {
     id: string;
     studentName: string;
     agents?: BaseDocumentAgent[];
-    [profileKey: string]: string | BaseDocumentProfileItem | BaseDocumentAgent[] | undefined;
+    [profileKey: string]:
+        | string
+        | BaseDocumentProfileItem
+        | BaseDocumentAgent[]
+        | undefined;
 }
 
 export interface BaseDocumentsTableProps {
@@ -103,22 +107,25 @@ interface BaseDocumentsTableState {
 export const BaseDocumentsTable = ({ students }: BaseDocumentsTableProps) => {
     const { t } = useTranslation();
 
-    const [baseDocumentsTableState, setBaseDocumentsTableState] = useState<BaseDocumentsTableState>({
-        students: students,
-        isLoaded: true,
-        rejectProfileFileModel: false,
-        preview_path: '',
-        doc_key: '',
-        showPreview: false,
-        acceptProfileFileModel: false,
-        student_id: '',
-        status: '', //reject, accept... etc
-        category: '',
-        feedback: ''
-    });
+    const [baseDocumentsTableState, setBaseDocumentsTableState] =
+        useState<BaseDocumentsTableState>({
+            students: students,
+            isLoaded: true,
+            rejectProfileFileModel: false,
+            preview_path: '',
+            doc_key: '',
+            showPreview: false,
+            acceptProfileFileModel: false,
+            student_id: '',
+            status: '', //reject, accept... etc
+            category: '',
+            feedback: ''
+        });
 
     const onUpdateProfileFilefromstudent = (
-        e?: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>
+        e?:
+            | React.FormEvent<HTMLFormElement>
+            | React.MouseEvent<HTMLButtonElement>
     ) => {
         e?.preventDefault();
         setBaseDocumentsTableState((prevState) => ({
@@ -135,20 +142,25 @@ export const BaseDocumentsTable = ({ students }: BaseDocumentsTableProps) => {
                 const { data, success } = resp.data;
                 const { status } = resp;
                 if (success) {
-                    const students_temp: BaseDocumentStudentRow[] = [...baseDocumentsTableState.students];
+                    const students_temp: BaseDocumentStudentRow[] = [
+                        ...baseDocumentsTableState.students
+                    ];
                     const student_index = students_temp.findIndex(
                         (student) =>
-                            String(student._id) === baseDocumentsTableState.student_id
+                            String(student._id) ===
+                            baseDocumentsTableState.student_id
                     );
                     if (student_index === -1) return;
                     const profile = students_temp[student_index].profile;
                     const profile_idx = Array.isArray(profile)
                         ? profile.findIndex(
-                            (p: BaseDocumentProfileItem) => p.name === baseDocumentsTableState.category
-                        )
+                              (p: BaseDocumentProfileItem) =>
+                                  p.name === baseDocumentsTableState.category
+                          )
                         : -1;
                     if (profile_idx === -1) return;
-                    students_temp[student_index].profile[profile_idx] = data as BaseDocumentProfileItem;
+                    students_temp[student_index].profile[profile_idx] =
+                        data as BaseDocumentProfileItem;
                     setBaseDocumentsTableState((prevState) => ({
                         ...prevState,
                         students: students_temp,
@@ -175,9 +187,13 @@ export const BaseDocumentsTable = ({ students }: BaseDocumentsTableProps) => {
             (error) => {
                 setBaseDocumentsTableState((prevState) => {
                     const prevLoaded = prevState.isLoaded;
-                    const isLoadedObj = typeof prevLoaded === 'object' && prevLoaded !== null
-                        ? { ...(prevLoaded as Record<string, boolean>), [baseDocumentsTableState.category]: true }
-                        : { [baseDocumentsTableState.category]: true };
+                    const isLoadedObj =
+                        typeof prevLoaded === 'object' && prevLoaded !== null
+                            ? {
+                                  ...(prevLoaded as Record<string, boolean>),
+                                  [baseDocumentsTableState.category]: true
+                              }
+                            : { [baseDocumentsTableState.category]: true };
                     return {
                         ...prevState,
                         isLoaded: isLoadedObj,
@@ -208,7 +224,9 @@ export const BaseDocumentsTable = ({ students }: BaseDocumentsTableProps) => {
     };
 
     const handleRejectMessage = (
-        e: React.FormEvent<HTMLFormElement> | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+        e:
+            | React.FormEvent<HTMLFormElement>
+            | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
         rejectmessage: string
     ) => {
         if ('preventDefault' in e) e.preventDefault();
@@ -274,21 +292,27 @@ export const BaseDocumentsTable = ({ students }: BaseDocumentsTableProps) => {
         let missing = 0;
         let notNeeded = 0;
 
-        baseDocumentsTableState.students.forEach((student: BaseDocumentStudentRow) => {
-            (student.profile ?? []).forEach((doc: BaseDocumentProfileItem) => {
-                if (doc.status === DocumentStatusType.Uploaded) {
-                    uploaded++;
-                } else if (doc.status === DocumentStatusType.Accepted) {
-                    accepted++;
-                } else if (doc.status === DocumentStatusType.Rejected) {
-                    rejected++;
-                } else if (doc.status === DocumentStatusType.NotNeeded) {
-                    notNeeded++;
-                } else {
-                    missing++;
-                }
-            });
-        });
+        baseDocumentsTableState.students.forEach(
+            (student: BaseDocumentStudentRow) => {
+                (student.profile ?? []).forEach(
+                    (doc: BaseDocumentProfileItem) => {
+                        if (doc.status === DocumentStatusType.Uploaded) {
+                            uploaded++;
+                        } else if (doc.status === DocumentStatusType.Accepted) {
+                            accepted++;
+                        } else if (doc.status === DocumentStatusType.Rejected) {
+                            rejected++;
+                        } else if (
+                            doc.status === DocumentStatusType.NotNeeded
+                        ) {
+                            notNeeded++;
+                        } else {
+                            missing++;
+                        }
+                    }
+                );
+            }
+        );
 
         const completionRate =
             totalDocuments > 0
@@ -310,78 +334,99 @@ export const BaseDocumentsTable = ({ students }: BaseDocumentsTableProps) => {
 
     // Transform students data for the table
     const tableData = useMemo(() => {
-        return baseDocumentsTableState.students.map((student: BaseDocumentStudentRow) => ({
-            id: student._id.toString(),
-            studentName: `${student?.lastname_chinese || ''}${
-                student?.firstname_chinese || ''
-            } ${student.firstname} ${student.lastname}`,
-            agents: student.agents,
-            ...(student.profile ?? []).reduce((acc: Record<string, BaseDocumentProfileItem>, curr: BaseDocumentProfileItem) => {
-                acc[curr.name] = curr;
-                return acc;
-            }, {})
-        }));
+        return baseDocumentsTableState.students.map(
+            (student: BaseDocumentStudentRow) => ({
+                id: student._id.toString(),
+                studentName: `${student?.lastname_chinese || ''}${
+                    student?.firstname_chinese || ''
+                } ${student.firstname} ${student.lastname}`,
+                agents: student.agents,
+                ...(student.profile ?? []).reduce(
+                    (
+                        acc: Record<string, BaseDocumentProfileItem>,
+                        curr: BaseDocumentProfileItem
+                    ) => {
+                        acc[curr.name] = curr;
+                        return acc;
+                    },
+                    {}
+                )
+            })
+        );
     }, [baseDocumentsTableState.students]);
 
     // Helper function to render document status cell
-    const renderDocumentStatusCell = useCallback((
-        params: { row: { original: BaseDocumentsTableRowOriginal } },
-        profileKey: string
-    ) => {
-        const value = params.row.original[profileKey] as BaseDocumentProfileItem | undefined;
+    const renderDocumentStatusCell = useCallback(
+        (
+            params: { row: { original: BaseDocumentsTableRowOriginal } },
+            profileKey: string
+        ) => {
+            const value = params.row.original[profileKey] as
+                | BaseDocumentProfileItem
+                | undefined;
 
-        if (value?.status === DocumentStatusType.Uploaded) {
-            return (
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <IconButton size="small">{FILE_UPLOADED_SYMBOL}</IconButton>
-                    {`${value?.status || ''}`}
-                </Box>
-            );
-        } else if (value?.status === DocumentStatusType.Accepted) {
-            const document_split = (value?.path ?? '').toString().replace(/\\/g, '/');
-            const document_name = document_split.split('/')[1];
-            return (
-                <Box
-                    onClick={(e) => {
-                        showPreview(
-                            e,
-                            document_name,
-                            value?.name ?? '',
-                            document_name,
-                            String(params.row.original.id ?? '')
-                        );
-                    }}
-                    style={{
-                        textDecoration: 'none',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center'
-                    }}
-                >
-                    <IconButton size="small">{FILE_OK_SYMBOL}</IconButton>{' '}
-                    {`${value?.status || ''}`}
-                </Box>
-            );
-        } else if (value?.status === DocumentStatusType.Rejected) {
-            return (
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <IconButton size="small">{FILE_NOT_OK_SYMBOL}</IconButton>{' '}
-                    {`${value?.status || ''}`}
-                </Box>
-            );
-        } else if (value?.status === DocumentStatusType.NotNeeded) {
-            return (
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <IconButton size="small">
-                        {FILE_DONT_CARE_SYMBOL}
-                    </IconButton>
-                    {`${value?.status || ''}`}
-                </Box>
-            );
-        } else {
-            return <IconButton size="small">{FILE_MISSING_SYMBOL}</IconButton>;
-        }
-    }, [showPreview]);
+            if (value?.status === DocumentStatusType.Uploaded) {
+                return (
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <IconButton size="small">
+                            {FILE_UPLOADED_SYMBOL}
+                        </IconButton>
+                        {`${value?.status || ''}`}
+                    </Box>
+                );
+            } else if (value?.status === DocumentStatusType.Accepted) {
+                const document_split = (value?.path ?? '')
+                    .toString()
+                    .replace(/\\/g, '/');
+                const document_name = document_split.split('/')[1];
+                return (
+                    <Box
+                        onClick={(e) => {
+                            showPreview(
+                                e,
+                                document_name,
+                                value?.name ?? '',
+                                document_name,
+                                String(params.row.original.id ?? '')
+                            );
+                        }}
+                        style={{
+                            textDecoration: 'none',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center'
+                        }}
+                    >
+                        <IconButton size="small">{FILE_OK_SYMBOL}</IconButton>{' '}
+                        {`${value?.status || ''}`}
+                    </Box>
+                );
+            } else if (value?.status === DocumentStatusType.Rejected) {
+                return (
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <IconButton size="small">
+                            {FILE_NOT_OK_SYMBOL}
+                        </IconButton>{' '}
+                        {`${value?.status || ''}`}
+                    </Box>
+                );
+            } else if (value?.status === DocumentStatusType.NotNeeded) {
+                return (
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <IconButton size="small">
+                            {FILE_DONT_CARE_SYMBOL}
+                        </IconButton>
+                        {`${value?.status || ''}`}
+                    </Box>
+                );
+            } else {
+                return (
+                    <IconButton size="small">{FILE_MISSING_SYMBOL}</IconButton>
+                );
+            }
+        },
+        [showPreview]
+    );
 
     // Build profile document columns dynamically
     const profileColumns = useMemo(() => {
@@ -393,7 +438,9 @@ export const BaseDocumentsTable = ({ students }: BaseDocumentsTableProps) => {
             accessorKey: baseDoc[0],
             header: t(baseDoc[1], { ns: 'common' }),
             size: 150,
-            Cell: (params: { row: { original: BaseDocumentsTableRowOriginal } }) => renderDocumentStatusCell(params, baseDoc[0])
+            Cell: (params: {
+                row: { original: BaseDocumentsTableRowOriginal };
+            }) => renderDocumentStatusCell(params, baseDoc[0])
         }));
     }, [t, renderDocumentStatusCell]);
 
@@ -404,7 +451,9 @@ export const BaseDocumentsTable = ({ students }: BaseDocumentsTableProps) => {
                 accessorKey: 'studentName',
                 header: t('First / Last Name', { ns: 'common' }),
                 size: 200,
-                Cell: (params: { row: { original: BaseDocumentsTableRowOriginal } }) => {
+                Cell: (params: {
+                    row: { original: BaseDocumentsTableRowOriginal };
+                }) => {
                     const linkUrl = `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
                         params.row.original.id,
                         DEMO.PROFILE_HASH
@@ -429,9 +478,13 @@ export const BaseDocumentsTable = ({ students }: BaseDocumentsTableProps) => {
                 size: 150,
                 accessorFn: (row: BaseDocumentsTableRowOriginal) =>
                     row.agents
-                        ?.map((agent) => `${agent.firstname ?? ''} ${agent.lastname ?? ''}`.trim())
+                        ?.map((agent) =>
+                            `${agent.firstname ?? ''} ${agent.lastname ?? ''}`.trim()
+                        )
                         .join(', ') || '',
-                Cell: (params: { row: { original: BaseDocumentsTableRowOriginal } }) => {
+                Cell: (params: {
+                    row: { original: BaseDocumentsTableRowOriginal };
+                }) => {
                     const agents = params.row.original.agents;
                     return agents?.map((agent, idx) => (
                         <Link
@@ -443,9 +496,7 @@ export const BaseDocumentsTable = ({ students }: BaseDocumentsTableProps) => {
                             underline="hover"
                         >
                             {`${agent.firstname ?? ''}${
-                                agents && idx < agents.length - 1
-                                    ? ', '
-                                    : ''
+                                agents && idx < agents.length - 1 ? ', ' : ''
                             }`}
                         </Link>
                     ));

@@ -19,75 +19,78 @@ const AdmissionsStat = ({ result }: AdmissionsStatProps) => {
         row: Record<string, unknown>;
         field: string;
     };
-    const memoizedColumns = useMemo(() => [
-        {
-            field: 'school',
-            headerName: t('School', { ns: 'common' }),
-            width: 300,
-            renderCell: (params: RenderCellParams) => {
-                const linkUrl = `${DEMO.SINGLE_PROGRAM_LINK(params.row.id as string)}`;
-                return (
-                    <Link
-                        component={LinkDom}
-                        target="_blank"
-                        to={linkUrl}
-                        underline="hover"
-                    >
-                        {String(params.value)}
-                    </Link>
-                );
+    const memoizedColumns = useMemo(
+        () => [
+            {
+                field: 'school',
+                headerName: t('School', { ns: 'common' }),
+                width: 300,
+                renderCell: (params: RenderCellParams) => {
+                    const linkUrl = `${DEMO.SINGLE_PROGRAM_LINK(params.row.id as string)}`;
+                    return (
+                        <Link
+                            component={LinkDom}
+                            target="_blank"
+                            to={linkUrl}
+                            underline="hover"
+                        >
+                            {String(params.value)}
+                        </Link>
+                    );
+                }
+            },
+            {
+                field: 'program_name',
+                headerName: t('Program', { ns: 'common' }),
+                width: 300,
+                renderCell: (params: RenderCellParams) => {
+                    const linkUrl = `${DEMO.SINGLE_PROGRAM_LINK(params.row.id as string)}`;
+                    return (
+                        <Link
+                            component={LinkDom}
+                            target="_blank"
+                            to={linkUrl}
+                            underline="hover"
+                        >
+                            {String(params.value)}
+                        </Link>
+                    );
+                }
+            },
+            { field: 'degree', headerName: 'Degree', width: 100 },
+            {
+                field: 'semester',
+                headerName: t('Semester', { ns: 'common' }),
+                width: 100
+            },
+            {
+                field: 'applicationCount',
+                headerName: t('applicationCount', { ns: 'common' }),
+                width: 100
+            },
+            {
+                field: 'finalEnrolmentCount',
+                headerName: t('enrolment', { ns: 'common' }),
+                width: 100
+            },
+            {
+                field: 'admissionCount',
+                headerName: t('Admission', { ns: 'common' }),
+                width: 100
+            },
+            {
+                field: 'rejectionCount',
+                headerName: t('Rejection', { ns: 'common' }),
+                width: 100
+            },
+            {
+                field: 'pendingResultCount',
+                headerName: t('Pending Result', { ns: 'common' }),
+                width: 100
             }
-        },
-        {
-            field: 'program_name',
-            headerName: t('Program', { ns: 'common' }),
-            width: 300,
-            renderCell: (params: RenderCellParams) => {
-                const linkUrl = `${DEMO.SINGLE_PROGRAM_LINK(params.row.id as string)}`;
-                return (
-                    <Link
-                        component={LinkDom}
-                        target="_blank"
-                        to={linkUrl}
-                        underline="hover"
-                    >
-                        {String(params.value)}
-                    </Link>
-                );
-            }
-        },
-        { field: 'degree', headerName: 'Degree', width: 100 },
-        {
-            field: 'semester',
-            headerName: t('Semester', { ns: 'common' }),
-            width: 100
-        },
-        {
-            field: 'applicationCount',
-            headerName: t('applicationCount', { ns: 'common' }),
-            width: 100
-        },
-        {
-            field: 'finalEnrolmentCount',
-            headerName: t('enrolment', { ns: 'common' }),
-            width: 100
-        },
-        {
-            field: 'admissionCount',
-            headerName: t('Admission', { ns: 'common' }),
-            width: 100
-        },
-        {
-            field: 'rejectionCount',
-            headerName: t('Rejection', { ns: 'common' }),
-            width: 100
-        },
-        {
-            field: 'pendingResultCount',
-            headerName: t('Pending Result', { ns: 'common' }),
-            width: 100
-        }
-    ], [t]);
+        ],
+        [t]
+    );
 
     return (
         <MuiDataGrid

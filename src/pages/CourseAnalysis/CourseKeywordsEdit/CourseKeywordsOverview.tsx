@@ -571,7 +571,9 @@ export interface CourseKeywordsOverviewProps {
     courseKeywordSets: CourseKeywordsEditCardData[];
 }
 
-const CourseKeywordsOverview = ({ courseKeywordSets }: CourseKeywordsOverviewProps) => {
+const CourseKeywordsOverview = ({
+    courseKeywordSets
+}: CourseKeywordsOverviewProps) => {
     const [courseKeywordSetsState, setCourseKeywordSetsState] = useState(
         courseKeywordSets.map((courseKeywordSet) => ({
             ...courseKeywordSet,

@@ -38,11 +38,15 @@ declare global {
     var __ADMISSIONS_USE_MOCK_QUERY: boolean | undefined;
 }
 vi.mock('@tanstack/react-query', async (importOriginal) => {
-    const actual = await importOriginal<typeof import('@tanstack/react-query')>();
+    const actual =
+        await importOriginal<typeof import('@tanstack/react-query')>();
     return {
         ...actual,
         useQuery: vi.fn((options: { queryKey?: unknown[] }) => {
-            if (globalThis.__ADMISSIONS_USE_MOCK_QUERY && Array.isArray(options?.queryKey)) {
+            if (
+                globalThis.__ADMISSIONS_USE_MOCK_QUERY &&
+                Array.isArray(options?.queryKey)
+            ) {
                 const key = options.queryKey[0];
                 if (key === 'admissions') {
                     return {
@@ -63,7 +67,9 @@ vi.mock('@tanstack/react-query', async (importOriginal) => {
                     };
                 }
             }
-            return (actual.useQuery as (...args: unknown[]) => unknown)(options);
+            return (actual.useQuery as (...args: unknown[]) => unknown)(
+                options
+            );
         })
     };
 });
@@ -142,7 +148,9 @@ describe('Admissions page checking', () => {
     });
 
     test('Admissions page shows loading state', () => {
-        vi.mocked(getAdmissions).mockImplementation(() => new Promise(() => {})); // Never resolves
+        vi.mocked(getAdmissions).mockImplementation(
+            () => new Promise(() => {})
+        ); // Never resolves
         vi.mocked(useAuth).mockReturnValue(mockAuthAgent);
 
         renderWithQueryClient(

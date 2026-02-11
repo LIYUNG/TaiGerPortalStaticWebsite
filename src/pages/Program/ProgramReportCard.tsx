@@ -95,9 +95,7 @@ const ProgramReportCard = () => {
                         </TableCell>
                     </TableRow>
                 </TableHead>
-                <TableBody>
-                    {renderTicketRows()}
-                </TableBody>
+                <TableBody>{renderTicketRows()}</TableBody>
             </Table>
         </Card>
     );

@@ -17,10 +17,7 @@ import React, { useMemo, useState } from 'react';
 import i18next from 'i18next';
 
 import ExampleWithLocalizationProvider from '@components/MaterialReactTable';
-import {
-    COUNTRIES_ARRAY_OPTIONS,
-    SCHOOL_TAGS_DETAILED
-} from '@utils/contants';
+import { COUNTRIES_ARRAY_OPTIONS, SCHOOL_TAGS_DETAILED } from '@utils/contants';
 import { updateSchoolAttributes } from '@api';
 import SearchableMultiSelect from '@components/Input/searchableMuliselect';
 import { useSnackBar } from '@contexts/use-snack-bar';
@@ -38,11 +35,15 @@ export interface SchoolConfigEditCardData {
 
 export interface SchoolConfigEditCardProps {
     data: SchoolConfigEditCardData;
-    setDistinctSchoolsState: React.Dispatch<React.SetStateAction<SchoolConfigEditCardData[]>>;
+    setDistinctSchoolsState: React.Dispatch<
+        React.SetStateAction<SchoolConfigEditCardData[]>
+    >;
 }
 
 const EditCard = (props: SchoolConfigEditCardProps) => {
-    const [attributes, setAttributes] = useState<SchoolConfigEditCardData>(props.data);
+    const [attributes, setAttributes] = useState<SchoolConfigEditCardData>(
+        props.data
+    );
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement> | SelectChangeEvent<unknown>,
@@ -51,7 +52,11 @@ const EditCard = (props: SchoolConfigEditCardProps) => {
         if ('preventDefault' in e) e.preventDefault();
         const name = e.target.name;
         const raw = e.target.value as string;
-        const value = (name === 'isPrivateSchool' || name === 'isPartnerSchool' ? raw === 'true' : raw) as string | boolean;
+        const value = (
+            name === 'isPrivateSchool' || name === 'isPartnerSchool'
+                ? raw === 'true'
+                : raw
+        ) as string | boolean;
         setAttributes({
             ...attributes,
             school: school as string | undefined,
@@ -61,20 +66,25 @@ const EditCard = (props: SchoolConfigEditCardProps) => {
 
     type SchoolAttributeValue = string | number | boolean | string[];
 
-    const handleChangeByField = (field: string, school: SchoolConfigEditCardData | unknown) => (value: SchoolAttributeValue) => {
-        const schoolObj: SchoolConfigEditCardData = school && typeof school === 'object' ? (school as SchoolConfigEditCardData) : {};
-        const newState = { ...schoolObj };
-        if (value === schoolObj[field] || (!schoolObj[field] && !value)) {
-            delete newState[field];
-        } else {
-            newState[field] = value;
-        }
-        setAttributes({
-            ...attributes,
-            school: school as string | undefined,
-            [field]: value
-        });
-    };
+    const handleChangeByField =
+        (field: string, school: SchoolConfigEditCardData | unknown) =>
+        (value: SchoolAttributeValue) => {
+            const schoolObj: SchoolConfigEditCardData =
+                school && typeof school === 'object'
+                    ? (school as SchoolConfigEditCardData)
+                    : {};
+            const newState = { ...schoolObj };
+            if (value === schoolObj[field] || (!schoolObj[field] && !value)) {
+                delete newState[field];
+            } else {
+                newState[field] = value;
+            }
+            setAttributes({
+                ...attributes,
+                school: school as string | undefined,
+                [field]: value
+            });
+        };
 
     const handleSave = async () => {
         props.setDistinctSchoolsState((prevState) => {
@@ -108,9 +118,15 @@ const EditCard = (props: SchoolConfigEditCardProps) => {
 
     return (
         <Box>
-            <form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
+            <form
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    handleSave();
+                }}
+            >
                 <Typography variant="h6">
-                    {i18next.t('School', { ns: 'common' })}: {String(attributes.school ?? '')}
+                    {i18next.t('School', { ns: 'common' })}:{' '}
+                    {String(attributes.school ?? '')}
                 </Typography>
                 <Typography sx={{ mb: 2 }} variant="subtitle1">
                     {i18next.t('Programs Count', { ns: 'common' })}:{' '}
@@ -121,7 +137,9 @@ const EditCard = (props: SchoolConfigEditCardProps) => {
                         {i18next.t('Is Private School', { ns: 'common' })}
                     </InputLabel>
                     <Select
-                        defaultValue={String(attributes.isPrivateSchool ?? false)}
+                        defaultValue={String(
+                            attributes.isPrivateSchool ?? false
+                        )}
                         id="isPrivateSchool"
                         label={i18next.t('Is Private School', { ns: 'common' })}
                         labelId="isPrivateSchool"
@@ -141,7 +159,9 @@ const EditCard = (props: SchoolConfigEditCardProps) => {
                         {i18next.t('Is Partner School', { ns: 'common' })}
                     </InputLabel>
                     <Select
-                        defaultValue={String(attributes.isPartnerSchool ?? false)}
+                        defaultValue={String(
+                            attributes.isPartnerSchool ?? false
+                        )}
                         id="isPartnerSchool"
                         label={i18next.t('Is Partner School', { ns: 'common' })}
                         labelId="isPartnerSchool"
@@ -205,7 +225,9 @@ const EditCard = (props: SchoolConfigEditCardProps) => {
                     label={undefined}
                     name="tags"
                     setValue={handleChangeByField('tags', props.data.school)}
-                    value={Array.isArray(attributes.tags) ? attributes.tags : []}
+                    value={
+                        Array.isArray(attributes.tags) ? attributes.tags : []
+                    }
                 />
                 {/* Additional configuration details go here */}
                 <Button color="primary" type="submit" variant="contained">
@@ -227,7 +249,9 @@ const SchoolConfigContent = ({ data }: SchoolConfigContentProps) => {
         filterFn?: string;
         header: string;
         size: number;
-        Cell?: (params: { row: { original: SchoolConfigEditCardData } }) => React.ReactNode;
+        Cell?: (params: {
+            row: { original: SchoolConfigEditCardData };
+        }) => React.ReactNode;
     }> = [
         {
             accessorKey: 'school',
@@ -323,10 +347,13 @@ const SchoolConfigContent = ({ data }: SchoolConfigContentProps) => {
         }
     ];
 
-    const [distinctSchoolsState, setDistinctSchoolsState] = useState<SchoolConfigEditCardData[]>(data);
+    const [distinctSchoolsState, setDistinctSchoolsState] =
+        useState<SchoolConfigEditCardData[]>(data);
     const memoizedColumnsMrt = useMemo(() => c1_mrt, [c1_mrt]);
     const [drawerOpen, setDrawerOpen] = useState(false);
-    const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
+    const [rowSelection, setRowSelection] = useState<Record<string, boolean>>(
+        {}
+    );
     const theme = useTheme();
     const isSmallScreen = useMediaQuery(theme.breakpoints.down('md'));
     const handleDrawerClose = () => {
@@ -360,11 +387,19 @@ const SchoolConfigContent = ({ data }: SchoolConfigContentProps) => {
                         enableMultiRowSelection={false}
                         enableRowSelection={true}
                         muiTableBodyRowProps={(params) => {
-                            const row = params.row as unknown as { getToggleSelectedHandler: () => () => void };
-                            return { onClick: row.getToggleSelectedHandler(), sx: { cursor: 'pointer' } };
+                            const row = params.row as unknown as {
+                                getToggleSelectedHandler: () => () => void;
+                            };
+                            return {
+                                onClick: row.getToggleSelectedHandler(),
+                                sx: { cursor: 'pointer' }
+                            };
                         }}
                         onRowSelectionChange={(updater) => {
-                            const next = typeof updater === 'function' ? updater(rowSelection) : updater;
+                            const next =
+                                typeof updater === 'function'
+                                    ? updater(rowSelection)
+                                    : updater;
                             handleSchoolClick(next as Record<string, boolean>);
                         }}
                         rowSelection={rowSelection}

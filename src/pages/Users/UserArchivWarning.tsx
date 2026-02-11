@@ -16,7 +16,10 @@ export interface UserArchivWarningProps {
     isUpdatingArchivUser?: boolean;
     selected_user_id: string;
     archiv?: boolean;
-    updateUserArchivStatus: (params: { user_id: string; isArchived: boolean }) => void;
+    updateUserArchivStatus: (params: {
+        user_id: string;
+        isArchived: boolean;
+    }) => void;
 }
 
 const UserArchivWarning = (props: UserArchivWarningProps) => {

@@ -6,7 +6,11 @@ import StudentApplicationsTableTemplate from './StudentApplicationsTableTemplate
 
 const StudentApplicationsIndividual = () => {
     const { student_id } = useParams<{ student_id: string }>();
-    const { data: student, isLoading, isError } = useApplicationStudent(student_id);
+    const {
+        data: student,
+        isLoading,
+        isError
+    } = useApplicationStudent(student_id);
 
     if (isLoading) return <Loading />;
     if (isError || !student) return null;

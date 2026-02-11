@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import { Link, TableCell, TableRow } from '@mui/material';
 
@@ -11,11 +10,19 @@ import { useTranslation } from 'react-i18next';
 import AssignEssayWriterRow from '../Common/AssignEssayWriterRow';
 import AssignEditorRow from '../Common/AssignEditorRow';
 import AssignInterviewTrainerRow from '../Common/AssignInterviewTrainerRow';
+import { IStudentResponse } from '@/types/taiger-common';
 
-const AdminTasks = (props) => {
+const AdminTasks = ({
+    interviews,
+    students,
+    tasksOverview
+}: {
+    students: IStudentResponse[];
+    tasksOverview: any;
+}) => {
     const { t } = useTranslation();
-    const missing_number_of_applications_students = props.students.map(
-        (student, i) =>
+    const missing_number_of_applications_students = students.map(
+        (student: IStudentResponse, i: number) =>
             is_num_Program_Not_specified(student) && (
                 <TableRow key={i}>
                     <TableCell>
@@ -43,7 +50,7 @@ const AdminTasks = (props) => {
 
     return (
         <>
-            {!does_student_have_agents(props.students) ? (
+            {!does_student_have_agents(students) ? (
                 <TableRow>
                     <TableCell>
                         <Link
@@ -58,9 +65,9 @@ const AdminTasks = (props) => {
                     </TableCell>
                 </TableRow>
             ) : null}
-            <AssignEditorRow tasksOverview={props.tasksOverview} />
-            <AssignEssayWriterRow tasksOverview={props.tasksOverview} />
-            <AssignInterviewTrainerRow tasksOverview={props.tasksOverview} />
+            <AssignEditorRow tasksOverview={tasksOverview} />
+            <AssignEssayWriterRow tasksOverview={tasksOverview} />
+            <AssignInterviewTrainerRow tasksOverview={tasksOverview} />
 
             {/* assign number of application according to contract */}
             {missing_number_of_applications_students}

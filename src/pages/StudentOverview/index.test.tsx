@@ -49,7 +49,9 @@ const routes = [
 describe('StudentOverviewPage', () => {
     window.ResizeObserver = ResizeObserver;
     test('StudentOverview page not crash', async () => {
-        vi.mocked(getActiveStudents).mockResolvedValue({ data: mockSingleData });
+        vi.mocked(getActiveStudents).mockResolvedValue({
+            data: mockSingleData
+        });
         vi.mocked(useAuth).mockReturnValue({
             user: { role: 'Agent', _id: '639baebf8b84944b872cf648' },
             isAuthenticated: true,

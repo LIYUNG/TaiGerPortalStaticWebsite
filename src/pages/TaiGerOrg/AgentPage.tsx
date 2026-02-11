@@ -20,8 +20,6 @@ import {
     isProgramDecided,
     isProgramSubmitted
 } from '@taiger-common/core';
-import { useQuery } from '@tanstack/react-query';
-import queryString from 'query-string';
 import {
     PersonOutline as PersonIcon,
     Assignment as AssignmentIcon,
@@ -43,7 +41,7 @@ import DEMO from '@store/constant';
 import { appConfig } from '../../config';
 import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';
-import { getMyStudentsApplicationsV2Query } from '@api/query';
+import { useMyStudentsApplicationsV2 } from '@hooks/useMyStudentsApplicationsV2';
 import { useStudentsV3 } from '@hooks/useStudentsV3';
 import { formatDate } from '../Utils/util_functions';
 
@@ -55,15 +53,14 @@ const AgentPage = () => {
     const { data: fetchedMyStudents, isLoading: isLoadingMyStudents } =
         useStudentsV3({ agents: user_id, archiv: false });
 
-    const { data: myStudentsApplications, isLoading } = useQuery(
-        getMyStudentsApplicationsV2Query({
-            userId: user_id ?? '',
-            queryString: queryString.stringify({})
-        })
-    );
+    const { data: myStudentsApplications, isLoading } =
+        useMyStudentsApplicationsV2(
+            { userId: user_id ?? '' },
+            { enabled: !!user_id }
+        );
 
     const stats = useMemo(() => {
-        if (!myStudentsApplications?.data?.applications || !fetchedMyStudents) {
+        if (!myStudentsApplications?.applications?.length || !fetchedMyStudents) {
             return {
                 totalStudents: 0,
                 totalApplications: 0,
@@ -77,7 +74,7 @@ const AgentPage = () => {
             };
         }
 
-        const applications = myStudentsApplications.data.applications;
+        const applications = myStudentsApplications.applications ?? [];
         const decidedYesCount = applications.filter(
             (app: { decided?: string }) => isProgramDecided(app)
         ).length;
@@ -125,9 +122,9 @@ const AgentPage = () => {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
-    const agentUser = myStudentsApplications?.data?.user;
+    const agentUser = myStudentsApplications?.user;
 
-    if (!myStudentsApplications?.data?.applications) {
+    if (!myStudentsApplications?.applications) {
         return <Loading />;
     }
 
@@ -641,7 +638,7 @@ const AgentPage = () => {
             <Divider sx={{ my: 3 }} />
 
             <ApplicationOverviewTabs
-                applications={myStudentsApplications.data.applications}
+                applications={myStudentsApplications.applications}
                 students={fetchedMyStudents}
             />
 

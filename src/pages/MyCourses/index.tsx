@@ -35,11 +35,7 @@ import {
     is_TaiGer_role
 } from '@taiger-common/core';
 
-import {
-    getMycourses,
-    putMycourses,
-    transcriptanalyser_testV2
-} from '@api';
+import { getMycourses, putMycourses, transcriptanalyser_testV2 } from '@api';
 import { useMutation } from '@tanstack/react-query';
 import { queryClient } from '@api/client';
 import { getMycoursesQuery } from '@api/query';

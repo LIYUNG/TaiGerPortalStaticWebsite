@@ -38,11 +38,7 @@ import { is_TaiGer_role } from '@taiger-common/core';
 import DocThreadEditor from '@components/Message/DocThreadEditor';
 import ErrorPage from '../../Utils/ErrorPage';
 import ModalMain from '../../Utils/ModalHandler/ModalMain';
-import {
-    stringAvatar,
-    templatelist,
-    THREAD_TABS
-} from '@utils/contants';
+import { stringAvatar, templatelist, THREAD_TABS } from '@utils/contants';
 import {
     FILE_TYPE_E,
     readDOCX,
@@ -81,9 +77,19 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/b
 interface DocModificationThreadPageThread {
     _id?: string | { toString(): string };
     application_id?: { programId?: unknown; [key: string]: unknown };
-    program_id?: { school?: string; degree?: string; program_name?: string; [key: string]: unknown };
+    program_id?: {
+        school?: string;
+        degree?: string;
+        program_name?: string;
+        [key: string]: unknown;
+    };
     file_type?: string;
-    student_id?: { firstname?: string; lastname?: string; _id?: { toString(): string }; [key: string]: unknown };
+    student_id?: {
+        firstname?: string;
+        lastname?: string;
+        _id?: { toString(): string };
+        [key: string]: unknown;
+    };
     isFinalVersion?: boolean;
     flag_by_user_id?: string[];
     messages?: unknown[];
@@ -142,7 +148,8 @@ const DocModificationThreadPage = ({
     const [checkResult, setCheckResult] = useState([]);
     const { hash } = useLocation();
     const thread: DocModificationThreadPageThread =
-        (docModificationThreadPageState.thread as DocModificationThreadPageThread) || {};
+        (docModificationThreadPageState.thread as DocModificationThreadPageThread) ||
+        {};
 
     // Use application-level lock status if application_id exists and has programId
     // Otherwise fall back to program-level lock status
@@ -691,7 +698,7 @@ const DocModificationThreadPage = ({
         audit: TAB_KEYS.audit
     };
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- TAB_KEYS are constants, not reactive deps
+     
     const tabKeys = useMemo(() => {
         const keys = [TAB_KEYS.discussion];
         if (isGeneralRL) {

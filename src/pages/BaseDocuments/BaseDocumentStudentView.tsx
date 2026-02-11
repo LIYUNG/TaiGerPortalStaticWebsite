@@ -14,7 +14,10 @@ export interface BaseDocumentStudentViewProps {
     base_docs_link: string;
 }
 
-const BaseDocumentStudentView = ({ student, base_docs_link }: BaseDocumentStudentViewProps) => {
+const BaseDocumentStudentView = ({
+    student,
+    base_docs_link
+}: BaseDocumentStudentViewProps) => {
     const { t } = useTranslation();
 
     const [baseDocumentStudentViewState, setBaseDocumentStudentViewState] =

@@ -7,10 +7,7 @@ import DocPageEdit from './DocPageEdit';
 import { valid_categories } from '@utils/contants';
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
-import {
-    getCategorizedDocumentationPage,
-    updateDocumentationPage
-} from '@api';
+import { getCategorizedDocumentationPage, updateDocumentationPage } from '@api';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';

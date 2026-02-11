@@ -10,11 +10,7 @@ import {
     ProfileNameType
 } from '@taiger-common/core';
 
-import {
-    COLORS,
-    FILE_MISSING_SYMBOL,
-    FILE_OK_SYMBOL
-} from '@utils/contants';
+import { COLORS, FILE_MISSING_SYMBOL, FILE_OK_SYMBOL } from '@utils/contants';
 import { MuiDataGrid } from '../MuiDataGrid';
 import type { MuiDataGridColumn } from '../MuiDataGrid';
 import {

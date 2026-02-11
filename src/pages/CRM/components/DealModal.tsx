@@ -151,7 +151,7 @@ const DealModal = ({
             }
             queueMicrotask(() => setErrors({}));
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- form identity stable from useForm
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- form identity stable from useForm
     }, [open, preselectedLeadId, preselectedSalesUserId, deal, isEditMode]);
 
     const resetForm = () => {

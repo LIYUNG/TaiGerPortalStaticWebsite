@@ -18,169 +18,169 @@ export default function AdmissionTable({ query }) {
 
     const memoizedColumns = useMemo(
         () => [
-        {
-            field: 'firstname_chinese',
-            headerName: t('First Name Chinese', { ns: 'common' }),
-            align: 'left',
-            headerAlign: 'left',
-            width: 80,
-            renderCell: (params) => {
-                const linkUrl = `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                    params.row.student_id,
-                    DEMO.PROFILE_HASH
-                )}`;
-                return (
-                    <Link
-                        component={LinkDom}
-                        target="_blank"
-                        to={linkUrl}
-                        underline="hover"
-                    >
-                        {params.value}
-                    </Link>
-                );
+            {
+                field: 'firstname_chinese',
+                headerName: t('First Name Chinese', { ns: 'common' }),
+                align: 'left',
+                headerAlign: 'left',
+                width: 80,
+                renderCell: (params) => {
+                    const linkUrl = `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
+                        params.row.student_id,
+                        DEMO.PROFILE_HASH
+                    )}`;
+                    return (
+                        <Link
+                            component={LinkDom}
+                            target="_blank"
+                            to={linkUrl}
+                            underline="hover"
+                        >
+                            {params.value}
+                        </Link>
+                    );
+                }
+            },
+            {
+                field: 'lastname_chinese',
+                headerName: t('Last Name Chinese', { ns: 'common' }),
+                align: 'left',
+                headerAlign: 'left',
+                width: 80,
+                renderCell: (params) => {
+                    const linkUrl = `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
+                        params.row.student_id,
+                        DEMO.PROFILE_HASH
+                    )}`;
+                    return (
+                        <Link
+                            component={LinkDom}
+                            target="_blank"
+                            to={linkUrl}
+                            underline="hover"
+                        >
+                            {params.value}
+                        </Link>
+                    );
+                }
+            },
+            {
+                field: 'name',
+                headerName: t('Name', { ns: 'common' }),
+                align: 'left',
+                headerAlign: 'left',
+                width: 150,
+                renderCell: (params) => {
+                    const linkUrl = `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
+                        params.row.student_id,
+                        DEMO.PROFILE_HASH
+                    )}`;
+                    return (
+                        <Link
+                            component={LinkDom}
+                            target="_blank"
+                            to={linkUrl}
+                            underline="hover"
+                        >
+                            {params.value}
+                        </Link>
+                    );
+                }
+            },
+            {
+                field: 'agents',
+                headerName: t('Agents', { ns: 'common' }),
+                width: 100
+            },
+            {
+                field: 'editors',
+                headerName: t('Editors', { ns: 'common' }),
+                width: 100
+            },
+            {
+                field: 'school',
+                headerName: t('School', { ns: 'common' }),
+                width: 250,
+                renderCell: (params) => {
+                    const linkUrl = `${DEMO.SINGLE_PROGRAM_LINK(params.row.programId)}`;
+                    return (
+                        <Link
+                            component={LinkDom}
+                            target="_blank"
+                            to={linkUrl}
+                            underline="hover"
+                        >
+                            {params.value}
+                        </Link>
+                    );
+                }
+            },
+            {
+                field: 'program_name',
+                headerName: t('Program', { ns: 'common' }),
+                width: 250,
+                renderCell: (params) => {
+                    const linkUrl = `${DEMO.SINGLE_PROGRAM_LINK(params.row.programId)}`;
+                    return (
+                        <Link
+                            component={LinkDom}
+                            target="_blank"
+                            to={linkUrl}
+                            underline="hover"
+                        >
+                            {params.value}
+                        </Link>
+                    );
+                }
+            },
+            {
+                field: 'degree',
+                headerName: t('Degree', { ns: 'common' }),
+                width: 120
+            },
+            {
+                field: 'application_year',
+                headerName: t('Application Year', { ns: 'common' }),
+                width: 120
+            },
+            {
+                field: 'semester',
+                headerName: t('Semester', { ns: 'common' }),
+                width: 120
+            },
+            {
+                field: 'admission_file_path',
+                headerName: t('Admission Letter', { ns: 'common' }),
+                width: 150,
+                renderCell: (params) => {
+                    const linkUrl = `${BASE_URL}/api/admissions/${params.row.admission_file_path?.replace(
+                        /\\/g,
+                        '/'
+                    )}`;
+                    return (
+                        <Link
+                            component={LinkDom}
+                            target="_blank"
+                            to={linkUrl}
+                            underline="hover"
+                        >
+                            {params.row.admission_file_path !== ''
+                                ? params.row.admission === 'O'
+                                    ? t('Admission Letter', { ns: 'common' })
+                                    : params.row.admission === 'X'
+                                      ? t('Rejection Letter', { ns: 'common' })
+                                      : ''
+                                : null}
+                        </Link>
+                    );
+                }
+            },
+            {
+                field: 'finalEnrolment',
+                headerName: t('Decision', { ns: 'common' }),
+                width: 150
             }
-        },
-        {
-            field: 'lastname_chinese',
-            headerName: t('Last Name Chinese', { ns: 'common' }),
-            align: 'left',
-            headerAlign: 'left',
-            width: 80,
-            renderCell: (params) => {
-                const linkUrl = `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                    params.row.student_id,
-                    DEMO.PROFILE_HASH
-                )}`;
-                return (
-                    <Link
-                        component={LinkDom}
-                        target="_blank"
-                        to={linkUrl}
-                        underline="hover"
-                    >
-                        {params.value}
-                    </Link>
-                );
-            }
-        },
-        {
-            field: 'name',
-            headerName: t('Name', { ns: 'common' }),
-            align: 'left',
-            headerAlign: 'left',
-            width: 150,
-            renderCell: (params) => {
-                const linkUrl = `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                    params.row.student_id,
-                    DEMO.PROFILE_HASH
-                )}`;
-                return (
-                    <Link
-                        component={LinkDom}
-                        target="_blank"
-                        to={linkUrl}
-                        underline="hover"
-                    >
-                        {params.value}
-                    </Link>
-                );
-            }
-        },
-        {
-            field: 'agents',
-            headerName: t('Agents', { ns: 'common' }),
-            width: 100
-        },
-        {
-            field: 'editors',
-            headerName: t('Editors', { ns: 'common' }),
-            width: 100
-        },
-        {
-            field: 'school',
-            headerName: t('School', { ns: 'common' }),
-            width: 250,
-            renderCell: (params) => {
-                const linkUrl = `${DEMO.SINGLE_PROGRAM_LINK(params.row.programId)}`;
-                return (
-                    <Link
-                        component={LinkDom}
-                        target="_blank"
-                        to={linkUrl}
-                        underline="hover"
-                    >
-                        {params.value}
-                    </Link>
-                );
-            }
-        },
-        {
-            field: 'program_name',
-            headerName: t('Program', { ns: 'common' }),
-            width: 250,
-            renderCell: (params) => {
-                const linkUrl = `${DEMO.SINGLE_PROGRAM_LINK(params.row.programId)}`;
-                return (
-                    <Link
-                        component={LinkDom}
-                        target="_blank"
-                        to={linkUrl}
-                        underline="hover"
-                    >
-                        {params.value}
-                    </Link>
-                );
-            }
-        },
-        {
-            field: 'degree',
-            headerName: t('Degree', { ns: 'common' }),
-            width: 120
-        },
-        {
-            field: 'application_year',
-            headerName: t('Application Year', { ns: 'common' }),
-            width: 120
-        },
-        {
-            field: 'semester',
-            headerName: t('Semester', { ns: 'common' }),
-            width: 120
-        },
-        {
-            field: 'admission_file_path',
-            headerName: t('Admission Letter', { ns: 'common' }),
-            width: 150,
-            renderCell: (params) => {
-                const linkUrl = `${BASE_URL}/api/admissions/${params.row.admission_file_path?.replace(
-                    /\\/g,
-                    '/'
-                )}`;
-                return (
-                    <Link
-                        component={LinkDom}
-                        target="_blank"
-                        to={linkUrl}
-                        underline="hover"
-                    >
-                        {params.row.admission_file_path !== ''
-                            ? params.row.admission === 'O'
-                                ? t('Admission Letter', { ns: 'common' })
-                                : params.row.admission === 'X'
-                                  ? t('Rejection Letter', { ns: 'common' })
-                                  : ''
-                            : null}
-                    </Link>
-                );
-            }
-        },
-        {
-            field: 'finalEnrolment',
-            headerName: t('Decision', { ns: 'common' }),
-            width: 150
-        }
-    ],
+        ],
         [t]
     );
 

@@ -25,10 +25,7 @@ import useStudents from '@hooks/useStudents';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { DECISION_STATUS_E, SUBMISSION_STATUS_E } from '@utils/contants';
 import { StudentsTable } from '../StudentDatabase/StudentsTable';
-import type {
-    IStudentResponse,
-    IApplicationWithId
-} from '@api/types';
+import type { IStudentResponse, IApplicationWithId } from '@api/types';
 
 export interface ApplicationOverviewTabsProps {
     students: IStudentResponse[];
@@ -59,7 +56,10 @@ const ApplicationOverviewTabs = ({
         submitUpdateAttributeslist,
         updateStudentArchivStatus
     } = useStudents({
-        students: stds as unknown as Array<{ _id: string; [key: string]: unknown }>
+        students: stds as unknown as Array<{
+            _id: string;
+            [key: string]: unknown;
+        }>
     });
 
     const handleChange = (_event: SyntheticEvent, newValue: number) => {
@@ -206,8 +206,8 @@ const ApplicationOverviewTabs = ({
                 return params.row.decided === '-'
                     ? DECISION_STATUS_E.UNKNOWN_SYMBOL
                     : isProgramDecided(
-                          params.row as unknown as ApplicationProps
-                      )
+                            params.row as unknown as ApplicationProps
+                        )
                       ? DECISION_STATUS_E.OK_SYMBOL
                       : DECISION_STATUS_E.NOT_OK_SYMBOL;
             }
@@ -224,8 +224,8 @@ const ApplicationOverviewTabs = ({
                 return params.row.closed === '-'
                     ? SUBMISSION_STATUS_E.UNKNOWN_SYMBOL
                     : isProgramSubmitted(
-                          params.row as unknown as ApplicationProps
-                      )
+                            params.row as unknown as ApplicationProps
+                        )
                       ? SUBMISSION_STATUS_E.OK_SYMBOL
                       : SUBMISSION_STATUS_E.NOT_OK_SYMBOL;
             }
@@ -361,18 +361,22 @@ const ApplicationOverviewTabs = ({
                                 {String(selectedRowData?.program ?? '')}
                             </Typography>
                             {selectedRowData?.application &&
-                            selectedRowData?.student
-                                ? (
-                                    <ApplicationProgressCardBody
-                                        application={
-                                            selectedRowData.application as Record<string, unknown>
-                                        }
-                                        student={
-                                            selectedRowData.student as Record<string, unknown>
-                                        }
-                                    />
-                                )
-                                : null}
+                            selectedRowData?.student ? (
+                                <ApplicationProgressCardBody
+                                    application={
+                                        selectedRowData.application as Record<
+                                            string,
+                                            unknown
+                                        >
+                                    }
+                                    student={
+                                        selectedRowData.student as Record<
+                                            string,
+                                            unknown
+                                        >
+                                    }
+                                />
+                            ) : null}
                         </Box>
                     </Popover>
                 </CustomTabPanel>

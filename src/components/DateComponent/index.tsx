@@ -39,9 +39,7 @@ const EventDateComponent = ({ eventDate }: EventDateComponentProps) => {
         const month = months[eventDate.getMonth()];
         const day = eventDate.getDate().toString().padStart(2, '0');
         const weekDay = daysOfWeek[eventDate.getDay()];
-        queueMicrotask(() =>
-            setFormattedDate({ month, day, weekDay })
-        );
+        queueMicrotask(() => setFormattedDate({ month, day, weekDay }));
     }, [eventDate]);
 
     return (
