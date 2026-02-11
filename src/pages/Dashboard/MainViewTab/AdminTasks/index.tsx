@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import AssignEssayWriterRow from '../Common/AssignEssayWriterRow';
 import AssignEditorRow from '../Common/AssignEditorRow';
 import AssignInterviewTrainerRow from '../Common/AssignInterviewTrainerRow';
+import type { TasksOverview } from '@api/types';
 import { IStudentResponse } from '@/types/taiger-common';
 
 const AdminTasks = ({
@@ -17,7 +18,7 @@ const AdminTasks = ({
     tasksOverview
 }: {
     students: IStudentResponse[];
-    tasksOverview: any;
+    tasksOverview: TasksOverview;
 }) => {
     const { t } = useTranslation();
     const missing_number_of_applications_students = students.map(

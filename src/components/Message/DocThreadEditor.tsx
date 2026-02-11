@@ -23,6 +23,7 @@ import i18next from 'i18next';
 
 import { useAuth } from '../AuthProvider';
 import EditorSimple from '../EditorJs/EditorSimple';
+import { OutputData } from '@editorjs/editorjs';
 
 export interface EditorStateData {
     time?: number;
@@ -37,7 +38,7 @@ export interface CheckResultItem {
 }
 
 export interface DocThreadEditorProps {
-    editorState: EditorStateData;
+    editorState: OutputData;
     thread?: unknown;
     file?: File[] | { name: string }[];
     buttonDisabled?: boolean;
@@ -128,7 +129,7 @@ const DocThreadEditor = ({
                         editorState={editorState}
                         handleEditorChange={handleEditorChange}
                         holder="editorjs"
-                        imageEnable={!readOnly}
+                        imageEnable={true}
                         readOnly={readOnly}
                         setStatedata={
                             setStatedata as Dispatch<

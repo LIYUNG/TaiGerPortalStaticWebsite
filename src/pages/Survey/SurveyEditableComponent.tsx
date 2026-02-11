@@ -73,7 +73,17 @@ export interface SurveyEditableComponentProps {
 
 const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
     const surveyContext = useSurvey();
+    const [surveyEditableComponentState, setSurveyEditableComponentState] =
+        useState({
+            baseDocsflagOffcanvas: false,
+            baseDocsflagOffcanvasButtonDisable: false
+        });
+    const { user } = useAuth();
+    const { t } = useTranslation();
+    const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+
     if (!surveyContext) return null;
+
     const {
         handleChangeAcademic,
         handleTestDate,
@@ -87,20 +97,11 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
         onChangeURL,
         survey
     } = surveyContext;
-
-    const [surveyEditableComponentState, setSurveyEditableComponentState] =
-        useState({
-            baseDocsflagOffcanvas: false,
-            baseDocsflagOffcanvasButtonDisable: false
-        });
-    const { user } = useAuth();
-    const { t } = useTranslation();
-    const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
     const handleClose = () => {
         setAnchorEl(null);
     };
-    const handleRowClick = (event) => {
+    const handleRowClick = (event: MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
     };
 

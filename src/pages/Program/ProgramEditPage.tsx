@@ -58,7 +58,6 @@ const ProgramEditPage = () => {
                                 <NewProgramEdit
                                     handleClick={onClickIToSingleProgramPage}
                                     handleSubmit_Program={handleSubmitProgram}
-                                    isLoading={isLoading}
                                     isSubmitting={isPending}
                                     program={data?.data}
                                     programs={loadedData}

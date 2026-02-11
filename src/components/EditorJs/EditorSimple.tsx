@@ -12,50 +12,22 @@ import Underline from '@editorjs/underline';
 import ColorPlugin from 'editorjs-text-color-plugin';
 import TextAlign from '@canburaks/text-align-editorjs';
 
+import { OutputData } from '@editorjs/editorjs';
 import { uploadImage, uploadDocumentThreadImage } from '@api';
-
-export interface EditorStateData {
-    time?: number;
-    blocks?: unknown[];
-}
 
 export interface EditorSimpleProps {
     holder: string;
-    editorState?: EditorStateData | null;
+    editorState?: OutputData | undefined;
     readOnly?: boolean;
     defaultHeight?: number;
     imageEnable?: boolean;
     thread?: { _id: string; student_id: { _id: string } };
-    handleEditorChange?: (outputData: EditorStateData) => void;
+    handleEditorChange?: (outputData: OutputData) => void;
 }
 
 const EditorSimple = (props: EditorSimpleProps) => {
     const ejInstance = useRef<EditorJS | null>(null);
-    let editor: EditorJS | undefined;
-
-    const configuration: Record<string, unknown> = {
-        holder: `${props.holder}`,
-        logLevel: 'ERROR',
-        data: props.editorState,
-        onReady: () => {
-            ejInstance.current = editor ?? null;
-        },
-        onChange: async (api: {
-            saver: { save: () => Promise<EditorStateData> };
-        }) => {
-            if (!props.readOnly && props.handleEditorChange) {
-                api.saver.save().then((outputData) => {
-                    props.handleEditorChange?.(outputData);
-                });
-            }
-        },
-        placeholder:
-            'Please organize your questions and expected help concretely.',
-        readOnly: props.readOnly,
-        minHeight: props.defaultHeight
-    };
-
-    let tools: Record<string, unknown> = {
+    const tools = {
         header: {
             class: Header,
             config: {
@@ -128,67 +100,78 @@ const EditorSimple = (props: EditorSimpleProps) => {
         },
         inlineCode: {
             class: InlineCode
-        }
+        },
+        ...(props.imageEnable
+            ? {
+                  image: {
+                      class: ImageTool,
+                      config: {
+                          uploader: {
+                              async uploadByFile(file: File) {
+                                  const formData = new FormData();
+                                  formData.append('file', file);
+                                  let res: { data: { data: string } };
+                                  if (props.thread) {
+                                      res = await uploadDocumentThreadImage(
+                                          props.thread._id.toString(),
+                                          props.thread.student_id._id.toString(),
+                                          formData
+                                      );
+                                  } else {
+                                      res = await uploadImage(formData);
+                                  }
+                                  return {
+                                      success: 1,
+                                      file: { url: res.data.data }
+                                  };
+                              },
+                              async uploadByUrl(url: string) {
+                                  return {
+                                      success: 1,
+                                      file: { url }
+                                  };
+                              }
+                          }
+                      }
+                  }
+              }
+            : undefined)
     };
 
-    if (props.imageEnable) {
-        tools = {
-            ...tools,
-            image: {
-                class: ImageTool,
-                config: {
-                    uploader: {
-                        async uploadByFile(file: File) {
-                            const formData = new FormData();
-                            formData.append('file', file);
-                            let res: { data: { data: string } };
-                            if (props.thread) {
-                                res = await uploadDocumentThreadImage(
-                                    props.thread._id.toString(),
-                                    props.thread.student_id._id.toString(),
-                                    formData
-                                );
-                            } else {
-                                res = await uploadImage(formData);
-                            }
-                            return {
-                                success: 1,
-                                file: { url: res.data.data }
-                            };
-                        },
-                        async uploadByUrl(url: string) {
-                            return {
-                                success: 1,
-                                file: { url }
-                            };
-                        }
-                    }
+    const initEditor = () => {
+        const editor = new EditorJS({
+            holder: `${props.holder}`,
+            logLevel: 'ERROR',
+            data: props.editorState,
+            onReady: () => {
+                ejInstance.current = editor ?? null;
+            },
+            onChange: async (api: {
+                saver: { save: () => Promise<OutputData> };
+            }) => {
+                if (!props.readOnly && props.handleEditorChange) {
+                    api.saver.save().then((outputData) => {
+                        props.handleEditorChange?.(outputData);
+                    });
                 }
-            }
-        };
-    }
-
-    const fullConfig = {
-        ...configuration,
-        tools
+            },
+            placeholder:
+                'Please organize your questions and expected help concretely.',
+            readOnly: props.readOnly,
+            minHeight: props.defaultHeight,
+            tools: tools
+        }) as EditorJS;
     };
 
     useEffect(() => {
-        const initEditor = () => {
-            editor = new EditorJS(
-                fullConfig as Parameters<typeof EditorJS>[0]
-            ) as EditorJS;
-        };
-        if (!ejInstance.current) {
+        if (ejInstance.current === null) {
             initEditor();
         }
         return () => {
-            if (ejInstance.current) {
-                ejInstance.current.destroy();
-                ejInstance.current = null;
-            }
+            ejInstance?.current?.destroy();
+            ejInstance.current = null;
         };
-    }, [props.editorState]);
+    }, []);
 
     return <div id={`${props.holder}`} />;
 };

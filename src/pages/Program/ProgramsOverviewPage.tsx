@@ -60,8 +60,13 @@ const ProgramsOverviewPage = () => {
     const [cooldownSeconds, setCooldownSeconds] = useState(0);
     const [lastRefreshTime, setLastRefreshTime] = useState(null);
 
-    const { data: overview, isLoading, isError, error, queryKey } =
-        useProgramsOverview();
+    const {
+        data: overview,
+        isLoading,
+        isError,
+        error,
+        queryKey
+    } = useProgramsOverview();
 
     TabTitle(t('Programs Overview', { ns: 'common' }));
 
@@ -812,9 +817,11 @@ const ProgramsOverviewPage = () => {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {overview.topApplicationPrograms.map(
-                                            (program, index) => (
-                                                <TableRow key={index}>
+                                        {overview.topApplicationPrograms?.map(
+                                            (program) => (
+                                                <TableRow
+                                                    key={program.programId}
+                                                >
                                                     <TableCell>
                                                         <Link
                                                             component={LinkDom}
@@ -901,17 +908,17 @@ const ProgramsOverviewPage = () => {
             </Grid>
 
             {/* Additional Insights Section */}
-            {(overview.bySubject.length > 0 ||
-                overview.bySchoolType.length > 0 ||
-                (overview.topContributors &&
-                    overview.topContributors.length > 0)) && (
+            {(overview.bySubject?.length > 0 ||
+                overview.bySchoolType?.length > 0 ||
+                (overview.topContributors?.length > 0 &&
+                    overview.topContributors?.length > 0)) && (
                 <>
                     <Typography gutterBottom sx={{ mt: 4, mb: 3 }} variant="h5">
                         {t('Additional Insights', { ns: 'common' })}
                     </Typography>
                     <Grid container mb={4} spacing={3}>
                         {/* Programs by Subject */}
-                        {overview.bySubject.length > 0 && (
+                        {overview.bySubject?.length > 0 && (
                             <Grid item md={6} xs={12}>
                                 <Card
                                     onClick={() =>
@@ -1026,7 +1033,7 @@ const ProgramsOverviewPage = () => {
                         )}
 
                         {/* School Type Distribution */}
-                        {overview.bySchoolType.length > 0 && (
+                        {overview.bySchoolType?.length > 0 && (
                             <Grid item md={6} xs={12}>
                                 <Card sx={{ height: 450 }}>
                                     <CardContent
@@ -1081,10 +1088,12 @@ const ProgramsOverviewPage = () => {
                                                     </TableRow>
                                                 </TableHead>
                                                 <TableBody>
-                                                    {overview.bySchoolType.map(
-                                                        (type, index) => (
+                                                    {overview.bySchoolType?.map(
+                                                        (type) => (
                                                             <TableRow
-                                                                key={index}
+                                                                key={
+                                                                    type.schoolType
+                                                                }
                                                             >
                                                                 <TableCell>
                                                                     {type.schoolType ||

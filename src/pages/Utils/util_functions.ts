@@ -392,10 +392,11 @@ export const needUpdateCourseSelection = (student: IUserWithId): string => {
     }
 
     // necessary if courses or analysis expired 39 daays and is studying
-    const course_aged_days = differenceInDays(
-        new Date(),
-        student.courses?.updatedAt!
-    );
+    const courseUpdatedAt = student.courses?.updatedAt;
+    if (courseUpdatedAt == null) {
+        return 'No Input';
+    }
+    const course_aged_days = differenceInDays(new Date(), courseUpdatedAt);
     const analyse_aged_days = differenceInDays(
         new Date(),
         student.courses.analysis?.updatedAt
@@ -1735,7 +1736,7 @@ export const open_tasks_with_editors = (students) => {
     }
     return tasks;
 };
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- complex reduce shape; type incrementally
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- API returns IApplicationWithId[] with populated studentId; complex reduce shape
 export const programs_refactor_v2 = (applications: any[]) => {
     const applicationsNew = applications.reduce((acc, application) => {
         let isMissingBaseDocs = false;

@@ -141,8 +141,9 @@ export type {
     IStudentResponse
 };
 
-/** Program response from API (includes string _id) */
-export interface ProgramResponse extends IProgramWithId {
+/** Program response from API (includes string _id; API may return date as string) */
+export interface ProgramResponse
+    extends Omit<IProgramWithId, 'updatedAt' | 'createdAt'> {
     _id: string;
     updatedAt?: string | Date;
     createdAt?: string | Date;
@@ -378,6 +379,14 @@ export interface AdmissionsStatRow {
     admissionCount?: number;
     rejectionCount?: number;
     pendingResultCount?: number;
+}
+
+/** Tasks overview (admin/editor dashboard counts from getTasksOverview) */
+export interface TasksOverview {
+    noEditorsStudents?: number;
+    noEssayWritersEssays?: number;
+    noTrainerInInterviewsStudents?: number;
+    [key: string]: unknown;
 }
 
 /** Open task row (CVMLRL Overview/Dashboard, Essay Overview) */

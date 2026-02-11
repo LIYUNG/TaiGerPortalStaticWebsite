@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import type { ReactElement } from 'react';
 import Admissions from './Admissions';
-import { getAdmissions, getActiveStudents } from '@api';
+import { getAdmissions } from '@api';
 import { useAuth } from '@components/AuthProvider';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';

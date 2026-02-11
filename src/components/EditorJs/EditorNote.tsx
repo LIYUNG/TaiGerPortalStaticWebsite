@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import EditorJS from '@editorjs/editorjs';
+import EditorJS, { OutputData } from '@editorjs/editorjs';
 import Header from '@editorjs/header';
 import List from '@editorjs/list';
 import Embed from '@editorjs/embed';
@@ -34,7 +34,7 @@ const EditorNote = (props: EditorNoteProps) => {
             ejInstance.current = editor ?? null;
         },
         onChange: async (api: {
-            saver: { save: () => Promise<EditorStateData> };
+            saver: { save: () => Promise<OutputData> };
         }) => {
             if (!props.readOnly && props.handleEditorChange) {
                 api.saver.save().then((outputData) => {

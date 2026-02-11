@@ -1,4 +1,3 @@
-import React from 'react';
 import { Box, Typography, Grid } from '@mui/material';
 import { BarChart as MuiBarChart } from '@mui/x-charts/BarChart';
 

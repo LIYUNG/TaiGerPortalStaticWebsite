@@ -1,4 +1,3 @@
-import React from 'react';
 import {
     Table,
     TableContainer,
@@ -10,8 +9,13 @@ import {
 } from '@mui/material';
 import { program_fields } from '@utils/contants';
 import { LinkableNewlineText } from '../Utils/checking-functions';
+import type { IApplicationWithId, IProgramWithId } from '@api/types';
 
-const ProgramDetailsComparisonTable = ({ applications }) => {
+const ProgramDetailsComparisonTable = ({
+    applications
+}: {
+    applications: IApplicationWithId[];
+}) => {
     return (
         <TableContainer component={Paper} style={{ overflowX: 'auto' }}>
             <Table aria-label="comparison table" size="small">
@@ -28,8 +32,8 @@ const ProgramDetailsComparisonTable = ({ applications }) => {
                             {applications.map((application) => (
                                 <TableCell key={application._id}>
                                     <LinkableNewlineText
-                                        text={application.programId[
-                                            feature.prop
+                                        text={application.programId?.[
+                                            feature.prop as keyof IProgramWithId
                                         ]?.toString()}
                                     />
                                 </TableCell>
