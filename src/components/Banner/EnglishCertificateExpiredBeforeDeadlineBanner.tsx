@@ -8,8 +8,8 @@ import {
     isEnglishCertificateExpiredBeforeDeadline,
     englishCertificatedExpiredBeforeTheseProgramDeadlines,
     application_deadline_V2_calculator
-} from '../../Demo/Utils/util_functions';
-import DEMO from '../../store/constant';
+} from '@pages/Utils/util_functions';
+import DEMO from '@store/constant';
 
 interface EnglishCertificateExpiredBeforeDeadlineBannerProps {
     student: Record<string, unknown>;

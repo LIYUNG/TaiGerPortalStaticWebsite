@@ -1,4 +1,4 @@
-import axios, { type AxiosRequestConfig } from 'axios';
+import axios, { type AxiosRequestConfig, type AxiosResponse } from 'axios';
 import { baseUrl, tenantId as envTenantId } from '../env';
 
 export const BASE_URL = baseUrl;
@@ -15,93 +15,46 @@ const request = axios.create({
     validateStatus: (status) => status < 500
 });
 
-export const postData = async <T = unknown>(
-    url: string,
-    payload: unknown
-): Promise<T> => {
+const DEFAULT_ERROR_MESSAGE = 'An unknown error occurred';
+
+type ErrorResponseBody = { message?: string };
+
+function getErrorMessage(data: unknown): string {
+    return (data as ErrorResponseBody)?.message ?? DEFAULT_ERROR_MESSAGE;
+}
+
+async function executeRequest<T>(requestFn: () => Promise<AxiosResponse<T>>): Promise<T> {
     try {
-        const response = await request.post<T>(url, payload);
+        const response = await requestFn();
         if (response.status >= 400) {
-            throw new Error(
-                (response.data as { message?: string })?.message ||
-                    'An unknown error occurred'
-            );
+            throw new Error(getErrorMessage(response.data));
         }
         return response.data;
     } catch (error) {
         console.log(error);
         throw error;
     }
-};
+}
+
+export const postData = async <T = unknown>(
+    url: string,
+    payload: unknown
+): Promise<T> => executeRequest(() => request.post<T>(url, payload));
 
 export const putData = async <T = unknown>(
     url: string,
     payload: unknown
-): Promise<T> => {
-    try {
-        const response = await request.put<T>(url, payload);
-        if (response.status >= 400) {
-            throw new Error(
-                (response.data as { message?: string })?.message ||
-                    'An unknown error occurred'
-            );
-        }
-        return response.data;
-    } catch (error) {
-        console.log(error);
-        throw error;
-    }
-};
+): Promise<T> => executeRequest(() => request.put<T>(url, payload));
 
-export const getData = async <T = unknown>(url: string): Promise<T> => {
-    try {
-        const response = await request.get<T>(url);
-        if (response.status >= 400) {
-            throw new Error(
-                (response.data as { message?: string })?.message ||
-                    'An unknown error occurred'
-            );
-        }
-        return response.data;
-    } catch (error) {
-        console.log(error);
-        throw error;
-    }
-};
+export const getData = async <T = unknown>(url: string): Promise<T> =>
+    executeRequest(() => request.get<T>(url));
 
 export const getDataBlob = async <T = Blob>(
     url: string,
     config?: AxiosRequestConfig
-): Promise<T> => {
-    try {
-        const response = await request.get<T>(url, config);
-        if (response.status >= 400) {
-            throw new Error(
-                (response.data as { message?: string })?.message ||
-                    'An unknown error occurred'
-            );
-        }
-        return response.data;
-    } catch (error) {
-        console.log(error);
-        throw error;
-    }
-};
+): Promise<T> => executeRequest(() => request.get<T>(url, config));
 
-export const deleteData = async <T = unknown>(url: string): Promise<T> => {
-    try {
-        const response = await request.delete<T>(url);
-        if (response.status >= 400) {
-            throw new Error(
-                (response.data as { message?: string })?.message ||
-                    'An unknown error occurred'
-            );
-        }
-        return response.data;
-    } catch (error) {
-        console.log(error);
-        throw error;
-    }
-};
+export const deleteData = async <T = unknown>(url: string): Promise<T> =>
+    executeRequest(() => request.delete<T>(url));
 
 export { request };

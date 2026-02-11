@@ -33,7 +33,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import InfoIcon from '@mui/icons-material/Info';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 
-import CourseAnalysisConfirmDialog from '../../Demo/MyCourses/CourseAnalysisConfirmDialog';
+import CourseAnalysisConfirmDialog from '@pages/MyCourses/CourseAnalysisConfirmDialog';
 
 export interface ProgramRequirementRow {
     _id: string;

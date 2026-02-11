@@ -6,7 +6,7 @@ import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import ZoomOutIcon from '@mui/icons-material/ZoomOut';
 
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
-import { getPDFQuery } from '../../api/query';
+import { getPDFQuery } from '@api/query';
 import { useQuery } from '@tanstack/react-query';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;

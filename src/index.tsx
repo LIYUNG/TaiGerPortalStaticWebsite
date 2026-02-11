@@ -4,11 +4,11 @@ import { I18nextProvider } from 'react-i18next';
 import { QueryClientProvider } from '@tanstack/react-query';
 
 import App from './App';
-import { AuthProvider } from './components/AuthProvider/index';
+import { AuthProvider } from '@components/AuthProvider/index';
 import './index.css';
 import i18n from './i18n';
-import { CustomThemeProvider } from './components/ThemeProvider';
-import { queryClient } from './api/client';
+import { CustomThemeProvider } from '@components/ThemeProvider';
+import { queryClient } from '@api/client';
 import { SnackBarProvider } from './contexts/use-snack-bar';
 
 const storedLanguage = localStorage.getItem('locale') || 'en';

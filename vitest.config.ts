@@ -1,11 +1,12 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import tsconfigPaths from 'vite-tsconfig-paths';
-import svgr from 'vite-plugin-svgr';
-import path from 'path';
+import path, { resolve } from 'path';
+
+const root = resolve(__dirname, 'src');
 
 export default defineConfig({
-  plugins: [svgr(), react(), tsconfigPaths()],
+  plugins: [react(), tsconfigPaths()],
   test: {
     globals: true,
     environment: 'happy-dom',
@@ -15,7 +16,14 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      '@': path.resolve(root),
+      '@api': path.resolve(root, 'api'),
+      '@components': path.resolve(root, 'components'),
+      '@contexts': path.resolve(root, 'contexts'),
+      '@utils': path.resolve(root, 'utils'),
+      '@hooks': path.resolve(root, 'hooks'),
+      '@pages': path.resolve(root, 'pages'),
+      '@store': path.resolve(root, 'store'),
     },
   },
 });

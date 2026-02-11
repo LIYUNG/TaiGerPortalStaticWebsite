@@ -1,0 +1,644 @@
+import { useState } from 'react';
+import { Link as LinkDom, useLocation } from 'react-router-dom';
+import { Tabs, Tab, Box, Typography, Link, Tooltip, Chip } from '@mui/material';
+import IconButton from '@mui/material/IconButton';
+import StarBorderRoundedIcon from '@mui/icons-material/StarBorderRounded';
+import StarRoundedIcon from '@mui/icons-material/StarRounded';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import LockOpenIcon from '@mui/icons-material/LockOpen';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import { is_TaiGer_role } from '@taiger-common/core';
+
+import {
+    ATTRIBUTES,
+    COLORS,
+    THREADS_TABLE_REVERSED_TABS,
+    THREADS_TABLE_TABS
+} from '@utils/contants';
+import ModalMain from '../Utils/ModalHandler/ModalMain';
+import Banner from '@components/Banner/Banner';
+import { useAuth } from '@components/AuthProvider';
+import { CustomTabPanel, a11yProps } from '@components/Tabs';
+import { useTranslation } from 'react-i18next';
+import { MuiDataGrid } from '@components/MuiDataGrid';
+import DEMO from '@store/constant';
+import { APPROVAL_COUNTRIES } from '../Utils/util_functions';
+import type { OpenTaskRow } from '@api/types';
+
+export interface CVMLRLOverviewProps {
+    handleFavoriteToggle: (id: string) => void;
+    new_message_tasks?: OpenTaskRow[];
+    fav_message_tasks?: OpenTaskRow[];
+    followup_tasks?: OpenTaskRow[];
+    pending_progress_tasks?: OpenTaskRow[];
+    closed_tasks?: OpenTaskRow[];
+    isLoaded?: boolean;
+    success?: boolean;
+}
+
+const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
+    const { user } = useAuth();
+    const { t } = useTranslation();
+    const { hash } = useLocation();
+    const [tabTag, setTabTag] = useState(
+        THREADS_TABLE_TABS[hash.replace('#', '')] || 0
+    );
+    const handleTabChange = (event, newValue) => {
+        setTabTag(newValue);
+        window.location.hash = THREADS_TABLE_REVERSED_TABS[newValue];
+    };
+
+    const [cVMLRLOverviewState, setCVMLRLOverviewState] = useState({
+        error: '',
+        data: null,
+        student_id: '',
+        status: '', //reject, accept... etc
+        res_status: 0,
+        res_modal_message: '',
+        res_modal_status: 0
+    });
+
+    const ConfirmError = () => {
+        setCVMLRLOverviewState((prevState) => ({
+            ...prevState,
+            res_modal_status: 0,
+            res_modal_message: ''
+        }));
+    };
+
+    const { res_modal_status, res_modal_message } = cVMLRLOverviewState;
+
+    const commonColumn = [
+        {
+            field: 'aged_days',
+            headerName: 'Aged days',
+            minWidth: 80
+        },
+        {
+            field: 'number_input_from_editors',
+            headerName: t('Editor Feedback (#Messages/#Files)', {
+                ns: 'common'
+            }),
+            width: 80
+        },
+        {
+            field: 'number_input_from_student',
+            headerName: t('Student Feedback (#Messages/#Files)', {
+                ns: 'common'
+            }),
+            width: 80
+        },
+        {
+            field: 'latest_reply',
+            headerName: t('Latest Reply', { ns: 'common' }),
+            width: 100
+        },
+        {
+            field: 'updatedAt',
+            headerName: t('Last Update', { ns: 'common' }),
+            width: 100
+        }
+    ];
+
+    const c2 = [
+        {
+            field: 'firstname_lastname',
+            headerName: t('First-, Last Name', { ns: 'common' }),
+            align: 'left',
+            headerAlign: 'left',
+            minWidth: 200,
+            renderCell: (params) => {
+                const linkUrl = `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
+                    params.row.student_id,
+                    DEMO.PROFILE_HASH
+                )}`;
+                return (
+                    <>
+                        <IconButton
+                            onClick={() =>
+                                props.handleFavoriteToggle(params.row.id)
+                            }
+                        >
+                            {params.row.flag_by_user_id?.includes(
+                                user._id.toString()
+                            ) ? (
+                                <StarRoundedIcon
+                                    color={params.value ? 'primary' : 'action'}
+                                />
+                            ) : (
+                                <StarBorderRoundedIcon
+                                    color={params.value ? 'primary' : 'action'}
+                                />
+                            )}
+                        </IconButton>
+                        <Link
+                            component={LinkDom}
+                            target="_blank"
+                            title={params.value}
+                            to={linkUrl}
+                            underline="hover"
+                        >
+                            {params.value}
+                        </Link>
+                    </>
+                );
+            }
+        },
+        {
+            field: 'deadline',
+            headerName: t('Deadline', { ns: 'common' }),
+            minWidth: 100
+        },
+        {
+            field: 'days_left',
+            headerName: t('Days left', { ns: 'common' }),
+            minWidth: 80
+        },
+        {
+            field: 'lang',
+            headerName: t('Program Language', { ns: 'common' }),
+            minWidth: 80
+        },
+        {
+            field: 'status',
+            headerName: t('Status', { ns: 'common' }),
+            minWidth: 110,
+            filterVariant: 'select',
+            filterSelectOptions: [
+                { value: 'Locked', label: t('Locked', { ns: 'common' }) },
+                { value: 'Unlocked', label: t('Unlocked', { ns: 'common' }) }
+            ],
+            filterFn: (row, columnId, filterValue) => {
+                const isLocked =
+                    row.original?.isApplicationLocked === true ||
+                    row.original?.isProgramLocked === true;
+                const status = isLocked ? 'Locked' : 'Unlocked';
+                return status === filterValue;
+            },
+            renderCell: (params) => {
+                const isLocked =
+                    params.row?.isApplicationLocked === true ||
+                    params.row?.isProgramLocked === true;
+                return isLocked ? (
+                    <Chip
+                        color="warning"
+                        icon={<LockOutlinedIcon fontSize="small" />}
+                        label={t('Locked', { ns: 'common' })}
+                        size="small"
+                    />
+                ) : (
+                    <Chip
+                        icon={<LockOpenIcon fontSize="small" />}
+                        label={t('Unlocked', { ns: 'common' })}
+                        size="small"
+                        variant="outlined"
+                    />
+                );
+            }
+        },
+        {
+            field: 'document_name',
+            headerName: t('Document name', { ns: 'common' }),
+            minWidth: 380,
+            renderCell: (params) => {
+                const linkUrl = `${DEMO.DOCUMENT_MODIFICATION_LINK(
+                    params.row.thread_id
+                )}`;
+                const isLocked =
+                    params.row?.isApplicationLocked ||
+                    params.row?.isProgramLocked;
+                // Check if program is from non-approval country
+                const programCountry =
+                    params.row?.program_id?.country || params.row?.country;
+                const isNonApprovalCountry = programCountry
+                    ? !APPROVAL_COUNTRIES.includes(
+                          String(programCountry).toLowerCase()
+                      )
+                    : false;
+
+                return (
+                    <Box>
+                        {params.row?.attributes
+                            ?.filter((attribute) =>
+                                [1, 3, 9, 10, 11].includes(attribute.value)
+                            )
+                            ?.map((attribute) => (
+                                <Tooltip
+                                    key={attribute._id}
+                                    title={`${attribute.name}: ${
+                                        ATTRIBUTES[attribute.value - 1]
+                                            .definition
+                                    }`}
+                                >
+                                    <Chip
+                                        color={COLORS[attribute.value]}
+                                        data-testid={`chip-${attribute.name}`}
+                                        label={attribute.name[0]}
+                                        size="small"
+                                    />
+                                </Tooltip>
+                            ))}
+                        {isNonApprovalCountry && (
+                            <Tooltip
+                                title={t('Lack of experience country', {
+                                    ns: 'common'
+                                })}
+                            >
+                                <WarningAmberIcon
+                                    fontSize="small"
+                                    sx={{
+                                        color: 'warning.main',
+                                        ml: 0.5,
+                                        mr: 0.5
+                                    }}
+                                />
+                            </Tooltip>
+                        )}
+                        {isLocked ? (
+                            <Tooltip
+                                title={t(
+                                    'Program is locked. Contact your agent to unlock this task.',
+                                    { ns: 'common' }
+                                )}
+                            >
+                                <Box>
+                                    <Link
+                                        component={LinkDom}
+                                        sx={{
+                                            color: 'text.disabled',
+                                            pointerEvents: 'none'
+                                        }}
+                                        target="_blank"
+                                        title={params.value}
+                                        to={linkUrl}
+                                        underline="hover"
+                                    >
+                                        {params.row.file_type}{' '}
+                                        {params.row.program_id
+                                            ? ' - ' +
+                                              params.row.program_name +
+                                              ' - ' +
+                                              params.row.degree
+                                            : ''}
+                                    </Link>
+                                    <Typography
+                                        color="text.secondary"
+                                        sx={{ display: 'block', mt: 0.25 }}
+                                        variant="caption"
+                                    >
+                                        {params.row.school}
+                                    </Typography>
+                                </Box>
+                            </Tooltip>
+                        ) : (
+                            <>
+                                <Link
+                                    component={LinkDom}
+                                    target="_blank"
+                                    title={params.value}
+                                    to={linkUrl}
+                                    underline="hover"
+                                >
+                                    {params.row.file_type}{' '}
+                                    {params.row.program_id
+                                        ? ' - ' +
+                                          params.row.program_name +
+                                          ' - ' +
+                                          params.row.degree
+                                        : ''}
+                                </Link>
+                                <Typography
+                                    color="text.secondary"
+                                    sx={{ display: 'block', mt: 0.25 }}
+                                    variant="caption"
+                                >
+                                    {params.row.school}
+                                </Typography>
+                            </>
+                        )}
+                    </Box>
+                );
+            }
+        },
+        ...commonColumn
+    ];
+
+    const c2Student = [
+        {
+            field: 'firstname_lastname',
+            headerName: t('First-, Last Name', { ns: 'common' }),
+            align: 'left',
+            headerAlign: 'left',
+            width: 200,
+            renderCell: (params) => {
+                return (
+                    <>
+                        <IconButton
+                            onClick={() =>
+                                props.handleFavoriteToggle(params.row.id)
+                            }
+                        >
+                            {params.row.flag_by_user_id?.includes(
+                                user._id.toString()
+                            ) ? (
+                                <StarRoundedIcon
+                                    color={params.value ? 'primary' : 'action'}
+                                />
+                            ) : (
+                                <StarBorderRoundedIcon
+                                    color={params.value ? 'primary' : 'action'}
+                                />
+                            )}
+                        </IconButton>
+                        <span title={params.value}>{params.value}</span>
+                    </>
+                );
+            }
+        },
+        {
+            field: 'deadline',
+            headerName: t('Deadline', { ns: 'common' }),
+            width: 120
+        },
+        {
+            field: 'days_left',
+            headerName: t('Days left', { ns: 'common' }),
+            width: 80
+        },
+        {
+            field: 'status',
+            headerName: t('Status', { ns: 'common' }),
+            minWidth: 110,
+            filterVariant: 'select',
+            filterSelectOptions: [
+                { value: 'Locked', label: t('Locked', { ns: 'common' }) },
+                { value: 'Unlocked', label: t('Unlocked', { ns: 'common' }) }
+            ],
+            filterFn: (row, columnId, filterValue) => {
+                const isLocked =
+                    row.original?.isApplicationLocked === true ||
+                    row.original?.isProgramLocked === true;
+                const status = isLocked ? 'Locked' : 'Unlocked';
+                return status === filterValue;
+            },
+            renderCell: (params) => {
+                const isLocked =
+                    params.row?.isApplicationLocked === true ||
+                    params.row?.isProgramLocked === true;
+                return isLocked ? (
+                    <Chip
+                        color="warning"
+                        icon={<LockOutlinedIcon fontSize="small" />}
+                        label={t('Locked', { ns: 'common' })}
+                        size="small"
+                    />
+                ) : (
+                    <Chip
+                        icon={<LockOpenIcon fontSize="small" />}
+                        label={t('Unlocked', { ns: 'common' })}
+                        size="small"
+                        variant="outlined"
+                    />
+                );
+            }
+        },
+        {
+            field: 'document_name',
+            headerName: t('Document name', { ns: 'common' }),
+            width: 450,
+            renderCell: (params) => {
+                const linkUrl = `${DEMO.DOCUMENT_MODIFICATION_LINK(
+                    params.row.thread_id
+                )}`;
+                const isLocked =
+                    params.row?.isApplicationLocked ||
+                    params.row?.isProgramLocked;
+
+                return (
+                    <Box>
+                        {isLocked ? (
+                            <Tooltip
+                                title={t(
+                                    'Program is locked. Contact your agent to unlock this task.',
+                                    { ns: 'common' }
+                                )}
+                            >
+                                <Box>
+                                    <Link
+                                        component={LinkDom}
+                                        sx={{
+                                            color: 'text.disabled',
+                                            pointerEvents: 'none'
+                                        }}
+                                        target="_blank"
+                                        title={params.value}
+                                        to={linkUrl}
+                                        underline="hover"
+                                    >
+                                        {params.row.file_type}{' '}
+                                        {params.row.program_id
+                                            ? ' - ' +
+                                              params.row.program_name +
+                                              ' - ' +
+                                              params.row.degree
+                                            : ''}
+                                    </Link>
+                                    <Typography
+                                        color="text.secondary"
+                                        sx={{ display: 'block', mt: 0.25 }}
+                                        variant="caption"
+                                    >
+                                        {params.row.school}
+                                    </Typography>
+                                </Box>
+                            </Tooltip>
+                        ) : (
+                            <>
+                                <Link
+                                    component={LinkDom}
+                                    target="_blank"
+                                    title={params.value}
+                                    to={linkUrl}
+                                    underline="hover"
+                                >
+                                    {params.row.file_type}{' '}
+                                    {params.row.program_id
+                                        ? ' - ' +
+                                          params.row.program_name +
+                                          ' - ' +
+                                          params.row.degree
+                                        : ''}
+                                </Link>
+                                <Typography
+                                    color="text.secondary"
+                                    sx={{ display: 'block', mt: 0.25 }}
+                                    variant="caption"
+                                >
+                                    {params.row.school}
+                                </Typography>
+                            </>
+                        )}
+                    </Box>
+                );
+            }
+        },
+        ...commonColumn
+    ];
+
+    const memoizedColumns = is_TaiGer_role(user) ? c2 : c2Student;
+
+    return (
+        <>
+            {res_modal_status >= 400 ? (
+                <ModalMain
+                    ConfirmError={ConfirmError}
+                    res_modal_message={res_modal_message}
+                    res_modal_status={res_modal_status}
+                />
+            ) : null}
+
+            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <Tabs
+                    aria-label="basic tabs example"
+                    onChange={handleTabChange}
+                    scrollButtons="auto"
+                    value={tabTag}
+                    variant="scrollable"
+                >
+                    <Tab
+                        label={`${t('TODO', { ns: 'common' })} (${
+                            props.new_message_tasks?.length || 0
+                        }) `}
+                        {...a11yProps(tabTag, 0)}
+                    />
+                    <Tab
+                        label={`${t('My Favorites', { ns: 'common' })} (${
+                            props.fav_message_tasks?.length || 0
+                        })`}
+                        {...a11yProps(tabTag, 1)}
+                    />
+                    <Tab
+                        label={`${t('Follow up', { ns: 'common' })} (${
+                            props.followup_tasks?.length || 0
+                        })`}
+                        {...a11yProps(tabTag, 2)}
+                    />
+                    <Tab
+                        label={`${t('No Action', { ns: 'common' })} (${
+                            props.pending_progress_tasks?.length || 0
+                        })`}
+                        {...a11yProps(tabTag, 3)}
+                    />
+                    <Tab
+                        label={`${t('Closed', { ns: 'common' })} (${
+                            props.closed_tasks?.length || 0
+                        })`}
+                        {...a11yProps(tabTag, 4)}
+                    />
+                </Tabs>
+            </Box>
+            <CustomTabPanel index={0} value={tabTag}>
+                <Banner
+                    ReadOnlyMode={true}
+                    bg="danger"
+                    link_name=""
+                    notification_key={undefined}
+                    path="/"
+                    removeBanner={null}
+                    text="Please reply:"
+                    title="warning"
+                />
+                <MuiDataGrid
+                    columnVisibilityModel={{
+                        number_input_from_editors: false,
+                        number_input_from_student: false
+                    }}
+                    columns={memoizedColumns}
+                    rows={props.new_message_tasks}
+                />
+            </CustomTabPanel>
+            <CustomTabPanel index={1} value={tabTag}>
+                <MuiDataGrid
+                    columnVisibilityModel={{
+                        number_input_from_editors: false,
+                        number_input_from_student: false
+                    }}
+                    columns={memoizedColumns}
+                    rows={props.fav_message_tasks}
+                />
+            </CustomTabPanel>
+            <CustomTabPanel index={2} value={tabTag}>
+                <Banner
+                    ReadOnlyMode={true}
+                    bg="primary"
+                    link_name=""
+                    notification_key={undefined}
+                    path="/"
+                    removeBanner={null}
+                    text="Follow up"
+                    title="info"
+                />
+                <MuiDataGrid
+                    columnVisibilityModel={{
+                        number_input_from_editors: false,
+                        number_input_from_student: false
+                    }}
+                    columns={memoizedColumns}
+                    rows={props.followup_tasks}
+                />
+            </CustomTabPanel>
+            <CustomTabPanel index={3} value={tabTag}>
+                <Banner
+                    ReadOnlyMode={true}
+                    bg="info"
+                    link_name=""
+                    notification_key={undefined}
+                    path="/"
+                    removeBanner={null}
+                    text={
+                        is_TaiGer_role(user)
+                            ? 'Waiting inputs. No action needed'
+                            : 'Please provide input as soon as possible'
+                    }
+                    title={is_TaiGer_role(user) ? 'info' : 'warning'}
+                />
+                <MuiDataGrid
+                    columnVisibilityModel={{
+                        number_input_from_editors: false,
+                        number_input_from_student: false
+                    }}
+                    columns={memoizedColumns}
+                    rows={props.pending_progress_tasks}
+                />
+            </CustomTabPanel>
+            <CustomTabPanel index={4} value={tabTag}>
+                <Banner
+                    ReadOnlyMode={true}
+                    bg="success"
+                    link_name=""
+                    notification_key={undefined}
+                    path="/"
+                    removeBanner={null}
+                    text="These tasks are closed."
+                    title="success"
+                />
+                <MuiDataGrid
+                    columnVisibilityModel={{
+                        number_input_from_editors: false,
+                        number_input_from_student: false
+                    }}
+                    columns={memoizedColumns}
+                    rows={props.closed_tasks}
+                />
+                <Typography variant="body2">
+                    {t(
+                        'Note: if the documents are not closed but locate here, it is because the applications are already submitted. The documents can safely closed eventually.',
+                        { ns: 'cvmlrl' }
+                    )}
+                </Typography>
+            </CustomTabPanel>
+        </>
+    );
+};
+
+export default CVMLRLOverview;

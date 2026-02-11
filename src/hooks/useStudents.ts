@@ -5,7 +5,7 @@ import {
     updateAttributes,
     updateEditors,
     updateProfileDocumentStatus
-} from '../api';
+} from '@api';
 
 interface StudentRecord {
     _id: string;

@@ -7,7 +7,7 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import i18next from 'i18next';
 
-import DEMO from '../../../store/constant';
+import DEMO from '@store/constant';
 
 interface CourseRow {
     _id?: string;

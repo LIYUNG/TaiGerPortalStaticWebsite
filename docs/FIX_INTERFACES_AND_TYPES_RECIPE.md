@@ -78,16 +78,16 @@ After ESLint changes, run `npm run lint` (and tests) and fix any remaining issue
 
 ## Files already updated with this approach
 
-- `src/Demo/Program/ProgramChangeRequestPage.tsx`
-- `src/Demo/CRM/components/SimilarStudents.tsx`
-- `src/Demo/CRM/components/CreateUserFromLeadModal.tsx`
-- `src/Demo/CVMLRLCenter/EditorDocsProgress.tsx`
-- `src/Demo/CourseAnalysis/ProgramRequirements/ProgramRequirementsNew.tsx`
-- `src/Demo/MyCourses/CourseAnalysisV2.tsx`
-- `src/Demo/Program/SingleProgramView.tsx`
-- `src/Demo/StudentApplications/StudentApplicationsTableTemplate.tsx`
-- `src/Demo/Program/ProgramsTable.tsx`
-- `src/Demo/BaseDocuments/BaseDocumentsTable.tsx`
-- `src/Demo/Program/SchoolConfigContent.tsx`
+- `src/pages/Program/ProgramChangeRequestPage.tsx`
+- `src/pages/CRM/components/SimilarStudents.tsx`
+- `src/pages/CRM/components/CreateUserFromLeadModal.tsx`
+- `src/pages/CVMLRLCenter/EditorDocsProgress.tsx`
+- `src/pages/CourseAnalysis/ProgramRequirements/ProgramRequirementsNew.tsx`
+- `src/pages/MyCourses/CourseAnalysisV2.tsx`
+- `src/pages/Program/SingleProgramView.tsx`
+- `src/pages/StudentApplications/StudentApplicationsTableTemplate.tsx`
+- `src/pages/Program/ProgramsTable.tsx`
+- `src/pages/BaseDocuments/BaseDocumentsTable.tsx`
+- `src/pages/Program/SchoolConfigContent.tsx`
 
 Shared types: `src/api/types.ts` (Application, AuthUserData, etc.). Optional: narrow `[key: string]: unknown` in api/types to explicit fields where possible.
