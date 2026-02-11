@@ -3,13 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { Breadcrumbs, Link, Typography, Box, Button } from '@mui/material';
 import { BarChart } from '@mui/icons-material';
 import { is_TaiGer_role } from '@taiger-common/core';
-import { useQuery } from '@tanstack/react-query';
-
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
-import { getProgramsQuery } from '@api/query';
+import { usePrograms } from '@hooks/usePrograms';
 import { ProgramsTable } from './ProgramsTable';
 import type { IStudentResponse } from '@api/types';
 
@@ -20,8 +18,7 @@ export interface ProgramListProps {
 const ProgramList = (props: ProgramListProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
-    const { data, isLoading, isError, error } = useQuery(getProgramsQuery());
-    const programs = data?.data;
+    const { data: programs, isLoading, isError, error } = usePrograms();
 
     TabTitle(t('Program List', { ns: 'common' }));
 

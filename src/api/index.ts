@@ -159,7 +159,7 @@ export const createApplicationV2 = ({
 
 // Tested manually OK.
 export const getApplicationStudentV2 = (studentId: StudentId) =>
-    request.get(`/api/applications/student/${studentId}`);
+    getData(`/api/applications/student/${studentId}`);
 
 // TODO:
 export const updateStudentApplications = (

@@ -295,7 +295,8 @@ export const getApplicationStudentV2Query = ({
 }) => ({
     queryKey: ['applications/student', studentId],
     queryFn: () => getApplicationStudentV2(studentId),
-    staleTime: 1000 * 60 * 5 // 5 minutes
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    select: (data: unknown) => data?.data || null
 });
 
 export const getStudentAndDocLinksQuery = ({
