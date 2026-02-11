@@ -182,6 +182,7 @@ const SingleProgramView = (props: SingleProgramViewProps) => {
                     </Link>
                 )}
                 <Typography
+                    component="div"
                     color="text.primary"
                     sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
                 >

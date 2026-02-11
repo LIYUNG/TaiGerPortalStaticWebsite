@@ -1,90 +1,91 @@
-import { render, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import StudentDatabase from '.';
-import { getProgramTickets } from '@api';
-import { useAuth } from '@components/AuthProvider/index';
-import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 
-import { mockSingleData } from '../../test/testingStudentData';
-import {
-    useQuery,
-    QueryClient,
-    QueryClientProvider
-} from '@tanstack/react-query';
-
-vi.mock('axios');
-vi.mock('@api');
-vi.mock('@components/AuthProvider');
-vi.mock('@tanstack/react-query', async (importOriginal) => ({
-    ...(await importOriginal<typeof import('@tanstack/react-query')>()),
-    useQuery: vi.fn()
+vi.mock('@components/AuthProvider', () => ({
+    useAuth: vi.fn()
 }));
 
-const createTestQueryClient = () =>
-    new QueryClient({
-        defaultOptions: {
-            queries: {
-                retry: false // Disable retries for faster tests
-            }
-        }
-    });
+vi.mock('@hooks/useStudentsV3', () => ({
+    useStudentsV3: vi.fn()
+}));
 
-const renderWithQueryClient = (ui) => {
-    const testQueryClient = createTestQueryClient();
-    return render(
-        <QueryClientProvider client={testQueryClient}>{ui}</QueryClientProvider>
-    );
+vi.mock('@hooks/useStudents', () => ({
+    default: vi.fn()
+}));
+
+vi.mock('./StudentsTable', () => ({
+    StudentsTable: () => <div data-testid="students-table">StudentsTable</div>
+}));
+
+import { useAuth } from '@components/AuthProvider';
+import useStudents from '@hooks/useStudents';
+import { useStudentsV3 } from '@hooks/useStudentsV3';
+
+const mockConfirmError = vi.fn();
+const mockSubmitUpdateAgentlist = vi.fn();
+const mockSubmitUpdateEditorlist = vi.fn();
+const mockSubmitUpdateAttributeslist = vi.fn();
+const mockUpdateStudentArchivStatus = vi.fn();
+
+const mockAuthValue = {
+    user: { role: 'Agent', _id: 'test-id' },
+    isAuthenticated: true,
+    isLoaded: true,
+    login: vi.fn(),
+    logout: vi.fn()
 };
 
-class ResizeObserver {
-    observe() {}
-    disconnect() {}
-    unobserve() {}
+function setupMocks() {
+    vi.mocked(useAuth).mockReturnValue(mockAuthValue);
+    vi.mocked(useStudentsV3).mockReturnValue({
+        data: [],
+        isLoading: false,
+        isError: false,
+        refetch: vi.fn(),
+        queryKey: []
+    } as unknown as ReturnType<typeof useStudentsV3>);
+    vi.mocked(useStudents).mockReturnValue({
+        students: [],
+        res_modal_status: 0,
+        res_modal_message: '',
+        ConfirmError: mockConfirmError,
+        submitUpdateAgentlist: mockSubmitUpdateAgentlist,
+        submitUpdateEditorlist: mockSubmitUpdateEditorlist,
+        submitUpdateAttributeslist: mockSubmitUpdateAttributeslist,
+        updateStudentArchivStatus: mockUpdateStudentArchivStatus,
+        onUpdateProfileFilefromstudent: vi.fn()
+    });
 }
 
-const routes = [
-    {
-        path: '/student-database',
-        element: <StudentDatabase />,
-        errorElement: <div>Error</div>,
-        loader: () => {
-            return { data: mockSingleData, essays: { data: [] } };
-        }
-    }
-];
-
 describe('StudentDatabase', () => {
-    window.ResizeObserver = ResizeObserver;
-    test('Student dashboard not crash', async () => {
-        vi.mocked(getProgramTickets).mockResolvedValue({
-            data: { success: true, data: [] }
-        });
+    beforeEach(() => {
+        setupMocks();
+    });
+
+    test('renders without crashing when user has TaiGer role', () => {
+        render(
+            <MemoryRouter initialEntries={['/student-database']}>
+                <StudentDatabase />
+            </MemoryRouter>
+        );
+
+        expect(screen.getByTestId('student_datdabase')).toBeInTheDocument();
+        expect(screen.getByTestId('students-table')).toBeInTheDocument();
+    });
+
+    test('redirects to dashboard when user has no TaiGer role', () => {
         vi.mocked(useAuth).mockReturnValue({
-            user: { role: 'Agent', _id: '639baebf8b84944b872cf648' }
+            ...mockAuthValue,
+            user: { role: 'Student', _id: 'student-id' }
         });
 
-        vi.mocked(useQuery).mockImplementation(() => ({
-            data: mockSingleData,
-            isLoading: false,
-            isError: false
-        }));
+        render(
+            <MemoryRouter initialEntries={['/student-database']}>
+                <StudentDatabase />
+            </MemoryRouter>
+        );
 
-        const router = createMemoryRouter(routes, {
-            initialEntries: ['/student-database']
-        });
-        renderWithQueryClient(<RouterProvider router={router} />);
-
-        // Example
-        // const buttonElement = screen.getByRole('button');
-        // userEvent.click(buttonElement);
-        // const outputElement = screen.getByText('good to see you', { exact: false });
-        // expect(outputElement).toBeInTheDocument(1);
-
-        await waitFor(() => {
-            // TODO
-            // expect(screen.getByTestId('student_datdabase')).toHaveTextContent(
-            //     'Agents'
-            // );
-            expect(1).toBe(1);
-        });
+        expect(screen.queryByTestId('student_datdabase')).not.toBeInTheDocument();
     });
 });
