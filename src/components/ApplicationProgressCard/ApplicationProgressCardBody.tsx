@@ -1,9 +1,7 @@
-import React from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import { IconButton, Link, List, ListItem, Typography } from '@mui/material';
 import WarningIcon from '@mui/icons-material/Warning';
 import { isProgramSubmitted } from '@taiger-common/core';
-import type { ApplicationProps } from '@taiger-common/core';
 
 import DEMO from '@store/constant';
 import { isEnglishOK } from '@pages/Utils/util_functions';
@@ -13,10 +11,11 @@ import {
     convertDateUXFriendly
 } from '@utils/contants';
 import { red } from '@mui/material/colors';
+import { Application, IStudentResponse } from '@api/types';
 
 interface ApplicationProgressCardBodyProps {
-    application: Record<string, unknown>;
-    student: Record<string, unknown>;
+    application: Application;
+    student: IStudentResponse;
 }
 
 const DocumentOkIcon = () => FILE_OK_SYMBOL;
@@ -25,47 +24,13 @@ const DocumentMissingIcon = () => FILE_MISSING_SYMBOL;
 export default function ApplicationProgressCardBody(
     props: ApplicationProgressCardBodyProps
 ) {
-    const application = props.application as Record<string, unknown> & {
-        programId?: Record<string, unknown>;
-        doc_modification_thread?: Array<{
-            doc_thread_id: {
-                _id: { toString: () => string };
-                file_type?: string;
-                updatedAt?: string;
-            };
-            isFinalVersion?: boolean;
-        }>;
-        uni_assist?: { status?: string; updatedAt?: string };
-        credential_a_filled?: boolean;
-        credential_b_filled?: boolean;
-    };
-    const student = props.student as Record<string, unknown> & {
-        _id?: { toString: () => string };
-        generaldocs_threads?: Array<{
-            doc_thread_id: {
-                _id: { toString: () => string };
-                file_type?: string;
-                updatedAt?: string;
-            };
-            isFinalVersion?: boolean;
-        }>;
-        academic_background?: {
-            language?: {
-                english_isPassed?: string;
-                english_certificate?: string;
-                english_score?: string;
-                english_test_date?: string;
-                german_isPassed?: string;
-                gre_isPassed?: string;
-                gmat_isPassed?: string;
-            };
-        };
-    };
+    const application = props.application;
+    const student = props.student;
 
     return (
         <List>
-            {student?.generaldocs_threads?.map((thread, idx) => (
-                <ListItem key={idx}>
+            {student?.generaldocs_threads?.map((thread) => (
+                <ListItem key={thread.doc_thread_id._id.toString()}>
                     <Typography>
                         <Link
                             color="inherit"
@@ -311,14 +276,14 @@ export default function ApplicationProgressCardBody(
                     </Typography>
                 </ListItem>
             ) : null}
-            {application?.doc_modification_thread?.map((thread, idx) => (
-                <ListItem key={idx}>
+            {application?.doc_modification_thread?.map((thread) => (
+                <ListItem key={thread.doc_thread_id?._id?.toString()}>
                     <Typography>
                         <Link
                             color="inherit"
                             component={LinkDom}
                             to={DEMO.DOCUMENT_MODIFICATION_LINK(
-                                thread.doc_thread_id._id.toString()
+                                thread.doc_thread_id?._id?.toString() ?? ''
                             )}
                             underline="hover"
                         >
@@ -383,9 +348,7 @@ export default function ApplicationProgressCardBody(
                         )}
                         underline="hover"
                     >
-                        {isProgramSubmitted(
-                            application as unknown as ApplicationProps
-                        ) ? (
+                        {isProgramSubmitted(application) ? (
                             <IconButton>
                                 <DocumentOkIcon />
                             </IconButton>

@@ -34,7 +34,6 @@ import {
     isProgramRejected,
     isProgramSubmitted
 } from '@taiger-common/core';
-import type { ApplicationProps } from '@taiger-common/core';
 import type { Application } from '@api/types';
 
 import ApplicationProgressCardBody from './ApplicationProgressCardBody';
@@ -117,8 +116,8 @@ const ProgramLink = ({ program }: ProgramLinkProps) => (
 
 const AdmissionLetterLink = ({ application }: AdmissionLetterLinkProps) => {
     return (
-        (isProgramAdmitted(application as unknown as ApplicationProps) ||
-            isProgramRejected(application as unknown as ApplicationProps)) &&
+        (isProgramAdmitted(application as unknown) ||
+            isProgramRejected(application as unknown)) &&
         application.admission_letter?.status === 'uploaded' && (
             <a
                 className="text-info"
@@ -129,7 +128,7 @@ const AdmissionLetterLink = ({ application }: AdmissionLetterLinkProps) => {
                 rel="noopener noreferrer"
                 target="_blank"
             >
-                {isProgramAdmitted(application as unknown as ApplicationProps)
+                {isProgramAdmitted(application as unknown)
                     ? i18next.t('Admission Letter', { ns: 'admissions' })
                     : i18next.t('Rejection Letter', { ns: 'admissions' })}
             </a>
@@ -259,7 +258,7 @@ export default function ApplicationProgressCard(
             <Card>
                 <CardContent onClick={handleToggle}>
                     <Typography color="text.secondary" gutterBottom>
-                        {isProgramSubmitted(application as ApplicationProps) ? (
+                        {isProgramSubmitted(application) ? (
                             <>
                                 {application.admission === '-' ? (
                                     <>
@@ -273,7 +272,7 @@ export default function ApplicationProgressCard(
                                     </>
                                 ) : null}
                                 {isProgramAdmitted(
-                                    application as unknown as ApplicationProps
+                                    application as unknown
                                 ) ? (
                                     <>
                                         <IconButton>
@@ -286,7 +285,7 @@ export default function ApplicationProgressCard(
                                     </>
                                 ) : null}
                                 {isProgramRejected(
-                                    application as ApplicationProps
+                                    application
                                 ) ? (
                                     <>
                                         <IconButton>
@@ -337,7 +336,7 @@ export default function ApplicationProgressCard(
                     </Typography>
                     <Typography variant="body2">
                         <AdmissionLetterLink application={application} />
-                        {isProgramSubmitted(application as ApplicationProps) &&
+                        {isProgramSubmitted(application) &&
                         application.admission !== '-' &&
                         (!application.admission_letter?.status ||
                             application.admission_letter?.status !==
@@ -357,7 +356,7 @@ export default function ApplicationProgressCard(
                                 variant="contained"
                             >
                                 {isProgramAdmitted(
-                                    application as unknown as ApplicationProps
+                                    application as unknown
                                 )
                                     ? i18next.t('upload-admission-letter', {
                                           ns: 'admissions'
@@ -369,7 +368,7 @@ export default function ApplicationProgressCard(
                         ) : null}
                     </Typography>
                     {appConfig.interviewEnable &&
-                    isProgramSubmitted(application as ApplicationProps) &&
+                    isProgramSubmitted(application) &&
                     application.admission === '-' ? (
                         <>
                             {!application.interview_status ? (
@@ -477,7 +476,7 @@ export default function ApplicationProgressCard(
                             ) : null}
                         </>
                     ) : null}
-                    {isProgramSubmitted(application as ApplicationProps) ? (
+                    {isProgramSubmitted(application) ? (
                         application.admission === '-' ? (
                             <Typography>
                                 {i18next.t('Tell me about your result')} :{' '}
@@ -496,7 +495,7 @@ export default function ApplicationProgressCard(
                             </Button>
                         )
                     ) : null}
-                    {isProgramSubmitted(application as ApplicationProps) &&
+                    {isProgramSubmitted(application) &&
                     application.admission === '-' ? (
                         <Box sx={{ my: 1 }}>
                             <Button
@@ -530,12 +529,12 @@ export default function ApplicationProgressCard(
                             style={{ flex: 1, marginRight: '10px' }}
                             value={
                                 isProgramSubmitted(
-                                    application as ApplicationProps
+                                    application
                                 )
                                     ? 100
                                     : progressBarCounter(
                                           props.student,
-                                          application as ApplicationProps
+                                          application
                                       )
                             }
                             variant="determinate"
@@ -543,12 +542,12 @@ export default function ApplicationProgressCard(
                         <span>
                             {`${
                                 isProgramSubmitted(
-                                    application as ApplicationProps
+                                    application
                                 )
                                     ? 100
                                     : progressBarCounter(
                                           props.student,
-                                          application as ApplicationProps
+                                          application
                                       )
                             }%`}
                         </span>

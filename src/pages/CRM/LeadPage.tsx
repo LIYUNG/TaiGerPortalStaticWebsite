@@ -202,7 +202,7 @@ const LeadPage = () => {
         await updateLeadMutation.mutateAsync(changed);
         setLeadEditStates((p) => ({ ...p, [cardId]: false }));
     };
-    const handleFieldChange = (field, value) => {
+    const handleFieldChange = (field: string, value: string) => {
         setFormData((p) => ({ ...p, [field]: value }));
         form.setFieldValue(field, value);
     };
@@ -357,7 +357,7 @@ const LeadPage = () => {
                             >
                                 {(lead.fullName || '')
                                     .split(' ')
-                                    .map((n) => n?.[0])
+                                    .map((n: string) => n?.[0])
                                     .filter(Boolean)
                                     .slice(0, 2)
                                     .join('') ||
@@ -662,7 +662,7 @@ const LeadPage = () => {
                                             gap: 1
                                         }}
                                     >
-                                        {lead.deals.map((deal, idx) => {
+                                        {lead.deals.map((deal: any, idx: number) => {
                                             const id = getDealId(deal);
                                             const isUpdating =
                                                 updateStatusMutation.isPending &&

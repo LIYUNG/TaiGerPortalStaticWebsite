@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
     useEffect(() => {
         verify().then(
             (resp: {
-                data: { data?: IUser; success?: boolean };
+                data: { data: IUser; success: boolean };
                 status?: number;
             }) => {
                 const { data, success } = resp.data;
@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
                     setUserdata((state) => ({
                         ...state,
                         success: success ?? false,
-                        data: data ?? null,
+                        data: data,
                         isLoaded: true
                     }));
                     setIsAuthenticated(true);

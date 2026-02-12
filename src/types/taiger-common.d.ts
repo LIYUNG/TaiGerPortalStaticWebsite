@@ -11,8 +11,7 @@ import type {
 } from '@taiger-common/model';
 
 // Frontend-friendly Application type with string _id
-export interface IApplicationWithId
-    extends Omit<IApplication, 'programId' | 'studentId'> {
+export interface IApplicationWithId extends IApplication {
     _id: string;
 }
 
@@ -30,7 +29,7 @@ export interface IUserWithId
 }
 
 // Student response with populated references (from API)
-export interface IStudentResponse extends IUserWithId {
+export interface IStudentResponse extends IStudent {
     archiv?: boolean;
     applying_program_count: number;
     applications?: IApplicationWithId[];

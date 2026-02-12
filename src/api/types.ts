@@ -1,6 +1,5 @@
 import type { AxiosInstance } from 'axios';
-import type { ApplicationProps } from '@taiger-common/core';
-import type { IUser } from '@taiger-common/model';
+import type { IUser, IApplication } from '@taiger-common/model';
 
 /** Program reference as nested in Application */
 export interface ApplicationProgramId {
@@ -18,7 +17,7 @@ export interface ApplicationProgramId {
 /** Application object as returned by API / used in student.applications.
  * decided, closed, admission are optional so API responses that omit them still match. */
 export type Application = Omit<
-    ApplicationProps,
+    IApplication,
     'decided' | 'closed' | 'admission'
 > & {
     decided?: string;
@@ -28,7 +27,7 @@ export type Application = Omit<
     programId?: IProgramWithId;
     application_year?: unknown;
     doc_modification_thread?: unknown[];
-    uni_assist?: { status?: string; vpd_file_path?: string; isPaid?: boolean };
+    uni_assist?: { status?: string; vpd_file_path?: string; vpd_paid_confirmation_file_path?: string; isPaid?: boolean };
     isLocked?: boolean;
     admission_letter?: { status?: string; admission_file_path?: string };
     interview_id?: string;
@@ -57,7 +56,7 @@ export type RequestInstance = AxiosInstance;
 export interface AuthUserdataState {
     error: unknown;
     success: boolean;
-    data: IUser | null;
+    data: IUser;
     isLoaded: boolean;
     res_modal_message: string;
     res_modal_status: number;
@@ -65,7 +64,7 @@ export interface AuthUserdataState {
 
 /** Auth context value (used by useAuth) */
 export interface AuthContextValue {
-    user: IUser | null;
+    user: IUser;
     isAuthenticated: boolean;
     isLoaded: boolean;
     login: (data: IUser) => void;
@@ -202,7 +201,7 @@ export interface InterviewResponse {
 /** Document thread response */
 export interface DocumentThreadResponse {
     _id: string;
-    student_id?: string | IStudentResponse;
+    student_id?: string & IStudentResponse;
     application_id?: string;
     doc_thread_id: IDocumentthread;
     user_id?: string;

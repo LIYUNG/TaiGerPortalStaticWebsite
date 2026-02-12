@@ -1,7 +1,6 @@
 import { SyntheticEvent, useMemo, useState } from 'react';
 import { Link, Tabs, Tab, Box, Typography, Card, Popover } from '@mui/material';
 import { Link as LinkDom } from 'react-router-dom';
-import type { ApplicationProps } from '@taiger-common/core';
 import {
     is_TaiGer_role,
     isProgramDecided,
@@ -205,9 +204,7 @@ const ApplicationOverviewTabs = ({
             }) => {
                 return params.row.decided === '-'
                     ? DECISION_STATUS_E.UNKNOWN_SYMBOL
-                    : isProgramDecided(
-                            params.row as unknown as ApplicationProps
-                        )
+                    : isProgramDecided(params.row as unknown)
                       ? DECISION_STATUS_E.OK_SYMBOL
                       : DECISION_STATUS_E.NOT_OK_SYMBOL;
             }
@@ -223,9 +220,7 @@ const ApplicationOverviewTabs = ({
             }) => {
                 return params.row.closed === '-'
                     ? SUBMISSION_STATUS_E.UNKNOWN_SYMBOL
-                    : isProgramSubmitted(
-                            params.row as unknown as ApplicationProps
-                        )
+                    : isProgramSubmitted(params.row as unknown)
                       ? SUBMISSION_STATUS_E.OK_SYMBOL
                       : SUBMISSION_STATUS_E.NOT_OK_SYMBOL;
             }
@@ -387,7 +382,7 @@ const ApplicationOverviewTabs = ({
                     <ProgramUpdateStatusTable
                         data={open_applications_arr.filter((application) =>
                             isProgramDecided(
-                                application as unknown as import('@taiger-common/core').ApplicationProps
+                                application as unknown
                             )
                         )}
                     />
