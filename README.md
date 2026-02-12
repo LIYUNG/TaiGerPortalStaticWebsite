@@ -1,3 +1,4 @@
+[![Test](https://github.com/LIYUNG/TaiGerPortalStaticWebsite/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/LIYUNG/TaiGerPortalStaticWebsite/actions/workflows/test.yml)
 # TaiGer Portal Static Website
 
 React + TypeScript frontend (Vite). Migrated from Create React App.
