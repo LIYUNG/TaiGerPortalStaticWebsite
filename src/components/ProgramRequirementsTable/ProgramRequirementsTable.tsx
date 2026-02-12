@@ -19,7 +19,7 @@ import {
     Autocomplete,
     TextField
 } from '@mui/material';
-import { PROGRAM_SUBJECTS } from '@taiger-common/core';
+import { PROGRAM_SUBJECTS } from '@taiger-common/model';
 import i18next from 'i18next';
 import {
     MaterialReactTable,

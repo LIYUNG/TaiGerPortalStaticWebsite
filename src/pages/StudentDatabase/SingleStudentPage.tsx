@@ -110,15 +110,7 @@ export const SingleStudentPageMainContent = ({
             ...prevState,
             student: data
         }));
-    }, [
-        data._id,
-        JSON.stringify(
-            data.applications?.map((app) => ({
-                id: app._id,
-                isLocked: app.isLocked
-            }))
-        )
-    ]);
+    }, [data]);
 
     const [localLeadId, setLocalLeadId] = useState(null);
 

@@ -55,7 +55,7 @@ const EditEditorsSubpage = (props) => {
                 setIsLoaded(true);
             }
         );
-    }, [props.student.editors]);
+    }, [props.student, props.student.editors]);
 
     const handleChangeEditorlist = (e: React.SyntheticEvent) => {
         const { value } = e.target;

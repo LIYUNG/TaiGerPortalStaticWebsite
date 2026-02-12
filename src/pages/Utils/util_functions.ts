@@ -1,11 +1,11 @@
 import {
     ApplicationProps,
-    DocumentStatusType,
     isProgramAdmitted,
     isProgramDecided,
     isProgramSubmitted,
     isProgramWithdraw
 } from '@taiger-common/core';
+import { DocumentStatusType } from '@taiger-common/model';
 import JSZip from 'jszip';
 import * as XLSX from 'xlsx';
 import { differenceInDays } from 'date-fns';

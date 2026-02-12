@@ -70,6 +70,47 @@ export const ImportStudentProgramsCard = (
         });
 
     useEffect(() => {
+        const fetchSearchResults = async () => {
+            try {
+                setImportStudentProgramsCardState((prevState) => ({
+                    ...prevState,
+                    isLoading: true
+                }));
+                const response = await getQueryStudentsResults(
+                    importStudentProgramsCard.searchTerm
+                );
+                if (response.data.success) {
+                    setImportStudentProgramsCardState((prevState) => ({
+                        ...prevState,
+                        searchResults: response.data.data,
+                        isResultsVisible: true,
+                        isLoading: false
+                    }));
+                } else {
+                    setImportStudentProgramsCardState((prevState) => ({
+                        ...prevState,
+                        isResultsVisible: false,
+                        searchTerm: '',
+                        searchResults: [],
+                        isErrorTerm: true,
+                        isLoading: false,
+                        res_modal_status: 401,
+                        res_modal_message: 'Session expired. Please refresh.'
+                    }));
+                }
+            } catch (error) {
+                setImportStudentProgramsCardState((prevState) => ({
+                    ...prevState,
+                    isResultsVisible: false,
+                    searchTerm: '',
+                    searchResults: [],
+                    isErrorTerm: true,
+                    isLoading: false,
+                    res_modal_status: 403,
+                    res_modal_message: error
+                }));
+            }
+        };
         const delayDebounceFn = setTimeout(() => {
             if (importStudentProgramsCard.searchTerm) {
                 fetchSearchResults();
@@ -85,7 +126,7 @@ export const ImportStudentProgramsCard = (
             document.removeEventListener('click', handleClickOutside);
             clearTimeout(delayDebounceFn);
         };
-    }, [importStudentProgramsCard.searchTerm]);
+    }, [fetchSearchResults, importStudentProgramsCard]);
 
     const handleClickOutside = () => {
         // Clicked outside, hide the result list
@@ -130,48 +171,6 @@ export const ImportStudentProgramsCard = (
             },
             () => {}
         );
-    };
-
-    const fetchSearchResults = async () => {
-        try {
-            setImportStudentProgramsCardState((prevState) => ({
-                ...prevState,
-                isLoading: true
-            }));
-            const response = await getQueryStudentsResults(
-                importStudentProgramsCard.searchTerm
-            );
-            if (response.data.success) {
-                setImportStudentProgramsCardState((prevState) => ({
-                    ...prevState,
-                    searchResults: response.data.data,
-                    isResultsVisible: true,
-                    isLoading: false
-                }));
-            } else {
-                setImportStudentProgramsCardState((prevState) => ({
-                    ...prevState,
-                    isResultsVisible: false,
-                    searchTerm: '',
-                    searchResults: [],
-                    isErrorTerm: true,
-                    isLoading: false,
-                    res_modal_status: 401,
-                    res_modal_message: 'Session expired. Please refresh.'
-                }));
-            }
-        } catch (error) {
-            setImportStudentProgramsCardState((prevState) => ({
-                ...prevState,
-                isResultsVisible: false,
-                searchTerm: '',
-                searchResults: [],
-                isErrorTerm: true,
-                isLoading: false,
-                res_modal_status: 403,
-                res_modal_message: error
-            }));
-        }
     };
 
     const onHideimportedStudentModalOpen = () => {

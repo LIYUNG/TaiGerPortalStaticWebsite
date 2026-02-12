@@ -1731,7 +1731,7 @@ export default function CourseAnalysisV2() {
                 }));
             }
         );
-    }, []);
+    }, [user_id]);
 
     const handleProgramChange = useCallback(
         (event) => {

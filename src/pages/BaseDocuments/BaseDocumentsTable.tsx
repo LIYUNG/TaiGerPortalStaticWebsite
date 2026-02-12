@@ -19,7 +19,8 @@ import {
     Avatar
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { DocumentStatusType, PROFILE_NAME } from '@taiger-common/core';
+import { PROFILE_NAME } from '@taiger-common/core';
+import { DocumentStatusType } from '@taiger-common/model';
 import {
     MaterialReactTable,
     useMaterialReactTable

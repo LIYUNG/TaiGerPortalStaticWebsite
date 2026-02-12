@@ -132,7 +132,7 @@ export default function MyCourses() {
                 }));
             }
         );
-    }, []);
+    }, [student_id, user]);
 
     const handleChangeValue = (event, newValue) => {
         setValue(newValue);

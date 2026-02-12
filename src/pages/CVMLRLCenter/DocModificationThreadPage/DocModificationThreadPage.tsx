@@ -712,7 +712,7 @@ const DocModificationThreadPage = ({
         }
         keys.push(TAB_KEYS.audit);
         return keys;
-    }, [isGeneralRL, isTaiGerUser]);
+    }, [isGeneralRL, isTaiGerUser, TAB_KEYS]);
 
     const tabIndexMap = useMemo(() => {
         const map = {};

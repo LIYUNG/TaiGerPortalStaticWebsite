@@ -43,6 +43,14 @@ const InterviewTraining = () => {
         res_modal_status: 0
     });
 
+    const {
+        res_status,
+        isLoaded,
+        res_modal_status,
+        res_modal_message,
+        interviewslist
+    } = interviewTrainingState;
+
     useEffect(() => {
         if (is_TaiGer_role(user)) {
             getAllInterviews().then(
@@ -126,7 +134,7 @@ const InterviewTraining = () => {
                 }
             );
         }
-    }, []);
+    }, [user, interviewslist]);
 
     const handleClick = () => {
         navigate(`${DEMO.INTERVIEW_ADD_LINK}`);
@@ -291,14 +299,6 @@ const InterviewTraining = () => {
         return result;
     };
     // const memoizedColumns = useMemo(() => column, [column]);
-
-    const {
-        res_status,
-        isLoaded,
-        res_modal_status,
-        res_modal_message,
-        interviewslist
-    } = interviewTrainingState;
 
     if (res_status >= 400) {
         return <ErrorPage res_status={res_status} />;

@@ -13,7 +13,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import QueryBuilderIcon from '@mui/icons-material/QueryBuilder';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
-import { PROGRAM_SUBJECTS, SCHOOL_TAGS } from '@taiger-common/core';
+import { PROGRAM_SUBJECTS, SCHOOL_TAGS } from '@taiger-common/model';
 import {
     green,
     red,

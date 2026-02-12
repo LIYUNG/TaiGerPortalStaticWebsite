@@ -24,12 +24,12 @@ import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import LaunchIcon from '@mui/icons-material/Launch';
 import {
-    DocumentStatusType,
     is_TaiGer_Admin,
     is_TaiGer_AdminAgent,
     is_TaiGer_Editor,
     is_TaiGer_Student
 } from '@taiger-common/core';
+import { DocumentStatusType } from '@taiger-common/model';
 
 import OffcanvasBaseDocument from '@components/Offcanvas/OffcanvasBaseDocument';
 import {

@@ -1,6 +1,6 @@
 import type React from 'react';
 import { render, screen } from '@testing-library/react';
-import { DocumentStatusType } from '@taiger-common/core';
+import { DocumentStatusType } from '@taiger-common/model';
 import {
     DownloadIconButton,
     CommentsIconButton,

@@ -53,7 +53,7 @@ const EditInterviewTrainersSubpage = (props) => {
                 setIsLoaded(true);
             }
         );
-    }, [props.interview.trainer_id]);
+    }, [props.interview, props.interview.trainer_id]);
 
     const handleChangeTrainerlist = (e: ChangeEvent<HTMLInputElement>) => {
         const { value } = e.target;

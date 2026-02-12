@@ -60,7 +60,7 @@ const EditAgentsSubpage = (props) => {
                 // setIsLoaded(true);
             }
         );
-    }, [props.student.agents]);
+    }, [props.student, props.student.agents]);
 
     const handleChangeAgentlist = (e: React.SyntheticEvent) => {
         const { value } = e.target;

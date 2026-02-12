@@ -1,3 +1,4 @@
+import { IUser } from '@taiger-common/model';
 import {
     BASE_URL,
     deleteData,
@@ -11,7 +12,6 @@ import type {
     LoginCredentials,
     ResetPasswordPayload,
     ForgotPasswordPayload,
-    AuthUserData,
     ApiPayload,
     QueryString,
     StudentId,
@@ -100,11 +100,11 @@ export const addUser = (user_information: ApiPayload) =>
 export const deleteUser = ({ id }: { id: string }) =>
     deleteData(`/api/users/${id}`);
 
-export const updateUser = (user: AuthUserData) =>
+export const updateUser = (user: IUser) =>
     postData(`/api/users/${user._id}`, user);
 
 export const changeUserRole = ({ id, role }: { id: string; role: string }) =>
-    updateUser({ _id: id, role } as AuthUserData);
+    updateUser({ _id: id, role } as IUser);
 
 export const getEssayWriters = () => request.get('/api/essay-writers');
 

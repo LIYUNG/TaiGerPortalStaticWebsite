@@ -8,7 +8,7 @@ import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import MessageIcon from '@mui/icons-material/Message';
 import i18next from 'i18next';
 
-import { DocumentStatusType } from '@taiger-common/core';
+import { DocumentStatusType } from '@taiger-common/model';
 
 export interface DownloadIconButtonProps {
     showPreview: () => void;

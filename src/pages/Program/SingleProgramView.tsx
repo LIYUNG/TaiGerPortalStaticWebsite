@@ -74,7 +74,7 @@ import { useAuth } from '@components/AuthProvider';
 import { a11yProps, CustomTabPanel } from '@components/Tabs';
 import { useQuery } from '@tanstack/react-query';
 import { getSameProgramStudentsQuery } from '@api/query';
-import type { AuthUserData } from '@api/types';
+import type { IUser } from '@taiger-common/model';
 
 /** Program shape in SingleProgramView (school, program_name, country + fields from programField2Label) */
 export interface SingleProgramViewProgram {
@@ -107,7 +107,7 @@ export interface SingleProgramViewProps {
     setDeleteProgramWarningOpen?: (open: boolean) => void;
     setDiffModalShow?: () => void;
     setModalShowAssignWindow?: (open: boolean) => void;
-    user?: AuthUserData | null;
+    user?: IUser | null;
 }
 
 const SingleProgramView = (props: SingleProgramViewProps) => {

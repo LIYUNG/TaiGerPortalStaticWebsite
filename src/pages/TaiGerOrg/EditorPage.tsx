@@ -208,7 +208,7 @@ const EditorPage = () => {
             stats: calculatedStats,
             editorUser: editorUser
         };
-    }, [myStudentsThreads, user, user_id]);
+    }, [myStudentsThreads, user_id]);
 
     if (!user || !is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;

@@ -10,8 +10,7 @@ import { NoonNightLabel, stringToColor } from '@utils/contants';
 import {
     is_TaiGer_Agent,
     is_TaiGer_Editor,
-    is_TaiGer_Student,
-    type UserProps
+    is_TaiGer_Student
 } from '@taiger-common/core';
 import { useAuth } from '../../AuthProvider';
 
@@ -34,7 +33,7 @@ const CalendarEventComponent = ({
     event
 }: CalendarEventComponentProps): React.ReactElement => {
     const { user } = useAuth();
-    return user && is_TaiGer_Student(user as UserProps) ? (
+    return user && is_TaiGer_Student(user) ? (
         <span>
             {event.start.toLocaleTimeString()} {NoonNightLabel(event.start)}{' '}
         </span>
@@ -245,8 +244,8 @@ const MyCalendar = ({
                 onSelectEvent={handleSelectEvent}
                 onSelectSlot={
                     user &&
-                    (is_TaiGer_Agent(user as UserProps) ||
-                        is_TaiGer_Editor(user as UserProps))
+                    (is_TaiGer_Agent(user) ||
+                        is_TaiGer_Editor(user))
                         ? handleSelectSlot
                         : () => {}
                 }

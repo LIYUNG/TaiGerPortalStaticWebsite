@@ -1,5 +1,6 @@
 import type { AxiosInstance } from 'axios';
 import type { ApplicationProps } from '@taiger-common/core';
+import type { IUser } from '@taiger-common/model';
 
 /** Program reference as nested in Application */
 export interface ApplicationProgramId {
@@ -42,19 +43,11 @@ export interface ApiResponse<T = unknown> {
     message?: string;
 }
 
-/** Auth verify response data shape */
-export interface AuthUserData {
-    _id?: string;
-    email?: string;
-    role?: string;
-    firstname?: string;
-    lastname?: string;
-    [key: string]: unknown;
-}
+
 
 export interface AuthVerifyResponse {
     success: boolean;
-    data?: AuthUserData;
+    data?: IUser;
 }
 
 /** Typed request helpers - use generic getData<T>(url) for typed responses */
@@ -64,7 +57,7 @@ export type RequestInstance = AxiosInstance;
 export interface AuthUserdataState {
     error: unknown;
     success: boolean;
-    data: AuthUserData | null;
+    data: IUser | null;
     isLoaded: boolean;
     res_modal_message: string;
     res_modal_status: number;
@@ -72,10 +65,10 @@ export interface AuthUserdataState {
 
 /** Auth context value (used by useAuth) */
 export interface AuthContextValue {
-    user: AuthUserData | null;
+    user: IUser | null;
     isAuthenticated: boolean;
     isLoaded: boolean;
-    login: (data: AuthUserData) => void;
+    login: (data: IUser) => void;
     logout: () => void;
 }
 

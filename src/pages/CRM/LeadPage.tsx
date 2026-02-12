@@ -36,7 +36,8 @@ import {
 } from '@mui/icons-material';
 
 import { is_TaiGer_role } from '@taiger-common/core';
-import { getCRMLeadQuery, getStudentQuery } from '@api/query';
+import { getStudentQuery } from '@api/query';
+import { useLead } from '@hooks/useLead';
 import { request } from '@api/request';
 import { updateCRMDeal } from '@api';
 
@@ -67,9 +68,7 @@ const LeadPage = () => {
     const { user } = useAuth();
     const queryClient = useQueryClient();
 
-    const leadQueryOptions = getCRMLeadQuery(leadId);
-    const { data, isLoading: leadLoading } = useQuery(leadQueryOptions);
-    const lead = data?.data?.data || {};
+    const { lead, isLoading: leadLoading } = useLead(leadId);
 
     TabTitle(`${t('common.lead', { ns: 'crm' })} - ${lead.fullName}`);
 

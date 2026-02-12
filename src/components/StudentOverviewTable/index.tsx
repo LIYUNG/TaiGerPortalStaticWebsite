@@ -4,11 +4,11 @@ import { Link as LinkDom } from 'react-router-dom';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import HelpIcon from '@mui/icons-material/Help';
 import {
-    DocumentStatusType,
     isProgramDecided,
     isProgramSubmitted,
     ProfileNameType
 } from '@taiger-common/core';
+import { DocumentStatusType } from '@taiger-common/model';
 
 import { COLORS, FILE_MISSING_SYMBOL, FILE_OK_SYMBOL } from '@utils/contants';
 import { MuiDataGrid } from '../MuiDataGrid';

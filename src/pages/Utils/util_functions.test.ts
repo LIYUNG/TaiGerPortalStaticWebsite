@@ -1,5 +1,5 @@
-import { DocumentStatusType, ProfileNameType } from '@taiger-common/core';
-
+import { ProfileNameType } from '@taiger-common/core';
+import { DocumentStatusType } from '@taiger-common/model';
 import {
     is_cv_assigned,
     isCVFinished,
