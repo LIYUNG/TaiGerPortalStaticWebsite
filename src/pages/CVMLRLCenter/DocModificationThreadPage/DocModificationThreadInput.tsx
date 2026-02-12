@@ -40,7 +40,7 @@ import {
     getSurveyInputs,
     putSurveyInput,
     postSurveyInput
-} from '@api';
+} from '@/api';
 import { TabTitle } from '../../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';

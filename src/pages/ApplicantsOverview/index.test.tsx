@@ -6,7 +6,7 @@ import {
     getProgramTickets,
     getStudentsV3,
     getMyStudentsApplications
-} from '@api';
+} from '@/api';
 import { useAuth } from '@components/AuthProvider/index';
 import { RouterProvider, createMemoryRouter } from 'react-router-dom';
 

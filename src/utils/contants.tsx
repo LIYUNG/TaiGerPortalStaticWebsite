@@ -13,7 +13,11 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import QueryBuilderIcon from '@mui/icons-material/QueryBuilder';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
-import { PROGRAM_SUBJECTS, SCHOOL_TAGS } from '@taiger-common/model';
+import {
+    IDocumentthread,
+    PROGRAM_SUBJECTS,
+    SCHOOL_TAGS
+} from '@taiger-common/model';
 import {
     green,
     red,
@@ -32,7 +36,6 @@ import i18next from 'i18next';
 import { APPROVAL_COUNTRIES } from '@pages/Utils/util_functions';
 import { MRT_ColumnDef } from 'material-react-table';
 import type { IUserWithId, IProgramWithId } from '../types/taiger-common';
-import type { DocumentThreadResponse } from '@api/types';
 
 export const IS_DEV =
     !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
@@ -210,7 +213,7 @@ export const questionType = {
 };
 
 export const prepQuestions = (
-    thread: DocumentThreadResponse,
+    thread: IDocumentthread,
     isSpecific: boolean
 ): unknown[] => {
     let questions = [];
@@ -268,7 +271,7 @@ export const CVQuestions = () => {
 
 /** Optional thread param reserved for future use */
 /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
-export const RLQuestions = (_thread?: DocumentThreadResponse): unknown[] => {
+export const RLQuestions = (_thread?: IDocumentthread): unknown[] => {
     return [
         {
             questionId: 'q1',
@@ -409,7 +412,7 @@ export const RLQuestions = (_thread?: DocumentThreadResponse): unknown[] => {
 };
 
 export const MLQuestions = (
-    thread: DocumentThreadResponse,
+    thread: IDocumentthread,
     isSpecific: boolean
 ): unknown[] => {
     if (isSpecific) {
@@ -984,7 +987,7 @@ export const getTime = (date: string | Date): string => {
     return `${time}`;
 };
 
-export const convertDate = (date: string | Date): string => {
+export const convertDate = (date: string | Date | number): string => {
     // const userLocale = navigator.language;
     const dat = new Date(date)
         ?.toLocaleDateString('zh-Hans-CN', {
@@ -1556,7 +1559,7 @@ export const DEGREE_ARRAY_OPTIONS = [
 
 export const is_new_message_status = (
     user: IUserWithId,
-    thread: DocumentThreadResponse
+    thread: IDocumentthread
 ): boolean => {
     if (thread.isFinalVersion) {
         return false;
@@ -1577,14 +1580,14 @@ export const is_new_message_status = (
 
 export const is_my_fav_message_status = (
     user: IUserWithId,
-    thread: DocumentThreadResponse
+    thread: IDocumentthread
 ): boolean => {
     return thread.flag_by_user_id?.includes(user._id.toString());
 };
 
 export const is_pending_status = (
     user: IUserWithId,
-    thread: DocumentThreadResponse
+    thread: IDocumentthread
 ): boolean => {
     return !is_new_message_status(user, thread);
 };
@@ -1704,7 +1707,7 @@ export const col_keywords: Array<MRT_ColumnDef<Record<string, unknown>>> = [
     }
 ];
 
-export const c1_mrt: Array<MRT_ColumnDef<Record<string, unknown>>> = [
+export const c1_mrt: MRT_ColumnDef<Record<string, unknown>>[] = [
     {
         accessorKey: 'firstname_lastname', //accessorKey used to define `data` column. `id` gets set to accessorKey automatically
         filterVariant: 'autocomplete',

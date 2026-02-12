@@ -12,7 +12,7 @@ import {
     Checkbox
 } from '@mui/material';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'; // Example icon from Material UI
-import { getCheckDocumentPatternIsPassed } from '@api';
+import { getCheckDocumentPatternIsPassed } from '@/api';
 import { Stack } from '@mui/system';
 import { useTranslation } from 'react-i18next';
 

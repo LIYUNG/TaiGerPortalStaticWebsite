@@ -13,7 +13,7 @@ import DEMO from '@store/constant';
 import i18next from 'i18next';
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { createCourse } from '@api';
+import { createCourse } from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import { queryClient } from '@api/client';
 

@@ -1,11 +1,11 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import type { ReactElement } from 'react';
 import Admissions from './Admissions';
-import { getAdmissions } from '@api';
+import { getAdmissions } from '@/api';
 import { useAuth } from '@components/AuthProvider';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import type { AuthContextValue } from '@api/types';
+import type { AuthContextValue } from '@/api/types';
 
 import { mockAdmissionsData } from '../../test/testingAdmissionsData';
 

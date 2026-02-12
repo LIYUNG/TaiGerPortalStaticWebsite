@@ -41,7 +41,7 @@ import {
     FILE_OK_SYMBOL,
     FILE_UPLOADED_SYMBOL
 } from '@utils/contants';
-import { updateProfileDocumentStatus } from '@api';
+import { updateProfileDocumentStatus } from '@/api';
 import DEMO from '@store/constant';
 import AcceptProfileFileModel from './AcceptedFilePreviewModal';
 

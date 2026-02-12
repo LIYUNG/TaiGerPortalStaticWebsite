@@ -4,7 +4,7 @@ import { isProgramDecided } from '@taiger-common/core';
 
 import { check_student_needs_uni_assist } from '../Utils/util_functions';
 import { UniAssistProgramBlock } from './UniAssistProgramBlock';
-import type { IStudentResponse } from '@api/types';
+import type { IStudentResponse } from '@/api/types';
 
 export interface UniAssistListCardProps {
     student: IStudentResponse;

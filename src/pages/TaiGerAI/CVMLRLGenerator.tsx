@@ -14,7 +14,7 @@ import remarkGfm from 'remark-gfm';
 import { is_TaiGer_role } from '@taiger-common/core';
 
 import ErrorPage from '../Utils/ErrorPage';
-import { TaiGerAiGeneral2 } from '@api';
+import { TaiGerAiGeneral2 } from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { appConfig } from '../../config';

@@ -18,7 +18,7 @@ import { isProgramDecided } from '@taiger-common/core';
 
 import BaseDocumentCheckingTasks from '../MainViewTab/AgentTasks/BaseDocumentCheckingTasks';
 import StudentsAgentEditor from '../MainViewTab/StudentsAgentEditor/StudentsAgentEditor';
-import { updateAgentBanner } from '@api';
+import { updateAgentBanner } from '@/api';
 import { academic_background_header } from '@utils/contants';
 import {
     anyStudentWithoutApplicationSelection,

@@ -17,7 +17,7 @@ import {
 import { isProgramDecided } from '@taiger-common/core';
 import queryString from 'query-string';
 
-import { updateAgentBanner } from '@api';
+import { updateAgentBanner } from '@/api';
 import { appConfig } from '../../../config';
 import {
     AGENT_SUPPORT_DOCUMENTS_A,

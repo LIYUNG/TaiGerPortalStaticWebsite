@@ -1,7 +1,7 @@
 import { Box, Typography } from '@mui/material';
 
 import FileItem from './FileItem';
-import type { DocumentThreadResponse } from '@api/types';
+import type { DocumentThreadResponse } from '@/api/types';
 
 export interface FilesListProps {
     thread: DocumentThreadResponse | null;

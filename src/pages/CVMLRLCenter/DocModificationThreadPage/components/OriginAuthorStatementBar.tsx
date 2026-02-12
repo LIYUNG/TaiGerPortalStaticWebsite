@@ -18,7 +18,7 @@ import { green, grey } from '@mui/material/colors';
 import { useTranslation } from 'react-i18next';
 import { is_TaiGer_Student } from '@taiger-common/core';
 
-import { putOriginAuthorConfirmedByStudent } from '@api';
+import { putOriginAuthorConfirmedByStudent } from '@/api';
 import { appConfig } from '../../../../config';
 
 const OriginAuthorStatementBar = ({ thread, theme, user }) => {

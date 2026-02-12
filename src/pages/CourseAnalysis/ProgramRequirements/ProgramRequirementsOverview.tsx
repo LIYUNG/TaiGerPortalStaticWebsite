@@ -25,7 +25,7 @@ import {
 import React, { useState, useMemo, useCallback } from 'react';
 import DEMO from '@store/constant';
 import { useTranslation } from 'react-i18next';
-import { deleteProgramRequirement } from '@api';
+import { deleteProgramRequirement } from '@/api';
 
 const ProgramRequirementsOverview = ({ programRequirements }) => {
     const { t } = useTranslation();

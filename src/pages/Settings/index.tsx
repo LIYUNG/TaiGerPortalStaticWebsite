@@ -23,7 +23,7 @@ import { Link as LinkDom } from 'react-router-dom';
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 
-import { updateCredentials } from '@api';
+import { updateCredentials } from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
 import { useAuth } from '@components/AuthProvider';
 import { useCustomTheme } from '@components/ThemeProvider';

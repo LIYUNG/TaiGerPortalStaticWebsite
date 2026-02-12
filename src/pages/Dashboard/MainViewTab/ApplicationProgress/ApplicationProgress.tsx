@@ -137,7 +137,7 @@ function ApplicationProgress({ student }: { student: IStudentResponse }) {
                             <TableCell>
                                 <Typography>
                                     {application.programId?.toefl
-                                        ? application.programId.toefl
+                                        ? application.programId?.toefl
                                         : '-'}
                                 </Typography>
                             </TableCell>

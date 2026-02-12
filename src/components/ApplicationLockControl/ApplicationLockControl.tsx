@@ -19,13 +19,13 @@ import {
     calculateApplicationLockStatus,
     APPROVAL_COUNTRIES
 } from '@pages/Utils/util_functions';
-import { refreshApplication } from '@api';
+import { refreshApplication } from '@/api';
 import { is_TaiGer_Admin, is_TaiGer_Agent } from '@taiger-common/core';
 import { useAuth } from '../AuthProvider';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import DEMO from '@store/constant';
 import { type IApplication } from '@taiger-common/model';
-import { ApplicationId, ProgramId, IProgramWithId } from '@api/types';
+import { ApplicationId, ProgramId, IProgramWithId } from '@/api/types';
 
 interface ApplicationLockControlProps {
     application: IApplication;

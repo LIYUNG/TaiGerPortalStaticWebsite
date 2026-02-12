@@ -1,11 +1,11 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import UsersTable from './UsersTable';
-import { getUsers, getUsersCount } from '@api';
+import { getUsers, getUsersCount } from '@/api';
 import { useAuth } from '@components/AuthProvider';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { testingUsersData } from '../../test/testingUsersData';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthContextValue } from '@api/types';
+import { AuthContextValue } from '@/api/types';
 import { AxiosResponse } from 'axios';
 
 vi.mock('axios');

@@ -1,6 +1,6 @@
 import { TableRow, TableCell, Link } from '@mui/material';
 import { Link as LinkDom } from 'react-router-dom';
-import type { TasksOverview } from '@api/types';
+import type { TasksOverview } from '@/api/types';
 import DEMO from '@store/constant';
 import { t } from 'i18next';
 

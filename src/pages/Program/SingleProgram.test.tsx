@@ -1,6 +1,6 @@
 import { render, waitFor } from '@testing-library/react';
 import SingleProgram from './SingleProgram';
-import { getProgram, getProgramTicket } from '@api';
+import { getProgram, getProgramTicket } from '@/api';
 import { useAuth } from '@components/AuthProvider';
 import {
     createMemoryRouter,

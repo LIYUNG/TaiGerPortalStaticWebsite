@@ -31,7 +31,7 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getLeadIdByUserId, createLeadFromStudent } from '@api';
+import { getLeadIdByUserId, createLeadFromStudent } from '@/api';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import {
     is_TaiGer_Editor,
@@ -59,7 +59,7 @@ import {
     needGraduatedApplicantsPrograms
 } from '../Utils/util_functions';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
-import { updateArchivStudents } from '@api';
+import { updateArchivStudents } from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import PortalCredentialPage from '../PortalCredentialPage';

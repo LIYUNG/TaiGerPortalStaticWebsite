@@ -18,7 +18,7 @@ import i18next from 'i18next';
 
 import ExampleWithLocalizationProvider from '@components/MaterialReactTable';
 import { COUNTRIES_ARRAY_OPTIONS, SCHOOL_TAGS_DETAILED } from '@utils/contants';
-import { updateSchoolAttributes } from '@api';
+import { updateSchoolAttributes } from '@/api';
 import SearchableMultiSelect from '@components/Input/searchableMuliselect';
 import { useSnackBar } from '@contexts/use-snack-bar';
 

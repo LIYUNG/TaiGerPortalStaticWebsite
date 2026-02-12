@@ -18,7 +18,7 @@ import {
     OpenTaskRow,
     type Application,
     type IUserWithId
-} from '@api/types';
+} from '@/api/types';
 import {
     IUser,
     IUserAcademicBackground,

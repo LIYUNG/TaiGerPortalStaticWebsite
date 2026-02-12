@@ -15,7 +15,7 @@ import {
 
 import UsersListSubpage from './UsersListSubpage';
 import UserDeleteWarning from './UserDeleteWarning';
-import { deleteUser, changeUserRole, updateArchivUser } from '@api';
+import { deleteUser, changeUserRole, updateArchivUser } from '@/api';
 import { stringAvatar } from '@utils/contants';
 import UserArchivWarning from './UserArchivWarning';
 import { getUsersQuery } from '@api/query';
@@ -26,7 +26,7 @@ import { useSnackBar } from '@contexts/use-snack-bar';
 import { useTableStyles } from '@components/table/users-table/styles';
 import { getTableConfig } from '@components/table/users-table/table-config';
 import { TopToolbar } from '@components/table/users-table/TopToolbar';
-import type { QueryString } from '@api/types';
+import type { QueryString } from '@/api/types';
 
 export interface UsersListProps {
     queryString: QueryString;

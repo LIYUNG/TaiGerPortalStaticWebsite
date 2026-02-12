@@ -21,12 +21,12 @@ import Banner from '@components/Banner/Banner';
 import { useAuth } from '@components/AuthProvider';
 import { CustomTabPanel, a11yProps } from '@components/Tabs';
 import { useTranslation } from 'react-i18next';
-import { MuiDataGrid } from '@components/MuiDataGrid';
+import { MuiDataGrid, MuiDataGridColumn } from '@components/MuiDataGrid';
 import DEMO from '@store/constant';
 import { ATTRIBUTES, COLORS } from '@utils/contants';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { APPROVAL_COUNTRIES } from '../Utils/util_functions';
-import type { OpenTaskRow } from '@api/types';
+import type { OpenTaskRow } from '@/api/types';
 
 export interface EssayOverviewProps {
     handleFavoriteToggle: (id: string) => void;
@@ -70,7 +70,7 @@ const EssayOverview = (props: EssayOverviewProps) => {
         }));
     };
 
-    const memoizedColumns = useMemo(() => {
+    const memoizedColumns = useMemo<MuiDataGridColumn<OpenTaskRow>[]>(() => {
         return [
             {
                 field: 'firstname_lastname',

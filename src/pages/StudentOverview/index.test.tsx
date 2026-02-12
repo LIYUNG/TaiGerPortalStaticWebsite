@@ -2,8 +2,8 @@ import { render, screen, waitFor } from '@testing-library/react';
 import type { ReactElement } from 'react';
 import StudentOverviewPage from '.';
 import { useAuth } from '@components/AuthProvider/index';
-import { getActiveStudents } from '@api';
-import type { AuthContextValue } from '@api/types';
+import { getActiveStudents } from '@/api';
+import type { AuthContextValue } from '@/api/types';
 import { RouterProvider, createMemoryRouter } from 'react-router-dom';
 
 import { mockSingleData } from '../../test/testingStudentData';

@@ -19,11 +19,21 @@ import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
-import { createApplicationV2 } from '@api';
+import { createApplicationV2 } from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import { useAuth } from '@components/AuthProvider';
 import { is_TaiGer_Editor, is_TaiGer_Agent } from '@taiger-common/core';
 import { useStudentsV3 } from '@hooks/useStudentsV3';
+import { IProgram } from '@taiger-common/model';
+import { IStudentResponse } from '@/types/taiger-common';
+
+export interface AssignProgramsToStudentDialogProps {
+    open: boolean;
+    onClose: () => void;
+    programs: IProgram[];
+    handleOnSuccess: () => void;
+    student: IStudentResponse;
+}
 
 export const AssignProgramsToStudentDialog = ({
     open,
@@ -31,7 +41,7 @@ export const AssignProgramsToStudentDialog = ({
     programs,
     handleOnSuccess,
     student
-}) => {
+}: AssignProgramsToStudentDialogProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const [showMyStudentsOnly, setShowMyStudentsOnly] = useState(true);

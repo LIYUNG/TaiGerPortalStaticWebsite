@@ -17,7 +17,7 @@ import {
     getMyStudentsThreads,
     getThreadsByStudent,
     putThreadFavorite
-} from '@api';
+} from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
 import {
     AGENT_SUPPORT_DOCUMENTS_A,

@@ -58,7 +58,7 @@ import {
     deleteFileV2,
     updateProfileDocumentStatusV2,
     uploadforstudentV2
-} from '@api';
+} from '@/api';
 import { queryClient } from '@api/client';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import i18next from 'i18next';

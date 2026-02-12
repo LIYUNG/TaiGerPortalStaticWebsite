@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { CustomDrawer } from './Drawer';
 import { useAuth } from '@components/AuthProvider/index';
-import type { AuthContextValue } from '@api/types';
+import type { AuthContextValue } from '@/api/types';
 import { BrowserRouter } from 'react-router-dom';
 import type { Theme } from '@mui/material/styles';
 

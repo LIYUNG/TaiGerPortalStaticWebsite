@@ -5,7 +5,7 @@ import { is_TaiGer_role } from '@taiger-common/core';
 import SingleDocEdit from './SingleDocEdit';
 import ErrorPage from '../Utils/ErrorPage';
 
-import { updateInternalDocumentation, getInternalDocumentation } from '@api';
+import { updateInternalDocumentation, getInternalDocumentation } from '@/api';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';

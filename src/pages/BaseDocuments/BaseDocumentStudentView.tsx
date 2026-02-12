@@ -6,7 +6,7 @@ import { DocumentStatusType } from '@taiger-common/model';
 
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { SYMBOL_EXPLANATION } from '@utils/contants';
-import { updateDocumentationHelperLink } from '@api';
+import { updateDocumentationHelperLink } from '@/api';
 import Loading from '@components/Loading/Loading';
 import MyDocumentCard from './MyDocumentCard';
 

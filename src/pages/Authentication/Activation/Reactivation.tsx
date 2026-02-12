@@ -6,7 +6,7 @@ import { resendActivation } from '@api/index';
 import AuthWrapper from '@components/AuthWrapper';
 
 export interface ReactivationProps {
-    email: string;
+    email: string | undefined;
 }
 
 export default function Reactivation(props: ReactivationProps) {

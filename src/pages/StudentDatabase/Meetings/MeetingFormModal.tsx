@@ -14,7 +14,7 @@ import {
 import PersonIcon from '@mui/icons-material/Person';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { useTranslation } from 'react-i18next';
-import type { MeetingResponse, IStudentResponse } from '@api/types';
+import type { MeetingResponse, IStudentResponse } from '@/api/types';
 
 export interface MeetingFormModalProps {
     open: boolean;

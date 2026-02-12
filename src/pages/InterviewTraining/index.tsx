@@ -11,7 +11,7 @@ import {
 
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
-import { getMyInterviews, getAllInterviews } from '@api';
+import { getMyInterviews, getAllInterviews } from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';

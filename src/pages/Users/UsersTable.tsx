@@ -16,7 +16,7 @@ import UsersList from './UsersList';
 import AddUserModal from './AddUserModal';
 import ErrorPage from '../Utils/ErrorPage';
 import DEMO from '@store/constant';
-import { addUser } from '@api';
+import { addUser } from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
 import { is_TaiGer_role } from '@taiger-common/core';
 import { useAuth } from '@components/AuthProvider';

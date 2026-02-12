@@ -17,7 +17,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import SaveIcon from '@mui/icons-material/Save';
 
-import { getEssayWriters } from '@api';
+import { getEssayWriters } from '@/api';
 
 const EditInterviewTrainersSubpage = (props) => {
     const [checkboxState, setCheckboxState] = useState({});

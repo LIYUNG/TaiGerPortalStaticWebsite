@@ -5,7 +5,7 @@ import { Link } from '@mui/material';
 import DEMO from '@store/constant';
 import { useTranslation } from 'react-i18next';
 import { MuiDataGrid } from '@components/MuiDataGrid';
-import type { AdmissionsStatRow } from '@api/types';
+import type { AdmissionsStatRow } from '@/api/types';
 
 export interface AdmissionsStatProps {
     result: AdmissionsStatRow[];

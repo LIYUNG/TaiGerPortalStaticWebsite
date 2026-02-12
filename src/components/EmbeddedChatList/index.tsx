@@ -3,7 +3,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import { Box, MenuItem, Skeleton } from '@mui/material';
 
 import Friends from './Friends';
-import { getQueryStudentResults } from '@api';
+import { getQueryStudentResults } from '@/api';
 import { useAuth } from '../AuthProvider';
 import {
     Search,

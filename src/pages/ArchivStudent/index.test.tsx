@@ -2,9 +2,9 @@ import { render, screen, waitFor } from '@testing-library/react';
 import type { ReactElement } from 'react';
 import type { AxiosResponse } from 'axios';
 import ArchivStudents from '.';
-import { getArchivStudents } from '@api';
+import { getArchivStudents } from '@/api';
 import { useAuth } from '@components/AuthProvider/index';
-import type { AuthContextValue } from '@api/types';
+import type { AuthContextValue } from '@/api/types';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 

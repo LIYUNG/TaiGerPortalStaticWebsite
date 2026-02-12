@@ -11,7 +11,7 @@ import {
     convertDateUXFriendly
 } from '@utils/contants';
 import { red } from '@mui/material/colors';
-import { Application, IStudentResponse } from '@api/types';
+import { Application, IStudentResponse } from '@/api/types';
 
 interface ApplicationProgressCardBodyProps {
     application: Application;

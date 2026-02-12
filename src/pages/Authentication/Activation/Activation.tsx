@@ -14,7 +14,7 @@ export default function Activation() {
     const [emailsent, setEmailsent] = React.useState(false);
 
     useEffect(() => {
-        activation(email, token).then((res) => {
+        activation(email!, token!).then((res) => {
             const { success } = res.data;
             if (success) {
                 setActivationSuccess(true);
@@ -30,7 +30,7 @@ export default function Activation() {
         setEmailsent(true);
         try {
             const resp = await resendActivation({
-                email: email
+                email: email!
             });
             const { success } = resp.data;
             if (success) {

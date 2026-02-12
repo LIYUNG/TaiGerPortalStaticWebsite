@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import ModalMain from '../../Utils/ModalHandler/ModalMain';
-import { updateInterview } from '@api';
+import { updateInterview } from '@/api';
 import NoTrainersInterviewsCard from '@pages/Dashboard/MainViewTab/NoTrainersInterviewsCard/NoTrainersInterviewsCard';
 import i18next from 'i18next';
 

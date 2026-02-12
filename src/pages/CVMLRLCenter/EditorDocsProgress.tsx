@@ -30,7 +30,7 @@ import {
     isProgramSubmitted,
     isProgramWithdraw
 } from '@taiger-common/core';
-import type { Application } from '@api/types';
+import type { Application } from '@/api/types';
 
 import ManualFiles from './ManualFiles';
 import ApplicationLockControl from '@components/ApplicationLockControl/ApplicationLockControl';
@@ -50,7 +50,7 @@ import {
     initGeneralMessageThread,
     initApplicationMessageThread,
     updateStudentApplication
-} from '@api';
+} from '@/api';
 import DEMO from '@store/constant';
 import Loading from '@components/Loading/Loading';
 import i18next from 'i18next';
@@ -72,9 +72,7 @@ const ApplicationAccordionSummary = ({
         lockStatus = calculateApplicationLockStatus(application);
     } else {
         lockStatus = application?.programId
-            ? calculateProgramLockStatus(
-                  application.programId as Record<string, unknown>
-              )
+            ? calculateProgramLockStatus(application.programId)
             : calculateProgramLockStatus({});
     }
     const isLocked = lockStatus.isLocked;

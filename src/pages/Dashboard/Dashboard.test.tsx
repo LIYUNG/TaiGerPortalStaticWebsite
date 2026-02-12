@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react';
 import Dashboard from './';
-import { getProgramTickets } from '@api';
+import { getProgramTickets } from '@/api';
 import { useAuth } from '@components/AuthProvider/index';
 import { createMemoryRouter } from 'react-router-dom';
 

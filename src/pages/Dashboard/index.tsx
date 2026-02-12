@@ -1,4 +1,3 @@
-import React from 'react';
 import { TabTitle } from '../Utils/TabTitle';
 
 import DashboardBody from './DashboardBody';

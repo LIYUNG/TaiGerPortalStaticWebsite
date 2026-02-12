@@ -17,8 +17,8 @@ import {
 } from '@mui/material';
 
 import { getCRMLeadsQuery } from '@api/query';
-import { createCRMDeal, updateCRMDeal } from '@api';
-import { getCRMSalesReps } from '@api';
+import { createCRMDeal, updateCRMDeal } from '@/api';
+import { getCRMSalesReps } from '@/api';
 
 /**
  * DealModal - Create/Edit Deal Modal

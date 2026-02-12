@@ -9,17 +9,18 @@ import Loading from '@components/Loading/Loading';
 import { useApplications } from '@hooks/useApplications';
 import cityCoord from './cityCoord.json';
 
-const toUpperSafe = (value) => value?.toString().toUpperCase() || '';
+const toUpperSafe = (value: string | number | undefined): string =>
+    value?.toString().toUpperCase() || '';
 
-const formatAcceptanceRate = (offer, rejection) => {
+const formatAcceptanceRate = (offer: number, rejection: number): string => {
     const known = offer + rejection;
     return known > 0 ? `${((offer / known) * 100).toFixed(1)}%` : '-';
 };
 
-const isValidCoordinate = (value) =>
+const isValidCoordinate = (value: number): boolean =>
     typeof value === 'number' && !Number.isNaN(value);
 
-const formatNumber = (v) =>
+const formatNumber = (v: number | string): string =>
     typeof v === 'number'
         ? v.toLocaleString()
         : typeof v === 'string' && /^\d+(,\d{3})*$/.test(v)

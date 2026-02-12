@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import type { AuthContextValue } from '@api/types';
+import type { AuthContextValue } from '@/api/types';
 import ApplicationLockControl from './ApplicationLockControl';
 import { useAuth } from '../AuthProvider';
 import { useSnackBar } from '@contexts/use-snack-bar';

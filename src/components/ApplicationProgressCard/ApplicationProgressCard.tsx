@@ -34,11 +34,11 @@ import {
     isProgramRejected,
     isProgramSubmitted
 } from '@taiger-common/core';
-import type { Application } from '@api/types';
+import type { Application } from '@/api/types';
 
 import ApplicationProgressCardBody from './ApplicationProgressCardBody';
 import ApplicationLockControl from '../ApplicationLockControl/ApplicationLockControl';
-import { updateStudentApplicationResult } from '@api';
+import { updateStudentApplicationResult } from '@/api';
 import DEMO from '@store/constant';
 import {
     application_deadline_V2_calculator,

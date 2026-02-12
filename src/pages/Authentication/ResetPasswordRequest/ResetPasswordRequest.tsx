@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
-import { forgotPassword } from '@api';
+import { forgotPassword } from '@/api';
 import AuthWrapper from '@components/AuthWrapper';
 import DEMO from '@store/constant';
 

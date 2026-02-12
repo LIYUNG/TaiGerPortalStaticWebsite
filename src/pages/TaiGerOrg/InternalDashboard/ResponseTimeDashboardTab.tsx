@@ -20,7 +20,7 @@ import {
     KeyboardArrowUp,
     KeyboardArrowDown
 } from '@mui/icons-material';
-import { getResponseIntervalByStudent } from '@api';
+import { getResponseIntervalByStudent } from '@/api';
 
 const editorThreadTypes = [
     'CV',

@@ -49,7 +49,7 @@ import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
 
 import { getCRMMeetingsQuery, getCRMLeadsQuery } from '@api/query';
-import { updateCRMMeeting, instantInviteTA } from '@api';
+import { updateCRMMeeting, instantInviteTA } from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
 
 import { sanitizeMeetingTitle } from '@pages/CRM/components/meetingUtils';

@@ -19,11 +19,12 @@ import i18next from 'i18next';
 import { daysOfWeek, time_slots } from '@utils/contants';
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
-import { getAgentProfile } from '@api';
+import { getAgentProfile } from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';
+import { IAgentResponse } from '@taiger-common/model';
 
 const AgentProfile = () => {
     const { user } = useAuth();
@@ -34,7 +35,7 @@ const AgentProfile = () => {
         isLoaded: false,
         data: null,
         success: false,
-        agent: {},
+        agent: {} as IAgentResponse,
         selectedTimezone:
             user.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
         updateconfirmed: false,
@@ -109,19 +110,19 @@ const AgentProfile = () => {
                 <Grid container spacing={2}>
                     <Grid item xs={12}>
                         <Typography variant="h5">
-                            {agentProfileState.agent.firstname}{' '}
-                            {agentProfileState.agent.lastname} Profile
+                            {agentProfileState.agent?.firstname}{' '}
+                            {agentProfileState.agent?.lastname} Profile
                         </Typography>
                     </Grid>
                 </Grid>
                 <Grid item xs={12}>
                     <Typography variant="body1">
-                        Email: {agentProfileState.agent.email}
+                        Email: {agentProfileState.agent?.email}
                     </Typography>
                     <Typography variant="h6">
                         {i18next.t('Introduction')}
                     </Typography>
-                    {agentProfileState.agent.selfIntroduction}
+                    {agentProfileState.agent?.selfIntroduction}
                 </Grid>
                 <Grid item xs={12}>
                     <Box>

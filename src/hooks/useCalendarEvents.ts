@@ -2,7 +2,7 @@ import { ChangeEvent, FormEvent, useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import queryString from 'query-string';
 
-import { confirmEvent, deleteEvent, postEvent, updateEvent } from '@api';
+import { confirmEvent, deleteEvent, postEvent, updateEvent } from '@/api';
 import { getEventsQuery, getBookedEventsQuery } from '@api/query';
 import { useStudentsV3 } from '@hooks/useStudentsV3';
 import {

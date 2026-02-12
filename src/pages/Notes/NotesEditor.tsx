@@ -3,15 +3,16 @@ import { Button, Tooltip, Card } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
 import EditorNote from '@components/EditorJs/EditorNote';
+import { OutputData } from '@editorjs/editorjs';
 
 interface NotesEditorProps {
-    editorState: unknown;
+    editorState: OutputData;
     handleEditorChange: (content: unknown) => void;
     notes_id: string;
     readOnly?: boolean;
     thread?: unknown;
     buttonDisabled: boolean;
-    handleClickSave: (e: React.MouseEvent, editorState: unknown) => void;
+    handleClickSave: (e: React.MouseEvent, editorState: OutputData) => void;
 }
 
 const NotesEditor = ({
@@ -19,7 +20,6 @@ const NotesEditor = ({
     handleEditorChange,
     notes_id,
     readOnly,
-    thread,
     buttonDisabled,
     handleClickSave
 }: NotesEditorProps) => {
@@ -33,7 +33,6 @@ const NotesEditor = ({
                     handleEditorChange={handleEditorChange}
                     holder={`${notes_id}`}
                     readOnly={readOnly}
-                    thread={thread}
                 />
             </Card>
             {!readOnly ? (

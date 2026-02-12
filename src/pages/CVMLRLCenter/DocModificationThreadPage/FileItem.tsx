@@ -3,7 +3,7 @@ import { Card, Link, Box, Typography } from '@mui/material';
 import { FileIcon, defaultStyles } from 'react-file-icon';
 
 import { BASE_URL } from '@api/request';
-import type { DocumentThreadMessage } from '@api/types';
+import type { DocumentThreadMessage } from '@/api/types';
 
 export interface FileItemProps {
     message: DocumentThreadMessage;

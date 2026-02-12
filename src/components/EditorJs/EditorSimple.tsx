@@ -13,7 +13,7 @@ import ColorPlugin from 'editorjs-text-color-plugin';
 import TextAlign from '@canburaks/text-align-editorjs';
 
 import { OutputData } from '@editorjs/editorjs';
-import { uploadImage, uploadDocumentThreadImage } from '@api';
+import { uploadImage, uploadDocumentThreadImage } from '@/api';
 
 export interface EditorSimpleProps {
     holder: string;

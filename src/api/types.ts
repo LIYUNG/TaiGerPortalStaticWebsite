@@ -56,7 +56,7 @@ export type RequestInstance = AxiosInstance;
 export interface AuthUserdataState {
     error: unknown;
     success: boolean;
-    data: IUser;
+    data: IUserWithId;
     isLoaded: boolean;
     res_modal_message: string;
     res_modal_status: number;

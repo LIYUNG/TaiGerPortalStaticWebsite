@@ -1,9 +1,9 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import type { AxiosResponse } from 'axios';
 import Survey from '.';
-import { getStudents, getProgramTickets, getMyAcademicBackground } from '@api';
+import { getStudents, getProgramTickets, getMyAcademicBackground } from '@/api';
 import { useAuth } from '@components/AuthProvider/index';
-import type { AuthContextValue } from '@api/types';
+import type { AuthContextValue } from '@/api/types';
 import { RouterProvider, createMemoryRouter } from 'react-router-dom';
 
 import { mockSingleData } from '../../test/testingStudentData';

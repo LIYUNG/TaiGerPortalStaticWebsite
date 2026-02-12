@@ -1,6 +1,6 @@
 import { render, waitFor } from '@testing-library/react';
 import AssignAgents from './index';
-import { getProgramTickets, getStudentsV3 } from '@api';
+import { getProgramTickets, getStudentsV3 } from '@/api';
 import { useAuth } from '@components/AuthProvider/index';
 import { createMemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';

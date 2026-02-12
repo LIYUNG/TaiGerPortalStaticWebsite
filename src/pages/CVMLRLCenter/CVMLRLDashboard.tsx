@@ -7,7 +7,7 @@ import ModalMain from '../Utils/ModalHandler/ModalMain';
 import Banner from '@components/Banner/Banner';
 import { CustomTabPanel, a11yProps } from '@components/Tabs';
 import ExampleWithLocalizationProvider from '@components/MaterialReactTable';
-import type { OpenTaskRow } from '@api/types';
+import type { OpenTaskRow } from '@/api/types';
 import type { IUser } from '@taiger-common/model';
 
 export interface CVMLRLDashboardProps {

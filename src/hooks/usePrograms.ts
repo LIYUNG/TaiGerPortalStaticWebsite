@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { getProgramsQuery } from '@api/query';
-import type { ProgramResponse } from '@api/types';
+import type { ProgramResponse } from '@/api/types';
 
 /**
  * Fetches all programs.

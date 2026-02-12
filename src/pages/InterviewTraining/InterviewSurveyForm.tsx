@@ -3,7 +3,7 @@ import { Box, Paper, Container, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { is_TaiGer_role } from '@taiger-common/core';
-import { getInterview, getInterviewSurvey, updateInterviewSurvey } from '@api';
+import { getInterview, getInterviewSurvey, updateInterviewSurvey } from '@/api';
 import Loading from '@components/Loading/Loading';
 import ErrorPage from '../Utils/ErrorPage';
 import { appConfig } from '../../config';

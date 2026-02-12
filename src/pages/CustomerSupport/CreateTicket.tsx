@@ -15,7 +15,7 @@ import {
 import { appConfig } from '../../config';
 import DEMO from '@store/constant';
 import { useTranslation } from 'react-i18next';
-import { createComplaintTicket } from '@api';
+import { createComplaintTicket } from '@/api';
 import { useAuth } from '@components/AuthProvider';
 
 const CreateComplaintTicket = () => {

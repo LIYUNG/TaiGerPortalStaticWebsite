@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 import Message from './Message';
-import { updateAMessageInCommunicationThreadV2 } from '@api';
+import { updateAMessageInCommunicationThreadV2 } from '@/api';
 import MessageEdit from './MessageEdit';
 import { useAuth } from '@components/AuthProvider';
 import { useMutation } from '@tanstack/react-query';

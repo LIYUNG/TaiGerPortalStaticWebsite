@@ -42,7 +42,7 @@ import {
     isProgramWithdraw,
     isProgramAdmitted
 } from '@taiger-common/core';
-import type { Application } from '@api/types';
+import type { Application } from '@/api/types';
 import { differenceInDays } from 'date-fns';
 
 import {
@@ -67,7 +67,7 @@ import {
     updateStudentApplications,
     deleteApplicationStudentV2,
     updateStudentApplication
-} from '@api';
+} from '@/api';
 import { queryClient } from '@api/client';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';

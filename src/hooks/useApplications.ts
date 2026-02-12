@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import queryString from 'query-string';
 
 import { getApplicationsQuery } from '@api/query';
-import type { IApplicationWithId } from '@api/types';
+import type { IApplicationWithId } from '@/api/types';
 
 export type ApplicationsParams = Record<
     string,

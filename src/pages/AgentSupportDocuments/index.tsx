@@ -7,7 +7,7 @@ import queryString from 'query-string';
 
 import CVMLRLOverview from '../CVMLRLCenter/CVMLRLOverview';
 import ErrorPage from '../Utils/ErrorPage';
-import { getMyStudentsThreads, putThreadFavorite } from '@api';
+import { getMyStudentsThreads, putThreadFavorite } from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
 import {
     AGENT_SUPPORT_DOCUMENTS_A,

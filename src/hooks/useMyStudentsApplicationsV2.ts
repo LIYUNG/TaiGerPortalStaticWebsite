@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import queryString from 'query-string';
 
 import { getMyStudentsApplicationsV2Query } from '@api/query';
-import type { IApplicationWithId, IUserWithId } from '@api/types';
+import type { IApplicationWithId, IUserWithId } from '@/api/types';
 
 export type MyStudentsApplicationsV2Params = {
     userId: string;

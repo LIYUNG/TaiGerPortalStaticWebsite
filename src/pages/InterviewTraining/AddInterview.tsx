@@ -29,13 +29,14 @@ import {
 
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
-import { getMyInterviews, createInterview } from '@api';
+import { getMyInterviews, createInterview } from '@/api';
 import NotesEditor from '../Notes/NotesEditor';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
 import Loading from '@components/Loading/Loading';
 import { showTimezoneOffset } from '@utils/contants';
+import { OutputData } from '@editorjs/editorjs';
 
 const AddInterview = () => {
     const { user } = useAuth();
@@ -99,7 +100,7 @@ const AddInterview = () => {
 
     const handleClickSave = (
         e: MouseEvent<HTMLElement>,
-        editorState: unknown
+        editorState: OutputData
     ) => {
         e.preventDefault();
         if (

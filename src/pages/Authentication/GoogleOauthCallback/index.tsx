@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { googleOAuthCallback } from '@api';
+import { googleOAuthCallback } from '@/api';
 import { useEffect } from 'react';
 import {
     Box,
@@ -14,6 +14,8 @@ import { useAuth } from '@components/AuthProvider';
 import DEMO from '@store/constant';
 import AuthWrapper from '@components/AuthWrapper';
 import { t } from 'i18next';
+import { IUser } from '@/types/taiger-common';
+import { AxiosResponse } from 'axios';
 
 export default function GoogleOAuthCallback() {
     const [searchParams] = useSearchParams();
@@ -23,11 +25,10 @@ export default function GoogleOAuthCallback() {
     const { login } = useAuth();
 
     const { mutate, isPending, isError, error, isSuccess } = useMutation({
-        mutationFn: () => googleOAuthCallback(codeValue),
-        onSuccess: (response) => {
+        mutationFn: () => googleOAuthCallback(codeValue!) as Promise<AxiosResponse<IUser>>,
+        onSuccess: (response: AxiosResponse<IUser>) => {
             // Extract data from response (assuming it's an AxiosResponse)
             const responseData = response;
-            console.log(responseData.data);
             login(responseData.data);
             // Redirect to dashboard or home page
             navigate(DEMO.DASHBOARD_LINK, { replace: true });

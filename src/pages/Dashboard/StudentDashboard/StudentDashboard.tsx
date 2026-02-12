@@ -21,7 +21,7 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { is_TaiGer_Student, isProgramDecided } from '@taiger-common/core';
-import type { Application } from '@api/types';
+import type { Application } from '@/api/types';
 
 import RespondedThreads from '../MainViewTab/RespondedThreads/RespondedThreads';
 import StudentTasksResponsive from '../MainViewTab/StudentTasks/StudentTasksResponsive';
@@ -35,7 +35,7 @@ import {
     needGraduatedApplicantsPrograms
 } from '../../Utils/util_functions';
 import ErrorPage from '../../Utils/ErrorPage';
-import { updateBanner } from '@api';
+import { updateBanner } from '@/api';
 import DEMO from '@store/constant';
 import ApplicationProgressCard from '@components/ApplicationProgressCard/ApplicationProgressCard';
 import { appConfig } from '../../../config';

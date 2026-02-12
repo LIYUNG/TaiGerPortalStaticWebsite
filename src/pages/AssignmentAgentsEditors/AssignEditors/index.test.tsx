@@ -1,13 +1,13 @@
 import { render, waitFor } from '@testing-library/react';
 import AssignEditors from './index';
-import { getProgramTickets, getStudentsV3 } from '@api';
+import { getProgramTickets, getStudentsV3 } from '@/api';
 import { useAuth } from '@components/AuthProvider/index';
 import { createMemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { mockTwoNoAgentNoStudentsData } from '../../../test/testingNoAgentNoEditorStudentData';
 import { RouterProvider } from 'react-router-dom';
-import { AuthContextValue } from '@api/types';
+import { AuthContextValue } from '@/api/types';
 
 vi.mock('axios');
 vi.mock('@api');

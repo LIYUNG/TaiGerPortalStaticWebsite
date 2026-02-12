@@ -35,11 +35,11 @@ import {
     SetAsNotNeededV2,
     SetUniAssistPaidV2,
     uploadVPDforstudentV2
-} from '@api';
+} from '@/api';
 import { useMutation } from '@tanstack/react-query';
 import { queryClient } from '@api/client';
 import { useSnackBar } from '@contexts/use-snack-bar';
-import type { Application, IStudentResponse } from '@api/types';
+import type { Application, IStudentResponse } from '@/api/types';
 
 export interface IconStatusProps {
     condition: boolean;
@@ -73,10 +73,10 @@ const ProgramName = ({ application }: ProgramNameProps) => {
         <Typography sx={{ mr: 2 }} variant="body1">
             <Link
                 component={LinkDom}
-                to={`${DEMO.SINGLE_PROGRAM_LINK(application.programId._id.toString())}`}
+                to={`${DEMO.SINGLE_PROGRAM_LINK(application.programId?._id?.toString()!)}`}
                 underline="hover"
             >
-                {`${application.programId.school} ${application.programId.program_name} - ${application.programId.semester} - ${application.programId.degree} - ${application.programId.uni_assist}`}
+                {`${application.programId?.school} ${application.programId?.program_name} - ${application.programId?.semester} - ${application.programId?.degree} - ${application.programId?.uni_assist}`}
             </Link>
         </Typography>
     );

@@ -4,7 +4,7 @@ import { Box, Breadcrumbs, Card, Link, Typography } from '@mui/material';
 import { is_TaiGer_role } from '@taiger-common/core';
 
 import ErrorPage from '../Utils/ErrorPage';
-import { getTeamMembers } from '@api';
+import { getTeamMembers } from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { appConfig } from '../../config';

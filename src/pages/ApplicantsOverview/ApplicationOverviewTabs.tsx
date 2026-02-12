@@ -24,7 +24,7 @@ import useStudents from '@hooks/useStudents';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { DECISION_STATUS_E, SUBMISSION_STATUS_E } from '@utils/contants';
 import { StudentsTable } from '../StudentDatabase/StudentsTable';
-import type { IStudentResponse, IApplicationWithId } from '@api/types';
+import type { IStudentResponse, IApplicationWithId } from '@/api/types';
 
 export interface ApplicationOverviewTabsProps {
     students: IStudentResponse[];

@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import DocumentsListItemsEditor from './DocumentsListItemsEditor';
 import { Card } from '@mui/material';
+import { OutputData } from '@editorjs/editorjs';
 
 export interface DocPageEditProps {
     document_title: string;
     category: string;
-    editorState: unknown;
+    editorState: OutputData;
     handleClickEditToggle: () => void;
     handleClickSave: (
-        e: React.MouseEvent<HTMLElement>,
+        e: React.MouseEvent,
         docTitle: string,
-        editorState: unknown
+        editorState: OutputData
     ) => void;
 }
 
@@ -30,8 +31,8 @@ const DocPageEdit = (props: DocPageEditProps) => {
     }, [props.document_title]);
 
     const handleClickSave = (
-        e: React.MouseEvent<HTMLElement>,
-        editorState: unknown
+        e: React.MouseEvent,
+        editorState: OutputData
     ) => {
         e.preventDefault();
         props.handleClickSave(e, docPageEditState.doc_title, editorState);

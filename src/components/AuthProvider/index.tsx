@@ -1,9 +1,9 @@
 import React, { useEffect, createContext, useContext, useState } from 'react';
 
-import { verify, logout } from '@api/index';
+import { verify, logout } from '@/api/index';
 import Loading from '../Loading/Loading';
-import type { AuthContextValue, AuthUserdataState } from '@api/types';
-import type { IUser } from '@taiger-common/model';
+import type { AuthContextValue, AuthUserdataState } from '@/api/types';
+import { IUserWithId } from '@/types/taiger-common';
 
 export const AuthContext = createContext<AuthContextValue | undefined>(
     undefined
@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
     useEffect(() => {
         verify().then(
             (resp: {
-                data: { data: IUser; success: boolean };
+                data: { data: IUserWithId; success: boolean };
                 status?: number;
             }) => {
                 const { data, success } = resp.data;
@@ -59,7 +59,7 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
         );
     }, []);
 
-    const login = (data: IUser): void => {
+    const login = (data: IUserWithId): void => {
         setUserdata((state) => ({
             ...state,
             data

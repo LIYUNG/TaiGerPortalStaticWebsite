@@ -9,7 +9,7 @@ import {
     Link,
     Button
 } from '@mui/material';
-import type { MeetingResponse } from '@api/types';
+import type { MeetingResponse } from '@/api/types';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EventIcon from '@mui/icons-material/Event';

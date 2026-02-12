@@ -20,7 +20,7 @@ import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import queryString from 'query-string';
 
-import type { StudentId, IStudentResponse, EventResponse } from '@api/types';
+import type { StudentId, IStudentResponse, EventResponse } from '@/api/types';
 import { useAuth } from '@components/AuthProvider';
 import {
     getEvents,
@@ -28,7 +28,7 @@ import {
     updateEvent,
     confirmEvent,
     deleteEvent
-} from '@api';
+} from '@/api';
 import { MeetingList } from './Meetings/MeetingList';
 import { MeetingFormModal } from './Meetings/MeetingFormModal';
 import { ConfirmationModal } from '@components/Modal/ConfirmationModal';

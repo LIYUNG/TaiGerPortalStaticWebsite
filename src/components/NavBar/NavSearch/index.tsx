@@ -5,7 +5,7 @@ import { is_TaiGer_role, Role } from '@taiger-common/core';
 import SearchIcon from '@mui/icons-material/Search';
 import { Box } from '@mui/material';
 
-import { getQueryPublicResults, getQueryResults } from '@api';
+import { getQueryPublicResults, getQueryResults } from '@/api';
 import ModalMain from '@pages/Utils/ModalHandler/ModalMain';
 import './search.css';
 import { useAuth } from '../../AuthProvider';

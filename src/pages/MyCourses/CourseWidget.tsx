@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import { Suspense } from 'react';
 import { Box, Breadcrumbs, Link, Typography } from '@mui/material';
 import { Navigate, Link as LinkDom, useParams, Await } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';

@@ -4,7 +4,7 @@ import {
     waitFor
 } from '@testing-library/react';
 // import MyCourses from './index';
-import { getMycourses } from '@api';
+import { getMycourses } from '@/api';
 // import { useAuth } from '@components/AuthProvider';
 // import { MemoryRouter, useParams } from 'react-router-dom';
 

@@ -17,7 +17,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import SaveIcon from '@mui/icons-material/Save';
 
-import { getEssayWriters } from '@api';
+import { getEssayWriters } from '@/api';
 import { FILE_TYPE_E } from '../../../Utils/util_functions';
 
 export interface EditEssayWritersSubpageProps {

@@ -1,7 +1,7 @@
 // import React from 'react';
 // import { render, screen, waitFor } from '@testing-library/react';
 // import CVMLRLCenter from '.';
-// import { getMyStudentsThreads } from '@api';
+// import { getMyStudentsThreads } from '@/api';
 // import { useAuth } from '@components/AuthProvider/index';
 // import { RouterProvider, createMemoryRouter } from 'react-router-dom';
 
