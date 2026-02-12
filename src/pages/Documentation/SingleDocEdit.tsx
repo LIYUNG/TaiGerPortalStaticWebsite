@@ -10,10 +10,7 @@ import {
 import { useTranslation } from 'react-i18next';
 
 import DocumentsListItemsEditor from './DocumentsListItemsEditor';
-import {
-    valid_categories,
-    valid_internal_categories
-} from '@utils/contants';
+import { valid_categories, valid_internal_categories } from '@utils/contants';
 
 const SingleDocEdit = ({
     editorState,

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card, Grid, Typography } from '@mui/material';
 
 import {
@@ -8,11 +7,12 @@ import {
 
 import { useTranslation } from 'react-i18next';
 import ProgramReportCard from '../../Program/ProgramReportCard';
+import type { IStudentResponse } from '@/api/types';
 
-const ExternalMainView = (props) => {
+const ExternalMainView = ({ students }: { students: IStudentResponse[] }) => {
     const { t } = useTranslation();
 
-    const open_tasks_arr = open_tasks_with_editors(props.students);
+    const open_tasks_arr = open_tasks_with_editors(students);
     const task_distribution = open_tasks_arr
         .filter(({ isFinalVersion }) => isFinalVersion !== true)
         .map(({ deadline, file_type, show, isPotentials }) => {

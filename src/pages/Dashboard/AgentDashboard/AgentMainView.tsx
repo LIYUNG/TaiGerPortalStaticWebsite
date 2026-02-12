@@ -41,15 +41,10 @@ import NoProgramStudentTable from '../MainViewTab/AgentTasks/NoProgramStudentTab
 import BaseDocumentCheckingTable from '../MainViewTab/AgentTasks/BaseDocumentCheckingTable';
 import ProgramSpecificDocumentCheckCard from '../MainViewTab/AgentTasks/ProgramSpecificDocumentCheckCard';
 import Banner from '@components/Banner/Banner';
-import {
-    is_new_message_status,
-    is_pending_status
-} from '@utils/contants';
+import { is_new_message_status, is_pending_status } from '@utils/contants';
 import { useQuery } from '@tanstack/react-query';
-import {
-    getMyStudentsThreadsQuery,
-    getMyStudentsApplicationsV2Query
-} from '@api/query';
+import { getMyStudentsThreadsQuery } from '@api/query';
+import { useMyStudentsApplicationsV2 } from '@hooks/useMyStudentsApplicationsV2';
 import { useStudentsV3 } from '@hooks/useStudentsV3';
 import Loading from '@components/Loading/Loading';
 
@@ -57,14 +52,7 @@ const AgentMainView = (props) => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const { data: myStudentsApplications, isLoading: isLoadingApplications } =
-        useQuery(
-            getMyStudentsApplicationsV2Query({
-                userId: user._id,
-                queryString: queryString.stringify({
-                    decided: 'O'
-                })
-            })
-        );
+        useMyStudentsApplicationsV2({ userId: user._id, decided: 'O' });
 
     const { data: fetchedMyStudents, isLoading: isLoadingMyStudents } =
         useStudentsV3({ agents: user._id, archiv: false });
@@ -141,7 +129,7 @@ const AgentMainView = (props) => {
         return <Loading />;
     }
     const applications_arr = programs_refactor_v2(
-        myStudentsApplications.data.applications
+        myStudentsApplications.applications ?? []
     )
         .filter(
             (application) =>
@@ -402,7 +390,6 @@ const AgentMainView = (props) => {
                 <Grid item md={4} sm={6} xs={12}>
                     <ProgramSpecificDocumentCheckCard
                         refactored_threads={refactored_threads}
-                        students={myStudents}
                     />
                 </Grid>
                 <Grid item md={4} sm={6} xs={12}>

@@ -22,7 +22,7 @@ import {
     MRT_GlobalFilterTextField as MRTGlobalFilterTextField,
     MRT_ToggleFiltersButton as MRTToggleFiltersButton
 } from 'material-react-table';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import DEMO from '@store/constant';
 import { useTranslation } from 'react-i18next';
 import { deleteProgramRequirement } from '@api';
@@ -39,14 +39,20 @@ const ProgramRequirementsOverview = ({ programRequirements }) => {
         useState('');
     const navigate = useNavigate();
 
-    const handleRequirementEdit = (requirementId) => {
-        navigate(DEMO.EDIT_PROGRAM_ANALYSIS(requirementId));
-    };
+    const handleRequirementEdit = useCallback(
+        (requirementId: string) => {
+            navigate(DEMO.EDIT_PROGRAM_ANALYSIS(requirementId));
+        },
+        [navigate]
+    );
 
-    const handleDeleteModal = (requirementId) => {
-        setDeleteModalOpen(!deleteModalOpen);
-        setRequirementIdToBeDeleted(requirementId);
-    };
+    const handleDeleteModal = useCallback(
+        (requirementId: string) => {
+            setDeleteModalOpen(!deleteModalOpen);
+            setRequirementIdToBeDeleted(requirementId);
+        },
+        [deleteModalOpen]
+    );
 
     const handleRequirementDelete = async () => {
         setIsDeleting(true);

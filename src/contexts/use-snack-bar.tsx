@@ -1,9 +1,9 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
-import { Alert, Snackbar } from '@mui/material';
+import { Alert, AlertColor, Snackbar } from '@mui/material';
 
 export interface SnackBarContextValue {
     setOpenSnackbar: (open: boolean) => void;
-    setSeverity: (severity: 'success' | 'error') => void;
+    setSeverity: (severity: AlertColor) => void;
     setMessage: (message: string) => void;
 }
 
@@ -19,7 +19,7 @@ export const SnackBarProvider = ({
     children
 }: SnackBarProviderProps): JSX.Element => {
     const [openSnackbar, setOpenSnackbar] = useState(false);
-    const [severity, setSeverity] = useState<'success' | 'error'>('success');
+    const [severity, setSeverity] = useState<AlertColor>('success');
     const [message, setMessage] = useState('');
 
     return (

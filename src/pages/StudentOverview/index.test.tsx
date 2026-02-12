@@ -12,6 +12,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 vi.mock('axios');
 vi.mock('@api');
 vi.mock('@components/AuthProvider');
+vi.mock('@components/StudentOverviewTable', () => ({
+    default: () => <div data-testid="student-overview-table">Table</div>
+}));
 
 const createTestQueryClient = () =>
     new QueryClient({
@@ -49,7 +52,9 @@ const routes = [
 describe('StudentOverviewPage', () => {
     window.ResizeObserver = ResizeObserver;
     test('StudentOverview page not crash', async () => {
-        vi.mocked(getActiveStudents).mockResolvedValue({ data: mockSingleData });
+        vi.mocked(getActiveStudents).mockResolvedValue({
+            data: mockSingleData
+        });
         vi.mocked(useAuth).mockReturnValue({
             user: { role: 'Agent', _id: '639baebf8b84944b872cf648' },
             isAuthenticated: true,

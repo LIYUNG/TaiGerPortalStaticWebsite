@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import {
     Link,
@@ -20,8 +19,13 @@ import {
     is_uni_assist_paid_and_docs_uploaded
 } from '../../../Utils/util_functions';
 import DEMO from '@store/constant';
+import { IApplicationWithId } from '@/api/types';
 
-const VPDToSubmitTasks = ({ application }) => {
+const VPDToSubmitTasks = ({
+    application
+}: {
+    application: IApplicationWithId;
+}) => {
     const { t } = useTranslation();
     return (
         <>
@@ -58,8 +62,8 @@ const VPDToSubmitTasks = ({ application }) => {
                         <b>{application_deadline_V2_calculator(application)}</b>
                     </TableCell>
                     <TableCell>
-                        {application.programId.school}{' '}
-                        {application.programId.program_name}
+                        {application.programId?.school}{' '}
+                        {application.programId?.program_name}
                     </TableCell>
                 </TableRow>
             )}
@@ -67,7 +71,11 @@ const VPDToSubmitTasks = ({ application }) => {
     );
 };
 
-const VPDToSubmitTasksCard = ({ applications }) => {
+const VPDToSubmitTasksCard = ({
+    applications
+}: {
+    applications: IApplicationWithId[];
+}) => {
     const { t } = useTranslation();
     const vpd_to_submit_tasks = applications.map((application, i) => (
         <VPDToSubmitTasks application={application} key={i} />

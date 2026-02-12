@@ -9,11 +9,7 @@ import { getQueryPublicResults, getQueryResults } from '@api';
 import ModalMain from '@pages/Utils/ModalHandler/ModalMain';
 import './search.css';
 import { useAuth } from '../../AuthProvider';
-import {
-    Search,
-    SearchIconWrapper,
-    StyledInputBase
-} from '@utils/contants';
+import { Search, SearchIconWrapper, StyledInputBase } from '@utils/contants';
 import DEMO from '@store/constant';
 
 export interface SearchResultItem {

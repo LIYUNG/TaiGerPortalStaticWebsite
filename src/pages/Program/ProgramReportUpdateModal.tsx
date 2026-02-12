@@ -19,24 +19,34 @@ export interface ProgramReportUpdateModalProps {
     setReportUpdateModalHide: () => void;
     uni_name: string;
     program_name: string;
-    onReportUpdate?: () => void;
+    submitProgramUpdateReport: (
+        ticket_id: string,
+        updatedTicket: Record<string, unknown>
+    ) => void;
 }
 
-const ProgramReportUpdateModal = (props: ProgramReportUpdateModalProps) => {
+const ProgramReportUpdateModal = ({
+    ticket,
+    isUpdateReport,
+    setReportUpdateModalHide,
+    uni_name,
+    program_name,
+    submitProgramUpdateReport
+}: ProgramReportUpdateModalProps) => {
     const { t } = useTranslation();
     const { user } = useAuth();
     const [programReportUpdateModalState, ProgramReportUpdateModalState] =
         useState({
-            ticket: props.ticket
+            ticket: ticket
         });
     useEffect(() => {
         queueMicrotask(() => {
             ProgramReportUpdateModalState((prevState) => ({
                 ...prevState,
-                ticket: props.ticket
+                ticket: ticket
             }));
         });
-    }, [props.ticket]);
+    }, [ticket]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const temp_ticket = { ...programReportUpdateModalState.ticket };
@@ -48,14 +58,10 @@ const ProgramReportUpdateModal = (props: ProgramReportUpdateModalProps) => {
     };
 
     return (
-        <Dialog
-            onClose={props.setReportUpdateModalHide}
-            open={props.isUpdateReport}
-        >
+        <Dialog onClose={setReportUpdateModalHide} open={isUpdateReport}>
             <DialogTitle>Report</DialogTitle>
             <DialogContent>
-                What information is inaccurate for {props.uni_name} -{' '}
-                {props.program_name}?{' '}
+                What information is inaccurate for {uni_name} - {program_name}?{' '}
                 <TextField
                     fullWidth
                     minRows={10}
@@ -83,13 +89,10 @@ const ProgramReportUpdateModal = (props: ProgramReportUpdateModalProps) => {
                     color="primary"
                     disabled={!is_TaiGer_role(user)}
                     onClick={() =>
-                        props.submitProgramUpdateReport(
-                            props.ticket._id.toString(),
-                            {
-                                ...programReportUpdateModalState.ticket,
-                                status: 'resolved'
-                            }
-                        )
+                        submitProgramUpdateReport(ticket._id.toString(), {
+                            ...programReportUpdateModalState.ticket,
+                            status: 'resolved'
+                        })
                     }
                     sx={{ mr: 1 }}
                     variant="contained"
@@ -98,7 +101,7 @@ const ProgramReportUpdateModal = (props: ProgramReportUpdateModalProps) => {
                 </Button>
                 <Button
                     color="secondary"
-                    onClick={props.setReportUpdateModalHide}
+                    onClick={setReportUpdateModalHide}
                     variant="outlined"
                 >
                     {t('Close', { ns: 'common' })}

@@ -61,7 +61,9 @@ export interface ProgramRequirementsNewProps {
     };
 }
 
-const ProgramRequirementsNew = ({ programsAndCourseKeywordSets }: ProgramRequirementsNewProps) => {
+const ProgramRequirementsNew = ({
+    programsAndCourseKeywordSets
+}: ProgramRequirementsNewProps) => {
     const { requirementId } = useParams();
     const { t } = useTranslation();
     const { distinctPrograms, keywordsets, requirement } =

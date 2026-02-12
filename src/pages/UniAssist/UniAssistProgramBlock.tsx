@@ -86,7 +86,10 @@ export interface SetNeedButtonsProps {
     setAsNotNeededModelOpen: (open?: boolean) => void;
 }
 
-const SetNeedButtons = ({ application, setAsNotNeededModelOpen }: SetNeedButtonsProps) => {
+const SetNeedButtons = ({
+    application,
+    setAsNotNeededModelOpen
+}: SetNeedButtonsProps) => {
     const { user } = useAuth();
 
     const opensetAsNotNeededWindow = (e: React.MouseEvent<HTMLElement>) => {
@@ -130,7 +133,10 @@ export interface UniAssistProgramBlockProps {
     student: IStudentResponse;
 }
 
-export const UniAssistProgramBlock = ({ application, student }: UniAssistProgramBlockProps) => {
+export const UniAssistProgramBlock = ({
+    application,
+    student
+}: UniAssistProgramBlockProps) => {
     const { user } = useAuth();
 
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();

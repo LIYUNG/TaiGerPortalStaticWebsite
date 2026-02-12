@@ -70,14 +70,18 @@ class ResizeObserver {
 describe('Single Program Page checking', () => {
     window.ResizeObserver = ResizeObserver;
     test('page not crash', async () => {
-        vi.mocked(getProgram).mockResolvedValue({ data: mockSingleProgramNoStudentsData });
+        vi.mocked(getProgram).mockResolvedValue({
+            data: mockSingleProgramNoStudentsData
+        });
         vi.mocked(getProgramTicket).mockResolvedValue({
             data: { success: true, data: [] }
         });
         vi.mocked(useAuth).mockReturnValue({
             user: { role: 'Student', _id: '639baebf8b84944b872cf648' }
         });
-        vi.mocked(useParams).mockReturnValue({ programId: '2532fde46751651538084485' });
+        vi.mocked(useParams).mockReturnValue({
+            programId: '2532fde46751651538084485'
+        });
 
         const router = createMemoryRouter(routes, {
             initialEntries: ['/programs/2532fde46751651538084485']

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     Button,
     Card,
@@ -30,9 +30,15 @@ import { useAuth } from '@components/AuthProvider';
 
 export interface ProgramReportProps {
     program_id: string;
+    program_name: string;
+    uni_name: string;
 }
 
-const ProgramReport = (props: ProgramReportProps) => {
+const ProgramReport = ({
+    program_id,
+    program_name,
+    uni_name
+}: ProgramReportProps) => {
     const { t } = useTranslation();
     const { user } = useAuth();
     const [programReportState, setProgramReportState] = useState({
@@ -49,7 +55,7 @@ const ProgramReport = (props: ProgramReportProps) => {
     });
 
     useEffect(() => {
-        getProgramTicket('program', props.program_id).then(
+        getProgramTicket('program', program_id).then(
             (resp) => {
                 const { data, success } = resp.data;
                 const { status } = resp;
@@ -78,7 +84,7 @@ const ProgramReport = (props: ProgramReportProps) => {
                 }));
             }
         );
-    }, [props.program_id]);
+    }, [program_id]);
 
     const handleReportClick = () => {
         setProgramReportState((prevState) => ({
@@ -206,7 +212,7 @@ const ProgramReport = (props: ProgramReportProps) => {
         );
     };
 
-    const submitProgramDeleteReport = (ticket_id) => {
+    const submitProgramDeleteReport = (ticket_id: string) => {
         deleteProgramTicket(ticket_id).then(
             (resp) => {
                 const { success } = resp.data;
@@ -345,29 +351,27 @@ const ProgramReport = (props: ProgramReportProps) => {
             ) : null}
             <ProgramReportModal
                 isReport={programReportState.isReport}
-                program_id={props.program_id.toString()}
-                program_name={props.program_name}
+                program_id={program_id.toString()}
+                program_name={program_name}
                 setReportModalHideDelete={setReportModalHideDelete}
                 submitProgramReport={submitProgramReport}
-                uni_name={props.uni_name}
+                uni_name={uni_name}
             />
             <ProgramReportDeleteModal
                 isReportDelete={programReportState.isReportDelete}
-                program_id={props.program_id.toString()}
-                program_name={props.program_name}
+                program_name={program_name}
                 setReportDeleteModalHide={setReportDeleteModalHide}
                 submitProgramDeleteReport={submitProgramDeleteReport}
                 ticket={programReportState.ticket}
-                uni_name={props.uni_name}
+                uni_name={uni_name}
             />
             <ProgramReportUpdateModal
                 isUpdateReport={programReportState.isUpdateReport}
-                program_id={props.program_id.toString()}
-                program_name={props.program_name}
+                program_name={program_name}
                 setReportUpdateModalHide={setReportUpdateModalHide}
                 submitProgramUpdateReport={submitProgramUpdateReport}
                 ticket={programReportState.ticket}
-                uni_name={props.uni_name}
+                uni_name={uni_name}
             />
         </>
     );

@@ -27,7 +27,12 @@ export interface EditEssayWritersSubpageProps {
     essayDocumentThread: {
         file_type: string;
         outsourced_user_id?: Array<{ _id: string }>;
-        program_id?: { school?: string; program_name?: string; degree?: string; semester?: string };
+        program_id?: {
+            school?: string;
+            program_name?: string;
+            degree?: string;
+            semester?: string;
+        };
         student_id?: { firstname?: string; lastname?: string };
         _id: string;
         [key: string]: unknown;
@@ -99,7 +104,11 @@ const EditEssayWritersSubpage = (props: EditEssayWritersSubpageProps) => {
                 setIsLoaded(true);
             });
         }
-    }, [props.essayDocumentThread.outsourced_user_id, props.editors, props.essayDocumentThread]);
+    }, [
+        props.essayDocumentThread.outsourced_user_id,
+        props.editors,
+        props.essayDocumentThread
+    ]);
 
     const handleChangeEditorlist = (e: React.SyntheticEvent) => {
         const { value } = e.target;

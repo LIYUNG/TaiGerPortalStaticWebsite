@@ -66,7 +66,10 @@ const Accounting = () => {
         );
     }, [response]);
 
-    if (!user || !is_TaiGer_role(user as Parameters<typeof is_TaiGer_role>[0])) {
+    if (
+        !user ||
+        !is_TaiGer_role(user as Parameters<typeof is_TaiGer_role>[0])
+    ) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
@@ -77,7 +80,9 @@ const Accounting = () => {
     }
 
     if (isError || !response?.data?.success) {
-        const axiosError = error as { response?: { status?: number } } | undefined;
+        const axiosError = error as
+            | { response?: { status?: number } }
+            | undefined;
         const res_status =
             (response?.status || axiosError?.response?.status) ?? 500;
         return <ErrorPage res_status={res_status} />;
@@ -97,8 +102,10 @@ const Accounting = () => {
         ) : (
             <List disablePadding>
                 {members.map((member) => {
-                    const fullName = `${member.firstname ?? ''} ${member.lastname ?? ''}`.trim();
-                    const initials = `${member.firstname?.[0] ?? ''}${member.lastname?.[0] ?? ''}`.toUpperCase();
+                    const fullName =
+                        `${member.firstname ?? ''} ${member.lastname ?? ''}`.trim();
+                    const initials =
+                        `${member.firstname?.[0] ?? ''}${member.lastname?.[0] ?? ''}`.toUpperCase();
                     return (
                         <ListItemButton
                             component={LinkDom}
@@ -124,7 +131,9 @@ const Accounting = () => {
                                 </Avatar>
                             </ListItemAvatar>
                             <ListItemText
-                                primary={fullName || t('Unknown', { ns: 'common' })}
+                                primary={
+                                    fullName || t('Unknown', { ns: 'common' })
+                                }
                                 primaryTypographyProps={{ fontWeight: 600 }}
                             />
                             <ChevronRightIcon color="action" />
@@ -162,23 +171,36 @@ const Accounting = () => {
                     })}
                 </Typography>
                 <Typography color="text.secondary" variant="body2">
-                    {t('View balance sheets and salary overview by team member', {
-                        ns: 'common'
-                    })}
+                    {t(
+                        'View balance sheets and salary overview by team member',
+                        {
+                            ns: 'common'
+                        }
+                    )}
                 </Typography>
             </Box>
             <Grid container spacing={2}>
                 <Grid item xs={12} md={6}>
                     <Card sx={{ height: '100%' }}>
                         <CardContent>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 1,
+                                    mb: 2
+                                }}
+                            >
                                 <SupervisorAccountIcon color="secondary" />
                                 <Typography variant="h6">
-                                    {t('Agents', { ns: 'common' })} ({agents.length})
+                                    {t('Agents', { ns: 'common' })} (
+                                    {agents.length})
                                 </Typography>
                             </Box>
                             <MemberList
-                                emptyLabel={t('No agents assigned', { ns: 'common' })}
+                                emptyLabel={t('No agents assigned', {
+                                    ns: 'common'
+                                })}
                                 members={agents}
                             />
                         </CardContent>
@@ -187,14 +209,24 @@ const Accounting = () => {
                 <Grid item xs={12} md={6}>
                     <Card sx={{ height: '100%' }}>
                         <CardContent>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 1,
+                                    mb: 2
+                                }}
+                            >
                                 <EditIcon color="primary" />
                                 <Typography variant="h6">
-                                    {t('Editors', { ns: 'common' })} ({editors.length})
+                                    {t('Editors', { ns: 'common' })} (
+                                    {editors.length})
                                 </Typography>
                             </Box>
                             <MemberList
-                                emptyLabel={t('No editors assigned', { ns: 'common' })}
+                                emptyLabel={t('No editors assigned', {
+                                    ns: 'common'
+                                })}
                                 members={editors}
                             />
                         </CardContent>

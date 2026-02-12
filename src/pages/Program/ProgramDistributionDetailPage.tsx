@@ -1,4 +1,3 @@
-import React from 'react';
 import {
     Link as LinkDom,
     Navigate,
@@ -29,13 +28,12 @@ import {
     Category
 } from '@mui/icons-material';
 import { is_TaiGer_role } from '@taiger-common/core';
-import { useQuery } from '@tanstack/react-query';
 
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
-import { getProgramsOverviewQuery } from '@api/query';
+import { useProgramsOverview } from '@hooks/useProgramsOverview';
 import Loading from '@components/Loading/Loading';
 import ErrorPage from '../Utils/ErrorPage';
 
@@ -76,10 +74,8 @@ const ProgramDistributionDetailPage = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
 
-    const { data, isLoading, isError, error } = useQuery(
-        getProgramsOverviewQuery()
-    );
-    const overview = data?.data;
+    const { data: overview, isLoading, isError, error } =
+        useProgramsOverview();
 
     const config = DISTRIBUTION_TYPES[distributionType];
     const Icon = config?.icon || Public;

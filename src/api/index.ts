@@ -685,7 +685,8 @@ export const getCommunicationThreadV2 = ({
     studentId
 }: {
     studentId: StudentId;
-}) => getData<GetCommunicationThreadResponse>(`/api/communications/${studentId}`);
+}) =>
+    getData<GetCommunicationThreadResponse>(`/api/communications/${studentId}`);
 export const loadCommunicationThread = (
     studentId: StudentId,
     pageNumber: number
@@ -1094,9 +1095,7 @@ export const instantInviteTA = (meetingSummary: string, meetingLink: string) =>
 
 // Student Meetings APIs
 export const getStudentMeetings = (studentId: StudentId) =>
-    getData<GetStudentMeetingsResponse>(
-        `/api/students/${studentId}/meetings`
-    );
+    getData<GetStudentMeetingsResponse>(`/api/students/${studentId}/meetings`);
 export const getStudentMeeting = (studentId: StudentId, meetingId: MeetingId) =>
     getData<GetStudentMeetingResponse>(
         `/api/students/${studentId}/meetings/${meetingId}`

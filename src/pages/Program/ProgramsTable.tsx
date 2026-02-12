@@ -39,7 +39,11 @@ export interface ProgramsTableProps {
     student: ProgramsTableStudent;
 }
 
-export const ProgramsTable = ({ isLoading, data, student }: ProgramsTableProps) => {
+export const ProgramsTable = ({
+    isLoading,
+    data,
+    student
+}: ProgramsTableProps) => {
     const customTableStyles = useTableStyles();
     const { t } = useTranslation();
     const tableConfig = getTableConfig(customTableStyles, isLoading);

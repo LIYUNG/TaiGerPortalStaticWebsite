@@ -47,9 +47,7 @@ export const MeetingCard = ({
         showActions &&
         !meeting.isConfirmedReceiver;
 
-    const formatDateTime = (
-        dateTime: string | null | undefined
-    ): string => {
+    const formatDateTime = (dateTime: string | null | undefined): string => {
         if (!dateTime) return t('Not set', { ns: 'common' });
         try {
             const date = new Date(dateTime);

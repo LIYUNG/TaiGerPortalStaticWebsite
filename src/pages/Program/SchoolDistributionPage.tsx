@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Link as LinkDom, Navigate, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -28,16 +28,13 @@ import {
 } from '@mui/material';
 import { ArrowBack, School, Search, Public } from '@mui/icons-material';
 import { is_TaiGer_role } from '@taiger-common/core';
-import { useQuery } from '@tanstack/react-query';
 
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
-import {
-    getSchoolsDistributionQuery,
-    getProgramsOverviewQuery
-} from '@api/query';
+import { useProgramsOverview } from '@hooks/useProgramsOverview';
+import { useSchoolsDistribution } from '@hooks/useSchoolsDistribution';
 import Loading from '@components/Loading/Loading';
 import ErrorPage from '../Utils/ErrorPage';
 
@@ -52,19 +49,15 @@ const SchoolDistributionPage = () => {
 
     // Fetch all schools from dedicated endpoint
     const {
-        data: schoolsData,
+        data: allSchools,
         isLoading: schoolsLoading,
         isError: schoolsError,
         error: schoolsErrorMsg
-    } = useQuery(getSchoolsDistributionQuery());
+    } = useSchoolsDistribution();
 
     // Fetch overview for totalPrograms and totalSchools
-    const { data: overviewData, isLoading: overviewLoading } = useQuery(
-        getProgramsOverviewQuery()
-    );
-
-    const allSchools = schoolsData?.data || [];
-    const overview = overviewData?.data;
+    const { data: overview, isLoading: overviewLoading } =
+        useProgramsOverview();
 
     // All hooks must be called before any conditional returns
     // Get unique countries for filter

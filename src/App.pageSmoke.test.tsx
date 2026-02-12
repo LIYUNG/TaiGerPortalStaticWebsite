@@ -16,6 +16,7 @@ import { SnackBarProvider } from '@contexts/use-snack-bar';
 import { CustomThemeProvider } from '@components/ThemeProvider';
 import { renderWithProviders, createTestQueryClient } from './test/test-utils';
 import Settings from '@pages/Settings/index';
+import Survey from '@pages/Survey/index';
 
 vi.mock('@components/AuthProvider', () => ({
     useAuth: () => ({
@@ -35,7 +36,9 @@ vi.mock('@api', async (importOriginal) => ({
     getProgramTickets: vi
         .fn()
         .mockResolvedValue({ data: { success: true, data: [] } }),
-    getAdmissions: vi.fn().mockResolvedValue({ data: { result: [] }, success: true }),
+    getAdmissions: vi
+        .fn()
+        .mockResolvedValue({ data: { result: [] }, success: true }),
     getArchivStudents: vi.fn().mockResolvedValue({ data: [], status: 200 }),
     getStudents: vi.fn().mockResolvedValue({ data: [], status: 200 }),
     getUsersCount: vi.fn().mockResolvedValue({
@@ -82,12 +85,20 @@ vi.mock('@mui/x-charts/BarChart', () => ({
     BarChart: ({ children }: { children?: ReactNode }) => children ?? null
 }));
 
-// Lightweight mock so smoke test doesn't load heavy UsersTable chunk (avoids timeout)
-vi.mock('@pages/Users/UsersTable', () => {
-    const { createElement } = require('react');
+// Lightweight mocks so smoke test doesn't load heavy chunks (avoids timeout)
+vi.mock('@pages/Users/UsersTable', async () => {
+    const { createElement } = await import('react');
     return {
         default: () =>
             createElement('div', { 'data-testid': 'users-table' }, 'Users')
+    };
+});
+
+vi.mock('@pages/Survey/SurveyComponent', async () => {
+    const { createElement } = await import('react');
+    return {
+        default: () =>
+            createElement('div', { 'data-testid': 'survey-component' }, 'Survey')
     };
 });
 vi.mock('@mui/x-charts/ChartsAxis', () => ({
@@ -109,14 +120,12 @@ vi.mock('@tanstack/react-query', async (importOriginal) => ({
 // Base Documents (and AllBaseDocuments) use getStudentsAndDocLinks2Query; ensure queryFn resolves immediately.
 // UsersTable uses getUsersCountQuery and UsersList uses getUsersQuery; mock them so queries resolve immediately.
 vi.mock('@api/query', async (importOriginal) => {
-    const actual =
-        await importOriginal<typeof import('@api/query')>();
+    const actual = await importOriginal<typeof import('@api/query')>();
     return {
         ...actual,
         getStudentsAndDocLinks2Query: (queryString: string) => ({
             queryKey: ['students/doc-links', queryString],
-            queryFn: () =>
-                Promise.resolve({ data: [], base_docs_link: [] }),
+            queryFn: () => Promise.resolve({ data: [], base_docs_link: [] }),
             staleTime: 1000 * 60 * 1
         }),
         getUsersCountQuery: () => ({
@@ -206,9 +215,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
     });
 
     test('Admissions page renders', async () => {
-        const Admissions = lazy(
-            () => import('@pages/Admissions/Admissions')
-        );
+        const Admissions = lazy(() => import('@pages/Admissions/Admissions'));
         renderWithProviders(wrapWithSuspense(Admissions), {
             initialEntries: ['/admissions-overview']
         });
@@ -253,9 +260,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
     });
 
     test('Archiv Students page renders', async () => {
-        const ArchivStudent = lazy(
-            () => import('@pages/ArchivStudent/index')
-        );
+        const ArchivStudent = lazy(() => import('@pages/ArchivStudent/index'));
         renderPageRoute(
             {
                 path: '/archiv/students',
@@ -272,9 +277,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
     }, 5000);
 
     test('Program List page renders', async () => {
-        const ProgramList = lazy(
-            () => import('@pages/Program/ProgramList')
-        );
+        const ProgramList = lazy(() => import('@pages/Program/ProgramList'));
         renderPageRoute(
             { path: '/programs', element: wrapWithSuspense(ProgramList) },
             '/programs'
@@ -299,9 +302,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
     });
 
     test('CVMLRL Center / Overview renders', async () => {
-        const CVMLRLOverview = lazy(
-            () => import('@pages/CVMLRLCenter/index')
-        );
+        const CVMLRLOverview = lazy(() => import('@pages/CVMLRLCenter/index'));
         renderPageRoute(
             {
                 path: '/cv-ml-rl-center',
@@ -341,7 +342,9 @@ describe('Page smoke tests – all pages render without crashing', () => {
             {
                 path: '/settings',
                 element: (
-                    <Suspense fallback={<div data-testid="loading">Loading...</div>}>
+                    <Suspense
+                        fallback={<div data-testid="loading">Loading...</div>}
+                    >
                         <Settings />
                     </Suspense>
                 )
@@ -472,10 +475,35 @@ describe('Page smoke tests – all pages render without crashing', () => {
     });
 
     test('Survey page renders', async () => {
-        const Survey = lazy(() => import('@pages/Survey/index'));
-        renderPageRoute(
-            { path: '/survey', element: wrapWithSuspense(Survey) },
-            '/survey'
+        const mockLoaderData = {
+            data: {
+                data: {
+                    academic_background: {},
+                    application_preference: {}
+                },
+                survey_link: ''
+            }
+        };
+        const routes: RouteObject[] = [
+            {
+                path: '/survey',
+                loader: () => mockLoaderData,
+                element: <Survey />
+            }
+        ];
+        const router = createMemoryRouter(routes, {
+            initialEntries: ['/survey'],
+            future: routerFutureFlags
+        });
+        const queryClient = createTestQueryClient();
+        render(
+            <CustomThemeProvider>
+                <QueryClientProvider client={queryClient}>
+                    <SnackBarProvider>
+                        <RouterProvider router={router} />
+                    </SnackBarProvider>
+                </QueryClientProvider>
+            </CustomThemeProvider>
         );
         await waitFor(() => {
             expect(document.body.textContent).toBeDefined();
@@ -483,9 +511,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
     });
 
     test('Customer Support page renders', async () => {
-        const CustomerSupport = lazy(
-            () => import('@pages/CustomerSupport')
-        );
+        const CustomerSupport = lazy(() => import('@pages/CustomerSupport'));
         renderPageRoute(
             {
                 path: '/customer-center',

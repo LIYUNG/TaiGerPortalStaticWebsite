@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
     Box,
     Button,
@@ -571,7 +571,9 @@ export interface CourseKeywordsOverviewProps {
     courseKeywordSets: CourseKeywordsEditCardData[];
 }
 
-const CourseKeywordsOverview = ({ courseKeywordSets }: CourseKeywordsOverviewProps) => {
+const CourseKeywordsOverview = ({
+    courseKeywordSets
+}: CourseKeywordsOverviewProps) => {
     const [courseKeywordSetsState, setCourseKeywordSetsState] = useState(
         courseKeywordSets.map((courseKeywordSet) => ({
             ...courseKeywordSet,
@@ -599,14 +601,17 @@ const CourseKeywordsOverview = ({ courseKeywordSets }: CourseKeywordsOverviewPro
         setDrawerOpen(true); // Open the Drawer on small screens
     };
 
-    const col = useMemo(() => col_keywords, [col_keywords]);
+    const col = useMemo(() => col_keywords, []);
 
-    const handleDelete = async (data) => {
-        setIsDeleteDialogOpen(true);
-        setItemToBeDeleted(data);
-    };
+    const handleDelete = useCallback(
+        async (data: CourseKeywordsEditCardData) => {
+            setIsDeleteDialogOpen(true);
+            setItemToBeDeleted(data);
+        },
+        [setIsDeleteDialogOpen, setItemToBeDeleted]
+    );
 
-    const handleDeleteConfirm = async () => {
+    const handleDeleteConfirm = useCallback(async () => {
         setIsDeleteDialogOpen(false);
         setRowSelection({});
         setCourseKeywordSetsState((prevState) =>
@@ -622,7 +627,15 @@ const CourseKeywordsOverview = ({ courseKeywordSets }: CourseKeywordsOverviewPro
         }
         setIsDeleteDialogOpen(false);
         setItemToBeDeleted({});
-    };
+    }, [
+        setIsDeleteDialogOpen,
+        setRowSelection,
+        setCourseKeywordSetsState,
+        setSeverity,
+        setMessage,
+        setOpenSnackbar,
+        itemToBeDeleted
+    ]);
 
     const selectedARow =
         Object.keys(rowSelection) && Object.keys(rowSelection)[0];

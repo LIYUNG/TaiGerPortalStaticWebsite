@@ -35,10 +35,7 @@ import {
     convertDateUXFriendly,
     APP_BAR_HEIGHT
 } from '@utils/contants';
-import {
-    getMyStudentThreadMetrics,
-    getThreadsByStudent
-} from '@api';
+import { getMyStudentThreadMetrics, getThreadsByStudent } from '@api';
 import { EmbeddedThreadComponent } from './EmbeddedThreadComponent';
 import ChildLoading from '@components/Loading/ChildLoading';
 import { APPROVAL_COUNTRIES } from '../../../Utils/util_functions';
@@ -100,7 +97,11 @@ export interface StudentItemProps {
     onClick: () => void;
 }
 
-const StudentItem = ({ student, selectedStudentId, onClick }: StudentItemProps) => {
+const StudentItem = ({
+    student,
+    selectedStudentId,
+    onClick
+}: StudentItemProps) => {
     const theme = useTheme();
     const isStudentComplete =
         student?.threadCount === student?.completeThreadCount;
@@ -152,9 +153,7 @@ const StudentItem = ({ student, selectedStudentId, onClick }: StudentItemProps) 
                             ${student?.application_preference?.expected_application_semester || '-'})`}
                     />
                     {highlightItem ? (
-                        <FiberManualRecordIcon
-                            fontSize="small"
-                        />
+                        <FiberManualRecordIcon fontSize="small" />
                     ) : null}
                 </Stack>
             </ListItemButton>
@@ -259,9 +258,7 @@ const ThreadItem = ({ thread, onClick }: ThreadItemProps) => {
                     />
 
                     {highlightItem ? (
-                        <FiberManualRecordIcon
-                            fontSize="small"
-                        />
+                        <FiberManualRecordIcon fontSize="small" />
                     ) : null}
                 </Stack>
             </ListItemButton>

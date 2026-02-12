@@ -27,7 +27,7 @@ export type Application = Omit<
     programId?: IProgramWithId;
     application_year?: unknown;
     doc_modification_thread?: unknown[];
-    uni_assist?: { status?: string; vpd_file_path?: string, isPaid?: boolean };
+    uni_assist?: { status?: string; vpd_file_path?: string; isPaid?: boolean };
     isLocked?: boolean;
     admission_letter?: { status?: string; admission_file_path?: string };
     interview_id?: string;
@@ -132,6 +132,7 @@ import type {
     IUserWithId,
     IStudentResponse
 } from '../types/taiger-common';
+import { IDocumentthread } from '@taiger-common/model/dist/types';
 
 /** Re-export for convenience */
 export type {
@@ -141,8 +142,9 @@ export type {
     IStudentResponse
 };
 
-/** Program response from API (includes string _id) */
-export interface ProgramResponse extends IProgramWithId {
+/** Program response from API (includes string _id; API may return date as string) */
+export interface ProgramResponse
+    extends Omit<IProgramWithId, 'updatedAt' | 'createdAt'> {
     _id: string;
     updatedAt?: string | Date;
     createdAt?: string | Date;
@@ -209,13 +211,16 @@ export interface DocumentThreadResponse {
     _id: string;
     student_id?: string | IStudentResponse;
     application_id?: string;
+    doc_thread_id: IDocumentthread;
     user_id?: string;
-    flag_by_user_id: string[],
+    flag_by_user_id: string[];
     isFinalVersion?: boolean;
     latest_message_left_by_id?: string;
     messages?: Array<{
         _id?: string;
-        user_id?: string | { firstname?: string; lastname?: string;[key: string]: unknown };
+        user_id?:
+        | string
+        | { firstname?: string; lastname?: string;[key: string]: unknown };
         message?: string;
         file_path?: string;
         file?: Array<{ name: string; path: string }>;
@@ -268,7 +273,9 @@ export type GetApplicationsResponse = ApiResponse<IApplicationWithId[]>;
 export type GetAdmissionsResponse = ApiResponse<unknown[]>;
 
 /** getAdmissionsOverview response */
-export type GetAdmissionsOverviewResponse = ApiResponse<Record<string, unknown>>;
+export type GetAdmissionsOverviewResponse = ApiResponse<
+    Record<string, unknown>
+>;
 
 /** getUsers response */
 export type GetUsersResponse = ApiResponse<AgentResponse[]>;
@@ -280,17 +287,20 @@ export type GetUsersOverviewResponse = ApiResponse<Record<string, unknown>>;
 export type GetProgramsResponse = ApiResponse<ProgramResponse[]>;
 
 /** getProgramsOverview response */
-export type GetProgramsOverviewResponse =
-    ApiResponse<Record<string, unknown>>;
+export type GetProgramsOverviewResponse = ApiResponse<Record<string, unknown>>;
 
 /** getSchoolsDistribution response */
 export type GetSchoolsDistributionResponse = ApiResponse<unknown[]>;
 
 /** getCommunicationThread / getCommunicationThreadV2 response */
-export type GetCommunicationThreadResponse = ApiResponse<CommunicationResponse[]>;
+export type GetCommunicationThreadResponse = ApiResponse<
+    CommunicationResponse[]
+>;
 
 /** getMyCommunicationThreadV2 response */
-export type GetMyCommunicationThreadResponse = ApiResponse<CommunicationResponse[]>;
+export type GetMyCommunicationThreadResponse = ApiResponse<
+    CommunicationResponse[]
+>;
 
 /** Meeting item (student meetings) */
 export interface MeetingResponse {
@@ -371,6 +381,14 @@ export interface AdmissionsStatRow {
     admissionCount?: number;
     rejectionCount?: number;
     pendingResultCount?: number;
+}
+
+/** Tasks overview (admin/editor dashboard counts from getTasksOverview) */
+export interface TasksOverview {
+    noEditorsStudents?: number;
+    noEssayWritersEssays?: number;
+    noTrainerInInterviewsStudents?: number;
+    [key: string]: unknown;
 }
 
 /** Open task row (CVMLRL Overview/Dashboard, Essay Overview) */

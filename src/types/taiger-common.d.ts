@@ -29,7 +29,7 @@ export interface IApplicationWithId
     extends Omit<IApplication, 'programId' | 'studentId'> {
     _id: string;
     programId?: string & IProgramWithId;
-    studentId?: string;
+    studentId?: string & IStudentWithId;
 }
 
 // Frontend-friendly Program type with string _id
@@ -55,6 +55,7 @@ export interface IStudentResponse extends IUserWithId {
     applications?: IApplicationWithId[];
     agents?: IUserWithId[];
     editors?: IUserWithId[];
+    generaldocs_threads?: IUserGeneraldocsThread[];
 }
 
 // Re-export core interfaces for convenience

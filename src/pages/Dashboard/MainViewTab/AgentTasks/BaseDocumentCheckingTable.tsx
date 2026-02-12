@@ -1,4 +1,3 @@
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Box,
@@ -15,14 +14,19 @@ import {
 
 import BaseDocumentCheckingTasks from '../../MainViewTab/AgentTasks/BaseDocumentCheckingTasks';
 import { useAuth } from '@components/AuthProvider';
+import type { IStudentResponse } from '@/api/types';
 
-const BaseDocumentCheckingTable = (props) => {
+const BaseDocumentCheckingTable = ({
+    students
+}: {
+    students: IStudentResponse[];
+}) => {
     const { user } = useAuth();
     const { t } = useTranslation();
 
-    const base_documents_checking_tasks = props.students
+    const base_documents_checking_tasks = students
         .filter((student) =>
-            student.agents.some((agent) => agent._id === user._id.toString())
+            student.agents?.some((agent) => agent._id === user?._id?.toString())
         )
         .map((student, i) => (
             <BaseDocumentCheckingTasks key={i} student={student} />

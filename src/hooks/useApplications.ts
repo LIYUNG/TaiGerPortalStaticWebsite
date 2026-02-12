@@ -28,12 +28,19 @@ export function useApplications(
         ...query,
         queryFn: async () => {
             const res = await query.queryFn();
-            return res as { data?: IApplicationWithId[]; result?: IApplicationWithId[] };
+            return res as {
+                data?: IApplicationWithId[];
+                result?: IApplicationWithId[];
+            };
         },
-        select: (data: {
-            data?: IApplicationWithId[];
-            result?: IApplicationWithId[];
-        } | undefined) => data?.data ?? data?.result ?? [],
+        select: (
+            data:
+                | {
+                      data?: IApplicationWithId[];
+                      result?: IApplicationWithId[];
+                  }
+                | undefined
+        ) => data?.data ?? data?.result ?? [],
         enabled: options?.enabled ?? true
     });
 

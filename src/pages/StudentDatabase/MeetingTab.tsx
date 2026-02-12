@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
     Box,
     Typography,
@@ -102,9 +102,8 @@ export const MeetingTab = ({ studentId, student }: MeetingTabProps) => {
     const [confirmModalOpen, setConfirmModalOpen] = useState(false);
     const [selectedMeeting, setSelectedMeeting] =
         useState<MeetingDisplay | null>(null);
-    const [meetingToDelete, setMeetingToDelete] = useState<MeetingDisplay | null>(
-        null
-    );
+    const [meetingToDelete, setMeetingToDelete] =
+        useState<MeetingDisplay | null>(null);
     const [meetingToConfirm, setMeetingToConfirm] =
         useState<MeetingDisplay | null>(null);
     const [addAssistant, setAddAssistant] = useState(false);
@@ -176,7 +175,11 @@ export const MeetingTab = ({ studentId, student }: MeetingTabProps) => {
         }: {
             eventId: string;
             eventData: Record<string, unknown>;
-        }) => updateEvent(eventId, eventData as Parameters<typeof updateEvent>[1]),
+        }) =>
+            updateEvent(
+                eventId,
+                eventData as Parameters<typeof updateEvent>[1]
+            ),
         onSuccess: async () => {
             await queryClient.invalidateQueries({
                 queryKey: ['events'],
@@ -202,7 +205,10 @@ export const MeetingTab = ({ studentId, student }: MeetingTabProps) => {
             eventId: string;
             eventData: Record<string, unknown>;
         }) =>
-            confirmEvent(eventId, eventData as Parameters<typeof confirmEvent>[1]),
+            confirmEvent(
+                eventId,
+                eventData as Parameters<typeof confirmEvent>[1]
+            ),
         onSuccess: async () => {
             await queryClient.invalidateQueries({
                 queryKey: ['events'],
@@ -618,4 +624,3 @@ export const MeetingTab = ({ studentId, student }: MeetingTabProps) => {
         </Box>
     );
 };
-

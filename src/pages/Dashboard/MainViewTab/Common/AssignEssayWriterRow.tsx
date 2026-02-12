@@ -2,9 +2,14 @@ import { TableRow, TableCell, Link } from '@mui/material';
 import { Link as LinkDom } from 'react-router-dom';
 import { t } from 'i18next';
 
+import type { TasksOverview } from '@api/types';
 import DEMO from '@store/constant';
 
-const AssignEssayWriterRow = (props) => {
+const AssignEssayWriterRow = ({
+    tasksOverview
+}: {
+    tasksOverview: TasksOverview;
+}) => {
     return (
         <TableRow>
             <TableCell>
@@ -13,7 +18,7 @@ const AssignEssayWriterRow = (props) => {
                     to={`${DEMO.ASSIGN_ESSAY_WRITER_LINK}`}
                 >
                     {t('Assign Essay Writer', { ns: 'common' })} (
-                    {props.tasksOverview.noEssayWritersEssays})
+                    {tasksOverview.noEssayWritersEssays})
                 </Link>
             </TableCell>
             <TableCell>

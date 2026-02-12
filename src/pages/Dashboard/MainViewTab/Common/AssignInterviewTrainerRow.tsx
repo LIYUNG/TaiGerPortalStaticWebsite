@@ -1,10 +1,10 @@
-import React from 'react';
 import { TableRow, TableCell, Link } from '@mui/material';
 import { Link as LinkDom } from 'react-router-dom';
+import type { TasksOverview } from '@api/types';
 import DEMO from '@store/constant';
 import { t } from 'i18next';
 
-const AssignInterviewTrainerRow = (props) => {
+const AssignInterviewTrainerRow = ({ tasksOverview }: { tasksOverview: TasksOverview }) => {
     return (
         <TableRow>
             <TableCell>
@@ -13,7 +13,7 @@ const AssignInterviewTrainerRow = (props) => {
                     to={`${DEMO.ASSIGN_INTERVIEW_TRAINER_LINK}`}
                 >
                     {t('Assign Interview Trainers', { ns: 'common' })}(
-                    {props.tasksOverview.noTrainerInInterviewsStudents})
+                    {tasksOverview.noTrainerInInterviewsStudents})
                 </Link>
             </TableCell>
             <TableCell>

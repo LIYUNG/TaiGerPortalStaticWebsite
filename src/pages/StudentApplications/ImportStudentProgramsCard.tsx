@@ -237,9 +237,7 @@ export const ImportStudentProgramsCard = (
         mutationFn: createApplicationV2,
         onSuccess: (res: CreateApplicationResponse) => {
             if (res.success) {
-                const studentId = String(
-                    importStudentProgramsCard.student._id
-                );
+                const studentId = String(importStudentProgramsCard.student._id);
                 queryClient
                     .refetchQueries({
                         queryKey: ['applications/student', studentId]

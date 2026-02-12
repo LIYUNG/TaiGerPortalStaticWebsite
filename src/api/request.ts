@@ -23,7 +23,9 @@ function getErrorMessage(data: unknown): string {
     return (data as ErrorResponseBody)?.message ?? DEFAULT_ERROR_MESSAGE;
 }
 
-async function executeRequest<T>(requestFn: () => Promise<AxiosResponse<T>>): Promise<T> {
+async function executeRequest<T>(
+    requestFn: () => Promise<AxiosResponse<T>>
+): Promise<T> {
     try {
         const response = await requestFn();
         if (response.status >= 400) {

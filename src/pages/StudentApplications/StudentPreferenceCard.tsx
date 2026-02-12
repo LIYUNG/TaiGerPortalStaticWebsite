@@ -1,18 +1,12 @@
 import { useTranslation } from 'react-i18next';
 import { List, ListItem, TextField, Typography } from '@mui/material';
+import { IStudentResponse } from '@/types/taiger-common';
 
-export interface StudentPreferenceCardProps {
-    student: {
-        application_preference?: {
-            target_application_field?: string;
-            targetApplicationSubjects?: string[];
-            [key: string]: unknown;
-        };
-        [key: string]: unknown;
-    };
-}
-
-export const StudentPreferenceCard = (props: StudentPreferenceCardProps) => {
+export const StudentPreferenceCard = ({
+    student
+}: {
+    student: IStudentResponse;
+}) => {
     const { t } = useTranslation();
     return (
         <>
@@ -33,7 +27,7 @@ export const StudentPreferenceCard = (props: StudentPreferenceCardProps) => {
                     {t('Target Application Fields')}:{' '}
                     <b>
                         {
-                            props.student.application_preference
+                            student.application_preference
                                 ?.target_application_field
                         }
                     </b>
@@ -41,20 +35,20 @@ export const StudentPreferenceCard = (props: StudentPreferenceCardProps) => {
                 <ListItem>
                     {t('Target Application Subjects')}:{' '}
                     <b>
-                        {props.student.application_preference?.targetApplicationSubjects?.join(
+                        {student.application_preference?.targetApplicationSubjects?.join(
                             ', '
                         )}
                     </b>
                 </ListItem>
                 <ListItem>
                     {t('Target Degree Programs')}:{' '}
-                    <b>{props.student.application_preference?.target_degree}</b>
+                    <b>{student.application_preference?.target_degree}</b>
                 </ListItem>
                 <ListItem>
                     {t('Target Program Language')}:{' '}
                     <b>
                         {
-                            props.student.application_preference
+                            student.application_preference
                                 ?.target_program_language
                         }
                     </b>
@@ -66,7 +60,7 @@ export const StudentPreferenceCard = (props: StudentPreferenceCardProps) => {
                     :{' '}
                     <b>
                         {
-                            props.student.application_preference
+                            student.application_preference
                                 ?.considered_privat_universities
                         }
                     </b>
@@ -75,7 +69,7 @@ export const StudentPreferenceCard = (props: StudentPreferenceCardProps) => {
                     {t('Considering universities outside Germany?')}:{' '}
                     <b>
                         {
-                            props.student.application_preference
+                            student.application_preference
                                 ?.application_outside_germany
                         }
                     </b>
@@ -89,8 +83,7 @@ export const StudentPreferenceCard = (props: StudentPreferenceCardProps) => {
                         readOnly
                         rows={4}
                         value={
-                            props.student.application_preference
-                                ?.special_wished || ''
+                            student.application_preference?.special_wished || ''
                         }
                         variant="standard"
                     />

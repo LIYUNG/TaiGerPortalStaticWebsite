@@ -15,10 +15,18 @@ export interface ProgramReportModalProps {
     setReportModalHideDelete: () => void;
     uni_name: string;
     program_name: string;
-    onReportSubmit?: (description: string) => void;
+    program_id: string;
+    submitProgramReport: (program_id: string, description: string) => void;
 }
 
-const ProgramReportModal = (props: ProgramReportModalProps) => {
+const ProgramReportModal = ({
+    isReport,
+    setReportModalHideDelete,
+    uni_name,
+    program_name,
+    program_id,
+    submitProgramReport
+}: ProgramReportModalProps) => {
     const { t } = useTranslation();
     const [programReportModalState, setProgramReportModalState] = useState({
         description: ''
@@ -31,11 +39,10 @@ const ProgramReportModal = (props: ProgramReportModalProps) => {
     };
 
     return (
-        <Dialog onClose={props.setReportModalHideDelete} open={props.isReport}>
+        <Dialog onClose={setReportModalHideDelete} open={isReport}>
             <DialogTitle>Report</DialogTitle>
             <DialogContent>
-                What information is inaccurate for {props.uni_name} -{' '}
-                {props.program_name}?
+                What information is inaccurate for {uni_name} - {program_name}?
                 <TextField
                     fullWidth
                     inputProps={{ maxLength: 2000 }}
@@ -58,8 +65,8 @@ const ProgramReportModal = (props: ProgramReportModalProps) => {
                     color="primary"
                     disabled={programReportModalState.description?.length === 0}
                     onClick={() =>
-                        props.submitProgramReport(
-                            props.program_id,
+                        submitProgramReport(
+                            program_id,
                             programReportModalState.description
                         )
                     }
@@ -69,7 +76,7 @@ const ProgramReportModal = (props: ProgramReportModalProps) => {
                 </Button>
                 <Button
                     color="secondary"
-                    onClick={props.setReportModalHideDelete}
+                    onClick={setReportModalHideDelete}
                     variant="outlined"
                 >
                     {t('Close', { ns: 'common' })}

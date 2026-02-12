@@ -12,12 +12,22 @@ import {
 import { useTranslation } from 'react-i18next';
 
 export interface ProgramReportDeleteModalProps {
+    program_name: string;
+    uni_name: string;
+    ticket: Record<string, unknown>;
     isReportDelete: boolean;
     setReportDeleteModalHide: () => void;
-    onDeleteConfirm?: (ticket: Record<string, unknown>, deleteReason: string) => void;
+    submitProgramDeleteReport: (ticket_id: string) => void;
 }
 
-const ProgramReportDeleteModal = (props: ProgramReportDeleteModalProps) => {
+const ProgramReportDeleteModal = ({
+    program_name,
+    uni_name,
+    ticket,
+    isReportDelete,
+    setReportDeleteModalHide,
+    submitProgramDeleteReport
+}: ProgramReportDeleteModalProps) => {
     const [programReportDeleteModal, setProgramReportDeleteModalState] =
         useState({
             ticket: {},
@@ -41,25 +51,20 @@ const ProgramReportDeleteModal = (props: ProgramReportDeleteModalProps) => {
     };
 
     return (
-        <Dialog
-            centered
-            onClose={props.setReportDeleteModalHide}
-            open={props.isReportDelete}
-        >
+        <Dialog onClose={setReportDeleteModalHide} open={isReportDelete}>
             <DialogTitle>
                 {t('Delete ticket', { ns: 'programList' })}
             </DialogTitle>
             <DialogContent>
                 <DialogContentText>
-                    Do you want to delelete {props.uni_name} -{' '}
-                    {props.program_name} ticket?
+                    Do you want to delelete {uni_name} - {program_name} ticket?
                 </DialogContentText>
                 {t('Description', { ns: 'common' })}
                 <TextField
-                    defaultValue={props.ticket.description}
+                    defaultValue={ticket.description}
                     fullWidth
                     inputProps={{ maxLength: 2000 }}
-                    isInvalid={props.ticket.description?.length > 2000}
+                    isInvalid={ticket.description?.length > 2000}
                     minRows={4}
                     multiline
                     onChange={(e) => handleChange(e)}
@@ -67,16 +72,16 @@ const ProgramReportDeleteModal = (props: ProgramReportDeleteModalProps) => {
                     type="textarea"
                 />
                 <Badge>
-                    {props.ticket.description?.length || 0}/{2000}
+                    {ticket.description?.length || 0}/{2000}
                 </Badge>
                 <DialogContentText>
                     {t('Feedback', { ns: 'common' })}
                 </DialogContentText>
                 <TextField
-                    defaultValue={props.ticket.feedback}
+                    defaultValue={ticket.feedback}
                     fullWidth
                     inputProps={{ maxLength: 2000 }}
-                    isInvalid={props.ticket.feedback?.length > 2000}
+                    isInvalid={ticket.feedback?.length > 2000}
                     minRows={4}
                     multiline
                     onChange={(e) => handleChange(e)}
@@ -84,7 +89,7 @@ const ProgramReportDeleteModal = (props: ProgramReportDeleteModalProps) => {
                     type="textarea"
                 />
                 <Badge>
-                    {props.ticket.feedback?.length || 0}/{2000}
+                    {ticket.feedback?.length || 0}/{2000}
                 </Badge>
                 <DialogContentText>
                     Please enter <i>delete</i> in order to delete the ticket.
@@ -103,9 +108,7 @@ const ProgramReportDeleteModal = (props: ProgramReportDeleteModalProps) => {
                     color="primary"
                     disabled={programReportDeleteModal.delete !== 'delete'}
                     onClick={() =>
-                        props.submitProgramDeleteReport(
-                            props.ticket._id.toString()
-                        )
+                        submitProgramDeleteReport(ticket._id.toString())
                     }
                     variant="contained"
                 >
@@ -113,7 +116,7 @@ const ProgramReportDeleteModal = (props: ProgramReportDeleteModalProps) => {
                 </Button>
                 <Button
                     color="secondary"
-                    onClick={props.setReportDeleteModalHide}
+                    onClick={setReportDeleteModalHide}
                     variant="outlined"
                 >
                     {t('Close', { ns: 'common' })}

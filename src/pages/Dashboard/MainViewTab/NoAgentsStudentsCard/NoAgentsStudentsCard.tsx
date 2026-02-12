@@ -15,8 +15,21 @@ import { is_TaiGer_Admin } from '@taiger-common/core';
 import EditAgentsSubpage from '../StudDocsOverview/EditAgentsSubpage';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
+import { IStudentResponse } from '@/api/types';
 
-const NoAgentsStudentsCard = (props) => {
+const NoAgentsStudentsCard = ({
+    student,
+    isArchivPage,
+    submitUpdateAgentlist
+}: {
+    student: IStudentResponse;
+    isArchivPage: boolean;
+    submitUpdateAgentlist: (
+        e: React.FormEvent<HTMLFormElement>,
+        updateAgentList: unknown,
+        student_id: string
+    ) => void;
+}) => {
     const { user } = useAuth();
     const [noAgentsStudentsCardState, setNoAgentsStudentsCard] = useState({
         showAgentPage: false
@@ -42,24 +55,21 @@ const NoAgentsStudentsCard = (props) => {
         });
     };
 
-    const submitUpdateAgentlist = (
+    const submitUpdateAgentlistHandler = (
         e: React.FormEvent<HTMLFormElement>,
         updateAgentList: unknown,
         student_id: string
     ) => {
         e.preventDefault();
         setAgentModalhide();
-        props.submitUpdateAgentlist(e, updateAgentList, student_id);
+        submitUpdateAgentlist(e, updateAgentList, student_id);
     };
 
-    if (
-        props.student.agents === undefined ||
-        props.student.agents.length === 0
-    ) {
+    if (student.agents === undefined || student.agents.length === 0) {
         return (
             <>
                 <TableRow>
-                    {is_TaiGer_Admin(user) && !props.isArchivPage ? (
+                    {is_TaiGer_Admin(user) && !isArchivPage ? (
                         <TableCell>
                             <Button
                                 aria-controls={open ? 'basic-menu' : undefined}
@@ -91,19 +101,19 @@ const NoAgentsStudentsCard = (props) => {
                         <Link
                             component={LinkDom}
                             to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                                props.student._id,
+                                student._id,
                                 DEMO.PROFILE_HASH
                             )}`}
                         >
-                            {props.student.firstname}
+                            {student.firstname}
                             {', '}
-                            {props.student.lastname}
+                            {student.lastname}
                         </Link>
                     </TableCell>
-                    <TableCell>{props.student.email}</TableCell>
+                    <TableCell>{student.email}</TableCell>
                     <TableCell>
-                        {props.student.application_preference
-                            .expected_application_date || (
+                        {student.application_preference
+                            ?.expected_application_date || (
                             <Typography>TBD</Typography>
                         )}
                     </TableCell>
@@ -114,8 +124,8 @@ const NoAgentsStudentsCard = (props) => {
                         onHide={setAgentModalhide}
                         setmodalhide={setAgentModalhide}
                         show={noAgentsStudentsCardState.showAgentPage}
-                        student={props.student}
-                        submitUpdateAgentlist={submitUpdateAgentlist}
+                        student={student}
+                        submitUpdateAgentlist={submitUpdateAgentlistHandler}
                     />
                 ) : null}
             </>

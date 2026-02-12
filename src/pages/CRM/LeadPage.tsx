@@ -160,7 +160,7 @@ const LeadPage = () => {
             setFormData(lead);
             form.reset(lead);
         }
-    }, [lead]);
+    }, [lead, form]);
 
     const updateLeadMutation = useMutation({
         mutationFn: async (changed) => {

@@ -22,7 +22,10 @@ export interface HighlightTextDiffProps {
     updated?: string;
 }
 
-const HighlightTextDiff = ({ original = '', updated = '' }: HighlightTextDiffProps) => {
+const HighlightTextDiff = ({
+    original = '',
+    updated = ''
+}: HighlightTextDiffProps) => {
     const { addTextColor, addTextBg, removeTextColor, removeTextBg } =
         useHighlightColors();
 

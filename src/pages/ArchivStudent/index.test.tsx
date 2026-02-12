@@ -84,7 +84,9 @@ describe('ArchivStudents', () => {
     });
 
     test('Shows loading state initially', () => {
-        vi.mocked(getArchivStudents).mockImplementation(() => new Promise(() => {})); // Never resolves
+        vi.mocked(getArchivStudents).mockImplementation(
+            () => new Promise(() => {})
+        ); // Never resolves
         vi.mocked(useAuth).mockReturnValue({
             user: { role: 'Agent', _id: '639baebf8b84944b872cf648' },
             isAuthenticated: true,

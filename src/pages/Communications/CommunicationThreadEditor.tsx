@@ -23,19 +23,13 @@ import { useParams } from 'react-router-dom';
 
 import EditorSimple from '@components/EditorJs/EditorSimple';
 import { useAuth } from '@components/AuthProvider';
-import {
-    CVMLRL_DOC_PRECHECK_STATUS_E,
-    stringAvatar
-} from '@utils/contants';
+import { CVMLRL_DOC_PRECHECK_STATUS_E, stringAvatar } from '@utils/contants';
 import { TaiGerChatAssistant } from '@api';
 import { appConfig } from '../../config';
 
 export interface CommunicationThreadEditorProps {
     editorState: unknown;
-    handleClickSave?: (
-        e: React.MouseEvent,
-        editorState: unknown
-    ) => void;
+    handleClickSave?: (e: React.MouseEvent, editorState: unknown) => void;
     thread: unknown;
     files?: Array<{ name: string; path?: string }>;
     count?: number;
@@ -81,7 +75,6 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
             .pipeThrough(new TextDecoderStream())
             .getReader();
 
-         
         while (true) {
             const { value, done } = await reader.read();
             if (done) {

@@ -7,9 +7,6 @@ import {
     is_TaiGer_role
 } from '@taiger-common/core';
 import i18next from 'i18next';
-import { useQuery } from '@tanstack/react-query';
-import queryString from 'query-string';
-
 import ApplicationOverviewTabs from './ApplicationOverviewTabs';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
@@ -17,7 +14,7 @@ import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
 import { BreadcrumbsNavigation } from '@components/BreadcrumbsNavigation/BreadcrumbsNavigation';
 import Loading from '@components/Loading/Loading';
-import { getMyStudentsApplicationsV2Query } from '@api/query';
+import { useMyStudentsApplicationsV2 } from '@hooks/useMyStudentsApplicationsV2';
 import { useStudentsV3 } from '@hooks/useStudentsV3';
 
 const ApplicantsOverview = () => {
@@ -27,12 +24,8 @@ const ApplicantsOverview = () => {
     const { data: fetchedMyStudents, isLoading: isLoadingMyStudents } =
         useStudentsV3({ [role]: user._id, archiv: false });
 
-    const { data: myStudentsApplications, isLoading } = useQuery(
-        getMyStudentsApplicationsV2Query({
-            userId: user._id,
-            queryString: queryString.stringify({})
-        })
-    );
+    const { data: myStudentsApplications, isLoading } =
+        useMyStudentsApplicationsV2({ userId: user._id });
 
     if (is_TaiGer_Student(user)) {
         return (
@@ -69,7 +62,7 @@ const ApplicantsOverview = () => {
                 ]}
             />
             <ApplicationOverviewTabs
-                applications={myStudentsApplications.data.applications}
+                applications={myStudentsApplications.applications}
                 students={fetchedMyStudents}
             />
         </Box>

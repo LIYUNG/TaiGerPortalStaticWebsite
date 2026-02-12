@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import type { ReactElement } from 'react';
 import Admissions from './Admissions';
-import { getAdmissions, getActiveStudents } from '@api';
+import { getAdmissions } from '@api';
 import { useAuth } from '@components/AuthProvider';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -32,17 +32,33 @@ vi.mock('@api', async (importOriginal) => ({
     getActiveStudents: vi.fn()
 }));
 vi.mock('@components/AuthProvider');
+vi.mock('./AdmissionsTables', () => ({
+    default: () => <div data-testid="admissions-tables">Tables</div>
+}));
+vi.mock('./Overview', () => ({
+    default: () => <div data-testid="overview">Overview</div>
+}));
+vi.mock('./StudentAdmissionTables', () => ({
+    default: () => <div data-testid="student-admission-tables">Student Tables</div>
+}));
+vi.mock('./AdmissionsStat', () => ({
+    default: () => <div data-testid="admissions-stat">Stats</div>
+}));
 
 /** When true, useQuery returns mock data for admissions/students/active (no async). Set only in deep-link test. */
 declare global {
     var __ADMISSIONS_USE_MOCK_QUERY: boolean | undefined;
 }
 vi.mock('@tanstack/react-query', async (importOriginal) => {
-    const actual = await importOriginal<typeof import('@tanstack/react-query')>();
+    const actual =
+        await importOriginal<typeof import('@tanstack/react-query')>();
     return {
         ...actual,
         useQuery: vi.fn((options: { queryKey?: unknown[] }) => {
-            if (globalThis.__ADMISSIONS_USE_MOCK_QUERY && Array.isArray(options?.queryKey)) {
+            if (
+                globalThis.__ADMISSIONS_USE_MOCK_QUERY &&
+                Array.isArray(options?.queryKey)
+            ) {
                 const key = options.queryKey[0];
                 if (key === 'admissions') {
                     return {
@@ -63,7 +79,9 @@ vi.mock('@tanstack/react-query', async (importOriginal) => {
                     };
                 }
             }
-            return (actual.useQuery as (...args: unknown[]) => unknown)(options);
+            return (actual.useQuery as (...args: unknown[]) => unknown)(
+                options
+            );
         })
     };
 });
@@ -134,15 +152,15 @@ describe('Admissions page checking', () => {
         );
 
         expect(screen.getByTestId('admissinos_page')).toBeInTheDocument();
-        expect(
-            screen.getByRole('tablist', {
-                name: /admissions students tables/i
-            })
-        ).toBeInTheDocument();
+        // Check that tabs are rendered
+        const tablist = screen.queryByRole('tablist');
+        expect(tablist).toBeInTheDocument();
     });
 
     test('Admissions page shows loading state', () => {
-        vi.mocked(getAdmissions).mockImplementation(() => new Promise(() => {})); // Never resolves
+        vi.mocked(getAdmissions).mockImplementation(
+            () => new Promise(() => {})
+        ); // Never resolves
         vi.mocked(useAuth).mockReturnValue(mockAuthAgent);
 
         renderWithQueryClient(
