@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react';
 import Dashboard from './';
-import { getProgramTickets } from '@api';
+import { getProgramTickets } from '@/api';
 import { useAuth } from '@components/AuthProvider/index';
 import { createMemoryRouter } from 'react-router-dom';
 
@@ -10,7 +10,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SnackBarProvider } from '@contexts/use-snack-bar';
 
 vi.mock('axios');
-vi.mock('@api');
+vi.mock('@/api');
 vi.mock('@mui/x-charts/BarChart', () => ({
     BarChart: vi.fn().mockImplementation(({ children }) => children)
 }));

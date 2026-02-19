@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, Alert, Typography, Link } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 
-import type { OpenTaskRow } from '@api/types';
+import type { OpenTaskRow } from '@/api/types';
 import { useAuth } from '@components/AuthProvider';
 import { AGENT_SUPPORT_DOCUMENTS_A } from '../../../Utils/util_functions';
 import DEMO from '@store/constant';

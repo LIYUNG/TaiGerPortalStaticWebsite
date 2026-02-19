@@ -35,10 +35,10 @@ import {
     is_TaiGer_role
 } from '@taiger-common/core';
 
-import { getMycourses, putMycourses, transcriptanalyser_testV2 } from '@api';
+import { getMycourses, putMycourses, transcriptanalyser_testV2 } from '@/api';
 import { useMutation } from '@tanstack/react-query';
-import { queryClient } from '@api/client';
-import { getMycoursesQuery } from '@api/query';
+import { queryClient } from '@/api';
+import { getMycoursesQuery } from '@/api/query';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { appConfig } from '../../config';
@@ -132,7 +132,7 @@ export default function MyCourses() {
                 }));
             }
         );
-    }, []);
+    }, [student_id, user]);
 
     const handleChangeValue = (event, newValue) => {
         setValue(newValue);
@@ -265,11 +265,15 @@ export default function MyCourses() {
         }));
     };
 
-    const onAnalyseV2 = async (requirementIds, lang, factor) => {
+    const onAnalyseV2 = async (
+        requirementIds: string[],
+        lang: string,
+        factor: string
+    ) => {
         try {
             const response = await transcriptanalyser_testV2({
                 language: lang,
-                studentId: statedata.student._id.toString(),
+                studentId: statedata.student?._id.toString(),
                 requirementIds,
                 factor
             });
@@ -639,7 +643,7 @@ export default function MyCourses() {
                                         <LinkDom
                                             target="_blank"
                                             to={`${DEMO.COURSES_ANALYSIS_RESULT_V2_LINK(
-                                                statedata.student._id.toString()
+                                                statedata.student?._id?.toString() ?? ''
                                             )}`}
                                         >
                                             <Button

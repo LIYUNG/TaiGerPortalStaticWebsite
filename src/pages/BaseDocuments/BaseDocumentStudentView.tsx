@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Alert, Box } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { DocumentStatusType, PROFILE_NAME } from '@taiger-common/core';
+import { PROFILE_NAME } from '@taiger-common/core';
+import { DocumentStatusType } from '@taiger-common/model';
 
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { SYMBOL_EXPLANATION } from '@utils/contants';
-import { updateDocumentationHelperLink } from '@api';
+import { updateDocumentationHelperLink } from '@/api';
 import Loading from '@components/Loading/Loading';
 import MyDocumentCard from './MyDocumentCard';
 
@@ -65,7 +66,6 @@ const BaseDocumentStudentView = ({
                 if (success) {
                     setBaseDocumentStudentViewState((prevState) => ({
                         ...prevState,
-                        isLoaded2: true,
                         base_docs_link: helper_link,
                         success: success,
                         res_modal_status: status
@@ -74,7 +74,6 @@ const BaseDocumentStudentView = ({
                     const { message } = resp.data;
                     setBaseDocumentStudentViewState((prevState) => ({
                         ...prevState,
-                        isLoaded2: true,
                         res_modal_message: message,
                         res_modal_status: status
                     }));
@@ -84,7 +83,6 @@ const BaseDocumentStudentView = ({
                 setBaseDocumentStudentViewState((prevState) => ({
                     ...prevState,
                     error,
-                    isLoaded2: true,
                     res_modal_message: '',
                     res_modal_status: 500
                 }));

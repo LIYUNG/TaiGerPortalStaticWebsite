@@ -1,18 +1,18 @@
-import React from 'react';
+import { MouseEvent, useState } from 'react';
 import { Button, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
-import { resendActivation } from '@api/index';
+import { resendActivation } from '@/api';
 import AuthWrapper from '@components/AuthWrapper';
 
 export interface ReactivationProps {
-    email: string;
+    email: string | undefined;
 }
 
 export default function Reactivation(props: ReactivationProps) {
-    const [emailsent, setEmailsent] = React.useState(false);
+    const [emailsent, setEmailsent] = useState(false);
     const { t } = useTranslation();
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         setEmailsent(true);
         try {
@@ -51,7 +51,7 @@ export default function Reactivation(props: ReactivationProps) {
                             'Please click "Resend" to receive the new activation link in your email.'
                         )}
                     </Typography>
-                    <Button color="primary" onClick={(e) => handleSubmit(e)}>
+                    <Button color="primary" onClick={(e: MouseEvent<HTMLButtonElement>) => handleSubmit(e)}>
                         {t('Resend')}
                     </Button>
                 </>

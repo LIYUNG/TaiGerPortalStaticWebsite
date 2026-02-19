@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, MouseEvent, ChangeEvent } from 'react';
 import { Link as LinkDom, useNavigate } from 'react-router-dom';
 import UndoIcon from '@mui/icons-material/Undo';
 import CheckIcon from '@mui/icons-material/Check';
@@ -34,18 +34,16 @@ import {
     isProgramRejected,
     isProgramSubmitted
 } from '@taiger-common/core';
-import type { ApplicationProps } from '@taiger-common/core';
-import type { Application } from '@api/types';
 
 import ApplicationProgressCardBody from './ApplicationProgressCardBody';
 import ApplicationLockControl from '../ApplicationLockControl/ApplicationLockControl';
-import { updateStudentApplicationResult } from '@api';
+import { IApplicationWithId, updateStudentApplicationResult } from '@/api';
 import DEMO from '@store/constant';
 import {
     application_deadline_V2_calculator,
     progressBarCounter
 } from '@pages/Utils/util_functions';
-import { BASE_URL } from '@api/request';
+import { BASE_URL } from '@/api';
 import {
     FILE_NOT_OK_SYMBOL,
     FILE_OK_SYMBOL,
@@ -68,9 +66,7 @@ interface ProgramLinkProps {
 }
 
 interface AdmissionLetterLinkProps {
-    application: Record<string, unknown> & {
-        admission_letter?: { status?: string; admission_file_path?: string };
-    };
+    application: IApplication;
 }
 
 interface ApplicationProgressCardProps {
@@ -117,8 +113,7 @@ const ProgramLink = ({ program }: ProgramLinkProps) => (
 
 const AdmissionLetterLink = ({ application }: AdmissionLetterLinkProps) => {
     return (
-        (isProgramAdmitted(application as unknown as ApplicationProps) ||
-            isProgramRejected(application as unknown as ApplicationProps)) &&
+        (isProgramAdmitted(application) || isProgramRejected(application)) &&
         application.admission_letter?.status === 'uploaded' && (
             <a
                 className="text-info"
@@ -129,7 +124,7 @@ const AdmissionLetterLink = ({ application }: AdmissionLetterLinkProps) => {
                 rel="noopener noreferrer"
                 target="_blank"
             >
-                {isProgramAdmitted(application as unknown as ApplicationProps)
+                {isProgramAdmitted(application)
                     ? i18next.t('Admission Letter', { ns: 'admissions' })
                     : i18next.t('Rejection Letter', { ns: 'admissions' })}
             </a>
@@ -145,10 +140,13 @@ export default function ApplicationProgressCard(
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
     const navigate = useNavigate();
 
-    const applicationFromProps = props.application as Application;
+    const applicationFromProps = props.application as
+        | IApplication
+        | IApplicationWithId;
 
-    const [application, setApplication] =
-        useState<Application>(applicationFromProps);
+    const [application, setApplication] = useState<
+        IApplication | IApplicationWithId
+    >(applicationFromProps);
     const [resultState, setResultState] = useState('-');
     const [letter, setLetter] = useState<File | null>(null);
     const [returnedMessage, setReturnedMessage] = useState('');
@@ -159,7 +157,7 @@ export default function ApplicationProgressCard(
         setIsCollapse(!isCollapse);
     };
 
-    const openUndoModal = (e: React.MouseEvent) => {
+    const openUndoModal = (e: MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
         setShowUndoModal(true);
     };
@@ -168,7 +166,7 @@ export default function ApplicationProgressCard(
         setShowUndoModal(false);
     };
 
-    const openSetResultModal = (e: React.MouseEvent, result: string) => {
+    const openSetResultModal = (e: MouseEvent, result: string) => {
         e.stopPropagation();
         setShowSetResultModal(true);
         setResultState(result);
@@ -178,7 +176,7 @@ export default function ApplicationProgressCard(
         setShowSetResultModal(false);
     };
 
-    const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
         if (!e.target.files) {
             setLetter(null);
@@ -259,7 +257,7 @@ export default function ApplicationProgressCard(
             <Card>
                 <CardContent onClick={handleToggle}>
                     <Typography color="text.secondary" gutterBottom>
-                        {isProgramSubmitted(application as ApplicationProps) ? (
+                        {isProgramSubmitted(application) ? (
                             <>
                                 {application.admission === '-' ? (
                                     <>
@@ -272,9 +270,7 @@ export default function ApplicationProgressCard(
                                         })}
                                     </>
                                 ) : null}
-                                {isProgramAdmitted(
-                                    application as unknown as ApplicationProps
-                                ) ? (
+                                {isProgramAdmitted(application) ? (
                                     <>
                                         <IconButton>
                                             {FILE_OK_SYMBOL}
@@ -285,9 +281,7 @@ export default function ApplicationProgressCard(
                                         })}
                                     </>
                                 ) : null}
-                                {isProgramRejected(
-                                    application as ApplicationProps
-                                ) ? (
+                                {isProgramRejected(application) ? (
                                     <>
                                         <IconButton>
                                             {FILE_NOT_OK_SYMBOL}
@@ -322,7 +316,7 @@ export default function ApplicationProgressCard(
                     </Typography>
                     <Box sx={{ my: 1 }}>
                         <ApplicationLockControl
-                            application={application as unknown as IApplication}
+                            application={application}
                             onLockChange={() => {
                                 // Refresh application data if needed
                                 setApplication({ ...application });
@@ -337,7 +331,7 @@ export default function ApplicationProgressCard(
                     </Typography>
                     <Typography variant="body2">
                         <AdmissionLetterLink application={application} />
-                        {isProgramSubmitted(application as ApplicationProps) &&
+                        {isProgramSubmitted(application) &&
                         application.admission !== '-' &&
                         (!application.admission_letter?.status ||
                             application.admission_letter?.status !==
@@ -356,9 +350,7 @@ export default function ApplicationProgressCard(
                                 title="Undo"
                                 variant="contained"
                             >
-                                {isProgramAdmitted(
-                                    application as unknown as ApplicationProps
-                                )
+                                {isProgramAdmitted(application)
                                     ? i18next.t('upload-admission-letter', {
                                           ns: 'admissions'
                                       })
@@ -369,7 +361,7 @@ export default function ApplicationProgressCard(
                         ) : null}
                     </Typography>
                     {appConfig.interviewEnable &&
-                    isProgramSubmitted(application as ApplicationProps) &&
+                    isProgramSubmitted(application) &&
                     application.admission === '-' ? (
                         <>
                             {!application.interview_status ? (
@@ -477,7 +469,7 @@ export default function ApplicationProgressCard(
                             ) : null}
                         </>
                     ) : null}
-                    {isProgramSubmitted(application as ApplicationProps) ? (
+                    {isProgramSubmitted(application) ? (
                         application.admission === '-' ? (
                             <Typography>
                                 {i18next.t('Tell me about your result')} :{' '}
@@ -496,7 +488,7 @@ export default function ApplicationProgressCard(
                             </Button>
                         )
                     ) : null}
-                    {isProgramSubmitted(application as ApplicationProps) &&
+                    {isProgramSubmitted(application) &&
                     application.admission === '-' ? (
                         <Box sx={{ my: 1 }}>
                             <Button
@@ -529,26 +521,22 @@ export default function ApplicationProgressCard(
                             className="custom-progress-bar-container"
                             style={{ flex: 1, marginRight: '10px' }}
                             value={
-                                isProgramSubmitted(
-                                    application as ApplicationProps
-                                )
+                                isProgramSubmitted(application)
                                     ? 100
                                     : progressBarCounter(
                                           props.student,
-                                          application as ApplicationProps
+                                          application
                                       )
                             }
                             variant="determinate"
                         />
                         <span>
                             {`${
-                                isProgramSubmitted(
-                                    application as ApplicationProps
-                                )
+                                isProgramSubmitted(application)
                                     ? 100
                                     : progressBarCounter(
                                           props.student,
-                                          application as ApplicationProps
+                                          application
                                       )
                             }%`}
                         </span>

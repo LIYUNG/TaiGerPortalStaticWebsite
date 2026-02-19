@@ -1,4 +1,4 @@
-import { React, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Select,
@@ -14,7 +14,7 @@ import { convertDate } from '@utils/contants';
 import ModalNew from '@components/Modal';
 import ProgramCompare from './ProgramCompare';
 
-import { getProgramChangeRequests } from '@api/index';
+import { getProgramChangeRequests } from '@/api';
 
 export interface ProgramDiffModalProps {
     open: boolean;

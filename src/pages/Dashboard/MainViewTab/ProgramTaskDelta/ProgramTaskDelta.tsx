@@ -1,10 +1,16 @@
-import React from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import { Link, TableBody, TableCell, TableRow } from '@mui/material';
 
 import DEMO from '@store/constant';
+import { IProgramWithId } from '@/types/taiger-common';
+import { IStudentResponse } from '@/types/taiger-common';
 
-const ProgramTaskDelta = ({ program, students }) => {
+export interface ProgramTaskDeltaProps {
+    program: IProgramWithId;
+    students: IStudentResponse[];
+}
+
+const ProgramTaskDelta = ({ program, students }: ProgramTaskDeltaProps) => {
     return (
         students?.length !== 0 && (
             <TableBody>

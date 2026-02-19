@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useForm } from '@tanstack/react-form';
-import { addUser } from '@api';
+import { addUser } from '@/api';
 
 function parseGPA(value) {
     if (!value || typeof value !== 'string') {

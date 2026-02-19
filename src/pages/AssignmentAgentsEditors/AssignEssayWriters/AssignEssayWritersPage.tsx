@@ -13,7 +13,7 @@ import {
 import { useTranslation } from 'react-i18next';
 
 import ModalMain from '../../Utils/ModalHandler/ModalMain';
-import { updateEssayWriter } from '@api';
+import { updateEssayWriter } from '@/api';
 import NoWritersEssaysCard from '@pages/Dashboard/MainViewTab/NoWritersEssaysCard/NoWritersEssaysCard';
 import i18next from 'i18next';
 

@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { AuthProvider } from './index';
 
-vi.mock('@api/index', () => ({
+vi.mock('@/api', () => ({
     verify: vi.fn().mockResolvedValue({ data: { success: false } }),
     logout: vi.fn()
 }));

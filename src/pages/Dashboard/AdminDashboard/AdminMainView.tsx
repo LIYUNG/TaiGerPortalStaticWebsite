@@ -17,7 +17,7 @@ import MiniAudit from '../../Audit/MiniAudit';
 import { StudentsTable } from '../../StudentDatabase/StudentsTable';
 import { student_transform } from '../../Utils/util_functions';
 import { useQuery } from '@tanstack/react-query';
-import { getAuditLogQuery } from '@api/query';
+import { getAuditLogQuery } from '@/api/query';
 import { useTasksOverview } from '@hooks/useTasksOverview';
 import Loading from '@components/Loading/Loading';
 import { useStudentsV3 } from '@hooks/useStudentsV3';

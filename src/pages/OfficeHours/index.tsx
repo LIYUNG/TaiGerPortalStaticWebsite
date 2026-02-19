@@ -16,6 +16,7 @@ import {
     Link,
     MenuItem,
     Select,
+    SelectChangeEvent,
     Tab,
     Tabs,
     TextField,
@@ -599,7 +600,7 @@ const OfficeHours = () => {
                                     </InputLabel>
                                     <Select
                                         id="time_slot"
-                                        onChange={(e) =>
+                                        onChange={(e: SelectChangeEvent) =>
                                             handleUpdateTimeSlot(e)
                                         }
                                         size="small"
@@ -883,7 +884,9 @@ const OfficeHours = () => {
                                 </InputLabel>
                                 <Select
                                     id="time_slot"
-                                    onChange={(e) => handleUpdateTimeSlot(e)}
+                                    onChange={(e: SelectChangeEvent) =>
+                                        handleUpdateTimeSlot(e)
+                                    }
                                     readOnly={true}
                                     size="small"
                                     value={

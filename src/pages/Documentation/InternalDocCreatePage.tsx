@@ -33,7 +33,7 @@ import {
     getAllInternalDocumentations,
     createInternalDocumentation,
     deleteInternalDocumentation
-} from '@api';
+} from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import ModalMain from '../Utils/ModalHandler/ModalMain';

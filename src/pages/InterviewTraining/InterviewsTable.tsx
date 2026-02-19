@@ -7,7 +7,7 @@ import { getTableConfig, useTableStyles } from '@components/table';
 
 import { TopToolbar } from '@components/table/interviews-table/TopToolbar';
 import { AssignTrainerDialog } from './AssignTrainerDialog';
-import { getEssayWriters, updateInterview } from '@api';
+import { getEssayWriters, updateInterview } from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import { useAuth } from '@components/AuthProvider';
 import type { MRT_ColumnDef } from 'material-react-table';

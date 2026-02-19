@@ -22,7 +22,7 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 
 import ErrorPage from '../Utils/ErrorPage';
-import { getTeamMembersQuery } from '@api/query';
+import { getTeamMembersQuery } from '@/api/query';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { appConfig } from '../../config';

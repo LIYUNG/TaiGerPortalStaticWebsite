@@ -46,7 +46,7 @@ import {
     AGENT_SUPPORT_DOCUMENTS_A,
     FILE_TYPE_E
 } from '../../../Utils/util_functions';
-import { BASE_URL } from '@api/request';
+import { BASE_URL } from '@/api';
 import { TopBar } from '@components/TopBar/TopBar';
 import DescriptionBlock from './DescriptionBlock';
 import RequirementsBlock from './RequirementsBlock';

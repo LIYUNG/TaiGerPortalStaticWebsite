@@ -19,7 +19,8 @@ import { Link as LinkDom } from 'react-router-dom';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DownloadIcon from '@mui/icons-material/Download';
-import { DocumentStatusType, is_TaiGer_AdminAgent } from '@taiger-common/core';
+import { is_TaiGer_AdminAgent } from '@taiger-common/core';
+import { DocumentStatusType } from '@taiger-common/model';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import HelpIcon from '@mui/icons-material/Help';
 import { green, grey } from '@mui/material/colors';
@@ -28,17 +29,17 @@ import i18next from 'i18next';
 
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
-import { BASE_URL } from '@api/request';
+import { BASE_URL } from '@/api';
 import {
     deleteVPDFileV2,
     SetAsNotNeededV2,
     SetUniAssistPaidV2,
     uploadVPDforstudentV2
-} from '@api';
+} from '@/api';
 import { useMutation } from '@tanstack/react-query';
-import { queryClient } from '@api/client';
+import { queryClient } from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
-import type { Application, IStudentResponse } from '@api/types';
+import type { Application, IStudentResponse } from '@/api/types';
 
 export interface IconStatusProps {
     condition: boolean;
@@ -72,10 +73,10 @@ const ProgramName = ({ application }: ProgramNameProps) => {
         <Typography sx={{ mr: 2 }} variant="body1">
             <Link
                 component={LinkDom}
-                to={`${DEMO.SINGLE_PROGRAM_LINK(application.programId._id.toString())}`}
+                to={`${DEMO.SINGLE_PROGRAM_LINK(application.programId?._id?.toString()!)}`}
                 underline="hover"
             >
-                {`${application.programId.school} ${application.programId.program_name} - ${application.programId.semester} - ${application.programId.degree} - ${application.programId.uni_assist}`}
+                {`${application.programId?.school} ${application.programId?.program_name} - ${application.programId?.semester} - ${application.programId?.degree} - ${application.programId?.uni_assist}`}
             </Link>
         </Typography>
     );

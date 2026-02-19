@@ -10,21 +10,22 @@ import ModalMain from '../Utils/ModalHandler/ModalMain';
 import {
     getInternalDocumentationPage,
     updateInternalDocumentationPage
-} from '@api';
+} from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';
 import { useTranslation } from 'react-i18next';
+import { OutputData } from '@editorjs/editorjs';
 
-const InternaldocsPage = (props) => {
+const InternaldocsPage = (props: { item: string }) => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const [internalDocsPageState, setInternalDocsPageState] = useState({
         error: '',
         isLoaded: false,
         success: false,
-        editorState: null,
+        editorState: { time: 0, blocks: [] },
         isEdit: false,
         author: '',
         res_status: 0,
@@ -79,9 +80,9 @@ const InternaldocsPage = (props) => {
         }));
     };
     const handleClickSave = (
-        e: React.MouseEvent<HTMLElement>,
+        e: React.MouseEvent,
         doc_title: string,
-        editorState: unknown
+        editorState: OutputData
     ) => {
         e.preventDefault();
         const message = JSON.stringify(editorState);
@@ -175,22 +176,16 @@ const InternaldocsPage = (props) => {
             {internalDocsPageState.isEdit ? (
                 <DocPageEdit
                     category="category"
-                    document={document}
                     document_title={internalDocsPageState.document_title}
                     editorState={internalDocsPageState.editorState}
                     handleClickEditToggle={handleClickEditToggle}
                     handleClickSave={handleClickSave}
-                    isLoaded={isLoaded}
                 />
             ) : (
                 <DocPageView
                     author={internalDocsPageState.author}
-                    document={document}
-                    document_title={internalDocsPageState.document_title}
                     editorState={internalDocsPageState.editorState}
                     handleClickEditToggle={handleClickEditToggle}
-                    isLoaded={isLoaded}
-                    user={user}
                 />
             )}
         </>

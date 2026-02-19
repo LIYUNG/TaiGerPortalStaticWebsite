@@ -24,12 +24,12 @@ import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import LaunchIcon from '@mui/icons-material/Launch';
 import {
-    DocumentStatusType,
     is_TaiGer_Admin,
     is_TaiGer_AdminAgent,
     is_TaiGer_Editor,
     is_TaiGer_Student
 } from '@taiger-common/core';
+import { DocumentStatusType } from '@taiger-common/model';
 
 import OffcanvasBaseDocument from '@components/Offcanvas/OffcanvasBaseDocument';
 import {
@@ -43,7 +43,7 @@ import {
 } from '@utils/contants';
 import { useAuth } from '@components/AuthProvider';
 import FilePreview from '@components/FilePreview/FilePreview';
-import { BASE_URL } from '@api/request';
+import { BASE_URL } from '@/api';
 import {
     CommentsIconButton,
     DeleteIconButton,
@@ -58,8 +58,8 @@ import {
     deleteFileV2,
     updateProfileDocumentStatusV2,
     uploadforstudentV2
-} from '@api';
-import { queryClient } from '@api/client';
+} from '@/api';
+import { queryClient } from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import i18next from 'i18next';
 

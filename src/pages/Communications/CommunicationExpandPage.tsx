@@ -25,7 +25,7 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import { is_TaiGer_role } from '@taiger-common/core';
 
-import { WidgetExportMessagePDF } from '@api';
+import { WidgetExportMessagePDF } from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
@@ -39,7 +39,7 @@ import EmbeddedChatList from '@components/EmbeddedChatList';
 import { FetchStudentLayer } from '../StudentDatabase/FetchStudentLayer';
 import CommunicationExpandPageMessagesComponent from './CommunicationExpandPageMessagesComponent';
 import { truncateText } from '../Utils/util_functions';
-import { getCommunicationQuery } from '@api/query';
+import { getCommunicationQuery } from '@/api/query';
 import ChildLoading from '@components/Loading/ChildLoading';
 
 const StudentDetailModal = ({

@@ -32,8 +32,8 @@ import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
 
-import { getCRMDealsQuery } from '@api/query';
-import { updateCRMDeal } from '@api';
+import { getCRMDealsQuery } from '@/api/query';
+import { updateCRMDeal } from '@/api';
 import DealModal from '@pages/CRM/components/DealModal';
 import StatusMenu from '@pages/CRM/components/StatusMenu';
 

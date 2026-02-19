@@ -21,7 +21,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import { Link as LinkDom } from 'react-router-dom';
 import i18next from 'i18next';
 
-import { deleteKeywordSet, putKeywordSet } from '@api';
+import { deleteKeywordSet, putKeywordSet } from '@/api';
 import ExampleWithLocalizationProvider from '@components/MaterialReactTable';
 import { col_keywords } from '@utils/contants';
 import DEMO from '@store/constant';

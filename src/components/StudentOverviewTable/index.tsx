@@ -4,11 +4,11 @@ import { Link as LinkDom } from 'react-router-dom';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import HelpIcon from '@mui/icons-material/Help';
 import {
-    DocumentStatusType,
     isProgramDecided,
     isProgramSubmitted,
     ProfileNameType
 } from '@taiger-common/core';
+import { DocumentStatusType } from '@taiger-common/model';
 
 import { COLORS, FILE_MISSING_SYMBOL, FILE_OK_SYMBOL } from '@utils/contants';
 import { MuiDataGrid } from '../MuiDataGrid';
@@ -44,7 +44,7 @@ import {
 import DEMO from '@store/constant';
 import { green, grey } from '@mui/material/colors';
 import { useTranslation } from 'react-i18next';
-import type { IStudentResponse } from '@api/types';
+import type { IStudentResponse } from '@/api/types';
 
 export interface TransformedStudentRow {
     id: string;

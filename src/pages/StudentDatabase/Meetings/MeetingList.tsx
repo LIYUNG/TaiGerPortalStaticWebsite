@@ -1,6 +1,6 @@
 import { Box, Typography, Divider } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import type { MeetingResponse } from '@api/types';
+import type { MeetingResponse } from '@/api/types';
 import { MeetingCard } from './MeetingCard';
 
 export interface MeetingListProps {

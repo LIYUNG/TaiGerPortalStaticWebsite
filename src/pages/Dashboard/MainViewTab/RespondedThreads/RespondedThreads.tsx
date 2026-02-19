@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import { Link, TableCell, TableRow, Typography, Tooltip } from '@mui/material';
 import { isProgramDecided } from '@taiger-common/core';
@@ -8,8 +7,13 @@ import { useTranslation } from 'react-i18next';
 import DEMO from '@store/constant';
 import { convertDate } from '@utils/contants';
 import { calculateApplicationLockStatus } from '../../../Utils/util_functions';
+import { IStudentResponse } from '@/types/taiger-common';
 
-const RespondedThreads = (props) => {
+export interface RespondedThreadsProps {
+    student: IStudentResponse;
+}
+
+const RespondedThreads = ({ student }: RespondedThreadsProps) => {
     const { t } = useTranslation();
     const renderThreadLink = (content, url, locked) => {
         if (locked) {
@@ -47,18 +51,18 @@ const RespondedThreads = (props) => {
     let unread_applications_docthread;
 
     if (
-        props.student.applications === undefined ||
-        props.student.applications.length === 0
+        student.applications === undefined ||
+        student.applications.length === 0
     ) {
         unread_general_generaldocs = null;
         unread_applications_docthread = null;
     } else {
-        unread_general_generaldocs = props.student.generaldocs_threads.map(
+        unread_general_generaldocs = student.generaldocs_threads?.map(
             (generaldocs_threads, i) => (
                 <TableRow key={i}>
                     {!generaldocs_threads.isFinalVersion &&
                     generaldocs_threads.latest_message_left_by_id ===
-                        props.student._id.toString() ? (
+                        student._id.toString() ? (
                         <>
                             <TableCell>
                                 <Link
@@ -84,22 +88,22 @@ const RespondedThreads = (props) => {
             )
         );
 
-        unread_applications_docthread = props.student.applications.map(
+        unread_applications_docthread = student.applications.map(
             (application) =>
-                application.doc_modification_thread.map(
+                application.doc_modification_thread?.map(
                     (application_doc_thread, idx) => (
                         <TableRow key={idx}>
                             {!application_doc_thread.isFinalVersion &&
                             application_doc_thread.latest_message_left_by_id ===
-                                props.student._id.toString() &&
+                                student._id.toString() &&
                             isProgramDecided(application) ? (
                                 <>
                                     <TableCell>
                                         {renderThreadLink(
-                                            `${application_doc_thread.doc_thread_id.file_type} - ${application.programId.school} - ${application.programId.program_name}`,
+                                            `${application_doc_thread.doc_thread_id?.file_type} - ${application.programId?.school} - ${application.programId?.program_name}`,
                                             DEMO.DOCUMENT_MODIFICATION_LINK(
                                                 application_doc_thread
-                                                    .doc_thread_id._id
+                                                    .doc_thread_id?._id
                                             ),
                                             calculateApplicationLockStatus(
                                                 application

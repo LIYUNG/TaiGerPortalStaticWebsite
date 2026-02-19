@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { ChangeEvent, FormEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -19,7 +19,8 @@ import {
     Tooltip,
     IconButton
 } from '@mui/material';
-import { DIFFICULTY, is_TaiGer_Admin } from '@taiger-common/core';
+import { is_TaiGer_Admin } from '@taiger-common/core';
+import { DIFFICULTY, IProgram } from '@taiger-common/model';
 
 import SearchableMultiSelect from '@components/Input/searchableMuliselect';
 import {
@@ -37,13 +38,14 @@ import {
 } from '@utils/contants';
 import { appConfig } from '../../config';
 import { useAuth } from '@components/AuthProvider';
+import { IProgramWithId } from '@/api';
 
 export interface NewProgramEditProps {
     program?: Record<string, unknown> & { is_rl_specific?: boolean };
     programs?: { school?: string; [key: string]: unknown }[];
     type?: 'edit' | 'new';
     isSubmitting?: boolean;
-    handleSubmit_Program: (payload: Record<string, unknown>) => void;
+    handleSubmit_Program: (payload: IProgramWithId) => void;
     handleClick: () => void;
 }
 
@@ -52,14 +54,14 @@ const NewProgramEdit = (props: NewProgramEditProps) => {
     const { user } = useAuth();
     const [isChanged, setIsChanged] = useState(false);
     const initProgram = props.program || { is_rl_specific: false };
-    const [programChanges, setProgramChanges] = useState({});
-    const program = { ...initProgram, ...programChanges };
+    const [programChanges, setProgramChanges] = useState<Partial<IProgram>>({});
+    const program = { ...initProgram, ...programChanges } as IProgram;
     const [searchTerm, setSearchTerm] = useState('');
     const schoolName2Set = Array.from(
         new Set(props.programs?.map((program) => program.school))
     );
 
-    const handleChangeByField = (field) => (value) => {
+    const handleChangeByField = (field: keyof IProgram) => (value) => {
         const newState = { ...programChanges };
         if (value === initProgram[field] || (!initProgram[field] && !value)) {
             delete newState[field];
@@ -70,8 +72,8 @@ const NewProgramEdit = (props: NewProgramEditProps) => {
         setIsChanged(Object.keys(newState).length > 0 ? true : false);
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const key = e.target?.name;
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const key = e.target?.name as keyof IProgram;
         const value =
             e.target.type === 'checkbox'
                 ? e.target.checked
@@ -79,7 +81,7 @@ const NewProgramEdit = (props: NewProgramEditProps) => {
                   ? e.target.value.trimLeft()
                   : e.target.value;
 
-        const newState = { ...programChanges };
+        const newState = { ...programChanges } as Partial<IProgram>;
         if (value === initProgram[key] || (!initProgram[key] && !value)) {
             delete newState[key];
         } else {
@@ -93,9 +95,9 @@ const NewProgramEdit = (props: NewProgramEditProps) => {
     };
 
     const handleSubmit = (
-        e: React.FormEvent<HTMLFormElement>,
-        program: unknown,
-        programChanges: unknown
+        e: FormEvent<HTMLFormElement>,
+        program: IProgramWithId,
+        programChanges: Partial<IProgram>
     ) => {
         if (isProgramValid(program)) {
             e.preventDefault();
@@ -840,10 +842,9 @@ const NewProgramEdit = (props: NewProgramEditProps) => {
                             {t('RL Program specific?', { ns: 'common' })} *
                             <Tooltip
                                 arrow
-                                size="small"
                                 title="Mark YES, if the recommendation letter requirements are specific form, questionnaire, specific information needs to be included."
                             >
-                                <IconButton size="body1" sx={{ padding: 0 }}>
+                                <IconButton sx={{ padding: 0 }}>
                                     <InfoOutlinedIcon
                                         color="action"
                                         fontSize="small"
@@ -930,7 +931,6 @@ const NewProgramEdit = (props: NewProgramEditProps) => {
                             {t('Essay Difficulty', { ns: 'common' })}
                             <Tooltip
                                 arrow
-                                size="small"
                                 title={
                                     <div>
                                         <div>
@@ -944,7 +944,7 @@ const NewProgramEdit = (props: NewProgramEditProps) => {
                                     </div>
                                 }
                             >
-                                <IconButton size="body1" sx={{ padding: 0 }}>
+                                <IconButton sx={{ padding: 0 }}>
                                     <InfoOutlinedIcon
                                         color="action"
                                         fontSize="small"

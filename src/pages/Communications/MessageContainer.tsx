@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 
 import Message from './Message';
-import { updateAMessageInCommunicationThreadV2 } from '@api';
+import { updateAMessageInCommunicationThreadV2 } from '@/api';
 import MessageEdit from './MessageEdit';
 import { useAuth } from '@components/AuthProvider';
 import { useMutation } from '@tanstack/react-query';
-import { queryClient } from '@api/client';
+import { queryClient } from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import type { ThreadMessage } from '@components/Message/MessageCard';
 

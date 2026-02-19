@@ -36,9 +36,10 @@ import {
 } from '@mui/icons-material';
 
 import { is_TaiGer_role } from '@taiger-common/core';
-import { getCRMLeadQuery, getStudentQuery } from '@api/query';
-import { request } from '@api/request';
-import { updateCRMDeal } from '@api';
+import { getStudentQuery } from '@/api/query';
+import { useLead } from '@hooks/useLead';
+import { request } from '@/api';
+import { updateCRMDeal } from '@/api';
 
 import DEMO from '@store/constant';
 import { appConfig } from '../../config';
@@ -67,9 +68,7 @@ const LeadPage = () => {
     const { user } = useAuth();
     const queryClient = useQueryClient();
 
-    const leadQueryOptions = getCRMLeadQuery(leadId);
-    const { data, isLoading: leadLoading } = useQuery(leadQueryOptions);
-    const lead = data?.data?.data || {};
+    const { lead, isLoading: leadLoading } = useLead(leadId);
 
     TabTitle(`${t('common.lead', { ns: 'crm' })} - ${lead.fullName}`);
 
@@ -203,7 +202,7 @@ const LeadPage = () => {
         await updateLeadMutation.mutateAsync(changed);
         setLeadEditStates((p) => ({ ...p, [cardId]: false }));
     };
-    const handleFieldChange = (field, value) => {
+    const handleFieldChange = (field: string, value: string) => {
         setFormData((p) => ({ ...p, [field]: value }));
         form.setFieldValue(field, value);
     };
@@ -358,7 +357,7 @@ const LeadPage = () => {
                             >
                                 {(lead.fullName || '')
                                     .split(' ')
-                                    .map((n) => n?.[0])
+                                    .map((n: string) => n?.[0])
                                     .filter(Boolean)
                                     .slice(0, 2)
                                     .join('') ||
@@ -663,7 +662,7 @@ const LeadPage = () => {
                                             gap: 1
                                         }}
                                     >
-                                        {lead.deals.map((deal, idx) => {
+                                        {lead.deals.map((deal: any, idx: number) => {
                                             const id = getDealId(deal);
                                             const isUpdating =
                                                 updateStatusMutation.isPending &&

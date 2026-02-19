@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getProgramRequirementsQuery } from '@api/query';
+import { getProgramRequirementsQuery } from '@/api/query';
 import { ProgramRequirementsTable } from '@components/ProgramRequirementsTable/ProgramRequirementsTable';
 import { convertDateUXFriendly } from '@utils/contants';
 

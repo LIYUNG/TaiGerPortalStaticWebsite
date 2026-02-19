@@ -1,117 +1,71 @@
-import { render, waitFor } from '@testing-library/react';
-// import { userEvent } from '@testing-library/user-event';
+import { createElement, forwardRef } from 'react';
+import { render, screen } from '@testing-library/react';
+
 import ApplicantsOverview from '.';
-import {
-    getStudents,
-    getProgramTickets,
-    getStudentsV3,
-    getMyStudentsApplications
-} from '@api';
-import { useAuth } from '@components/AuthProvider/index';
-import { RouterProvider, createMemoryRouter } from 'react-router-dom';
-
+import { useAuth } from '@components/AuthProvider';
+import { useStudentsV3 } from '@hooks/useStudentsV3';
+import { useMyStudentsApplicationsV2 } from '@hooks/useMyStudentsApplicationsV2';
 import { mockSingleData } from '../../test/testingStudentData';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-vi.mock('axios');
-vi.mock('@api');
-vi.mock('@mui/x-charts/BarChart', () => ({
-    BarChart: vi.fn().mockImplementation(({ children }) => children)
+vi.mock('react-router-dom', () => ({
+    Navigate: () => null,
+    Link: forwardRef((props, ref) =>
+        createElement('a', {
+            href: props.to,
+            ref,
+            ...props
+        }, props.children)
+    )
 }));
-vi.mock('@mui/x-charts/ChartsAxis', () => ({
-    axisClasses: vi.fn().mockImplementation(({ children }) => children)
-}));
+
 vi.mock('@components/AuthProvider');
-const createTestQueryClient = () =>
-    new QueryClient({
-        defaultOptions: {
-            queries: {
-                retry: false // Disable retries for faster tests
-            }
-        }
-    });
+vi.mock('@hooks/useStudentsV3');
+vi.mock('@hooks/useMyStudentsApplicationsV2');
 
-const renderWithQueryClient = (ui) => {
-    const testQueryClient = createTestQueryClient();
-    return render(
-        <QueryClientProvider client={testQueryClient}>{ui}</QueryClientProvider>
-    );
+vi.mock('./ApplicationOverviewTabs', () => ({
+    default: () =>
+        createElement('div', {
+            'data-testid': 'application_overview_tabs'
+        })
+}));
+
+const mockAgentUser = {
+    role: 'Agent',
+    _id: '639baebf8b84944b872cf648',
+    firstname: 'Agent',
+    lastname: 'User'
 };
-class ResizeObserver {
-    observe() {}
-    disconnect() {}
-    unobserve() {}
-}
-
-const routes = [
-    {
-        path: '/student-applications',
-        element: <ApplicantsOverview />,
-        errorElement: <div>Error</div>,
-        loader: () => {
-            return { data: mockSingleData };
-        }
-    }
-];
 
 describe('ApplicantsOverview', () => {
-    window.ResizeObserver = ResizeObserver;
-    test('ApplicationsOverview not crash', async () => {
-        vi.mocked(getStudents).mockResolvedValue({ data: mockSingleData });
-        vi.mocked(getProgramTickets).mockResolvedValue({
-            status: 200,
-            statusText: 'OK',
-            headers: {},
-            config: {},
-            data: { success: true, data: [] }
-        });
-        vi.mocked(getStudentsV3).mockResolvedValue({ data: mockSingleData });
-        vi.mocked(getMyStudentsApplications).mockResolvedValue({
-            data: { applications: [] }
-        });
+    beforeEach(() => {
         vi.mocked(useAuth).mockReturnValue({
-            user: { role: 'Agent', _id: '639baebf8b84944b872cf648' }
-        });
-        const router = createMemoryRouter(routes, {
-            initialEntries: ['/student-applications']
-        });
-        renderWithQueryClient(<RouterProvider router={router} />);
-
-        await waitFor(() => {
-            // expect(
-            //     screen.getByTestId('application_overview_component')
-            // ).toHaveTextContent('Agents');
-            expect(1).toBe(1);
-        });
+            user: mockAgentUser,
+            isAuthenticated: true,
+            isLoaded: true,
+            login: vi.fn(),
+            logout: vi.fn()
+        } as never);
+        vi.mocked(useStudentsV3).mockReturnValue({
+            data: mockSingleData.data,
+            isLoading: false
+        } as never);
+        vi.mocked(useMyStudentsApplicationsV2).mockReturnValue({
+            data: { applications: [] },
+            isLoading: false
+        } as never);
     });
 
-    // test('ApplicationsOverview switching tabs not crash', async () => {
-    //     getStudents.mockResolvedValue({ data: mockSingleData });
-    //     getProgramTickets.mockResolvedValue({
-    //         data: { success: true, data: [] }
-    //     });
-    //     useAuth.mockReturnValue({
-    //         user: { role: 'Agent', _id: '639baebf8b84944b872cf648' }
-    //     });
-    //     const router = createMemoryRouter(routes, {
-    //         initialEntries: ['/student-applications']
-    //     });
-    //     renderWithQueryClient(<RouterProvider router={router} />);
+    it('renders without crashing', () => {
+        render(<ApplicantsOverview />);
+        expect(
+            screen.getByTestId('application_overview_component')
+        ).toBeInTheDocument();
+    });
 
-    //     await waitFor(() => {});
-    //     const buttonElement = screen.getByTestId(
-    //         'application_overview_component_application_overview_tab'
-    //     );
-    //     userEvent.click(buttonElement);
-    //     // TODO
-    //     await waitFor(() => {
-    //         // expect(screen.getByTestId('custom_tab_panel-1')).not.toHaveTextContent(
-    //         //   'Weihenstephan-Triesdorf University of Applied Sciences'
-    //         // );
-    //         // expect(screen.getByTestId('custom_tab_panel')).toHaveTextContent(
-    //         //   'Technische Universi'
-    //         // );
-    //         expect(1).toBe(1);
-    //     });
-    // });
+    it('renders ApplicationOverviewTabs when not loading', () => {
+        render(<ApplicantsOverview />);
+        expect(
+            screen.getByTestId('application_overview_tabs')
+        ).toBeInTheDocument();
+    });
 });

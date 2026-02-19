@@ -36,9 +36,9 @@ import { is_TaiGer_Admin, is_TaiGer_role, Role } from '@taiger-common/core';
 import i18next from 'i18next';
 
 import ErrorPage from '../Utils/ErrorPage';
-import { updateUserPermission } from '@api';
-import { getTeamMembersQuery } from '@api/query';
-import { queryClient } from '@api/client';
+import { updateUserPermission } from '@/api';
+import { getTeamMembersQuery } from '@/api/query';
+import { queryClient } from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import GrantPermissionModal from './GrantPermissionModal';

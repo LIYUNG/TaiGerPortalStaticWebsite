@@ -6,8 +6,8 @@ import { useTranslation } from 'react-i18next';
 import { Link as LinkDom } from '@mui/material';
 
 import DEMO from '@store/constant';
-import { BASE_URL } from '@api/request';
-import { getAdmissionsQuery } from '@api/query';
+import { BASE_URL } from '@/api';
+import { getAdmissionsQuery } from '@/api/query';
 import { MuiDataGrid } from '@components/MuiDataGrid';
 
 export default function AdmissionTable({ query }) {

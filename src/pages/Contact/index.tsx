@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link as LinkDom, Navigate, useLoaderData } from 'react-router-dom';
 import {
     Box,

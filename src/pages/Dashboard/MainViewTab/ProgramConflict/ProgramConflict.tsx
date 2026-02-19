@@ -1,10 +1,16 @@
-import React from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import { Link, TableBody, TableCell, TableRow } from '@mui/material';
 
 import DEMO from '@store/constant';
+import { IStudentResponse } from '@/types/taiger-common';
+import { IProgramWithId } from '@/types/taiger-common';
 
-const ProgramConflict = ({ students, program }) => {
+export interface ProgramConflictProps {
+    students: IStudentResponse[];
+    program: IProgramWithId;
+}
+
+const ProgramConflict = ({ students, program }: ProgramConflictProps) => {
     return (
         <TableBody>
             <TableRow>

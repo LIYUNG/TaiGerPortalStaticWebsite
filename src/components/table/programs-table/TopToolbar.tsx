@@ -12,7 +12,7 @@ import {
     MRT_ToggleFiltersButton as MRTToggleFiltersButton
 } from 'material-react-table';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import { PROGRAM_SUBJECTS, SCHOOL_TAGS } from '@taiger-common/core';
+import { PROGRAM_SUBJECTS, SCHOOL_TAGS } from '@taiger-common/model';
 
 import DEMO from '@store/constant';
 import { useTranslation } from 'react-i18next';

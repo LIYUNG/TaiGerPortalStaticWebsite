@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 
 import NotesEditor from './NotesEditor';
-import { updateStudentNotes } from '@api';
+import { updateStudentNotes } from '@/api';
+import { OutputData } from '@editorjs/editorjs';
 
 interface NotesCardState {
-    editorState: unknown;
+    editorState: OutputData;
     isLoaded: boolean;
     buttonDisabled: boolean;
     thread?: unknown;
@@ -95,8 +96,6 @@ const NotesCard = (props: NotesCardProps) => {
             handleClickSave={handleClickSave}
             handleEditorChange={handleEditorChange}
             notes_id={`notes-${props.student_id}`}
-            thread={notesCardState.thread}
-            unique_id={props.student_id}
         />
     );
 };

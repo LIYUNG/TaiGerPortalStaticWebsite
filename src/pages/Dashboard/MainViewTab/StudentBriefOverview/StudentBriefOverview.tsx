@@ -33,7 +33,7 @@ import { useAuth } from '@components/AuthProvider';
 import EditAttributesSubpage from '../StudDocsOverview/EditAttributesSubpage';
 import { COLORS, stringAvatar } from '@utils/contants';
 import { useDialog } from '@hooks/useDialog';
-import { updateAgents, updateAttributes, updateEditors } from '@api';
+import { updateAgents, updateAttributes, updateEditors } from '@/api';
 
 const TaiGerUsersAvartar = ({ users, link }) => {
     return (

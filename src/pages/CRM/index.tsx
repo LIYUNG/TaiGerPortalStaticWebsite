@@ -21,7 +21,7 @@ import Loading from '@components/Loading/Loading';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
 import { is_TaiGer_role } from '@taiger-common/core';
-import { getCRMStatsQuery } from '@api/query';
+import { getCRMStatsQuery } from '@/api/query';
 
 const CRMDashboard = () => {
     const { t } = useTranslation();

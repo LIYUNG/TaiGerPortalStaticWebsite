@@ -4,27 +4,27 @@ import { isProgramDecided } from '@taiger-common/core';
 
 import { check_student_needs_uni_assist } from '../Utils/util_functions';
 import { UniAssistProgramBlock } from './UniAssistProgramBlock';
-import type { IStudentResponse } from '@api/types';
+import type { IStudentResponse } from '@/api/types';
 
 export interface UniAssistListCardProps {
     student: IStudentResponse;
 }
 
-const UniAssistListCard = (props: UniAssistListCardProps) => {
+const UniAssistListCard = ({ student }: UniAssistListCardProps) => {
     const { t } = useTranslation();
 
-    const app_name = props.student.applications
-        .filter((application) => isProgramDecided(application))
+    const app_name = student.applications
+        ?.filter((application) => isProgramDecided(application))
         .map((application, i) => (
             <Box key={i} sx={{ mb: 2 }}>
                 <UniAssistProgramBlock
                     application={application}
-                    student={props.student}
+                    student={student}
                 />
             </Box>
         ));
 
-    return check_student_needs_uni_assist(props.student) ? (
+    return check_student_needs_uni_assist(student) ? (
         <Card sx={{ padding: 2 }}>
             <Typography>
                 {t(

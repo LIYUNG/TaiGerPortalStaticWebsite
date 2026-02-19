@@ -15,15 +15,25 @@ import {
     FormControl,
     FormGroup
 } from '@mui/material';
-import { useState } from 'react';
+import { MouseEvent, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
-import { createApplicationV2 } from '@api';
+import { createApplicationV2 } from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import { useAuth } from '@components/AuthProvider';
 import { is_TaiGer_Editor, is_TaiGer_Agent } from '@taiger-common/core';
 import { useStudentsV3 } from '@hooks/useStudentsV3';
+import { IProgram } from '@taiger-common/model';
+import { IStudentResponse } from '@/types/taiger-common';
+
+export interface AssignProgramsToStudentDialogProps {
+    open: boolean;
+    onClose: () => void;
+    programs: IProgram[];
+    handleOnSuccess: () => void;
+    student: IStudentResponse;
+}
 
 export const AssignProgramsToStudentDialog = ({
     open,
@@ -31,7 +41,7 @@ export const AssignProgramsToStudentDialog = ({
     programs,
     handleOnSuccess,
     student
-}) => {
+}: AssignProgramsToStudentDialogProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const [showMyStudentsOnly, setShowMyStudentsOnly] = useState(true);
@@ -86,7 +96,7 @@ export const AssignProgramsToStudentDialog = ({
         setStudentId(value);
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = (e: MouseEvent<HTMLButtonElement>) => {
         const program_ids = programs?.map(({ _id }) => _id);
         mutate({ studentId, program_ids });
     };
@@ -168,7 +178,9 @@ export const AssignProgramsToStudentDialog = ({
                 <Button
                     color="primary"
                     disabled={isPending || studentId === ''}
-                    onClick={(e) => handleSubmit(e)}
+                    onClick={(e: MouseEvent<HTMLButtonElement>) =>
+                        handleSubmit(e)
+                    }
                     variant="contained"
                 >
                     {isPending ? (

@@ -8,15 +8,15 @@ import {
 } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 
-import { deleteProgramV2, processProgramList, refreshProgram } from '@api';
-import type { GetProgramResponse } from '@api/types';
+import { deleteProgramV2, processProgramList, refreshProgram } from '@/api';
+import type { GetProgramResponse } from '@/api/types';
 import SingleProgramView from './SingleProgramView';
 import ProgramDeleteWarning from './ProgramDeleteWarning';
 import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';
 import ProgramDiffModal from './ProgramDiffModal';
 import { AssignProgramsToStudentDialog } from './AssignProgramsToStudentDialog';
-import { queryClient } from '@api/client';
+import { queryClient } from '@/api';
 import DEMO from '@store/constant';
 import { useSnackBar } from '@contexts/use-snack-bar';
 

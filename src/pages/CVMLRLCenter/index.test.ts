@@ -1,14 +1,14 @@
 // import React from 'react';
 // import { render, screen, waitFor } from '@testing-library/react';
 // import CVMLRLCenter from '.';
-// import { getMyStudentsThreads } from '@api';
+// import { getMyStudentsThreads } from '@/api';
 // import { useAuth } from '@components/AuthProvider/index';
 // import { RouterProvider, createMemoryRouter } from 'react-router-dom';
 
 // import { mockSingleStudentCVMLRLFormatData } from '../../test/testingStudentDataCVMLRLCenter';
 
 vi.mock('axios');
-vi.mock('@api');
+vi.mock('@/api');
 vi.mock('@components/AuthProvider');
 
 class ResizeObserver {

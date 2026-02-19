@@ -10,10 +10,12 @@ import {
     Box
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { DocumentStatusType, is_TaiGer_Admin } from '@taiger-common/core';
+import { is_TaiGer_Admin } from '@taiger-common/core';
+import { DocumentStatusType } from '@taiger-common/model';
+
 import i18next from 'i18next';
 
-import { BASE_URL } from '@api/request';
+import { BASE_URL } from '@/api';
 import { templatelist } from '@utils/contants';
 
 const EditDownloadFiles = (props) => {

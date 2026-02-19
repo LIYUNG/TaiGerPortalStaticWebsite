@@ -4,7 +4,7 @@ import {
     waitFor
 } from '@testing-library/react';
 // import MyCourses from './index';
-import { getMycourses } from '@api';
+import { getMycourses } from '@/api';
 // import { useAuth } from '@components/AuthProvider';
 // import { MemoryRouter, useParams } from 'react-router-dom';
 
@@ -12,7 +12,7 @@ import { exampleCourse } from '../../test/testingCourseData';
 // import { SnackBarProvider } from '@contexts/use-snack-bar';
 
 vi.mock('axios');
-vi.mock('@api');
+vi.mock('@/api');
 vi.mock('react-router-dom', async (importOriginal) => ({
     ...(await importOriginal<typeof import('react-router-dom')>()),
     useParams: vi.fn()

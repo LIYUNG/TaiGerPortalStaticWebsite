@@ -35,7 +35,7 @@ import {
     convertDateUXFriendly,
     APP_BAR_HEIGHT
 } from '@utils/contants';
-import { getMyStudentThreadMetrics, getThreadsByStudent } from '@api';
+import { getMyStudentThreadMetrics, getThreadsByStudent } from '@/api';
 import { EmbeddedThreadComponent } from './EmbeddedThreadComponent';
 import ChildLoading from '@components/Loading/ChildLoading';
 import { APPROVAL_COUNTRIES } from '../../../Utils/util_functions';

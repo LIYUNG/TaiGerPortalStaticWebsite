@@ -1,5 +1,5 @@
 import type { AxiosInstance } from 'axios';
-import type { ApplicationProps } from '@taiger-common/core';
+import type { IUser, IApplication } from '@taiger-common/model';
 
 /** Program reference as nested in Application */
 export interface ApplicationProgramId {
@@ -17,7 +17,7 @@ export interface ApplicationProgramId {
 /** Application object as returned by API / used in student.applications.
  * decided, closed, admission are optional so API responses that omit them still match. */
 export type Application = Omit<
-    ApplicationProps,
+    IApplication,
     'decided' | 'closed' | 'admission'
 > & {
     decided?: string;
@@ -27,7 +27,7 @@ export type Application = Omit<
     programId?: IProgramWithId;
     application_year?: unknown;
     doc_modification_thread?: unknown[];
-    uni_assist?: { status?: string; vpd_file_path?: string; isPaid?: boolean };
+    uni_assist?: { status?: string; vpd_file_path?: string; vpd_paid_confirmation_file_path?: string; isPaid?: boolean };
     isLocked?: boolean;
     admission_letter?: { status?: string; admission_file_path?: string };
     interview_id?: string;
@@ -42,19 +42,11 @@ export interface ApiResponse<T = unknown> {
     message?: string;
 }
 
-/** Auth verify response data shape */
-export interface AuthUserData {
-    _id?: string;
-    email?: string;
-    role?: string;
-    firstname?: string;
-    lastname?: string;
-    [key: string]: unknown;
-}
+
 
 export interface AuthVerifyResponse {
     success: boolean;
-    data?: AuthUserData;
+    data?: IUser;
 }
 
 /** Typed request helpers - use generic getData<T>(url) for typed responses */
@@ -64,7 +56,7 @@ export type RequestInstance = AxiosInstance;
 export interface AuthUserdataState {
     error: unknown;
     success: boolean;
-    data: AuthUserData | null;
+    data: IUserWithId;
     isLoaded: boolean;
     res_modal_message: string;
     res_modal_status: number;
@@ -72,10 +64,10 @@ export interface AuthUserdataState {
 
 /** Auth context value (used by useAuth) */
 export interface AuthContextValue {
-    user: AuthUserData | null;
+    user: IUser;
     isAuthenticated: boolean;
     isLoaded: boolean;
-    login: (data: AuthUserData) => void;
+    login: (data: IUser) => void;
     logout: () => void;
 }
 
@@ -209,7 +201,7 @@ export interface InterviewResponse {
 /** Document thread response */
 export interface DocumentThreadResponse {
     _id: string;
-    student_id?: string | IStudentResponse;
+    student_id?: string & IStudentResponse;
     application_id?: string;
     doc_thread_id: IDocumentthread;
     user_id?: string;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link as LinkDom, useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -15,11 +15,12 @@ import {
 } from '@mui/material';
 
 import ProgramCompare from './ProgramCompare';
-import { getProgramChangeRequests, getProgram } from '@api/index';
+import { getProgramChangeRequests, getProgram } from '@/api';
 
 import { appConfig } from '../../config';
 import DEMO from '@store/constant';
 import { convertDate } from '@utils/contants';
+import { IProgram } from '@taiger-common/model/dist/types/model/Program';
 
 export interface ProgramChangeRequestBreadcrumbProgram {
     _id: string | number;
@@ -69,12 +70,12 @@ const CustomBreadcrumbs = ({ program }: CustomBreadcrumbsProps) => {
 const ProgramChangeRequestPage = () => {
     const navigate = useNavigate();
     const { programId } = useParams();
-    const [originalProgram, setOriginalProgram] = useState({});
+    const [originalProgram, setOriginalProgram] = useState<IProgram>();
     const [incomingChanges, setIncomingChanges] = useState([]);
     const [changeIndex, setChangeIndex] = useState(0);
 
     // remove the request from the list after submission
-    const removeRequestFn = (requestId) => {
+    const removeRequestFn = (requestId: string) => {
         if (!requestId) return;
         const callbackFn = () => {
             setIncomingChanges((prev) => {

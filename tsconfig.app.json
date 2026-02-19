@@ -3,13 +3,13 @@
         "baseUrl": ".",
         "paths": {
             "@/*": ["src/*"],
-            "@api/*": ["src/api/*"],
+            "@api": ["src/api/*"],
             "@components/*": ["src/components/*"],
             "@contexts/*": ["src/contexts/*"],
             "@utils/*": ["src/utils/*"],
             "@hooks/*": ["src/hooks/*"],
             "@pages/*": ["src/pages/*"],
-            "@store/*": ["src/store/*"],
+            "@store/*": ["src/store/*"]
         },
         "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
         "target": "ES2022",

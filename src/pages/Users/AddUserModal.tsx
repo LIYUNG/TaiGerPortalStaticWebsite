@@ -9,6 +9,7 @@ import {
     InputLabel,
     MenuItem,
     Select,
+    SelectChangeEvent,
     TextField
 } from '@mui/material';
 import i18next from 'i18next';
@@ -70,7 +71,9 @@ const AddUserModal = (props: AddUserModalProps) => {
                     fullWidth
                     label={i18next.t('First Name (English)')}
                     name="firstname"
-                    onChange={(e) => handleChange(e)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                        handleChange(e)
+                    }
                     placeholder="Shiao-Ming"
                     required
                     sx={{ mb: 2 }}
@@ -80,7 +83,9 @@ const AddUserModal = (props: AddUserModalProps) => {
                     fullWidth
                     label={i18next.t('Last Name (English)')}
                     name="lastname"
-                    onChange={(e) => handleChange(e)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                        handleChange(e)
+                    }
                     placeholder="Chen"
                     required
                     sx={{ mb: 2 }}
@@ -90,7 +95,9 @@ const AddUserModal = (props: AddUserModalProps) => {
                     fullWidth
                     label={i18next.t('名 (中文)')}
                     name="firstname_chinese"
-                    onChange={(e) => handleChange(e)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                        handleChange(e)
+                    }
                     placeholder="小明"
                     required
                     sx={{ mb: 2 }}
@@ -100,7 +107,9 @@ const AddUserModal = (props: AddUserModalProps) => {
                     fullWidth
                     label={i18next.t('姓 (中文)')}
                     name="lastname_chinese"
-                    onChange={(e) => handleChange(e)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                        handleChange(e)
+                    }
                     placeholder="陳"
                     required
                     sx={{ mb: 2 }}
@@ -113,7 +122,9 @@ const AddUserModal = (props: AddUserModalProps) => {
                         label={i18next.t('Role')}
                         labelId="Role"
                         name="role"
-                        onChange={(e) => handleChange(e)}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                            handleChange(e)
+                        }
                         value={
                             addUserModal.user_information?.role || Role.Student
                         }
@@ -142,7 +153,9 @@ const AddUserModal = (props: AddUserModalProps) => {
                             label={i18next.t('Application Count')}
                             labelId="Application Count"
                             name="applying_program_count"
-                            onChange={(e) => handleChange(e)}
+                            onChange={(e: SelectChangeEvent<string>) =>
+                                handleChange(e as ChangeEvent<HTMLInputElement>)
+                            }
                             value={
                                 addUserModal.user_information
                                     ?.applying_program_count || '0'
@@ -168,7 +181,9 @@ const AddUserModal = (props: AddUserModalProps) => {
                     fullWidth
                     label={i18next.t('Email Address')}
                     name="email"
-                    onChange={(e) => handleChange(e)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                        handleChange(e)
+                    }
                     placeholder="chung.ming.wang@gmail.com"
                     required
                     sx={{ mb: 2 }}

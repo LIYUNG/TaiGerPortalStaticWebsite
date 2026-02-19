@@ -9,7 +9,7 @@ import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
 import { usePrograms } from '@hooks/usePrograms';
 import { ProgramsTable } from './ProgramsTable';
-import type { IStudentResponse } from '@api/types';
+import type { IStudentResponse } from '@/api/types';
 
 export interface ProgramListProps {
     student?: IStudentResponse | null;

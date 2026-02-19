@@ -6,7 +6,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { CustomTabPanel, a11yProps } from '@components/Tabs';
 import { useTranslation } from 'react-i18next';
 import AdmissionTable from './AdmissionTable';
-import { getAdmissionsOverviewQuery } from '@api/query';
+import { getAdmissionsOverviewQuery } from '@/api/query';
 
 /** Reserved for future props */
 export type AdmissionsTablesProps = object;

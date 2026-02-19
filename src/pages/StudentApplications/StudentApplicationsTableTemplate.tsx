@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { MouseEvent, useState, ChangeEvent, FormEvent } from 'react';
 import {
     Box,
     Breadcrumbs,
@@ -42,7 +42,7 @@ import {
     isProgramWithdraw,
     isProgramAdmitted
 } from '@taiger-common/core';
-import type { Application } from '@api/types';
+import type { Application } from '@/api/types';
 import { differenceInDays } from 'date-fns';
 
 import {
@@ -67,8 +67,8 @@ import {
     updateStudentApplications,
     deleteApplicationStudentV2,
     updateStudentApplication
-} from '@api';
-import { queryClient } from '@api/client';
+} from '@/api';
+import { queryClient } from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { appConfig } from '../../config';
@@ -134,9 +134,7 @@ const StudentApplicationsTableTemplate = (
         res_modal_message: ''
     });
 
-    const handleChangeProgramCount = (
-        e: React.ChangeEvent<HTMLInputElement>
-    ) => {
+    const handleChangeProgramCount = (e: ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
         const applying_program_count = e.target.value;
         setDraft((prev) => ({
@@ -146,7 +144,7 @@ const StudentApplicationsTableTemplate = (
     };
 
     const handleChange = (
-        e: React.ChangeEvent<HTMLInputElement>,
+        e: ChangeEvent<HTMLInputElement>,
         application_idx: number
     ) => {
         e.preventDefault();
@@ -163,7 +161,7 @@ const StudentApplicationsTableTemplate = (
     };
 
     const handleSingleChange = (
-        e: React.ChangeEvent<HTMLInputElement>,
+        e: ChangeEvent<HTMLInputElement>,
         application_id: string
     ) => {
         e.preventDefault();
@@ -189,7 +187,7 @@ const StudentApplicationsTableTemplate = (
     };
 
     const handleDelete = (
-        e: React.MouseEvent<HTMLElement>,
+        e: MouseEvent<HTMLElement>,
         application_id: string,
         student_id: string
     ) => {
@@ -203,7 +201,7 @@ const StudentApplicationsTableTemplate = (
     };
 
     const handleEdit = (
-        e: React.MouseEvent<HTMLElement>,
+        e: MouseEvent<HTMLButtonElement>,
         application_id: string,
         application_year: number,
         student_id: string
@@ -223,7 +221,7 @@ const StudentApplicationsTableTemplate = (
             modalEditApplication: false
         }));
     };
-    const handleEditConfirm = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleEditConfirm = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const payload = {
             application_year:
@@ -269,7 +267,7 @@ const StudentApplicationsTableTemplate = (
         }));
     };
 
-    const handleDeleteConfirm = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleDeleteConfirm = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setStudentApplicationsTableTemplateState((prevState) => ({
             ...prevState,
@@ -331,7 +329,7 @@ const StudentApplicationsTableTemplate = (
     };
 
     const handleSubmit = (
-        e: React.FormEvent<HTMLFormElement>,
+        e: FormEvent<HTMLFormElement>,
         student_id: string
     ) => {
         e.preventDefault();
@@ -494,11 +492,13 @@ const StudentApplicationsTableTemplate = (
                             <Stack direction="row" spacing={1}>
                                 <IconButton
                                     color="primary"
-                                    onClick={(e) =>
+                                    onClick={(
+                                        e: MouseEvent<HTMLButtonElement>
+                                    ) =>
                                         handleDelete(
                                             e,
-                                            application._id,
-                                            studentToShow._id
+                                            application._id as string,
+                                            studentToShow._id as string
                                         )
                                     }
                                     variant="contained"
@@ -507,12 +507,14 @@ const StudentApplicationsTableTemplate = (
                                 </IconButton>
                                 <IconButton
                                     color="secondary"
-                                    onClick={(e) =>
+                                    onClick={(
+                                        e: MouseEvent<HTMLButtonElement>
+                                    ) =>
                                         handleEdit(
                                             e,
-                                            application._id,
+                                            application._id as string,
                                             application.application_year,
-                                            studentToShow._id
+                                            studentToShow._id as string
                                         )
                                     }
                                     variant="contained"

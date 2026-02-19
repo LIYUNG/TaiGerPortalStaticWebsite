@@ -41,7 +41,6 @@ interface CalendarEvent {
     };
 }
 
-/** Compatible with AuthUserData and UserProps (role from @taiger-common/core) */
 interface UserWithAgents {
     _id?: string | { toString: () => string };
     firstname?: string;
@@ -122,7 +121,7 @@ const Popping = ({
                                 name="Agent"
                                 onChange={handleChangeReceiver}
                                 value={
-                                    user && is_TaiGer_Student(user as UserProps)
+                                    user && is_TaiGer_Student(user)
                                         ? user.agents && user.agents.length > 0
                                             ? newReceiver
                                             : ''

@@ -48,8 +48,8 @@ import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
 
-import { getCRMMeetingsQuery, getCRMLeadsQuery } from '@api/query';
-import { updateCRMMeeting, instantInviteTA } from '@api';
+import { getCRMMeetingsQuery, getCRMLeadsQuery } from '@/api/query';
+import { updateCRMMeeting, instantInviteTA } from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
 
 import { sanitizeMeetingTitle } from '@pages/CRM/components/meetingUtils';
@@ -62,7 +62,9 @@ const MeetingPage = () => {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const [assignMenuAnchor, setAssignMenuAnchor] = useState(null);
-    const [selectedMeetingId, setSelectedMeetingId] = useState(null);
+    const [selectedMeetingId, setSelectedMeetingId] = useState<string | null>(
+        null
+    );
     const [searchTerm, setSearchTerm] = useState('');
     const [activeTab, setActiveTab] = useState(0);
     const [pagination, setPagination] = useState({
@@ -161,7 +163,7 @@ const MeetingPage = () => {
         }
     };
 
-    const handleAssignClick = (event, meetingId) => {
+    const handleAssignClick = (event, meetingId: string) => {
         event.stopPropagation();
         event.preventDefault();
 
@@ -177,7 +179,7 @@ const MeetingPage = () => {
         setSearchTerm(''); // Reset search when opening
     };
 
-    const handleLeadSelect = async (leadId) => {
+    const handleLeadSelect = async (leadId: string) => {
         if (selectedMeetingId) {
             // Optimistic update for lead assignment
             queryClient.setQueryData(['crm/meetings'], (oldData) => {

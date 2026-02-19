@@ -68,7 +68,7 @@ import { appConfig } from '../../config';
 import { a11yProps, CustomTabPanel } from '@components/Tabs';
 import { CreateNewEventModal } from '@components/Calendar/components/CreateNewEventModal';
 import useCalendarEvents from '@hooks/useCalendarEvents';
-import { updateOfficehours } from '@api';
+import { updateOfficehours } from '@/api';
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;

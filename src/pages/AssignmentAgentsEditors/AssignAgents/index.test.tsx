@@ -1,109 +1,60 @@
-import { render, waitFor } from '@testing-library/react';
+import { createElement } from 'react';
+import { render, screen } from '@testing-library/react';
+
 import AssignAgents from './index';
-import { getProgramTickets, getStudentsV3 } from '@api';
-import { useAuth } from '@components/AuthProvider/index';
-import { createMemoryRouter } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
+import { useAuth } from '@components/AuthProvider';
 import { mockTwoNoAgentNoStudentsData } from '../../../test/testingNoAgentNoEditorStudentData';
-import { RouterProvider } from 'react-router-dom';
 
-vi.mock('axios');
-vi.mock('@api');
+vi.mock('react-router-dom', () => ({
+    Navigate: () => null
+}));
+
 vi.mock('@components/AuthProvider');
 
-const createTestQueryClient = () =>
-    new QueryClient({
-        defaultOptions: {
-            queries: {
-                retry: false // Disable retries for faster tests
-            }
-        }
-    });
+vi.mock('@hooks/useStudentsV3', () => ({
+    useStudentsV3: () => ({
+        data: mockTwoNoAgentNoStudentsData.data
+    })
+}));
 
-const routes = [
-    {
-        path: '/assignment/agents',
-        element: <AssignAgents />,
-        errorElement: <div>Error</div>,
-        loader: () => {
-            return { data: mockTwoNoAgentNoStudentsData };
-        }
-    }
-];
+vi.mock('@hooks/useStudents', () => ({
+    __esModule: true,
+    default: (props: { students?: unknown[] }) => ({
+        students: props.students ?? [],
+        res_modal_message: '',
+        res_modal_status: 0,
+        submitUpdateAgentlist: vi.fn(),
+        ConfirmError: vi.fn()
+    })
+}));
+
+vi.mock('./AssignAgentsPage', () => ({
+    default: () =>
+        createElement('div', { 'data-testid': 'assign-agents-page' })
+}));
+
+vi.mock('../../Utils/ModalHandler/ModalMain', () => ({
+    default: () => null
+}));
 
 describe('Admin AssignAgents', () => {
-    test('admin assign agent not crash', async () => {
-        vi.mocked(getProgramTickets).mockResolvedValue({
-            data: { success: true, data: [] }
-        });
-        vi.mocked(getStudentsV3).mockResolvedValue({
-            data: { success: true, data: mockTwoNoAgentNoStudentsData }
-        });
+    beforeEach(() => {
         vi.mocked(useAuth).mockReturnValue({
-            user: { role: 'Admin', _id: '609c498ae2f954388837d2f9' }
-        });
-
-        const testQueryClient = createTestQueryClient();
-        const router = createMemoryRouter(routes, {
-            initialEntries: ['/assignment/agents']
-        });
-        render(
-            <QueryClientProvider client={testQueryClient}>
-                <RouterProvider router={router} />
-            </QueryClientProvider>
-        );
-
-        // Example
-        // const buttonElement = screen.getByRole('button');
-        // userEvent.click(buttonElement);
-        // const outputElement = screen.getByText('good to see you', { exact: false });
-        // expect(outputElement).toBeInTheDocument(1);
-
-        await waitFor(() => {
-            // TODO
-            //  expect(screen.getByTestId('assignment_agents')).toHaveTextContent(
-            //     'No Agents Students'
-            // );
-            expect(1).toBe(1);
-        });
+            user: { role: 'Admin', _id: '609c498ae2f954388837d2f9' },
+            isAuthenticated: true,
+            isLoaded: true,
+            login: vi.fn(),
+            logout: vi.fn()
+        } as never);
     });
 
-    test('students rendered correctly', async () => {
-        vi.mocked(getProgramTickets).mockResolvedValue({
-            data: { success: true, data: [] }
-        });
-        vi.mocked(getStudentsV3).mockResolvedValue({
-            data: { success: true, data: mockTwoNoAgentNoStudentsData }
-        });
-        vi.mocked(useAuth).mockReturnValue({
-            user: { role: 'Admin', _id: '609c498ae2f954388837d2f9' }
-        });
+    it('renders without crashing', () => {
+        render(<AssignAgents />);
+        expect(screen.getByTestId('assignment_agents')).toBeInTheDocument();
+    });
 
-        const testQueryClient = createTestQueryClient();
-        const router = createMemoryRouter(routes, {
-            initialEntries: ['/assignment/agents']
-        });
-        render(
-            <QueryClientProvider client={testQueryClient}>
-                <RouterProvider router={router} />
-            </QueryClientProvider>
-        );
-
-        // Example
-        // const buttonElement = screen.getByRole('button');
-        // userEvent.click(buttonElement);
-        // const outputElement = screen.getByText('good to see you', { exact: false });
-        // expect(outputElement).toBeInTheDocument(1);
-
-        await waitFor(() => {
-            // expect(
-            //     screen.getByTestId('assignment_agents')
-            // ).not.toHaveTextContent('TestStudent-HasAgent-NoEditor');
-            // expect(screen.getByTestId('assignment_agents')).toHaveTextContent(
-            //     'Student-NoAgent-HasEditor'
-            // );
-            expect(1).toBe(1);
-        });
+    it('renders AssignAgentsPage with mock students', () => {
+        render(<AssignAgents />);
+        expect(screen.getByTestId('assign-agents-page')).toBeInTheDocument();
     });
 });

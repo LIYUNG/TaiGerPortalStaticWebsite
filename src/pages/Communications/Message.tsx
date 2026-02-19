@@ -36,24 +36,29 @@ import EditorSimple from '@components/EditorJs/EditorSimple';
 import { stringAvatar, convertDate } from '@utils/contants';
 import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';
-import { IgnoreMessageV2 } from '@api/index';
-import { BASE_URL } from '@api/request';
+import { IgnoreMessageV2, BASE_URL, queryClient } from '@/api';
 import FilePreview from '@components/FilePreview/FilePreview';
 import { appConfig } from '../../config';
 import { useMutation } from '@tanstack/react-query';
 import { useSnackBar } from '@contexts/use-snack-bar';
-import { queryClient } from '@api/client';
-import type { ThreadMessage } from '@components/Message/MessageCard';
+import type {
+    MessageUser,
+    ThreadMessage
+} from '@components/Message/MessageCard';
 
 export interface MessageProps {
+    idx: number;
+    accordionKeys: number[];
     message: ThreadMessage & {
-        ignoredMessageBy?: unknown;
+        ignoredMessageBy?: MessageUser;
         ignoredMessageUpdatedAt?: unknown;
         files?: Array<{ name: string; path: string }>;
     };
+    onEditMode: () => void;
+    isDeleting: boolean;
+    path: string;
+    isTaiGerView: boolean;
     isLoaded: boolean;
-    documentsthreadId: string;
-    apiPrefix: string;
     onDeleteSingleMessage: (e: React.MouseEvent, messageId: string) => void;
     handleClickSave?: (
         e: React.MouseEvent,
@@ -61,7 +66,18 @@ export interface MessageProps {
     ) => void;
 }
 
-const Message = (props: MessageProps) => {
+const Message = ({
+    idx,
+    accordionKeys,
+    message,
+    onEditMode,
+    isDeleting,
+    path,
+    isTaiGerView,
+    isLoaded,
+    onDeleteSingleMessage,
+    handleClickSave
+}: MessageProps) => {
     // const onlyWidth = useWindowWidth();
     const { user } = useAuth();
     const { t } = useTranslation();
@@ -72,13 +88,13 @@ const Message = (props: MessageProps) => {
         filePath: '',
         previewModalShow: false,
         deleteMessageModalShow: false,
-        ignoredMessageBy: props.message.ignoredMessageBy,
-        ignoredMessageUpdatedAt: props.message.ignoredMessageUpdatedAt,
+        ignoredMessageBy: message?.ignoredMessageBy,
+        ignoredMessageUpdatedAt: message?.ignoredMessageUpdatedAt,
         ignore_message:
-            props.message.ignore_message === false ||
-            props.message.ignore_message === undefined
+            message?.ignore_message === false ||
+            message?.ignore_message === undefined
                 ? false
-                : props.message.ignore_message
+                : message?.ignore_message
     });
     const theme = useTheme();
     const ismobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -99,25 +115,24 @@ const Message = (props: MessageProps) => {
     });
     useEffect(() => {
         let initialEditorState: unknown = null;
-        if (props.message.message && props.message.message !== '{}') {
+        if (message.message && message.message !== '{}') {
             try {
-                initialEditorState = JSON.parse(props.message.message);
+                initialEditorState = JSON.parse(message.message);
             } catch {
                 initialEditorState = { time: new Date(), blocks: [] };
             }
         } else {
             initialEditorState = { time: new Date(), blocks: [] };
         }
-        const isLoaded = props.isLoaded;
         queueMicrotask(() => {
             setMessageState((prevState) => ({
                 ...prevState,
                 editorState: initialEditorState,
-                isLoaded,
+                isLoaded: isLoaded,
                 deleteMessageModalShow: false
             }));
         });
-    }, [props.message.message, props.isLoaded]);
+    }, [message.message, isLoaded]);
 
     const onOpendeleteMessageModalShow = (
         e: React.MouseEvent<HTMLElement>,
@@ -141,13 +156,13 @@ const Message = (props: MessageProps) => {
         }));
     };
 
-    const onDeleteSingleMessage = (e: React.MouseEvent<HTMLElement>) => {
+    const onDeleteSingleMessageHandler = (e: React.MouseEvent<HTMLElement>) => {
         e.preventDefault();
         setMessageState((prevState) => ({
             ...prevState,
             deleteMessageModalShow: false
         }));
-        props.onDeleteSingleMessage(e, messageState.message_id);
+        onDeleteSingleMessage(e, messageState.message_id);
     };
 
     const closePreviewWindow = () => {
@@ -174,7 +189,6 @@ const Message = (props: MessageProps) => {
             ignoredMessageBy: user,
             ignoredMessageUpdatedAt: new Date()
         }));
-        const message = props.message;
         mutate({
             student_id: message.student_id._id.toString(),
             communication_messageId: message._id,
@@ -186,14 +200,12 @@ const Message = (props: MessageProps) => {
     if (!messageState.isLoaded && !messageState.editorState) {
         return <Loading />;
     }
-    const firstname = props.message.user_id
-        ? props.message.user_id.firstname
-        : 'Staff';
-    const lastname = props.message.user_id
-        ? props.message.user_id.lastname
+    const firstname = message.user_id ? message.user_id.firstname : 'Staff';
+    const lastname = message.user_id
+        ? message.user_id.lastname
         : appConfig.companyName;
-    const editable = props.message.user_id
-        ? props.message.user_id._id.toString() === user._id.toString()
+    const editable = message.user_id
+        ? message.user_id._id.toString() === user._id.toString()
             ? true
             : false
         : false;
@@ -202,12 +214,12 @@ const Message = (props: MessageProps) => {
     return (
         <>
             <Accordion
-                defaultExpanded={props.accordionKeys[props.idx] === props.idx}
+                defaultExpanded={accordionKeys[idx] === idx}
                 disableGutters
                 sx={{
                     borderRadius: 2,
                     overflowWrap: 'break-word', // Add this line
-                    ...(props.isTaiGerView &&
+                    ...(isTaiGerView &&
                         !ismobile && {
                             width: '100%', // Make Drawer full width on small screens
                             maxWidth: '100vw'
@@ -221,24 +233,18 @@ const Message = (props: MessageProps) => {
                     }
                 }}
             >
-                <AccordionSummary
-                    aria-controls={'accordion' + props.idx}
-                    expandIcon={<ExpandMoreIcon />}
-                    id={`${props.idx}`}
-                >
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                     <Avatar
                         {...stringAvatar(full_name)}
-                        src={props.message.user_id?.pictureUrl}
+                        src={message.user_id?.pictureUrl}
                     />
                     <Box style={{ marginLeft: '10px', flex: 1 }}>
                         <b style={{ cursor: 'pointer' }}>{full_name}</b>
                         <span style={{ display: 'flex', float: 'right' }}>
-                            {convertDate(props.message.createdAt)}
+                            {convertDate(message.createdAt)}
                             {editable ? (
                                 <>
-                                    <IconButton
-                                        onClick={() => props.onEditMode()}
-                                    >
+                                    <IconButton onClick={() => onEditMode()}>
                                         <EditIcon
                                             fontSize="small"
                                             style={{ cursor: 'pointer' }}
@@ -250,8 +256,8 @@ const Message = (props: MessageProps) => {
                                         onClick={(e) =>
                                             onOpendeleteMessageModalShow(
                                                 e,
-                                                props.message._id.toString(),
-                                                props.message.createdAt
+                                                message._id.toString(),
+                                                message.createdAt
                                             )
                                         }
                                     >
@@ -278,18 +284,18 @@ const Message = (props: MessageProps) => {
                         <EditorSimple
                             defaultHeight={0}
                             editorState={messageState.editorState}
-                            handleClickSave={props.handleClickSave}
-                            holder={`${props.message._id.toString()}`}
+                            handleClickSave={handleClickSave}
+                            holder={`${message._id.toString()}`}
                             imageEnable={false}
                             readOnly={true}
                         />
-                        {props.message?.files.map((file, i) => (
+                        {message?.files?.map((file, i) => (
                             <Card key={i} sx={{ p: 1 }}>
                                 <span>
                                     <Typography
                                         onClick={() =>
                                             handleClick(
-                                                `/api/communications/${props.message?.student_id?._id.toString()}/chat/${
+                                                `/api/communications/${message?.student_id?._id.toString()}/chat/${
                                                     file.name
                                                 }`,
                                                 file.name
@@ -341,22 +347,22 @@ const Message = (props: MessageProps) => {
                     >
                         {is_TaiGer_AdminAgent(user) ? (
                             <AvatarGroup>
-                                {props.message?.readBy
+                                {message?.readBy
                                     ?.filter(
                                         (usr) =>
-                                            (props.message.student_id?._id?.toString() !==
-                                                props.message.user_id?._id?.toString() &&
+                                            (message.student_id?._id?.toString() !==
+                                                message.user_id?._id?.toString() &&
                                                 usr._id?.toString() !==
                                                     user._id.toString()) ||
-                                            (props.message.student_id?._id?.toString() ===
-                                                props.message.user_id?._id?.toString() &&
+                                            (message.student_id?._id?.toString() ===
+                                                message.user_id?._id?.toString() &&
                                                 usr._id?.toString() !==
-                                                    props.message.student_id?._id.toString())
+                                                    message.student_id?._id.toString())
                                     )
                                     .map((usr) => (
                                         <Tooltip
                                             key={usr._id?.toString()}
-                                            title={`Read by ${usr?.firstname} ${usr?.lastname} at ${convertDate(props.message.timeStampReadBy?.[usr._id?.toString()])}`}
+                                            title={`Read by ${usr?.firstname} ${usr?.lastname} at ${convertDate(message.timeStampReadBy?.[usr._id?.toString()])}`}
                                         >
                                             <Avatar
                                                 {...stringAvatar(
@@ -382,7 +388,7 @@ const Message = (props: MessageProps) => {
                             justifyContent="flex-end"
                         >
                             {!is_TaiGer_Student(user) &&
-                            is_TaiGer_Student(props.message.user_id) ? (
+                            is_TaiGer_Student(message.user_id) ? (
                                 <>
                                     {messageState.ignore_message ? (
                                         <Avatar
@@ -442,11 +448,11 @@ const Message = (props: MessageProps) => {
                 </DialogContent>
                 <DialogActions>
                     <Button
-                        disabled={props.isDeleting}
-                        onClick={onDeleteSingleMessage}
+                        disabled={isDeleting}
+                        onClick={onDeleteSingleMessageHandler}
                         variant="contained"
                     >
-                        {props.isDeleting
+                        {isDeleting
                             ? t('Pending', { ns: 'common' })
                             : t('Delete', { ns: 'common' })}
                     </Button>
@@ -471,7 +477,7 @@ const Message = (props: MessageProps) => {
                     path={messageState.fileName}
                 />
                 <DialogContent>
-                    {props.path && props.path.split('.')[1] !== 'pdf' ? (
+                    {path && path.split('.')[1] !== 'pdf' ? (
                         <a
                             download
                             href={`${BASE_URL}}${messageState.filePath}`}

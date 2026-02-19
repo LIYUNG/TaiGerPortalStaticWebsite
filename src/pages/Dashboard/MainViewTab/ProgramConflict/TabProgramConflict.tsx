@@ -1,4 +1,3 @@
-import React from 'react';
 import {
     TableContainer,
     Table,
@@ -8,9 +7,15 @@ import {
 } from '@mui/material';
 
 import ProgramConflict from './ProgramConflict';
+import { IProgramWithId, IStudentResponse } from '@/types/taiger-common';
 
-const TabProgramConflict = (props) => {
-    const programConflicts = props.students.map((conflict, i) => (
+export interface TabProgramConflictProps {
+    students: IStudentResponse[];
+    program: IProgramWithId;
+}
+
+const TabProgramConflict = ({ students, program }: TabProgramConflictProps) => {
+    const programConflicts = students.map((conflict, i) => (
         <ProgramConflict
             key={i}
             program={conflict.program}

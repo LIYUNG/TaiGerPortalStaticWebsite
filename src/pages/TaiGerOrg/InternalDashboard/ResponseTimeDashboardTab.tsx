@@ -20,7 +20,7 @@ import {
     KeyboardArrowUp,
     KeyboardArrowDown
 } from '@mui/icons-material';
-import { getResponseIntervalByStudent } from '@api';
+import { getResponseIntervalByStudent } from '@/api';
 
 const editorThreadTypes = [
     'CV',
@@ -406,7 +406,7 @@ const ResponseTimeDashboardTab = ({
             setSearchParams(newParams);
             window.location.hash = currentHash;
         };
-    }, [viewMode, student, member]);
+    }, [viewMode, student, member, searchParams, setSearchParams]);
 
     const onBarClickLayer1 = ({ userId, name }) => {
         const user = { userId, name };

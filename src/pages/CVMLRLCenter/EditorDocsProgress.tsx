@@ -25,13 +25,12 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import LaunchIcon from '@mui/icons-material/Launch';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import type { ApplicationProps } from '@taiger-common/core';
 import {
     isProgramDecided,
     isProgramSubmitted,
     isProgramWithdraw
 } from '@taiger-common/core';
-import type { Application } from '@api/types';
+import type { Application } from '@/api/types';
 
 import ManualFiles from './ManualFiles';
 import ApplicationLockControl from '@components/ApplicationLockControl/ApplicationLockControl';
@@ -51,7 +50,7 @@ import {
     initGeneralMessageThread,
     initApplicationMessageThread,
     updateStudentApplication
-} from '@api';
+} from '@/api';
 import DEMO from '@store/constant';
 import Loading from '@components/Loading/Loading';
 import i18next from 'i18next';
@@ -70,21 +69,17 @@ const ApplicationAccordionSummary = ({
     // Always use calculateApplicationLockStatus for consistency - it handles both cases correctly
     let lockStatus = null;
     if (application && application.programId) {
-        lockStatus = calculateApplicationLockStatus(
-            application as ApplicationProps
-        );
+        lockStatus = calculateApplicationLockStatus(application);
     } else {
         lockStatus = application?.programId
-            ? calculateProgramLockStatus(
-                  application.programId as Record<string, unknown>
-              )
+            ? calculateProgramLockStatus(application.programId)
             : calculateProgramLockStatus({});
     }
     const isLocked = lockStatus.isLocked;
 
     // Determine status text
     const getStatusText = () => {
-        if (isProgramSubmitted(application as ApplicationProps)) {
+        if (isProgramSubmitted(application)) {
             return null; // Will show FILE_OK_SYMBOL instead
         }
 
@@ -104,7 +99,7 @@ const ApplicationAccordionSummary = ({
             );
         }
 
-        if (isProgramWithdraw(application as ApplicationProps)) {
+        if (isProgramWithdraw(application)) {
             return (
                 <Typography fontWeight="bold">
                     {i18next.t('WITHDRAW', { ns: 'common' })}
@@ -120,7 +115,7 @@ const ApplicationAccordionSummary = ({
     };
 
     const statusNode = (() => {
-        if (isProgramSubmitted(application as ApplicationProps)) {
+        if (isProgramSubmitted(application)) {
             return <IconButton>{FILE_OK_SYMBOL}</IconButton>;
         }
 
@@ -162,8 +157,8 @@ const ApplicationAccordionSummary = ({
 
     const progressColor = isLocked
         ? 'text.disabled'
-        : isProgramDecided(application as ApplicationProps)
-          ? isProgramSubmitted(application as ApplicationProps)
+        : isProgramDecided(application)
+          ? isProgramSubmitted(application)
               ? 'success.light'
               : 'error.main'
           : 'grey';
@@ -224,13 +219,9 @@ const ApplicationAccordionSummary = ({
                     >
                         <Typography>
                             Deadline:{' '}
-                            {application_deadline_V2_calculator(
-                                application as ApplicationProps
-                            )}
+                            {application_deadline_V2_calculator(application)}
                         </Typography>
-                        <ApplicationLockControl
-                            application={application as ApplicationProps}
-                        />
+                        <ApplicationLockControl application={application} />
                     </Box>
                 </Grid>
             </Grid>
@@ -622,9 +613,7 @@ const EditorDocsProgress = (props: EditorDocsProgressProps) => {
         );
 
         if (application && application.programId) {
-            const lockStatus = calculateApplicationLockStatus(
-                application as ApplicationProps
-            );
+            const lockStatus = calculateApplicationLockStatus(application);
 
             // Prevent submission if locked
             if (lockStatus.isLocked) {
@@ -890,8 +879,7 @@ const EditorDocsProgress = (props: EditorDocsProgressProps) => {
             <ManualFiles
                 application={null}
                 applications={editorDocsProgressState.student.applications?.filter(
-                    (app: Application) =>
-                        isProgramDecided(app as ApplicationProps)
+                    (app: Application) => isProgramDecided(app)
                 )}
                 filetype="General"
                 handleAsFinalFile={handleAsFinalFile}
@@ -906,13 +894,10 @@ const EditorDocsProgress = (props: EditorDocsProgressProps) => {
             </Typography>
             {/* TODO: simplify this! with array + function! */}
             {editorDocsProgressState.student.applications
-                ?.filter((app: Application) =>
-                    isProgramDecided(app as ApplicationProps)
-                )
+                ?.filter((app: Application) => isProgramDecided(app))
                 .map((application: Application, i: number) => {
-                    const lockStatus = calculateApplicationLockStatus(
-                        application as ApplicationProps
-                    );
+                    const lockStatus =
+                        calculateApplicationLockStatus(application);
                     const isLocked = lockStatus.isLocked;
                     return (
                         <div key={i}>
@@ -964,14 +949,10 @@ const EditorDocsProgress = (props: EditorDocsProgressProps) => {
                     );
                 })}
             {editorDocsProgressState.student.applications
-                ?.filter(
-                    (app: Application) =>
-                        !isProgramDecided(app as ApplicationProps)
-                )
+                ?.filter((app: Application) => !isProgramDecided(app))
                 .map((application: Application, i: number) => {
-                    const lockStatus = calculateApplicationLockStatus(
-                        application as ApplicationProps
-                    );
+                    const lockStatus =
+                        calculateApplicationLockStatus(application);
                     const isLocked = lockStatus.isLocked;
                     return (
                         <div key={i}>

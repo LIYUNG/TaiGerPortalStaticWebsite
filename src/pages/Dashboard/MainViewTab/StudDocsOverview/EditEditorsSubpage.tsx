@@ -17,7 +17,7 @@ import { useTranslation } from 'react-i18next';
 import queryString from 'query-string';
 import { Role } from '@taiger-common/core';
 
-import { getUsers } from '@api';
+import { getUsers } from '@/api';
 
 const EditEditorsSubpage = (props) => {
     const [checkboxState, setCheckboxState] = useState({});
@@ -55,7 +55,7 @@ const EditEditorsSubpage = (props) => {
                 setIsLoaded(true);
             }
         );
-    }, [props.student.editors]);
+    }, [props.student, props.student.editors]);
 
     const handleChangeEditorlist = (e: React.SyntheticEvent) => {
         const { value } = e.target;

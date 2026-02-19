@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { getStudentAndDocLinksQuery } from '@api/query';
+import { getStudentAndDocLinksQuery } from '@/api/query';
 import { SingleStudentPageMainContent } from './SingleStudentPage';
 import { Box, CircularProgress } from '@mui/material';
 

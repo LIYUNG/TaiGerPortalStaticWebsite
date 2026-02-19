@@ -12,7 +12,7 @@ import { check_student_needs_uni_assist } from '../Utils/util_functions';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
 import Loading from '@components/Loading/Loading';
-import { getStudentUniAssistQuery } from '@api/query';
+import { getStudentUniAssistQuery } from '@/api/query';
 
 const UniAssistList = () => {
     const { user } = useAuth();

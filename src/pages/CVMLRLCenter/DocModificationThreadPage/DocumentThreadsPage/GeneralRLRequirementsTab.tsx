@@ -21,10 +21,10 @@ import { alpha, useTheme } from '@mui/material/styles';
 import LaunchIcon from '@mui/icons-material/Launch';
 import { Link as LinkDom } from 'react-router-dom';
 
-import { getStudentAndDocLinksQuery } from '@api/query';
+import { getStudentAndDocLinksQuery } from '@/api/query';
 import { application_deadline_V2_calculator } from '../../../Utils/util_functions';
 import DEMO from '@store/constant';
-import { Application } from '@api/types';
+import { Application } from '@/api/types';
 
 export const GeneralRLRequirementsTab = ({
     studentId

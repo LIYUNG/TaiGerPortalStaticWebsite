@@ -18,7 +18,7 @@ import {
     deleteProgramTicket,
     getProgramTicket,
     updateProgramTicket
-} from '@api';
+} from '@/api';
 import { convertDate } from '@utils/contants';
 import ErrorPage from '../Utils/ErrorPage';
 import ProgramReportModal from './ProgramReportModal';

@@ -20,14 +20,21 @@ import i18next from 'i18next';
 import { convertDateUXFriendly } from '@utils/contants';
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
-import { WidgetTranscriptanalyserV2 } from '@api';
+import { WidgetTranscriptanalyserV2 } from '@/api';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { a11yProps, CustomTabPanel } from '@components/Tabs';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import { ProgramRequirementsTable } from '@components/ProgramRequirementsTable/ProgramRequirementsTable';
+import { IProgramrequirement } from '@taiger-common/model';
 
-export default function CourseWidgetBody({ programRequirements }) {
+export interface CourseWidgetBodyProps {
+    programRequirements: IProgramrequirement[];
+}
+
+export default function CourseWidgetBody({
+    programRequirements
+}: CourseWidgetBodyProps) {
     const { user } = useAuth();
     const theme = useTheme(); // Get the current theme from Material UI
     const { student_id } = useParams();
@@ -78,18 +85,22 @@ export default function CourseWidgetBody({ programRequirements }) {
     const transformedData = programRequirements.map((row) => {
         return {
             ...row, // Spread the original row object
-            program_name: `${row.programId[0].school} ${row.programId[0].program_name} ${row.programId[0].degree}`,
-            lang: `${row.programId[0].lang}`,
-            degree: `${row.programId[0].degree}`,
+            program_name: `${row.programId[0]?.school} ${row.programId[0]?.program_name} ${row.programId[0]?.degree}`,
+            lang: `${row.programId[0]?.lang}`,
+            degree: `${row.programId[0]?.degree}`,
             attributes: `${row.attributes?.join('-')}`,
-            country: `${row.programId[0].country}`,
+            country: `${row.programId[0]?.country}`,
             updatedAt: convertDateUXFriendly(row.updatedAt),
             id: row._id // Map MongoDB _id to id property
             // other properties...
         };
     });
 
-    const onAnalyseV2 = async (requirementIds, lang, factor) => {
+    const onAnalyseV2 = async (
+        requirementIds: string[],
+        lang: string,
+        factor: string
+    ) => {
         setStatedata((state) => ({
             ...state,
             isAnalysing: true

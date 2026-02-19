@@ -19,17 +19,13 @@ import {
     calculateApplicationLockStatus,
     APPROVAL_COUNTRIES
 } from '@pages/Utils/util_functions';
-import { refreshApplication } from '@api';
-import {
-    is_TaiGer_Admin,
-    is_TaiGer_Agent,
-    type UserProps
-} from '@taiger-common/core';
+import { refreshApplication } from '@/api';
+import { is_TaiGer_Admin, is_TaiGer_Agent } from '@taiger-common/core';
 import { useAuth } from '../AuthProvider';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import DEMO from '@store/constant';
-import { type IApplication, type IProgram } from '@taiger-common/model';
-import { ApplicationId, ProgramId } from '@api/types';
+import { type IApplication } from '@taiger-common/model';
+import { ApplicationId, ProgramId, IProgramWithId } from '@/api/types';
 
 interface ApplicationLockControlProps {
     application: IApplication;
@@ -48,7 +44,7 @@ const ApplicationLockControl = ({
         return null;
     }
 
-    const program = application.programId as unknown as IProgram;
+    const program = application.programId as unknown as IProgramWithId;
     const countryCode = program?.country
         ? String(program.country).toLowerCase()
         : null;
@@ -114,9 +110,7 @@ const ApplicationLockControl = ({
     const programLink = programId ? DEMO.SINGLE_PROGRAM_LINK(programId) : null;
 
     const canUseLockControls =
-        user != null &&
-        (is_TaiGer_Admin(user as UserProps) ||
-            is_TaiGer_Agent(user as UserProps));
+        user != null && (is_TaiGer_Admin(user) || is_TaiGer_Agent(user));
 
     const shouldShowCheckProgramButton =
         isLocked && programLink && canUseLockControls;

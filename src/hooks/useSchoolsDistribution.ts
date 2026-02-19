@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { getSchoolsDistributionQuery } from '@api/query';
+import { getSchoolsDistributionQuery } from '@/api/query';
 
 /**
  * Fetches schools distribution (list of schools with program counts).

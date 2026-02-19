@@ -8,7 +8,7 @@ import { TabTitle } from '../../Utils/TabTitle';
 import TabProgramTaskDelta from '@pages/Dashboard/MainViewTab/ProgramTaskDelta/TabProgramTaskDelta';
 import ErrorPage from '../../Utils/ErrorPage';
 import ModalMain from '../../Utils/ModalHandler/ModalMain';
-import { getApplicationTaskDeltas } from '@api';
+import { getApplicationTaskDeltas } from '@/api';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../../config';

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { getTasksOverviewQuery } from '@api/query';
+import { getTasksOverviewQuery } from '@/api/query';
 
 /**
  * Fetches tasks overview (admin/editor to-do counts).

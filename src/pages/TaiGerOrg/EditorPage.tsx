@@ -46,7 +46,7 @@ import {
     is_pending_status
 } from '@utils/contants';
 import { useQuery } from '@tanstack/react-query';
-import { getMyStudentsThreadsQuery } from '@api/query';
+import { getMyStudentsThreadsQuery } from '@/api/query';
 import { useTranslation } from 'react-i18next';
 
 const EditorPage = () => {
@@ -208,7 +208,7 @@ const EditorPage = () => {
             stats: calculatedStats,
             editorUser: editorUser
         };
-    }, [myStudentsThreads, user, user_id]);
+    }, [myStudentsThreads, user_id]);
 
     if (!user || !is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;

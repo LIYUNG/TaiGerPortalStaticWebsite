@@ -1,11 +1,10 @@
 import {
-    ApplicationProps,
-    DocumentStatusType,
     isProgramAdmitted,
     isProgramDecided,
     isProgramSubmitted,
     isProgramWithdraw
 } from '@taiger-common/core';
+import { DocumentStatusType } from '@taiger-common/model';
 import JSZip from 'jszip';
 import * as XLSX from 'xlsx';
 import { differenceInDays } from 'date-fns';
@@ -14,12 +13,13 @@ import { pdfjs } from 'react-pdf';
 import { convertDate, twoYearsInDays } from '@utils/contants';
 import {
     DocumentThreadResponse,
+    IApplicationWithId,
     IProgramWithId,
     IStudentResponse,
     OpenTaskRow,
     type Application,
     type IUserWithId
-} from '@api/types';
+} from '@/api/types';
 import {
     IUser,
     IUserAcademicBackground,
@@ -294,7 +294,7 @@ export const check_german_language_Notneeded = (
 
 //Testd
 export const based_documents_init = (
-    student: IUserWithId
+    student: IStudentResponse
 ): { object_init: Record<string, string> } => {
     const documentlist2_keys = Object.keys(ProfileNameType);
 
@@ -439,7 +439,7 @@ export const to_register_application_portals = (
     return false;
 };
 
-export const isBaseDocumentsRejected = (student: IUserWithId): boolean => {
+export const isBaseDocumentsRejected = (student: IStudentResponse): boolean => {
     if (student.profile === undefined) {
         return false;
     }
@@ -549,11 +549,11 @@ export const check_academic_background_filled = (
 };
 
 export const isProgramNotSelectedEnough = (
-    students: IUserWithId[]
+    students: IStudentResponse[]
 ): boolean => {
     return students.some(
         (student) =>
-            student.applications.length < student.applying_program_count
+            student.applications?.length < student.applying_program_count
     );
 };
 
@@ -630,10 +630,10 @@ export const check_all_decided_applications_submitted = (
     }
 
     return student.applications
-        .filter((app) => isProgramDecided(app as ApplicationProps))
+        .filter((app) => isProgramDecided(app))
         .every(
             (app) =>
-                isProgramSubmitted(app as ApplicationProps) && isProgramDecided(app as ApplicationProps)
+                isProgramSubmitted(app) && isProgramDecided(app)
         );
 };
 
@@ -649,7 +649,7 @@ export const check_program_uni_assist_needed = (
 
 // Tested
 export const isUniAssistVPDNeeded = (
-    application: Application & ApplicationProps
+    application: Application
 ): boolean => {
     if (
         isProgramDecided(application) &&
@@ -812,12 +812,12 @@ export const is_program_ml_rl_essay_ready = (
     return true;
 };
 
-export const isApplicationOpen = (application: ApplicationProps): boolean => {
+export const isApplicationOpen = (application: Application): boolean => {
     return !isProgramSubmitted(application) && !isProgramWithdraw(application);
 };
 
 export const is_program_closed = (application: Application): boolean => {
-    if (isProgramSubmitted(application as ApplicationProps) || isProgramWithdraw(application as ApplicationProps)) {
+    if (isProgramSubmitted(application) || isProgramWithdraw(application)) {
         return true;
     }
     return false;
@@ -833,7 +833,7 @@ export const is_any_programs_ready_to_submit = (
         if (student.applications) {
             for (const application of student.applications) {
                 if (
-                    isProgramDecided(application as ApplicationProps) &&
+                    isProgramDecided(application) &&
                     isCVFinished(student) &&
                     is_program_ml_rl_essay_ready(
                         application
@@ -868,27 +868,29 @@ export const is_vpd_missing = (application: Application): boolean => {
 };
 
 export const is_any_vpd_missing_v2 = (applications: Application[]) => {
-    for (let j = 0; j < applications.length; j += 1) {
+    if (!applications) {
+        return false;
+    }
+    for (const application of applications) {
         if (
-            isProgramDecided(applications[j] as ApplicationProps) &&
-            applications[j].programId.uni_assist &&
-            applications[j].programId.uni_assist.includes('VPD')
+            isProgramDecided(application) &&
+            application.programId?.uni_assist?.includes('VPD')
         ) {
-            if (!applications[j].uni_assist) {
+            if (!application.uni_assist) {
                 return true;
             }
             if (
-                applications[j].uni_assist &&
-                applications[j].uni_assist.status ===
+                application.uni_assist &&
+                application.uni_assist.status ===
                 DocumentStatusType.NotNeeded
             ) {
                 continue;
             }
             if (
-                applications[j].uni_assist &&
-                (applications[j].uni_assist.status !==
+                application.uni_assist &&
+                (application.uni_assist.status !==
                     DocumentStatusType.Uploaded ||
-                    applications[j].uni_assist.vpd_file_path === '')
+                    application.uni_assist.vpd_file_path === '')
             ) {
                 return true;
             }
@@ -1059,11 +1061,11 @@ export const isEnglishCertificateExpiredBeforeDeadline = (student: IStudentRespo
     }
 
     for (const app of applications) {
-        if (!isProgramDecided(app as ApplicationProps)) {
+        if (!isProgramDecided(app)) {
             continue;
         }
 
-        if (isProgramSubmitted(app as ApplicationProps)) {
+        if (isProgramSubmitted(app)) {
             continue;
         }
         if (!isEnglishProgram(app as Application)) {
@@ -1085,7 +1087,7 @@ export const isEnglishCertificateExpiredBeforeDeadline = (student: IStudentRespo
 
 export const languageNotMatchedPrograms = (student: IStudentResponse) => {
     const decidedApplications = student.applications?.filter((app) =>
-        isProgramDecided(app as ApplicationProps)
+        isProgramDecided(app)
     );
 
     return decidedApplications?.filter(
@@ -1531,7 +1533,7 @@ export const has_admissions = (student: IStudentResponse): boolean => {
     }
 
     return student.applications.some(
-        (app) => isProgramSubmitted(app as ApplicationProps) && isProgramAdmitted(app as ApplicationProps)
+        (app) => isProgramSubmitted(app) && isProgramAdmitted(app)
     );
 };
 
@@ -1656,7 +1658,7 @@ const prepApplicationTaskV2 = (student, application, program, thread) => {
 };
 
 // student.applications -> application.doc_modification_thread
-const prepApplicationTask = (student, application, thread) => {
+const prepApplicationTask = (student: IStudentResponse, application: Application, thread: DocumentThreadResponse) => {
     // Always use calculateApplicationLockStatus - it correctly handles both approval and non-approval countries
     const lockStatus = calculateApplicationLockStatus(application);
 
@@ -1741,7 +1743,7 @@ export const open_tasks_with_editors = (students) => {
     return tasks;
 };
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- API returns IApplicationWithId[] with populated studentId; complex reduce shape
-export const programs_refactor_v2 = (applications: any[]) => {
+export const programs_refactor_v2 = (applications: IApplicationWithId[]) => {
     const applicationsNew = applications.reduce((acc, application) => {
         let isMissingBaseDocs = false;
 
@@ -1752,8 +1754,8 @@ export const programs_refactor_v2 = (applications: any[]) => {
             ])
         );
 
-        if (application.studentId.profile) {
-            application.studentId.profile.forEach((doc) => {
+        if (application.studentId?.profile) {
+            application.studentId?.profile?.forEach((doc) => {
                 object_init[doc.name] = doc.status;
             });
         }
@@ -1865,7 +1867,7 @@ export const programs_refactor_v2 = (applications: any[]) => {
 
     return applicationsNew;
 };
-export const programs_refactor = (students) => {
+export const programs_refactor = (students: IStudentResponse[]) => {
     const applications = students.reduce((acc, student) => {
         let isMissingBaseDocs = false;
 
@@ -2039,7 +2041,7 @@ export const toogleItemInArray = (arr, item) => {
             : [item];
 };
 
-const getNextProgram = (student) => {
+const getNextProgram = (student: IStudentResponse) => {
     const nextProgram = programs_refactor([student])
         .filter(
             (application) =>
@@ -2308,7 +2310,7 @@ export const calculateProgramLockStatus = (
     return { isLocked: false, reason: null };
 };
 
-export const calculateApplicationLockStatus = (application: Application) => {
+export const calculateApplicationLockStatus = (application: Application | IApplicationWithId) => {
     if (!application || !application.programId) {
         return { isLocked: true, reason: null };
     }
@@ -2412,7 +2414,7 @@ export const GetCVDeadlineV2 = (applications: Application[]) => {
     let CVDeadlineRolling = '';
     let hasRolling = false;
     applications.forEach((application) => {
-        if (isProgramDecided(application as ApplicationProps) && application.closed === '-') {
+        if (isProgramDecided(application) && application.closed === '-') {
             const applicationDeadline =
                 application_deadline_V2_calculator(application);
             if (applicationDeadline?.toLowerCase()?.includes('rolling')) {
@@ -2447,7 +2449,7 @@ export const GetCVDeadline = (
     let CVDeadlineRolling = '';
     let hasRolling = false;
     student.applications?.forEach((application) => {
-        if (isProgramDecided(application as ApplicationProps) && application.closed === '-') {
+        if (isProgramDecided(application) && application.closed === '-') {
             const applicationDeadline =
                 application_deadline_V2_calculator(application);
             if (applicationDeadline?.toLowerCase()?.includes('rolling')) {

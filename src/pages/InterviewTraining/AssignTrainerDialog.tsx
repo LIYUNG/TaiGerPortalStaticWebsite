@@ -1,3 +1,4 @@
+import { IUserWithId } from '@/types/taiger-common';
 import {
     Dialog,
     DialogTitle,
@@ -12,6 +13,15 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
+export interface AssignTrainerDialogProps {
+    open: boolean;
+    onClose: () => void;
+    modifyTrainer: (trainerId: string, isActive: boolean) => void;
+    trainers: IUserWithId[];
+    updateTrainer: () => void;
+    trainerId: Set<string>;
+}
+
 export const AssignTrainerDialog = ({
     open,
     onClose,
@@ -19,10 +29,10 @@ export const AssignTrainerDialog = ({
     trainers,
     updateTrainer,
     trainerId
-}) => {
+}: AssignTrainerDialogProps) => {
     const { t } = useTranslation();
     return (
-        <Dialog centered onClose={onClose} open={open} size="small">
+        <Dialog onClose={onClose} open={open}>
             <DialogTitle>{t('Assign Trainer')}</DialogTitle>
             <DialogContent>
                 <List>

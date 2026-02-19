@@ -31,7 +31,7 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getLeadIdByUserId, createLeadFromStudent } from '@api';
+import { getLeadIdByUserId, createLeadFromStudent } from '@/api';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import {
     is_TaiGer_Editor,
@@ -59,7 +59,7 @@ import {
     needGraduatedApplicantsPrograms
 } from '../Utils/util_functions';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
-import { updateArchivStudents } from '@api';
+import { updateArchivStudents } from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import PortalCredentialPage from '../PortalCredentialPage';
@@ -73,7 +73,7 @@ import StudentBriefOverview from '@pages/Dashboard/MainViewTab/StudentBriefOverv
 import ProgramLanguageNotMatchedBanner from '@components/Banner/ProgramLanguageNotMatchedBanner';
 import Audit from '../Audit';
 import EnglishCertificateExpiredBeforeDeadlineBanner from '@components/Banner/EnglishCertificateExpiredBeforeDeadlineBanner';
-import { getStudentAndDocLinksQuery } from '@api/query';
+import { getStudentAndDocLinksQuery } from '@/api/query';
 import { MeetingTab } from './MeetingTab';
 
 export const SingleStudentPageMainContent = ({
@@ -90,7 +90,6 @@ export const SingleStudentPageMainContent = ({
     const [singleStudentPage, setSingleStudentPage] = useState({
         error: '',
         isLoaded: {},
-        isLoaded2: false,
         taiger_view: true,
         detailedView: false,
         student: data,
@@ -110,15 +109,7 @@ export const SingleStudentPageMainContent = ({
             ...prevState,
             student: data
         }));
-    }, [
-        data._id,
-        JSON.stringify(
-            data.applications?.map((app) => ({
-                id: app._id,
-                isLocked: app.isLocked
-            }))
-        )
-    ]);
+    }, [data]);
 
     const [localLeadId, setLocalLeadId] = useState(null);
 

@@ -15,18 +15,18 @@ import {
 
 import UsersListSubpage from './UsersListSubpage';
 import UserDeleteWarning from './UserDeleteWarning';
-import { deleteUser, changeUserRole, updateArchivUser } from '@api';
+import { deleteUser, changeUserRole, updateArchivUser } from '@/api';
 import { stringAvatar } from '@utils/contants';
 import UserArchivWarning from './UserArchivWarning';
-import { getUsersQuery } from '@api/query';
+import { getUsersQuery } from '@/api/query';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import DEMO from '@store/constant';
-import { queryClient } from '@api/client';
+import { queryClient } from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import { useTableStyles } from '@components/table/users-table/styles';
 import { getTableConfig } from '@components/table/users-table/table-config';
 import { TopToolbar } from '@components/table/users-table/TopToolbar';
-import type { QueryString } from '@api/types';
+import type { QueryString } from '@/api/types';
 
 export interface UsersListProps {
     queryString: QueryString;
@@ -469,7 +469,7 @@ const UsersList = (props: UsersListProps) => {
         changeUserRoleMutation({ id: user_data._id, role: user_data.role });
     };
 
-    const onSubmit2 = (e: React.FormEvent<HTMLFormElement>) => {
+    const onSubmit2 = (e: MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         const user_role = usersListState.selected_user_role;
         const user_id = usersListState.selected_user_id;

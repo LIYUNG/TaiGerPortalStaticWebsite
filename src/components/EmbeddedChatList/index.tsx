@@ -3,7 +3,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import { Box, MenuItem, Skeleton } from '@mui/material';
 
 import Friends from './Friends';
-import { getQueryStudentResults } from '@api';
+import { getQueryStudentResults } from '@/api';
 import { useAuth } from '../AuthProvider';
 import {
     Search,
@@ -11,9 +11,9 @@ import {
     StyledInputBase,
     EmbeddedChatListWidth
 } from '@utils/contants';
-import { getMyCommunicationQuery } from '@api/query';
+import { getMyCommunicationQuery } from '@/api/query';
 import { useQuery } from '@tanstack/react-query';
-import { queryClient } from '@api/client';
+import { queryClient } from '@/api';
 
 interface EmbeddedChatListState {
     success: boolean;

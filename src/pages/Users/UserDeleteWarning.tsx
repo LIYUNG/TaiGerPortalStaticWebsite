@@ -48,7 +48,9 @@ const UserDeleteWarning = (props: UserDeleteWarningProps) => {
                             </i>
                         </>
                     }
-                    onChange={(e) => props.onChangeDeleteField(e)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                        props.onChangeDeleteField(e)
+                    }
                     placeholder="delete"
                     size="small"
                     type="text"

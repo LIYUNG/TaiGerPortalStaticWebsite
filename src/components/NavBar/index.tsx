@@ -32,7 +32,7 @@ import i18next from 'i18next';
 import {
     getActiveEventsNumber,
     getMyCommunicationUnreadNumber
-} from '@api/index';
+} from '@/api';
 import { appConfig } from '../../config';
 import { useAuth } from '../AuthProvider';
 import NavSearch from './NavSearch';
@@ -41,7 +41,7 @@ import { stringAvatar } from '@utils/contants';
 import Loading from '../Loading/Loading';
 import DEMO from '@store/constant';
 import { CustomDrawer } from './Drawer';
-import type { AuthUserData } from '@api/types';
+import type { IUser } from '@taiger-common/model';
 
 const drawerWidth = 300;
 
@@ -109,7 +109,7 @@ interface RenderMenuProps {
     handleCloseProfile: () => void;
     handleCloseSettings: () => void;
     handleCloseLogout: () => void;
-    user: AuthUserData | null;
+    user: IUser | null;
 }
 
 const RenderMenu = ({

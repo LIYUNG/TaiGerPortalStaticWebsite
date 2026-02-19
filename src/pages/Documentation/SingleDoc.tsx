@@ -5,7 +5,7 @@ import { Link as LinkDom, useParams } from 'react-router-dom';
 import SingleDocEdit from './SingleDocEdit';
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
-import { getDocumentation, updateDocumentation } from '@api';
+import { getDocumentation, updateDocumentation } from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
 import Loading from '@components/Loading/Loading';
 import { appConfig } from '../../config';

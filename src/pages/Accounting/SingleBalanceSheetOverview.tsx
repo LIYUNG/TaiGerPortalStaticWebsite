@@ -15,7 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 
 import ErrorPage from '../Utils/ErrorPage';
-import { getExpenseQuery } from '@api/query';
+import { getExpenseQuery } from '@/api/query';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import {

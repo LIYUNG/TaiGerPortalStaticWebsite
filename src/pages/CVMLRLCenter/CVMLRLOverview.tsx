@@ -23,7 +23,7 @@ import { useTranslation } from 'react-i18next';
 import { MuiDataGrid } from '@components/MuiDataGrid';
 import DEMO from '@store/constant';
 import { APPROVAL_COUNTRIES } from '../Utils/util_functions';
-import type { OpenTaskRow } from '@api/types';
+import type { OpenTaskRow } from '@/api/types';
 
 export interface CVMLRLOverviewProps {
     handleFavoriteToggle: (id: string) => void;

@@ -1,4 +1,4 @@
-import { useState, useMemo, type FormEvent, type MouseEvent } from 'react';
+import { useState, useMemo, type MouseEvent } from 'react';
 import {
     Link as LinkDom,
     useLocation,
@@ -72,8 +72,8 @@ import {
     updateInterview,
     addInterviewTrainingDateTime,
     getEssayWriters
-} from '@api';
-import { getInterviewQuery } from '@api/query';
+} from '@/api';
+import { getInterviewQuery } from '@/api/query';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import Loading from '@components/Loading/Loading';
@@ -95,6 +95,7 @@ import { a11yProps, CustomTabPanel } from '@components/Tabs';
 import Audit from '../Audit';
 import { InterviewFeedback } from './InterviewFeedback';
 import NotesEditor from '../Notes/NotesEditor';
+import { OutputData } from '@editorjs/editorjs';
 
 // Interview Metadata Sidebar Component
 const InterviewMetadataSidebar = ({
@@ -315,7 +316,7 @@ const InterviewMetadataSidebar = ({
     };
 
     const handleSendInterviewInvitation = async (
-        e: FormEvent<HTMLFormElement>
+        e: MouseEvent<HTMLButtonElement>
     ) => {
         e.preventDefault();
         try {
@@ -380,7 +381,7 @@ const InterviewMetadataSidebar = ({
         }));
     };
 
-    const handleEditorChange = (editorState) => {
+    const handleEditorChange = (editorState: OutputData) => {
         setButtonDisabled(false);
         setLocalInterview((prevState) => ({
             ...prevState,
@@ -388,7 +389,7 @@ const InterviewMetadataSidebar = ({
         }));
     };
 
-    const handleClickSave = async (e, editorState) => {
+    const handleClickSave = async (e, editorState: OutputData) => {
         e.preventDefault();
         const notes = JSON.stringify(editorState);
         const { data, status } = await updateInterview(
@@ -669,7 +670,9 @@ const InterviewMetadataSidebar = ({
                                                 !interviewTrainingTimeChange
                                             }
                                             fullWidth
-                                            onClick={(e) =>
+                                            onClick={(
+                                                e: MouseEvent<HTMLButtonElement>
+                                            ) =>
                                                 handleSendInterviewInvitation(e)
                                             }
                                             variant="contained"

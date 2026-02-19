@@ -11,7 +11,7 @@ import {
 
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
-import { getMyInterviews, getAllInterviews } from '@api';
+import { getMyInterviews, getAllInterviews } from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
@@ -42,6 +42,14 @@ const InterviewTraining = () => {
         res_modal_message: '',
         res_modal_status: 0
     });
+
+    const {
+        res_status,
+        isLoaded,
+        res_modal_status,
+        res_modal_message,
+        interviewslist
+    } = interviewTrainingState;
 
     useEffect(() => {
         if (is_TaiGer_role(user)) {
@@ -126,7 +134,7 @@ const InterviewTraining = () => {
                 }
             );
         }
-    }, []);
+    }, [user, interviewslist]);
 
     const handleClick = () => {
         navigate(`${DEMO.INTERVIEW_ADD_LINK}`);
@@ -291,14 +299,6 @@ const InterviewTraining = () => {
         return result;
     };
     // const memoizedColumns = useMemo(() => column, [column]);
-
-    const {
-        res_status,
-        isLoaded,
-        res_modal_status,
-        res_modal_message,
-        interviewslist
-    } = interviewTrainingState;
 
     if (res_status >= 400) {
         return <ErrorPage res_status={res_status} />;

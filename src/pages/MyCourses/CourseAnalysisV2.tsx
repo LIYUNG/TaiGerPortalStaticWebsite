@@ -78,13 +78,14 @@ import {
 } from '@utils/contants';
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
-import { analyzedFileV2Download, WidgetanalyzedFileV2Download } from '@api';
+import { analyzedFileV2Download, WidgetanalyzedFileV2Download } from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';
 import { appConfig } from '../../config';
 import { a11yProps, CustomTabPanel } from '@components/Tabs';
+import { IStudentResponse } from '@/types/taiger-common';
 
 // const getTop3Keywords = (keywords) => {
 //     const frequencyMap = {};
@@ -1253,20 +1254,28 @@ const ProgramMatchingScores = memo(
             }
         ];
 
-        const rows = programSheetsArray.map(({ key, value }, index) => {
-            const requiredECTS = calculateRequiredECTS(value.sorted);
-            const acquiredECTS = calculateAcquiredECTS(value.sorted);
-            return {
-                id: index,
-                index: index,
-                programName: key,
-                matchingScore: Number(
-                    calculateProgramMatchingScore(value.sorted)
-                ).toFixed(0),
-                requiredECTS,
-                acquiredECTS
-            };
-        });
+        const rows = programSheetsArray.map(
+            (
+                {
+                    key,
+                    value
+                }: { key: string; value: { sorted: Record<string, unknown> } },
+                index: number
+            ) => {
+                const requiredECTS = calculateRequiredECTS(value.sorted);
+                const acquiredECTS = calculateAcquiredECTS(value.sorted);
+                return {
+                    id: index,
+                    index: index,
+                    programName: key,
+                    matchingScore: Number(
+                        calculateProgramMatchingScore(value.sorted)
+                    ).toFixed(0),
+                    requiredECTS,
+                    acquiredECTS
+                };
+            }
+        );
 
         const filteredRows = searchText
             ? rows.filter(
@@ -1411,11 +1420,17 @@ const ProgramMatchingScores = memo(
 );
 ProgramMatchingScores.displayName = 'ProgramMatchingScores';
 
+interface GeneralCourseAnalysisComponentProps {
+    sheets: Record<string, Record<string, Record<string, string[]>>>;
+    student: IStudentResponse;
+    onProgramSelect: (index: number) => void;
+}
+
 export const GeneralCourseAnalysisComponent = ({
     sheets,
     student,
     onProgramSelect
-}) => {
+}: GeneralCourseAnalysisComponentProps) => {
     const [tabTag, setTabTag] = useState(0);
     const theme = useTheme();
 
@@ -1731,7 +1746,7 @@ export default function CourseAnalysisV2() {
                 }));
             }
         );
-    }, []);
+    }, [user_id]);
 
     const handleProgramChange = useCallback(
         (event) => {

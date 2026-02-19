@@ -2,8 +2,8 @@ import { Link as LinkDom } from 'react-router-dom';
 import { Card, Link, Box, Typography } from '@mui/material';
 import { FileIcon, defaultStyles } from 'react-file-icon';
 
-import { BASE_URL } from '@api/request';
-import type { DocumentThreadMessage } from '@api/types';
+import { BASE_URL } from '@/api';
+import type { DocumentThreadMessage } from '@/api/types';
 
 export interface FileItemProps {
     message: DocumentThreadMessage;

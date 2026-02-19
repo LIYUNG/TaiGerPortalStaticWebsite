@@ -8,28 +8,11 @@ import type {
     ICourse,
     IProgram,
     IStudent,
-    IUserProfileItem
 } from '@taiger-common/model';
 
-// Re-export UserProps from @taiger-common/core (it exists but isn't exported)
-declare module '@taiger-common/core' {
-    export interface UserProps {
-        role: string;
-        archiv?: boolean;
-        _id?: string;
-        email?: string;
-        firstname?: string;
-        lastname?: string;
-        [key: string]: unknown;
-    }
-}
-
 // Frontend-friendly Application type with string _id
-export interface IApplicationWithId
-    extends Omit<IApplication, 'programId' | 'studentId'> {
+export interface IApplicationWithId extends IApplication {
     _id: string;
-    programId?: string & IProgramWithId;
-    studentId?: string & IStudentWithId;
 }
 
 // Frontend-friendly Program type with string _id
@@ -42,14 +25,11 @@ export interface IProgramWithId extends Omit<IProgram, 'vcId'> {
 export interface IUserWithId
     extends Omit<IStudent, 'agents' | 'editors' | 'profile'> {
     _id: string;
-    profile?: IUserProfileItem[];
     courses?: ICourse;
-    agents?: string[];
-    editors?: string[];
 }
 
 // Student response with populated references (from API)
-export interface IStudentResponse extends IUserWithId {
+export interface IStudentResponse extends IStudent {
     archiv?: boolean;
     applying_program_count: number;
     applications?: IApplicationWithId[];

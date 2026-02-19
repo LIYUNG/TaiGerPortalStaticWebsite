@@ -12,7 +12,7 @@ import {
     updateApplicationPreference,
     updateDocumentationHelperLink,
     updateLanguageSkill
-} from '@api/index';
+} from '@/api';
 
 export interface SurveyStateValue {
     student_id?: string;

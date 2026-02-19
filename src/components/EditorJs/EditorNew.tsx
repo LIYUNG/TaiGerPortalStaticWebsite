@@ -16,7 +16,7 @@ import Warning from '@editorjs/warning';
 import ColorPlugin from 'editorjs-text-color-plugin';
 import TextAlign from '@canburaks/text-align-editorjs';
 
-import { uploadImage, uploadDocDocs } from '@api';
+import { uploadImage, uploadDocDocs } from '@/api';
 import { useTranslation } from 'react-i18next';
 
 export interface EditorNewProps {

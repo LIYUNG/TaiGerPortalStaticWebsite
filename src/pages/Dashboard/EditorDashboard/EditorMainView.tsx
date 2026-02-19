@@ -32,7 +32,7 @@ import AssignInterviewTrainerRow from '../MainViewTab/Common/AssignInterviewTrai
 import {
     getMyStudentsThreadsQuery,
     getIsManagerQuery
-} from '@api/query';
+} from '@/api/query';
 import { useTasksOverview } from '@hooks/useTasksOverview';
 import { useStudentsV3 } from '@hooks/useStudentsV3';
 import Loading from '@components/Loading/Loading';

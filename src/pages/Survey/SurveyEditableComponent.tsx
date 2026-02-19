@@ -1245,7 +1245,9 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                                             color="primary"
                                             disabled={!survey.changed_academic}
                                             fullWidth
-                                            onClick={(e) =>
+                                            onClick={(
+                                                e: MouseEvent<HTMLButtonElement>
+                                            ) =>
                                                 handleAcademicBackgroundSubmit(
                                                     e,
                                                     survey.academic_background
@@ -1605,7 +1607,7 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                                     !survey.changed_application_preference
                                 }
                                 fullWidth
-                                onClick={(e) =>
+                                onClick={(e: MouseEvent<HTMLButtonElement>) =>
                                     handleApplicationPreferenceSubmit(
                                         e,
                                         survey.application_preference
@@ -2302,7 +2304,9 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                                         color="primary"
                                         disabled={!survey.changed_language}
                                         fullWidth
-                                        onClick={(e) =>
+                                        onClick={(
+                                            e: MouseEvent<HTMLButtonElement>
+                                        ) =>
                                             handleSurveyLanguageSubmit(
                                                 e,
                                                 survey.academic_background

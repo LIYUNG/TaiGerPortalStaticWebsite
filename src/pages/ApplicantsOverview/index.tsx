@@ -1,4 +1,3 @@
-import React from 'react';
 import { Box } from '@mui/material';
 import { Navigate } from 'react-router-dom';
 import {
@@ -30,7 +29,7 @@ const ApplicantsOverview = () => {
     if (is_TaiGer_Student(user)) {
         return (
             <Navigate
-                to={`${DEMO.STUDENT_APPLICATIONS_LINK}/${user._id.toString()}`}
+                to={`${DEMO.STUDENT_APPLICATIONS_LINK}/${user._id?.toString()}`}
             />
         );
     }

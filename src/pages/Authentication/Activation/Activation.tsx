@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
+import { useEffect, MouseEvent, useState } from 'react';
 import { Button, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
-import { activation, resendActivation } from '@api/index';
+import { activation, resendActivation } from '@/api';
 import AuthWrapper from '@components/AuthWrapper';
 
 export default function Activation() {
@@ -10,11 +10,11 @@ export default function Activation() {
     const query = new URLSearchParams(window.location.search);
     const email = query.get('email');
     const token = query.get('token');
-    const [activationsuccess, setActivationSuccess] = React.useState(false);
-    const [emailsent, setEmailsent] = React.useState(false);
+    const [activationsuccess, setActivationSuccess] = useState(false);
+    const [emailsent, setEmailsent] = useState(false);
 
     useEffect(() => {
-        activation(email, token).then((res) => {
+        activation(email!, token!).then((res) => {
             const { success } = res.data;
             if (success) {
                 setActivationSuccess(true);
@@ -25,12 +25,12 @@ export default function Activation() {
     }, [email, token]);
 
     //TODO: default call API to get token
-    const handleResendSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleResendSubmit = async (e: MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         setEmailsent(true);
         try {
             const resp = await resendActivation({
-                email: email
+                email: email!
             });
             const { success } = resp.data;
             if (success) {
@@ -82,7 +82,9 @@ export default function Activation() {
                     </Typography>
                     <Button
                         color="primary"
-                        onClick={(e) => handleResendSubmit(e)}
+                        onClick={(e: MouseEvent<HTMLButtonElement>) =>
+                            handleResendSubmit(e)
+                        }
                         variant="contained"
                     >
                         {t('Resend')}

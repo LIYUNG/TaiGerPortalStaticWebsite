@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import { Suspense } from 'react';
 import { Box, Breadcrumbs, Link, Typography } from '@mui/material';
 import { Navigate, Link as LinkDom, useParams, Await } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -13,7 +13,7 @@ import Loading from '@components/Loading/Loading';
 import { appConfig } from '../../config';
 import CourseWidgetBody from './CourseWidgetBody';
 import { useQuery } from '@tanstack/react-query';
-import { getProgramRequirementsQuery } from '@api/query';
+import { getProgramRequirementsQuery } from '@/api/query';
 
 export default function CourseWidget() {
     const { user } = useAuth();

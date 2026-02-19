@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next';
 import queryString from 'query-string';
 import { Role } from '@taiger-common/core';
 
-import { getUsers } from '@api';
+import { getUsers } from '@/api';
 
 const EditAgentsSubpage = (props) => {
     const { t } = useTranslation();
@@ -60,7 +60,7 @@ const EditAgentsSubpage = (props) => {
                 // setIsLoaded(true);
             }
         );
-    }, [props.student.agents]);
+    }, [props.student, props.student.agents]);
 
     const handleChangeAgentlist = (e: React.SyntheticEvent) => {
         const { value } = e.target;

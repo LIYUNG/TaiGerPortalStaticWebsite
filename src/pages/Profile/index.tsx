@@ -28,13 +28,14 @@ import { is_TaiGer_Agent, is_TaiGer_Editor } from '@taiger-common/core';
 
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
-import { updatePersonalData, getUser } from '@api';
+import { updatePersonalData, getUser } from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
 import { is_personal_data_filled } from '../Utils/util_functions';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
 import Loading from '@components/Loading/Loading';
+import { IUserWithId } from '@/types/taiger-common';
 
 interface PersonalData {
     firstname: string;
@@ -55,7 +56,7 @@ interface ProfileState {
     isLoaded: boolean;
     data: unknown;
     success: boolean;
-    user: Record<string, unknown>;
+    user: IUserWithId;
     changed_personaldata: boolean;
     personaldata: PersonalData;
     updateconfirmed: boolean;
@@ -75,7 +76,7 @@ const Profile = () => {
         isLoaded: false,
         data: null,
         success: false,
-        user: {},
+        user: null as unknown as IUserWithId,
         changed_personaldata: false,
         personaldata: user_id
             ? {
@@ -136,7 +137,7 @@ const Profile = () => {
                                 linkedIn: data.linkedIn ?? '',
                                 lineId: data.lineId ?? ''
                             },
-                            user_id: user_id ?? user._id?.toString(),
+                            user_id: user_id ?? user?._id?.toString() ?? '',
                             res_status: status ?? 0
                         }));
                     } else {

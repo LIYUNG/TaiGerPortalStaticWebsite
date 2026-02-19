@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import queryString from 'query-string';
 
-import { getStudentsV3Query } from '@api/query';
-import type { IStudentResponse } from '@api/types';
+import { getStudentsV3Query } from '@/api/query';
+import type { IStudentResponse } from '@/api/types';
 
 export type StudentsV3Params = Record<
     string,

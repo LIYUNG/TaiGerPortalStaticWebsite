@@ -8,7 +8,7 @@ import { AuthProvider } from '@components/AuthProvider/index';
 import './index.css';
 import i18n from './i18n';
 import { CustomThemeProvider } from '@components/ThemeProvider';
-import { queryClient } from '@api/client';
+import { queryClient } from '@/api';
 import { SnackBarProvider } from '@contexts/use-snack-bar';
 
 const storedLanguage = localStorage.getItem('locale') || 'en';

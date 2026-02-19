@@ -12,8 +12,8 @@ import { useMutation } from '@tanstack/react-query';
 import i18next from 'i18next';
 
 import { useSnackBar } from '@contexts/use-snack-bar';
-import { deleteCourse } from '@api';
-import { queryClient } from '@api/client';
+import { deleteCourse } from '@/api';
+import { queryClient } from '@/api';
 
 export const DeleteCourseDialog = ({
     open,

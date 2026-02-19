@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { is_TaiGer_role } from '@taiger-common/core';
 import { useMutation } from '@tanstack/react-query';
 
-import { putThreadFavorite } from '@api';
+import { putThreadFavorite } from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
 import { file_category_const, open_tasks_v2 } from '../Utils/util_functions';
 import DEMO from '@store/constant';
@@ -17,7 +17,7 @@ import {
     is_new_message_status,
     is_pending_status
 } from '@utils/contants';
-import { queryClient } from '@api/client';
+import { queryClient } from '@/api';
 import { useActiveThreads } from '@hooks/useActiveThreads';
 
 const EssayDashboard = () => {

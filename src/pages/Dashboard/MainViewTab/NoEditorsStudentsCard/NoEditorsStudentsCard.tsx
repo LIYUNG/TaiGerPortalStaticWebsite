@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { MouseEvent, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Button,
@@ -18,19 +18,34 @@ import EditEditorsSubpage from '../StudDocsOverview/EditEditorsSubpage';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { ATTRIBUTES, COLORS } from '@utils/contants';
+import { IStudentResponse } from '@/api';
+import { type IUserAttribute } from '@taiger-common/model';
 
-const NoEditorsStudentsCard = (props) => {
+interface NoEditorsStudentsCardProps {
+    student: IStudentResponse;
+    isArchivPage?: boolean;
+    submitUpdateEditorlist: (
+        e: FormEvent<HTMLFormElement>,
+        updateEditorList: unknown,
+        student_id: string
+    ) => void;
+}
+const NoEditorsStudentsCard = ({
+    student,
+    isArchivPage,
+    submitUpdateEditorlist
+}: NoEditorsStudentsCardProps) => {
     const { user } = useAuth();
     const [noEditorsStudentsCardState, setNoEditorsStudentsCardState] =
         useState({
             showEditorPage: false
         });
 
-    const [anchorEl, setAnchorEl] = useState(null);
+    const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
     const open = Boolean(anchorEl);
     const { t } = useTranslation();
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
+    const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
+        setAnchorEl(event.currentTarget as HTMLElement);
     };
     const handleClose = () => {
         setAnchorEl(null);
@@ -51,31 +66,30 @@ const NoEditorsStudentsCard = (props) => {
         }));
     };
 
-    const submitUpdateEditorlist = (
+    const submitUpdateEditorlistHandler = (
         e: FormEvent<HTMLFormElement>,
         updateEditorList: unknown,
         student_id: string
     ) => {
         e.preventDefault();
         setEditorModalhide();
-        props.submitUpdateEditorlist(e, updateEditorList, student_id);
+        submitUpdateEditorlist(e, updateEditorList, student_id);
     };
 
-    if (
-        props.student.editors === undefined ||
-        props.student.editors.length === 0
-    ) {
+    if (student.editors === undefined || student.editors.length === 0) {
         return (
             <>
                 <TableRow>
-                    {is_TaiGer_role(user) && !props.isArchivPage ? (
+                    {is_TaiGer_role(user) && !isArchivPage ? (
                         <TableCell>
                             <Button
                                 aria-controls={open ? 'basic-menu' : undefined}
                                 aria-expanded={open ? 'true' : undefined}
                                 aria-haspopup="true"
                                 id="basic-button"
-                                onClick={handleClick}
+                                onClick={(
+                                    event: MouseEvent<HTMLButtonElement>
+                                ) => handleClick(event)}
                                 size="small"
                                 variant="contained"
                             >
@@ -100,15 +114,15 @@ const NoEditorsStudentsCard = (props) => {
                         <Link
                             component={LinkDom}
                             to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                                props.student._id.toString(),
-                                DEMO.PROFILE_HASH
+                                student._id?.toString() ?? '',
+                                DEMO.PROFILE_HASH as string
                             )}`}
                         >
-                            {props.student.firstname}, {props.student.lastname}
+                            {student.firstname}, {student.lastname}
                         </Link>
                     </TableCell>
                     <TableCell>
-                        {props.student.attributes?.map((att) => (
+                        {student.attributes?.map((att: IUserAttribute) => (
                             <Tooltip
                                 key={att._id}
                                 title={`${att.name}: ${
@@ -126,27 +140,26 @@ const NoEditorsStudentsCard = (props) => {
                     </TableCell>
                     <TableCell>
                         <Typography fontWeight="bold">
-                            {props.student.needEditor ? 'Ready to Assign' : '-'}
+                            {student.needEditor ? 'Ready to Assign' : '-'}
                         </Typography>
                     </TableCell>
                     <TableCell>
                         <Typography>
-                            {props.student.application_preference
-                                .target_program_language || 'TBD'}
+                            {student.application_preference
+                                ?.target_program_language || 'TBD'}
                         </Typography>
                     </TableCell>
                     <TableCell>
                         <Typography>
-                            {props.student.application_preference
-                                .expected_application_date || 'TBD'}
+                            {student.application_preference
+                                ?.expected_application_date || 'TBD'}
                         </Typography>
                     </TableCell>
                     <TableCell>
-                        {!props.student.agents ||
-                        props.student.agents.length === 0 ? (
+                        {!student.agents || student.agents.length === 0 ? (
                             <Typography fontWeight="bold">No Agent</Typography>
                         ) : (
-                            props.student.agents.map((agent, i) => (
+                            student.agents.map((agent, i) => (
                                 <Typography
                                     key={i}
                                 >{`${agent.firstname}`}</Typography>
@@ -160,8 +173,8 @@ const NoEditorsStudentsCard = (props) => {
                         onHide={setEditorModalhide}
                         setmodalhide={setEditorModalhide}
                         show={noEditorsStudentsCardState.showEditorPage}
-                        student={props.student}
-                        submitUpdateEditorlist={submitUpdateEditorlist}
+                        student={student}
+                        submitUpdateEditorlist={submitUpdateEditorlistHandler}
                     />
                 ) : null}
             </>

@@ -17,7 +17,7 @@ import { Link as LinkDom } from 'react-router-dom';
 import MessageIcon from '@mui/icons-material/Message';
 import { is_TaiGer_AdminAgent } from '@taiger-common/core';
 
-import { getMessagThreadQuery } from '@api/query';
+import { getMessagThreadQuery } from '@/api/query';
 import ErrorPage from '../../../Utils/ErrorPage';
 import DocModificationThreadPage from '../DocModificationThreadPage';
 import { APP_BAR_HEIGHT, stringAvatar } from '@utils/contants';

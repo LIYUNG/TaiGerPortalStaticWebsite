@@ -4,7 +4,7 @@ import { Box, ListItem, MenuItem, Skeleton, Typography } from '@mui/material';
 import i18next from 'i18next';
 
 import Friends from './Friends';
-import { getMyCommunicationThread, getQueryStudentResults } from '@api';
+import { getMyCommunicationThread, getQueryStudentResults } from '@/api';
 import { useAuth } from '../AuthProvider';
 import {
     Search,

@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useState, MouseEvent } from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -33,8 +33,39 @@ import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import EditAttributesSubpage from '../StudDocsOverview/EditAttributesSubpage';
 import { COLORS } from '@utils/contants';
+import { IStudentResponse } from '@/types/taiger-common';
 
-const StudentsAgentEditor = (props) => {
+export interface StudentsAgentEditorProps {
+    student: IStudentResponse;
+    submitUpdateAgentlist: (
+        e: React.FormEvent<HTMLFormElement>,
+        updateAgentList: unknown,
+        student_id: string
+    ) => void;
+    submitUpdateEditorlist: (
+        e: React.FormEvent<HTMLFormElement>,
+        updateEditorList: unknown,
+        student_id: string
+    ) => void;
+    submitUpdateAttributeslist: (
+        e: React.FormEvent<HTMLFormElement>,
+        updateAttributesList: unknown,
+        student_id: string
+    ) => void;
+    updateStudentArchivStatus: (
+        student_id: string,
+        archiv: boolean,
+        shouldInform: boolean
+    ) => void;
+}
+
+const StudentsAgentEditor = ({
+    student,
+    submitUpdateAgentlist,
+    submitUpdateEditorlist,
+    submitUpdateAttributeslist,
+    updateStudentArchivStatus
+}: StudentsAgentEditorProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const theme = useTheme();
@@ -46,19 +77,23 @@ const StudentsAgentEditor = (props) => {
     });
     const [isLoading, setIsLoading] = useState(false);
     const [shouldInform, setShouldInform] = useState(false);
-    const [anchorEl, setAnchorEl] = useState(null);
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
-    const handleClick = (event) => {
+    const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
     };
     const handleClose = () => {
         setAnchorEl(null);
     };
 
-    const updateStudentArchivStatus = (student_id, archiv, shouldInform) => {
+    const updateStudentArchivStatusHandler = (
+        student_id: string,
+        archiv: boolean,
+        shouldInform: boolean
+    ) => {
         setAnchorEl(null);
         setIsLoading(true);
-        props.updateStudentArchivStatus(student_id, archiv, shouldInform);
+        updateStudentArchivStatus(student_id, archiv, shouldInform);
         setArchivModalhide();
         setIsLoading(false);
         setShouldInform(false);
@@ -128,48 +163,45 @@ const StudentsAgentEditor = (props) => {
         }));
     };
 
-    const submitUpdateAgentlist = (
+    const submitUpdateAgentlistHandler = (
         e: React.FormEvent<HTMLFormElement>,
         updateAgentList: unknown,
         student_id: string
     ) => {
-        props.submitUpdateAgentlist(e, updateAgentList, student_id);
+        submitUpdateAgentlist(e, updateAgentList, student_id);
         setAgentModalhide();
     };
 
-    const submitUpdateEditorlist = (
+    const submitUpdateEditorlistHandler = (
         e: React.FormEvent<HTMLFormElement>,
         updateEditorList: unknown,
         student_id: string
     ) => {
         setEditorModalhide();
-        props.submitUpdateEditorlist(e, updateEditorList, student_id);
+        submitUpdateEditorlist(e, updateEditorList, student_id);
     };
 
-    const submitUpdateAttributeslist = (
+    const submitUpdateAttributeslistHandler = (
         e: React.FormEvent<HTMLFormElement>,
         updateAttributesList: unknown,
         student_id: string
     ) => {
         setAttributeModalhide();
-        props.submitUpdateAttributeslist(e, updateAttributesList, student_id);
+        submitUpdateAttributeslist(e, updateAttributesList, student_id);
     };
 
     let studentsAgent;
     let studentsEditor;
-    if (
-        props.student.agents === undefined ||
-        props.student.agents.length === 0
-    ) {
+    if (student.agents === undefined || student.agents.length === 0) {
         studentsAgent = t('No Agent assigned');
     } else {
-        studentsAgent = props.student.agents.map((agent) => (
+        studentsAgent = student.agents.map((agent) => (
             <Fragment key={agent._id}>
                 <Link
                     component={LinkDom}
                     style={{
                         color:
-                            props.student.archiv === true
+                            student.archiv === true
                                 ? theme.palette.primary.contrastText
                                 : ''
                     }}
@@ -181,19 +213,16 @@ const StudentsAgentEditor = (props) => {
             </Fragment>
         ));
     }
-    if (
-        props.student.editors === undefined ||
-        props.student.editors.length === 0
-    ) {
+    if (student.editors === undefined || student.editors.length === 0) {
         studentsEditor = t('No Editor assigned');
     } else {
-        studentsEditor = props.student.editors.map((editor) => (
+        studentsEditor = student.editors.map((editor) => (
             <Fragment key={editor._id}>
                 <Link
                     component={LinkDom}
                     style={{
                         color:
-                            props.student.archiv === true
+                            student.archiv === true
                                 ? theme.palette.primary.contrastText
                                 : ''
                     }}
@@ -211,11 +240,11 @@ const StudentsAgentEditor = (props) => {
             <TableRow
                 style={{
                     backgroundColor:
-                        props.student.archiv === true
+                        student.archiv === true
                             ? theme.palette.primary.main
                             : ''
                 }}
-                title={props.student.archiv === true ? 'Closed' : 'Open'}
+                title={student.archiv === true ? 'Closed' : 'Open'}
             >
                 <TableCell>
                     {is_TaiGer_role(user) && !props.isArchivPage ? (
@@ -259,7 +288,7 @@ const StudentsAgentEditor = (props) => {
                                     <MenuItem
                                         onClick={() => setArchivModalOpen()}
                                     >
-                                        {is_User_Archived(props.student)
+                                        {is_User_Archived(student)
                                             ? t('Move to Active', {
                                                   ns: 'common'
                                               })
@@ -279,26 +308,23 @@ const StudentsAgentEditor = (props) => {
                                 component={LinkDom}
                                 style={{
                                     color:
-                                        props.student.archiv === true
+                                        student.archiv === true
                                             ? theme.palette.primary.contrastText
                                             : ''
                                 }}
                                 to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                                    props.student._id,
+                                    student._id,
                                     DEMO.PROFILE_HASH
                                 )}`}
                             >
-                                {props.student.firstname},{' '}
-                                {props.student.lastname} {' | '}
-                                {props.student.lastname_chinese}
-                                {props.student.firstname_chinese}
+                                {student.firstname}, {student.lastname} {' | '}
+                                {student.lastname_chinese}
+                                {student.firstname_chinese}
                             </Link>
                         </Typography>
-                        <Typography variant="body2">
-                            {props.student.email}
-                        </Typography>
+                        <Typography variant="body2">{student.email}</Typography>
                         {is_TaiGer_role(user)
-                            ? props.student.attributes?.map((attribute) => (
+                            ? student.attributes?.map((attribute) => (
                                   <Chip
                                       color={COLORS[attribute.value]}
                                       key={attribute._id}
@@ -317,70 +343,69 @@ const StudentsAgentEditor = (props) => {
                 </TableCell>
                 <TableCell>
                     <Typography variant="body2">
-                        {props.student.application_preference
-                            .expected_application_date || 'TBD'}
+                        {student.application_preference
+                            ?.expected_application_date || 'TBD'}
                     </Typography>
                 </TableCell>
                 <TableCell>
                     <Typography variant="body2">
-                        {props.student.application_preference
-                            .expected_application_semester || 'TBD'}
+                        {student.application_preference
+                            ?.expected_application_semester || 'TBD'}
                     </Typography>
                 </TableCell>
                 <TableCell>
                     <Typography variant="body2">
-                        {props.student.application_preference.target_degree ||
-                            'TBD'}
+                        {student.application_preference?.target_degree || 'TBD'}
                     </Typography>
                 </TableCell>
                 <TableCell>
                     <Typography fontWeight="bold" variant="body2">
-                        {props.student.academic_background.university
-                            .attended_university || 'TBD'}
+                        {student.academic_background?.university
+                            ?.attended_university || 'TBD'}
                     </Typography>
                     <Typography variant="body2">
-                        {props.student.academic_background.university
-                            .attended_university_program || 'TBD'}
+                        {student.academic_background?.university
+                            ?.attended_university_program || 'TBD'}
                     </Typography>
                 </TableCell>
                 <TableCell>
                     <Typography variant="body2">
-                        {props.student?.application_preference
+                        {student?.application_preference
                             ?.target_application_field || 'TBD'}
                     </Typography>
                 </TableCell>
                 <TableCell>
                     <Typography variant="body2">
-                        {props.student.academic_background.language
-                            .english_certificate || 'TBD'}
+                        {student.academic_background?.language
+                            ?.english_certificate || 'TBD'}
                     </Typography>
                     <Typography variant="body2">
-                        {props.student.academic_background.language
-                            .german_certificate || 'TBD'}
-                    </Typography>
-                </TableCell>
-                <TableCell>
-                    <Typography variant="body2">
-                        {props.student.academic_background.language
-                            .english_score || 'TBD'}
-                    </Typography>
-                    <Typography variant="body2">
-                        {props.student.academic_background.language
-                            .german_score || 'TBD'}
+                        {student.academic_background?.language
+                            ?.german_certificate || 'TBD'}
                     </Typography>
                 </TableCell>
                 <TableCell>
                     <Typography variant="body2">
-                        {(props.student.academic_background.language
-                            .english_isPassed === 'X' &&
-                            props.student.academic_background.language
+                        {student.academic_background?.language?.english_score ||
+                            'TBD'}
+                    </Typography>
+                    <Typography variant="body2">
+                        {student.academic_background?.language?.german_score ||
+                            'TBD'}
+                    </Typography>
+                </TableCell>
+                <TableCell>
+                    <Typography variant="body2">
+                        {(student.academic_background?.language
+                            ?.english_isPassed === 'X' &&
+                            student.academic_background?.language
                                 .english_test_date) ||
                             'TBD'}
                     </Typography>
                     <Typography variant="body2">
-                        {(props.student.academic_background.language
-                            .german_isPassed === 'X' &&
-                            props.student.academic_background.language
+                        {(student.academic_background?.language
+                            ?.german_isPassed === 'X' &&
+                            student.academic_background?.language
                                 .german_test_date) ||
                             'TBD'}
                     </Typography>
@@ -392,25 +417,27 @@ const StudentsAgentEditor = (props) => {
                         <EditAgentsSubpage
                             onHide={setAgentModalhide}
                             show={studentsAgentEditor.showAgentPage}
-                            student={props.student}
-                            submitUpdateAgentlist={submitUpdateAgentlist}
+                            student={student}
+                            submitUpdateAgentlist={submitUpdateAgentlistHandler}
                         />
                     ) : null}
                     {studentsAgentEditor.showEditorPage ? (
                         <EditEditorsSubpage
                             onHide={setEditorModalhide}
                             show={studentsAgentEditor.showEditorPage}
-                            student={props.student}
-                            submitUpdateEditorlist={submitUpdateEditorlist}
+                            student={student}
+                            submitUpdateEditorlist={
+                                submitUpdateEditorlistHandler
+                            }
                         />
                     ) : null}
                     {studentsAgentEditor.showAttributesPage ? (
                         <EditAttributesSubpage
                             onHide={setAttributeModalhide}
                             show={studentsAgentEditor.showAttributesPage}
-                            student={props.student}
+                            student={student}
                             submitUpdateAttributeslist={
-                                submitUpdateAttributeslist
+                                submitUpdateAttributeslistHandler
                             }
                         />
                     ) : null}
@@ -423,9 +450,9 @@ const StudentsAgentEditor = (props) => {
                             <DialogTitle sx={{ mb: 2 }}>
                                 {t('Move to archive statement', {
                                     ns: 'common',
-                                    studentName: `${props.student.firstname} ${props.student.lastname}`,
+                                    studentName: `${student.firstname} ${student.lastname}`,
                                     status: `${
-                                        is_User_Archived(props.student)
+                                        is_User_Archived(student)
                                             ? t('Active')
                                             : t('Archive', { ns: 'common' })
                                     }`
@@ -451,9 +478,9 @@ const StudentsAgentEditor = (props) => {
                                 <Button
                                     color="primary"
                                     onClick={() =>
-                                        updateStudentArchivStatus(
-                                            props.student._id,
-                                            !is_User_Archived(props.student),
+                                        updateStudentArchivStatusHandler(
+                                            student._id,
+                                            !is_User_Archived(student),
                                             shouldInform
                                         )
                                     }

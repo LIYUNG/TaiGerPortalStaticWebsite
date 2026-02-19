@@ -34,7 +34,7 @@ import {
     deleteComplaintsTicket,
     submitMessageInTicketWithAttachment,
     updateComplaintsTicket
-} from '@api';
+} from '@/api';
 import MessageList from '@components/Message/MessageList';
 import { stringAvatar } from '@utils/contants';
 import { useAuth } from '@components/AuthProvider';

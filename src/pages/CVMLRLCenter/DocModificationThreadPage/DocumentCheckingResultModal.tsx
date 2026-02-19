@@ -12,7 +12,7 @@ import {
     Checkbox
 } from '@mui/material';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'; // Example icon from Material UI
-import { getCheckDocumentPatternIsPassed } from '@api';
+import { getCheckDocumentPatternIsPassed } from '@/api';
 import { Stack } from '@mui/system';
 import { useTranslation } from 'react-i18next';
 
@@ -35,6 +35,31 @@ const DocumentCheckingResultModal = ({
     const [canProceed, setCanProceed] = useState(false);
     const [error, setError] = useState(null);
     useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true); // Start loading
+                const { data, status } = await getCheckDocumentPatternIsPassed(
+                    thread_id,
+                    file_type
+                );
+                const { isPassed, success, reason } = data;
+                if (!success) {
+                    throw new Error(`Error: ${status}`); // Handle HTTP errors
+                }
+                if (!isPassed) {
+                    setCanProceed(false);
+                    setReason(reason);
+                    return;
+                }
+                setCanProceed(true);
+                setAcknowledge(true);
+            } catch (err) {
+                setCanProceed(false);
+                setError(err.message); // Handle errors
+            } finally {
+                setLoading(false); // End loading
+            }
+        };
         if (
             open &&
             (file_type === 'CV' || file_type === 'CV_US') &&
@@ -46,33 +71,7 @@ const DocumentCheckingResultModal = ({
             setCanProceed(false);
             setError('');
         }
-    }, [open]);
-
-    const fetchData = async () => {
-        try {
-            setLoading(true); // Start loading
-            const { data, status } = await getCheckDocumentPatternIsPassed(
-                thread_id,
-                file_type
-            );
-            const { isPassed, success, reason } = data;
-            if (!success) {
-                throw new Error(`Error: ${status}`); // Handle HTTP errors
-            }
-            if (!isPassed) {
-                setCanProceed(false);
-                setReason(reason);
-                return;
-            }
-            setCanProceed(true);
-            setAcknowledge(true);
-        } catch (err) {
-            setCanProceed(false);
-            setError(err.message); // Handle errors
-        } finally {
-            setLoading(false); // End loading
-        }
-    };
+    }, [open, file_type, isFinalVersion, thread_id, fetchData]);
 
     return (
         <Dialog

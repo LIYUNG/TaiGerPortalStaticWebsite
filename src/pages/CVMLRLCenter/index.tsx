@@ -17,7 +17,7 @@ import {
     getMyStudentsThreads,
     getThreadsByStudent,
     putThreadFavorite
-} from '@api';
+} from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
 import {
     AGENT_SUPPORT_DOCUMENTS_A,
@@ -41,7 +41,6 @@ const CVMLRLCenter = () => {
     const [indexState, setIndexState] = useState({
         error: '',
         isLoaded: false,
-        isLoaded2: false,
         data: null,
         success: false,
         essays: null,

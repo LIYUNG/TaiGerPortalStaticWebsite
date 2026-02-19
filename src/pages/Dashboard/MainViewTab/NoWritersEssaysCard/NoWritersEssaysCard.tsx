@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { FormEvent, MouseEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Button,
@@ -15,19 +15,34 @@ import { is_TaiGer_role } from '@taiger-common/core';
 import EditEssayWritersSubpage from '../StudDocsOverview/EditEssayWritersSubpage';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
+import { IDocumentthread, IProgram } from '@taiger-common/model/dist/types';
 
-const NoWritersEssaysCard = (props) => {
+interface NoWritersEssaysCardProps {
+    essayDocumentThread: IDocumentthread;
+    isArchivPage: boolean;
+    submitUpdateEssayWriterlist: (
+        e: FormEvent<HTMLFormElement>,
+        updateEssayWriterList: unknown,
+        essayDocumentThread_id: string
+    ) => void;
+}
+
+const NoWritersEssaysCard = ({
+    essayDocumentThread,
+    isArchivPage,
+    submitUpdateEssayWriterlist
+}: NoWritersEssaysCardProps) => {
     const { user } = useAuth();
     const [noEditorsStudentsCardState, setNoEditorsStudentsCardState] =
         useState({
             showEditorPage: false
         });
 
-    const [anchorEl, setAnchorEl] = useState(null);
+    const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
     const open = Boolean(anchorEl);
     const { t } = useTranslation();
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
+    const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
+        setAnchorEl(event.currentTarget as HTMLElement);
     };
     const handleClose = () => {
         setAnchorEl(null);
@@ -48,14 +63,14 @@ const NoWritersEssaysCard = (props) => {
         }));
     };
 
-    const submitUpdateEssayWriterlist = (
+    const submitUpdateEssayWriterlistHandler = (
         e: React.FormEvent<HTMLFormElement>,
         updateEssayWriterList: unknown,
         essayDocumentThread_id: string
     ) => {
         e.preventDefault();
         setEditorModalhide();
-        props.submitUpdateEssayWriterlist(
+        submitUpdateEssayWriterlist(
             e,
             updateEssayWriterList,
             essayDocumentThread_id
@@ -63,20 +78,22 @@ const NoWritersEssaysCard = (props) => {
     };
 
     if (
-        props.essayDocumentThread.outsourced_user_id === undefined ||
-        props.essayDocumentThread.outsourced_user_id.length === 0
+        essayDocumentThread.outsourced_user_id === undefined ||
+        essayDocumentThread.outsourced_user_id.length === 0
     ) {
         return (
             <>
                 <TableRow>
-                    {is_TaiGer_role(user) && !props.isArchivPage ? (
+                    {is_TaiGer_role(user) && !isArchivPage ? (
                         <TableCell>
                             <Button
                                 aria-controls={open ? 'basic-menu' : undefined}
                                 aria-expanded={open ? 'true' : undefined}
                                 aria-haspopup="true"
                                 id="basic-button"
-                                onClick={handleClick}
+                                onClick={(
+                                    event: MouseEvent<HTMLButtonElement>
+                                ) => handleClick(event)}
                                 size="small"
                                 variant="contained"
                             >
@@ -101,41 +118,50 @@ const NoWritersEssaysCard = (props) => {
                         <Link
                             component={LinkDom}
                             to={`${DEMO.DOCUMENT_MODIFICATION_LINK(
-                                props.essayDocumentThread?._id?.toString()
+                                essayDocumentThread?._id?.toString()
                             )}`}
                         >
-                            {props.essayDocumentThread?.file_type}
-                            {props.essayDocumentThread?.program_id?.school}
+                            {essayDocumentThread?.file_type}
                             {
-                                props.essayDocumentThread?.program_id
+                                (essayDocumentThread?.program_id as IProgram)
+                                    ?.school
+                            }
+                            {
+                                (essayDocumentThread?.program_id as IProgram)
                                     ?.program_name
                             }
-                            {props.essayDocumentThread?.program_id?.degree}
-                            {props.essayDocumentThread?.program_id?.semester}
+                            {
+                                (essayDocumentThread?.program_id as IProgram)
+                                    ?.degree
+                            }
+                            {
+                                (essayDocumentThread?.program_id as IProgram)
+                                    ?.semester
+                            }
                         </Link>
                     </TableCell>
                     <TableCell>
                         <Link
                             component={LinkDom}
                             to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                                props.essayDocumentThread.student_id?._id.toString(),
+                                essayDocumentThread.student_id?._id.toString(),
                                 DEMO.PROFILE_HASH
                             )}`}
                         >
-                            {props.essayDocumentThread.student_id?.firstname},{' '}
-                            {props.essayDocumentThread.student_id?.lastname}
+                            {essayDocumentThread.student_id?.firstname},{' '}
+                            {essayDocumentThread.student_id?.lastname}
                         </Link>
                     </TableCell>
                     <TableCell>
-                        {props.essayDocumentThread.student_id?.email}
+                        {essayDocumentThread.student_id?.email}
                     </TableCell>
                     <TableCell>
                         {/* TODO: adjust condition and backend returned data: message !== 0 && no outsourcer */}
-                        {(props.essayDocumentThread.outsourced_user_id ===
+                        {(essayDocumentThread.outsourced_user_id ===
                             undefined ||
-                            props.essayDocumentThread.outsourced_user_id
-                                ?.length === 0) &&
-                        props.essayDocumentThread.messages?.length > 0 ? (
+                            essayDocumentThread.outsourced_user_id?.length ===
+                                0) &&
+                        essayDocumentThread.messages?.length > 0 ? (
                             <Typography fontWeight="bold">
                                 Ready to Assign
                             </Typography>
@@ -144,19 +170,19 @@ const NoWritersEssaysCard = (props) => {
                         )}
                     </TableCell>
                     <TableCell>
-                        {props.essayDocumentThread.student_id
-                            ?.application_preference
+                        {essayDocumentThread.student_id?.application_preference
                             .expected_application_date || (
                             <Typography>TBD</Typography>
                         )}
                     </TableCell>
                     <TableCell>
-                        {!props.essayDocumentThread.student_id?.editors ||
-                        props.essayDocumentThread.student_id?.editors.length ===
-                            0 ? (
-                            <Typography fontWeight="bold">No Editor</Typography>
+                        {!essayDocumentThread.student_id?.editors ||
+                        essayDocumentThread.student_id?.editors.length === 0 ? (
+                            <Typography fontWeight="bold">
+                                {t('No Editor', { ns: 'common' })}
+                            </Typography>
                         ) : (
-                            props.essayDocumentThread.student_id?.editors.map(
+                            essayDocumentThread.student_id?.editors.map(
                                 (editor, i) => (
                                     <Typography
                                         key={i}
@@ -166,12 +192,11 @@ const NoWritersEssaysCard = (props) => {
                         )}
                     </TableCell>
                     <TableCell>
-                        {!props.essayDocumentThread.student_id?.agents ||
-                        props.essayDocumentThread.student_id?.agents.length ===
-                            0 ? (
+                        {!essayDocumentThread.student_id?.agents ||
+                        essayDocumentThread.student_id?.agents.length === 0 ? (
                             <Typography fontWeight="bold">No Agent</Typography>
                         ) : (
-                            props.essayDocumentThread.student_id?.agents.map(
+                            essayDocumentThread.student_id?.agents.map(
                                 (agent, i) => (
                                     <Typography
                                         key={i}
@@ -185,12 +210,12 @@ const NoWritersEssaysCard = (props) => {
                 noEditorsStudentsCardState.showEditorPage ? (
                     <EditEssayWritersSubpage
                         actor="Essay Writer"
-                        essayDocumentThread={props.essayDocumentThread}
+                        essayDocumentThread={essayDocumentThread}
                         onHide={setEditorModalhide}
                         setmodalhide={setEditorModalhide}
                         show={noEditorsStudentsCardState.showEditorPage}
                         submitUpdateEssayWriterlist={
-                            submitUpdateEssayWriterlist
+                            submitUpdateEssayWriterlistHandler
                         }
                     />
                 ) : null}
