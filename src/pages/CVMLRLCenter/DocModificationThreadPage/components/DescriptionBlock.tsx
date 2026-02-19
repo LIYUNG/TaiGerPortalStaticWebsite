@@ -8,7 +8,7 @@ import { is_TaiGer_role } from '@taiger-common/core';
 
 import { useAuth } from '@components/AuthProvider';
 import DEMO from '@store/constant';
-import { BASE_URL } from '@api/request';
+import { BASE_URL } from '@/api';
 import { appConfig } from '../../../../config';
 
 const DescriptionBlock = ({ thread, template_obj, documentsthreadId }) => {

@@ -13,7 +13,7 @@ import {
 } from '@utils/contants';
 import { getMyCommunicationQuery } from '@/api/query';
 import { useQuery } from '@tanstack/react-query';
-import { queryClient } from '@api/client';
+import { queryClient } from '@/api';
 
 interface EmbeddedChatListState {
     success: boolean;

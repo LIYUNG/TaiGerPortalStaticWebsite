@@ -29,7 +29,7 @@ import i18next from 'i18next';
 
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
-import { BASE_URL } from '@api/request';
+import { BASE_URL } from '@/api';
 import {
     deleteVPDFileV2,
     SetAsNotNeededV2,
@@ -37,7 +37,7 @@ import {
     uploadVPDforstudentV2
 } from '@/api';
 import { useMutation } from '@tanstack/react-query';
-import { queryClient } from '@api/client';
+import { queryClient } from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import type { Application, IStudentResponse } from '@/api/types';
 

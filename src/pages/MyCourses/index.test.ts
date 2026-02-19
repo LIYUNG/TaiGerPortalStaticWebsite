@@ -12,7 +12,7 @@ import { exampleCourse } from '../../test/testingCourseData';
 // import { SnackBarProvider } from '@contexts/use-snack-bar';
 
 vi.mock('axios');
-vi.mock('@api');
+vi.mock('@/api');
 vi.mock('react-router-dom', async (importOriginal) => ({
     ...(await importOriginal<typeof import('react-router-dom')>()),
     useParams: vi.fn()

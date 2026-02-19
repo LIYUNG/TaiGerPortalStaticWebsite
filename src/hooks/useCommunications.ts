@@ -9,7 +9,7 @@ import {
     postCommunicationThreadV2
 } from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
-import { queryClient } from '@api/client';
+import { queryClient } from '@/api';
 import { useMutation } from '@tanstack/react-query';
 
 interface UseCommunicationsProps {

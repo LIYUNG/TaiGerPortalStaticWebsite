@@ -32,7 +32,7 @@ import i18next from 'i18next';
 import {
     getActiveEventsNumber,
     getMyCommunicationUnreadNumber
-} from '@api/index';
+} from '@/api';
 import { appConfig } from '../../config';
 import { useAuth } from '../AuthProvider';
 import NavSearch from './NavSearch';

@@ -8,7 +8,7 @@
 // import { mockSingleStudentCVMLRLFormatData } from '../../test/testingStudentDataCVMLRLCenter';
 
 vi.mock('axios');
-vi.mock('@api');
+vi.mock('@/api');
 vi.mock('@components/AuthProvider');
 
 class ResizeObserver {

@@ -10,7 +10,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SnackBarProvider } from '@contexts/use-snack-bar';
 
 vi.mock('axios');
-vi.mock('@api');
+vi.mock('@/api');
 vi.mock('@mui/x-charts/BarChart', () => ({
     BarChart: vi.fn().mockImplementation(({ children }) => children)
 }));

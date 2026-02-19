@@ -13,7 +13,8 @@ import {
 import { useAuth } from '@components/AuthProvider';
 import { getUTCWithDST, time_slots } from '@utils/contants';
 import { useSnackBar } from '@contexts/use-snack-bar';
-import { queryClient } from '@api/client';
+import { queryClient } from '@/api';
+import { SelectChangeEvent } from '@mui/material';
 
 export interface UseCalendarEventsProps {
     startTime: string;
@@ -187,8 +188,8 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
                 calendarEventsState.newEventEnd instanceof Date
                     ? calendarEventsState.newEventEnd
                     : calendarEventsState.newEventEnd
-                      ? new Date(calendarEventsState.newEventEnd as string)
-                      : (() => {
+                        ? new Date(calendarEventsState.newEventEnd as string)
+                        : (() => {
                             const end = new Date(startDate);
                             end.setMinutes(end.getMinutes() + 30);
                             return end;
@@ -388,7 +389,7 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
 
     const handleConfirmAppointmentModalOpen = (
         e: MouseEvent,
-        event: { _id: { toString: () => string }; [key: string]: unknown }
+        event: { _id: { toString: () => string };[key: string]: unknown }
     ): void => {
         e.preventDefault();
         e.stopPropagation();
@@ -402,7 +403,7 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
 
     const handleEditAppointmentModalOpen = (
         e: MouseEvent,
-        event: { _id: { toString: () => string }; [key: string]: unknown }
+        event: { _id: { toString: () => string };[key: string]: unknown }
     ): void => {
         e.preventDefault();
         e.stopPropagation();
@@ -428,7 +429,7 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
     };
 
     const handleUpdateTimeSlot = (
-        e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+        e: SelectChangeEvent
     ): void => {
         const new_timeslot_temp = e.target.value;
         const startDate = new Date(new_timeslot_temp);

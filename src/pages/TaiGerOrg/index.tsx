@@ -38,7 +38,7 @@ import i18next from 'i18next';
 import ErrorPage from '../Utils/ErrorPage';
 import { updateUserPermission } from '@/api';
 import { getTeamMembersQuery } from '@/api/query';
-import { queryClient } from '@api/client';
+import { queryClient } from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import GrantPermissionModal from './GrantPermissionModal';

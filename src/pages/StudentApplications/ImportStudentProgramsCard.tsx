@@ -26,10 +26,10 @@ import { HighlightText } from '../Utils/checking-functions';
 import {
     createApplicationV2,
     getQueryStudentsResults,
-    getApplicationStudentV2
-} from '@api/index';
-import { queryClient } from '@api/client';
-import type { Application } from '@/api/types';
+    getApplicationStudentV2,
+    queryClient,
+    Application
+} from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
 
 export interface ImportStudentProgramsCardProps {

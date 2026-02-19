@@ -10,7 +10,7 @@ import { mockSingleData } from '../../test/testingStudentData';
 import { SurveyProvider } from '@components/SurveyProvider';
 
 vi.mock('axios');
-vi.mock('@api');
+vi.mock('@/api');
 vi.mock('@components/AuthProvider');
 vi.mock('@taiger-common/core', async (importOriginal) => {
     const actual =

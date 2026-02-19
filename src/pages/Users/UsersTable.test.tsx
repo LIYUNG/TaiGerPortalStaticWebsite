@@ -9,7 +9,7 @@ import { AuthContextValue } from '@/api/types';
 import { AxiosResponse } from 'axios';
 
 vi.mock('axios');
-vi.mock('@api');
+vi.mock('@/api');
 vi.mock('@components/AuthProvider');
 
 vi.mock('@contexts/use-snack-bar', () => ({

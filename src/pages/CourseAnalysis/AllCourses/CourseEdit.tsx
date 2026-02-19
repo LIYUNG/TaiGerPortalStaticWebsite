@@ -15,7 +15,7 @@ import { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { updateCourse } from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
-import { queryClient } from '@api/client';
+import { queryClient } from '@/api';
 import { getCoursessQuery } from '@/api/query';
 
 const CourseEdit = () => {

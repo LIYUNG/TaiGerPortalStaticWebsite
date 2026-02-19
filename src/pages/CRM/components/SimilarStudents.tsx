@@ -26,7 +26,7 @@ import {
     Replay as ReplayIcon
 } from '@mui/icons-material';
 
-import { request } from '@api/request';
+import { request } from '@/api';
 import DEMO from '@store/constant';
 
 const { STUDENT_DATABASE_STUDENTID_LINK, SINGLE_PROGRAM_LINK } = DEMO;

@@ -12,9 +12,10 @@ import { RouterProvider, createMemoryRouter } from 'react-router-dom';
 
 import { mockSingleData } from '../../test/testingStudentData';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AxiosResponse } from 'axios';
 
 vi.mock('axios');
-vi.mock('@api');
+vi.mock('@/api');
 vi.mock('@mui/x-charts/BarChart', () => ({
     BarChart: vi.fn().mockImplementation(({ children }) => children)
 }));
@@ -31,7 +32,7 @@ const createTestQueryClient = () =>
         }
     });
 
-const renderWithQueryClient = (ui) => {
+const renderWithQueryClient = (ui: React.ReactNode) => {
     const testQueryClient = createTestQueryClient();
     return render(
         <QueryClientProvider client={testQueryClient}>{ui}</QueryClientProvider>
@@ -57,7 +58,7 @@ const routes = [
 describe('ApplicantsOverview', () => {
     window.ResizeObserver = ResizeObserver;
     test('ApplicationsOverview not crash', async () => {
-        vi.mocked(getStudents).mockResolvedValue({ data: mockSingleData });
+        vi.mocked(getStudents).mockResolvedValue({ data: mockSingleData } as AxiosResponse);
         vi.mocked(getProgramTickets).mockResolvedValue({
             status: 200,
             statusText: 'OK',
@@ -65,7 +66,7 @@ describe('ApplicantsOverview', () => {
             config: {},
             data: { success: true, data: [] }
         });
-        vi.mocked(getStudentsV3).mockResolvedValue({ data: mockSingleData });
+        vi.mocked(getStudentsV3).mockResolvedValue({ data: mockSingleData } as AxiosResponse);
         vi.mocked(getMyStudentsApplications).mockResolvedValue({
             data: { applications: [] }
         });

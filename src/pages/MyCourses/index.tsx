@@ -37,7 +37,7 @@ import {
 
 import { getMycourses, putMycourses, transcriptanalyser_testV2 } from '@/api';
 import { useMutation } from '@tanstack/react-query';
-import { queryClient } from '@api/client';
+import { queryClient } from '@/api';
 import { getMycoursesQuery } from '@/api/query';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';

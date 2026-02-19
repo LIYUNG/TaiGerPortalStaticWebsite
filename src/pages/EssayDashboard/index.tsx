@@ -17,7 +17,7 @@ import {
     is_new_message_status,
     is_pending_status
 } from '@utils/contants';
-import { queryClient } from '@api/client';
+import { queryClient } from '@/api';
 import { useActiveThreads } from '@hooks/useActiveThreads';
 
 const EssayDashboard = () => {

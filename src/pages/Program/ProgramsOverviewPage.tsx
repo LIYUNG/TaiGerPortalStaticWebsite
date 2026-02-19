@@ -47,7 +47,7 @@ import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
-import { queryClient } from '@api/client';
+import { queryClient } from '@/api';
 import { useProgramsOverview } from '@hooks/useProgramsOverview';
 import Loading from '@components/Loading/Loading';
 import ErrorPage from '../Utils/ErrorPage';

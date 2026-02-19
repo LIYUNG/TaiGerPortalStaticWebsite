@@ -14,7 +14,7 @@ import { convertDate } from '@utils/contants';
 import ModalNew from '@components/Modal';
 import ProgramCompare from './ProgramCompare';
 
-import { getProgramChangeRequests } from '@api/index';
+import { getProgramChangeRequests } from '@/api';
 
 export interface ProgramDiffModalProps {
     open: boolean;

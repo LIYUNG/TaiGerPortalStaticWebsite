@@ -68,7 +68,7 @@ import {
     deleteApplicationStudentV2,
     updateStudentApplication
 } from '@/api';
-import { queryClient } from '@api/client';
+import { queryClient } from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { appConfig } from '../../config';

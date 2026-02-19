@@ -10,7 +10,7 @@ vi.mock('../AuthProvider', () => ({
 vi.mock('@contexts/use-snack-bar', () => ({
     useSnackBar: vi.fn()
 }));
-vi.mock('@api/index', () => ({
+vi.mock('@/api', () => ({
     refreshApplication: vi.fn()
 }));
 

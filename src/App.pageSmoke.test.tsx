@@ -31,8 +31,8 @@ vi.mock('@components/AuthProvider', () => ({
     })
 }));
 
-vi.mock('@api', async (importOriginal) => ({
-    ...(await importOriginal<typeof import('@api')>()),
+vi.mock('@/api', async (importOriginal) => ({
+    ...(await importOriginal<typeof import('@/api')>()),
     getProgramTickets: vi
         .fn()
         .mockResolvedValue({ data: { success: true, data: [] } }),

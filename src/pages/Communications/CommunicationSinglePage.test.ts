@@ -3,7 +3,7 @@ vi.mock('crypto', async (importOriginal) => ({
     ...(await importOriginal<typeof import('crypto')>()),
     getRandomValues: vi.fn()
 }));
-vi.mock('@api');
+vi.mock('@/api');
 vi.mock('remark-gfm', () => () => undefined);
 
 vi.mock('react-router-dom', async (importOriginal) => ({

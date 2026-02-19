@@ -10,7 +10,7 @@ import { mockSingleData } from '../../test/testingStudentData';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 vi.mock('axios');
-vi.mock('@api');
+vi.mock('@/api');
 vi.mock('@components/AuthProvider');
 vi.mock('@components/StudentOverviewTable', () => ({
     default: () => <div data-testid="student-overview-table">Table</div>

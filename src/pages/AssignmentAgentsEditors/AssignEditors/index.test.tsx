@@ -10,7 +10,7 @@ import { RouterProvider } from 'react-router-dom';
 import { AuthContextValue } from '@/api/types';
 
 vi.mock('axios');
-vi.mock('@api');
+vi.mock('@/api');
 vi.mock('@components/AuthProvider');
 
 const createTestQueryClient = () =>

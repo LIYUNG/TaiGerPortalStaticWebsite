@@ -23,7 +23,7 @@ import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
 import { CustomTabPanel, a11yProps } from '@components/Tabs';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { queryClient } from '@api/client';
+import { queryClient } from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import { getUsersCountQuery } from '@/api/query';
 

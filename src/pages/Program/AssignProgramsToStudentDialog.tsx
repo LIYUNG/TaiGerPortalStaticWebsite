@@ -15,7 +15,7 @@ import {
     FormControl,
     FormGroup
 } from '@mui/material';
-import { useState } from 'react';
+import { MouseEvent, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
@@ -96,7 +96,7 @@ export const AssignProgramsToStudentDialog = ({
         setStudentId(value);
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = (e: MouseEvent<HTMLButtonElement>) => {
         const program_ids = programs?.map(({ _id }) => _id);
         mutate({ studentId, program_ids });
     };
@@ -178,7 +178,9 @@ export const AssignProgramsToStudentDialog = ({
                 <Button
                     color="primary"
                     disabled={isPending || studentId === ''}
-                    onClick={(e) => handleSubmit(e)}
+                    onClick={(e: MouseEvent<HTMLButtonElement>) =>
+                        handleSubmit(e)
+                    }
                     variant="contained"
                 >
                     {isPending ? (

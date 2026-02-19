@@ -7,7 +7,7 @@ import Loading from '@components/Loading/Loading';
 import { createProgramV2 } from '@/api';
 import DEMO from '@store/constant';
 import { useMutation } from '@tanstack/react-query';
-import { queryClient } from '@api/client';
+import { queryClient } from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
 
 const ProgramCreatePage = () => {

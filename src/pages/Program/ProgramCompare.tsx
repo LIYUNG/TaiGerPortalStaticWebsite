@@ -19,7 +19,7 @@ import {
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 
-import { updateProgram, reviewProgramChangeRequests } from '@api/index';
+import { updateProgram, reviewProgramChangeRequests } from '@/api';
 import { programField2Label, sortProgramFields } from '@utils/contants';
 
 const IGNORE_KEYS = ['_id', 'updatedAt', 'whoupdated', 'createdAt', '__v'];

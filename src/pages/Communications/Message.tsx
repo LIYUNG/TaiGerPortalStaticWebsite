@@ -36,13 +36,11 @@ import EditorSimple from '@components/EditorJs/EditorSimple';
 import { stringAvatar, convertDate } from '@utils/contants';
 import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';
-import { IgnoreMessageV2 } from '@api/index';
-import { BASE_URL } from '@api/request';
+import { IgnoreMessageV2, BASE_URL, queryClient } from '@/api';
 import FilePreview from '@components/FilePreview/FilePreview';
 import { appConfig } from '../../config';
 import { useMutation } from '@tanstack/react-query';
 import { useSnackBar } from '@contexts/use-snack-bar';
-import { queryClient } from '@api/client';
 import type {
     MessageUser,
     ThreadMessage

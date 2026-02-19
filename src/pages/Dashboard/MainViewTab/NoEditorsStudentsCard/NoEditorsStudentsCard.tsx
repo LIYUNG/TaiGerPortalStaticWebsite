@@ -23,7 +23,7 @@ import { type IUserAttribute } from '@taiger-common/model';
 
 interface NoEditorsStudentsCardProps {
     student: IStudentResponse;
-    isArchivPage: boolean;
+    isArchivPage?: boolean;
     submitUpdateEditorlist: (
         e: FormEvent<HTMLFormElement>,
         updateEditorList: unknown,

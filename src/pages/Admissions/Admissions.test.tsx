@@ -26,8 +26,8 @@ const mockAdmissionsResponse = {
 const mockActiveStudentsResponse = { data: [] };
 
 vi.mock('axios');
-vi.mock('@api', async (importOriginal) => ({
-    ...(await importOriginal<typeof import('@api')>()),
+vi.mock('@/api', async (importOriginal) => ({
+    ...(await importOriginal<typeof import('@/api')>()),
     getAdmissions: vi.fn(),
     getActiveStudents: vi.fn()
 }));

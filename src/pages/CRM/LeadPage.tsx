@@ -38,7 +38,7 @@ import {
 import { is_TaiGer_role } from '@taiger-common/core';
 import { getStudentQuery } from '@/api/query';
 import { useLead } from '@hooks/useLead';
-import { request } from '@api/request';
+import { request } from '@/api';
 import { updateCRMDeal } from '@/api';
 
 import DEMO from '@store/constant';

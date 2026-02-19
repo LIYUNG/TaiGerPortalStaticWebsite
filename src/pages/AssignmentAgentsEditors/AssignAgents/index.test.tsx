@@ -9,7 +9,7 @@ import { mockTwoNoAgentNoStudentsData } from '../../../test/testingNoAgentNoEdit
 import { RouterProvider } from 'react-router-dom';
 
 vi.mock('axios');
-vi.mock('@api');
+vi.mock('@/api');
 vi.mock('@components/AuthProvider');
 
 const createTestQueryClient = () =>

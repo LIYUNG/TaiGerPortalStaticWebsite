@@ -15,7 +15,7 @@ import {
     getAllCoursesLoader,
     getCourseLoader,
     getAllOpenInterviewsLoader
-} from '@api/dataLoader';
+} from '@/api/dataLoader';
 const Questionnaire = React.lazy(
     async () => await import('@pages/InterviewTraining/InterviewSurveyForm')
 );

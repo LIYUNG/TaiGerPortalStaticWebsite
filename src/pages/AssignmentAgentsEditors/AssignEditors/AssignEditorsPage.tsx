@@ -1,4 +1,3 @@
-import React from 'react';
 import {
     Box,
     Card,
@@ -36,7 +35,18 @@ const NoEditorsTableHeader = () => {
     );
 };
 
-const AssignEditorsPage = ({ students, submitUpdateEditorlist }) => {
+interface AssignEditorsPageProps {
+    students: IStudentResponse[];
+    submitUpdateEditorlist: (
+        e: React.FormEvent<HTMLFormElement>,
+        updateEditorList: unknown,
+        student_id: string
+    ) => void;
+}
+const AssignEditorsPage = ({
+    students,
+    submitUpdateEditorlist
+}: AssignEditorsPageProps) => {
     const { t } = useTranslation();
     const no_editor_students = students.map((student, i) => (
         <NoEditorsStudentsCard

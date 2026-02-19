@@ -43,7 +43,7 @@ import {
 } from '@utils/contants';
 import { useAuth } from '@components/AuthProvider';
 import FilePreview from '@components/FilePreview/FilePreview';
-import { BASE_URL } from '@api/request';
+import { BASE_URL } from '@/api';
 import {
     CommentsIconButton,
     DeleteIconButton,
@@ -59,7 +59,7 @@ import {
     updateProfileDocumentStatusV2,
     uploadforstudentV2
 } from '@/api';
-import { queryClient } from '@api/client';
+import { queryClient } from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import i18next from 'i18next';
 

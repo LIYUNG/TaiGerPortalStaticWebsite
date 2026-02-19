@@ -15,7 +15,7 @@ import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { createCourse } from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
-import { queryClient } from '@api/client';
+import { queryClient } from '@/api';
 
 const CourseNew = () => {
     const [course, setCourse] = useState({

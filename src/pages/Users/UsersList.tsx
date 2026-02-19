@@ -21,7 +21,7 @@ import UserArchivWarning from './UserArchivWarning';
 import { getUsersQuery } from '@/api/query';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import DEMO from '@store/constant';
-import { queryClient } from '@api/client';
+import { queryClient } from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import { useTableStyles } from '@components/table/users-table/styles';
 import { getTableConfig } from '@components/table/users-table/table-config';
