@@ -11,7 +11,7 @@ import {
     StyledInputBase,
     EmbeddedChatListWidth
 } from '@utils/contants';
-import { getMyCommunicationQuery } from '@api/query';
+import { getMyCommunicationQuery } from '@/api/query';
 import { useQuery } from '@tanstack/react-query';
 import { queryClient } from '@api/client';
 

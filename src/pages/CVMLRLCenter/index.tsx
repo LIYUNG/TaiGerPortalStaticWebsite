@@ -41,7 +41,6 @@ const CVMLRLCenter = () => {
     const [indexState, setIndexState] = useState({
         error: '',
         isLoaded: false,
-        isLoaded2: false,
         data: null,
         success: false,
         essays: null,

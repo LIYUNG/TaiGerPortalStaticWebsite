@@ -73,7 +73,7 @@ import StudentBriefOverview from '@pages/Dashboard/MainViewTab/StudentBriefOverv
 import ProgramLanguageNotMatchedBanner from '@components/Banner/ProgramLanguageNotMatchedBanner';
 import Audit from '../Audit';
 import EnglishCertificateExpiredBeforeDeadlineBanner from '@components/Banner/EnglishCertificateExpiredBeforeDeadlineBanner';
-import { getStudentAndDocLinksQuery } from '@api/query';
+import { getStudentAndDocLinksQuery } from '@/api/query';
 import { MeetingTab } from './MeetingTab';
 
 export const SingleStudentPageMainContent = ({
@@ -90,7 +90,6 @@ export const SingleStudentPageMainContent = ({
     const [singleStudentPage, setSingleStudentPage] = useState({
         error: '',
         isLoaded: {},
-        isLoaded2: false,
         taiger_view: true,
         detailedView: false,
         student: data,

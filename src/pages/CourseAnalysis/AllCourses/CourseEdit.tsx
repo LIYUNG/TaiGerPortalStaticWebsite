@@ -16,7 +16,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { updateCourse } from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import { queryClient } from '@api/client';
-import { getCoursessQuery } from '@api/query';
+import { getCoursessQuery } from '@/api/query';
 
 const CourseEdit = () => {
     const { courseId } = useParams();

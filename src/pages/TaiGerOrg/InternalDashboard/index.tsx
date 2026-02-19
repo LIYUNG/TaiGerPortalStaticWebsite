@@ -26,7 +26,7 @@ import {
     getStatisticsAgentsQuery,
     getStatisticsKPIQuery,
     getStatisticsResponseTimeQuery
-} from '@api/query';
+} from '@/api/query';
 
 const InternalDashboard = () => {
     const { user } = useAuth();

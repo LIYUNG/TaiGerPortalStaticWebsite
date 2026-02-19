@@ -48,7 +48,7 @@ import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
 
-import { getCRMMeetingsQuery, getCRMLeadsQuery } from '@api/query';
+import { getCRMMeetingsQuery, getCRMLeadsQuery } from '@/api/query';
 import { updateCRMMeeting, instantInviteTA } from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
 

@@ -13,6 +13,7 @@ import { pdfjs } from 'react-pdf';
 import { convertDate, twoYearsInDays } from '@utils/contants';
 import {
     DocumentThreadResponse,
+    IApplicationWithId,
     IProgramWithId,
     IStudentResponse,
     OpenTaskRow,
@@ -1742,7 +1743,7 @@ export const open_tasks_with_editors = (students) => {
     return tasks;
 };
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- API returns IApplicationWithId[] with populated studentId; complex reduce shape
-export const programs_refactor_v2 = (applications: any[]) => {
+export const programs_refactor_v2 = (applications: IApplicationWithId[]) => {
     const applicationsNew = applications.reduce((acc, application) => {
         let isMissingBaseDocs = false;
 
@@ -1753,8 +1754,8 @@ export const programs_refactor_v2 = (applications: any[]) => {
             ])
         );
 
-        if (application.studentId.profile) {
-            application.studentId.profile.forEach((doc) => {
+        if (application.studentId?.profile) {
+            application.studentId?.profile?.forEach((doc) => {
                 object_init[doc.name] = doc.status;
             });
         }
@@ -2309,7 +2310,7 @@ export const calculateProgramLockStatus = (
     return { isLocked: false, reason: null };
 };
 
-export const calculateApplicationLockStatus = (application: Application) => {
+export const calculateApplicationLockStatus = (application: Application | IApplicationWithId) => {
     if (!application || !application.programId) {
         return { isLocked: true, reason: null };
     }

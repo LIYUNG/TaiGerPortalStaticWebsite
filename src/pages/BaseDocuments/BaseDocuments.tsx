@@ -12,7 +12,7 @@ import { appConfig } from '../../config';
 import Loading from '@components/Loading/Loading';
 import { BaseDocumentsTable } from './BaseDocumentsTable';
 import { useQuery } from '@tanstack/react-query';
-import { getStudentsAndDocLinks2Query } from '@api/query';
+import { getStudentsAndDocLinks2Query } from '@/api/query';
 
 const BaseDocuments = () => {
     const { user } = useAuth();

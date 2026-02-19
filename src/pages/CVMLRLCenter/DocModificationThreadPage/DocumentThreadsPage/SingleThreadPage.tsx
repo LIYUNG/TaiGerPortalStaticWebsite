@@ -5,7 +5,7 @@ import { is_TaiGer_AdminAgent, is_TaiGer_Student } from '@taiger-common/core';
 import { useTranslation } from 'react-i18next';
 import MessageIcon from '@mui/icons-material/Message';
 
-import { getMessagThreadQuery } from '@api/query';
+import { getMessagThreadQuery } from '@/api/query';
 import Loading from '@components/Loading/Loading';
 import DocModificationThreadPage from '../DocModificationThreadPage';
 import ErrorPage from '../../../Utils/ErrorPage';

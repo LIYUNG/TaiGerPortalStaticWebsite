@@ -8,7 +8,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { updateArchivStudents } from '@/api';
-import { getArchivStudentsQuery } from '@api/query';
+import { getArchivStudentsQuery } from '@/api/query';
 import { queryClient } from '@api/client';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';

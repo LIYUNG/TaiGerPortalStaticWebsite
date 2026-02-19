@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { getCRMLeadQuery } from '@api/query';
+import { getCRMLeadQuery } from '@/api/query';
 
 export type UseLeadOptions = {
     enabled?: boolean;

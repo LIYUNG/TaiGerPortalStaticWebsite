@@ -73,7 +73,7 @@ import { appConfig } from '../../config';
 import { useAuth } from '@components/AuthProvider';
 import { a11yProps, CustomTabPanel } from '@components/Tabs';
 import { useQuery } from '@tanstack/react-query';
-import { getSameProgramStudentsQuery } from '@api/query';
+import { getSameProgramStudentsQuery } from '@/api/query';
 import type { IUser } from '@taiger-common/model';
 
 /** Program shape in SingleProgramView (school, program_name, country + fields from programField2Label) */

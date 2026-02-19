@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 
 import ProgramCompare from './ProgramCompare';
-import { getProgramChangeRequests, getProgram } from '@api/index';
+import { getProgramChangeRequests, getProgram } from '@/api';
 
 import { appConfig } from '../../config';
 import DEMO from '@store/constant';
@@ -70,7 +70,7 @@ const CustomBreadcrumbs = ({ program }: CustomBreadcrumbsProps) => {
 const ProgramChangeRequestPage = () => {
     const navigate = useNavigate();
     const { programId } = useParams();
-    const [originalProgram, setOriginalProgram] = useState<IProgram | null>(null);
+    const [originalProgram, setOriginalProgram] = useState<IProgram>();
     const [incomingChanges, setIncomingChanges] = useState([]);
     const [changeIndex, setChangeIndex] = useState(0);
 

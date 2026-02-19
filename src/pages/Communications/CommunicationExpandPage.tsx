@@ -39,7 +39,7 @@ import EmbeddedChatList from '@components/EmbeddedChatList';
 import { FetchStudentLayer } from '../StudentDatabase/FetchStudentLayer';
 import CommunicationExpandPageMessagesComponent from './CommunicationExpandPageMessagesComponent';
 import { truncateText } from '../Utils/util_functions';
-import { getCommunicationQuery } from '@api/query';
+import { getCommunicationQuery } from '@/api/query';
 import ChildLoading from '@components/Loading/ChildLoading';
 
 const StudentDetailModal = ({

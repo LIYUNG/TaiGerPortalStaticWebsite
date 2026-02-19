@@ -3,7 +3,7 @@ import { Box } from '@mui/material';
 
 import Loading from '@components/Loading/Loading';
 import CommunicationSinglePageBody from './CommunicationSinglePageBody';
-import { getCommunicationQuery } from '@api/query';
+import { getCommunicationQuery } from '@/api/query';
 import { useQuery } from '@tanstack/react-query';
 
 const CommunicationSinglePage = () => {

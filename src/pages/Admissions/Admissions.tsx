@@ -16,7 +16,7 @@ import { appConfig } from '../../config';
 import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';
 import { a11yProps, CustomTabPanel } from '@components/Tabs';
-import { getAdmissionsQuery } from '@api/query';
+import { getAdmissionsQuery } from '@/api/query';
 import { BreadcrumbsNavigation } from '@components/BreadcrumbsNavigation/BreadcrumbsNavigation';
 import { useEffect, useMemo, useState, type SyntheticEvent } from 'react';
 

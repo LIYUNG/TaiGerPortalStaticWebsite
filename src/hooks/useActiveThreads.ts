@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import queryString from 'query-string';
 
-import { getActiveThreadsQuery } from '@api/query';
+import { getActiveThreadsQuery } from '@/api/query';
 
 export type ActiveThreadsParams = Record<
     string,

@@ -13,7 +13,7 @@ import Loading from '@components/Loading/Loading';
 import { appConfig } from '../../config';
 import CourseWidgetBody from './CourseWidgetBody';
 import { useQuery } from '@tanstack/react-query';
-import { getProgramRequirementsQuery } from '@api/query';
+import { getProgramRequirementsQuery } from '@/api/query';
 
 export default function CourseWidget() {
     const { user } = useAuth();

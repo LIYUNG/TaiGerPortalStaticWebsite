@@ -10,7 +10,7 @@ import { useAuth } from '@components/AuthProvider';
 import DEMO from '@store/constant';
 import { appConfig } from '../../config';
 import { BaseDocumentsTable } from './BaseDocumentsTable';
-import { getStudentsAndDocLinks2Query } from '@api/query';
+import { getStudentsAndDocLinks2Query } from '@/api/query';
 import { BreadcrumbsNavigation } from '@components/BreadcrumbsNavigation/BreadcrumbsNavigation';
 import Loading from '@components/Loading/Loading';
 

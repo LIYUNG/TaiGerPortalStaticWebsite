@@ -8,7 +8,7 @@ import { updateProgramV2 } from '@/api';
 import DEMO from '@store/constant';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { queryClient } from '@api/client';
-import { getProgramQuery } from '@api/query';
+import { getProgramQuery } from '@/api/query';
 import { useSnackBar } from '@contexts/use-snack-bar';
 
 const ProgramEditPage = () => {

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { getApplicationStudentV2Query } from '@api/query';
+import { getApplicationStudentV2Query } from '@/api/query';
 import type { StudentId } from '@/api/types';
 
 /** API response body from getData: { data: { data: student }, archiv? } */

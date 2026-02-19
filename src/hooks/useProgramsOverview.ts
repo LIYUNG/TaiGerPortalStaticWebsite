@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { getProgramsOverviewQuery } from '@api/query';
+import { getProgramsOverviewQuery } from '@/api/query';
 
 /**
  * Fetches programs overview (totals, byCountry, byDegree, etc.).

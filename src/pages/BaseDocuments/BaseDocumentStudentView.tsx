@@ -66,7 +66,6 @@ const BaseDocumentStudentView = ({
                 if (success) {
                     setBaseDocumentStudentViewState((prevState) => ({
                         ...prevState,
-                        isLoaded2: true,
                         base_docs_link: helper_link,
                         success: success,
                         res_modal_status: status
@@ -75,7 +74,6 @@ const BaseDocumentStudentView = ({
                     const { message } = resp.data;
                     setBaseDocumentStudentViewState((prevState) => ({
                         ...prevState,
-                        isLoaded2: true,
                         res_modal_message: message,
                         res_modal_status: status
                     }));
@@ -85,7 +83,6 @@ const BaseDocumentStudentView = ({
                 setBaseDocumentStudentViewState((prevState) => ({
                     ...prevState,
                     error,
-                    isLoaded2: true,
                     res_modal_message: '',
                     res_modal_status: 500
                 }));

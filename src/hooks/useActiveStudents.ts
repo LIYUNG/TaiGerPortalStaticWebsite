@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import queryString from 'query-string';
 
-import { getActiveStudentsQuery } from '@api/query';
+import { getActiveStudentsQuery } from '@/api/query';
 
 export type ActiveStudentsParams = Record<
     string,

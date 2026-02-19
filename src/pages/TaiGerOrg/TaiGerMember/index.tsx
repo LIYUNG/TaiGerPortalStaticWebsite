@@ -32,7 +32,7 @@ import { useQuery } from '@tanstack/react-query';
 import { is_TaiGer_Admin, is_TaiGer_role, Role } from '@taiger-common/core';
 
 import ErrorPage from '../../Utils/ErrorPage';
-import { getTeamMembersQuery } from '@api/query';
+import { getTeamMembersQuery } from '@/api/query';
 import { TabTitle } from '../../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { appConfig } from '../../../config';

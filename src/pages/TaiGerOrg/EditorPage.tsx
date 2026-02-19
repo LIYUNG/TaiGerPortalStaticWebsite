@@ -46,7 +46,7 @@ import {
     is_pending_status
 } from '@utils/contants';
 import { useQuery } from '@tanstack/react-query';
-import { getMyStudentsThreadsQuery } from '@api/query';
+import { getMyStudentsThreadsQuery } from '@/api/query';
 import { useTranslation } from 'react-i18next';
 
 const EditorPage = () => {

@@ -26,7 +26,7 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 import { is_TaiGer_role } from '@taiger-common/core';
-import { getUsersQuery } from '@api/query';
+import { getUsersQuery } from '@/api/query';
 
 import { isInTheFuture } from '@utils/contants';
 import ErrorPage from '../Utils/ErrorPage';

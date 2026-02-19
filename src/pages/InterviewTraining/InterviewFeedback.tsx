@@ -17,7 +17,7 @@ import { useAuth } from '@components/AuthProvider';
 import {
     getInterviewsByProgramIdQuery,
     getInterviewsByStudentIdQuery
-} from '@api/query';
+} from '@/api/query';
 import ChildLoading from '@components/Loading/ChildLoading';
 
 export const InterviewFeedback = ({ interview }) => {

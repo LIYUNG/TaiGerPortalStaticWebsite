@@ -28,7 +28,7 @@ import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
 
-import { getCRMLeadsQuery } from '@api/query';
+import { getCRMLeadsQuery } from '@/api/query';
 
 const LeadDashboard = () => {
     const { t } = useTranslation();

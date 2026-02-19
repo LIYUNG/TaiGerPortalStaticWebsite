@@ -43,10 +43,11 @@ import ProgramSpecificDocumentCheckCard from '../MainViewTab/AgentTasks/ProgramS
 import Banner from '@components/Banner/Banner';
 import { is_new_message_status, is_pending_status } from '@utils/contants';
 import { useQuery } from '@tanstack/react-query';
-import { getMyStudentsThreadsQuery } from '@api/query';
+import { getMyStudentsThreadsQuery } from '@/api/query';
 import { useMyStudentsApplicationsV2 } from '@hooks/useMyStudentsApplicationsV2';
 import { useStudentsV3 } from '@hooks/useStudentsV3';
 import Loading from '@components/Loading/Loading';
+import { IApplication } from '@taiger-common/model';
 
 const AgentMainView = (props) => {
     const { user } = useAuth();
@@ -132,7 +133,7 @@ const AgentMainView = (props) => {
         myStudentsApplications.applications ?? []
     )
         .filter(
-            (application) =>
+            (application: IApplication) =>
                 isProgramDecided(application) &&
                 application.closed === '-' &&
                 application.program_name !== 'No Program'

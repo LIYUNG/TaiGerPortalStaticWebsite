@@ -16,7 +16,7 @@ import {
     Button
 } from '@mui/material';
 
-import { getCRMLeadsQuery } from '@api/query';
+import { getCRMLeadsQuery } from '@/api/query';
 import { createCRMDeal, updateCRMDeal } from '@/api';
 import { getCRMSalesReps } from '@/api';
 

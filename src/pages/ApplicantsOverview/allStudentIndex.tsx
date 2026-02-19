@@ -7,7 +7,7 @@ import ApplicationOverviewTabs from './ApplicationOverviewTabs';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { appConfig } from '../../config';
-import { getActiveStudentsApplicationsV2Query } from '@api/query';
+import { getActiveStudentsApplicationsV2Query } from '@/api/query';
 import { useStudentsV3 } from '@hooks/useStudentsV3';
 import { BreadcrumbsNavigation } from '@components/BreadcrumbsNavigation/BreadcrumbsNavigation';
 import Loading from '@components/Loading/Loading';

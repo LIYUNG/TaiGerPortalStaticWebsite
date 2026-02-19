@@ -119,8 +119,8 @@ vi.mock('@tanstack/react-query', async (importOriginal) => ({
 
 // Base Documents (and AllBaseDocuments) use getStudentsAndDocLinks2Query; ensure queryFn resolves immediately.
 // UsersTable uses getUsersCountQuery and UsersList uses getUsersQuery; mock them so queries resolve immediately.
-vi.mock('@api/query', async (importOriginal) => {
-    const actual = await importOriginal<typeof import('@api/query')>();
+vi.mock('@/api/query', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('@/api/query')>();
     return {
         ...actual,
         getStudentsAndDocLinks2Query: (queryString: string) => ({

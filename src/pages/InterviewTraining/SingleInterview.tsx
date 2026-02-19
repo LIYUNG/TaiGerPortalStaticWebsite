@@ -73,7 +73,7 @@ import {
     addInterviewTrainingDateTime,
     getEssayWriters
 } from '@/api';
-import { getInterviewQuery } from '@api/query';
+import { getInterviewQuery } from '@/api/query';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import Loading from '@components/Loading/Loading';

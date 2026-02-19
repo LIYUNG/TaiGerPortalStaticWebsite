@@ -18,7 +18,7 @@ import UserDeleteWarning from './UserDeleteWarning';
 import { deleteUser, changeUserRole, updateArchivUser } from '@/api';
 import { stringAvatar } from '@utils/contants';
 import UserArchivWarning from './UserArchivWarning';
-import { getUsersQuery } from '@api/query';
+import { getUsersQuery } from '@/api/query';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import DEMO from '@store/constant';
 import { queryClient } from '@api/client';

@@ -40,14 +40,32 @@ import VPDToSubmitTasksCard from '../MainViewTab/AgentTasks/VPDToSubmitTasksCard
 import { useAuth } from '@components/AuthProvider';
 import { useTranslation } from 'react-i18next';
 import Banner from '@components/Banner/Banner';
+import { IStudentResponse, IUserWithId } from '@/types/taiger-common';
+import { IDocumentthread } from '@taiger-common/model';
 
-const ManagerMainView = (props) => {
+export interface ManagerMainViewProps {
+    notification: Notification[];
+    students: IStudentResponse[];
+    documentslist: IDocumentthread[];
+    isDashboard: boolean;
+    submitUpdateAgentlist: () => void;
+    updateAgentList: (agentList: IUserWithId[]) => void;
+}
+
+const ManagerMainView = ({
+    notification,
+    students,
+    documentslist,
+    isDashboard,
+    submitUpdateAgentlist,
+    updateAgentList
+}: ManagerMainViewProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const [managerMainViewState, setManagerMainViewState] = useState({
         error: '',
         user: user,
-        notification: props.notification,
+        notification: notification,
         collapsedRows: {}
     });
 
@@ -95,7 +113,7 @@ const ManagerMainView = (props) => {
         );
     };
 
-    const handleCollapse = (index) => {
+    const handleCollapse = (index: number) => {
         setManagerMainViewState((prevState) => ({
             ...prevState,
             collapsedRows: {
@@ -104,20 +122,20 @@ const ManagerMainView = (props) => {
             }
         }));
     };
-    const students_agent_editor = props.students.map((student, i) => (
+    const students_agent_editor = students.map((student, i) => (
         <StudentsAgentEditor
-            documentslist={props.documentslist}
-            isDashboard={props.isDashboard}
+            documentslist={documentslist}
+            isDashboard={isDashboard}
             key={i}
             student={student}
-            submitUpdateAgentlist={props.submitUpdateAgentlist}
-            updateAgentList={props.updateAgentList}
-            updateStudentArchivStatus={props.updateStudentArchivStatus}
+            submitUpdateAgentlist={submitUpdateAgentlist}
+            updateAgentList={updateAgentList}
+            updateStudentArchivStatus={updateStudentArchivStatus}
             user={user}
         />
     ));
 
-    const base_documents_checking_tasks = props.students
+    const base_documents_checking_tasks = students
         .filter((student) =>
             student.agents.some((agent) => agent._id === user._id.toString())
         )
@@ -125,7 +143,7 @@ const ManagerMainView = (props) => {
             <BaseDocumentCheckingTasks key={i} student={student} />
         ));
 
-    const no_programs_student_tasks = props.students
+    const no_programs_student_tasks = students
         .filter((student) =>
             student.agents.some((agent) => agent._id === user._id.toString())
         )
@@ -133,7 +151,7 @@ const ManagerMainView = (props) => {
             <NoProgramStudentTask key={i} student={student} />
         ));
 
-    const applications_arr = programs_refactor(props.students)
+    const applications_arr = programs_refactor(students)
         .filter(
             (application) =>
                 isProgramDecided(application) &&
@@ -255,31 +273,25 @@ const ManagerMainView = (props) => {
                 {/* TODO: add a program update request ticket card (independent component?) */}
                 <ProgramReportCard />
                 {is_any_programs_ready_to_submit(
-                    props.students.filter((student) =>
+                    students.filter((student) =>
                         student.agents.some(
                             (agent) => agent._id === user._id.toString()
                         )
                     )
                 ) ? (
-                    <ReadyToSubmitTasksCard
-                        students={props.students}
-                        user={user}
-                    />
+                    <ReadyToSubmitTasksCard students={students} user={user} />
                 ) : null}
                 {is_any_vpd_missing(
-                    props.students.filter((student) =>
+                    students.filter((student) =>
                         student.agents.some(
                             (agent) => agent._id === user._id.toString()
                         )
                     )
                 ) ? (
-                    <VPDToSubmitTasksCard
-                        students={props.students}
-                        user={user}
-                    />
+                    <VPDToSubmitTasksCard students={students} user={user} />
                 ) : null}
                 {is_any_base_documents_uploaded(
-                    props.students.filter((student) =>
+                    students.filter((student) =>
                         student.agents.some(
                             (agent) => agent._id === user._id.toString()
                         )
@@ -320,16 +332,16 @@ const ManagerMainView = (props) => {
                     </Card>
                 ) : null}
                 {isAnyCVNotAssigned(
-                    props.students.filter((student) =>
+                    students.filter((student) =>
                         student.agents.some(
                             (agent) => agent._id === user._id.toString()
                         )
                     )
                 ) ? (
-                    <CVAssignTasksCard students={props.students} user={user} />
+                    <CVAssignTasksCard students={students} user={user} />
                 ) : null}
                 {anyStudentWithoutApplicationSelection(
-                    props.students.filter((student) =>
+                    students.filter((student) =>
                         student.agents.some(
                             (agent) => agent._id === user._id.toString()
                         )
@@ -356,7 +368,7 @@ const ManagerMainView = (props) => {
                     </Grid>
                 ) : null}
                 <NoEnoughDecidedProgramsTasksCard
-                    students={props.students}
+                    students={students}
                     user={user}
                 />
             </Grid>

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Link, TableCell, TableRow, Typography, Tooltip } from '@mui/material';
@@ -22,10 +21,23 @@ import {
     calculateApplicationLockStatus
 } from '../../../Utils/util_functions';
 import { appConfig } from '../../../../config';
+import { IStudentResponse } from '@/types/taiger-common';
 
-const StudentTasksResponsive = (props) => {
+export interface StudentTasksResponsiveProps {
+    student: IStudentResponse;
+    isCoursesFilled: boolean;
+}
+
+const StudentTasksResponsive = ({
+    student,
+    isCoursesFilled
+}: StudentTasksResponsiveProps) => {
     const { t } = useTranslation();
-    const renderThreadLink = (content, url, locked) => {
+    const renderThreadLink = (
+        content: string,
+        url: string,
+        locked: boolean
+    ) => {
         if (locked) {
             return (
                 <Tooltip
@@ -58,15 +70,15 @@ const StudentTasksResponsive = (props) => {
     };
     let unread_general_generaldocs = null;
     let unread_applications_docthread = null;
-    if (props.student.generaldocs_threads === undefined) {
+    if (student.generaldocs_threads === undefined) {
         unread_general_generaldocs = null;
     } else {
-        unread_general_generaldocs = props.student.generaldocs_threads.map(
+        unread_general_generaldocs = student.generaldocs_threads.map(
             (generaldocs_threads, i) => (
                 <TableRow key={i}>
                     {!generaldocs_threads.isFinalVersion &&
                     generaldocs_threads.latest_message_left_by_id !==
-                        props.student._id.toString() ? (
+                        student._id.toString() ? (
                         <>
                             <TableCell>
                                 <Link
@@ -108,24 +120,24 @@ const StudentTasksResponsive = (props) => {
         );
     }
     unread_applications_docthread =
-        props.student.applications?.length > 0
-            ? props.student.applications
+        student.applications && student.applications.length > 0
+            ? student.applications
                   .filter((application) => isProgramDecided(application))
                   .map((application) =>
-                      application.doc_modification_thread.map(
+                      application.doc_modification_thread?.map(
                           (application_doc_thread, idx) => (
                               <TableRow key={idx}>
                                   {!application_doc_thread.isFinalVersion &&
                                   application_doc_thread.latest_message_left_by_id !==
-                                      props.student._id.toString() ? (
+                                      student._id.toString() ? (
                                       <>
                                           <TableCell>
                                               {renderThreadLink(
                                                   application_doc_thread
-                                                      .doc_thread_id.file_type,
+                                                      .doc_thread_id?.file_type,
                                                   DEMO.DOCUMENT_MODIFICATION_LINK(
                                                       application_doc_thread
-                                                          .doc_thread_id._id
+                                                          .doc_thread_id?._id
                                                   ),
                                                   calculateApplicationLockStatus(
                                                       application
@@ -134,10 +146,10 @@ const StudentTasksResponsive = (props) => {
                                           </TableCell>
                                           <TableCell>
                                               {renderThreadLink(
-                                                  `${application.programId.school} - ${application.programId.program_name}`,
+                                                  `${application.programId?.school} - ${application.programId?.program_name}`,
                                                   DEMO.DOCUMENT_MODIFICATION_LINK(
                                                       application_doc_thread
-                                                          .doc_thread_id._id
+                                                          .doc_thread_id?._id
                                                   ),
                                                   calculateApplicationLockStatus(
                                                       application
@@ -146,7 +158,8 @@ const StudentTasksResponsive = (props) => {
                                           </TableCell>
                                           <TableCell>
                                               {convertDate(
-                                                  application_doc_thread.updatedAt
+                                                  application_doc_thread.updatedAt ||
+                                                      ''
                                               )}
                                           </TableCell>
                                       </>
@@ -159,13 +172,11 @@ const StudentTasksResponsive = (props) => {
 
     return (
         <>
-            {!check_academic_background_filled(
-                props.student.academic_background
-            ) ||
+            {!check_academic_background_filled(student.academic_background) ||
             !check_application_preference_filled(
-                props.student.application_preference
+                student.application_preference
             ) ||
-            !check_languages_filled(props.student.academic_background) ? (
+            !check_languages_filled(student.academic_background) ? (
                 <TableRow>
                     <TableCell>
                         <Link
@@ -193,10 +204,10 @@ const StudentTasksResponsive = (props) => {
                     <TableCell />
                 </TableRow>
             ) : null}
-            {!props.isCoursesFilled &&
-            (props.student.academic_background?.university?.isGraduated ===
+            {!isCoursesFilled &&
+            (student.academic_background?.university?.isGraduated ===
                 'pending' ||
-                props.student.academic_background?.university?.isGraduated ===
+                student.academic_background?.university?.isGraduated ===
                     'Yes') ? (
                 <TableRow>
                     <TableCell>
@@ -225,7 +236,7 @@ const StudentTasksResponsive = (props) => {
                     <TableCell />
                 </TableRow>
             ) : null}
-            {!check_applications_to_decided(props.student) ? (
+            {!check_applications_to_decided(student) ? (
                 <TableRow>
                     <TableCell>
                         <Link
@@ -253,7 +264,7 @@ const StudentTasksResponsive = (props) => {
                     <TableCell />
                 </TableRow>
             ) : null}
-            {!all_applications_results_updated(props.student) ? (
+            {!all_applications_results_updated(student) ? (
                 <TableRow>
                     <TableCell>
                         <Link
@@ -283,7 +294,7 @@ const StudentTasksResponsive = (props) => {
                     <TableCell />
                 </TableRow>
             ) : null}
-            {has_admissions(props.student) ? (
+            {has_admissions(student) ? (
                 <TableRow>
                     <TableCell>
                         <Link
@@ -314,8 +325,7 @@ const StudentTasksResponsive = (props) => {
                 </TableRow>
             ) : null}
             {/* check uni-assist */}
-            {appConfig.vpdEnable &&
-            !is_all_uni_assist_vpd_uploaded(props.student) ? (
+            {appConfig.vpdEnable && !is_all_uni_assist_vpd_uploaded(student) ? (
                 <TableRow>
                     <TableCell>
                         <Link
@@ -343,7 +353,7 @@ const StudentTasksResponsive = (props) => {
                     <TableCell />
                 </TableRow>
             ) : null}
-            {!is_personal_data_filled(props.student) ? (
+            {!is_personal_data_filled(student) ? (
                 <TableRow>
                     <TableCell>
                         <Link
@@ -371,7 +381,7 @@ const StudentTasksResponsive = (props) => {
                     <TableCell />
                 </TableRow>
             ) : null}
-            {are_base_documents_missing(props.student) ? (
+            {are_base_documents_missing(student) ? (
                 <TableRow>
                     <TableCell>
                         <Link
@@ -399,7 +409,7 @@ const StudentTasksResponsive = (props) => {
                     <TableCell />
                 </TableRow>
             ) : null}
-            {to_register_application_portals(props.student) ? (
+            {to_register_application_portals(student) ? (
                 <TableRow>
                     <TableCell>
                         <Link
