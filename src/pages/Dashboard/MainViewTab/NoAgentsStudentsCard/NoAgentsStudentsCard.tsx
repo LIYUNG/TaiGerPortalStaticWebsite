@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { FormEvent, MouseEvent, useState } from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import {
     Button,
@@ -17,28 +17,29 @@ import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { IStudentResponse } from '@/api/types';
 
+interface NoAgentsStudentsCardProps {
+    student: IStudentResponse;
+    isArchivPage: boolean;
+    submitUpdateAgentlist: (
+        e: FormEvent<HTMLFormElement>,
+        updateAgentList: unknown,
+        student_id: string
+    ) => void;
+}
 const NoAgentsStudentsCard = ({
     student,
     isArchivPage,
     submitUpdateAgentlist
-}: {
-    student: IStudentResponse;
-    isArchivPage: boolean;
-    submitUpdateAgentlist: (
-        e: React.FormEvent<HTMLFormElement>,
-        updateAgentList: unknown,
-        student_id: string
-    ) => void;
-}) => {
+}: NoAgentsStudentsCardProps) => {
     const { user } = useAuth();
     const [noAgentsStudentsCardState, setNoAgentsStudentsCard] = useState({
         showAgentPage: false
     });
-    const [anchorEl, setAnchorEl] = useState(null);
+    const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
     const open = Boolean(anchorEl);
     const { t } = useTranslation();
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
+    const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
+        setAnchorEl(event.currentTarget as HTMLElement);
     };
     const handleClose = () => {
         setAnchorEl(null);
@@ -56,7 +57,7 @@ const NoAgentsStudentsCard = ({
     };
 
     const submitUpdateAgentlistHandler = (
-        e: React.FormEvent<HTMLFormElement>,
+        e: FormEvent<HTMLFormElement>,
         updateAgentList: unknown,
         student_id: string
     ) => {
@@ -76,7 +77,9 @@ const NoAgentsStudentsCard = ({
                                 aria-expanded={open ? 'true' : undefined}
                                 aria-haspopup="true"
                                 id="basic-button"
-                                onClick={handleClick}
+                                onClick={(
+                                    event: MouseEvent<HTMLButtonElement>
+                                ) => handleClick(event)}
                                 size="small"
                                 variant="contained"
                             >
@@ -101,8 +104,8 @@ const NoAgentsStudentsCard = ({
                         <Link
                             component={LinkDom}
                             to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                                student._id,
-                                DEMO.PROFILE_HASH
+                                student._id?.toString() ?? '',
+                                DEMO.PROFILE_HASH as string
                             )}`}
                         >
                             {student.firstname}

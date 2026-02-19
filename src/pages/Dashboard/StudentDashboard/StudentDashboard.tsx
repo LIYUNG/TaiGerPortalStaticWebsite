@@ -21,7 +21,7 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { is_TaiGer_Student, isProgramDecided } from '@taiger-common/core';
-import type { Application } from '@/api/types';
+import type { Application, IStudentResponse } from '@/api/types';
 
 import RespondedThreads from '../MainViewTab/RespondedThreads/RespondedThreads';
 import StudentTasksResponsive from '../MainViewTab/StudentTasks/StudentTasksResponsive';
@@ -45,12 +45,19 @@ import { useApplicationStudent } from '@hooks/useApplicationStudent';
 import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';
 
-const StudentDashboard = (props) => {
+interface StudentDashboardProps {
+    student: IStudentResponse;
+    isCoursesFilled: boolean;
+}
+const StudentDashboard = ({
+    student: std,
+    isCoursesFilled
+}: StudentDashboardProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const [studentDashboardState, setStudentDashboardState] = useState({
         error: '',
-        student: props.student,
+        student: std,
         itemheight: 20,
         data: [],
         res_status: 0
@@ -69,7 +76,9 @@ const StudentDashboard = (props) => {
     ) => {
         e.preventDefault();
         const temp_student = student;
-        temp_student.notification[`${notification_key}`] = true;
+        if (temp_student && temp_student.notification) {
+            temp_student.notification[`${notification_key}`] = true;
+        }
         setStudentDashboardState({ student: temp_student });
         updateBanner(notification_key).then(
             (resp) => {
@@ -113,7 +122,7 @@ const StudentDashboard = (props) => {
 
     const student_tasks = (
         <StudentTasksResponsive
-            isCoursesFilled={props.isCoursesFilled}
+            isCoursesFilled={isCoursesFilled}
             student={student}
         />
     );
@@ -132,7 +141,7 @@ const StudentDashboard = (props) => {
                 </Card>
             ) : null}
             <Grid container spacing={1} sx={{ mt: 0 }}>
-                {student.notification &&
+                {student?.notification &&
                 !student.notification.isRead_survey_not_complete &&
                 !check_academic_background_filled(
                     student.academic_background
@@ -175,8 +184,8 @@ const StudentDashboard = (props) => {
                     </Grid>
                 ) : null}
 
-                {student.notification &&
-                !student.notification.isRead_uni_assist_task_assigned &&
+                {student?.notification &&
+                !student?.notification.isRead_uni_assist_task_assigned &&
                 appConfig.vpdEnable &&
                 !is_all_uni_assist_vpd_uploaded(student) ? (
                     <Grid item xs={12}>
@@ -217,8 +226,8 @@ const StudentDashboard = (props) => {
                     </Grid>
                 ) : null}
                 {/* new agents assigned banner */}
-                {student.notification &&
-                !student.notification.isRead_new_agent_assigned ? (
+                {student?.notification &&
+                !student?.notification.isRead_new_agent_assigned ? (
                     <Grid item xs={12}>
                         <Alert
                             onClose={(e) =>
@@ -231,8 +240,8 @@ const StudentDashboard = (props) => {
                     </Grid>
                 ) : null}
                 {/* new editors assigned banner */}
-                {student.notification &&
-                !student.notification.isRead_new_editor_assigned ? (
+                {student?.notification &&
+                !student?.notification.isRead_new_editor_assigned ? (
                     <Grid item xs={12}>
                         <Alert
                             onClose={(e) =>
@@ -245,7 +254,7 @@ const StudentDashboard = (props) => {
                     </Grid>
                 ) : null}
                 {/* new CV ML RL Essay message */}
-                {student.notification &&
+                {student?.notification &&
                 !student.notification.isRead_new_cvmlrl_messsage ? (
                     <Grid item xs={12}>
                         <Alert
@@ -319,8 +328,8 @@ const StudentDashboard = (props) => {
                         </Alert>
                     </Grid>
                 ) : null}
-                {student.notification &&
-                !student.notification.isRead_new_programs_assigned &&
+                {student?.notification &&
+                !student?.notification.isRead_new_programs_assigned &&
                 !check_applications_to_decided(student) ? (
                     <Grid item xs={12}>
                         <Alert
@@ -444,18 +453,18 @@ const StudentDashboard = (props) => {
                             {needGraduatedApplicantsPrograms(
                                 student.applications
                             )?.map((app) => (
-                                <ListItem key={app.programId._id.toString()}>
+                                <ListItem key={app.programId?._id?.toString()}>
                                     <Link
                                         component={LinkDom}
                                         target="_blank"
                                         to={DEMO.SINGLE_PROGRAM_LINK(
-                                            app.programId._id.toString()
+                                            app.programId?._id?.toString()
                                         )}
                                     >
-                                        {app.programId.school}{' '}
-                                        {app.programId.program_name}{' '}
-                                        {app.programId.degree}{' '}
-                                        {app.programId.semester}
+                                        {app.programId?.school}{' '}
+                                        {app.programId?.program_name}{' '}
+                                        {app.programId?.degree}{' '}
+                                        {app.programId?.semester}
                                     </Link>
                                 </ListItem>
                             ))}

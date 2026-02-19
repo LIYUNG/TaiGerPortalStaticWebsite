@@ -16,8 +16,21 @@ import { appConfig } from '../../../config';
 import DEMO from '@store/constant';
 import NoAgentsStudentsCard from '@pages/Dashboard/MainViewTab/NoAgentsStudentsCard/NoAgentsStudentsCard';
 import { BreadcrumbsNavigation } from '@components/BreadcrumbsNavigation/BreadcrumbsNavigation';
+import { IStudentResponse } from '@/api';
+import { FormEvent } from 'react';
 
-const NoAgentsTable = ({ students, submitUpdateAgentlist }) => {
+interface NoAgentsTableProps {
+    students: IStudentResponse[];
+    submitUpdateAgentlist: (
+        e: FormEvent<HTMLFormElement>,
+        updateAgentList: unknown,
+        student_id: string
+    ) => void;
+}
+const NoAgentsTable = ({
+    students,
+    submitUpdateAgentlist
+}: NoAgentsTableProps) => {
     const { t } = useTranslation();
     return (
         <Card sx={{ p: 2 }}>
