@@ -469,7 +469,7 @@ const UsersList = (props: UsersListProps) => {
         changeUserRoleMutation({ id: user_data._id, role: user_data.role });
     };
 
-    const onSubmit2 = (e: React.FormEvent<HTMLFormElement>) => {
+    const onSubmit2 = (e: MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         const user_role = usersListState.selected_user_role;
         const user_id = usersListState.selected_user_id;

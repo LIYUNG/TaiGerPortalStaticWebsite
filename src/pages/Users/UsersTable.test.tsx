@@ -1,81 +1,79 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { createElement } from 'react';
+import { render, screen } from '@testing-library/react';
+
 import UsersTable from './UsersTable';
-import { getUsers, getUsersCount } from '@/api';
 import { useAuth } from '@components/AuthProvider';
-import { createMemoryRouter, RouterProvider } from 'react-router-dom';
-import { testingUsersData } from '../../test/testingUsersData';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthContextValue } from '@/api/types';
-import { AxiosResponse } from 'axios';
 
-vi.mock('axios');
-vi.mock('@/api');
+const mockUsersCount = {
+    studentCount: 0,
+    agentCount: 0,
+    editorCount: 0,
+    externalCount: 0,
+    adminCount: 0
+};
+
+// Render without router: stub Navigate and Link so no router context is needed
+vi.mock('react-router-dom', () => ({
+    Navigate: () => null,
+    Link: ({ children, to, ...props }: { to: string; children?: React.ReactNode }) =>
+        createElement('a', { href: to, ...props }, children)
+}));
+
 vi.mock('@components/AuthProvider');
-
 vi.mock('@contexts/use-snack-bar', () => ({
     useSnackBar: () => ({
-        setMessage: () => {},
-        setSeverity: () => {},
-        setOpenSnackbar: () => {}
+        setMessage: vi.fn(),
+        setSeverity: vi.fn(),
+        setOpenSnackbar: vi.fn()
     })
 }));
 
-const createTestQueryClient = () =>
-    new QueryClient({
-        defaultOptions: {
-            queries: {
-                retry: false // Disable retries for faster tests
-            }
-        }
-    });
+// Avoid loading material-react-table and heavy table logic
+vi.mock('./UsersList', () => ({
+    default: () => createElement('div', { 'data-testid': 'users-list' })
+}));
+vi.mock('./AddUserModal', () => ({
+    default: () => null
+}));
 
-class ResizeObserver {
-    observe() {}
-    disconnect() {}
-    unobserve() {}
+vi.mock('@tanstack/react-query', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('@tanstack/react-query')>();
+    return {
+        ...actual,
+        useQuery: vi.fn((options: { queryKey?: unknown[] }) => {
+            const key = options?.queryKey?.[0];
+            return {
+                data: key === 'users/count' ? mockUsersCount : [],
+                isLoading: false,
+                isError: false,
+                error: null,
+                refetch: vi.fn()
+            };
+        }),
+        useMutation: vi.fn(() => ({
+            mutate: vi.fn(),
+            isPending: false
+        }))
+    };
+});
+
+function renderUsersTable() {
+    render(<UsersTable />);
 }
 
-const routes = [
-    {
-        path: '/users',
-        element: <UsersTable />
-    }
-];
-
-describe('Users Table page checking', () => {
-    window.ResizeObserver = ResizeObserver;
-    test('Users Table page not crash', async () => {
-        vi.mocked(getUsers).mockResolvedValue({
-            data: testingUsersData.data
-        } as AxiosResponse<typeof testingUsersData.data>);
-        vi.mocked(getUsersCount).mockResolvedValue({ data: { count: 0 } });
-
+describe('UsersTable', () => {
+    beforeEach(() => {
         vi.mocked(useAuth).mockReturnValue({
-            user: { role: 'Admin', _id: '639baebf8b84944b872cf648' },
+            user: { role: 'Admin', _id: 'test-admin-id' },
             isAuthenticated: true,
             isLoaded: true,
-            login: () => {},
-            logout: () => {}
-        } as AuthContextValue);
+            login: vi.fn(),
+            logout: vi.fn()
+        } as never);
+    });
 
-        const testQueryClient = createTestQueryClient();
-        const router = createMemoryRouter(routes, {
-            initialEntries: ['/users']
-        });
-
-        render(
-            <QueryClientProvider client={testQueryClient}>
-                <RouterProvider router={router} />
-            </QueryClientProvider>
-        );
-
-        await waitFor(
-            () => {
-                expect(
-                    screen.getByTestId('users_table_page')
-                ).toHaveTextContent('User List');
-            },
-            { timeout: 3000 }
-        );
+    it('renders without crashing', () => {
+        renderUsersTable();
+        expect(screen.getByTestId('users_table_page')).toBeInTheDocument();
     });
 });

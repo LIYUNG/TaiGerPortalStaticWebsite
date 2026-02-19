@@ -14,7 +14,6 @@ import queryString from 'query-string';
 
 import UsersList from './UsersList';
 import AddUserModal from './AddUserModal';
-import ErrorPage from '../Utils/ErrorPage';
 import DEMO from '@store/constant';
 import { addUser } from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
@@ -35,14 +34,8 @@ const UsersTable = () => {
     const { t } = useTranslation();
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
     const [userTableState, setUserTableState] = useState({
-        error: null,
         addUserModalState: false,
-        isLoaded: false,
-        users: null,
-        success: false,
-        res_status: 0,
-        res_modal_message: '',
-        res_modal_status: 0
+        users: null
     });
     const [value, setValue] = useState(0);
 
@@ -102,11 +95,6 @@ const UsersTable = () => {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
     TabTitle(t('User List', { ns: 'common' }));
-    const { res_status } = userTableState;
-
-    if (res_status >= 400) {
-        return <ErrorPage res_status={res_status} />;
-    }
 
     return (
         <Box data-testid="users_table_page">
