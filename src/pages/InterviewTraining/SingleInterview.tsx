@@ -1,4 +1,4 @@
-import { useState, useMemo, type FormEvent, type MouseEvent } from 'react';
+import { useState, useMemo, type MouseEvent } from 'react';
 import {
     Link as LinkDom,
     useLocation,
@@ -316,7 +316,7 @@ const InterviewMetadataSidebar = ({
     };
 
     const handleSendInterviewInvitation = async (
-        e: FormEvent<HTMLFormElement>
+        e: MouseEvent<HTMLButtonElement>
     ) => {
         e.preventDefault();
         try {
@@ -670,7 +670,9 @@ const InterviewMetadataSidebar = ({
                                                 !interviewTrainingTimeChange
                                             }
                                             fullWidth
-                                            onClick={(e) =>
+                                            onClick={(
+                                                e: MouseEvent<HTMLButtonElement>
+                                            ) =>
                                                 handleSendInterviewInvitation(e)
                                             }
                                             variant="contained"

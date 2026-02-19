@@ -1,4 +1,3 @@
-import React from 'react';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
@@ -24,7 +23,11 @@ const Header = () => (
     </AppBar>
 );
 
-const HeroSection = ({ logoLink }) => (
+interface HeroSectionProps {
+    logoLink: string;
+}
+
+const HeroSection = ({ logoLink }: HeroSectionProps) => (
     <Container
         sx={{
             paddingY: 4,
@@ -75,7 +78,12 @@ const HeroSection = ({ logoLink }) => (
     </Container>
 );
 
-const FeatureCard = ({ title, description }) => (
+interface FeatureCardProps {
+    title: string;
+    description: string;
+}
+
+const FeatureCard = ({ title, description }: FeatureCardProps) => (
     <Grid item md={4} sm={6} xs={12}>
         <Paper
             sx={{

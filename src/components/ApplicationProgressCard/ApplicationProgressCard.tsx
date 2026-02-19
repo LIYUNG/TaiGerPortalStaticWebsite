@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, MouseEvent, ChangeEvent } from 'react';
 import { Link as LinkDom, useNavigate } from 'react-router-dom';
 import UndoIcon from '@mui/icons-material/Undo';
 import CheckIcon from '@mui/icons-material/Check';
@@ -34,11 +34,10 @@ import {
     isProgramRejected,
     isProgramSubmitted
 } from '@taiger-common/core';
-import type { Application } from '@/api/types';
 
 import ApplicationProgressCardBody from './ApplicationProgressCardBody';
 import ApplicationLockControl from '../ApplicationLockControl/ApplicationLockControl';
-import { updateStudentApplicationResult } from '@/api';
+import { IApplicationWithId, updateStudentApplicationResult } from '@/api';
 import DEMO from '@store/constant';
 import {
     application_deadline_V2_calculator,
@@ -141,10 +140,13 @@ export default function ApplicationProgressCard(
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
     const navigate = useNavigate();
 
-    const applicationFromProps = props.application as Application;
+    const applicationFromProps = props.application as
+        | IApplication
+        | IApplicationWithId;
 
-    const [application, setApplication] =
-        useState<Application>(applicationFromProps);
+    const [application, setApplication] = useState<
+        IApplication | IApplicationWithId
+    >(applicationFromProps);
     const [resultState, setResultState] = useState('-');
     const [letter, setLetter] = useState<File | null>(null);
     const [returnedMessage, setReturnedMessage] = useState('');
@@ -155,7 +157,7 @@ export default function ApplicationProgressCard(
         setIsCollapse(!isCollapse);
     };
 
-    const openUndoModal = (e: React.MouseEvent) => {
+    const openUndoModal = (e: MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
         setShowUndoModal(true);
     };
@@ -164,7 +166,7 @@ export default function ApplicationProgressCard(
         setShowUndoModal(false);
     };
 
-    const openSetResultModal = (e: React.MouseEvent, result: string) => {
+    const openSetResultModal = (e: MouseEvent, result: string) => {
         e.stopPropagation();
         setShowSetResultModal(true);
         setResultState(result);
@@ -174,7 +176,7 @@ export default function ApplicationProgressCard(
         setShowSetResultModal(false);
     };
 
-    const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
         if (!e.target.files) {
             setLetter(null);

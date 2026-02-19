@@ -9,7 +9,7 @@ import {
     Radio,
     RadioGroup
 } from '@mui/material';
-
+import { MouseEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export interface UsersListSubpageProps {
@@ -19,14 +19,14 @@ export interface UsersListSubpageProps {
     lastname: string;
     selected_user_role: string;
     handleChange2: (e: unknown) => void;
-    onSubmit2: (e: unknown) => void;
+    onSubmit2: (e: MouseEvent<HTMLButtonElement>) => void;
 }
 
 const UsersListSubpage = (props: UsersListSubpageProps) => {
     const { t } = useTranslation();
     const user_roles = ['Student', 'Editor', 'Agent', 'External'];
     return (
-        <Dialog centered onClose={props.setModalHide} open={props.show}>
+        <Dialog onClose={props.setModalHide} open={props.show}>
             <DialogTitle>
                 Assign {props.firstname} - {props.lastname} as
             </DialogTitle>
@@ -53,7 +53,9 @@ const UsersListSubpage = (props: UsersListSubpageProps) => {
             <DialogActions>
                 <Button
                     color="primary"
-                    onClick={(e) => props.onSubmit2(e)}
+                    onClick={(e: MouseEvent<HTMLButtonElement>) =>
+                        props.onSubmit2(e)
+                    }
                     sx={{ mr: 2 }}
                     variant="contained"
                 >

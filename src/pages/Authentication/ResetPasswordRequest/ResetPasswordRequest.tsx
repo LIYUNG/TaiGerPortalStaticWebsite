@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useState, MouseEvent, ChangeEvent } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
     Button,
@@ -16,7 +16,9 @@ import DEMO from '@store/constant';
 
 export default function ResetPasswordRequest() {
     const { t } = useTranslation();
-    const [emailaddress, setEmailaddress] = useState();
+    const [emailaddress, setEmailaddress] = useState<string | undefined>(
+        undefined
+    );
     const [emailSent, setEmailSent] = useState(false);
     const [buttonDisable, setButtonDisable] = useState(false);
     const emailValidation = () => {
@@ -29,7 +31,7 @@ export default function ResetPasswordRequest() {
         return true;
     };
 
-    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         if (emailValidation()) {
             try {
@@ -76,14 +78,18 @@ export default function ResetPasswordRequest() {
                         id="email"
                         label={t('Email Address')}
                         margin="normal"
-                        onChange={(e) => setEmailaddress(e.target.value)}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                            setEmailaddress(e.target.value)
+                        }
                         required
                         type="email"
                     />
                     <Button
                         color="primary"
                         disabled={buttonDisable}
-                        onClick={handleSubmit}
+                        onClick={(e: MouseEvent<HTMLButtonElement>) =>
+                            handleSubmit(e)
+                        }
                         sx={{ mt: 2 }}
                         variant="contained"
                     >

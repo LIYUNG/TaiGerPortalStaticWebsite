@@ -2,7 +2,6 @@ import { useTranslation } from 'react-i18next';
 import { Link as LinkDom } from 'react-router-dom';
 import { Box, Breadcrumbs, Card, Link, Typography } from '@mui/material';
 import { is_TaiGer_Editor, is_TaiGer_role } from '@taiger-common/core';
-import queryString from 'query-string';
 
 import BaseDocumentStudentView from './BaseDocumentStudentView';
 import { TabTitle } from '../Utils/TabTitle';
@@ -11,23 +10,16 @@ import DEMO from '@store/constant';
 import { appConfig } from '../../config';
 import Loading from '@components/Loading/Loading';
 import { BaseDocumentsTable } from './BaseDocumentsTable';
-import { useQuery } from '@tanstack/react-query';
-import { getStudentsAndDocLinks2Query } from '@/api/query';
+import { useStudentsAndDocLinks } from '@hooks/useStudentsAndDocLinks';
 
 const BaseDocuments = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const role = is_TaiGer_Editor(user) ? 'editors' : 'agents';
-    const { data, isLoading, isError, error } = useQuery(
-        getStudentsAndDocLinks2Query(
-            queryString.stringify({ [role]: user._id, archiv: false })
-        )
-    );
+    const { students, base_docs_link, isLoading, isError, error } =
+        useStudentsAndDocLinks({ [role]: user._id, archiv: false });
 
     TabTitle('Base Documents');
-
-    const students = data?.data;
-    const base_docs_link = data?.base_docs_link;
 
     const StudentDocoumentsView = () =>
         students?.map((student, i) => (

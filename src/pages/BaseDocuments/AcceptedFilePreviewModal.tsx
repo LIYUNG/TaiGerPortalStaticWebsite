@@ -13,7 +13,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { is_TaiGer_Editor, is_TaiGer_Student } from '@taiger-common/core';
 import { DocumentStatusType } from '@taiger-common/model';
 
-import { BASE_URL } from '@api/request';
+import { BASE_URL } from '@/api';
 import FilePreview from '@components/FilePreview/FilePreview';
 import { useAuth } from '@components/AuthProvider';
 

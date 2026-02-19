@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 
-import { login as Login } from '@api/index';
+import { login as Login } from '@/api';
 import Reactivation from '../Activation/Reactivation';
 import { useAuth } from '@components/AuthProvider';
 import AuthWrapper from '@components/AuthWrapper';
