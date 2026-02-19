@@ -1,22 +1,53 @@
 /**
  * Page smoke tests: each page component renders without crashing.
- * Catches refactoring regressions (missing imports, wrong paths, broken providers).
+ * Direct render with mocks – no MemoryRouter, no QueryClient.
  */
-import { Suspense, lazy, LazyExoticComponent, ComponentType } from 'react';
+import {
+    createElement,
+    forwardRef,
+    Suspense,
+    lazy,
+    LazyExoticComponent,
+    ComponentType
+} from 'react';
 import { ReactNode } from 'react';
 import { render, waitFor } from '@testing-library/react';
-import {
-    createMemoryRouter,
-    RouterProvider,
-    defer,
-    type RouteObject
-} from 'react-router-dom';
-import { QueryClientProvider } from '@tanstack/react-query';
 import { SnackBarProvider } from '@contexts/use-snack-bar';
 import { CustomThemeProvider } from '@components/ThemeProvider';
-import { renderWithProviders, createTestQueryClient } from './test/test-utils';
 import Settings from '@pages/Settings/index';
 import Survey from '@pages/Survey/index';
+
+// Mock react-router so pages can render without RouterProvider
+const mockLoaderData = {
+    data: {
+        data: {
+            academic_background: {},
+            application_preference: {}
+        },
+        survey_link: ''
+    },
+    complaintTickets: Promise.resolve([])
+};
+
+vi.mock('react-router-dom', async (importOriginal) => {
+    const actual =
+        (await importOriginal()) as typeof import('react-router-dom');
+    return {
+        ...actual,
+        Navigate: () => null,
+        Link: forwardRef((props, ref) =>
+            createElement('a', {
+                href: props.to ?? '',
+                ref,
+                ...props
+            }, props.children)
+        ),
+        useLocation: () => ({ search: '', pathname: '/', hash: '' }),
+        useNavigate: () => vi.fn(),
+        useParams: () => ({}),
+        useLoaderData: () => mockLoaderData
+    };
+});
 
 vi.mock('@components/AuthProvider', () => ({
     useAuth: () => ({
@@ -183,29 +214,10 @@ const wrapWithSuspense = (
     </Suspense>
 );
 
-const routerFutureFlags = {
-    v7_startTransition: true,
-    v7_relativeSplatPath: true
-};
-
-function renderPageRoute(route: RouteObject, initialEntry: string): void {
-    // Fallback route avoids "No route matches" / ErrorBoundary when a page navigates internally
-    const routes: RouteObject[] = [
-        route,
-        { path: '*', element: <div data-testid="route-fallback" /> }
-    ];
-    const router = createMemoryRouter(routes, {
-        initialEntries: [initialEntry],
-        future: routerFutureFlags
-    });
-    const queryClient = createTestQueryClient();
+function renderPage(ui: React.ReactElement): void {
     render(
         <CustomThemeProvider>
-            <QueryClientProvider client={queryClient}>
-                <SnackBarProvider>
-                    <RouterProvider router={router} />
-                </SnackBarProvider>
-            </QueryClientProvider>
+            <SnackBarProvider>{ui}</SnackBarProvider>
         </CustomThemeProvider>
     );
 }
@@ -213,13 +225,7 @@ function renderPageRoute(route: RouteObject, initialEntry: string): void {
 describe('Page smoke tests – all pages render without crashing', () => {
     test('Dashboard (default) renders', async () => {
         const DashboardDefault = lazy(() => import('@pages/Dashboard'));
-        renderPageRoute(
-            {
-                path: '/dashboard/default',
-                element: wrapWithSuspense(DashboardDefault)
-            },
-            '/dashboard/default'
-        );
+        renderPage(wrapWithSuspense(DashboardDefault));
         await waitFor(() => {
             expect(document.body.textContent).toBeDefined();
         });
@@ -227,9 +233,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
 
     test('Admissions page renders', async () => {
         const Admissions = lazy(() => import('@pages/Admissions/Admissions'));
-        renderWithProviders(wrapWithSuspense(Admissions), {
-            initialEntries: ['/admissions-overview']
-        });
+        renderPage(wrapWithSuspense(Admissions));
         await waitFor(() => {
             expect(document.body.textContent).toBeDefined();
         });
@@ -239,13 +243,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
         const StudentDatabase = lazy(
             () => import('@pages/StudentDatabase/index')
         );
-        renderPageRoute(
-            {
-                path: '/student-database',
-                element: wrapWithSuspense(StudentDatabase)
-            },
-            '/student-database'
-        );
+        renderPage(wrapWithSuspense(StudentDatabase));
         await waitFor(
             () => {
                 expect(document.body.textContent).toBeDefined();
@@ -258,13 +256,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
         const StudentDatabaseOverview = lazy(
             () => import('@pages/StudentDatabase/StudentDatabaseOverview')
         );
-        renderPageRoute(
-            {
-                path: '/student-database/overview',
-                element: wrapWithSuspense(StudentDatabaseOverview)
-            },
-            '/student-database/overview'
-        );
+        renderPage(wrapWithSuspense(StudentDatabaseOverview));
         await waitFor(() => {
             expect(document.body.textContent).toBeDefined();
         });
@@ -272,13 +264,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
 
     test('Archiv Students page renders', async () => {
         const ArchivStudent = lazy(() => import('@pages/ArchivStudent/index'));
-        renderPageRoute(
-            {
-                path: '/archiv/students',
-                element: wrapWithSuspense(ArchivStudent)
-            },
-            '/archiv/students'
-        );
+        renderPage(wrapWithSuspense(ArchivStudent));
         await waitFor(
             () => {
                 expect(document.body.textContent).toBeDefined();
@@ -289,10 +275,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
 
     test('Program List page renders', async () => {
         const ProgramList = lazy(() => import('@pages/Program/ProgramList'));
-        renderPageRoute(
-            { path: '/programs', element: wrapWithSuspense(ProgramList) },
-            '/programs'
-        );
+        renderPage(wrapWithSuspense(ProgramList));
         await waitFor(() => {
             expect(document.body.textContent).toBeDefined();
         });
@@ -300,13 +283,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
 
     test('Users Table page renders', async () => {
         const UsersTable = lazy(() => import('@pages/Users/UsersTable'));
-        renderPageRoute(
-            {
-                path: '/users',
-                element: wrapWithSuspense(UsersTable)
-            },
-            '/users'
-        );
+        renderPage(wrapWithSuspense(UsersTable));
         await waitFor(() => {
             expect(document.body.textContent).toBeDefined();
         });
@@ -314,13 +291,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
 
     test('CVMLRL Center / Overview renders', async () => {
         const CVMLRLOverview = lazy(() => import('@pages/CVMLRLCenter/index'));
-        renderPageRoute(
-            {
-                path: '/cv-ml-rl-center',
-                element: wrapWithSuspense(CVMLRLOverview)
-            },
-            '/cv-ml-rl-center'
-        );
+        renderPage(wrapWithSuspense(CVMLRLOverview));
         await waitFor(
             () => {
                 expect(document.body.textContent).toBeDefined();
@@ -333,13 +304,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
         const BaseDocuments = lazy(
             () => import('@pages/BaseDocuments/BaseDocuments')
         );
-        renderPageRoute(
-            {
-                path: '/base-documents',
-                element: wrapWithSuspense(BaseDocuments)
-            },
-            '/base-documents'
-        );
+        renderPage(wrapWithSuspense(BaseDocuments));
         await waitFor(
             () => {
                 expect(document.body.textContent).toBeDefined();
@@ -349,18 +314,12 @@ describe('Page smoke tests – all pages render without crashing', () => {
     });
 
     test('Settings page renders', async () => {
-        renderPageRoute(
-            {
-                path: '/settings',
-                element: (
-                    <Suspense
-                        fallback={<div data-testid="loading">Loading...</div>}
-                    >
-                        <Settings />
-                    </Suspense>
-                )
-            },
-            '/settings'
+        renderPage(
+            <Suspense
+                fallback={<div data-testid="loading">Loading...</div>}
+            >
+                <Settings />
+            </Suspense>
         );
         await waitFor(
             () => {
@@ -372,10 +331,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
 
     test('Profile page renders', async () => {
         const Profile = lazy(() => import('@pages/Profile/index'));
-        renderPageRoute(
-            { path: '/profile', element: wrapWithSuspense(Profile) },
-            '/profile'
-        );
+        renderPage(wrapWithSuspense(Profile));
         await waitFor(() => {
             expect(document.body.textContent).toBeDefined();
         });
@@ -385,13 +341,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
         const LearningResources = lazy(
             () => import('@pages/LearningResources/index')
         );
-        renderPageRoute(
-            {
-                path: '/resources',
-                element: wrapWithSuspense(LearningResources)
-            },
-            '/resources'
-        );
+        renderPage(wrapWithSuspense(LearningResources));
         await waitFor(() => {
             expect(document.body.textContent).toBeDefined();
         });
@@ -401,10 +351,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
         const Download = lazy(
             () => import('@pages/DownloadCenter/DownloadPage')
         );
-        renderPageRoute(
-            { path: '/download', element: wrapWithSuspense(Download) },
-            '/download'
-        );
+        renderPage(wrapWithSuspense(Download));
         await waitFor(() => {
             expect(document.body.textContent).toBeDefined();
         });
@@ -412,10 +359,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
 
     test('My Courses page renders', async () => {
         const MyCourses = lazy(() => import('@pages/MyCourses/index'));
-        renderPageRoute(
-            { path: '/my-courses', element: wrapWithSuspense(MyCourses) },
-            '/my-courses'
-        );
+        renderPage(wrapWithSuspense(MyCourses));
         await waitFor(() => {
             expect(document.body.textContent).toBeDefined();
         });
@@ -425,13 +369,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
         const ApplicationsOverview = lazy(
             () => import('@pages/ApplicantsOverview/index')
         );
-        renderPageRoute(
-            {
-                path: '/student-applications',
-                element: wrapWithSuspense(ApplicationsOverview)
-            },
-            '/student-applications'
-        );
+        renderPage(wrapWithSuspense(ApplicationsOverview));
         await waitFor(() => {
             expect(document.body.textContent).toBeDefined();
         });
@@ -441,13 +379,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
         const AllApplicantsOverview = lazy(
             () => import('@pages/ApplicantsOverview/allStudentIndex')
         );
-        renderPageRoute(
-            {
-                path: '/all-students-applications',
-                element: wrapWithSuspense(AllApplicantsOverview)
-            },
-            '/all-students-applications'
-        );
+        renderPage(wrapWithSuspense(AllApplicantsOverview));
         await waitFor(() => {
             expect(document.body.textContent).toBeDefined();
         });
@@ -457,13 +389,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
         const AgentsAssignment = lazy(
             () => import('@pages/AssignmentAgentsEditors/AssignAgents/index')
         );
-        renderPageRoute(
-            {
-                path: '/assignment/agents',
-                element: wrapWithSuspense(AgentsAssignment)
-            },
-            '/assignment/agents'
-        );
+        renderPage(wrapWithSuspense(AgentsAssignment));
         await waitFor(() => {
             expect(document.body.textContent).toBeDefined();
         });
@@ -473,49 +399,14 @@ describe('Page smoke tests – all pages render without crashing', () => {
         const EditorsAssignment = lazy(
             () => import('@pages/AssignmentAgentsEditors/AssignEditors/index')
         );
-        renderPageRoute(
-            {
-                path: '/assignment/editors',
-                element: wrapWithSuspense(EditorsAssignment)
-            },
-            '/assignment/editors'
-        );
+        renderPage(wrapWithSuspense(EditorsAssignment));
         await waitFor(() => {
             expect(document.body.textContent).toBeDefined();
         });
     });
 
     test('Survey page renders', async () => {
-        const mockLoaderData = {
-            data: {
-                data: {
-                    academic_background: {},
-                    application_preference: {}
-                },
-                survey_link: ''
-            }
-        };
-        const routes: RouteObject[] = [
-            {
-                path: '/survey',
-                loader: () => mockLoaderData,
-                element: <Survey />
-            }
-        ];
-        const router = createMemoryRouter(routes, {
-            initialEntries: ['/survey'],
-            future: routerFutureFlags
-        });
-        const queryClient = createTestQueryClient();
-        render(
-            <CustomThemeProvider>
-                <QueryClientProvider client={queryClient}>
-                    <SnackBarProvider>
-                        <RouterProvider router={router} />
-                    </SnackBarProvider>
-                </QueryClientProvider>
-            </CustomThemeProvider>
-        );
+        renderPage(<Survey />);
         await waitFor(() => {
             expect(document.body.textContent).toBeDefined();
         });
@@ -523,14 +414,7 @@ describe('Page smoke tests – all pages render without crashing', () => {
 
     test('Customer Support page renders', async () => {
         const CustomerSupport = lazy(() => import('@pages/CustomerSupport'));
-        renderPageRoute(
-            {
-                path: '/customer-center',
-                element: wrapWithSuspense(CustomerSupport),
-                loader: () => defer({ complaintTickets: Promise.resolve([]) })
-            },
-            '/customer-center'
-        );
+        renderPage(wrapWithSuspense(CustomerSupport));
         await waitFor(() => {
             expect(document.body.textContent).toBeDefined();
         });

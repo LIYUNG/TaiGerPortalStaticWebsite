@@ -1,79 +1,60 @@
-import { render, screen, waitFor } from '@testing-library/react';
-import type { ReactElement } from 'react';
+import { createElement, forwardRef } from 'react';
+import { render, screen } from '@testing-library/react';
+
 import StudentOverviewPage from '.';
-import { useAuth } from '@components/AuthProvider/index';
-import { getActiveStudents } from '@/api';
-import type { AuthContextValue } from '@/api/types';
-import { RouterProvider, createMemoryRouter } from 'react-router-dom';
+import { useAuth } from '@components/AuthProvider';
+import { useActiveStudents } from '@hooks/useActiveStudents';
 
-import { mockSingleData } from '../../test/testingStudentData';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
-vi.mock('axios');
-vi.mock('@/api');
-vi.mock('@components/AuthProvider');
-vi.mock('@components/StudentOverviewTable', () => ({
-    default: () => <div data-testid="student-overview-table">Table</div>
+vi.mock('react-router-dom', () => ({
+    Navigate: () => null,
+    Link: forwardRef((props, ref) =>
+        createElement('a', {
+            href: props.to,
+            ref,
+            ...props
+        }, props.children)
+    )
 }));
 
-const createTestQueryClient = () =>
-    new QueryClient({
-        defaultOptions: {
-            queries: {
-                retry: false // Disable retries for faster tests
-            }
-        }
-    });
+vi.mock('@components/AuthProvider');
+vi.mock('@hooks/useActiveStudents');
 
-const renderWithQueryClient = (ui: ReactElement) => {
-    const testQueryClient = createTestQueryClient();
-    return render(
-        <QueryClientProvider client={testQueryClient}>{ui}</QueryClientProvider>
-    );
+vi.mock('@components/StudentOverviewTable', () => ({
+    default: () =>
+        createElement('div', { 'data-testid': 'student-overview-table' }, 'Table')
+}));
+
+const mockAgentUser = {
+    role: 'Agent',
+    _id: '639baebf8b84944b872cf648',
+    firstname: 'Agent',
+    lastname: 'User'
 };
 
-class ResizeObserver {
-    observe() {}
-    disconnect() {}
-    unobserve() {}
-}
-
-const routes = [
-    {
-        path: '/students-overview/all',
-        element: <StudentOverviewPage />,
-        errorElement: <div>Error</div>,
-        loader: () => {
-            return { data: mockSingleData, essays: { data: [] } };
-        }
-    }
-];
-
 describe('StudentOverviewPage', () => {
-    window.ResizeObserver = ResizeObserver;
-    test('StudentOverview page not crash', async () => {
-        vi.mocked(getActiveStudents).mockResolvedValue({
-            data: mockSingleData
-        });
+    beforeEach(() => {
         vi.mocked(useAuth).mockReturnValue({
-            user: { role: 'Agent', _id: '639baebf8b84944b872cf648' },
+            user: mockAgentUser,
             isAuthenticated: true,
             isLoaded: true,
-            login: () => {},
-            logout: () => {}
-        } as AuthContextValue);
-        const router = createMemoryRouter(routes, {
-            initialEntries: ['/students-overview/all']
-        });
-        renderWithQueryClient(<RouterProvider router={router} />);
+            login: vi.fn(),
+            logout: vi.fn()
+        } as never);
+        vi.mocked(useActiveStudents).mockReturnValue({
+            data: [],
+            isLoading: false
+        } as never);
+    });
 
-        await waitFor(
-            () => {
-                expect(
-                    screen.getByTestId('student_overview')
-                ).toBeInTheDocument();
-            },
-            { timeout: 5000 }
-        );
+    it('renders without crashing', () => {
+        render(<StudentOverviewPage />);
+        expect(screen.getByTestId('student_overview')).toBeInTheDocument();
+    });
+
+    it('renders StudentOverviewTable', () => {
+        render(<StudentOverviewPage />);
+        expect(
+            screen.getByTestId('student-overview-table')
+        ).toBeInTheDocument();
     });
 });

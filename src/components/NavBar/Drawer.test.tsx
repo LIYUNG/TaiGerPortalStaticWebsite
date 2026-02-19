@@ -1,9 +1,23 @@
+import { createElement, forwardRef } from 'react';
 import { render, screen } from '@testing-library/react';
 import { CustomDrawer } from './Drawer';
 import { useAuth } from '@components/AuthProvider/index';
 import type { AuthContextValue } from '@/api/types';
-import { BrowserRouter } from 'react-router-dom';
 import type { Theme } from '@mui/material/styles';
+
+vi.mock('react-router-dom', () => ({
+    Link: forwardRef((props, ref) =>
+        createElement(
+            'a',
+            {
+                href: props.to ?? '',
+                ref,
+                ...props
+            },
+            props.children
+        )
+    )
+}));
 
 vi.mock('@components/AuthProvider/index', () => ({
     useAuth: vi.fn()
@@ -33,11 +47,7 @@ describe('CustomDrawer Component', () => {
     });
 
     test('renders the correct menu items For Student', () => {
-        render(
-            <BrowserRouter>
-                <CustomDrawer {...mockProps} />
-            </BrowserRouter>
-        );
+        render(<CustomDrawer {...mockProps} />);
         // Add assertions to check menu items
         expect(screen.getByTestId('navbar_drawer_component')).toHaveTextContent(
             'Dashboard'

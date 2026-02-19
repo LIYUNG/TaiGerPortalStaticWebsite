@@ -1,4 +1,4 @@
-import { createElement } from 'react';
+import { createElement, forwardRef } from 'react';
 import { render, screen } from '@testing-library/react';
 
 import UsersTable from './UsersTable';
@@ -12,11 +12,16 @@ const mockUsersCount = {
     adminCount: 0
 };
 
-// Render without router: stub Navigate and Link so no router context is needed
+// Render without router: stub Navigate and Link so no router context is needed.
+// Link must forward refs so MUI Link can use it as component={LinkDom}.
 vi.mock('react-router-dom', () => ({
     Navigate: () => null,
-    Link: ({ children, to, ...props }: { to: string; children?: React.ReactNode }) =>
-        createElement('a', { href: to, ...props }, children)
+    Link: forwardRef(
+        (
+            { children, to, ...props }: { to: string; children?: React.ReactNode },
+            ref
+        ) => createElement('a', { href: to, ref, ...props }, children)
+    )
 }));
 
 vi.mock('@components/AuthProvider');
