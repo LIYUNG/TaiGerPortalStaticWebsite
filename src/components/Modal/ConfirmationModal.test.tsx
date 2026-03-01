@@ -1,5 +1,4 @@
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { ConfirmationModal } from './ConfirmationModal';
 
 describe('ConfirmationModal', () => {
@@ -24,7 +23,7 @@ describe('ConfirmationModal', () => {
         ).toBeInTheDocument();
     });
 
-    test('calls onConfirm when confirm button clicked', async () => {
+    test('calls onConfirm when confirm button clicked', () => {
         const onConfirm = vi.fn(() => {});
         const onClose = vi.fn(() => {});
         render(
@@ -38,7 +37,7 @@ describe('ConfirmationModal', () => {
                 title="Title"
             />
         );
-        await userEvent.click(screen.getByRole('button', { name: /Confirm/i }));
+        fireEvent.click(screen.getByRole('button', { name: /Confirm/i }));
         expect(onConfirm).toHaveBeenCalled();
     });
 });

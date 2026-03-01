@@ -30,6 +30,16 @@ vi.mock('@mui/x-charts/BarChart', () => ({
 }));
 vi.mock('@mui/x-charts/ChartsAxis', () => ({ axisClasses: {} }));
 
+// Stub the role-specific dashboard views — they are tested individually.
+// Mocking them here prevents rendering heavy MUI tables/charts in this smoke-level test.
+vi.mock('@pages/Dashboard/AgentDashboard/AgentMainView', () => ({ default: () => null }));
+vi.mock('@pages/Dashboard/AdminDashboard/AdminMainView', () => ({ default: () => null }));
+vi.mock('@pages/Dashboard/EditorDashboard/EditorMainView', () => ({ default: () => null }));
+vi.mock('@pages/Dashboard/ManagerDashboard/ManagerMainView', () => ({ default: () => null }));
+vi.mock('@pages/Dashboard/StudentDashboard/StudentDashboard', () => ({ default: () => null }));
+vi.mock('@pages/Dashboard/GuestDashboard/GuestDashboard', () => ({ default: () => null }));
+vi.mock('@pages/Dashboard/ExternalDashboard/ExternalMainView', () => ({ default: () => null }));
+
 vi.mock('react-router-dom', async (importOriginal) => {
     const actual = (await importOriginal()) as typeof import('react-router-dom');
     return {
