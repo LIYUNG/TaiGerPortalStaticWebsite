@@ -1,5 +1,5 @@
 import type { AxiosInstance } from 'axios';
-import type { IUser, IApplication, IDocumentthread } from '@taiger-common/model';
+import type { IApplication, IDocumentthread } from '@taiger-common/model';
 
 // ---------------------------------------------------------------------------
 // Frontend-specific types (no equivalent in @taiger-common/model)
@@ -7,18 +7,7 @@ import type { IUser, IApplication, IDocumentthread } from '@taiger-common/model'
 
 import type { IProgramWithId, IUserWithId, IStudentResponse, IApplicationWithId } from '@taiger-common/model';
 
-/** Program reference as nested in Application */
-export interface ApplicationProgramId {
-    _id?: unknown;
-    uni_assist?: string | string[];
-    allowOnlyGraduatedApplicant?: boolean;
-    lang?: string;
-    school?: string;
-    program_name?: string;
-    degree?: string;
-    semester?: string;
-    [key: string]: unknown;
-}
+ 
 
 /** Application object as returned by API / used in student.applications. */
 export type Application = Omit<
@@ -40,25 +29,12 @@ export type Application = Omit<
     interview_training_event?: { start?: string;[key: string]: unknown };
 };
 
-/** Typed request helpers */
-export type RequestInstance = AxiosInstance;
-
-/** Auth context userdata state shape */
-export interface AuthUserdataState {
-    error: unknown;
-    success: boolean;
-    data: IUserWithId;
-    isLoaded: boolean;
-    res_modal_message: string;
-    res_modal_status: number;
-}
-
 /** Auth context value (used by useAuth) */
 export interface AuthContextValue {
-    user: IUser;
+    user: IUserWithId | null;
     isAuthenticated: boolean;
     isLoaded: boolean;
-    login: (data: IUser) => void;
+    login: (data: IUserWithId) => void;
     logout: () => void;
 }
 
@@ -107,21 +83,6 @@ export interface AgentResponse extends IUserWithId {
     firstname?: string;
     lastname?: string;
     role?: string;
-}
-
-/** Communication message response */
-export interface CommunicationResponse {
-    _id: string;
-    student_id?: string | IStudentResponse;
-    user_id?: string | AgentResponse;
-    message?: string;
-    readBy?: string[];
-    timeStampReadBy?: Record<string, string | Date>;
-    files?: Array<{ name: string; path: string }>;
-    createdAt?: string | Date;
-    ignore_message?: boolean;
-    ignoredMessageUpdatedAt?: string | Date;
-    ignoredMessageBy?: string;
 }
 
 /** Event response */

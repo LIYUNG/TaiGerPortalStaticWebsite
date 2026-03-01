@@ -2028,7 +2028,7 @@ export const programs_refactor = (students: IStudentResponse[]) => {
 
 export const toogleItemInArray = (arr, item) => {
     return arr?.includes(item)
-        ? arr?.filter((userId) => userId !== item)
+        ? arr?.filter((userId: string) => userId !== item)
         : arr?.length > 0
             ? [...arr, item]
             : [item];

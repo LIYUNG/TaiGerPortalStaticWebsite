@@ -14,8 +14,7 @@ import { useAuth } from '@components/AuthProvider';
 import DEMO from '@store/constant';
 import AuthWrapper from '@components/AuthWrapper';
 import { t } from 'i18next';
-import { IUser } from '@/types/taiger-common';
-import { AxiosResponse } from 'axios';
+import { ApiResponse, IUserWithId } from '@taiger-common/model';
 
 export default function GoogleOAuthCallback() {
     const [searchParams] = useSearchParams();
@@ -25,11 +24,14 @@ export default function GoogleOAuthCallback() {
     const { login } = useAuth();
 
     const { mutate, isPending, isError, error, isSuccess } = useMutation({
-        mutationFn: () => googleOAuthCallback(codeValue!) as Promise<AxiosResponse<IUser>>,
-        onSuccess: (response: AxiosResponse<IUser>) => {
+        mutationFn: () =>
+            googleOAuthCallback(codeValue!) as Promise<
+                ApiResponse<IUserWithId>
+            >,
+        onSuccess: (response: ApiResponse<IUserWithId>) => {
             // Extract data from response (assuming it's an AxiosResponse)
             const responseData = response;
-            login(responseData.data);
+            login(responseData.data!);
             // Redirect to dashboard or home page
             navigate(DEMO.DASHBOARD_LINK, { replace: true });
         },

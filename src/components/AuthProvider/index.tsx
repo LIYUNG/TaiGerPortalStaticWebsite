@@ -1,107 +1,70 @@
-import React, { useEffect, createContext, useContext, useState } from 'react';
+import React, { createContext, useContext } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 import { verify, logout } from '@/api/index';
+import { queryClient } from '@/api/client';
 import Loading from '../Loading/Loading';
-import type { AuthContextValue, AuthUserdataState } from '@/api/types';
-import { IUserWithId } from '@/types/taiger-common';
+import type { AuthContextValue } from '@/api/types';
+import { IUserWithId } from '@taiger-common/model';
 
 export const AuthContext = createContext<AuthContextValue | undefined>(
     undefined
 );
+
+// Stable key for the session-verification query.
+// Used by login/logout to update the cached user imperatively.
+const VERIFY_QUERY_KEY = ['auth/verify'] as const;
 
 interface AuthProviderProps {
     children: React.ReactNode;
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [, forceUpdate] = useState({});
-    const [userdata, setUserdata] = useState<AuthUserdataState>({
-        error: '',
-        success: false,
-        data: null,
-        isLoaded: false,
-        res_modal_message: '',
-        res_modal_status: 0
+    const { data: queriedUser, isPending } = useQuery({
+        queryKey: VERIFY_QUERY_KEY,
+        queryFn: async () => {
+            const resp = await verify();
+            const { data, success } = resp.data as {
+                data: IUserWithId;
+                success: boolean;
+            };
+            return success ? data : null;
+        },
+        // Auth state changes are always driven imperatively (login/logout);
+        // background refetches would reset the cache unexpectedly.
+        staleTime: Infinity,
+        // A 401 from /verify means "not logged in", not a transient error.
+        retry: false
     });
 
-    useEffect(() => {
-        verify().then(
-            (resp: {
-                data: { data: IUserWithId; success: boolean };
-                status?: number;
-            }) => {
-                const { data, success } = resp.data;
-                if (success) {
-                    setUserdata((state) => ({
-                        ...state,
-                        success: success ?? false,
-                        data: data,
-                        isLoaded: true
-                    }));
-                    setIsAuthenticated(true);
-                } else {
-                    setUserdata((state) => ({
-                        ...state,
-                        data: null,
-                        isLoaded: true
-                    }));
-                }
-            },
-            (error: unknown) => {
-                setUserdata((state) => ({
-                    ...state,
-                    isLoaded: true,
-                    error,
-                    res_modal_status: 500
-                }));
-            }
-        );
-    }, []);
+    const user = queriedUser ?? null;
 
     const login = (data: IUserWithId): void => {
-        setUserdata((state) => ({
-            ...state,
-            data
-        }));
-        setIsAuthenticated(true);
+        queryClient.setQueryData(VERIFY_QUERY_KEY, data);
     };
 
     const handleLogout = (): void => {
-        logout().then(
-            () => {
-                setUserdata((state) => ({
-                    ...state,
-                    data: null
-                }));
-            },
-            (error: unknown) => {
-                setUserdata((state) => ({
-                    ...state,
-                    isLoaded: true,
-                    error
-                }));
-            }
-        );
-
-        setIsAuthenticated(false);
-        forceUpdate({});
+        queryClient.setQueryData(VERIFY_QUERY_KEY, null);
+        // Fire server-side logout in the background; local session is already cleared
+        logout().catch(() => undefined);
     };
 
-    const authData: AuthContextValue = {
-        user: userdata.data,
-        isAuthenticated,
-        isLoaded: userdata.isLoaded,
-        login,
-        logout: handleLogout
-    };
-
-    if (!userdata.isLoaded) {
+    if (isPending) {
         return <Loading />;
     }
 
     return (
-        <AuthContext.Provider value={authData}>{children}</AuthContext.Provider>
+        <AuthContext.Provider
+            value={{
+                user,
+                isAuthenticated: user !== null,
+                isLoaded: !isPending,
+                login,
+                logout: handleLogout
+            }}
+        >
+            {children}
+        </AuthContext.Provider>
     );
 };
 
