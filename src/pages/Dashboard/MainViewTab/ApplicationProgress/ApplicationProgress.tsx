@@ -16,7 +16,7 @@ import {
 } from '@utils/contants';
 import { application_deadline_V2_calculator } from '../../../Utils/util_functions';
 import DEMO from '@store/constant';
-import type { IApplicationWithId, IStudentResponse } from '@/api/types';
+import type { IApplicationWithId, IStudentResponse } from '@taiger-common/model';
 
 function ApplicationProgress({ student }: { student: IStudentResponse }) {
     const { t } = useTranslation();

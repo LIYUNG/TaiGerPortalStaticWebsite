@@ -11,15 +11,8 @@ import { differenceInDays } from 'date-fns';
 import { pdfjs } from 'react-pdf';
 
 import { convertDate, twoYearsInDays } from '@utils/contants';
-import {
-    DocumentThreadResponse,
-    IApplicationWithId,
-    IProgramWithId,
-    IStudentResponse,
-    OpenTaskRow,
-    type Application,
-    type IUserWithId
-} from '@/api/types';
+import type { DocumentThreadResponse, OpenTaskRow, Application } from '@/api/types';
+import type { IApplicationWithId, IProgramWithId, IStudentResponse, IUserWithId } from '@taiger-common/model';
 import {
     IUser,
     IUserAcademicBackground,

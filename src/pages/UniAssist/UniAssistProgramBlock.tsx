@@ -39,7 +39,8 @@ import {
 import { useMutation } from '@tanstack/react-query';
 import { queryClient } from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
-import type { Application, IStudentResponse } from '@/api/types';
+import type { Application } from '@/api/types';
+import type { IStudentResponse } from '@taiger-common/model';
 
 export interface IconStatusProps {
     condition: boolean;

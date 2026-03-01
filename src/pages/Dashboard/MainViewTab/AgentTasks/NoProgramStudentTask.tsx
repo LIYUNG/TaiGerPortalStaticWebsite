@@ -3,7 +3,7 @@ import { Link, TableCell, TableRow } from '@mui/material';
 
 import { hasApplications } from '../../../Utils/util_functions';
 import DEMO from '@store/constant';
-import type { IStudentResponse } from '@/api/types';
+import type { IStudentResponse } from '@taiger-common/model';
 
 const NoProgramStudentTask = ({ student }: { student: IStudentResponse }) => {
     return (

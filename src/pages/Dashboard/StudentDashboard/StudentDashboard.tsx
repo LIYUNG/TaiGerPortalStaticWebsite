@@ -21,7 +21,8 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { is_TaiGer_Student, isProgramDecided } from '@taiger-common/core';
-import type { Application, IStudentResponse } from '@/api/types';
+import type { Application } from '@/api/types';
+import type { IStudentResponse } from '@taiger-common/model';
 
 import RespondedThreads from '../MainViewTab/RespondedThreads/RespondedThreads';
 import StudentTasksResponsive from '../MainViewTab/StudentTasks/StudentTasksResponsive';

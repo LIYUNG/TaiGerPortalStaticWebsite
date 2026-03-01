@@ -1,5 +1,11 @@
 import type { AxiosInstance } from 'axios';
-import type { IUser, IApplication } from '@taiger-common/model';
+import type { IUser, IApplication, IDocumentthread } from '@taiger-common/model';
+
+// ---------------------------------------------------------------------------
+// Frontend-specific types (no equivalent in @taiger-common/model)
+// ---------------------------------------------------------------------------
+
+import type { IProgramWithId, IUserWithId, IStudentResponse, IApplicationWithId } from '@taiger-common/model';
 
 /** Program reference as nested in Application */
 export interface ApplicationProgramId {
@@ -14,8 +20,7 @@ export interface ApplicationProgramId {
     [key: string]: unknown;
 }
 
-/** Application object as returned by API / used in student.applications.
- * decided, closed, admission are optional so API responses that omit them still match. */
+/** Application object as returned by API / used in student.applications. */
 export type Application = Omit<
     IApplication,
     'decided' | 'closed' | 'admission'
@@ -35,21 +40,7 @@ export type Application = Omit<
     interview_training_event?: { start?: string;[key: string]: unknown };
 };
 
-/** Generic API response wrapper used by the backend */
-export interface ApiResponse<T = unknown> {
-    success: boolean;
-    data?: T;
-    message?: string;
-}
-
-
-
-export interface AuthVerifyResponse {
-    success: boolean;
-    data?: IUser;
-}
-
-/** Typed request helpers - use generic getData<T>(url) for typed responses */
+/** Typed request helpers */
 export type RequestInstance = AxiosInstance;
 
 /** Auth context userdata state shape */
@@ -71,7 +62,7 @@ export interface AuthContextValue {
     logout: () => void;
 }
 
-// --- API parameter types (for api/index.ts, api/query.ts, api/dataLoader.ts) ---
+// --- API parameter types ---
 
 export interface LoginCredentials {
     email?: string;
@@ -93,46 +84,13 @@ export interface ActivationPayload {
     token?: string;
 }
 
-/** Generic payload for PUT/PATCH - use Record<string, unknown> when shape varies */
+/** Generic payload for PUT/PATCH */
 export type ApiPayload = Record<string, unknown>;
 
 /** Query string (e.g. for list filters) */
 export type QueryString = string;
 
-/** Common ID types - use string for API path params */
-export type StudentId = string;
-export type ApplicationId = string;
-export type UserId = string;
-export type ProgramId = string;
-export type DocumentThreadId = string;
-export type MessageId = string;
-export type SurveyId = string;
-export type EventId = string;
-export type TicketId = string;
-export type MeetingId = string;
-export type InterviewId = string;
-export type LeadId = string;
-export type CourseId = string;
-export type KeywordsSetId = string;
-
-// --- Extended Response Types (frontend-friendly with string IDs) ---
-
-/** Import extended types from taiger-common */
-import type {
-    IApplicationWithId,
-    IProgramWithId,
-    IUserWithId,
-    IStudentResponse
-} from '../types/taiger-common';
-import { IDocumentthread } from '@taiger-common/model/dist/types';
-
-/** Re-export for convenience */
-export type {
-    IApplicationWithId,
-    IProgramWithId,
-    IUserWithId,
-    IStudentResponse
-};
+// --- Extended frontend response/display types ---
 
 /** Program response from API (includes string _id; API may return date as string) */
 export interface ProgramResponse
@@ -236,122 +194,7 @@ export interface StudentResponseFull extends IStudentResponse {
     [key: string]: unknown;
 }
 
-// --- API Response types (backend returns ApiResponse<T> or similar) ---
-
-/** getProgram response: { success, data, students?, vc? } */
-export interface GetProgramResponse {
-    success: boolean;
-    data: ProgramResponse & Record<string, unknown>;
-    students?: IStudentResponse[];
-    vc?: unknown[];
-}
-
-/** getProgramTicket response */
-export interface GetProgramTicketResponse {
-    success: boolean;
-    data?: unknown[];
-}
-
-/** getStudents / getStudentsV3 response */
-export type GetStudentsResponse = ApiResponse<IStudentResponse[]>;
-
-/** getStudent response */
-export type GetStudentResponse = ApiResponse<IStudentResponse>;
-
-/** getApplications response */
-export type GetApplicationsResponse = ApiResponse<IApplicationWithId[]>;
-
-/** getAdmissions response */
-export type GetAdmissionsResponse = ApiResponse<unknown[]>;
-
-/** getAdmissionsOverview response */
-export type GetAdmissionsOverviewResponse = ApiResponse<
-    Record<string, unknown>
->;
-
-/** getUsers response */
-export type GetUsersResponse = ApiResponse<AgentResponse[]>;
-
-/** getUsersOverview response */
-export type GetUsersOverviewResponse = ApiResponse<Record<string, unknown>>;
-
-/** getPrograms response */
-export type GetProgramsResponse = ApiResponse<ProgramResponse[]>;
-
-/** getProgramsOverview response */
-export type GetProgramsOverviewResponse = ApiResponse<Record<string, unknown>>;
-
-/** getSchoolsDistribution response */
-export type GetSchoolsDistributionResponse = ApiResponse<unknown[]>;
-
-/** getCommunicationThread / getCommunicationThreadV2 response */
-export type GetCommunicationThreadResponse = ApiResponse<
-    CommunicationResponse[]
->;
-
-/** getMyCommunicationThreadV2 response */
-export type GetMyCommunicationThreadResponse = ApiResponse<
-    CommunicationResponse[]
->;
-
-/** Meeting item (student meetings) */
-export interface MeetingResponse {
-    _id: string;
-    title?: string;
-    dateTime?: string;
-    location?: string;
-    description?: string;
-    notes?: string;
-    isConfirmed?: boolean;
-    isConfirmedReceiver?: boolean;
-    isConfirmedRequester?: boolean;
-    attended?: boolean;
-    meetingLink?: string;
-    requester_id?: string[];
-    receiver_id?: string[];
-    [key: string]: unknown;
-}
-
-/** getStudentMeetings response */
-export type GetStudentMeetingsResponse = ApiResponse<MeetingResponse[]>;
-
-/** getStudentMeeting response */
-export type GetStudentMeetingResponse = ApiResponse<MeetingResponse>;
-
-/** getActiveThreads response */
-export type GetActiveThreadsResponse = ApiResponse<DocumentThreadResponse[]>;
-
-/** getThreadsByStudent response */
-export type GetThreadsByStudentResponse = ApiResponse<DocumentThreadResponse[]>;
-
-/** getInterviews response */
-export type GetInterviewsResponse = ApiResponse<InterviewResponse[]>;
-
-/** getInterview response */
-export type GetInterviewResponse = ApiResponse<InterviewResponse>;
-
-/** getUsersCount response */
-export interface GetUsersCountResponse {
-    success?: boolean;
-    studentCount?: number;
-    agentCount?: number;
-    editorCount?: number;
-    externalCount?: number;
-    adminCount?: number;
-    [key: string]: unknown;
-}
-
-/** getProgramTicketsV2 response */
-export type GetProgramTicketsResponse = ApiResponse<unknown[]>;
-
-/** Paginated list response (many APIs return { data: T[], total?: number }) */
-export interface PaginatedResponse<T> extends ApiResponse<T[]> {
-    total?: number;
-}
-
-// --- Component-shared types (for props / display) ---
-
-/** Document thread message with optional file attachments (FileItem, FilesList) */
+/** Document thread message with optional file attachments */
 export interface DocumentThreadMessage {
     _id?: string;
     user_id?: { firstname?: string; lastname?: string;[key: string]: unknown };
@@ -361,7 +204,7 @@ export interface DocumentThreadMessage {
     createdAt?: string | Date;
 }
 
-/** Admissions stat table row (AdmissionsStat) */
+/** Admissions stat table row */
 export interface AdmissionsStatRow {
     id: string;
     school?: string;
@@ -375,7 +218,7 @@ export interface AdmissionsStatRow {
     pendingResultCount?: number;
 }
 
-/** Tasks overview (admin/editor dashboard counts from getTasksOverview) */
+/** Tasks overview (admin/editor dashboard counts) */
 export interface TasksOverview {
     noEditorsStudents?: number;
     noEssayWritersEssays?: number;

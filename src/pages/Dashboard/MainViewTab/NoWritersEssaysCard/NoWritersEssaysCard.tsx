@@ -15,7 +15,7 @@ import { is_TaiGer_role } from '@taiger-common/core';
 import EditEssayWritersSubpage from '../StudDocsOverview/EditEssayWritersSubpage';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
-import { IDocumentthread, IProgram } from '@taiger-common/model/dist/types';
+import type { IDocumentthread, IProgram } from '@taiger-common/model';
 
 interface NoWritersEssaysCardProps {
     essayDocumentThread: IDocumentthread;

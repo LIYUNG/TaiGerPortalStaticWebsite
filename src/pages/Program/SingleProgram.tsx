@@ -9,7 +9,7 @@ import {
 import { useMutation } from '@tanstack/react-query';
 
 import { deleteProgramV2, processProgramList, refreshProgram } from '@/api';
-import type { GetProgramResponse } from '@/api/types';
+import type { GetProgramResponse } from '@taiger-common/model';
 import SingleProgramView from './SingleProgramView';
 import ProgramDeleteWarning from './ProgramDeleteWarning';
 import { useAuth } from '@components/AuthProvider';

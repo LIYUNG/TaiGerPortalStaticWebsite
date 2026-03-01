@@ -11,7 +11,8 @@ import {
     convertDateUXFriendly
 } from '@utils/contants';
 import { red } from '@mui/material/colors';
-import { Application, IStudentResponse } from '@/api/types';
+import type { Application } from '@/api/types';
+import type { IStudentResponse } from '@taiger-common/model';
 
 interface ApplicationProgressCardBodyProps {
     application: Application;

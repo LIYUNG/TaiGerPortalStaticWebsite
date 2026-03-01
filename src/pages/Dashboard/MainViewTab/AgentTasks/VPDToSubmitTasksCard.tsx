@@ -19,7 +19,7 @@ import {
     is_uni_assist_paid_and_docs_uploaded
 } from '../../../Utils/util_functions';
 import DEMO from '@store/constant';
-import { IApplicationWithId } from '@/api/types';
+import type { IApplicationWithId } from '@taiger-common/model';
 
 const VPDToSubmitTasks = ({
     application

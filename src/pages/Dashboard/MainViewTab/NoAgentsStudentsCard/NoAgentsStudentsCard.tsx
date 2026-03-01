@@ -15,7 +15,7 @@ import { is_TaiGer_Admin } from '@taiger-common/core';
 import EditAgentsSubpage from '../StudDocsOverview/EditAgentsSubpage';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
-import { IStudentResponse } from '@/api/types';
+import type { IStudentResponse } from '@taiger-common/model';
 
 interface NoAgentsStudentsCardProps {
     student: IStudentResponse;
