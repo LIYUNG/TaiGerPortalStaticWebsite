@@ -8,7 +8,7 @@ import {
 } from '@pages/Utils/util_functions';
 import DEMO from '@store/constant';
 import type {
-    IApplicationWithId,
+    IApplicationPopulated,
     IProgramWithId,
     IStudentResponse
 } from '@taiger-common/model';
@@ -32,7 +32,7 @@ const ProgramLanguageNotMatchedBanner = ({
                 &nbsp;:&nbsp;
             </Alert>
             {languageNotMatchedPrograms(student)?.map(
-                (app: IApplicationWithId) => {
+                (app: IApplicationPopulated) => {
                     const program = app.programId as IProgramWithId | undefined;
                     const programIdStr = program?._id?.toString() ?? '';
                     return (

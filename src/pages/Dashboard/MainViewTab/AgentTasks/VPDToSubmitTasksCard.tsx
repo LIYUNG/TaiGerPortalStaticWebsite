@@ -19,12 +19,12 @@ import {
     is_uni_assist_paid_and_docs_uploaded
 } from '../../../Utils/util_functions';
 import DEMO from '@store/constant';
-import type { IApplicationWithId } from '@taiger-common/model';
+import type { IApplicationPopulated } from '@taiger-common/model';
 
 const VPDToSubmitTasks = ({
     application
 }: {
-    application: IApplicationWithId;
+    application: IApplicationPopulated;
 }) => {
     const { t } = useTranslation();
     return (
@@ -74,7 +74,7 @@ const VPDToSubmitTasks = ({
 const VPDToSubmitTasksCard = ({
     applications
 }: {
-    applications: IApplicationWithId[];
+    applications: IApplicationPopulated[];
 }) => {
     const { t } = useTranslation();
     const vpd_to_submit_tasks = applications.map((application, i) => (

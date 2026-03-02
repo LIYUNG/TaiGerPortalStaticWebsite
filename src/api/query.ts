@@ -61,12 +61,12 @@ import {
     getBookedEvents
 } from '.';
 import type {
-    DocumentThreadResponse,
     IStudentResponse,
     QueryString,
     StudentId,
     UserId
 } from './types';
+import type { IDocumentthreadPopulated } from '@taiger-common/model';
 
 export const getMessagThreadQuery = (threadId: string): UseQueryOptions => ({
     queryKey: ['MessageThread', threadId],
@@ -89,7 +89,7 @@ export const getActiveThreadsQuery = (
     queryFn: () => getActiveThreads(queryString),
     staleTime: 1000 * 60 * 5, // 5 minutes
     select: (data: unknown) =>
-        (data as { data?: DocumentThreadResponse[] })?.data || []
+        (data as { data?: IDocumentthreadPopulated[] })?.data || []
 });
 
 export const getProgramQuery = ({ programId }: { programId: string }): UseQueryOptions => ({

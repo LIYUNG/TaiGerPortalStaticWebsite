@@ -37,7 +37,8 @@ import {
 
 import ApplicationProgressCardBody from './ApplicationProgressCardBody';
 import ApplicationLockControl from '../ApplicationLockControl/ApplicationLockControl';
-import { IApplicationWithId, updateStudentApplicationResult } from '@/api';
+import { updateStudentApplicationResult } from '@/api';
+import type { Application } from '@/api/types';
 import DEMO from '@store/constant';
 import {
     application_deadline_V2_calculator,
@@ -52,7 +53,6 @@ import {
 import { appConfig } from '../../config';
 import { ConfirmationModal } from '../Modal/ConfirmationModal';
 import { useSnackBar } from '@contexts/use-snack-bar';
-import { type IApplication } from '@taiger-common/model';
 
 interface ProgramLinkProps {
     program: {
@@ -66,7 +66,7 @@ interface ProgramLinkProps {
 }
 
 interface AdmissionLetterLinkProps {
-    application: IApplication;
+    application: Application;
 }
 
 interface ApplicationProgressCardProps {
@@ -140,13 +140,9 @@ export default function ApplicationProgressCard(
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
     const navigate = useNavigate();
 
-    const applicationFromProps = props.application as
-        | IApplication
-        | IApplicationWithId;
+    const applicationFromProps = props.application as Application;
 
-    const [application, setApplication] = useState<
-        IApplication | IApplicationWithId
-    >(applicationFromProps);
+    const [application, setApplication] = useState<Application>(applicationFromProps);
     const [resultState, setResultState] = useState('-');
     const [letter, setLetter] = useState<File | null>(null);
     const [returnedMessage, setReturnedMessage] = useState('');

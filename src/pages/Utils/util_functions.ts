@@ -12,7 +12,7 @@ import { pdfjs } from 'react-pdf';
 
 import { convertDate, twoYearsInDays } from '@utils/contants';
 import type { DocumentThreadResponse, OpenTaskRow, Application } from '@/api/types';
-import type { IApplicationWithId, IProgramWithId, IStudentResponse, IUserWithId } from '@taiger-common/model';
+import type { IApplicationPopulated, IDocumentthreadPopulated, IProgramWithId, IStudentResponse, IUserWithId } from '@taiger-common/model';
 import {
     IUser,
     IUserAcademicBackground,
@@ -1534,7 +1534,7 @@ export const has_admissions = (student: IStudentResponse): boolean => {
     );
 };
 
-const prepTaskV2 = (student: IStudentResponse, thread: DocumentThreadResponse) => {
+const prepTaskV2 = (student: IStudentResponse, thread: IDocumentthreadPopulated) => {
     return {
         ...prepTaskStudent(student),
         id: thread._id.toString(),
@@ -1679,7 +1679,7 @@ const prepApplicationTask = (student: IStudentResponse, application: Application
     };
 };
 
-export const open_tasks_v2 = (threads: DocumentThreadResponse[]) => {
+export const open_tasks_v2 = (threads: IDocumentthreadPopulated[]) => {
     const tasks: OpenTaskRow[] = [];
     for (const thread of threads) {
         if (thread.student_id?.archiv !== true) {
@@ -1740,7 +1740,7 @@ export const open_tasks_with_editors = (students) => {
     return tasks;
 };
 
-export const programs_refactor_v2 = (applications: IApplicationWithId[]) => {
+export const programs_refactor_v2 = (applications: IApplicationPopulated[]) => {
     const applicationsNew = applications.reduce((acc, application) => {
         let isMissingBaseDocs = false;
 
@@ -2307,7 +2307,7 @@ export const calculateProgramLockStatus = (
     return { isLocked: false, reason: null };
 };
 
-export const calculateApplicationLockStatus = (application: Application | IApplicationWithId) => {
+export const calculateApplicationLockStatus = (application: Application | IApplicationPopulated) => {
     if (!application || !application.programId) {
         return { isLocked: true, reason: null };
     }

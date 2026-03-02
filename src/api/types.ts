@@ -1,28 +1,13 @@
-import type { IApplication, IDocumentthread } from '@taiger-common/model';
+import type { IDocumentthread } from '@taiger-common/model';
 
 // ---------------------------------------------------------------------------
 // Frontend-specific types (no equivalent in @taiger-common/model)
 // ---------------------------------------------------------------------------
 
-import type { IProgramWithId, IUserWithId, IStudentResponse, IApplicationWithId } from '@taiger-common/model';
-
- 
+import type { IProgramWithId, IUserWithId, IStudentResponse, IApplicationPopulated } from '@taiger-common/model';
 
 /** Application object as returned by API / used in student.applications. */
-export type Application = Omit<
-    IApplication,
-    'decided' | 'closed' | 'admission'
-> & {
-    decided?: string;
-    closed?: string;
-    admission?: string;
-    _id?: string | { toString: () => string };
-    programId?: IProgramWithId;
-    application_year?: unknown;
-    doc_modification_thread?: unknown[];
-    uni_assist?: { status?: string; vpd_file_path?: string; vpd_paid_confirmation_file_path?: string; isPaid?: boolean };
-    isLocked?: boolean;
-    admission_letter?: { status?: string; admission_file_path?: string };
+export type Application = IApplicationPopulated & {
     interview_id?: string;
     interview_status?: string;
     interview_training_event?: { start?: string;[key: string]: unknown };
@@ -147,7 +132,7 @@ export interface StudentResponseFull extends IStudentResponse {
     lastname?: string;
     email?: string;
     role?: string;
-    applications?: IApplicationWithId[];
+    applications?: IApplicationPopulated[];
     agents?: AgentResponse[];
     editors?: AgentResponse[];
     archiv?: boolean;

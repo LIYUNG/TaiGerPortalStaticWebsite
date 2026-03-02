@@ -16,7 +16,7 @@ import {
 } from '@utils/contants';
 import { application_deadline_V2_calculator } from '../../../Utils/util_functions';
 import DEMO from '@store/constant';
-import type { IApplicationWithId, IStudentResponse } from '@taiger-common/model';
+import type { IApplicationPopulated, IStudentResponse } from '@taiger-common/model';
 
 function ApplicationProgress({ student }: { student: IStudentResponse }) {
     const { t } = useTranslation();
@@ -48,7 +48,7 @@ function ApplicationProgress({ student }: { student: IStudentResponse }) {
             ...student.applications.filter((app) => !isProgramDecided(app))
         ];
         applying_university = applications.map(
-            (application: IApplicationWithId, i) => (
+            (application: IApplicationPopulated, i) => (
                 <TableRow key={i}>
                     <TableCell>
                         <Link

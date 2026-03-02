@@ -24,11 +24,11 @@ import useStudents from '@hooks/useStudents';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { DECISION_STATUS_E, SUBMISSION_STATUS_E } from '@utils/contants';
 import { StudentsTable } from '../StudentDatabase/StudentsTable';
-import type { IStudentResponse, IApplicationWithId } from '@taiger-common/model';
+import type { IStudentResponse, IApplicationPopulated } from '@taiger-common/model';
 
 export interface ApplicationOverviewTabsProps {
     students: IStudentResponse[];
-    applications: IApplicationWithId[];
+    applications: IApplicationPopulated[];
 }
 
 const ApplicationOverviewTabs = ({
