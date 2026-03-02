@@ -585,7 +585,7 @@ export const areProgramsDecidedMoreThanContract = (
             isProgramDecided(application)
         ).length | 0;
 
-    return num_decided >= student.applying_program_count;
+    return num_decided >= (student?.applying_program_count ?? 0);
 };
 
 export const check_all_applications_decided = (
