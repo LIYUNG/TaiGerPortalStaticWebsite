@@ -984,15 +984,19 @@ export const is_personal_data_filled = (student) => {
     );
 };
 
-export const needGraduatedApplicantsButStudentNotGraduated = (student) => {
+export const needGraduatedApplicantsButStudentNotGraduated = (student: IStudentResponse) => {
     if (student.applications === undefined) {
         return false;
     }
-    for (let j = 0; j < student.applications.length; j += 1) {
+    for (const application of student.applications) {
+        const program = application.programId as IProgramWithId | undefined;
+        if (!program) {
+            continue;
+        }
         if (
-            isProgramDecided(student.applications[j]) &&
-            student.applications[j].programId.allowOnlyGraduatedApplicant &&
-            student.academic_background.university.isGraduated !== 'Yes'
+            isProgramDecided(application) &&
+            program.allowOnlyGraduatedApplicant &&
+            student.academic_background?.university?.isGraduated !== 'Yes'
         ) {
             return true;
         }
@@ -1735,7 +1739,7 @@ export const open_tasks_with_editors = (students) => {
     }
     return tasks;
 };
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- API returns IApplicationWithId[] with populated studentId; complex reduce shape
+
 export const programs_refactor_v2 = (applications: IApplicationWithId[]) => {
     const applicationsNew = applications.reduce((acc, application) => {
         let isMissingBaseDocs = false;

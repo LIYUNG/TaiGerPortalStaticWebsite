@@ -40,8 +40,8 @@ import VPDToSubmitTasksCard from '../MainViewTab/AgentTasks/VPDToSubmitTasksCard
 import { useAuth } from '@components/AuthProvider';
 import { useTranslation } from 'react-i18next';
 import Banner from '@components/Banner/Banner';
-import { IStudentResponse, IUserWithId } from '@/types/taiger-common';
-import { IDocumentthread } from '@taiger-common/model';
+import type { IStudentResponse, IUserWithId } from '@taiger-common/model';
+import type { IDocumentthread } from '@taiger-common/model';
 
 export interface ManagerMainViewProps {
     notification: Notification[];

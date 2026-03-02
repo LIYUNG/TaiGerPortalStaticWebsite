@@ -12,9 +12,10 @@ import { useTranslation } from 'react-i18next';
 import { is_TaiGer_role } from '@taiger-common/core';
 
 import { useAuth } from '@components/AuthProvider';
+import { ITicketWithId } from '@taiger-common/model';
 
 export interface ProgramReportUpdateModalProps {
-    ticket: Record<string, unknown>;
+    ticket: ITicketWithId;
     isUpdateReport: boolean;
     setReportUpdateModalHide: () => void;
     uni_name: string;

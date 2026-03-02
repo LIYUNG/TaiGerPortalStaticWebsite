@@ -21,7 +21,12 @@ import {
     calculateApplicationLockStatus
 } from '../../../Utils/util_functions';
 import { appConfig } from '../../../../config';
-import { IStudentResponse } from '@/types/taiger-common';
+import type {
+    IDocumentthreadWithId,
+    IProgramWithId,
+    IStudentResponse,
+    IUserWithId
+} from '@taiger-common/model';
 
 export interface StudentTasksResponsiveProps {
     student: IStudentResponse;
@@ -73,109 +78,121 @@ const StudentTasksResponsive = ({
     if (student.generaldocs_threads === undefined) {
         unread_general_generaldocs = null;
     } else {
+        const studentIdStr = String((student as IUserWithId)._id ?? '');
         unread_general_generaldocs = student.generaldocs_threads.map(
-            (generaldocs_threads, i) => (
-                <TableRow key={i}>
-                    {!generaldocs_threads.isFinalVersion &&
-                    generaldocs_threads.latest_message_left_by_id !==
-                        student._id.toString() ? (
-                        <>
-                            <TableCell>
-                                <Link
-                                    component={LinkDom}
-                                    to={DEMO.DOCUMENT_MODIFICATION_LINK(
-                                        generaldocs_threads.doc_thread_id._id
+            (generaldocs_threads, i) => {
+                const docThread = generaldocs_threads.doc_thread_id as
+                    | IDocumentthreadWithId
+                    | undefined;
+                const docThreadIdStr = docThread?._id?.toString() ?? '';
+                return (
+                    <TableRow key={i}>
+                        {!generaldocs_threads.isFinalVersion &&
+                        generaldocs_threads.latest_message_left_by_id !==
+                            studentIdStr ? (
+                            <>
+                                <TableCell>
+                                    <Link
+                                        component={LinkDom}
+                                        to={DEMO.DOCUMENT_MODIFICATION_LINK(
+                                            docThreadIdStr
+                                        )}
+                                        underline="hover"
+                                    >
+                                        {docThread?.file_type}
+                                    </Link>
+                                </TableCell>
+                                <TableCell>
+                                    <Link
+                                        component={LinkDom}
+                                        to={DEMO.DOCUMENT_MODIFICATION_LINK(
+                                            docThreadIdStr
+                                        )}
+                                        underline="hover"
+                                    >
+                                        My {docThread?.file_type}
+                                    </Link>
+                                </TableCell>
+                                <TableCell>
+                                    {' '}
+                                    {convertDate(
+                                        generaldocs_threads.updatedAt ?? ''
                                     )}
-                                    underline="hover"
-                                >
-                                    {
-                                        generaldocs_threads.doc_thread_id
-                                            .file_type
-                                    }
-                                </Link>
-                            </TableCell>
-                            <TableCell>
-                                <Link
-                                    component={LinkDom}
-                                    to={DEMO.DOCUMENT_MODIFICATION_LINK(
-                                        generaldocs_threads.doc_thread_id._id
-                                    )}
-                                    underline="hover"
-                                >
-                                    My{' '}
-                                    {
-                                        generaldocs_threads.doc_thread_id
-                                            .file_type
-                                    }
-                                </Link>
-                            </TableCell>
-                            <TableCell>
-                                {' '}
-                                {convertDate(generaldocs_threads.updatedAt)}
-                            </TableCell>
-                        </>
-                    ) : null}
-                </TableRow>
-            )
+                                </TableCell>
+                            </>
+                        ) : null}
+                    </TableRow>
+                );
+            }
         );
     }
+    const studentIdStrForApps = String((student as IUserWithId)._id ?? '');
     unread_applications_docthread =
         student.applications && student.applications.length > 0
             ? student.applications
                   .filter((application) => isProgramDecided(application))
-                  .map((application) =>
-                      application.doc_modification_thread?.map(
-                          (application_doc_thread, idx) => (
-                              <TableRow key={idx}>
-                                  {!application_doc_thread.isFinalVersion &&
-                                  application_doc_thread.latest_message_left_by_id !==
-                                      student._id.toString() ? (
-                                      <>
-                                          <TableCell>
-                                              {renderThreadLink(
-                                                  application_doc_thread
-                                                      .doc_thread_id?.file_type,
-                                                  DEMO.DOCUMENT_MODIFICATION_LINK(
-                                                      application_doc_thread
-                                                          .doc_thread_id?._id
-                                                  ),
-                                                  calculateApplicationLockStatus(
-                                                      application
-                                                  ).isLocked
-                                              )}
-                                          </TableCell>
-                                          <TableCell>
-                                              {renderThreadLink(
-                                                  `${application.programId?.school} - ${application.programId?.program_name}`,
-                                                  DEMO.DOCUMENT_MODIFICATION_LINK(
-                                                      application_doc_thread
-                                                          .doc_thread_id?._id
-                                                  ),
-                                                  calculateApplicationLockStatus(
-                                                      application
-                                                  ).isLocked
-                                              )}
-                                          </TableCell>
-                                          <TableCell>
-                                              {convertDate(
-                                                  application_doc_thread.updatedAt ||
-                                                      ''
-                                              )}
-                                          </TableCell>
-                                      </>
-                                  ) : null}
-                              </TableRow>
-                          )
-                      )
-                  )
+                  .map((application) => {
+                      const program = application.programId as
+                          | IProgramWithId
+                          | undefined;
+                      return application.doc_modification_thread?.map(
+                          (application_doc_thread, idx) => {
+                              const docThread =
+                                  application_doc_thread.doc_thread_id as
+                                      | IDocumentthreadWithId
+                                      | undefined;
+                              const docThreadIdStr =
+                                  docThread?._id?.toString() ?? '';
+                              return (
+                                  <TableRow key={idx}>
+                                      {!application_doc_thread.isFinalVersion &&
+                                      application_doc_thread.latest_message_left_by_id !==
+                                          studentIdStrForApps ? (
+                                          <>
+                                              <TableCell>
+                                                  {renderThreadLink(
+                                                      docThread?.file_type ?? '',
+                                                      DEMO.DOCUMENT_MODIFICATION_LINK(
+                                                          docThreadIdStr
+                                                      ),
+                                                      calculateApplicationLockStatus(
+                                                          application
+                                                      ).isLocked
+                                                  )}
+                                              </TableCell>
+                                              <TableCell>
+                                                  {renderThreadLink(
+                                                      `${program?.school} - ${program?.program_name}`,
+                                                      DEMO.DOCUMENT_MODIFICATION_LINK(
+                                                          docThreadIdStr
+                                                      ),
+                                                      calculateApplicationLockStatus(
+                                                          application
+                                                      ).isLocked
+                                                  )}
+                                              </TableCell>
+                                              <TableCell>
+                                                  {convertDate(
+                                                      application_doc_thread.updatedAt ??
+                                                          ''
+                                                  )}
+                                              </TableCell>
+                                          </>
+                                      ) : null}
+                                  </TableRow>
+                              );
+                          }
+                      );
+                  })
             : null;
 
     return (
         <>
             {!check_academic_background_filled(student.academic_background) ||
-            !check_application_preference_filled(
-                student.application_preference
-            ) ||
+            !(student.application_preference &&
+                check_application_preference_filled(
+                    student.application_preference
+                )) ||
             !check_languages_filled(student.academic_background) ? (
                 <TableRow>
                     <TableCell>
@@ -409,7 +426,7 @@ const StudentTasksResponsive = ({
                     <TableCell />
                 </TableRow>
             ) : null}
-            {to_register_application_portals(student) ? (
+            {to_register_application_portals(student as IUserWithId) ? (
                 <TableRow>
                     <TableCell>
                         <Link

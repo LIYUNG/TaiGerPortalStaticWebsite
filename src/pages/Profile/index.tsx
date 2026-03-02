@@ -35,7 +35,7 @@ import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
 import Loading from '@components/Loading/Loading';
-import { IUserWithId } from '@/types/taiger-common';
+import type { IUserWithId } from '@taiger-common/model';
 
 interface PersonalData {
     firstname: string;

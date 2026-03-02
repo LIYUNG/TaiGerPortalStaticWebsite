@@ -2,8 +2,8 @@ import { Link as LinkDom } from 'react-router-dom';
 import { Link, TableBody, TableCell, TableRow } from '@mui/material';
 
 import DEMO from '@store/constant';
-import { IStudentResponse } from '@/types/taiger-common';
-import { IProgramWithId } from '@/types/taiger-common';
+import type { IStudentResponse } from '@taiger-common/model';
+import type { IProgramWithId } from '@taiger-common/model';
 
 export interface ProgramConflictProps {
     students: IStudentResponse[];

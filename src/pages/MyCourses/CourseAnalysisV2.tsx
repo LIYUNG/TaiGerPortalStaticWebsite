@@ -85,7 +85,7 @@ import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';
 import { appConfig } from '../../config';
 import { a11yProps, CustomTabPanel } from '@components/Tabs';
-import { IStudentResponse } from '@/types/taiger-common';
+import type { IStudentResponse } from '@taiger-common/model';
 
 // const getTop3Keywords = (keywords) => {
 //     const frequencyMap = {};

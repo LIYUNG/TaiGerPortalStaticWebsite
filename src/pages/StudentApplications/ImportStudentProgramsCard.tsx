@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import {
     Box,
@@ -23,13 +23,10 @@ import {
 import { useTranslation } from 'react-i18next';
 import EmailIcon from '@mui/icons-material/Email';
 import { HighlightText } from '../Utils/checking-functions';
-import {
-    createApplicationV2,
-    getQueryStudentsResults,
-    getApplicationStudentV2,
-    queryClient,
-    Application
-} from '@/api';
+import { createApplicationV2, queryClient, Application } from '@/api';
+import type { StudentSearchResult } from '@taiger-common/model';
+import { useApplicationStudent } from '@hooks/useApplicationStudent';
+import { useStudentSearch } from '@hooks/useStudentSearch';
 import { useSnackBar } from '@contexts/use-snack-bar';
 
 export interface ImportStudentProgramsCardProps {
@@ -54,130 +51,81 @@ export const ImportStudentProgramsCard = (
             selectedStudentName: '',
             isLoaded: true,
             importedStudent: '',
-            importedStudentPrograms: [],
-            program_ids: [],
+            importedStudentPrograms: [] as Application[],
+            program_ids: [] as string[],
             importedStudentModalOpen: false,
             isButtonDisable: false,
             isImportingStudentPrograms: false,
-            modalShowAssignSuccessWindow: false,
-            program_id: null,
+            program_id: null as string | null,
             success: false,
-            searchResults: [],
+            searchTerm: '',
             isResultsVisible: false,
             res_status: 0,
             res_modal_status: 0,
-            res_modal_message: ''
+            res_modal_message: '',
+            selectedImportStudentId: null as string | null,
+            deselectedImportProgramIds: [] as string[]
         });
 
-    useEffect(() => {
-        const fetchSearchResults = async () => {
-            try {
-                setImportStudentProgramsCardState((prevState) => ({
-                    ...prevState,
-                    isLoading: true
-                }));
-                const response = await getQueryStudentsResults(
-                    importStudentProgramsCard.searchTerm
-                );
-                if (response.data.success) {
-                    setImportStudentProgramsCardState((prevState) => ({
-                        ...prevState,
-                        searchResults: response.data.data,
-                        isResultsVisible: true,
-                        isLoading: false
-                    }));
-                } else {
-                    setImportStudentProgramsCardState((prevState) => ({
-                        ...prevState,
-                        isResultsVisible: false,
-                        searchTerm: '',
-                        searchResults: [],
-                        isErrorTerm: true,
-                        isLoading: false,
-                        res_modal_status: 401,
-                        res_modal_message: 'Session expired. Please refresh.'
-                    }));
-                }
-            } catch (error) {
-                setImportStudentProgramsCardState((prevState) => ({
-                    ...prevState,
-                    isResultsVisible: false,
-                    searchTerm: '',
-                    searchResults: [],
-                    isErrorTerm: true,
-                    isLoading: false,
-                    res_modal_status: 403,
-                    res_modal_message: error
-                }));
-            }
-        };
-        const delayDebounceFn = setTimeout(() => {
-            if (importStudentProgramsCard.searchTerm) {
-                fetchSearchResults();
-            } else {
-                setImportStudentProgramsCardState((prevState) => ({
-                    ...prevState,
-                    searchResults: []
-                }));
-            }
-        }, 300); // Adjust the delay as needed
-        document.addEventListener('click', handleClickOutside);
-        return () => {
-            document.removeEventListener('click', handleClickOutside);
-            clearTimeout(delayDebounceFn);
-        };
-    }, [fetchSearchResults, importStudentProgramsCard]);
+    const selectedImportStudentId =
+        importStudentProgramsCard.selectedImportStudentId ?? undefined;
+    const {
+        data: importSourceData,
+        isLoading: isImportSourceLoading,
+        isError: isImportSourceError,
+        error: importSourceError
+    } = useApplicationStudent(selectedImportStudentId, {
+        enabled: !!selectedImportStudentId
+    });
 
-    const handleClickOutside = () => {
-        // Clicked outside, hide the result list
+    const importSourceApplications =
+        (importSourceData as { applications?: Application[] } | undefined)
+            ?.applications ?? [];
+    const importSourceProgramIds = importSourceApplications.map((app) =>
+        String(app.programId?._id ?? '')
+    );
+    const selectedProgramIds = importSourceProgramIds.filter(
+        (id) => !importStudentProgramsCard.deselectedImportProgramIds.includes(id)
+    );
+
+    const { results: searchDisplayResults, isSuccess: searchQueryIsSuccess } =
+        useStudentSearch(importStudentProgramsCard.searchTerm, {
+            debounceMs: 300
+        });
+
+    const handleClickOutside = useCallback(() => {
         setImportStudentProgramsCardState((prevState) => ({
             ...prevState,
             isResultsVisible: false
         }));
-    };
+    }, []);
 
-    const onClickStudentHandler = (result) => {
+    useEffect(() => {
+        document.addEventListener('click', handleClickOutside);
+        return () => document.removeEventListener('click', handleClickOutside);
+    }, [handleClickOutside]);
+
+    const onClickStudentHandler = (result: StudentSearchResult) => {
+        const studentId = String(result._id ?? '');
+        const selectedStudentName =
+            `${result.firstname ?? ''} ${result.lastname ?? ''} ${
+                result.firstname_chinese ?? ''
+            } ${result.lastname_chinese ?? ''}`.trim();
         setImportStudentProgramsCardState((prevState) => ({
             ...prevState,
             importedStudentModalOpen: true,
-            isImportingStudentPrograms: true
+            selectedImportStudentId: studentId,
+            selectedStudentName,
+            deselectedImportProgramIds: []
         }));
-        // Call api:
-        getApplicationStudentV2(result._id.toString()).then(
-            (res) => {
-                const { data, success, status } = res;
-                if (success) {
-                    setImportStudentProgramsCardState((prevState) => ({
-                        ...prevState,
-                        isImportingStudentPrograms: false,
-                        importedStudentPrograms: data.applications,
-                        selectedStudentName: `${result.firstname} ${result.lastname} ${
-                            result.firstname_chinese || ''
-                        } ${result.lastname_chinese || ''}`,
-                        program_ids: data.applications?.map(
-                            (app: Application) =>
-                                String(app.programId?._id ?? '')
-                        )
-                    }));
-                } else {
-                    const { message } = res;
-                    setImportStudentProgramsCardState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        res_modal_status: status,
-                        res_modal_message: message
-                    }));
-                }
-            },
-            () => {}
-        );
     };
 
     const onHideimportedStudentModalOpen = () => {
         setImportStudentProgramsCardState((prevState) => ({
             ...prevState,
             importedStudentModalOpen: false,
-            importedStudentPrograms: []
+            selectedImportStudentId: null,
+            deselectedImportProgramIds: []
         }));
     };
 
@@ -189,47 +137,26 @@ export const ImportStudentProgramsCard = (
     };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value.trimLeft();
         setImportStudentProgramsCardState((prevState) => ({
             ...prevState,
-            searchTerm: e.target.value.trimLeft()
+            searchTerm: value,
+            isResultsVisible: value.length > 0
         }));
-        if (e.target.value.length === 0) {
-            setImportStudentProgramsCardState((prevState) => ({
-                ...prevState,
-                isResultsVisible: false
-            }));
-        }
     };
 
-    const onHideAssignSuccessWindow = () => {
+    const modifyImportingPrograms = (
+        new_programId: string,
+        currentlySelected: boolean
+    ) => {
         setImportStudentProgramsCardState((prevState) => ({
             ...prevState,
-            modalShowAssignSuccessWindow: false
+            deselectedImportProgramIds: currentlySelected
+                ? [...prevState.deselectedImportProgramIds, new_programId]
+                : prevState.deselectedImportProgramIds.filter(
+                      (id) => id !== new_programId
+                  )
         }));
-        window.location.reload(true);
-    };
-
-    const modifyImportingPrograms = (new_programId, isActive) => {
-        let importing_program_ids_existing = [
-            ...importStudentProgramsCard.program_ids
-        ];
-
-        if (isActive) {
-            importing_program_ids_existing =
-                importing_program_ids_existing.filter(
-                    (item) => item !== new_programId
-                );
-            setImportStudentProgramsCardState((prevState) => ({
-                ...prevState,
-                program_ids: importing_program_ids_existing
-            }));
-        } else {
-            importing_program_ids_existing.push(new_programId);
-            setImportStudentProgramsCardState((prevState) => ({
-                ...prevState,
-                program_ids: importing_program_ids_existing
-            }));
-        }
     };
 
     const importProgramsMutation = useMutation({
@@ -248,7 +175,7 @@ export const ImportStudentProgramsCard = (
                     });
                 setImportStudentProgramsCardState((prevState) => ({
                     ...prevState,
-                    importedStudentPrograms: res.data,
+                    importedStudentPrograms: (res.data ?? []) as Application[],
                     importedStudentModalOpen: false,
                     success: res.success
                 }));
@@ -282,7 +209,7 @@ export const ImportStudentProgramsCard = (
     const handleImportProgramsConfirm = () => {
         mutate({
             studentId: String(importStudentProgramsCard.student._id),
-            program_ids: importStudentProgramsCard.program_ids
+            program_ids: selectedProgramIds
         });
     };
     return (
@@ -308,8 +235,10 @@ export const ImportStudentProgramsCard = (
                         value={importStudentProgramsCard.searchTerm}
                         variant="outlined"
                     />
-                    {importStudentProgramsCard.isResultsVisible ? (
-                        importStudentProgramsCard.searchResults?.length > 0 ? (
+                    {importStudentProgramsCard.isResultsVisible &&
+                    (searchDisplayResults.length > 0 ||
+                        searchQueryIsSuccess) ? (
+                        searchDisplayResults.length > 0 ? (
                             <Paper
                                 sx={{
                                     marginTop: '5px',
@@ -322,61 +251,57 @@ export const ImportStudentProgramsCard = (
                                 }}
                             >
                                 <List>
-                                    {importStudentProgramsCard.searchResults?.map(
-                                        (result, i) => (
-                                            <ListItem
-                                                button
-                                                key={i}
-                                                onClick={() =>
-                                                    onClickStudentHandler(
-                                                        result
-                                                    )
-                                                }
-                                            >
-                                                <ListItemText
-                                                    primary={
-                                                        <>
-                                                            <HighlightText
-                                                                highlight={
-                                                                    importStudentProgramsCard.searchTerm
-                                                                }
-                                                                text={`${result.firstname} ${result.lastname} ${
-                                                                    result.firstname_chinese ||
-                                                                    ''
-                                                                } ${result.lastname_chinese || ''}`}
-                                                            />
-                                                            {result.email ? (
-                                                                <Box
-                                                                    component="span"
+                                    {searchDisplayResults.map((result, i) => (
+                                        <ListItem
+                                            button
+                                            key={i}
+                                            onClick={() =>
+                                                onClickStudentHandler(result)
+                                            }
+                                        >
+                                            <ListItemText
+                                                primary={
+                                                    <>
+                                                        <HighlightText
+                                                            highlight={
+                                                                importStudentProgramsCard.searchTerm
+                                                            }
+                                                            text={`${result.firstname} ${result.lastname} ${
+                                                                result.firstname_chinese ||
+                                                                ''
+                                                            } ${result.lastname_chinese || ''}`}
+                                                        />
+                                                        {result.email ? (
+                                                            <Box
+                                                                component="span"
+                                                                sx={{
+                                                                    display:
+                                                                        'flex',
+                                                                    alignItems:
+                                                                        'center',
+                                                                    ml: 1
+                                                                }}
+                                                            >
+                                                                <EmailIcon
                                                                     sx={{
-                                                                        display:
-                                                                            'flex',
-                                                                        alignItems:
-                                                                            'center',
-                                                                        ml: 1
+                                                                        mr: 0.5
                                                                     }}
-                                                                >
-                                                                    <EmailIcon
-                                                                        sx={{
-                                                                            mr: 0.5
-                                                                        }}
-                                                                    />
-                                                                    <HighlightText
-                                                                        highlight={
-                                                                            importStudentProgramsCard.searchTerm
-                                                                        }
-                                                                        text={
-                                                                            result.email
-                                                                        }
-                                                                    />
-                                                                </Box>
-                                                            ) : null}
-                                                        </>
-                                                    }
-                                                />
-                                            </ListItem>
-                                        )
-                                    )}
+                                                                />
+                                                                <HighlightText
+                                                                    highlight={
+                                                                        importStudentProgramsCard.searchTerm
+                                                                    }
+                                                                    text={
+                                                                        result.email
+                                                                    }
+                                                                />
+                                                            </Box>
+                                                        ) : null}
+                                                    </>
+                                                }
+                                            />
+                                        </ListItem>
+                                    ))}
                                 </List>
                             </Paper>
                         ) : (
@@ -403,7 +328,6 @@ export const ImportStudentProgramsCard = (
                 aria-labelledby="contained-modal-title-vcenter"
                 onClose={onHideimportedStudentModalOpen}
                 open={importStudentProgramsCard.importedStudentModalOpen}
-                size="xl"
             >
                 <DialogTitle>
                     Import programs from{' '}
@@ -415,34 +339,35 @@ export const ImportStudentProgramsCard = (
                         <br />
                         (Same programs will <b>NOT</b> be duplicated :) )
                     </DialogContentText>
-                    {importStudentProgramsCard.isImportingStudentPrograms ? (
+                    {isImportSourceLoading ? (
                         <CircularProgress size={16} />
+                    ) : isImportSourceError ? (
+                        <DialogContentText>
+                            {(importSourceError as Error)?.message ??
+                                'Failed to load applications'}
+                        </DialogContentText>
                     ) : (
                         <List>
-                            {importStudentProgramsCard.importedStudentPrograms?.map(
-                                (app, i) => (
+                            {importSourceApplications.map((app, i) => {
+                                const programIdStr =
+                                    app.programId?._id?.toString() ?? '';
+                                const isSelected =
+                                    selectedProgramIds.includes(programIdStr);
+                                return (
                                     <ListItemButton
                                         dense
                                         key={i}
                                         onClick={() =>
                                             modifyImportingPrograms(
-                                                app.programId._id.toString(),
-                                                importStudentProgramsCard.program_ids?.some(
-                                                    (program_id) =>
-                                                        program_id ===
-                                                        app.programId._id.toString()
-                                                )
+                                                programIdStr,
+                                                isSelected
                                             )
                                         }
                                         role={undefined}
                                     >
                                         <ListItemIcon>
                                             <Checkbox
-                                                checked={importStudentProgramsCard.program_ids?.some(
-                                                    (program_id) =>
-                                                        program_id ===
-                                                        app.programId._id.toString()
-                                                )}
+                                                checked={isSelected}
                                                 disableRipple
                                                 edge="start"
                                                 tabIndex={-1}
@@ -452,8 +377,8 @@ export const ImportStudentProgramsCard = (
                                             primary={`${app.programId?.school} - ${app.programId?.program_name} ${app.programId?.degree} ${app.programId?.semester}`}
                                         />
                                     </ListItemButton>
-                                )
-                            ) || []}
+                                );
+                            })}
                         </List>
                     )}
                 </DialogContent>
@@ -476,20 +401,6 @@ export const ImportStudentProgramsCard = (
                         variant="outlined"
                     >
                         {t('No', { ns: 'common' })}
-                    </Button>
-                </DialogActions>
-            </Dialog>
-            <Dialog
-                onClose={onHideAssignSuccessWindow}
-                open={importStudentProgramsCard.modalShowAssignSuccessWindow}
-            >
-                <DialogTitle>{t('Success', { ns: 'common' })}</DialogTitle>
-                <DialogContent>
-                    Program(s) imported to student successfully!
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={onHideAssignSuccessWindow}>
-                        {t('Close', { ns: 'common' })}
                     </Button>
                 </DialogActions>
             </Dialog>

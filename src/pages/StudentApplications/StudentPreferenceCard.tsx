@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { List, ListItem, TextField, Typography } from '@mui/material';
-import { IStudentResponse } from '@/types/taiger-common';
+import type { IStudentResponse } from '@taiger-common/model';
 
 export const StudentPreferenceCard = ({
     student

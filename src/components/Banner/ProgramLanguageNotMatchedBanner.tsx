@@ -7,9 +7,14 @@ import {
     languageNotMatchedPrograms
 } from '@pages/Utils/util_functions';
 import DEMO from '@store/constant';
+import type {
+    IApplicationWithId,
+    IProgramWithId,
+    IStudentResponse
+} from '@taiger-common/model';
 
 interface ProgramLanguageNotMatchedBannerProps {
-    student: Record<string, unknown>;
+    student: IStudentResponse;
 }
 
 const ProgramLanguageNotMatchedBanner = ({
@@ -27,30 +32,23 @@ const ProgramLanguageNotMatchedBanner = ({
                 &nbsp;:&nbsp;
             </Alert>
             {languageNotMatchedPrograms(student)?.map(
-                (app: {
-                    programId: {
-                        _id: { toString: () => string };
-                        school: string;
-                        program_name: string;
-                        degree: string;
-                        semester: string;
-                        lang: string;
-                    };
-                }) => (
-                    <ListItem key={app.programId._id.toString()}>
-                        <Link
-                            component={LinkDom}
-                            target="_blank"
-                            to={DEMO.SINGLE_PROGRAM_LINK(
-                                app.programId._id.toString()
-                            )}
-                        >
-                            {app.programId.school} {app.programId.program_name}{' '}
-                            {app.programId.degree} {app.programId.semester} -{' '}
-                            <strong>{app.programId.lang}</strong>
-                        </Link>
-                    </ListItem>
-                )
+                (app: IApplicationWithId) => {
+                    const program = app.programId as IProgramWithId | undefined;
+                    const programIdStr = program?._id?.toString() ?? '';
+                    return (
+                        <ListItem key={programIdStr}>
+                            <Link
+                                component={LinkDom}
+                                target="_blank"
+                                to={DEMO.SINGLE_PROGRAM_LINK(programIdStr)}
+                            >
+                                {program?.school} {program?.program_name}{' '}
+                                {program?.degree} {program?.semester} -{' '}
+                                <strong>{program?.lang}</strong>
+                            </Link>
+                        </ListItem>
+                    );
+                }
             )}
         </Card>
     ) : null;

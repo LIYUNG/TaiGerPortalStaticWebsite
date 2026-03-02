@@ -74,7 +74,7 @@ const ProgramName = ({ application }: ProgramNameProps) => {
         <Typography sx={{ mr: 2 }} variant="body1">
             <Link
                 component={LinkDom}
-                to={`${DEMO.SINGLE_PROGRAM_LINK(application.programId?._id?.toString()!)}`}
+                to={`${DEMO.SINGLE_PROGRAM_LINK(application.programId?._id?.toString() ?? '')}`}
                 underline="hover"
             >
                 {`${application.programId?.school} ${application.programId?.program_name} - ${application.programId?.semester} - ${application.programId?.degree} - ${application.programId?.uni_assist}`}

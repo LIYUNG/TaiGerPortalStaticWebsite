@@ -1,4 +1,3 @@
-import type { AxiosInstance } from 'axios';
 import type { IApplication, IDocumentthread } from '@taiger-common/model';
 
 // ---------------------------------------------------------------------------

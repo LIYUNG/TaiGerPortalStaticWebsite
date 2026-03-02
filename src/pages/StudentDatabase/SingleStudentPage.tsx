@@ -75,6 +75,15 @@ import Audit from '../Audit';
 import EnglishCertificateExpiredBeforeDeadlineBanner from '@components/Banner/EnglishCertificateExpiredBeforeDeadlineBanner';
 import { getStudentAndDocLinksQuery } from '@/api/query';
 import { MeetingTab } from './MeetingTab';
+import { IAuditWithId, IStudentResponse } from '@taiger-common/model';
+
+export interface SingleStudentPageMainContentProps {
+    survey_link: { key: string; link: string }[];
+    base_docs_link: string;
+    data: IStudentResponse;
+    audit: IAuditWithId[];
+    refetch: () => void;
+}
 
 export const SingleStudentPageMainContent = ({
     survey_link,
@@ -82,7 +91,7 @@ export const SingleStudentPageMainContent = ({
     data,
     audit,
     refetch
-}) => {
+}: SingleStudentPageMainContentProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const queryClient = useQueryClient();
@@ -736,7 +745,6 @@ export const SingleStudentPageMainContent = ({
                         </Typography>
                     </Alert>
                     <StudentDashboard
-                        ReadOnlyMode={true}
                         student={singleStudentPage.student}
                     />
                 </>

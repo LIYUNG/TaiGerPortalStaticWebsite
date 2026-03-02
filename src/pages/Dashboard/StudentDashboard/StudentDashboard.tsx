@@ -290,8 +290,8 @@ const StudentDashboard = ({
                     </Grid>
                 ) : null}
                 {/* TODO: check function : new cv ml rl tasks are asigned to you */}
-                {student.notification &&
-                !student.notification.isRead_new_cvmlrl_tasks_created ? (
+                {student?.notification &&
+                !student?.notification.isRead_new_cvmlrl_tasks_created ? (
                     <Grid item xs={12}>
                         <Alert
                             onClose={(e) =>
@@ -366,7 +366,7 @@ const StudentDashboard = ({
                         </Alert>
                     </Grid>
                 ) : null}
-                {student.notification &&
+                {student?.notification &&
                 !student.notification.isRead_base_documents_missing &&
                 are_base_documents_missing(student) ? (
                     <Grid item xs={12}>
@@ -401,7 +401,7 @@ const StudentDashboard = ({
                         </Alert>
                     </Grid>
                 ) : null}
-                {student.notification &&
+                {student?.notification &&
                 !student.notification.isRead_base_documents_rejected &&
                 isBaseDocumentsRejected(student) ? (
                     <Grid item xs={12}>
@@ -459,7 +459,7 @@ const StudentDashboard = ({
                                         component={LinkDom}
                                         target="_blank"
                                         to={DEMO.SINGLE_PROGRAM_LINK(
-                                            app.programId?._id?.toString()
+                                            app.programId?._id?.toString() ?? ''
                                         )}
                                     >
                                         {app.programId?.school}{' '}

@@ -33,7 +33,7 @@ import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import EditAttributesSubpage from '../StudDocsOverview/EditAttributesSubpage';
 import { COLORS } from '@utils/contants';
-import { IStudentResponse } from '@/types/taiger-common';
+import type { IStudentResponse } from '@taiger-common/model';
 
 export interface StudentsAgentEditorProps {
     student: IStudentResponse;

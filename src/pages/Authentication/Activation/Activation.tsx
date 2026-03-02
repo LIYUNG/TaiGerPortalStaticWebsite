@@ -44,7 +44,7 @@ export default function Activation() {
     };
 
     const handleonClick = async () => {
-        window.location.reload(false);
+        window.location.reload();
     };
     // if return 200, then show Start button, otherwise, resend the activation email with token.
     return (
