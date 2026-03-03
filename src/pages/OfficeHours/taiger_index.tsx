@@ -70,6 +70,20 @@ import { CreateNewEventModal } from '@components/Calendar/components/CreateNewEv
 import useCalendarEvents from '@hooks/useCalendarEvents';
 import { updateOfficehours } from '@/api';
 
+interface CalendarEvent {
+    start: Date | string;
+    end: Date | string;
+    description?: string;
+    isConfirmedReceiver?: boolean;
+    isConfirmedRequester?: boolean;
+    requester_id?: {
+        firstname?: string;
+        lastname?: string;
+        [key: string]: unknown;
+    }[];
+    [key: string]: unknown;
+}
+
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
@@ -412,12 +426,18 @@ const TaiGerOfficeHours = () => {
         [user].flatMap((agent) =>
             agent.timezone && moment.tz.zone(agent.timezone)
                 ? getReorderWeekday(getTodayAsWeekday(agent.timezone)).flatMap(
-                      (weekday, i) => {
+                      (weekday: string, i: number) => {
                           const timeSlots =
                               agent.officehours &&
                               agent.officehours[weekday]?.active &&
                               agent.officehours[weekday].time_slots.flatMap(
-                                  (time_slot, j) => {
+                                  (
+                                      time_slot: {
+                                          value: string;
+                                          label: string;
+                                      },
+                                      j: number
+                                  ) => {
                                       const { year, month, day } =
                                           getNextDayDate(
                                               getReorderWeekday(
@@ -580,7 +600,7 @@ const TaiGerOfficeHours = () => {
                             {viewMode === 'future' ? (
                                 <>
                                     {events?.filter(
-                                        (event) =>
+                                        (event: CalendarEvent) =>
                                             isInTheFuture(event.end) &&
                                             (!event.isConfirmedReceiver ||
                                                 !event.isConfirmedRequester)
@@ -588,7 +608,7 @@ const TaiGerOfficeHours = () => {
                                         ? _.reverse(
                                               _.sortBy(
                                                   events?.filter(
-                                                      (event) =>
+                                                      (event: CalendarEvent) =>
                                                           isInTheFuture(
                                                               event.end
                                                           ) &&
@@ -621,7 +641,7 @@ const TaiGerOfficeHours = () => {
                                         </Typography>
                                         <Box>
                                             {events?.filter(
-                                                (event) =>
+                                                (event: CalendarEvent) =>
                                                     isInTheFuture(event.end) &&
                                                     event.isConfirmedRequester &&
                                                     event.isConfirmedReceiver
@@ -629,7 +649,9 @@ const TaiGerOfficeHours = () => {
                                                 ? _.reverse(
                                                       _.sortBy(
                                                           events?.filter(
-                                                              (event) =>
+                                                              (
+                                                                  event: CalendarEvent
+                                                              ) =>
                                                                   isInTheFuture(
                                                                       event.end
                                                                   ) &&
@@ -995,11 +1017,19 @@ const TaiGerOfficeHours = () => {
                         </Typography>
                     </Badge>
                     <Typography variant="body1">Student: </Typography>
-                    {event_temp?.requester_id?.map((requester, idx) => (
-                        <Typography fontWeight="bold" key={idx}>
-                            {requester.firstname} {requester.lastname}
-                        </Typography>
-                    ))}
+                    {event_temp?.requester_id?.map(
+                        (
+                            requester: {
+                                firstname?: string;
+                                lastname?: string;
+                            },
+                            idx: number
+                        ) => (
+                            <Typography fontWeight="bold" key={idx}>
+                                {requester.firstname} {requester.lastname}
+                            </Typography>
+                        )
+                    )}
                     <Typography>
                         Time zone: {user.timezone}. (Please update it in{' '}
                         <a href="/profile" rel="noreferrer" target="_blank">

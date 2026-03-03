@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import { Link as LinkDom, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -135,16 +135,22 @@ const SingleProgramView = (props: SingleProgramViewProps) => {
                 is_TaiGer_Editor(user)
         })
     );
-    const students = data || props.students || [];
-    const handleChange = (event, newValue) => {
+    const students: SingleProgramViewStudent[] =
+        (data as SingleProgramViewStudent[]) || props.students || [];
+    const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
         setValue(newValue);
     };
 
-    const handleStudentsTabChange = (event, newValue) => {
+    const handleStudentsTabChange = (
+        _event: React.SyntheticEvent,
+        newValue: number
+    ) => {
         setStudentsTabValue(newValue);
     };
 
-    const convertToText = (value) => {
+    const convertToText = (
+        value: string | boolean | string[] | undefined | null
+    ) => {
         if (!value) return ''; // undefined or null
         if (typeof value === 'string') return value;
         if (typeof value === 'boolean') return value ? 'Yes' : 'No';
@@ -688,88 +694,108 @@ const SingleProgramView = (props: SingleProgramViewProps) => {
                                     {versions.changes
                                         .slice()
                                         .reverse()
-                                        .map((change, index) => {
-                                            const reverseIndex = versions
-                                                .changes.length
-                                                ? versions.changes.length -
-                                                  index
-                                                : index;
-                                            const keys = Object.keys({
-                                                ...change.originalValues,
-                                                ...change.updatedValues
-                                            });
-                                            return (
-                                                <Fragment key={index}>
-                                                    <TableRow />
-                                                    <TableRow>
-                                                        <TableCell
-                                                            rowSpan={
-                                                                (keys?.length ||
-                                                                    0) + 1
-                                                            }
-                                                        >
-                                                            <Typography>
-                                                                {reverseIndex}{' '}
-                                                                {change?.changeRequest ? (
-                                                                    <div
-                                                                        title={`from change request ${change?.changeRequest}`}
-                                                                    >
-                                                                        <InfoIcon fontSize="small" />
-                                                                    </div>
-                                                                ) : null}
-                                                            </Typography>
-                                                        </TableCell>
-                                                        <TableCell
-                                                            rowSpan={
-                                                                (keys?.length ||
-                                                                    0) + 1
-                                                            }
-                                                        >
-                                                            <div>
-                                                                {
-                                                                    change.changedBy
+                                        .map(
+                                            (
+                                                change: {
+                                                    originalValues?: Record<
+                                                        string,
+                                                        string
+                                                    >;
+                                                    updatedValues?: Record<
+                                                        string,
+                                                        string
+                                                    >;
+                                                    changedBy?: string;
+                                                    changedAt?: string;
+                                                    changeRequest?: string;
+                                                },
+                                                index: number
+                                            ) => {
+                                                const reverseIndex = versions
+                                                    .changes.length
+                                                    ? versions.changes.length -
+                                                      index
+                                                    : index;
+                                                const keys = Object.keys({
+                                                    ...change.originalValues,
+                                                    ...change.updatedValues
+                                                });
+                                                return (
+                                                    <Fragment key={index}>
+                                                        <TableRow />
+                                                        <TableRow>
+                                                            <TableCell
+                                                                rowSpan={
+                                                                    (keys?.length ||
+                                                                        0) + 1
                                                                 }
-                                                            </div>
-                                                            <div>
-                                                                {convertDate(
-                                                                    change.changedAt
-                                                                )}
-                                                            </div>
-                                                        </TableCell>
-                                                    </TableRow>
-                                                    {keys.map((key, i) => (
-                                                        <TableRow key={i}>
-                                                            <TableCell>
-                                                                {t(
-                                                                    programField2Label?.[
-                                                                        key
-                                                                    ] || key,
+                                                            >
+                                                                <Typography>
                                                                     {
-                                                                        ns: 'common'
-                                                                    }
-                                                                )}
+                                                                        reverseIndex
+                                                                    }{' '}
+                                                                    {change?.changeRequest ? (
+                                                                        <div
+                                                                            title={`from change request ${change?.changeRequest}`}
+                                                                        >
+                                                                            <InfoIcon fontSize="small" />
+                                                                        </div>
+                                                                    ) : null}
+                                                                </Typography>
                                                             </TableCell>
-                                                            <TableCell>
-                                                                <HighlightTextDiff
-                                                                    original={
-                                                                        change
-                                                                            ?.originalValues?.[
-                                                                            key
-                                                                        ]
+                                                            <TableCell
+                                                                rowSpan={
+                                                                    (keys?.length ||
+                                                                        0) + 1
+                                                                }
+                                                            >
+                                                                <div>
+                                                                    {
+                                                                        change.changedBy
                                                                     }
-                                                                    updated={
-                                                                        change
-                                                                            ?.updatedValues?.[
-                                                                            key
-                                                                        ]
-                                                                    }
-                                                                />
+                                                                </div>
+                                                                <div>
+                                                                    {convertDate(
+                                                                        change.changedAt
+                                                                    )}
+                                                                </div>
                                                             </TableCell>
                                                         </TableRow>
-                                                    ))}
-                                                </Fragment>
-                                            );
-                                        })}
+                                                        {keys.map((key, i) => (
+                                                            <TableRow key={i}>
+                                                                <TableCell>
+                                                                    {t(
+                                                                        programField2Label?.[
+                                                                            key
+                                                                        ] ||
+                                                                            key,
+                                                                        {
+                                                                            ns: 'common'
+                                                                        }
+                                                                    )}
+                                                                </TableCell>
+                                                                <TableCell>
+                                                                    <HighlightTextDiff
+                                                                        original={
+                                                                            change
+                                                                                ?.originalValues?.[
+                                                                                key
+                                                                            ]
+                                                                        }
+                                                                        updated={
+                                                                            change
+                                                                                ?.updatedValues?.[
+                                                                                key
+                                                                            ]
+                                                                        }
+                                                                    />
+                                                                </TableCell>
+                                                            </TableRow>
+                                                        ))}
+                                                    </Fragment>
+                                                );
+                                            }
+                                        )}
                                 </TableBody>
                             </Table>
                         </CustomTabPanel>

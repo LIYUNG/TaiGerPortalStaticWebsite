@@ -70,7 +70,7 @@ const MeetingPage = () => {
         `${t('breadcrumbs.meetings', { ns: 'crm' })} ${meeting ? `- ${meetingTitle}` : ''}`
     );
 
-    const handleMeetingUpdate = async (payload) => {
+    const handleMeetingUpdate = async (payload: Record<string, unknown>) => {
         try {
             await updateCRMMeeting(meetingId, payload);
             await queryClient.refetchQueries({
@@ -82,7 +82,7 @@ const MeetingPage = () => {
         }
     };
 
-    const handleAssignClick = (event) => {
+    const handleAssignClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         event.stopPropagation();
         event.preventDefault();
 
@@ -96,7 +96,7 @@ const MeetingPage = () => {
         setSearchTerm('');
     };
 
-    const handleLeadSelect = async (leadId) => {
+    const handleLeadSelect = async (leadId: string | null) => {
         await handleMeetingUpdate({ leadId });
         setAssignMenuAnchor(null);
         setSearchTerm('');
@@ -108,20 +108,20 @@ const MeetingPage = () => {
     };
 
     const filteredLeads = leads.filter(
-        (lead) =>
+        (lead: { fullName?: string; email?: string; id?: string }) =>
             (lead.fullName || '')
                 .toLowerCase()
                 .includes(searchTerm.toLowerCase()) ||
             (lead.email || '').toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const formatDuration = (minutes) => {
+    const formatDuration = (minutes: number) => {
         const hours = Math.floor(minutes / 60);
         const mins = Math.floor(minutes % 60);
         return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
     };
 
-    const formatDate = (timestamp) => {
+    const formatDate = (timestamp: string | number | Date) => {
         return new Date(timestamp).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
@@ -329,40 +329,46 @@ const MeetingPage = () => {
                         )}
 
                         {filteredLeads.length > 0 ? (
-                            filteredLeads.map((lead) => (
-                                <ListItem disablePadding key={lead.id}>
-                                    <ListItemButton
-                                        onClick={() =>
-                                            handleLeadSelect(lead.id)
-                                        }
-                                        sx={{ borderRadius: 1 }}
-                                    >
-                                        <ListItemAvatar>
-                                            <Avatar
-                                                sx={{
-                                                    width: 32,
-                                                    height: 32,
-                                                    bgcolor: 'primary.main'
-                                                }}
-                                            >
-                                                <Person fontSize="small" />
-                                            </Avatar>
-                                        </ListItemAvatar>
-                                        <ListItemText
-                                            primary={
-                                                lead.fullName ||
-                                                t('leads.fullName', {
-                                                    ns: 'crm'
-                                                })
+                            filteredLeads.map(
+                                (lead: {
+                                    fullName?: string;
+                                    email?: string;
+                                    id?: string;
+                                }) => (
+                                    <ListItem disablePadding key={lead.id}>
+                                        <ListItemButton
+                                            onClick={() =>
+                                                handleLeadSelect(lead.id)
                                             }
-                                            primaryTypographyProps={{
-                                                fontWeight: 500
-                                            }}
-                                            secondary={lead.email || ''}
-                                        />
-                                    </ListItemButton>
-                                </ListItem>
-                            ))
+                                            sx={{ borderRadius: 1 }}
+                                        >
+                                            <ListItemAvatar>
+                                                <Avatar
+                                                    sx={{
+                                                        width: 32,
+                                                        height: 32,
+                                                        bgcolor: 'primary.main'
+                                                    }}
+                                                >
+                                                    <Person fontSize="small" />
+                                                </Avatar>
+                                            </ListItemAvatar>
+                                            <ListItemText
+                                                primary={
+                                                    lead.fullName ||
+                                                    t('leads.fullName', {
+                                                        ns: 'crm'
+                                                    })
+                                                }
+                                                primaryTypographyProps={{
+                                                    fontWeight: 500
+                                                }}
+                                                secondary={lead.email || ''}
+                                            />
+                                        </ListItemButton>
+                                    </ListItem>
+                                )
+                            )
                         ) : (
                             <ListItem>
                                 <ListItemText
@@ -481,7 +487,10 @@ const MeetingPage = () => {
                                                 }}
                                             >
                                                 {meeting.summary.keywords.map(
-                                                    (keyword, index) => (
+                                                    (
+                                                        keyword: string,
+                                                        index: number
+                                                    ) => (
                                                         <Chip
                                                             key={index}
                                                             label={keyword}
@@ -610,22 +619,27 @@ const MeetingPage = () => {
                                         {t('common.speakers', { ns: 'crm' })}
                                     </Typography>
                                     <List dense>
-                                        {meeting.speakers.map((speaker) => (
-                                            <ListItem
-                                                key={speaker.id}
-                                                sx={{ px: 0 }}
-                                            >
-                                                <Person
-                                                    sx={{
-                                                        mr: 1,
-                                                        color: 'primary.main'
-                                                    }}
-                                                />
-                                                <ListItemText
-                                                    primary={speaker.name}
-                                                />
-                                            </ListItem>
-                                        ))}
+                                        {meeting.speakers.map(
+                                            (speaker: {
+                                                id: string;
+                                                name: string;
+                                            }) => (
+                                                <ListItem
+                                                    key={speaker.id}
+                                                    sx={{ px: 0 }}
+                                                >
+                                                    <Person
+                                                        sx={{
+                                                            mr: 1,
+                                                            color: 'primary.main'
+                                                        }}
+                                                    />
+                                                    <ListItemText
+                                                        primary={speaker.name}
+                                                    />
+                                                </ListItem>
+                                            )
+                                        )}
                                     </List>
                                 </CardContent>
                             </Card>
@@ -643,7 +657,14 @@ const MeetingPage = () => {
                                         </Typography>
                                         <List dense>
                                             {meeting.meetingAttendees.map(
-                                                (attendee, index) => (
+                                                (
+                                                    attendee: {
+                                                        displayName?: string;
+                                                        name?: string;
+                                                        email?: string;
+                                                    },
+                                                    index: number
+                                                ) => (
                                                     <ListItem
                                                         key={index}
                                                         sx={{ px: 0 }}

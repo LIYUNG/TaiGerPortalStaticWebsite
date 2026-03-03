@@ -27,6 +27,20 @@ import { getUsersOverviewQuery } from '@/api/query';
 import Loading from '@components/Loading/Loading';
 import ErrorPage from '../Utils/ErrorPage';
 
+interface OverviewMetricItem {
+    count: number;
+    [key: string]: unknown;
+}
+
+interface StudentDatabaseOverviewData {
+    byRole?: { role: string; count: number }[];
+    byTargetDegree?: (OverviewMetricItem & { degree?: string })[];
+    byApplicationSemester?: (OverviewMetricItem & { semester?: string })[];
+    byProgramLanguage?: (OverviewMetricItem & { language?: string })[];
+    byTargetField?: (OverviewMetricItem & { field?: string })[];
+    byUniversity?: (OverviewMetricItem & { university?: string })[];
+}
+
 const StudentDatabaseOverview = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
@@ -34,7 +48,7 @@ const StudentDatabaseOverview = () => {
     const { data, isLoading, isError, error } = useQuery(
         getUsersOverviewQuery()
     );
-    const overview = data?.data;
+    const overview = data?.data as StudentDatabaseOverviewData | undefined;
 
     TabTitle(t('Student Database Overview', { ns: 'common' }));
 

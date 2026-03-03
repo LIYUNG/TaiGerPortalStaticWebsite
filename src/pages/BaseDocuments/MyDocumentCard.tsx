@@ -30,6 +30,7 @@ import {
     is_TaiGer_Student
 } from '@taiger-common/core';
 import { DocumentStatusType } from '@taiger-common/model';
+import type { IUserWithId, IStudentResponse } from '@taiger-common/model';
 
 import OffcanvasBaseDocument from '@components/Offcanvas/OffcanvasBaseDocument';
 import {
@@ -63,7 +64,7 @@ import { queryClient } from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import i18next from 'i18next';
 
-const StatusIcon = ({ st }) => {
+const StatusIcon = ({ st }: { st: string }) => {
     if (st === DocumentStatusType.Uploaded) {
         return FILE_UPLOADED_SYMBOL;
     } else if (st === DocumentStatusType.Accepted) {
@@ -76,6 +77,56 @@ const StatusIcon = ({ st }) => {
         return FILE_MISSING_SYMBOL;
     }
 };
+
+interface SingleDocumentCardProps {
+    st: string;
+    isUploadingFile: boolean;
+    onDeleteFileWarningPopUp: (
+        e: React.MouseEvent<HTMLElement>,
+        category: string,
+        student_id: string,
+        docName: string
+    ) => void;
+    category: string;
+    user: IUserWithId;
+    link: string;
+    docName: string;
+    isDeletingFile: boolean;
+    comments: string;
+    setShowPreview: (show: boolean) => void;
+    time: string;
+    MyDocumentCardState: {
+        student_id: string;
+        category: string;
+        docName: string;
+        comments: string;
+        file: string;
+        delete_field: string;
+        isLoaded: boolean;
+        feedback: string;
+        deleteFileWarningModel: boolean;
+        preview_path: string;
+        num_points: number;
+        num_checked_points: number;
+        checkedBoxes: string[];
+        student: IStudentResponse;
+        link: string;
+        status?: string;
+    };
+    openCommentWindow: (student_id: string, category: string) => void;
+    handleGeneralDocSubmitV2: (
+        e: React.ChangeEvent<HTMLInputElement>,
+        category: string,
+        studentId: string
+    ) => void;
+    onUpdateProfileDocStatus: (
+        e: React.MouseEvent<HTMLElement>,
+        category: string,
+        student_id: string,
+        status: string
+    ) => void;
+    setBaseDocsflagOffcanvas: (show: boolean) => void;
+}
 
 const SingleDocumentCard = ({
     st,
@@ -94,7 +145,7 @@ const SingleDocumentCard = ({
     handleGeneralDocSubmitV2,
     onUpdateProfileDocStatus,
     setBaseDocsflagOffcanvas
-}) => {
+}: SingleDocumentCardProps) => {
     return (st === DocumentStatusType.NotNeeded &&
         is_TaiGer_AdminAgent(user)) ||
         st === DocumentStatusType.Uploaded ||
@@ -224,7 +275,20 @@ const SingleDocumentCard = ({
     ) : null;
 };
 
-const MyDocumentCard = (props) => {
+interface MyDocumentCardProps {
+    status: string;
+    document_name: string;
+    student: IStudentResponse;
+    link: string;
+    message: string;
+    isLoaded: boolean;
+    category: string;
+    docName: string;
+    time: string;
+    updateDocLink: (link: string, category: string) => void;
+}
+
+const MyDocumentCard = (props: MyDocumentCardProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const [showPreview, setShowPreview] = useState(false);
@@ -421,7 +485,7 @@ const MyDocumentCard = (props) => {
         setBaseDocsflagOffcanvasButtonDisable(false);
     };
 
-    const onChangeURL = (e) => {
+    const onChangeURL = (e: React.ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
         const url_temp = e.target.value;
         setMyDocumentCardState((prevState) => ({
@@ -430,7 +494,7 @@ const MyDocumentCard = (props) => {
         }));
     };
 
-    const openCommentWindow = (student_id, category) => {
+    const openCommentWindow = (student_id: string, category: string) => {
         setRejectProfileFileModelOpen(true);
         setMyDocumentCardState((prevState) => ({
             ...prevState,
@@ -653,7 +717,7 @@ const MyDocumentCard = (props) => {
                             </Typography>
                             {base_documents_checklist[props.category]
                                 ? base_documents_checklist[props.category].map(
-                                      (check_item, i) => (
+                                      (check_item: string, i: number) => (
                                           <FormControlLabel
                                               control={
                                                   <Checkbox

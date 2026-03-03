@@ -12,7 +12,7 @@ import { pdfjs } from 'react-pdf';
 
 import { convertDate, twoYearsInDays } from '@utils/contants';
 import type { DocumentThreadResponse, OpenTaskRow, Application } from '@/api/types';
-import type { IApplicationPopulated, IDocumentthreadPopulated, IProgramWithId, IStudentResponse, IUserWithId } from '@taiger-common/model';
+import type { IApplicationPopulated, IDocumentthreadMessage, IDocumentthreadPopulated, IProgramWithId, IStudentResponse, IUserWithId } from '@taiger-common/model';
 import {
     IUser,
     IUserAcademicBackground,
@@ -978,7 +978,7 @@ export const requiredFields = [
     'linkedIn'
 ];
 
-export const is_personal_data_filled = (student) => {
+export const is_personal_data_filled = (student: IStudentResponse) => {
     return requiredFields.every(
         (field) => student[field] !== undefined && student[field] !== ''
     );
@@ -1105,7 +1105,7 @@ export const languageNotMatchedPrograms = (student: IStudentResponse) => {
 };
 
 export const englishCertificatedExpiredBeforeTheseProgramDeadlines = (
-    student
+    student: IStudentResponse
 ) => {
     return student.applications?.filter(
         (app: Application) =>
@@ -1151,7 +1151,7 @@ export const is_all_uni_assist_vpd_uploaded = (student: IStudentResponse) => {
     return true;
 };
 
-export const getNumberOfFilesByStudent = (messages, student_id) => {
+export const getNumberOfFilesByStudent = (messages: IDocumentthreadMessage[] | undefined, student_id: string) => {
     if (!messages) {
         return 0;
     }
@@ -1166,7 +1166,7 @@ export const getNumberOfFilesByStudent = (messages, student_id) => {
     return `${message_count}/${file_count}`;
 };
 
-export const getNumberOfFilesByEditor = (messages, student_id) => {
+export const getNumberOfFilesByEditor = (messages: IDocumentthreadMessage[] | undefined, student_id: string) => {
     if (!messages) {
         return 0;
     }
@@ -1181,7 +1181,7 @@ export const getNumberOfFilesByEditor = (messages, student_id) => {
     return `${message_count}/${file_count}`;
 };
 
-export const latestReplyUserIdV2 = (thread) => {
+export const latestReplyUserIdV2 = (thread: IDocumentthreadPopulated) => {
     const messages = thread?.messages;
     if (!messages || messages?.length <= 0) {
         return '- None - ';
@@ -1190,7 +1190,7 @@ export const latestReplyUserIdV2 = (thread) => {
     return latestMessageUser?._id.toString();
 };
 
-export const latestReplyInfo = (thread) => {
+export const latestReplyInfo = (thread: { messages?: IDocumentthreadMessage[] }) => {
     const messages = thread?.messages;
     if (!messages || messages?.length <= 0) {
         return '- None - ';
@@ -1202,7 +1202,7 @@ export const latestReplyInfo = (thread) => {
     );
 };
 
-export const prepTaskStudent = (student) => {
+export const prepTaskStudent = (student: IStudentResponse) => {
     return {
         firstname_lastname: `${student.firstname}, ${student.lastname}`,
         student_id: student._id.toString(),
@@ -1583,7 +1583,7 @@ const prepTask = (student: IStudentResponse, thread: DocumentThreadResponse) => 
     };
 };
 
-const prepGeneralTaskV2 = (student, thread) => {
+const prepGeneralTaskV2 = (student: IStudentResponse, thread: IDocumentthreadPopulated) => {
     // TODO: CV application broken, need to fix it
     const { CVDeadline, daysLeftMin } = GetCVDeadlineV2([]);
     return {
@@ -1598,7 +1598,7 @@ const prepGeneralTaskV2 = (student, thread) => {
 };
 
 // student.generaldocs_threads
-const prepGeneralTask = (student, thread) => {
+const prepGeneralTask = (student: IStudentResponse, thread: DocumentThreadResponse) => {
     const { CVDeadline, daysLeftMin } = GetCVDeadline(student);
     return {
         ...prepTask(student, thread),
@@ -1611,7 +1611,7 @@ const prepGeneralTask = (student, thread) => {
     };
 };
 
-const prepApplicationTaskV2 = (student, application, program, thread) => {
+const prepApplicationTaskV2 = (student: IStudentResponse, application: IApplicationPopulated, program: IProgramWithId, thread: IDocumentthreadPopulated) => {
     const applicationWithProgram =
         application && program ? { ...application, programId: program } : null;
 
@@ -1700,7 +1700,7 @@ export const open_tasks_v2 = (threads: IDocumentthreadPopulated[]) => {
     return tasks;
 };
 
-export const open_tasks_with_editors = (students) => {
+export const open_tasks_with_editors = (students: IStudentResponse[]) => {
     const tasks = [];
     for (const student of students) {
         if (student.archiv !== true) {
@@ -1710,11 +1710,11 @@ export const open_tasks_with_editors = (students) => {
                     isPotentials: false,
                     editors: student.editors,
                     editors_joined: student.editors
-                        ?.map((editor) => editor.firstname)
+                        ?.map((editor: IUser) => editor.firstname)
                         .join(' '),
                     agents: student.agents,
                     agents_joined: student.agents
-                        ?.map((agent) => agent.firstname)
+                        ?.map((agent: IUser) => agent.firstname)
                         .join(' ')
                 });
             }
@@ -1726,11 +1726,11 @@ export const open_tasks_with_editors = (students) => {
                             application.decided === '-' ? true : false,
                         editors: student.editors,
                         editors_joined: student.editors
-                            ?.map((editor) => editor.firstname)
+                            ?.map((editor: IUser) => editor.firstname)
                             .join(' '),
                         agents: student.agents,
                         agents_joined: student.agents
-                            ?.map((agent) => agent.firstname)
+                            ?.map((agent: IUser) => agent.firstname)
                             .join(' ')
                     });
                 }
@@ -2030,7 +2030,7 @@ export const programs_refactor = (students: IStudentResponse[]) => {
     return applications;
 };
 
-export const toogleItemInArray = (arr, item) => {
+export const toogleItemInArray = (arr: string[], item: string) => {
     return arr?.includes(item)
         ? arr?.filter((userId: string) => userId !== item)
         : arr?.length > 0
@@ -2050,29 +2050,29 @@ const getNextProgram = (student: IStudentResponse) => {
     return nextProgram;
 };
 
-export const getNextProgramName = (student) => {
+export const getNextProgramName = (student: IStudentResponse) => {
     const nextProgram = getNextProgram(student);
     return nextProgram.length !== 0 ? nextProgram[0].program : '-';
 };
 
-export const getNextProgramDeadline = (student) => {
+export const getNextProgramDeadline = (student: IStudentResponse) => {
     const nextProgram = getNextProgram(student);
     return nextProgram.length !== 0 ? nextProgram[0].application_deadline : '-';
 };
 
-export const getNextProgramDayleft = (student) => {
+export const getNextProgramDayleft = (student: IStudentResponse) => {
     const nextProgram = getNextProgram(student);
     return nextProgram.length !== 0 ? nextProgram[0].days_left : '-';
 };
 
-export const getNextProgramStatus = (student) => {
+export const getNextProgramStatus = (student: IStudentResponse) => {
     const nextProgram = getNextProgram(student);
     return nextProgram.length !== 0
         ? `${progressBarCounter(student, nextProgram[0].application)} %`
         : '-';
 };
 
-export const numStudentYearDistribution = (students) => {
+export const numStudentYearDistribution = (students: IStudentResponse[]) => {
     const map = {};
     for (let i = 0; i < students.length; i++) {
         if (students[i].application_preference.expected_application_date) {
@@ -2145,7 +2145,7 @@ export const frequencyDistribution = (
     return filteredMap;
 };
 
-export const extractTextFromDocx = async (arrayBuffer) => {
+export const extractTextFromDocx = async (arrayBuffer: ArrayBuffer) => {
     const zip = await JSZip.loadAsync(arrayBuffer);
     const documentXml = await zip.file('word/document.xml')?.async('string');
     // Extract text from the XML content
@@ -2210,7 +2210,7 @@ export const readPDF = async (file: File, studentName: string) => {
     return result;
 };
 
-export const readDOCX = async (file, studentName) => {
+export const readDOCX = async (file: File, studentName: string) => {
     const checkPoints = {
         correctFirstname: {
             value: false,
@@ -2243,7 +2243,7 @@ export const readDOCX = async (file, studentName) => {
     return result;
 };
 
-export const readXLSX = async (file, studentName: string) => {
+export const readXLSX = async (file: File, studentName: string) => {
     const checkPoints = {
         correctFirstname: {
             value: false,

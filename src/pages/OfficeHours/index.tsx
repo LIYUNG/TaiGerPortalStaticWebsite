@@ -62,6 +62,42 @@ import { appConfig } from '../../config';
 import { CustomTabPanel, a11yProps } from '@components/Tabs';
 import useCalendarEvents from '@hooks/useCalendarEvents';
 
+interface OfficeHoursAgent {
+    _id?: string;
+    firstname?: string;
+    lastname?: string;
+    email?: string;
+    timezone?: string;
+    pictureUrl?: string;
+    officehours?: Record<
+        string,
+        { active?: boolean; time_slots: { value: string }[] }
+    >;
+    [key: string]: unknown;
+}
+
+interface OfficeHoursEvent {
+    _id?: string | { toString(): string };
+    start: Date | string;
+    end: Date | string;
+    description?: string;
+    isConfirmedReceiver?: boolean;
+    isConfirmedRequester?: boolean;
+    receiver_id?: {
+        _id?: string;
+        firstname?: string;
+        lastname?: string;
+        email?: string;
+    }[];
+    [key: string]: unknown;
+}
+
+interface BookedEvent {
+    start: Date | string;
+    receiver_id?: { _id?: string }[];
+    [key: string]: unknown;
+}
+
 const tabNameToIndexMap = {
     calendar: 0,
     events: 1,
@@ -166,18 +202,18 @@ const OfficeHours = () => {
         return <ErrorPage res_status={res_status} />;
     }
 
-    const available_termins_func = (users: typeof agents) => {
+    const available_termins_func = (users: OfficeHoursAgent[]) => {
         return [0, 1, 2, 3, 4, 5].flatMap((iter, x) =>
-            users.flatMap((agent) =>
+            users.flatMap((agent: OfficeHoursAgent) =>
                 agent && agent.timezone && moment.tz.zone(agent.timezone)
                     ? getReorderWeekday(
                           getTodayAsWeekday(agent.timezone)
-                      ).flatMap((weekday, i) => {
+                      ).flatMap((weekday: string, i: number) => {
                           const timeSlots =
                               agent.officehours &&
                               agent.officehours[weekday]?.active &&
                               agent.officehours[weekday].time_slots.flatMap(
-                                  (time_slot, j) => {
+                                  (time_slot: { value: string }, j: number) => {
                                       const { year, month, day } =
                                           getNextDayDate(
                                               getReorderWeekday(
@@ -210,7 +246,7 @@ const OfficeHours = () => {
                                                   .timeZone
                                           ) - getTimezoneOffset(agent.timezone);
                                       const condition = booked_events.some(
-                                          (booked_event) =>
+                                          (booked_event: BookedEvent) =>
                                               new Date(
                                                   booked_event.start
                                               ).toISOString() ===
@@ -225,7 +261,9 @@ const OfficeHours = () => {
                                                       time_difference
                                                   ).toISOString() &&
                                               booked_event.receiver_id?.some(
-                                                  (receiver) =>
+                                                  (receiver: {
+                                                      _id?: string;
+                                                  }) =>
                                                       receiver._id === agent._id
                                               )
                                       );
@@ -329,7 +367,7 @@ const OfficeHours = () => {
                 </Box>
                 <CustomTabPanel index={0} value={value}>
                     {events?.filter(
-                        (event) =>
+                        (event: OfficeHoursEvent) =>
                             differenceInDays(event.start, new Date()) >= -1
                     ).length !== 0 ? (
                         <Banner
@@ -385,7 +423,7 @@ const OfficeHours = () => {
                 <CustomTabPanel index={1} value={value}>
                     <>
                         {events?.filter(
-                            (event) =>
+                            (event: OfficeHoursEvent) =>
                                 isInTheFuture(event.end) &&
                                 (!event.isConfirmedReceiver ||
                                     !event.isConfirmedRequester)
@@ -393,7 +431,7 @@ const OfficeHours = () => {
                             ? _.reverse(
                                   _.sortBy(
                                       events?.filter(
-                                          (event) =>
+                                          (event: OfficeHoursEvent) =>
                                               isInTheFuture(event.end) &&
                                               (!event.isConfirmedReceiver ||
                                                   !event.isConfirmedRequester)
@@ -423,7 +461,7 @@ const OfficeHours = () => {
                                 </Typography>
                                 <Typography>
                                     {events?.filter(
-                                        (event) =>
+                                        (event: OfficeHoursEvent) =>
                                             isInTheFuture(event.end) &&
                                             event.isConfirmedReceiver &&
                                             event.isConfirmedRequester
@@ -431,7 +469,9 @@ const OfficeHours = () => {
                                         ? _.reverse(
                                               _.sortBy(
                                                   events?.filter(
-                                                      (event) =>
+                                                      (
+                                                          event: OfficeHoursEvent
+                                                      ) =>
                                                           isInTheFuture(
                                                               event.end
                                                           ) &&
@@ -469,7 +509,8 @@ const OfficeHours = () => {
                                 {_.reverse(
                                     _.sortBy(
                                         events?.filter(
-                                            (event) => !isInTheFuture(event.end)
+                                            (event: OfficeHoursEvent) =>
+                                                !isInTheFuture(event.end)
                                         ),
                                         ['start']
                                     )
@@ -583,8 +624,23 @@ const OfficeHours = () => {
                                     <PersonIcon fontSize="small" />
                                     {t('Agent', { ns: 'common' })} or{' '}
                                     {t('Editor', { ns: 'common' })}:{' '}
-                                    {event_temp?.receiver_id?.map(
-                                        (receiver, x) => (
+                                    {(
+                                        event_temp?.receiver_id as
+                                            | {
+                                                  firstname?: string;
+                                                  lastname?: string;
+                                                  email?: string;
+                                              }[]
+                                            | undefined
+                                    )?.map(
+                                        (
+                                            receiver: {
+                                                firstname?: string;
+                                                lastname?: string;
+                                                email?: string;
+                                            },
+                                            x: number
+                                        ) => (
                                             <span key={x}>
                                                 {receiver.firstname}{' '}
                                                 {receiver.lastname}{' '}
@@ -617,8 +673,24 @@ const OfficeHours = () => {
                                                 a.start < b.start ? -1 : 1
                                             )
                                             .filter((event) =>
-                                                event_temp?.receiver_id?.some(
-                                                    (r_id) =>
+                                                (
+                                                    event_temp?.receiver_id as
+                                                        | {
+                                                              _id?:
+                                                                  | string
+                                                                  | {
+                                                                        toString(): string;
+                                                                    };
+                                                          }[]
+                                                        | undefined
+                                                )?.some(
+                                                    (r_id: {
+                                                        _id?:
+                                                            | string
+                                                            | {
+                                                                  toString(): string;
+                                                              };
+                                                    }) =>
                                                         event.provider?._id?.toString() ===
                                                         r_id?._id?.toString()
                                                 )

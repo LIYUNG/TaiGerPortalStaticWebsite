@@ -177,7 +177,7 @@ export const getUsersCountQuery = (): UseQueryOptions => ({
     queryKey: ['users/count'],
     queryFn: () => getUsersCount(),
     staleTime: 1000 * 60 * 5, // 5 minutes
-    select: (data: { data?: { data?: unknown[] } }) => data.data?.data || []
+    select: (data: { data?: unknown[] }) => data.data || []
 });
 
 export const getUsersOverviewQuery = (): UseQueryOptions => ({

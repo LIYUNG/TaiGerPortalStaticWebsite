@@ -25,11 +25,30 @@ import {
     is_pending_status
 } from '@utils/contants';
 import { BreadcrumbsNavigation } from '@components/BreadcrumbsNavigation/BreadcrumbsNavigation';
+import type { OpenTaskRow } from '@/api/types';
+
+interface AgentSupportDocumentsState {
+    error: string | unknown;
+    isLoaded: boolean;
+    data: unknown;
+    success: boolean;
+    students: unknown;
+    doc_thread_id: string;
+    student_id: string;
+    program_id: string;
+    SetAsFinalFileModel: boolean;
+    isFinalVersion: boolean;
+    status: string;
+    res_status: number;
+    res_modal_message: string;
+    res_modal_status: number;
+    open_tasks_arr?: OpenTaskRow[];
+}
 
 const AgentSupportDocuments = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
-    const [indexState, setIndexState] = useState({
+    const [indexState, setIndexState] = useState<AgentSupportDocumentsState>({
         error: '',
         isLoaded: false,
         data: null,
@@ -56,7 +75,11 @@ const AgentSupportDocuments = () => {
                 ]
             })
         }).then(
-            (resp) => {
+            (resp: {
+                data: { threads?: unknown[] } | null;
+                success: boolean;
+                status: number;
+            }) => {
                 const { data, success } = resp;
                 const { status } = resp;
                 if (success) {
@@ -78,7 +101,7 @@ const AgentSupportDocuments = () => {
                     }));
                 }
             },
-            (error) => {
+            (error: unknown) => {
                 setIndexState((prevState) => ({
                     ...prevState,
                     isLoaded: true,
@@ -106,7 +129,7 @@ const AgentSupportDocuments = () => {
             open_tasks_arr: updatedOpenTasksArr
         }));
         putThreadFavorite(id).then(
-            (resp) => {
+            (resp: { data: { success: boolean }; status: number }) => {
                 const { success } = resp.data;
                 const { status } = resp;
                 if (!success) {
@@ -116,7 +139,7 @@ const AgentSupportDocuments = () => {
                     }));
                 }
             },
-            (error) => {
+            (error: unknown) => {
                 setIndexState((prevState) => ({
                     ...prevState,
                     error,
@@ -142,7 +165,11 @@ const AgentSupportDocuments = () => {
     const tasks_withMyEssay_arr = open_tasks_arr.filter(
         (open_task) =>
             [...AGENT_SUPPORT_DOCUMENTS_A].includes(open_task.file_type) ||
-            open_task.outsourced_user_id?.some(
+            (
+                open_task.outsourced_user_id as
+                    | Array<{ _id: { toString: () => string } }>
+                    | undefined
+            )?.some(
                 (outsourcedUser) =>
                     outsourcedUser._id.toString() === user._id.toString()
             )

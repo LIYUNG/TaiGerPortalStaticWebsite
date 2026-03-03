@@ -388,10 +388,10 @@ const UsersList = (props: UsersListProps) => {
     });
 
     const setModalShow = (
-        user_firstname,
-        user_lastname,
-        user_role,
-        user_id
+        user_firstname: string,
+        user_lastname: string,
+        user_role: string,
+        user_id: string
     ) => {
         setUsersListState((prevState) => ({
             ...prevState,
@@ -425,7 +425,11 @@ const UsersList = (props: UsersListProps) => {
         }));
     };
 
-    const setModalShowDelete = (user_firstname, user_lastname, user_id) => {
+    const setModalShowDelete = (
+        user_firstname: string,
+        user_lastname: string,
+        user_id: string
+    ) => {
         setUsersListState((prevState) => ({
             ...prevState,
             deleteUserWarning: true,
@@ -435,7 +439,12 @@ const UsersList = (props: UsersListProps) => {
         }));
     };
 
-    const setModalArchiv = (user_firstname, user_lastname, user_id, archiv) => {
+    const setModalArchiv = (
+        user_firstname: string,
+        user_lastname: string,
+        user_id: string,
+        archiv: boolean
+    ) => {
         setUsersListState((prevState) => ({
             ...prevState,
             archivUserWarning: true,
@@ -454,7 +463,7 @@ const UsersList = (props: UsersListProps) => {
         }));
     };
 
-    const handleDeleteUser = (user_id) => {
+    const handleDeleteUser = (user_id: string) => {
         deleteUserMutation({ id: user_id });
     };
 
@@ -465,7 +474,7 @@ const UsersList = (props: UsersListProps) => {
         }));
     };
 
-    const assignUserAs = (user_data) => {
+    const assignUserAs = (user_data: { _id: string; role: string }) => {
         changeUserRoleMutation({ id: user_data._id, role: user_data.role });
     };
 

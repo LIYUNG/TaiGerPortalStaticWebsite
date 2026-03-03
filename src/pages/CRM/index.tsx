@@ -46,8 +46,13 @@ const CRMDashboard = () => {
         : 0;
 
     // Create unified week range for consistent x-axis across both charts
-    const createUnifiedWeekRange = (leadsData, meetingsData) => {
-        const allWeeks = new Set();
+    const createUnifiedWeekRange = (
+        leadsData: Array<{ week: string; [key: string]: unknown }> | undefined,
+        meetingsData:
+            | Array<{ week: string; [key: string]: unknown }>
+            | undefined
+    ) => {
+        const allWeeks = new Set<string>();
 
         // Collect all weeks from both datasets
         if (leadsData && Array.isArray(leadsData)) {
@@ -62,7 +67,11 @@ const CRMDashboard = () => {
     };
 
     // Prepare data with null values for missing weeks (no bars will be shown)
-    const prepareChartData = (data, allWeeks, valueKey = 'count') => {
+    const prepareChartData = (
+        data: Array<{ week: string; [key: string]: unknown }> | undefined,
+        allWeeks: string[],
+        valueKey = 'count'
+    ) => {
         const dataMap = new Map();
         if (data && Array.isArray(data)) {
             data.forEach((item) => dataMap.set(item.week, item[valueKey] || 0));
@@ -112,9 +121,12 @@ const CRMDashboard = () => {
         return Math.ceil(rate);
     });
 
-    const formatDays = (value) =>
+    const formatDays = (value: number | null | undefined) =>
         value === null || isNaN(value) ? '-' : `${Number(value).toFixed(2)}d`;
-    const percentileLine = (p50, p95) => {
+    const percentileLine = (
+        p50: number | null | undefined,
+        p95: number | null | undefined
+    ) => {
         if (p50 === null && p95 === null) return null;
         const parts = [];
         if (p50 !== null) parts.push(`p50 ${Number(p50).toFixed(2)}d`);

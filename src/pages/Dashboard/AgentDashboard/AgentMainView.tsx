@@ -49,7 +49,16 @@ import { useStudentsV3 } from '@hooks/useStudentsV3';
 import Loading from '@components/Loading/Loading';
 import { IApplication } from '@taiger-common/model';
 
-const AgentMainView = (props) => {
+interface AgentMainViewProps {
+    notification: {
+        isRead_new_base_docs_uploaded: {
+            student_id: string;
+            student_firstname: string;
+            student_lastname: string;
+        }[];
+    };
+}
+const AgentMainView = (props: AgentMainViewProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const { data: myStudentsApplications, isLoading: isLoadingApplications } =
@@ -151,7 +160,7 @@ const AgentMainView = (props) => {
             [...AGENT_SUPPORT_DOCUMENTS_A].includes(open_task.file_type) ||
             open_task.outsourced_user_id?.some(
                 (outsourcedUser) =>
-                    outsourcedUser._id.toString() === user._id.toString()
+                    outsourcedUser._id?.toString() === user?._id?.toString()
             )
     );
 

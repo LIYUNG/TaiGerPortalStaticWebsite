@@ -118,7 +118,7 @@ const LeadPage = () => {
     });
     const salesOptions = useMemo(
         () =>
-            (salesData || []).map((s) => ({
+            (salesData || []).map((s: Record<string, string>) => ({
                 userId: s.userId || s.value,
                 label:
                     s.label ||
@@ -138,7 +138,7 @@ const LeadPage = () => {
         }
     });
 
-    const getChangedFields = (orig, cur) => {
+    const getChangedFields = (orig: Record<string, unknown>, cur: Record<string, unknown>) => {
         const out = {};
         Object.keys(cur).forEach((k) => {
             if (['createdAt', 'updatedAt', 'meetings', 'id'].includes(k))
@@ -181,19 +181,19 @@ const LeadPage = () => {
         }
     });
 
-    const handleEdit = (cardId) => {
+    const handleEdit = (cardId: string) => {
         setLeadEditStates((p) => ({ ...p, [cardId]: true }));
         if (lead && Object.keys(lead).length) {
             setFormData(lead);
             form.reset(lead);
         }
     };
-    const handleCancel = (cardId) => {
+    const handleCancel = (cardId: string) => {
         setLeadEditStates((p) => ({ ...p, [cardId]: false }));
         setFormData(lead);
         form.reset(lead);
     };
-    const handleSave = async (cardId) => {
+    const handleSave = async (cardId: string) => {
         const changed = getChangedFields(lead, formData);
         if (Object.keys(changed).length === 0) {
             setLeadEditStates((p) => ({ ...p, [cardId]: false }));
@@ -206,7 +206,7 @@ const LeadPage = () => {
         setFormData((p) => ({ ...p, [field]: value }));
         form.setFieldValue(field, value);
     };
-    const hasUnsavedChanges = (cardId) => {
+    const hasUnsavedChanges = (cardId: string) => {
         const changed = getChangedFields(lead, formData);
         const cfg = leadCardConfigurations.find((c) => c.id === cardId);
         if (!cfg) return false;
@@ -221,7 +221,7 @@ const LeadPage = () => {
         );
     };
 
-    const handleCreateUser = (leadData) => {
+    const handleCreateUser = (leadData: Record<string, unknown>) => {
         setSelectedLead(leadData);
         setShowCreateUserModal(true);
     };
@@ -229,7 +229,7 @@ const LeadPage = () => {
         setShowCreateUserModal(false);
         setSelectedLead(null);
     };
-    const handleUserCreated = async (userData) => {
+    const handleUserCreated = async (userData: Record<string, string>) => {
         const newUserId = userData?.newUser;
         if (newUserId) {
             try {
@@ -250,7 +250,7 @@ const LeadPage = () => {
         setShowDealModal(false);
         setEditingDeal(null);
     };
-    const handleEditDeal = (deal) => {
+    const handleEditDeal = (deal: Record<string, unknown>) => {
         setEditingDeal(deal);
         setShowDealModal(true);
     };
@@ -662,13 +662,13 @@ const LeadPage = () => {
                                             gap: 1
                                         }}
                                     >
-                                        {lead.deals.map((deal: any, idx: number) => {
+                                        {lead.deals.map((deal: Record<string, unknown>, idx: number) => {
                                             const id = getDealId(deal);
                                             const isUpdating =
                                                 updateStatusMutation.isPending &&
                                                 updateStatusMutation.variables
                                                     ?.id === id;
-                                            const onEditDeal = (d) => {
+                                            const onEditDeal = (d: Record<string, unknown>) => {
                                                 d.leadFullName = lead?.fullName;
                                                 d.salesLabel =
                                                     deal?.salesRep?.label;
@@ -793,7 +793,7 @@ const LeadPage = () => {
                                         onChange={(e) => {
                                             const selectedId = e.target.value;
                                             const selected = salesOptions.find(
-                                                (s) => s.userId === selectedId
+                                                (s: { userId: string; label: string }) => s.userId === selectedId
                                             );
                                             handleFieldChange(
                                                 'salesUserId',
@@ -809,7 +809,7 @@ const LeadPage = () => {
                                                 ns: 'crm'
                                             })}
                                         </MenuItem>
-                                        {salesOptions.map((s) => (
+                                        {salesOptions.map((s: { userId: string; label: string }) => (
                                             <MenuItem
                                                 key={s.userId}
                                                 value={s.userId}
@@ -953,7 +953,7 @@ const LeadPage = () => {
                                                 }}
                                             >
                                                 {lead.deals.map(
-                                                    (deal, idx: number) => {
+                                                    (deal: Record<string, unknown>, idx: number) => {
                                                         const id =
                                                             getDealId(deal);
                                                         const isUpdating =
@@ -962,7 +962,7 @@ const LeadPage = () => {
                                                                 .variables
                                                                 ?.id === id;
                                                         const onEditDeal = (
-                                                            d
+                                                            d: Record<string, unknown>
                                                         ) => {
                                                             d.leadFullName =
                                                                 lead?.fullName;
@@ -1008,7 +1008,7 @@ const LeadPage = () => {
                             gap: 1.5
                         }}
                     >
-                        {lead.meetings.map((meeting) => (
+                        {lead.meetings.map((meeting: { id: string; title: string; date: string; summary?: { gist?: string } }) => (
                             <Box
                                 key={meeting.id}
                                 sx={{
@@ -1276,7 +1276,7 @@ const LeadPage = () => {
             <StatusMenu
                 anchorEl={statusMenu.anchorEl}
                 currentStatus={statusMenu.row?.status}
-                onChoose={(s) => {
+                onChoose={(s: string) => {
                     const id = getDealId(statusMenu.row);
                     updateStatusMutation.mutate(
                         { id, status: s },

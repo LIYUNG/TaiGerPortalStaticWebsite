@@ -23,7 +23,13 @@ import { appConfig } from '../../../config';
 
 const EditCard = () => {
     const navigate = useNavigate();
-    const [selectedCategory, setSelectedCategory] = useState({
+    const [selectedCategory, setSelectedCategory] = useState<{
+        categoryName: string;
+        description: string;
+        keywords: Record<string, string[]>;
+        antiKeywords: Record<string, string[]>;
+        [key: string]: string | Record<string, string[]>;
+    }>({
         categoryName: '',
         description: '',
         keywords: {
@@ -41,7 +47,7 @@ const EditCard = () => {
     const [antiKeywordsEN, setAntiKeywordsEN] = useState('');
     const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
-    const handleAddCourseKeyword = (lang, keyword) => {
+    const handleAddCourseKeyword = (lang: 'zh' | 'en', keyword: string) => {
         if (selectedCategory.keywords[lang]?.includes(keywordsZH)) {
             setErrorMessage('This keyword already exists in the list.');
             setIsErrorDialogOpen(true); // Open error dialog
@@ -64,7 +70,7 @@ const EditCard = () => {
         }
     };
 
-    const handleAddCourseAntiKeyword = (lang, keyword) => {
+    const handleAddCourseAntiKeyword = (lang: 'zh' | 'en', keyword: string) => {
         if (selectedCategory.antiKeywords[lang]?.includes(antiKeywordsZH)) {
             setErrorMessage('This keyword already exists in the list.');
             setIsErrorDialogOpen(true); // Open error dialog
@@ -90,7 +96,11 @@ const EditCard = () => {
         }
     };
 
-    const handleDeleteCourseKeyword = (lang, type, keywordToDelete) => {
+    const handleDeleteCourseKeyword = (
+        lang: 'zh' | 'en',
+        type: 'keywords' | 'antiKeywords',
+        keywordToDelete: string
+    ) => {
         setSelectedCategory((prevCategory) => ({
             ...prevCategory,
             [type]: {

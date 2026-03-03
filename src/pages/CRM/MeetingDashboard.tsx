@@ -1,7 +1,8 @@
+import React from 'react';
 import { Navigate, useNavigate, Link as LinkDom } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { MaterialReactTable } from 'material-react-table';
+import { MaterialReactTable, type MRT_ColumnDef } from 'material-react-table';
 import { useState } from 'react';
 import {
     Box,
@@ -43,6 +44,11 @@ import {
 } from '@mui/icons-material';
 
 import { is_TaiGer_role } from '@taiger-common/core';
+import type {
+    CRMLeadItem,
+    CRMMeetingItem,
+    ApiResponse
+} from '@taiger-common/model';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
@@ -99,12 +105,15 @@ const MeetingPage = () => {
                 setSeverity('error');
             }
             setOpenSnackbar(true);
-        } catch (error) {
+        } catch (error: unknown) {
             console.error('Failed to invite:', error);
+            const axiosError = error as {
+                response?: { data?: { message?: string } };
+            };
             setMessage(
                 t('meetings.failedToSendInvitation', { ns: 'crm' }) +
-                    (error.response?.data?.message
-                        ? `: ${error.response.data.message}`
+                    (axiosError.response?.data?.message
+                        ? `: ${axiosError.response.data.message}`
                         : '')
             );
             setSeverity('error');
@@ -122,24 +131,35 @@ const MeetingPage = () => {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
-    const handleMeetingUpdate = async (meetingId, payload) => {
+    const handleMeetingUpdate = async (
+        meetingId: string,
+        payload: Record<string, unknown>
+    ) => {
         try {
             // Optimistic update - immediately update the cache
-            queryClient.setQueryData(['crm/meetings'], (oldData) => {
-                if (!oldData?.data?.data) return oldData;
+            queryClient.setQueryData(
+                ['crm/meetings'],
+                (
+                    oldData:
+                        | { data?: ApiResponse<CRMMeetingItem[]> }
+                        | undefined
+                ) => {
+                    if (!oldData?.data?.data) return oldData;
 
-                return {
-                    ...oldData,
-                    data: {
-                        ...oldData.data,
-                        data: oldData.data.data.map((meeting) =>
-                            meeting.id === meetingId
-                                ? { ...meeting, ...payload }
-                                : meeting
-                        )
-                    }
-                };
-            });
+                    return {
+                        ...oldData,
+                        data: {
+                            ...oldData.data,
+                            data: oldData.data.data.map(
+                                (meeting: CRMMeetingItem) =>
+                                    meeting.id === meetingId
+                                        ? { ...meeting, ...payload }
+                                        : meeting
+                            )
+                        }
+                    };
+                }
+            );
 
             // Make the API call
             await updateCRMMeeting(meetingId, payload);
@@ -163,7 +183,10 @@ const MeetingPage = () => {
         }
     };
 
-    const handleAssignClick = (event, meetingId: string) => {
+    const handleAssignClick = (
+        event: React.MouseEvent<HTMLElement>,
+        meetingId: string
+    ) => {
         event.stopPropagation();
         event.preventDefault();
 
@@ -179,32 +202,41 @@ const MeetingPage = () => {
         setSearchTerm(''); // Reset search when opening
     };
 
-    const handleLeadSelect = async (leadId: string) => {
+    const handleLeadSelect = async (leadId: string | null) => {
         if (selectedMeetingId) {
             // Optimistic update for lead assignment
-            queryClient.setQueryData(['crm/meetings'], (oldData) => {
-                if (!oldData?.data?.data) return oldData;
+            queryClient.setQueryData(
+                ['crm/meetings'],
+                (
+                    oldData:
+                        | { data?: ApiResponse<CRMMeetingItem[]> }
+                        | undefined
+                ) => {
+                    if (!oldData?.data?.data) return oldData;
 
-                const leadName = leadId
-                    ? leads.find((lead) => lead.id === leadId)?.fullName
-                    : null;
+                    const leadName = leadId
+                        ? leads.find((lead: CRMLeadItem) => lead.id === leadId)
+                              ?.fullName
+                        : null;
 
-                return {
-                    ...oldData,
-                    data: {
-                        ...oldData.data,
-                        data: oldData.data.data.map((meeting) =>
-                            meeting.id === selectedMeetingId
-                                ? {
-                                      ...meeting,
-                                      leadId: leadId,
-                                      leadFullName: leadName
-                                  }
-                                : meeting
-                        )
-                    }
-                };
-            });
+                    return {
+                        ...oldData,
+                        data: {
+                            ...oldData.data,
+                            data: oldData.data.data.map(
+                                (meeting: CRMMeetingItem) =>
+                                    meeting.id === selectedMeetingId
+                                        ? {
+                                              ...meeting,
+                                              leadId: leadId,
+                                              leadFullName: leadName
+                                          }
+                                        : meeting
+                            )
+                        }
+                    };
+                }
+            );
 
             // Close popover immediately for better UX
             setAssignMenuAnchor(null);
@@ -242,12 +274,15 @@ const MeetingPage = () => {
         setSearchTerm('');
     };
 
-    const handleTabChange = (event, newValue) => {
+    const handleTabChange = (
+        _event: React.SyntheticEvent,
+        newValue: number
+    ) => {
         setActiveTab(newValue);
     };
 
     // Separate meetings into active and archived
-    const allMeetings = data?.data?.data || [];
+    const allMeetings: CRMMeetingItem[] = data?.data?.data || [];
     const nonArchivedMeetings = allMeetings.filter(
         (meeting) => !meeting.isArchived
     );
@@ -257,7 +292,7 @@ const MeetingPage = () => {
     const unassignedMeetings = allMeetings.filter(
         (meeting) => !meeting.isArchived && !meeting.leadId
     );
-    const leads = leadsData?.data?.data || [];
+    const leads: CRMLeadItem[] = leadsData?.data?.data || [];
 
     // Select current meetings based on active tab
     const currentMeetings =
@@ -276,7 +311,9 @@ const MeetingPage = () => {
             (lead.email || '').toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const getColumns = (isArchived = false) => [
+    const getColumns = (
+        isArchived = false
+    ): MRT_ColumnDef<CRMMeetingItem>[] => [
         {
             accessorKey: 'date',
             header: t('common.datetime', { ns: 'crm' }),

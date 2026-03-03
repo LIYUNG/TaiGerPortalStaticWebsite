@@ -10,6 +10,7 @@ import {
     Typography
 } from '@mui/material';
 import { is_TaiGer_Editor, is_TaiGer_role } from '@taiger-common/core';
+import type { OpenTaskRow } from '@/api/types';
 
 import CVMLRLOverview from './CVMLRLOverview';
 import ErrorPage from '../Utils/ErrorPage';
@@ -60,7 +61,11 @@ const CVMLRLCenter = () => {
             ? getMyStudentsThreads({ userId: user._id })
             : getThreadsByStudent(user._id);
         apiCall.then(
-            (resp) => {
+            (resp: {
+                data: { threads?: unknown[] };
+                success: boolean;
+                status: number;
+            }) => {
                 const { data, success } = resp;
                 const { status } = resp;
                 const tasksData = open_tasks_v2(data?.threads ?? []);
@@ -80,7 +85,7 @@ const CVMLRLCenter = () => {
                     }));
                 }
             },
-            (error) => {
+            (error: string) => {
                 setIndexState((prevState) => ({
                     ...prevState,
                     isLoaded: true,
@@ -101,8 +106,8 @@ const CVMLRLCenter = () => {
         return <ErrorPage res_status={res_status} />;
     }
 
-    const handleFavoriteToggle = (id) => {
-        const updatedEssays = indexState.essays?.map((row) =>
+    const handleFavoriteToggle = (id: string) => {
+        const updatedEssays = indexState.essays?.map((row: OpenTaskRow) =>
             row.id === id
                 ? {
                       ...row,
@@ -114,7 +119,7 @@ const CVMLRLCenter = () => {
                 : row
         );
         const updatedOpenTasksWithoutEssaysArr = indexState.open_tasks_arr?.map(
-            (row) =>
+            (row: OpenTaskRow) =>
                 row.id === id
                     ? {
                           ...row,
@@ -122,7 +127,8 @@ const CVMLRLCenter = () => {
                               user._id.toString()
                           )
                               ? row.flag_by_user_id?.filter(
-                                    (userId) => userId !== user._id.toString()
+                                    (userId: string) =>
+                                        userId !== user._id.toString()
                                 )
                               : row.flag_by_user_id?.length > 0
                                 ? [...row.flag_by_user_id, user._id.toString()]
@@ -136,7 +142,7 @@ const CVMLRLCenter = () => {
             open_tasks_arr: updatedOpenTasksWithoutEssaysArr
         }));
         putThreadFavorite(id).then(
-            (resp) => {
+            (resp: { data: { success: boolean }; status: number }) => {
                 const { success } = resp.data;
                 const { status } = resp;
                 if (!success) {
@@ -146,7 +152,7 @@ const CVMLRLCenter = () => {
                     }));
                 }
             },
-            (error) => {
+            (error: string) => {
                 setIndexState((prevState) => ({
                     ...prevState,
                     error,
@@ -156,41 +162,48 @@ const CVMLRLCenter = () => {
         );
     };
 
-    const tasks_withMyEssay_arr = open_tasks_arr.filter((open_task) =>
-        [...AGENT_SUPPORT_DOCUMENTS_A, FILE_TYPE_E.essay_required].includes(
-            open_task.file_type
-        ) && is_TaiGer_Editor(user)
-            ? open_task.outsourced_user_id?.some(
-                  (outsourcedUser) =>
-                      outsourcedUser._id.toString() === user._id.toString()
-              )
-            : true
+    const tasks_withMyEssay_arr = open_tasks_arr.filter(
+        (open_task: OpenTaskRow) =>
+            [...AGENT_SUPPORT_DOCUMENTS_A, FILE_TYPE_E.essay_required].includes(
+                open_task.file_type
+            ) && is_TaiGer_Editor(user)
+                ? (
+                      open_task as OpenTaskRow & {
+                          outsourced_user_id?: {
+                              _id: { toString(): string };
+                          }[];
+                      }
+                  ).outsourced_user_id?.some(
+                      (outsourcedUser: { _id: { toString(): string } }) =>
+                          outsourcedUser._id.toString() === user._id.toString()
+                  )
+                : true
     );
     const open_tasks_withMyEssay_arr = tasks_withMyEssay_arr.filter(
-        (open_task) => open_task.show && !open_task.isFinalVersion
+        (open_task: OpenTaskRow) => open_task.show && !open_task.isFinalVersion
     );
-    const new_message_tasks = open_tasks_withMyEssay_arr.filter((open_task) =>
-        is_new_message_status(user, open_task)
+    const new_message_tasks = open_tasks_withMyEssay_arr.filter(
+        (open_task: OpenTaskRow) => is_new_message_status(user, open_task)
     );
 
-    const fav_message_tasks = open_tasks_withMyEssay_arr.filter((open_task) =>
-        is_my_fav_message_status(user, open_task)
+    const fav_message_tasks = open_tasks_withMyEssay_arr.filter(
+        (open_task: OpenTaskRow) => is_my_fav_message_status(user, open_task)
     );
 
     const followup_tasks = open_tasks_withMyEssay_arr.filter(
-        (open_task) =>
+        (open_task: OpenTaskRow) =>
             is_pending_status(user, open_task) &&
             open_task.latest_message_left_by_id !== '- None - '
     );
 
     const pending_progress_tasks = open_tasks_withMyEssay_arr.filter(
-        (open_task) =>
+        (open_task: OpenTaskRow) =>
             is_pending_status(user, open_task) &&
             open_task.latest_message_left_by_id === '- None - '
     );
 
     const closed_tasks = tasks_withMyEssay_arr.filter(
-        (open_task) => open_task.show && open_task.isFinalVersion
+        (open_task: OpenTaskRow) => open_task.show && open_task.isFinalVersion
     );
 
     return (

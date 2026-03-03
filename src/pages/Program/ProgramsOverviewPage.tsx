@@ -42,6 +42,7 @@ import {
     Person
 } from '@mui/icons-material';
 import { is_TaiGer_role } from '@taiger-common/core';
+import type { ProgramsOverviewData } from '@taiger-common/model';
 
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
@@ -61,12 +62,13 @@ const ProgramsOverviewPage = () => {
     const [lastRefreshTime, setLastRefreshTime] = useState(null);
 
     const {
-        data: overview,
+        data: rawOverview,
         isLoading,
         isError,
         error,
         queryKey
     } = useProgramsOverview();
+    const overview = rawOverview as unknown as ProgramsOverviewData;
 
     TabTitle(t('Programs Overview', { ns: 'common' }));
 

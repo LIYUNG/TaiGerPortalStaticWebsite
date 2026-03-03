@@ -35,6 +35,9 @@ export interface CourseKeywordsEditCardData {
 
 export interface CourseKeywordsEditCardProps {
     data: CourseKeywordsEditCardData;
+    setCourseKeywordSetsState: React.Dispatch<
+        React.SetStateAction<CourseKeywordsEditCardData[]>
+    >;
 }
 
 const EditCard = (props: CourseKeywordsEditCardProps) => {
@@ -48,7 +51,7 @@ const EditCard = (props: CourseKeywordsEditCardProps) => {
     const [errorMessage, setErrorMessage] = useState('');
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
 
-    const handleAddCourseKeyword = (lang, keyword) => {
+    const handleAddCourseKeyword = (lang: string, keyword: string) => {
         if (selectedCategory.keywords[lang]?.includes(keywordsZH)) {
             setErrorMessage('This keyword already exists in the list.');
             setIsErrorDialogOpen(true); // Open error dialog
@@ -71,7 +74,7 @@ const EditCard = (props: CourseKeywordsEditCardProps) => {
         }
     };
 
-    const handleAddCourseAntiKeyword = (lang, keyword) => {
+    const handleAddCourseAntiKeyword = (lang: string, keyword: string) => {
         if (selectedCategory.antiKeywords[lang]?.includes(antiKeywordsZH)) {
             setErrorMessage('This keyword already exists in the list.');
             setIsErrorDialogOpen(true); // Open error dialog
@@ -97,14 +100,18 @@ const EditCard = (props: CourseKeywordsEditCardProps) => {
         }
     };
 
-    const handleDeleteCourseKeyword = (lang, type, keywordToDelete) => {
+    const handleDeleteCourseKeyword = (
+        lang: string,
+        type: string,
+        keywordToDelete: string
+    ) => {
         setSelectedCategory((prevCategory) => ({
             ...prevCategory,
             [type]: {
-                ...prevCategory[type],
-                [lang]: prevCategory[type][lang]?.filter(
-                    (keyword) => keyword !== keywordToDelete
-                )
+                ...(prevCategory[type] as Record<string, string[]>),
+                [lang]: (prevCategory[type] as Record<string, string[]>)?.[
+                    lang
+                ]?.filter((keyword: string) => keyword !== keywordToDelete)
             }
         }));
     };
@@ -127,7 +134,8 @@ const EditCard = (props: CourseKeywordsEditCardProps) => {
         setSelectedCategory(props.data);
     };
 
-    const handleSave = async () => {
+    const handleSave = async (e?: React.FormEvent) => {
+        e?.preventDefault();
         props.setCourseKeywordSetsState((prevState) => {
             // Check if the keywordSet object already exists in the state based on a unique key (e.g., id)
             const index = prevState.findIndex(
@@ -186,7 +194,7 @@ const EditCard = (props: CourseKeywordsEditCardProps) => {
 
     return isEditMode ? (
         <Box>
-            <form onSubmit={(e) => handleSave(e)}>
+            <form onSubmit={handleSave}>
                 <div style={{ marginBottom: '16px' }}>
                     <Typography variant="h6">Category Name:</Typography>
                     <TextField
@@ -596,7 +604,7 @@ const CourseKeywordsOverview = ({
         setRowSelection({});
     };
 
-    const handleCategoryClick = (row) => {
+    const handleCategoryClick = (row: Record<string, boolean>) => {
         setRowSelection(row);
         setDrawerOpen(true); // Open the Drawer on small screens
     };
@@ -692,7 +700,9 @@ const CourseKeywordsOverview = ({
                             onClick: row.getToggleSelectedHandler(),
                             sx: { cursor: 'pointer' }
                         })}
-                        onRowSelectionChange={(e) => handleCategoryClick(e)}
+                        onRowSelectionChange={(e: Record<string, boolean>) =>
+                            handleCategoryClick(e)
+                        }
                         rowSelection={rowSelection}
                     />
                 </Grid>
@@ -772,7 +782,7 @@ const CourseKeywordsOverview = ({
                 <DialogActions>
                     <Button
                         color="primary"
-                        onClick={() => handleDeleteConfirm(false)}
+                        onClick={() => handleDeleteConfirm()}
                         variant="contained"
                     >
                         {i18next.t('Yes', { ns: 'common' })}

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Box, Card, Divider, Tab, Tabs, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { BarChart, PieChart } from '@mui/x-charts';
@@ -28,9 +28,24 @@ const formatNumber = (v: number | string): string =>
           : v;
 
 // Compact stacked breakdown bar for Offer / Rejection / Unknown
-const ResultsBreakdown = ({ offer, rejection, unknown, acceptance, t }) => {
+interface ResultsBreakdownProps {
+    offer: number;
+    rejection: number;
+    unknown: number;
+    acceptance: string;
+    t: (key: string) => string;
+}
+
+const ResultsBreakdown = ({
+    offer,
+    rejection,
+    unknown,
+    acceptance,
+    t
+}: ResultsBreakdownProps) => {
     const total = offer + rejection + unknown;
-    const p = (n) => (total > 0 ? Math.round((n / total) * 1000) / 10 : 0);
+    const p = (n: number) =>
+        total > 0 ? Math.round((n / total) * 1000) / 10 : 0;
     const parts = [
         {
             key: 'offer',
@@ -141,11 +156,17 @@ const Overview = () => {
     const [geoView, setGeoView] = useState('map');
     const [mainView, setMainView] = useState('student');
 
-    const handleGeoViewChange = (_event, newValue: string) => {
+    const handleGeoViewChange = (
+        _event: React.SyntheticEvent,
+        newValue: string
+    ) => {
         setGeoView(newValue);
     };
 
-    const handleMainViewChange = (_event, newValue: string) => {
+    const handleMainViewChange = (
+        _event: React.SyntheticEvent,
+        newValue: string
+    ) => {
         setMainView(newValue);
     };
 

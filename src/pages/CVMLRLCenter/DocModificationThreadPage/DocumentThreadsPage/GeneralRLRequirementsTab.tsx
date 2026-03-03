@@ -17,7 +17,7 @@ import {
     TableRow,
     Typography
 } from '@mui/material';
-import { alpha, useTheme } from '@mui/material/styles';
+import { alpha, useTheme, type Theme } from '@mui/material/styles';
 import LaunchIcon from '@mui/icons-material/Launch';
 import { Link as LinkDom } from 'react-router-dom';
 
@@ -25,6 +25,18 @@ import { getStudentAndDocLinksQuery } from '@/api/query';
 import { application_deadline_V2_calculator } from '../../../Utils/util_functions';
 import DEMO from '@store/constant';
 import { Application } from '@/api/types';
+
+interface RLRow {
+    key: string;
+    school: string;
+    program_name: string;
+    program_link: string | null;
+    count_required: number | string;
+    requirement_text: string;
+    decided: string;
+    deadline: string;
+    deadlineSortValue?: number;
+}
 
 export const GeneralRLRequirementsTab = ({
     studentId
@@ -42,7 +54,7 @@ export const GeneralRLRequirementsTab = ({
     );
 
     const student = response?.data?.data || null;
-    const apps = useMemo(
+    const apps: Application[] = useMemo(
         () => student?.applications ?? [],
         [student?.applications]
     );
@@ -62,36 +74,40 @@ export const GeneralRLRequirementsTab = ({
     }, [apps]);
 
     const rlRows = useMemo(() => {
-        const rowsWithMeta = relevantApplications.map((app: Application) => {
-            const program = app.programId || {};
-            const school = program.school || '';
-            const programName = program.program_name || '';
-            const rlRequiredRaw = program.rl_required; // "0","1","2"
-            const rlRequired = normalizeCount(rlRequiredRaw);
-            const rlText =
-                (program.rl_requirements as string | undefined)?.trim() || '';
-            const decided = (app.decided || '-').toUpperCase();
-            const deadlineDisplay = application_deadline_V2_calculator(app);
-            const programLinkTarget = program?._id
-                ? DEMO.SINGLE_PROGRAM_LINK(
-                      typeof program._id === 'string'
-                          ? program._id
-                          : program._id?.toString?.() || ''
-                  )
-                : null;
+        const rowsWithMeta: RLRow[] = relevantApplications.map(
+            (app: Application) => {
+                const program = app.programId || {};
+                const school = program.school || '';
+                const programName = program.program_name || '';
+                const rlRequiredRaw = program.rl_required; // "0","1","2"
+                const rlRequired = normalizeCount(rlRequiredRaw);
+                const rlText =
+                    (program.rl_requirements as string | undefined)?.trim() ||
+                    '';
+                const decided = (app.decided || '-').toUpperCase();
+                const deadlineDisplay = application_deadline_V2_calculator(app);
+                const programLinkTarget = program?._id
+                    ? DEMO.SINGLE_PROGRAM_LINK(
+                          typeof program._id === 'string'
+                              ? program._id
+                              : program._id?.toString?.() || ''
+                      )
+                    : null;
 
-            return {
-                key: app._id,
-                school,
-                program_name: programName,
-                program_link: programLinkTarget,
-                count_required: rlRequired || '',
-                requirement_text: rlText || 'No specific instructions provided',
-                decided,
-                deadline: deadlineDisplay,
-                deadlineSortValue: getDeadlineSortValue(deadlineDisplay)
-            };
-        });
+                return {
+                    key: app._id,
+                    school,
+                    program_name: programName,
+                    program_link: programLinkTarget,
+                    count_required: rlRequired || '',
+                    requirement_text:
+                        rlText || 'No specific instructions provided',
+                    decided,
+                    deadline: deadlineDisplay,
+                    deadlineSortValue: getDeadlineSortValue(deadlineDisplay)
+                };
+            }
+        );
 
         rowsWithMeta.sort((a, b) => {
             const decidedCompare = compareDecidedStatus(a.decided, b.decided);
@@ -262,7 +278,7 @@ export const GeneralRLRequirementsTab = ({
     );
 };
 
-function normalizeCount(v) {
+function normalizeCount(v: string | number | null | undefined) {
     if (v == null) return '';
     const n = parseInt(String(v).trim(), 10);
     return Number.isNaN(n) ? '' : n;
@@ -271,7 +287,7 @@ function normalizeCount(v) {
 // Large sentinel keeps undated/rolling entries after concrete deadlines.
 const DEADLINE_FALLBACK_SORT_VALUE = Number.MAX_SAFE_INTEGER;
 
-function compareDecidedStatus(a, b) {
+function compareDecidedStatus(a: string, b: string) {
     const da = (a || '').toUpperCase();
     const db = (b || '').toUpperCase();
     if (da === db) return 0;
@@ -280,7 +296,7 @@ function compareDecidedStatus(a, b) {
     return 0;
 }
 
-function getDeadlineSortValue(deadlineText) {
+function getDeadlineSortValue(deadlineText: string | null | undefined) {
     if (!deadlineText) return DEADLINE_FALLBACK_SORT_VALUE;
     const normalized = String(deadlineText).trim();
     if (!normalized) return DEADLINE_FALLBACK_SORT_VALUE;
@@ -302,7 +318,7 @@ function getDeadlineSortValue(deadlineText) {
     return DEADLINE_FALLBACK_SORT_VALUE;
 }
 
-const containerSx = (theme) => ({
+const containerSx = (theme: Theme) => ({
     p: 3,
     borderRadius: 3,
     boxShadow:
@@ -359,7 +375,7 @@ const programLinkIconSx = {
     p: 0.25
 };
 
-const thSx = (theme) => ({
+const thSx = (theme: Theme) => ({
     borderBottom: '2px solid',
     borderColor: 'divider',
     textAlign: 'left',
@@ -376,7 +392,7 @@ const thSx = (theme) => ({
     textTransform: 'uppercase'
 });
 
-const tdSx = (theme) => ({
+const tdSx = (theme: Theme) => ({
     borderBottom: '1px solid',
     borderColor: 'divider',
     py: 1.5,
@@ -388,7 +404,7 @@ const tdSx = (theme) => ({
     wordBreak: 'break-word'
 });
 
-const rowStatusSx = (theme) => {
+const rowStatusSx = (theme: Theme) => {
     const isDark = theme.palette.mode === 'dark';
     const successColor = theme.palette.success.main;
     const decidedBg = isDark

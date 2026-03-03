@@ -9,8 +9,13 @@ import DEMO from '@store/constant';
 import { BASE_URL } from '@/api';
 import { getAdmissionsQuery } from '@/api/query';
 import { MuiDataGrid } from '@components/MuiDataGrid';
+import type { GridRenderCellParams } from '@mui/x-data-grid';
 
-export default function AdmissionTable({ query }) {
+interface AdmissionTableProps {
+    query: Record<string, unknown>;
+}
+
+export default function AdmissionTable({ query }: AdmissionTableProps) {
     const { t } = useTranslation();
     const { data, isLoading } = useQuery(
         getAdmissionsQuery(queryString.stringify(query))
@@ -24,7 +29,7 @@ export default function AdmissionTable({ query }) {
                 align: 'left',
                 headerAlign: 'left',
                 width: 80,
-                renderCell: (params) => {
+                renderCell: (params: GridRenderCellParams) => {
                     const linkUrl = `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
                         params.row.student_id,
                         DEMO.PROFILE_HASH
@@ -47,7 +52,7 @@ export default function AdmissionTable({ query }) {
                 align: 'left',
                 headerAlign: 'left',
                 width: 80,
-                renderCell: (params) => {
+                renderCell: (params: GridRenderCellParams) => {
                     const linkUrl = `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
                         params.row.student_id,
                         DEMO.PROFILE_HASH
@@ -70,7 +75,7 @@ export default function AdmissionTable({ query }) {
                 align: 'left',
                 headerAlign: 'left',
                 width: 150,
-                renderCell: (params) => {
+                renderCell: (params: GridRenderCellParams) => {
                     const linkUrl = `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
                         params.row.student_id,
                         DEMO.PROFILE_HASH
@@ -101,7 +106,7 @@ export default function AdmissionTable({ query }) {
                 field: 'school',
                 headerName: t('School', { ns: 'common' }),
                 width: 250,
-                renderCell: (params) => {
+                renderCell: (params: GridRenderCellParams) => {
                     const linkUrl = `${DEMO.SINGLE_PROGRAM_LINK(params.row.programId)}`;
                     return (
                         <Link
@@ -119,7 +124,7 @@ export default function AdmissionTable({ query }) {
                 field: 'program_name',
                 headerName: t('Program', { ns: 'common' }),
                 width: 250,
-                renderCell: (params) => {
+                renderCell: (params: GridRenderCellParams) => {
                     const linkUrl = `${DEMO.SINGLE_PROGRAM_LINK(params.row.programId)}`;
                     return (
                         <Link
@@ -152,7 +157,7 @@ export default function AdmissionTable({ query }) {
                 field: 'admission_file_path',
                 headerName: t('Admission Letter', { ns: 'common' }),
                 width: 150,
-                renderCell: (params) => {
+                renderCell: (params: GridRenderCellParams) => {
                     const linkUrl = `${BASE_URL}/api/admissions/${params.row.admission_file_path?.replace(
                         /\\/g,
                         '/'
@@ -189,31 +194,65 @@ export default function AdmissionTable({ query }) {
             columns={memoizedColumns}
             isLoading={isLoading}
             rows={
-                data?.data.map((application) => ({
-                    ...application,
-                    id: `${application._id}${application.programId}`,
-                    programId: application.programId?._id,
-                    firstname: application.studentId?.firstname,
-                    lastname: application.studentId?.lastname,
-                    firstname_chinese: application.studentId?.firstname_chinese,
-                    lastname_chinese: application.studentId?.lastname_chinese,
-                    student_id: application.studentId?._id,
-                    agents: application.studentId?.agents
-                        ?.map((agent) => agent.firstname)
-                        .join(' '),
-                    editors: application.studentId?.editors
-                        ?.map((editor) => editor.firstname)
-                        .join(' '),
-                    school: application.programId?.school,
-                    program_name: application.programId?.program_name,
-                    semester: application.programId?.semester,
-                    degree: application.programId?.degree,
-                    name: `${application.studentId?.firstname}, ${application.studentId?.lastname}`,
-                    finalEnrolment: application.finalEnrolment ? 'O' : '',
-                    admission_file_path:
-                        application.admission_letter?.admission_file_path,
-                    application_year: application.application_year
-                })) || []
+                data?.data.map(
+                    (application: {
+                        _id: string;
+                        programId?: {
+                            _id?: string;
+                            school?: string;
+                            program_name?: string;
+                            semester?: string;
+                            degree?: string;
+                        };
+                        studentId?: {
+                            _id?: string;
+                            firstname?: string;
+                            lastname?: string;
+                            firstname_chinese?: string;
+                            lastname_chinese?: string;
+                            agents?: { firstname?: string }[];
+                            editors?: { firstname?: string }[];
+                        };
+                        finalEnrolment?: boolean;
+                        admission_letter?: { admission_file_path?: string };
+                        application_year?: string;
+                        decided?: string;
+                        admission?: string;
+                        [key: string]: unknown;
+                    }) => ({
+                        ...application,
+                        id: `${application._id}${application.programId}`,
+                        programId: application.programId?._id,
+                        firstname: application.studentId?.firstname,
+                        lastname: application.studentId?.lastname,
+                        firstname_chinese:
+                            application.studentId?.firstname_chinese,
+                        lastname_chinese:
+                            application.studentId?.lastname_chinese,
+                        student_id: application.studentId?._id,
+                        agents: application.studentId?.agents
+                            ?.map(
+                                (agent: { firstname?: string }) =>
+                                    agent.firstname
+                            )
+                            .join(' '),
+                        editors: application.studentId?.editors
+                            ?.map(
+                                (editor: { firstname?: string }) =>
+                                    editor.firstname
+                            )
+                            .join(' '),
+                        school: application.programId?.school,
+                        program_name: application.programId?.program_name,
+                        semester: application.programId?.semester,
+                        degree: application.programId?.degree,
+                        name: `${application.studentId?.firstname}, ${application.studentId?.lastname}`,
+                        finalEnrolment: application.finalEnrolment ? 'O' : '',
+                        admission_file_path:
+                            application.admission_letter?.admission_file_path,
+                        application_year: application.application_year
+                    })
+                ) || []
             }
         />
     );
