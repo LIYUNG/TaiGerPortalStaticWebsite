@@ -154,17 +154,18 @@ export const MissingSurveyFieldsListArray = ({
             {
                 key: 'targetApplicationSubjects',
                 label: 'Target Application Subjects',
-                check: (value) => !value || value.length === 0
+                check: (value: string | string[] | undefined) =>
+                    !value || value.length === 0
             },
             {
                 key: 'considered_privat_universities',
                 label: 'Considering private universities? (Tuition Fee: ~15000 EURO/year)',
-                check: (value) => value === '-'
+                check: (value: string | string[] | undefined) => value === '-'
             },
             {
                 key: 'application_outside_germany',
                 label: 'Considering universities outside Germany?',
-                check: (value) => value === '-'
+                check: (value: string | string[] | undefined) => value === '-'
             }
         ];
 

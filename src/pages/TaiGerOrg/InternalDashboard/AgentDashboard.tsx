@@ -1,7 +1,21 @@
 import { Box, Typography, Grid } from '@mui/material';
 import { BarChart as MuiBarChart } from '@mui/x-charts/BarChart';
 
-const AgentBarCharts = ({ agentDistr }) => {
+interface AgentDistribution {
+    name: string;
+    admission: Record<string, number>;
+    noAdmission: Record<string, number>;
+}
+
+interface AgentBarChartsProps {
+    agentDistr: AgentDistribution;
+}
+
+interface AgentDashboardProps {
+    agentStudentDistribution: AgentDistribution[];
+}
+
+const AgentBarCharts = ({ agentDistr }: AgentBarChartsProps) => {
     // Extract unique years from both arrays
 
     const combinedKeys = Array.from(
@@ -41,7 +55,7 @@ const AgentBarCharts = ({ agentDistr }) => {
     );
 };
 
-const AgentDashboard = ({ agentStudentDistribution }) => {
+const AgentDashboard = ({ agentStudentDistribution }: AgentDashboardProps) => {
     return (
         <Grid container spacing={2}>
             <Grid item xs={12}>

@@ -8,9 +8,24 @@ import {
     TextField
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import { OutputData } from '@editorjs/editorjs';
 
 import DocumentsListItemsEditor from './DocumentsListItemsEditor';
 import { valid_categories, valid_internal_categories } from '@utils/contants';
+
+interface SingleDocEditProps {
+    editorState: OutputData | null;
+    document_title: string;
+    category: string;
+    handleClickSave: (
+        e: React.MouseEvent<HTMLElement>,
+        category: string,
+        doc_title: string,
+        editorState: unknown
+    ) => void;
+    handleClickEditToggle: () => void;
+    internal?: boolean;
+}
 
 const SingleDocEdit = ({
     editorState,
@@ -19,7 +34,7 @@ const SingleDocEdit = ({
     handleClickSave,
     handleClickEditToggle,
     internal
-}) => {
+}: SingleDocEditProps) => {
     const { t } = useTranslation();
     const [singleDocEditState, setSingleDocEdit] = useState({
         doc_title: document_title,

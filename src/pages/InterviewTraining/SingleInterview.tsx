@@ -125,7 +125,11 @@ const InterviewMetadataSidebar = ({
     const [showTrainerModal, setShowTrainerModal] = useState(false);
     const [editors, setEditors] = useState([]);
     const [trainerId, setTrainerId] = useState(
-        new Set(interview.trainer_id?.map((t_id) => t_id._id.toString()))
+        new Set(
+            interview.trainer_id?.map((t_id: IUserWithId) =>
+                t_id._id.toString()
+            )
+        )
     );
 
     // State for interview time
@@ -284,7 +288,11 @@ const InterviewMetadataSidebar = ({
 
     const toggleTrainerModal = () => {
         setTrainerId(
-            new Set(interview.trainer_id.map((t_id) => t_id._id.toString()))
+            new Set(
+                interview.trainer_id.map((t_id: IUserWithId) =>
+                    t_id._id.toString()
+                )
+            )
         );
         setShowTrainerModal(!showTrainerModal);
     };
@@ -541,7 +549,10 @@ const InterviewMetadataSidebar = ({
                                         gap={0.75}
                                     >
                                         {interview.trainer_id.map(
-                                            (trainer, idx) => (
+                                            (
+                                                trainer: IUserWithId,
+                                                idx: number
+                                            ) => (
                                                 <Tooltip
                                                     key={idx}
                                                     title={`${trainer.firstname} ${trainer.lastname}`}
@@ -1515,7 +1526,7 @@ const SingleInterview = () => {
         const formData = new FormData();
 
         if (file) {
-            file.forEach((f) => formData.append('files', f));
+            file.forEach((f: File) => formData.append('files', f));
         }
         formData.append('message', message);
 

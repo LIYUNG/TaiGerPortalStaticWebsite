@@ -67,14 +67,20 @@ const Audit = ({ audit }: AuditProps) => {
                                 ].includes(record?.field);
                                 const addedUsers = record?.changes?.after?.added
                                     ?.map(
-                                        (user) =>
+                                        (user: {
+                                            firstname: string;
+                                            lastname: string;
+                                        }) =>
                                             `${user.firstname} ${user.lastname}`
                                     )
                                     .join(', ');
                                 const removedUsers =
                                     record?.changes?.after?.removed
                                         ?.map(
-                                            (user) =>
+                                            (user: {
+                                                firstname: string;
+                                                lastname: string;
+                                            }) =>
                                                 `${user.firstname} ${user.lastname}`
                                         )
                                         .join(', ');

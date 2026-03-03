@@ -29,8 +29,45 @@ import {
 } from '@utils/contants';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
+import type {
+    IApplicationPopulated,
+    IDocumentthreadWithId,
+    IStudentResponse
+} from '@taiger-common/model';
 
-const EditableFileThread = (props) => {
+interface EditableFileThreadThread {
+    _id: string;
+    isFinalVersion?: boolean;
+    doc_thread_id: IDocumentthreadWithId;
+}
+
+interface EditableFileThreadProps {
+    application: IApplicationPopulated | null;
+    decided?: string;
+    handleAsFinalFile: (
+        docThreadId: string,
+        studentId: string,
+        applicationId: string | undefined,
+        isFinal: boolean,
+        documenName: string
+    ) => void;
+    isProgramLocked?: boolean;
+    isApplicationLocked?: boolean;
+    onDeleteFileThread: (
+        docThreadId: string,
+        application: IApplicationPopulated | null,
+        studentId: string,
+        documenName: string
+    ) => void;
+    onDeleteProgramSpecificThread?: (...args: unknown[]) => void;
+    onFormSubmit?: (...args: unknown[]) => void;
+    onTrashClick?: (...args: unknown[]) => void;
+    program_id?: string;
+    student: IStudentResponse;
+    thread: EditableFileThreadThread;
+}
+
+const EditableFileThread = (props: EditableFileThreadProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
     // Always use calculateApplicationLockStatus for consistency
@@ -71,7 +108,7 @@ const EditableFileThread = (props) => {
         );
     };
 
-    const handleDeleteFileThread = (documenName) => {
+    const handleDeleteFileThread = (documenName: string) => {
         if (isLocked) {
             return;
         }

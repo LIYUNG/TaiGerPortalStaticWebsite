@@ -11,12 +11,21 @@ import {
     Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import type { IInterviewWithId } from '@taiger-common/model';
 import ModalMain from '../../Utils/ModalHandler/ModalMain';
 import { updateInterview } from '@/api';
 import NoTrainersInterviewsCard from '@pages/Dashboard/MainViewTab/NoTrainersInterviewsCard/NoTrainersInterviewsCard';
 import i18next from 'i18next';
 
-const InterviewsTable = ({ noTrainerInterviews }) => (
+interface InterviewsTableProps {
+    noTrainerInterviews: React.ReactNode;
+}
+
+interface AssignInterviewTrainersPageProps {
+    interviews: IInterviewWithId[];
+}
+
+const InterviewsTable = ({ noTrainerInterviews }: InterviewsTableProps) => (
     <TableContainer sx={{ overflowX: 'auto' }}>
         <Table size="small">
             <TableHead>
@@ -38,7 +47,9 @@ const InterviewsTable = ({ noTrainerInterviews }) => (
     </TableContainer>
 );
 
-const AssignInterviewTrainersPage = ({ interviews }) => {
+const AssignInterviewTrainersPage = ({
+    interviews
+}: AssignInterviewTrainersPageProps) => {
     const { t } = useTranslation();
 
     const [state, setState] = useState({
@@ -51,7 +62,7 @@ const AssignInterviewTrainersPage = ({ interviews }) => {
     });
 
     const updateInterviewTrainerList = useCallback(
-        async (trainer_ids, interview_id) => {
+        async (trainer_ids: Record<string, boolean>, interview_id: string) => {
             try {
                 // Get the selected trainer IDs (where value is true)
                 const selectedTrainerIds = Object.entries(trainer_ids)
@@ -73,7 +84,7 @@ const AssignInterviewTrainersPage = ({ interviews }) => {
                 setState((prevState) => {
                     if (success) {
                         const updatedInterviews = prevState.interviews.map(
-                            (interview) =>
+                            (interview: IInterviewWithId) =>
                                 interview._id === interview_id
                                     ? data
                                     : interview
@@ -130,10 +141,10 @@ const AssignInterviewTrainersPage = ({ interviews }) => {
     const noTrainerInterviews = useMemo(() => {
         return state.interviews
             .filter(
-                (interview) =>
+                (interview: IInterviewWithId) =>
                     !interview.trainer_id || interview.trainer_id.length === 0
             )
-            .map((interview) => (
+            .map((interview: IInterviewWithId) => (
                 <NoTrainersInterviewsCard
                     interview={interview}
                     key={interview._id}

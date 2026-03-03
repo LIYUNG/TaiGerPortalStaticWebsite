@@ -23,8 +23,15 @@ import { appConfig } from '../../config';
 import DEMO from '@store/constant';
 
 import { convertDateUXFriendly } from '@utils/contants';
+import type { IComplaintWithId } from '@taiger-common/model';
 
-const CustomerSupportBody = ({ complaintTickets }) => {
+interface CustomerSupportBodyProps {
+    complaintTickets: IComplaintWithId[];
+}
+
+const CustomerSupportBody = ({
+    complaintTickets
+}: CustomerSupportBodyProps) => {
     const { t } = useTranslation();
     const navigate = useNavigate();
 

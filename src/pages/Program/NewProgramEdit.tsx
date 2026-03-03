@@ -61,16 +61,21 @@ const NewProgramEdit = (props: NewProgramEditProps) => {
         new Set(props.programs?.map((program) => program.school))
     );
 
-    const handleChangeByField = (field: keyof IProgram) => (value) => {
-        const newState = { ...programChanges };
-        if (value === initProgram[field] || (!initProgram[field] && !value)) {
-            delete newState[field];
-        } else {
-            newState[field] = value;
-        }
-        setProgramChanges(newState);
-        setIsChanged(Object.keys(newState).length > 0 ? true : false);
-    };
+    const handleChangeByField =
+        <K extends keyof IProgram>(field: K) =>
+        (value: IProgram[K]) => {
+            const newState = { ...programChanges };
+            if (
+                value === initProgram[field] ||
+                (!initProgram[field] && !value)
+            ) {
+                delete newState[field];
+            } else {
+                (newState as Record<string, unknown>)[field] = value;
+            }
+            setProgramChanges(newState);
+            setIsChanged(Object.keys(newState).length > 0 ? true : false);
+        };
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const key = e.target?.name as keyof IProgram;
@@ -107,7 +112,7 @@ const NewProgramEdit = (props: NewProgramEditProps) => {
         }
     };
 
-    const onClickResultHandler = (result) => {
+    const onClickResultHandler = (result: string) => {
         setProgramChanges((preState) => ({
             ...preState.program,
             school: result

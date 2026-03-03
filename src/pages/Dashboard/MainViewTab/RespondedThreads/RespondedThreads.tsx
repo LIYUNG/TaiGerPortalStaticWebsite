@@ -15,7 +15,11 @@ export interface RespondedThreadsProps {
 
 const RespondedThreads = ({ student }: RespondedThreadsProps) => {
     const { t } = useTranslation();
-    const renderThreadLink = (content, url, locked) => {
+    const renderThreadLink = (
+        content: React.ReactNode,
+        url: string,
+        locked: boolean
+    ) => {
         if (locked) {
             return (
                 <Tooltip

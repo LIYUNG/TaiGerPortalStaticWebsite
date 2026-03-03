@@ -20,7 +20,11 @@ import {
 } from '@/api/query';
 import ChildLoading from '@components/Loading/ChildLoading';
 
-export const InterviewFeedback = ({ interview }) => {
+interface InterviewFeedbackProps {
+    interview: Record<string, any>;
+}
+
+export const InterviewFeedback = ({ interview }: InterviewFeedbackProps) => {
     const { t } = useTranslation();
     const { user } = useAuth();
     const { data: studentInterviews, isLoading: isStudentInterviewsLoading } =
@@ -73,7 +77,12 @@ export const InterviewFeedback = ({ interview }) => {
                             <Box>
                                 <Box pl={2}>
                                     {programInterviews?.data?.map(
-                                        (programInterview) =>
+                                        (
+                                            programInterview: Record<
+                                                string,
+                                                any
+                                            >
+                                        ) =>
                                             programInterview._id !==
                                                 interview._id && (
                                                 <Link
@@ -97,7 +106,12 @@ export const InterviewFeedback = ({ interview }) => {
                                                         .surveyResponses
                                                         ?.length > 0 &&
                                                         (programInterview.surveyResponses.some(
-                                                            (response) =>
+                                                            (
+                                                                response: Record<
+                                                                    string,
+                                                                    any
+                                                                >
+                                                            ) =>
                                                                 response.isFinal
                                                         ) ? (
                                                             <CheckCircleIcon
@@ -126,7 +140,7 @@ export const InterviewFeedback = ({ interview }) => {
                                     >
                                         {t('Total interview records:')}{' '}
                                         {programInterviews?.data?.filter(
-                                            (i) =>
+                                            (i: Record<string, any>) =>
                                                 i.isClosed === true &&
                                                 i._id !== interview._id
                                         )?.length || 0}
@@ -167,7 +181,12 @@ export const InterviewFeedback = ({ interview }) => {
                             <Box>
                                 <Box pl={2}>
                                     {studentInterviews?.data?.map(
-                                        (studentInterview) =>
+                                        (
+                                            studentInterview: Record<
+                                                string,
+                                                any
+                                            >
+                                        ) =>
                                             studentInterview._id !==
                                                 interview._id && (
                                                 <Link
@@ -192,7 +211,7 @@ export const InterviewFeedback = ({ interview }) => {
                                     >
                                         {t('Total interview records:')}{' '}
                                         {studentInterviews?.data?.filter(
-                                            (inv) =>
+                                            (inv: Record<string, any>) =>
                                                 inv.isClosed === true &&
                                                 inv._id !== interview._id
                                         )?.length || 0}

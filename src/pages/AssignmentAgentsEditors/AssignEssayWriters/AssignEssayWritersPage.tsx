@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, type FormEvent } from 'react';
+import React, { useCallback, useMemo, useState, type FormEvent } from 'react';
 import {
     Box,
     Card,
@@ -11,13 +11,22 @@ import {
     Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import type { IDocumentthreadPopulated } from '@taiger-common/model';
 
 import ModalMain from '../../Utils/ModalHandler/ModalMain';
 import { updateEssayWriter } from '@/api';
 import NoWritersEssaysCard from '@pages/Dashboard/MainViewTab/NoWritersEssaysCard/NoWritersEssaysCard';
 import i18next from 'i18next';
 
-const EssaysTable = ({ noWriterEssays }) => (
+interface EssaysTableProps {
+    noWriterEssays: React.ReactNode;
+}
+
+interface AssignEssayWritersPageProps {
+    essayDocumentThreads: IDocumentthreadPopulated[];
+}
+
+const EssaysTable = ({ noWriterEssays }: EssaysTableProps) => (
     <TableContainer sx={{ overflowX: 'auto' }}>
         <Table size="small">
             <TableHead>
@@ -51,7 +60,9 @@ const EssaysTable = ({ noWriterEssays }) => (
     </TableContainer>
 );
 
-const AssignEssayWritersPage = ({ essayDocumentThreads }) => {
+const AssignEssayWritersPage = ({
+    essayDocumentThreads
+}: AssignEssayWritersPageProps) => {
     const { t } = useTranslation();
 
     const [state, setState] = useState({
@@ -64,7 +75,7 @@ const AssignEssayWritersPage = ({ essayDocumentThreads }) => {
     });
 
     const updateEssayWriterList = useCallback(
-        async (updateEditorList, essayDocumentThread_id) => {
+        async (updateEditorList: string, essayDocumentThread_id: string) => {
             try {
                 const resp = await updateEssayWriter(
                     updateEditorList,
@@ -76,10 +87,11 @@ const AssignEssayWritersPage = ({ essayDocumentThreads }) => {
                 setState((prevState) => {
                     if (success) {
                         const updatedThreads =
-                            prevState.essayDocumentThreads.map((thread) =>
-                                thread._id === essayDocumentThread_id
-                                    ? data
-                                    : thread
+                            prevState.essayDocumentThreads.map(
+                                (thread: IDocumentthreadPopulated) =>
+                                    thread._id === essayDocumentThread_id
+                                        ? data
+                                        : thread
                             );
                         return {
                             ...prevState,
@@ -132,8 +144,10 @@ const AssignEssayWritersPage = ({ essayDocumentThreads }) => {
 
     const noWriterEssays = useMemo(() => {
         return state.essayDocumentThreads
-            .filter((thread) => !thread.isFinalVersion)
-            .map((essayDocumentThread) => (
+            .filter(
+                (thread: IDocumentthreadPopulated) => !thread.isFinalVersion
+            )
+            .map((essayDocumentThread: IDocumentthreadPopulated) => (
                 <NoWritersEssaysCard
                     essayDocumentThread={essayDocumentThread}
                     key={essayDocumentThread._id}

@@ -53,7 +53,7 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
             }));
         });
     }, [props.editorState]);
-    const handleEditorChange = (content) => {
+    const handleEditorChange = (content: unknown) => {
         setStatedata((state) => ({
             ...state,
             editorState: content

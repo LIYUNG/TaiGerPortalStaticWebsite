@@ -53,6 +53,9 @@ export interface MessageProps {
         ignoredMessageBy?: MessageUser;
         ignoredMessageUpdatedAt?: unknown;
         files?: Array<{ name: string; path: string }>;
+        student_id?: MessageUser;
+        readBy?: MessageUser[];
+        timeStampReadBy?: Record<string, string>;
     };
     onEditMode: () => void;
     isDeleting: boolean;
@@ -172,7 +175,7 @@ const Message = ({
         }));
     };
 
-    const handleClick = (filePath, fileName) => {
+    const handleClick = (filePath: string, fileName: string) => {
         setMessageState((prevState) => ({
             ...prevState,
             filePath,

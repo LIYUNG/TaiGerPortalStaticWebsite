@@ -146,7 +146,7 @@ export const UniAssistProgramBlock = ({
         useState(false);
     const [notNeededModelOpen, setAsNotNeededModelOpen] = useState(false);
     const [applicationState, setApplicationState] = useState(application);
-    const handleMutationError = (error) => {
+    const handleMutationError = (error: Error) => {
         setSeverity('error');
         setMessage(error.message || 'An error occurred. Please try again.');
         setOpenSnackbar(true);

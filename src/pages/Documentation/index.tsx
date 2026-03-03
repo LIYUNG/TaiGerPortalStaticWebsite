@@ -7,7 +7,10 @@ import DocPageEdit from './DocPageEdit';
 import { valid_categories } from '@utils/contants';
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
-import { getCategorizedDocumentationPage, updateDocumentationPage } from '@/api';
+import {
+    getCategorizedDocumentationPage,
+    updateDocumentationPage
+} from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
@@ -16,7 +19,11 @@ import { appConfig } from '../../config';
 import { useTranslation } from 'react-i18next';
 import { Role } from '@taiger-common/core';
 
-const Documentation = (props) => {
+interface DocumentationProps {
+    item?: string;
+}
+
+const Documentation = (props: DocumentationProps) => {
     const { category } = useParams();
     const { user } = useAuth();
     const { t } = useTranslation();

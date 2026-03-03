@@ -12,6 +12,7 @@ import {
     is_TaiGer_Editor,
     is_TaiGer_role
 } from '@taiger-common/core';
+import type { ITicketWithId } from '@taiger-common/model';
 
 import {
     createProgramReport,
@@ -93,7 +94,7 @@ const ProgramReport = ({
         }));
     };
 
-    const handleReportDeleteClick = (ticket) => {
+    const handleReportDeleteClick = (ticket: ITicketWithId) => {
         setProgramReportState((prevState) => ({
             ...prevState,
             isReportDelete: !programReportState.isReportDelete,
@@ -101,7 +102,7 @@ const ProgramReport = ({
         }));
     };
 
-    const handleReportUpdateClick = (ticket) => {
+    const handleReportUpdateClick = (ticket: ITicketWithId) => {
         setProgramReportState((prevState) => ({
             ...prevState,
             isUpdateReport: !programReportState.isUpdateReport,
@@ -130,7 +131,7 @@ const ProgramReport = ({
         }));
     };
 
-    const submitProgramReport = (progrgam_id, description) => {
+    const submitProgramReport = (progrgam_id: string, description: string) => {
         createProgramReport(progrgam_id, description, 'program').then(
             (resp) => {
                 const { success, data } = resp.data;
@@ -167,7 +168,10 @@ const ProgramReport = ({
         );
     };
 
-    const submitProgramUpdateReport = (ticket_id, updatedTicket) => {
+    const submitProgramUpdateReport = (
+        ticket_id: string,
+        updatedTicket: Record<string, unknown>
+    ) => {
         updateProgramTicket(ticket_id, updatedTicket).then(
             (resp) => {
                 const { success, data } = resp.data;

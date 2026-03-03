@@ -11,6 +11,7 @@ import { appConfig } from '../../config';
 import Loading from '@components/Loading/Loading';
 import { BaseDocumentsTable } from './BaseDocumentsTable';
 import { useStudentsAndDocLinks } from '@hooks/useStudentsAndDocLinks';
+import type { IStudentResponse } from '@taiger-common/model';
 
 const BaseDocuments = () => {
     const { user } = useAuth();
@@ -22,7 +23,7 @@ const BaseDocuments = () => {
     TabTitle('Base Documents');
 
     const StudentDocoumentsView = () =>
-        students?.map((student, i) => (
+        students?.map((student: IStudentResponse, i: number) => (
             <Card key={i}>
                 <BaseDocumentStudentView
                     base_docs_link={base_docs_link}

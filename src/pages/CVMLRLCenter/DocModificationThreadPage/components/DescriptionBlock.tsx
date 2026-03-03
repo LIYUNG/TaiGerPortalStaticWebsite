@@ -5,13 +5,27 @@ import ArticleIcon from '@mui/icons-material/Article';
 import DownloadIcon from '@mui/icons-material/Download';
 import { useTranslation } from 'react-i18next';
 import { is_TaiGer_role } from '@taiger-common/core';
+import type {
+    IDocumentthreadPopulated,
+    ITemplateWithId
+} from '@taiger-common/model';
 
 import { useAuth } from '@components/AuthProvider';
 import DEMO from '@store/constant';
 import { BASE_URL } from '@/api';
 import { appConfig } from '../../../../config';
 
-const DescriptionBlock = ({ thread, template_obj, documentsthreadId }) => {
+interface DescriptionBlockProps {
+    thread: IDocumentthreadPopulated;
+    template_obj: ITemplateWithId | null;
+    documentsthreadId: string;
+}
+
+const DescriptionBlock = ({
+    thread,
+    template_obj,
+    documentsthreadId
+}: DescriptionBlockProps) => {
     const { user } = useAuth();
     const theme = useTheme();
     const { t } = useTranslation();

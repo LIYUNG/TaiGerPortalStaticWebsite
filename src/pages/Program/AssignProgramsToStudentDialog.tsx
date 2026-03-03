@@ -15,7 +15,7 @@ import {
     FormControl,
     FormGroup
 } from '@mui/material';
-import { MouseEvent, useState } from 'react';
+import { ChangeEvent, MouseEvent, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
@@ -64,7 +64,7 @@ export const AssignProgramsToStudentDialog = ({
     } = useStudentsV3(currentFilter, { enabled: open });
 
     // Refetch data when filter changes
-    const handleFilterToggle = (event) => {
+    const handleFilterToggle = (event: ChangeEvent<HTMLInputElement>) => {
         setShowMyStudentsOnly(event.target.checked);
     };
 

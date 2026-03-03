@@ -40,7 +40,11 @@ import VPDToSubmitTasksCard from '../MainViewTab/AgentTasks/VPDToSubmitTasksCard
 import { useAuth } from '@components/AuthProvider';
 import { useTranslation } from 'react-i18next';
 import Banner from '@components/Banner/Banner';
-import type { IStudentResponse, IUserWithId } from '@taiger-common/model';
+import type {
+    IAgentNotificationItem,
+    IStudentResponse,
+    IUserWithId
+} from '@taiger-common/model';
 import type { IDocumentthread } from '@taiger-common/model';
 
 export interface ManagerMainViewProps {
@@ -78,7 +82,10 @@ const ManagerMainView = ({
         const temp_user = { ...user };
         const idx = temp_user.agent_notification[
             `${notification_key}`
-        ].findIndex((student_obj) => student_obj.student_id === student_id);
+        ].findIndex(
+            (student_obj: IAgentNotificationItem) =>
+                student_obj.student_id === student_id
+        );
         temp_user.agent_notification[`${notification_key}`].splice(idx, 1);
 
         setManagerMainViewState((prevState) => ({
@@ -167,7 +174,7 @@ const ManagerMainView = ({
     return (
         <>
             {managerMainViewState.notification?.isRead_new_base_docs_uploaded.map(
-                (student, i) => (
+                (student: IAgentNotificationItem, i: number) => (
                     <Box key={i}>
                         <Card>
                             <Banner

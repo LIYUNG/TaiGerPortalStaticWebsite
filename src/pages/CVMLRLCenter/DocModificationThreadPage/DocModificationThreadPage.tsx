@@ -123,14 +123,36 @@ const DocModificationThreadPage = ({
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
     const { t } = useTranslation();
     const [docModificationThreadPageState, setDocModificationThreadPageState] =
-        useState({
+        useState<{
+            error: string;
+            file: File[] | null;
+            threadAuditLog: unknown;
+            showEditorPage: boolean;
+            isSubmissionLoaded: boolean;
+            isLoaded: boolean;
+            thread: DocModificationThreadPageThread;
+            buttonDisabled: boolean;
+            editorState: Record<string, unknown>;
+            expand: boolean;
+            editors: unknown;
+            isSubmitting: boolean;
+            agents: unknown;
+            conflict_list: unknown;
+            deadline: unknown;
+            SetAsFinalFileModel: boolean;
+            accordionKeys: number[];
+            res_status: number;
+            res_modal_status: number;
+            res_modal_message: string;
+            [key: string]: unknown;
+        }>({
             error: '',
             file: null,
             threadAuditLog: threadauditLog,
             showEditorPage: false,
             isSubmissionLoaded: true,
             isLoaded: true,
-            thread: threadProps,
+            thread: threadProps as DocModificationThreadPageThread,
             buttonDisabled: false,
             editorState: {},
             expand: true,
@@ -145,7 +167,7 @@ const DocModificationThreadPage = ({
             res_modal_status: 0,
             res_modal_message: ''
         });
-    const [checkResult, setCheckResult] = useState([]);
+    const [checkResult, setCheckResult] = useState<unknown[]>([]);
     const { hash } = useLocation();
     const thread: DocModificationThreadPageThread =
         (docModificationThreadPageState.thread as DocModificationThreadPageThread) ||
@@ -182,7 +204,9 @@ const DocModificationThreadPage = ({
     const isThreadClosed = thread?.isFinalVersion === true;
     const isReadOnlyThread = isLocked || isThreadClosed;
     const hashKey = hash?.replace('#', '') || '';
-    const [value, setValue] = useState(THREAD_TABS[hashKey] ?? 0);
+    const [value, setValue] = useState(
+        (THREAD_TABS as Record<string, number>)[hashKey] ?? 0
+    );
     useEffect(() => {
         setDocModificationThreadPageState((prevState) => ({
             ...prevState,
@@ -491,7 +515,10 @@ const DocModificationThreadPage = ({
                     ];
                     const idx =
                         docModificationThreadPageState.thread.messages.findIndex(
-                            (message) => message._id.toString() === message_id
+                            (message: {
+                                _id: { toString(): string };
+                                [key: string]: unknown;
+                            }) => message._id.toString() === message_id
                         );
                     if (idx !== -1) {
                         new_messages.splice(idx, 1);
@@ -610,7 +637,7 @@ const DocModificationThreadPage = ({
         );
     };
 
-    const handleFavoriteToggle = (id) => {
+    const handleFavoriteToggle = (id: string) => {
         // Make sure flag_by_user_id is an array
 
         setDocModificationThreadPageState((prevState) => ({
@@ -695,7 +722,7 @@ const DocModificationThreadPage = ({
         audit: 'audit'
     };
 
-    const legacyHashKeyMap = {
+    const legacyHashKeyMap: Record<string, string> = {
         communication: TAB_KEYS.discussion,
         history: TAB_KEYS.files,
         audit: TAB_KEYS.audit
@@ -715,7 +742,7 @@ const DocModificationThreadPage = ({
     }, [isGeneralRL, isTaiGerUser, TAB_KEYS]);
 
     const tabIndexMap = useMemo(() => {
-        const map = {};
+        const map: Record<string, number> = {};
         tabKeys.forEach((key, index) => {
             map[key] = index;
         });
@@ -723,7 +750,7 @@ const DocModificationThreadPage = ({
     }, [tabKeys]);
 
     const tabKeyByIndex = useMemo(() => {
-        const map = {};
+        const map: Record<number, string> = {};
         tabKeys.forEach((key, index) => {
             map[index] = key;
         });
@@ -761,7 +788,7 @@ const DocModificationThreadPage = ({
         return <ErrorPage res_status={res_status} />;
     }
 
-    const handleChange = (event, newValue) => {
+    const handleChange = (event: React.SyntheticEvent, newValue: number) => {
         setValue(newValue);
         const nextHashKey = tabKeyByIndex[newValue];
         if (nextHashKey) {
@@ -1100,7 +1127,20 @@ const DocModificationThreadPage = ({
                 <CustomTabPanel index={databaseTabIndex} value={value}>
                     {similarThreads && similarThreads?.length > 0 ? (
                         <Stack spacing={1.5} sx={{ mx: 2 }}>
-                            {similarThreads.map((t) => (
+                            {(
+                                similarThreads as Array<{
+                                    _id: string;
+                                    student_id?: {
+                                        firstname?: string;
+                                        lastname?: string;
+                                    };
+                                    application_id?: {
+                                        application_year?: string;
+                                        admission?: string;
+                                    };
+                                    file_type?: string;
+                                }>
+                            ).map((t) => (
                                 <Card
                                     key={t._id}
                                     sx={{

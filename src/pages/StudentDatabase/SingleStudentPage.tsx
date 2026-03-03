@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type SyntheticEvent } from 'react';
 import {
     Navigate,
     Link as LinkDom,
@@ -197,12 +197,16 @@ export const SingleStudentPageMainContent = ({
         setValue(SINGLE_STUDENT_TABS[key] ?? 0);
     }, [hash]);
 
-    const handleChange = (event, newValue) => {
+    const handleChange = (_event: SyntheticEvent, newValue: number) => {
         setValue(newValue);
         window.location.hash = SINGLE_STUDENT_REVERSED_TABS[newValue];
     };
 
-    const updateStudentArchivStatus = (studentId, isArchived, shouldInform) => {
+    const updateStudentArchivStatus = (
+        studentId: string,
+        isArchived: boolean,
+        shouldInform: boolean
+    ) => {
         updateArchivStudents(studentId, isArchived, shouldInform).then(
             (resp) => {
                 const { success } = resp.data;
@@ -744,9 +748,7 @@ export const SingleStudentPageMainContent = ({
                             {t('Student View', { ns: 'common' })}
                         </Typography>
                     </Alert>
-                    <StudentDashboard
-                        student={singleStudentPage.student}
-                    />
+                    <StudentDashboard student={singleStudentPage.student} />
                 </>
             )}
         </>

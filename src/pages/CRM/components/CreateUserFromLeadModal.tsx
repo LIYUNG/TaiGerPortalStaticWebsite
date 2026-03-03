@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from '@tanstack/react-form';
 import { addUser } from '@/api';
 
-function parseGPA(value) {
+function parseGPA(value: string | number | undefined) {
     if (!value || typeof value !== 'string') {
         return {};
     }

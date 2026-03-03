@@ -29,10 +29,7 @@ import { useTranslation } from 'react-i18next';
 import AssignEssayWriterRow from '../MainViewTab/Common/AssignEssayWriterRow';
 import AssignEditorRow from '../MainViewTab/Common/AssignEditorRow';
 import AssignInterviewTrainerRow from '../MainViewTab/Common/AssignInterviewTrainerRow';
-import {
-    getMyStudentsThreadsQuery,
-    getIsManagerQuery
-} from '@/api/query';
+import { getMyStudentsThreadsQuery, getIsManagerQuery } from '@/api/query';
 import { useTasksOverview } from '@hooks/useTasksOverview';
 import { useStudentsV3 } from '@hooks/useStudentsV3';
 import Loading from '@components/Loading/Loading';
@@ -69,7 +66,8 @@ const EditorMainView = () => {
             open_task.file_type
         )
             ? open_task.outsourced_user_id?.some(
-                  (outsourcedUser) => outsourcedUser._id.toString() === user._id
+                  (outsourcedUser: { _id: string }) =>
+                      outsourcedUser._id.toString() === user._id
               )
             : true
     );

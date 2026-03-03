@@ -2,7 +2,7 @@
 
 **Date:** 2026-03-01
 **Initial:** 4,267 errors from `npx tsc --noEmit -p tsconfig.app.json`
-**Current:** 3,363 errors (after Phase 3B — typed ~40 files)
+**Current:** 3,268 errors (after Phase 3B complete — TS7006/TS7031 eliminated)
 **Full output:** `tsc-errors.txt`
 **Refactoring plan:** `TSC_REFACTOR_PLAN.md`
 
@@ -12,25 +12,27 @@
 
 | Code | Count | Prev | Δ | Description | Category |
 |------|-------|------|---|-------------|----------|
-| TS2345 | 875 | 824 | +51 | Argument type not assignable | Type mismatch |
-| TS2339 | 700 | 779 | -79 | Property does not exist on type | Interface mismatch |
-| TS2322 | 418 | 370 | +48 | Type not assignable | Type mismatch |
-| TS18048 | 294 | 246 | +48 | Possibly undefined | Null safety |
-| TS7006 | 218 | 703 | **-485** | Parameter implicitly has 'any' type | Untyped params |
-| TS2769 | 156 | 140 | +16 | No overload matches | Overload mismatch |
-| TS18047 | 145 | 145 | 0 | Possibly null | Null safety |
-| TS7053 | 128 | 139 | -11 | Index signature issue | Index types |
-| TS18046 | 77 | 104 | -27 | Type is unknown | Unknown narrowing |
-| TS7031 | 69 | 305 | **-236** | Binding element implicitly has 'any' type | Untyped props |
-| TS6133 | 60 | 74 | -14 | Declared but never read | Unused |
-| TS2741 | 26 | 31 | -5 | Missing required property | Interface mismatch |
+| TS2345 | 926 | 875 | +51 | Argument type not assignable | Type mismatch |
+| TS2339 | 739 | 700 | +39 | Property does not exist on type | Interface mismatch |
+| TS2322 | 478 | 418 | +60 | Type not assignable | Type mismatch |
+| TS18048 | 338 | 294 | +44 | Possibly undefined | Null safety |
+| TS2769 | 166 | 156 | +10 | No overload matches | Overload mismatch |
+| TS18047 | 152 | 145 | +7 | Possibly null | Null safety |
+| TS7053 | 111 | 128 | -17 | Index signature issue | Index types |
+| TS18046 | 73 | 77 | -4 | Type is unknown | Unknown narrowing |
+| TS6133 | 56 | 60 | -4 | Declared but never read | Unused |
+| TS2741 | 27 | 26 | +1 | Missing required property | Interface mismatch |
 | TS2551 | 19 | 19 | 0 | Property name typo | Misc |
 | TS7016 | 14 | 14 | 0 | Missing type declarations | Missing @types |
 | TS2559 | 14 | 14 | 0 | No common properties | Type mismatch |
 | TS2353 | 14 | 14 | 0 | Object literal excess props | Type mismatch |
-| Others | ~135 | ~142 | -7 | Various | Misc |
+| TS7006 | **0** | 218 | **-218** | Parameter implicitly has 'any' type | **DONE** |
+| TS7031 | **0** | 69 | **-69** | Binding element implicitly has 'any' type | **DONE** |
+| TS7034 | 10 | — | — | Variable implicitly has type | Untyped vars |
+| TS7005 | 10 | — | — | Variable implicitly has 'any' type | Untyped vars |
+| Others | ~121 | ~135 | -14 | Various | Misc |
 
-**Note:** TS2345/TS2322/TS18048 increases are expected — adding proper types surfaces previously-hidden mismatches that were masked by `any`.
+**Note:** TS2345/TS2322/TS18048/TS2339 increases are expected — adding proper types surfaces previously-hidden mismatches that were masked by `any`.
 
 ---
 
@@ -38,12 +40,12 @@
 
 | Category | Errors | % | Prev | Fix Strategy |
 |----------|--------|---|------|-------------|
-| Type mismatch (TS2345, TS2322, TS2769, TS2559, TS2353) | ~1,477 | 44% | 1,362 | Fix at call sites, update function signatures |
-| Interface mismatch (TS2339, TS2741, TS2739) | ~733 | 22% | 820 | taiger-model populated types |
-| Null safety (TS18048, TS18047, TS18046) | ~516 | 15% | 495 | Optional chaining, null checks |
-| Untyped params/props (TS7006, TS7031, TS7034, TS7005) | **307** | 9% | **1,032** | Add type annotations (**70% done**) |
-| Index types (TS7053, TS2538) | ~138 | 4% | 149 | Add index signatures |
-| Unused/misc (TS6133, TS2551, TS7016, etc.) | ~192 | 6% | 205 | Remove unused, fix typos |
+| Type mismatch (TS2345, TS2322, TS2769, TS2559, TS2353) | ~1,598 | 49% | 1,477 | Fix at call sites, update function signatures |
+| Interface mismatch (TS2339, TS2741, TS2739) | ~773 | 24% | 733 | taiger-model populated types |
+| Null safety (TS18048, TS18047, TS18046) | ~563 | 17% | 516 | Optional chaining, null checks |
+| Untyped params/props (TS7006, TS7031, TS7034, TS7005) | **20** | <1% | **307** | **Phase 3B COMPLETE** |
+| Index types (TS7053, TS2538) | ~122 | 4% | 138 | Add index signatures |
+| Unused/misc (TS6133, TS2551, TS7016, etc.) | ~192 | 6% | 192 | Remove unused, fix typos |
 
 ---
 
@@ -160,14 +162,103 @@
 - **AcceptedFilePreviewModal.tsx**: 8→0 (-8). Added `AcceptProfileFileModelProps`.
 - **Admissions/Overview.tsx**: 8→0 (-8). Added `ResultsBreakdownProps`. Typed view change handlers.
 
+## Phase 3B Session 2 — Remaining ~85 files (TS7006/TS7031 → 0)
+
+### 7-9 error files
+- **OfficeHours/all_index.tsx**: Typed IEventWithId/IUserWithId across 9 callback params.
+- **CourseAnalysisConfirmDialog.tsx**: Added `CourseAnalysisConfirmDialogProps`. Typed 5 binding elements.
+- **AddInterview.tsx**: Typed 11 params (AxiosResponse generics, IStudentResponse, IApplicationPopulated, IInterviewWithId).
+- **ReadyToSubmitTasksCard.tsx**: Typed IApplicationPopulated/IStudentResponse props and callbacks.
+- **NoProgramStudentTable.tsx**: Added `NoProgramStudentTableProps`. Typed filter/some/map callbacks.
+- **ManualFiles.tsx**: Added `ManualFilesProps` with 11 typed fields. Typed event handlers.
+- **EditableCard.tsx**: Added `EditableCardProps` with 12 typed fields.
+- **AssignInterviewTrainersPage.tsx**: Added `AssignInterviewTrainersPageProps`. Typed 7 params.
+- **AssignEssayWritersPage.tsx**: Added `AssignEssayWritersPageProps`. Typed 7 params with IDocumentthreadPopulated.
+
+### 5-6 error files
+- **ProgramReport.tsx**: Typed ITicketWithId handlers, submitProgramReport/Update params.
+- **InterviewFeedback.tsx**: Added `InterviewFeedbackProps`. Typed 6 interview callbacks.
+- **SingleDocEdit.tsx**: Added `SingleDocEditProps` with OutputData/handler types.
+- **CustomerTicketDetailPageBody.tsx**: Added `CustomerTicketDetailPageBodyProps` with IComplaintWithId.
+- **ProgramRequirementsNew.tsx**: Typed handleChangeByField, handleAddProgram, handleDeleteCategory.
+- **DocModificationThreadPage.tsx**: Added useState generics, typed 6 handlers and maps.
+- **DealItem.tsx**: Added `DealItemProps` with CRMDealItem. Typed onKeyDown.
+- **ProgramUpdateStatusTable.tsx**: Added `ProgramUpdateStatusRow`, `ProgramUpdateStatusTableProps`. Typed MRT cells.
+- **SingleStudentPage.tsx**: Typed handleChange (SyntheticEvent), updateStudentArchivStatus.
+- **SingleInterview.tsx**: Typed 5 remaining params (IUserWithId maps, File forEach).
+- **InternalDocCreatePage.tsx**: Typed props, IInternaldocWithId callbacks.
+- **DocCreatePage.tsx**: Typed props, IDocumentationWithId callbacks.
+- **CommunicationSinglePageBody.tsx**: Added `InformationBlockChatProps`, `CommunicationSinglePageBodyProps`.
+
+### 3-4 error files
+- **AgentDashboard.tsx**: Added `AgentDistribution`, `AgentBarChartsProps`, `AgentDashboardProps`.
+- **PortalCredentialsCard.tsx**: Added `PortalCredentialsCardProps`. Typed credential handler.
+- **MyCourses/index.tsx**: Typed Tabs onChange, DataSheetGrid onChange callbacks.
+- **EditInterviewTrainersSubpage.tsx**: Added Props, typed reduce/findIndex/map callbacks.
+- **EditEditorsSubpage.tsx**: Added Props, typed reduce/findIndex/map callbacks.
+- **EditAgentsSubpage.tsx**: Added Props, typed reduce/findIndex/map callbacks.
+- **EditAttributesSubpage.tsx**: Added `AttributeInputSelectionProps`, typed IUserAttribute.
+- **NoWritersEssaysCard.tsx**: Typed IUser map callbacks for editors/agents.
+- **Message.tsx**: Extended MessageProps with student_id/readBy. Typed handleClick.
+- **OriginAuthorStatementBar.tsx**: Added `OriginAuthorStatementBarProps` with Theme/IDocumentthreadPopulated.
+- **StatusMenu.tsx**: Added `StatusMenuProps`.
+- **BaseDocumentStudentView.tsx**: Typed IBasedocumentationslinkWithId/IUserProfileItem forEach callbacks.
+- **MiniAudit.tsx**: Added `MiniAuditProps` with IAudit[].
+- **checking-functions.tsx**: Typed 3 fieldMappings check callbacks.
+- **KPIDashboardTab.tsx**: Added `KPIDashboardTabProps`.
+- **MyStudentsOverview.tsx**: Typed IStudentResponse/IEditorWithId/IAgentWithId filter/some callbacks.
+- **SchoolDistributionPage.tsx**: Typed MUI TablePagination handlers.
+- **ProgramDistributionDetailPage.tsx**: Added `DistributionItem`. Typed Record access.
+- **CourseWidgetBody.tsx**: Typed handleChangeValue (SyntheticEvent), onChange callback.
+- **InterviewsTable.tsx**: Typed trainer_id map, modifyTrainer params.
+- **ManagerMainView.tsx**: Typed IAgentNotificationItem findIndex/map callbacks.
+- **AgentMainView.tsx**: Typed IAgentNotificationItem findIndex, handleCollapse, outsourcedUser.
+- **RespondedThreads.tsx**: Typed renderThreadLink (ReactNode, string, boolean).
+- **TabProgramTaskDelta.tsx**: Added `TabProgramTaskDeltaProps`, imported ProgramTaskDeltaProps.
+- **MessageList.tsx**: Added `MessageListProps` with 10 typed fields.
+- **ManualFilesList.tsx**: Added `ManualFilesListProps`.
+- **DescriptionBlock.tsx**: Added `DescriptionBlockProps` with IDocumentthreadPopulated.
+- **CardConfigurations.tsx**: Typed TFunction params, render callback.
+
+### 1-2 error files (~45 files)
+- **StudentApplicationsTableTemplate.tsx**, **ProgramReportCard.tsx**, **NewProgramEdit.tsx**, **ProgramRequirementsTableWrapper.tsx**: Typed component props and callbacks.
+- **InterviewTraining/index.tsx**: Typed transform function (IInterviewWithId[]).
+- **EditEssayWritersSubpage.tsx**: Typed editor/i map callback (IUserWithId).
+- **ProgramTaskDelta.tsx**: Typed missing/extra map callbacks.
+- **NoTrainersInterviewsCard.tsx**: Added `NoTrainersInterviewsCardProps`.
+- **NoEditorsStudentsCard.tsx**: Typed IAgentWithId map callback.
+- **CustomerSupportBody.tsx**: Added `CustomerSupportBodyProps` with IComplaintWithId.
+- **CommunicationExpandPageMessagesComponent.tsx**: Added props interface.
+- **EditableFileThread.tsx**: Added `EditableFileThreadProps` with 11 typed fields.
+- **RequirementsBlock.tsx**: Added `RequirementsBlockProps`.
+- **CVMLRLDashboard.tsx**: Typed handleChange (SyntheticEvent, number).
+- **SimilarStudents.tsx**: Typed SimilarStudentApplication filter callbacks.
+- **BaseDocuments.tsx**: Typed IStudentResponse map callback.
+- **Audit/index.tsx**: Typed user map callbacks in audit records.
+- **AssignAgentsPage.tsx**: Reused NoAgentsTableProps for component.
+- **util_functions.test.ts**: Typed buildGeneralDoc param.
+- **UniAssistProgramBlock.tsx**: Typed handleMutationError.
+- **SingleProgram.tsx**: Typed mutationFn/RemoveProgramHandlerV2.
+- **ProgramEditPage.tsx**, **ProgramCreatePage.tsx**: Typed handleSubmitProgram (IProgramWithId).
+- **AssignProgramsToStudentDialog.tsx**: Typed handleFilterToggle (ChangeEvent).
+- **PortalCredentialPage/index.tsx**: Added `PortalCredentialPageProps`.
+- **EditDownloadFiles.tsx**: Added `EditDownloadFilesProps`.
+- **Documentation/index.tsx**, **SingleDoc.tsx**, **DocumentsListItems.tsx**: Added Props interfaces.
+- **EditorMainView.tsx**: Typed outsourcedUser in .some().
+- **CommunicationThreadEditor.tsx**: Typed handleEditorChange.
+- **ToggleableUploadFileForm.tsx**: Added `ToggleableUploadFileFormProps`.
+- **statusUtils.ts**: Typed getDealId param.
+- **CreateUserFromLeadModal.tsx**: Typed parseGPA param.
+- **DealDashboard.tsx**: Typed onClick handler.
+
 ---
 
 ## Pending Actions (Next Session)
 
-1. **Phase 3B remaining**: ~287 TS7006/TS7031 errors remain across ~60 smaller files (7 or fewer errors each).
-2. **Phase 3C**: Fix null safety errors (TS18048/TS18047/TS18046 — ~516 errors).
-3. **Phase 3D**: Fix remaining type mismatches (TS2345/TS2322 — ~1,293 errors).
-4. **Phase 3E**: Fix interface mismatches (TS2339 — 700 errors).
+1. ~~**Phase 3B**~~: **COMPLETE** — TS7006 0, TS7031 0 (was 1,008 total).
+2. **Phase 3C**: Fix null safety errors (TS18048/TS18047/TS18046 — ~563 errors).
+3. **Phase 3D**: Fix remaining type mismatches (TS2345/TS2322 — ~1,404 errors).
+4. **Phase 3E**: Fix interface mismatches (TS2339 — 739 errors).
 
 ---
 
@@ -178,4 +269,5 @@
 | 2026-03-01 | Initial audit | — | 4,267 |
 | 2026-03-03 | taiger-model Phase 2A-2H | 4,267 | 4,189 |
 | 2026-03-03 | Frontend Phase 3A: IApplicationWithId→IApplicationPopulated, Application type, DocumentThread types | 4,189 | 4,063 |
-| 2026-03-03 | Phase 3B: Typed ~40 files — TS7006 703→218 (-485), TS7031 305→69 (-236) | 4,063 | 3,363 |
+| 2026-03-03 | Phase 3B session 1: Typed ~40 files — TS7006 703→218 (-485), TS7031 305→69 (-236) | 4,063 | 3,363 |
+| 2026-03-03 | Phase 3B session 2: Typed ~85 remaining files — **TS7006 218→0, TS7031 69→0** | 3,363 | 3,268 |

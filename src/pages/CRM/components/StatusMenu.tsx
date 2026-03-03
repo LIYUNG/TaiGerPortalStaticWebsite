@@ -14,15 +14,19 @@ import {
 import { useTranslation } from 'react-i18next';
 import { STATUS_FLOW, isTerminalStatus } from './statusUtils';
 
-/**
- * StatusMenu - reusable popup menu to progress/cancel a deal status.
- * Props:
- * - anchorEl: HTMLElement | null
- * - currentStatus: string | undefined
- * - onClose: () => void
- * - onChoose: (status: string) => void
- */
-const StatusMenu = ({ anchorEl, currentStatus, onClose, onChoose }) => {
+interface StatusMenuProps {
+    anchorEl: HTMLElement | null;
+    currentStatus: string | undefined;
+    onClose: () => void;
+    onChoose: (status: string) => void;
+}
+
+const StatusMenu = ({
+    anchorEl,
+    currentStatus,
+    onClose,
+    onChoose
+}: StatusMenuProps) => {
     const { t } = useTranslation();
 
     const open = Boolean(anchorEl);

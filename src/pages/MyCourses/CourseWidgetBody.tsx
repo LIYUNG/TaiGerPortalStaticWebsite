@@ -63,11 +63,21 @@ export default function CourseWidgetBody({
 
     const [value, setValue] = useState(0);
 
-    const handleChangeValue = (event, newValue) => {
+    const handleChangeValue = (
+        event: React.SyntheticEvent,
+        newValue: number
+    ) => {
         setValue(newValue);
     };
 
-    const onChange = (new_data) => {
+    const onChange = (
+        new_data: {
+            course_chinese: string;
+            course_english: string;
+            credits: string;
+            grades: string;
+        }[]
+    ) => {
         setStatedata((state) => ({
             ...state,
             coursesdata: new_data

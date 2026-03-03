@@ -26,6 +26,7 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 import { is_TaiGer_role } from '@taiger-common/core';
+import type { IEventWithId, IUserWithId } from '@taiger-common/model';
 import { getUsersQuery } from '@/api/query';
 
 import { isInTheFuture } from '@utils/contants';
@@ -131,7 +132,7 @@ const AllOfficeHours = () => {
         return <ErrorPage res_status={res_status} />;
     }
 
-    const booked_events = events.map((event) => ({
+    const booked_events = events.map((event: IEventWithId) => ({
         ...event,
         id: event._id.toString(),
         start: new Date(event.start),
@@ -188,7 +189,7 @@ const AllOfficeHours = () => {
                                 {t('Loading...', { ns: 'common' })}
                             </MenuItem>
                         ) : agents.length > 0 ? (
-                            agents.map((agent) => (
+                            agents.map((agent: IUserWithId) => (
                                 <MenuItem key={agent._id} value={agent._id}>
                                     {agent.firstname} {agent.lastname}
                                     {agent.email && ` (${agent.email})`}
@@ -263,7 +264,7 @@ const AllOfficeHours = () => {
             <CustomTabPanel index={1} value={value}>
                 <>
                     {events?.filter(
-                        (event) =>
+                        (event: IEventWithId) =>
                             isInTheFuture(event.end) &&
                             (!event.isConfirmedReceiver ||
                                 !event.isConfirmedRequester)
@@ -271,14 +272,14 @@ const AllOfficeHours = () => {
                         ? _.reverse(
                               _.sortBy(
                                   events?.filter(
-                                      (event) =>
+                                      (event: IEventWithId) =>
                                           isInTheFuture(event.end) &&
                                           (!event.isConfirmedReceiver ||
                                               !event.isConfirmedRequester)
                                   ),
                                   ['start']
                               )
-                          ).map((event, i) => (
+                          ).map((event: IEventWithId, i: number) => (
                               <EventConfirmationCard
                                   event={event}
                                   handleConfirmAppointmentModalOpen={
@@ -299,7 +300,7 @@ const AllOfficeHours = () => {
                             {t('Upcoming', { ns: 'common' })}
                         </Typography>
                         {events?.filter(
-                            (event) =>
+                            (event: IEventWithId) =>
                                 isInTheFuture(event.end) &&
                                 event.isConfirmedRequester &&
                                 event.isConfirmedReceiver
@@ -307,14 +308,14 @@ const AllOfficeHours = () => {
                             ? _.reverse(
                                   _.sortBy(
                                       events?.filter(
-                                          (event) =>
+                                          (event: IEventWithId) =>
                                               isInTheFuture(event.end) &&
                                               event.isConfirmedRequester &&
                                               event.isConfirmedReceiver
                                       ),
                                       ['start']
                                   )
-                              ).map((event, i) => (
+                              ).map((event: IEventWithId, i: number) => (
                                   <EventConfirmationCard
                                       event={event}
                                       handleConfirmAppointmentModalOpen={
@@ -338,11 +339,12 @@ const AllOfficeHours = () => {
                         {_.reverse(
                             _.sortBy(
                                 events?.filter(
-                                    (event) => !isInTheFuture(event.end)
+                                    (event: IEventWithId) =>
+                                        !isInTheFuture(event.end)
                                 ),
                                 ['start']
                             )
-                        ).map((event, i) => (
+                        ).map((event: IEventWithId, i: number) => (
                             <EventConfirmationCard
                                 disabled={true}
                                 event={event}
@@ -461,11 +463,19 @@ const AllOfficeHours = () => {
                     </Badge>
                     <Typography>
                         {t('Student', { ns: 'common' })}:{' '}
-                        {event_temp?.requester_id?.map((requester, idx) => (
-                            <Typography fontWeight="bold" key={idx}>
-                                {requester.firstname} {requester.lastname}
-                            </Typography>
-                        ))}
+                        {event_temp?.requester_id?.map(
+                            (
+                                requester: {
+                                    firstname?: string;
+                                    lastname?: string;
+                                },
+                                idx: number
+                            ) => (
+                                <Typography fontWeight="bold" key={idx}>
+                                    {requester.firstname} {requester.lastname}
+                                </Typography>
+                            )
+                        )}
                     </Typography>
                 </DialogContent>
                 <DialogActions>

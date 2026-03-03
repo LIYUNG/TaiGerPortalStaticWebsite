@@ -15,7 +15,7 @@ import { is_TaiGer_role } from '@taiger-common/core';
 import EditEssayWritersSubpage from '../StudDocsOverview/EditEssayWritersSubpage';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
-import type { IDocumentthread, IProgram } from '@taiger-common/model';
+import type { IDocumentthread, IProgram, IUser } from '@taiger-common/model';
 
 interface NoWritersEssaysCardProps {
     essayDocumentThread: IDocumentthread;
@@ -183,7 +183,7 @@ const NoWritersEssaysCard = ({
                             </Typography>
                         ) : (
                             essayDocumentThread.student_id?.editors.map(
-                                (editor, i) => (
+                                (editor: IUser, i: number) => (
                                     <Typography
                                         key={i}
                                     >{`${editor.firstname}`}</Typography>
@@ -197,7 +197,7 @@ const NoWritersEssaysCard = ({
                             <Typography fontWeight="bold">No Agent</Typography>
                         ) : (
                             essayDocumentThread.student_id?.agents.map(
-                                (agent, i) => (
+                                (agent: IUser, i: number) => (
                                     <Typography
                                         key={i}
                                     >{`${agent.firstname}`}</Typography>

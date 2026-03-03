@@ -14,8 +14,13 @@ import { useTranslation } from 'react-i18next';
 
 import { convertDate, convertDateUXFriendly } from '@utils/contants';
 import DEMO from '@store/constant';
+import type { IAudit } from '@taiger-common/model';
 
-const MiniAudit = ({ audit }) => {
+interface MiniAuditProps {
+    audit: IAudit[];
+}
+
+const MiniAudit = ({ audit }: MiniAuditProps) => {
     const { t } = useTranslation();
 
     return (
@@ -38,7 +43,7 @@ const MiniAudit = ({ audit }) => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {audit?.map((record) => {
+                        {audit?.map((record: IAudit) => {
                             const isNewUser = record?.changes?.after?.newUser
                                 ? true
                                 : false;
@@ -51,10 +56,16 @@ const MiniAudit = ({ audit }) => {
                                 'essay writer'
                             ].includes(record?.field);
                             const addedUsers = record?.changes?.after?.added
-                                ?.map((user) => `${user.firstname}`)
+                                ?.map(
+                                    (user: { firstname: string }) =>
+                                        `${user.firstname}`
+                                )
                                 .join(', ');
                             const removedUsers = record?.changes?.after?.removed
-                                ?.map((user) => `${user.firstname}`)
+                                ?.map(
+                                    (user: { firstname: string }) =>
+                                        `${user.firstname}`
+                                )
                                 .join(', ');
                             const program_name = record?.targetDocumentThreadId
                                 ?.program_id

@@ -45,7 +45,8 @@ const SingleProgram = () => {
 
     const { mutate: refreshProgramMutation, isPending: isRefreshing } =
         useMutation({
-            mutationFn: ({ programId }) => refreshProgram(programId),
+            mutationFn: ({ programId }: { programId: string }) =>
+                refreshProgram(programId),
             onSuccess: () => {
                 queryClient.invalidateQueries({ queryKey: ['programs'] });
                 queryClient.invalidateQueries({ queryKey: ['program'] });
@@ -89,7 +90,7 @@ const SingleProgram = () => {
             }));
         };
     };
-    const RemoveProgramHandlerV2 = (program_id) => {
+    const RemoveProgramHandlerV2 = (program_id: string) => {
         mutate({ program_id });
     };
 

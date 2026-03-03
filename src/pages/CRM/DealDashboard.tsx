@@ -174,7 +174,9 @@ const DealDashboard = () => {
                                         ns: 'crm',
                                         defaultValue: value
                                     })}
-                                    onClick={(e) => {
+                                    onClick={(
+                                        e: React.MouseEvent<HTMLDivElement>
+                                    ) => {
                                         if (terminal) return;
                                         e.stopPropagation();
                                         openStatusMenu(e, row.original);
@@ -346,9 +348,9 @@ const DealDashboard = () => {
                 muiTableBodyRowProps={({ row }) => ({
                     hover: true,
                     sx: { cursor: 'pointer' },
-                    onClick: (e) => {
+                    onClick: (e: React.MouseEvent<HTMLTableRowElement>) => {
                         // Ignore clicks from interactive elements (links, buttons, chips)
-                        const el = e.target;
+                        const el = e.target as HTMLElement;
                         if (
                             el.closest &&
                             el.closest(

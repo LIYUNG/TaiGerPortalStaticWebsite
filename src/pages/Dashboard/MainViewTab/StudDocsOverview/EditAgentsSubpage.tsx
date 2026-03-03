@@ -17,10 +17,22 @@ import {
 import { useTranslation } from 'react-i18next';
 import queryString from 'query-string';
 import { Role } from '@taiger-common/core';
+import type { IStudentResponse, IUserWithId } from '@taiger-common/model';
 
 import { getUsers } from '@/api';
 
-const EditAgentsSubpage = (props) => {
+interface Props {
+    onHide: () => void;
+    show: boolean;
+    student: IStudentResponse;
+    submitUpdateAgentlist: (
+        e: React.SyntheticEvent,
+        updateAgentList: Record<string, boolean>,
+        student_id: string
+    ) => void;
+}
+
+const EditAgentsSubpage = (props: Props) => {
     const { t } = useTranslation();
     const [checkboxState, setCheckboxState] = useState({});
     const [isLoaded, setIsLoaded] = useState(false);
@@ -37,11 +49,14 @@ const EditAgentsSubpage = (props) => {
                     const agents = data; //get all agent
                     const { agents: student_agents } = props.student;
                     const updateAgentList = agents.reduce(
-                        (prev, { _id }) => ({
+                        (
+                            prev: Record<string, boolean>,
+                            { _id }: IUserWithId
+                        ) => ({
                             ...prev,
                             [_id]: student_agents
                                 ? student_agents.findIndex(
-                                      (student_agent) =>
+                                      (student_agent: { _id: string }) =>
                                           student_agent._id === _id
                                   ) > -1
                                 : false
@@ -74,7 +89,7 @@ const EditAgentsSubpage = (props) => {
     };
 
     const agentlist = checkboxState.agents ? (
-        checkboxState.agents.map((agent, i) => (
+        checkboxState.agents.map((agent: IUserWithId, i: number) => (
             <TableRow key={i + 1}>
                 <TableCell>
                     <FormControlLabel

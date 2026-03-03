@@ -16,7 +16,20 @@ import EditInterviewTrainersSubpage from '../StudDocsOverview/EditInterviewTrain
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { convertDate } from '@utils/contants';
-const NoTrainersInterviewsCard = (props) => {
+import type { IInterviewWithId } from '@taiger-common/model';
+
+interface NoTrainersInterviewsCardProps {
+    interview: IInterviewWithId;
+    isArchivPage?: boolean;
+    isSubmitting?: boolean;
+    submitUpdateInterviewTrainerlist: (
+        e: React.FormEvent<HTMLFormElement>,
+        updateTrainerList: unknown,
+        interview_id: string
+    ) => void;
+}
+
+const NoTrainersInterviewsCard = (props: NoTrainersInterviewsCardProps) => {
     const { user } = useAuth();
     const [noTrainersInterviewsCardState, setNoTrainersInterviewsCardState] =
         useState({
@@ -26,7 +39,7 @@ const NoTrainersInterviewsCard = (props) => {
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
     const { t } = useTranslation();
-    const handleClick = (event) => {
+    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
     };
     const handleClose = () => {

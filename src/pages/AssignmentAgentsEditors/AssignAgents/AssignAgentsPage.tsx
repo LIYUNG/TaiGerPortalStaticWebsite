@@ -68,7 +68,10 @@ const NoAgentsTable = ({
     );
 };
 
-const AssignAgentsPage = ({ students, submitUpdateAgentlist }) => {
+const AssignAgentsPage = ({
+    students,
+    submitUpdateAgentlist
+}: NoAgentsTableProps) => {
     const { t } = useTranslation();
 
     return (

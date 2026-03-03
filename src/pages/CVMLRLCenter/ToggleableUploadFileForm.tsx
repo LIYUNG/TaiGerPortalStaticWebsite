@@ -5,10 +5,33 @@ import {
     InputLabel,
     MenuItem,
     Select,
+    SelectChangeEvent,
     Tooltip
 } from '@mui/material';
+import { type MouseEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { calculateApplicationLockStatus } from '../Utils/util_functions';
+import type { Application } from '@/api/types';
+
+interface ToggleableUploadFileFormProps {
+    filetype: string;
+    category: string;
+    application?: Application;
+    student: { _id: string };
+    handleSelect: (e: SelectChangeEvent) => void;
+    handleCreateGeneralMessageThread: (
+        e: MouseEvent<HTMLElement>,
+        studentId: string,
+        category: string
+    ) => void;
+    handleCreateProgramSpecificMessageThread: (
+        e: MouseEvent<HTMLElement>,
+        studentId: string,
+        applicationId: string,
+        category: string
+    ) => void;
+}
+
 const GENERAL_FILTE_TYPE = [
     { name: 'Please Select', value: '' },
     { name: 'CV', value: 'CV' },
@@ -36,7 +59,7 @@ const PROGRAM_SPECIFIC_FILTE_TYPE = [
     { name: 'RL (Referee C)', value: 'RL_C' },
     { name: 'Others', value: 'Others' }
 ];
-const ToggleableUploadFileForm = (props) => {
+const ToggleableUploadFileForm = (props: ToggleableUploadFileFormProps) => {
     const { t } = useTranslation();
 
     const drop_list = (

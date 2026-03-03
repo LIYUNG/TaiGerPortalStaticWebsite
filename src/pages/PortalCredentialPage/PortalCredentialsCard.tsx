@@ -25,7 +25,14 @@ import Loading from '@components/Loading/Loading';
 import { LinkableNewlineText } from '../Utils/checking-functions';
 import { useSnackBar } from '@contexts/use-snack-bar';
 
-export default function PortalCredentialsCard(props) {
+interface PortalCredentialsCardProps {
+    student_id: string;
+    showTitle?: boolean;
+}
+
+export default function PortalCredentialsCard(
+    props: PortalCredentialsCardProps
+) {
     const { t } = useTranslation();
     const [statedata, setStatedata] = useState({
         error: '',
@@ -171,7 +178,11 @@ export default function PortalCredentialsCard(props) {
         }
     };
 
-    const onSubmit = (student_id, application_id, credentials) => {
+    const onSubmit = (
+        student_id: string,
+        application_id: string,
+        credentials: Record<string, string>
+    ) => {
         setStatedata((state) => ({
             ...state,
             isUpdateLoaded: { ...state.isUpdateLoaded, [application_id]: false }

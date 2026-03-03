@@ -1,4 +1,10 @@
-import { MouseEvent, useState, ChangeEvent, FormEvent } from 'react';
+import {
+    MouseEvent,
+    useState,
+    ChangeEvent,
+    FormEvent,
+    SyntheticEvent
+} from 'react';
 import {
     Box,
     Breadcrumbs,
@@ -172,7 +178,11 @@ const StudentApplicationsTableTemplate = (
         }));
     };
 
-    const handleWithdraw = (e, application_idx, programWithdraw = '-') => {
+    const handleWithdraw = (
+        e: SyntheticEvent,
+        application_idx: number,
+        programWithdraw = '-'
+    ) => {
         e.preventDefault();
         const base = studentToShow.applications ?? [];
         const applications_temp = [...base];

@@ -8,6 +8,7 @@ import {
     isProgramDecided,
     isProgramRejected
 } from '@taiger-common/core';
+import type { IInterviewWithId, IUserWithId } from '@taiger-common/model';
 
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
@@ -260,7 +261,7 @@ const InterviewTraining = () => {
             }
         }
     ];
-    const transform = (interviews) => {
+    const transform = (interviews: IInterviewWithId[]) => {
         const result = [];
         if (!interviews) {
             return [];
@@ -290,7 +291,7 @@ const InterviewTraining = () => {
                 isDuplicate: studentIdCounts[studentId] > 1,
                 trainer_name:
                     interview.trainer_id
-                        ?.map((trainer) => trainer.firstname)
+                        ?.map((trainer: IUserWithId) => trainer.firstname)
                         ?.join(', ') || [],
                 program_name: `${interview.program_id.school} ${interview.program_id.program_name} ${interview.program_id.degree} ${interview.program_id.semester}`,
                 firstname_lastname: `${interview.student_id.firstname} ${interview.student_id.lastname}`

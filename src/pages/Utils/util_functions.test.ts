@@ -938,7 +938,7 @@ describe('getProgramDocumentStatus', () => {
 });
 
 describe('getGeneralDocumentStatus', () => {
-    const buildGeneralDoc = (fileType) => ({
+    const buildGeneralDoc = (fileType: string) => ({
         doc_thread_id: { file_type: fileType }
     });
 

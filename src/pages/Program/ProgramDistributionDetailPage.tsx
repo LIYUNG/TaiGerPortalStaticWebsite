@@ -37,7 +37,21 @@ import { useProgramsOverview } from '@hooks/useProgramsOverview';
 import Loading from '@components/Loading/Loading';
 import ErrorPage from '../Utils/ErrorPage';
 
-const DISTRIBUTION_TYPES = {
+interface DistributionItem {
+    count: number;
+    [key: string]: unknown;
+}
+
+const DISTRIBUTION_TYPES: Record<
+    string,
+    {
+        icon: typeof Public;
+        title: string;
+        dataKey: string;
+        itemKey: string;
+        color: 'primary' | 'secondary' | 'success' | 'info';
+    }
+> = {
     country: {
         icon: Public,
         title: 'Programs by Country',
@@ -74,10 +88,11 @@ const ProgramDistributionDetailPage = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
 
-    const { data: overview, isLoading, isError, error } =
-        useProgramsOverview();
+    const { data: overview, isLoading, isError, error } = useProgramsOverview();
 
-    const config = DISTRIBUTION_TYPES[distributionType];
+    const config = distributionType
+        ? DISTRIBUTION_TYPES[distributionType]
+        : undefined;
     const Icon = config?.icon || Public;
 
     TabTitle(t(config?.title || 'Program Distribution', { ns: 'common' }));
@@ -102,8 +117,11 @@ const ProgramDistributionDetailPage = () => {
         return null;
     }
 
-    const distributionData = overview[config.dataKey] || [];
-    const maxCount = Math.max(...distributionData.map((item) => item.count));
+    const distributionData: DistributionItem[] =
+        (overview[config.dataKey] as DistributionItem[]) || [];
+    const maxCount = Math.max(
+        ...distributionData.map((item: DistributionItem) => item.count)
+    );
 
     return (
         <Box sx={{ pb: 4 }}>

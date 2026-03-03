@@ -51,6 +51,7 @@ export interface ProgramRequirementRequirement {
     attributes?: string[];
     firstRoundConsidered?: string[];
     secondRoundConsidered?: string[];
+    [key: string]: unknown;
 }
 
 export interface ProgramRequirementsNewProps {
@@ -104,7 +105,7 @@ const ProgramRequirementsNew = ({
             [e.target.name]: e.target.value
         }));
     };
-    const handleChangeByField = (field) => (value) => {
+    const handleChangeByField = (field: string) => (value: string[]) => {
         setCheckboxState((prevState) => ({
             ...prevState,
             [field]: value
@@ -124,7 +125,9 @@ const ProgramRequirementsNew = ({
         ]);
     };
 
-    const handleAddProgram = (newValue) => {
+    const handleAddProgram = (
+        newValue: ProgramRequirementProgramOption | null
+    ) => {
         if (newValue === null) {
             setProgram({}); // Clear the program state
         } else {
@@ -133,7 +136,7 @@ const ProgramRequirementsNew = ({
     };
 
     // Function to add a keyword set to a program category
-    const handleAddKeywordSet = (newKeywordSet, index) => {
+    const handleAddKeywordSet = (newKeywordSet: string[], index: number) => {
         setProgramCategories((prev) =>
             prev.map((programCategory, i) =>
                 i === index
@@ -158,7 +161,7 @@ const ProgramRequirementsNew = ({
             )} ${option.keywords?.en?.join(', ')}`
     });
 
-    const handleDeleteCategory = (indexToDelete) => {
+    const handleDeleteCategory = (indexToDelete: number) => {
         setProgramCategories((prev) =>
             prev.filter((_, index) => index !== indexToDelete)
         );

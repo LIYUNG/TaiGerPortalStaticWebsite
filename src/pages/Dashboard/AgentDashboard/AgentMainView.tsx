@@ -47,7 +47,11 @@ import { getMyStudentsThreadsQuery } from '@/api/query';
 import { useMyStudentsApplicationsV2 } from '@hooks/useMyStudentsApplicationsV2';
 import { useStudentsV3 } from '@hooks/useStudentsV3';
 import Loading from '@components/Loading/Loading';
-import { IApplication } from '@taiger-common/model';
+import {
+    IAgentNotificationItem,
+    IApplication,
+    IUserWithId
+} from '@taiger-common/model';
 
 interface AgentMainViewProps {
     notification: {
@@ -91,7 +95,10 @@ const AgentMainView = (props: AgentMainViewProps) => {
         const temp_user = { ...user };
         const idx = temp_user.agent_notification[
             `${notification_key}`
-        ].findIndex((student_obj) => student_obj.student_id === student_id);
+        ].findIndex(
+            (student_obj: IAgentNotificationItem) =>
+                student_obj.student_id === student_id
+        );
         temp_user.agent_notification[`${notification_key}`].splice(idx, 1);
         setAgentMainViewState({
             ...agentMainViewState,
@@ -125,7 +132,7 @@ const AgentMainView = (props: AgentMainViewProps) => {
         );
     };
 
-    const handleCollapse = (index) => {
+    const handleCollapse = (index: number) => {
         setAgentMainViewState({
             ...agentMainViewState,
             collapsedRows: {
@@ -159,7 +166,7 @@ const AgentMainView = (props: AgentMainViewProps) => {
         (open_task) =>
             [...AGENT_SUPPORT_DOCUMENTS_A].includes(open_task.file_type) ||
             open_task.outsourced_user_id?.some(
-                (outsourcedUser) =>
+                (outsourcedUser: IUserWithId) =>
                     outsourcedUser._id?.toString() === user?._id?.toString()
             )
     );

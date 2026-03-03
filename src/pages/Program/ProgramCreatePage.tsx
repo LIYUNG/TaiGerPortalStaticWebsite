@@ -7,6 +7,7 @@ import Loading from '@components/Loading/Loading';
 import { createProgramV2 } from '@/api';
 import DEMO from '@store/constant';
 import { useMutation } from '@tanstack/react-query';
+import type { IProgramWithId } from '@taiger-common/model';
 import { queryClient } from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
 
@@ -35,7 +36,7 @@ const ProgramCreatePage = () => {
         }
     });
 
-    const handleSubmitProgram = (program) => {
+    const handleSubmitProgram = (program: IProgramWithId) => {
         mutate({ program });
     };
 

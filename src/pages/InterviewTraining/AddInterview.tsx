@@ -26,6 +26,14 @@ import {
     isProgramRejected,
     isProgramSubmitted
 } from '@taiger-common/core';
+import type {
+    GetMyInterviewsResponse,
+    CreateInterviewResponse,
+    IStudentResponse,
+    IApplicationPopulated,
+    IInterviewWithId
+} from '@taiger-common/model';
+import type { AxiosResponse } from 'axios';
 
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
@@ -59,7 +67,7 @@ const AddInterview = () => {
 
     useEffect(() => {
         getMyInterviews().then(
-            (resp) => {
+            (resp: AxiosResponse<GetMyInterviewsResponse>) => {
                 const { data, success, student, students } = resp.data;
                 const { status } = resp;
                 if (success) {
@@ -80,7 +88,7 @@ const AddInterview = () => {
                     }));
                 }
             },
-            (error) => {
+            (error: unknown) => {
                 setAddInterviewState((prevState) => ({
                     ...prevState,
                     isLoaded: true,
@@ -91,7 +99,7 @@ const AddInterview = () => {
         );
     }, []);
 
-    const handleEditorChange = (content) => {
+    const handleEditorChange = (content: unknown) => {
         setAddInterviewState((state) => ({
             ...state,
             editorState: content
@@ -122,7 +130,7 @@ const AddInterview = () => {
             interviewTrainingState.student._id,
             interviewData_temp
         ).then(
-            (resp) => {
+            (resp: AxiosResponse<CreateInterviewResponse>) => {
                 const { success } = resp.data;
                 const { status } = resp;
                 if (success) {
@@ -138,7 +146,7 @@ const AddInterview = () => {
                     }));
                 }
             },
-            (error) => {
+            (error: unknown) => {
                 setAddInterviewState((prevState) => ({
                     ...prevState,
                     isLoaded: true,
@@ -156,7 +164,7 @@ const AddInterview = () => {
             setAddInterviewState((prevState) => ({
                 ...prevState,
                 student: interviewTrainingState.students.find(
-                    (std) => e.target.value === std._id
+                    (std: IStudentResponse) => e.target.value === std._id
                 )
             }));
         } else {
@@ -198,20 +206,20 @@ const AddInterview = () => {
     let available_interview_request_programs = [];
     available_interview_request_programs = student?.applications
         .filter(
-            (application) =>
+            (application: IApplicationPopulated) =>
                 isProgramDecided(application) &&
                 isProgramSubmitted(application) &&
                 !isProgramAdmitted(application) &&
                 !isProgramRejected(application) &&
                 !interviewslist.find(
-                    (interview) =>
+                    (interview: IInterviewWithId) =>
                         interview.program_id._id.toString() ===
                             application.programId._id.toString() &&
                         interview.student_id._id.toString() ===
                             student._id.toString()
                 )
         )
-        .map((application) => {
+        .map((application: IApplicationPopulated) => {
             return {
                 key: application.programId._id.toString(),
                 value: `${application.programId.school} ${application.programId.program_name} ${application.programId.degree} ${application.programId.semester}`
@@ -307,7 +315,7 @@ const AddInterview = () => {
                                             Select Student
                                         </MenuItem>
                                         {interviewTrainingState.students?.map(
-                                            (std) => (
+                                            (std: IStudentResponse) => (
                                                 <MenuItem
                                                     key={std._id}
                                                     value={std._id}
@@ -427,7 +435,10 @@ const AddInterview = () => {
                                 >
                                     <MenuItem value="">Select Program</MenuItem>
                                     {available_interview_request_programs?.map(
-                                        (cat, i) => (
+                                        (
+                                            cat: { key: string; value: string },
+                                            i: number
+                                        ) => (
                                             <MenuItem key={i} value={cat.key}>
                                                 {cat.value}
                                             </MenuItem>
