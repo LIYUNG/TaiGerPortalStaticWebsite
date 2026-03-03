@@ -3,7 +3,7 @@ import { Box, Typography } from '@mui/material';
 import Friend from './Friend';
 import { useTranslation } from 'react-i18next';
 import { menuWidth } from '@utils/contants';
-import { IStudentResponse } from '@/api/types';
+import type { IStudentResponse } from '@taiger-common/model';
 
 interface FriendsProps {
     students: IStudentResponse[];

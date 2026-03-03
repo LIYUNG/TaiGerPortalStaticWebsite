@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import {
     MaterialReactTable,
@@ -30,6 +30,31 @@ import { is_User_Archived } from '../Utils/util_functions';
 
 const columnHelper = createMRTColumnHelper();
 
+interface StudentsTableProps {
+    isLoading: boolean;
+    data: Record<string, unknown>[];
+    submitUpdateAgentlist: (
+        e: React.FormEvent<HTMLFormElement>,
+        updateAgentList: unknown,
+        student_id: string
+    ) => void;
+    submitUpdateEditorlist: (
+        e: React.SyntheticEvent,
+        updateEditorList: unknown,
+        student_id: string
+    ) => void;
+    submitUpdateAttributeslist: (
+        e: React.FormEvent<HTMLFormElement>,
+        updateAttributesList: unknown,
+        student_id: string
+    ) => void;
+    updateStudentArchivStatus: (
+        student_id: string,
+        archiv: boolean,
+        shouldInform: boolean
+    ) => void;
+}
+
 export const StudentsTable = ({
     isLoading,
     data,
@@ -37,7 +62,7 @@ export const StudentsTable = ({
     submitUpdateEditorlist,
     submitUpdateAttributeslist,
     updateStudentArchivStatus
-}) => {
+}: StudentsTableProps) => {
     const customTableStyles = useTableStyles();
     const { t } = useTranslation();
     const tableConfig = getTableConfig(customTableStyles, isLoading);
@@ -50,9 +75,9 @@ export const StudentsTable = ({
         showArchivModalPage: false
     });
     const updateStudentArchivStatusLocal = (
-        student_id,
-        archiv,
-        shouldInform
+        student_id: string,
+        archiv: boolean,
+        shouldInform: boolean
     ) => {
         setIsArchivLoading(true);
         updateStudentArchivStatus(student_id, archiv, shouldInform);
@@ -131,7 +156,11 @@ export const StudentsTable = ({
         setAgentModalhide();
     };
 
-    const submitUpdateEditorlistLocal = (e, updateEditorList, student_id) => {
+    const submitUpdateEditorlistLocal = (
+        e: React.SyntheticEvent,
+        updateEditorList: unknown,
+        student_id: string
+    ) => {
         table.resetRowSelection();
         setEditorModalhide();
         submitUpdateEditorlist(e, updateEditorList, student_id);
@@ -217,14 +246,16 @@ export const StudentsTable = ({
         columnHelper.accessor('attributesString', {
             header: t('Attributes', { ns: 'common' }),
             Cell: (params) => {
-                return params.row.original.attributes?.map((attribute) => (
-                    <Chip
-                        color="secondary"
-                        key={attribute.name}
-                        label={attribute.name}
-                        size="small"
-                    />
-                ));
+                return params.row.original.attributes?.map(
+                    (attribute: { name: string }) => (
+                        <Chip
+                            color="secondary"
+                            key={attribute.name}
+                            label={attribute.name}
+                            size="small"
+                        />
+                    )
+                );
             },
             size: 100
         }),
@@ -250,7 +281,9 @@ export const StudentsTable = ({
         })
     ];
 
-    const handleExportRows = (rows) => {
+    const handleExportRows = (
+        rows: { original: Record<string, unknown> }[]
+    ) => {
         console.log(columns);
         const csvConfig = mkConfig({
             fieldSeparator: ',',
@@ -258,11 +291,13 @@ export const StudentsTable = ({
             useKeysAsHeaders: true
         });
 
-        const rowData = rows.map((row) => {
-            return {
-                ...columns.map((column) => row.original[column.accessorKey])
-            };
-        });
+        const rowData = rows.map(
+            (row: { original: Record<string, unknown> }) => {
+                return {
+                    ...columns.map((column) => row.original[column.accessorKey])
+                };
+            }
+        );
         const csv = generateCsv(csvConfig)(rowData);
         download(csvConfig)(csv);
     };
@@ -286,20 +321,9 @@ export const StudentsTable = ({
         />
     );
 
-    const student = table
-        .getSelectedRowModel()
-        .rows?.map(
-            ({
-                original: {
-                    _id,
-                    firstname,
-                    lastname,
-                    agents,
-                    editors,
-                    attributes,
-                    archiv
-                }
-            }) => ({
+    const student = table.getSelectedRowModel().rows?.map(
+        ({
+            original: {
                 _id,
                 firstname,
                 lastname,
@@ -307,8 +331,27 @@ export const StudentsTable = ({
                 editors,
                 attributes,
                 archiv
-            })
-        )?.[0];
+            }
+        }: {
+            original: {
+                _id: string;
+                firstname: string;
+                lastname: string;
+                agents: unknown[];
+                editors: unknown[];
+                attributes: { name: string }[];
+                archiv: boolean;
+            };
+        }) => ({
+            _id,
+            firstname,
+            lastname,
+            agents,
+            editors,
+            attributes,
+            archiv
+        })
+    )?.[0];
 
     return (
         <>

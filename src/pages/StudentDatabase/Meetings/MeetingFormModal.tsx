@@ -14,15 +14,15 @@ import {
 import PersonIcon from '@mui/icons-material/Person';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { useTranslation } from 'react-i18next';
-import type { MeetingResponse, IStudentResponse } from '@/api/types';
+import type { IMeeting, IStudentResponse } from '@taiger-common/model';
 
 export interface MeetingFormModalProps {
     open: boolean;
     onClose: () => void;
     onSave: (
-        data: Partial<MeetingResponse> & { dateTime?: string | null }
+        data: Partial<IMeeting> & { dateTime?: string | null }
     ) => void;
-    meeting?: MeetingResponse | null;
+    meeting?: IMeeting | null;
     isLoading?: boolean;
     student?: IStudentResponse | null;
 }

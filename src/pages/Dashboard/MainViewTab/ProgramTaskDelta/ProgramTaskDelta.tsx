@@ -2,8 +2,8 @@ import { Link as LinkDom } from 'react-router-dom';
 import { Link, TableBody, TableCell, TableRow } from '@mui/material';
 
 import DEMO from '@store/constant';
-import { IProgramWithId } from '@/types/taiger-common';
-import { IStudentResponse } from '@/types/taiger-common';
+import type { IProgramWithId } from '@taiger-common/model';
+import type { IStudentResponse } from '@taiger-common/model';
 
 export interface ProgramTaskDeltaProps {
     program: IProgramWithId;
@@ -49,13 +49,20 @@ const ProgramTaskDelta = ({ program, students }: ProgramTaskDeltaProps) => {
                         </TableCell>
                         <TableCell>
                             {student.deltas.add
-                                .map((missing) => missing.fileType)
+                                .map(
+                                    (missing: { fileType: string }) =>
+                                        missing.fileType
+                                )
                                 .sort()
                                 .join(', ')}
                         </TableCell>
                         <TableCell>
                             {student.deltas.remove
-                                .map((extra) => extra.fileThread.file_type)
+                                .map(
+                                    (extra: {
+                                        fileThread: { file_type: string };
+                                    }) => extra.fileThread.file_type
+                                )
                                 .sort()
                                 .join(', ')}
                         </TableCell>

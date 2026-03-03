@@ -39,7 +39,8 @@ import {
 import { useMutation } from '@tanstack/react-query';
 import { queryClient } from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
-import type { Application, IStudentResponse } from '@/api/types';
+import type { Application } from '@/api/types';
+import type { IStudentResponse } from '@taiger-common/model';
 
 export interface IconStatusProps {
     condition: boolean;
@@ -73,7 +74,7 @@ const ProgramName = ({ application }: ProgramNameProps) => {
         <Typography sx={{ mr: 2 }} variant="body1">
             <Link
                 component={LinkDom}
-                to={`${DEMO.SINGLE_PROGRAM_LINK(application.programId?._id?.toString()!)}`}
+                to={`${DEMO.SINGLE_PROGRAM_LINK(application.programId?._id?.toString() ?? '')}`}
                 underline="hover"
             >
                 {`${application.programId?.school} ${application.programId?.program_name} - ${application.programId?.semester} - ${application.programId?.degree} - ${application.programId?.uni_assist}`}
@@ -145,7 +146,7 @@ export const UniAssistProgramBlock = ({
         useState(false);
     const [notNeededModelOpen, setAsNotNeededModelOpen] = useState(false);
     const [applicationState, setApplicationState] = useState(application);
-    const handleMutationError = (error) => {
+    const handleMutationError = (error: Error) => {
         setSeverity('error');
         setMessage(error.message || 'An error occurred. Please try again.');
         setOpenSnackbar(true);

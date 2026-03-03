@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Tabs, Tab, Box, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
@@ -31,7 +31,7 @@ const CVMLRLDashboard = (props: CVMLRLDashboardProps) => {
     });
     const [value, setValue] = useState(0);
 
-    const handleChange = (event, newValue) => {
+    const handleChange = (event: React.SyntheticEvent, newValue: number) => {
         setValue(newValue);
     };
 

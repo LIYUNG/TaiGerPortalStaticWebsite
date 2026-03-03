@@ -14,7 +14,7 @@ import {
 
 import BaseDocumentCheckingTasks from '../../MainViewTab/AgentTasks/BaseDocumentCheckingTasks';
 import { useAuth } from '@components/AuthProvider';
-import type { IStudentResponse } from '@/api/types';
+import type { IStudentResponse } from '@taiger-common/model';
 
 const BaseDocumentCheckingTable = ({
     students

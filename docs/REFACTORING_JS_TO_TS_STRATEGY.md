@@ -344,7 +344,7 @@ if (user != null) {
 Do these in order so later steps don’t re-trigger earlier errors:
 
 1. **Shared types**  
-   Add or extend `api/types.ts` (e.g. `Application`, `ApplicationProgramId`, `AuthUserData`). Export and reuse.
+   Add or extend `api/types.ts` (e.g. `Application`, `AuthUserData`). Export and reuse.
 
 2. **Event handler parameters (`e`)**  
    Batch-fix all `(e) =>` with the correct `React.*Event<...>` type (see §1.1).
@@ -395,7 +395,7 @@ API response interfaces are centralized in `src/api/types.ts` and reused across 
 | `getStudentMeetings()` | `GetStudentMeetingsResponse` | MeetingList, MeetingTab |
 | `getStudentMeeting()` | `GetStudentMeetingResponse` | MeetingFormModal |
 
-**Entity types** (used in components): `MeetingResponse`, `IStudentResponse`, `Application`, `ProgramResponse`, `AgentResponse`, `CommunicationResponse`, `EventResponse`, `InterviewResponse`, `DocumentThreadResponse`, `DocumentThreadMessage`, `AdmissionsStatRow`, `OpenTaskRow`.
+**Entity types** (used in components): `MeetingResponse`, `IStudentResponse`, `Application`, `ProgramResponse`, `EventResponse`, `InterviewResponse`, `DocumentThreadResponse`, `DocumentThreadMessage`, `AdmissionsStatRow`, `OpenTaskRow`.
 
 ### 7.2 Components with typed props (API data)
 

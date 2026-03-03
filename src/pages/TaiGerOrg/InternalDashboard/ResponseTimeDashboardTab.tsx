@@ -22,6 +22,70 @@ import {
 } from '@mui/icons-material';
 import { getResponseIntervalByStudent } from '@/api';
 
+// ---------------------------------------------------------------------------
+// Local type definitions
+// ---------------------------------------------------------------------------
+
+interface IntervalItem {
+    interval: number;
+    intervalStartAt: string | Date;
+}
+
+interface ThreadInterval {
+    threadId?: string;
+    intervalType?: string;
+    intervals: IntervalItem[];
+}
+
+interface ApplicationInterval {
+    _id: string;
+    school: string;
+    program_name: string;
+    threadIntervals: ThreadInterval[];
+}
+
+interface StudentIntervalData {
+    communicationThreadIntervals?: IntervalItem[];
+    applications?: ApplicationInterval[];
+}
+
+interface ChartDataItem {
+    userId: string;
+    name: string;
+    interval: number;
+    [key: string]: string | number | Date | null | undefined;
+}
+
+interface UserBarClickPayload {
+    userId: string;
+    name: string;
+}
+
+interface UserAvgResponseTime {
+    _id: string;
+    name: string;
+    avgByType: Record<string, number>;
+    agents?: string[];
+    editors?: string[];
+}
+
+interface TeamMemberInfo {
+    firstname: string;
+    lastname: string;
+}
+
+type TeamMembersMap = Record<string, TeamMemberInfo>;
+
+interface TeamStatEntry {
+    _id?: string;
+    name?: string;
+    avgByType: Record<string, number>;
+}
+
+// ---------------------------------------------------------------------------
+// Utility functions
+// ---------------------------------------------------------------------------
+
 const editorThreadTypes = [
     'CV',
     'CV_US',
@@ -35,75 +99,113 @@ const editorThreadTypes = [
 ];
 const agentThreadTypes = ['communication', 'Supplementary_Form'];
 
-const getIntervalAvg = (intervals) => {
+const getIntervalAvg = (
+    intervals: { interval: number }[] | undefined
+): number => {
     if (!intervals) return 0;
     const sumInterval = intervals?.reduce(
-        (acc, item) => acc + item?.interval,
+        (acc: number, item: { interval: number }) => acc + item?.interval,
         0
     );
     const averageInterval = sumInterval / intervals?.length;
     return averageInterval;
 };
 
-const responseTimeToChartData = (responseTime, threadType) => {
+const responseTimeToChartData = (
+    responseTime: UserAvgResponseTime[],
+    threadType: string
+): ChartDataItem[] => {
     return responseTime
-        ?.filter((user) => user?.avgByType?.[threadType])
-        ?.map((user) => ({
+        ?.filter((user: UserAvgResponseTime) => user?.avgByType?.[threadType])
+        ?.map((user: UserAvgResponseTime) => ({
             userId: user?._id,
             name: user?.name,
             interval: Number(user?.avgByType?.[threadType]?.toFixed(2))
         }));
 };
 
-const calculateAveragesByType = (data) => {
-    const avgByType = data.reduce((acc, item) => {
-        for (const [key, value] of Object.entries(item.avgByType)) {
-            if (!acc[key]) {
-                acc[key] = { sum: 0, count: 0 };
+const calculateAveragesByType = (
+    data: UserAvgResponseTime[]
+): Record<string, number> => {
+    const avgByType = data.reduce(
+        (
+            acc: Record<string, { sum: number; count: number }>,
+            item: UserAvgResponseTime
+        ) => {
+            for (const [key, value] of Object.entries(item.avgByType)) {
+                if (!acc[key]) {
+                    acc[key] = { sum: 0, count: 0 };
+                }
+                acc[key].sum += value as number;
+                acc[key].count += 1;
             }
-            acc[key].sum += value;
-            acc[key].count += 1;
-        }
-        return acc;
-    }, {});
+            return acc;
+        },
+        {}
+    );
 
     return Object.fromEntries(
-        Object.entries(avgByType).map(([key, { sum, count }]) => [
-            key,
-            sum / count
-        ])
+        Object.entries(avgByType).map(
+            ([key, val]: [string, { sum: number; count: number }]) => [
+                key,
+                val.sum / val.count
+            ]
+        )
     );
 };
 
-const getTeamStats = (studentAvgResponseTime, teamType) => {
-    const groupStats = studentAvgResponseTime.reduce((acc, student) => {
-        const userId = student?.[teamType]?.[0];
-        if (!userId) return acc;
-        if (!acc[userId]) {
-            acc[userId] = [];
-        }
-        acc[userId].push(student);
-        return acc;
-    }, {});
+const getTeamStats = (
+    studentAvgResponseTime: UserAvgResponseTime[],
+    teamType: string
+): Record<string, TeamStatEntry> => {
+    const groupStats = studentAvgResponseTime.reduce(
+        (
+            acc: Record<string, UserAvgResponseTime[]>,
+            student: UserAvgResponseTime
+        ) => {
+            const teamField = student?.[teamType as 'agents' | 'editors'];
+            const userId = teamField?.[0];
+            if (!userId) return acc;
+            if (!acc[userId]) {
+                acc[userId] = [];
+            }
+            acc[userId].push(student);
+            return acc;
+        },
+        {}
+    );
 
-    const averages = Object.fromEntries(
-        Object.entries(groupStats).map(([key, array]) => [
-            key,
-            { avgByType: calculateAveragesByType(array) }
-        ])
+    const averages: Record<string, TeamStatEntry> = Object.fromEntries(
+        Object.entries(groupStats).map(
+            ([key, array]: [string, UserAvgResponseTime[]]) => [
+                key,
+                { avgByType: calculateAveragesByType(array) }
+            ]
+        )
     );
 
     return averages;
 };
 
-const ResponseTimeBarChart = ({ chartData, onBarClick }) => {
+// ---------------------------------------------------------------------------
+// Components
+// ---------------------------------------------------------------------------
+
+interface ResponseTimeBarChartProps {
+    chartData: ChartDataItem[];
+    onBarClick: (payload: UserBarClickPayload) => void;
+}
+
+const ResponseTimeBarChart: React.FC<ResponseTimeBarChartProps> = ({
+    chartData,
+    onBarClick
+}) => {
     return (
         <BarChart
             dataset={chartData}
             height={400}
             margin={{ top: 20, right: 30, left: 50, bottom: 110 }}
-            onClick={onBarClick}
-            onItemClick={(event, barItemIdentifier) => {
+            onItemClick={(_event, barItemIdentifier) => {
                 onBarClick({
                     userId: chartData[barItemIdentifier.dataIndex]?.userId,
                     name: chartData[barItemIdentifier.dataIndex]?.name
@@ -125,14 +227,27 @@ const ResponseTimeBarChart = ({ chartData, onBarClick }) => {
     );
 };
 
-const ChartOverview = ({ data, teamType, onBarClick }) => {
+interface ChartOverviewProps {
+    data: TeamStatEntry[] | UserAvgResponseTime[];
+    teamType: string;
+    onBarClick: (payload: UserBarClickPayload) => void;
+}
+
+const ChartOverview: React.FC<ChartOverviewProps> = ({
+    data,
+    teamType,
+    onBarClick
+}) => {
     const threadTypes =
         teamType === 'agents' ? agentThreadTypes : editorThreadTypes;
 
     return (
         <>
             {threadTypes.map((fileType) => {
-                const chartData = responseTimeToChartData(data, fileType);
+                const chartData = responseTimeToChartData(
+                    data as UserAvgResponseTime[],
+                    fileType
+                );
                 if (!chartData || chartData?.length === 0) return null;
                 const averageInterval = getIntervalAvg(chartData);
                 return (
@@ -156,7 +271,14 @@ const ChartOverview = ({ data, teamType, onBarClick }) => {
     );
 };
 
-const TeamOverview = ({
+interface TeamOverviewProps {
+    studentAvgResponseTime: UserAvgResponseTime[];
+    teamMembers: TeamMembersMap;
+    teamType: string;
+    onBarClick: (payload: UserBarClickPayload) => void;
+}
+
+const TeamOverview: React.FC<TeamOverviewProps> = ({
     studentAvgResponseTime,
     teamMembers,
     teamType,
@@ -168,7 +290,7 @@ const TeamOverview = ({
         teamStats[userId].name = teamMembers?.[userId]?.firstname || userId;
     });
 
-    const teamData = Object.values(teamStats).flat();
+    const teamData = Object.values(teamStats);
 
     return (
         <ChartOverview
@@ -179,14 +301,24 @@ const TeamOverview = ({
     );
 };
 
-const MemberOverview = ({
+interface MemberOverviewProps {
+    studentAvgResponseTime: UserAvgResponseTime[];
+    memberId: string;
+    teamType: string;
+    onBarClick: (payload: UserBarClickPayload) => void;
+}
+
+const MemberOverview: React.FC<MemberOverviewProps> = ({
     studentAvgResponseTime,
     memberId,
     teamType,
     onBarClick
 }) => {
     const memberStats = studentAvgResponseTime?.filter(
-        (student) => student?.[teamType]?.[0] === memberId
+        (student: UserAvgResponseTime) => {
+            const teamField = student?.[teamType as 'agents' | 'editors'];
+            return teamField?.[0] === memberId;
+        }
     );
     return (
         <ChartOverview
@@ -197,7 +329,14 @@ const MemberOverview = ({
     );
 };
 
-const StudentProgramOverview = ({
+interface StudentProgramOverviewProps {
+    title: string;
+    threadIntervals: ThreadInterval[];
+    collapse?: boolean;
+    [key: string]: unknown;
+}
+
+const StudentProgramOverview: React.FC<StudentProgramOverviewProps> = ({
     title,
     threadIntervals,
     collapse = false,
@@ -215,7 +354,9 @@ const StudentProgramOverview = ({
             <CardHeader
                 onClick={handleClick}
                 subheader={`Average response time: ${getIntervalAvg(
-                    threadIntervals?.flatMap((thread) => thread.intervals)
+                    threadIntervals?.flatMap(
+                        (thread: ThreadInterval) => thread.intervals
+                    )
                 ).toFixed(2)} days`}
                 title={
                     <>
@@ -231,7 +372,7 @@ const StudentProgramOverview = ({
             <CardContent>
                 <Collapse in={isCollapsed}>
                     {threadIntervals.length !== 0
-                        ? threadIntervals.map((thread) => (
+                        ? threadIntervals.map((thread: ThreadInterval) => (
                               <React.Fragment key={thread.threadId}>
                                   {thread.intervalType ? (
                                       <Divider
@@ -248,16 +389,19 @@ const StudentProgramOverview = ({
                                   ) : null}
                                   <LineChart
                                       dataset={thread.intervals
-                                          .map((item) => ({
+                                          .map((item: IntervalItem) => ({
                                               ...item,
                                               intervalStartAt: new Date(
                                                   item.intervalStartAt
                                               )
                                           }))
                                           .sort(
-                                              (a, b) =>
-                                                  a.intervalStartAt -
-                                                  b.intervalStartAt
+                                              (
+                                                  a: { intervalStartAt: Date },
+                                                  b: { intervalStartAt: Date }
+                                              ) =>
+                                                  a.intervalStartAt.getTime() -
+                                                  b.intervalStartAt.getTime()
                                           )}
                                       height={400}
                                       margin={{
@@ -285,14 +429,20 @@ const StudentProgramOverview = ({
     );
 };
 
-const StudentOverview = ({ studentId }) => {
-    const [studentIntervals, setStudentIntervals] = useState('error');
+interface StudentOverviewProps {
+    studentId: string;
+}
+
+const StudentOverview: React.FC<StudentOverviewProps> = ({ studentId }) => {
+    const [studentIntervals, setStudentIntervals] = useState<
+        StudentIntervalData | 'error'
+    >('error');
     useEffect(() => {
         if (!studentId) return;
         getResponseIntervalByStudent(studentId).then((res) => {
             if (res?.status === 200) {
                 const { data } = res.data;
-                setStudentIntervals(data);
+                setStudentIntervals(data as unknown as StudentIntervalData);
             } else {
                 setStudentIntervals('error');
             }
@@ -309,7 +459,8 @@ const StudentOverview = ({ studentId }) => {
                 </Typography>
             ) : null}
             {studentIntervals !== 'error' &&
-            studentIntervals?.communicationThreadIntervals?.length > 0 ? (
+            studentIntervals?.communicationThreadIntervals &&
+            studentIntervals.communicationThreadIntervals.length > 0 ? (
                 <StudentProgramOverview
                     collapse={true}
                     key="communication"
@@ -323,20 +474,29 @@ const StudentOverview = ({ studentId }) => {
                 />
             ) : null}
             {studentIntervals !== 'error' &&
-            studentIntervals?.applications?.length > 0
-                ? studentIntervals.applications.map((application) => (
-                      <StudentProgramOverview
-                          key={application._id}
-                          threadIntervals={application?.threadIntervals}
-                          title={`${application.school} - ${application.program_name} (${application.threadIntervals.length})`}
-                      />
-                  ))
+            studentIntervals?.applications &&
+            studentIntervals.applications.length > 0
+                ? studentIntervals.applications.map(
+                      (application: ApplicationInterval) => (
+                          <StudentProgramOverview
+                              key={application._id}
+                              threadIntervals={application?.threadIntervals}
+                              title={`${application.school} - ${application.program_name} (${application.threadIntervals.length})`}
+                          />
+                      )
+                  )
                 : null}
         </>
     );
 };
 
-const ResponseTimeDashboardTab = ({
+interface ResponseTimeDashboardTabProps {
+    studentAvgResponseTime: UserAvgResponseTime[];
+    agents: TeamMembersMap;
+    editors: TeamMembersMap;
+}
+
+const ResponseTimeDashboardTab: React.FC<ResponseTimeDashboardTabProps> = ({
     studentAvgResponseTime,
     agents,
     editors
@@ -347,28 +507,36 @@ const ResponseTimeDashboardTab = ({
     const paramMemberId = searchParams.get('member');
     const paramStudentId = searchParams.get('student');
 
-    const teams = { agents: agents, editors: editors };
+    const teams: Record<string, TeamMembersMap> = {
+        agents: agents,
+        editors: editors
+    };
     const modes = ['agents', 'editors'];
     const [viewMode, setViewMode] = useState(
-        modes.includes(paramViewMode) ? paramViewMode : 'agents'
+        modes.includes(paramViewMode ?? '')
+            ? (paramViewMode as string)
+            : 'agents'
     );
     const teamTypeLabel = viewMode === 'agents' ? 'Agent' : 'Editor';
 
-    const [member, setMember] = useState(
+    const [member, setMember] = useState<UserBarClickPayload | null>(
         paramMemberId
             ? {
                   userId: paramMemberId,
-                  name: teams?.[viewMode]?.[paramMemberId]?.firstname
+                  name:
+                      teams?.[viewMode]?.[paramMemberId]?.firstname ??
+                      paramMemberId
               }
             : null
     );
-    const [student, setStudent] = useState(
+    const [student, setStudent] = useState<UserBarClickPayload | null>(
         paramStudentId
             ? {
                   userId: paramStudentId,
-                  name: studentAvgResponseTime?.find(
-                      (student) => student._id === paramStudentId
-                  )?.name
+                  name:
+                      studentAvgResponseTime?.find(
+                          (s: UserAvgResponseTime) => s._id === paramStudentId
+                      )?.name ?? paramStudentId
               }
             : null
     );
@@ -408,14 +576,14 @@ const ResponseTimeDashboardTab = ({
         };
     }, [viewMode, student, member, searchParams, setSearchParams]);
 
-    const onBarClickLayer1 = ({ userId, name }) => {
+    const onBarClickLayer1 = ({ userId, name }: UserBarClickPayload) => {
         const user = { userId, name };
         if (!teams?.[viewMode]?.[userId]) {
             return;
         }
         setMember(user);
     };
-    const onBarClickLayer2 = ({ userId, name }) => {
+    const onBarClickLayer2 = ({ userId, name }: UserBarClickPayload) => {
         if (!userId) return;
         const user = { userId, name };
         setStudent(user);

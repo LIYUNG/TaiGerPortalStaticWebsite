@@ -1,13 +1,28 @@
 import { useQuery } from '@tanstack/react-query';
 import { getProgramRequirementsQuery } from '@/api/query';
-import { ProgramRequirementsTable } from '@components/ProgramRequirementsTable/ProgramRequirementsTable';
+import {
+    ProgramRequirementsTable,
+    ProgramRequirementsTableProps
+} from '@components/ProgramRequirementsTable/ProgramRequirementsTable';
 import { convertDateUXFriendly } from '@utils/contants';
+import type { IProgramWithId } from '@taiger-common/model';
 
-export const ProgramRequirementsTableWrapper = ({ onAnalyseV2 }) => {
+interface ProgramRequirementPopulated {
+    _id: string;
+    programId: IProgramWithId[];
+    attributes: string[];
+    updatedAt: string;
+}
+
+interface Props {
+    onAnalyseV2: ProgramRequirementsTableProps['onAnalyseV2'];
+}
+
+export const ProgramRequirementsTableWrapper = ({ onAnalyseV2 }: Props) => {
     const { data, isLoading } = useQuery(getProgramRequirementsQuery());
     if (isLoading) return <div>Loading...</div>;
     const transformedData =
-        data?.data?.map((row) => {
+        data?.data?.map((row: ProgramRequirementPopulated) => {
             return {
                 ...row, // Spread the original row object
                 program_name: `${row.programId[0].school} ${row.programId[0].program_name} ${row.programId[0].degree}`,

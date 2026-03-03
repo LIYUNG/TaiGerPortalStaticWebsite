@@ -19,10 +19,9 @@ import {
 } from '@mui/icons-material';
 import { is_TaiGer_role } from '@taiger-common/core';
 import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
 
 import ErrorPage from '../Utils/ErrorPage';
-import { getTeamMembersQuery } from '@/api/query';
+import { useTeamMembers } from '@hooks/useTeamMembers';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { appConfig } from '../../config';
@@ -43,28 +42,20 @@ const Accounting = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
 
-    // Fetch team members using React Query
-    const {
-        data: response,
-        isLoading,
-        error,
-        isError
-    } = useQuery(getTeamMembersQuery());
+    const { teams, isLoading, isError, error, success, status } =
+        useTeamMembers();
 
-    // Memoize filtered lists
     const agents = useMemo(() => {
-        if (!response?.data?.data) return [];
-        return (response.data.data as TeamMember[]).filter(
+        return (teams as TeamMember[]).filter(
             (member) => member.role === 'Agent'
         );
-    }, [response]);
+    }, [teams]);
 
     const editors = useMemo(() => {
-        if (!response?.data?.data) return [];
-        return (response.data.data as TeamMember[]).filter(
+        return (teams as TeamMember[]).filter(
             (member) => member.role === 'Editor'
         );
-    }, [response]);
+    }, [teams]);
 
     if (
         !user ||
@@ -79,12 +70,11 @@ const Accounting = () => {
         return <Loading />;
     }
 
-    if (isError || !response?.data?.success) {
-        const axiosError = error as
-            | { response?: { status?: number } }
-            | undefined;
+    if (isError || !success) {
         const res_status =
-            (response?.status || axiosError?.response?.status) ?? 500;
+            status ??
+            (error as { response?: { status?: number } })?.response?.status ??
+            500;
         return <ErrorPage res_status={res_status} />;
     }
 

@@ -7,14 +7,14 @@ import {
 } from '@mui/material';
 
 import ProgramConflict from './ProgramConflict';
-import { IProgramWithId, IStudentResponse } from '@/types/taiger-common';
+import type { IProgramWithId, IStudentResponse } from '@taiger-common/model';
 
 export interface TabProgramConflictProps {
     students: IStudentResponse[];
     program: IProgramWithId;
 }
 
-const TabProgramConflict = ({ students, program }: TabProgramConflictProps) => {
+const TabProgramConflict = ({ students }: TabProgramConflictProps) => {
     const programConflicts = students.map((conflict, i) => (
         <ProgramConflict
             key={i}

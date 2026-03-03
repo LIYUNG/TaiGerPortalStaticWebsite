@@ -18,6 +18,14 @@ import DEMO from '@store/constant';
 import { useTranslation } from 'react-i18next';
 import { getProgramTicketsQuery } from '@/api/query';
 import { useQuery } from '@tanstack/react-query';
+import type { IProgramWithId } from '@taiger-common/model';
+import type { ITicket } from '@taiger-common/model';
+
+interface ITicketPopulated extends Omit<ITicket, 'program_id' | 'description'> {
+    _id: string;
+    program_id: IProgramWithId;
+    description: string;
+}
 
 const ProgramReportCard = () => {
     const { t } = useTranslation();
@@ -43,7 +51,7 @@ const ProgramReportCard = () => {
     const tickets = data?.data || [];
 
     const renderTicketRows = () =>
-        tickets.map((ticket, i) => (
+        tickets.map((ticket: ITicketPopulated, i: number) => (
             <TableRow key={i}>
                 <TableCell>
                     <Link

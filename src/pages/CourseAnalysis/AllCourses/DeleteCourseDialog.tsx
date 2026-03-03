@@ -15,12 +15,25 @@ import { useSnackBar } from '@contexts/use-snack-bar';
 import { deleteCourse } from '@/api';
 import { queryClient } from '@/api';
 
+interface CourseItem {
+    _id: string;
+    all_course_chinese?: string;
+    all_course_english?: string;
+}
+
+interface DeleteCourseDialogProps {
+    open: boolean;
+    onClose: () => void;
+    courses: CourseItem[] | undefined;
+    handleOnSuccess: () => void;
+}
+
 export const DeleteCourseDialog = ({
     open,
     onClose,
     courses,
     handleOnSuccess
-}) => {
+}: DeleteCourseDialogProps) => {
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
     const {
         mutate,

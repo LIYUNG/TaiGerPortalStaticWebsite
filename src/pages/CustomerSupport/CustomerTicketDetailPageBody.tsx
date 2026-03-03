@@ -26,6 +26,7 @@ import {
     useTheme
 } from '@mui/material';
 import { is_TaiGer_role } from '@taiger-common/core';
+import type { IComplaintWithId } from '@taiger-common/model';
 
 import { appConfig } from '../../config';
 import DEMO from '@store/constant';
@@ -42,7 +43,13 @@ import DocThreadEditor from '@components/Message/DocThreadEditor';
 import { readDOCX, readPDF, readXLSX } from '../Utils/util_functions';
 import { TopBar } from '@components/TopBar/TopBar';
 
-const CustomerTicketDetailPageBody = ({ complaintTicket }) => {
+interface CustomerTicketDetailPageBodyProps {
+    complaintTicket: IComplaintWithId;
+}
+
+const CustomerTicketDetailPageBody = ({
+    complaintTicket
+}: CustomerTicketDetailPageBodyProps) => {
     const { t } = useTranslation();
     const theme = useTheme();
     const { user } = useAuth();
@@ -57,7 +64,7 @@ const CustomerTicketDetailPageBody = ({ complaintTicket }) => {
         isSubmissionLoaded: true,
         accordionKeys: new Array(complaintTicket.messages.length)
             .fill()
-            .map((x, i) =>
+            .map((_x: undefined, i: number) =>
                 i === complaintTicket.messages.length - 1 ? i : -1
             ), // to collapse all
         isLoaded: true
@@ -74,7 +81,7 @@ const CustomerTicketDetailPageBody = ({ complaintTicket }) => {
         setOpen(false);
     };
 
-    const singleExpandtHandler = (idx) => {
+    const singleExpandtHandler = (idx: number) => {
         const accordionKeys = [
             ...customerTicketDetailPageBodyState.accordionKeys
         ];
@@ -153,7 +160,7 @@ const CustomerTicketDetailPageBody = ({ complaintTicket }) => {
         const formData = new FormData();
 
         if (customerTicketDetailPageBodyState.file) {
-            customerTicketDetailPageBodyState.file.forEach((file) => {
+            customerTicketDetailPageBodyState.file.forEach((file: File) => {
                 formData.append('files', file);
             });
         }
@@ -289,7 +296,7 @@ const CustomerTicketDetailPageBody = ({ complaintTicket }) => {
         }));
     };
 
-    const handleAsFinalFile = (ticket_id, newStatus) => {
+    const handleAsFinalFile = (ticket_id: string, newStatus: string) => {
         setCustomerTicketDetailPageBodyState((prevState) => ({
             ...prevState,
             ticket_id,

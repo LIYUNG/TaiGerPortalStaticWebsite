@@ -24,10 +24,20 @@ import { useAuth } from '@components/AuthProvider';
 import { TopBar } from '@components/TopBar/TopBar';
 import useCommunications from '@hooks/useCommunications';
 import i18next from 'i18next';
+import type {
+    IUserWithId,
+    IStudentResponse,
+    ICommunicationWithId
+} from '@taiger-common/model';
 
-const InformationBlockChat = ({ user, student }) => {
+interface InformationBlockChatProps {
+    user: IUserWithId | null;
+    student: IStudentResponse;
+}
+
+const InformationBlockChat = ({ user, student }: InformationBlockChatProps) => {
     return (
-        <Box variant="body1">
+        <Box>
             {appConfig.companyName}
             顧問皆位於中歐時區，無法及時回復，為確保有
             <b>效率溝通</b>，留言時請注意以下幾點：
@@ -103,7 +113,16 @@ const InformationBlockChat = ({ user, student }) => {
         </Box>
     );
 };
-const CommunicationSinglePageBody = ({ loadedData }) => {
+interface CommunicationSinglePageBodyProps {
+    loadedData: {
+        data: ICommunicationWithId[];
+        student: IStudentResponse;
+    };
+}
+
+const CommunicationSinglePageBody = ({
+    loadedData
+}: CommunicationSinglePageBodyProps) => {
     const { data, student } = loadedData;
     const { user } = useAuth();
     const { t } = useTranslation();

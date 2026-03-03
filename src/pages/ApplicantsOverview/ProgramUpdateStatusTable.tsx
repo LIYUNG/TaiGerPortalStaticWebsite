@@ -4,12 +4,33 @@ import { Link } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import {
     MaterialReactTable,
-    useMaterialReactTable
+    useMaterialReactTable,
+    type MRT_Row
 } from 'material-react-table';
 import DEMO from '@store/constant';
 import { convertDate } from '@utils/contants';
 
-const ProgramUpdateStatusTable = ({ data, isLoading = false }) => {
+interface ProgramUpdateStatusRow {
+    program_id: string;
+    school: string;
+    program_name: string;
+    degree: string;
+    semester: string;
+    whoupdated?: string;
+    updatedAt?: string;
+    id?: string;
+    [key: string]: unknown;
+}
+
+interface ProgramUpdateStatusTableProps {
+    data: ProgramUpdateStatusRow[];
+    isLoading?: boolean;
+}
+
+const ProgramUpdateStatusTable = ({
+    data,
+    isLoading = false
+}: ProgramUpdateStatusTableProps) => {
     const { t } = useTranslation();
 
     // Remove duplicates based on program_id
@@ -36,7 +57,7 @@ const ProgramUpdateStatusTable = ({ data, isLoading = false }) => {
                 accessorKey: 'school',
                 header: t('School'),
                 size: 250,
-                Cell: ({ row }) => {
+                Cell: ({ row }: { row: MRT_Row<ProgramUpdateStatusRow> }) => {
                     const linkUrl = `${DEMO.SINGLE_PROGRAM_LINK(row.original.id)}`;
                     return (
                         <Link
@@ -54,7 +75,7 @@ const ProgramUpdateStatusTable = ({ data, isLoading = false }) => {
                 accessorKey: 'program_name',
                 header: t('Program', { ns: 'common' }),
                 size: 250,
-                Cell: ({ row }) => {
+                Cell: ({ row }: { row: MRT_Row<ProgramUpdateStatusRow> }) => {
                     const linkUrl = `${DEMO.SINGLE_PROGRAM_LINK(row.original.id)}`;
                     return (
                         <Link
@@ -82,7 +103,7 @@ const ProgramUpdateStatusTable = ({ data, isLoading = false }) => {
                 accessorKey: 'whoupdated',
                 header: t('Updated by', { ns: 'common' }),
                 size: 120,
-                Cell: ({ row }) => {
+                Cell: ({ row }: { row: MRT_Row<ProgramUpdateStatusRow> }) => {
                     return row.original.whoupdated || '-';
                 }
             },
@@ -90,7 +111,7 @@ const ProgramUpdateStatusTable = ({ data, isLoading = false }) => {
                 accessorKey: 'updatedAt',
                 header: t('Last update', { ns: 'common' }),
                 size: 150,
-                Cell: ({ row }) => {
+                Cell: ({ row }: { row: MRT_Row<ProgramUpdateStatusRow> }) => {
                     return row.original.updatedAt
                         ? convertDate(row.original.updatedAt)
                         : '-';

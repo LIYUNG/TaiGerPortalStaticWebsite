@@ -17,11 +17,26 @@ import HelpIcon from '@mui/icons-material/Help';
 import { green, grey } from '@mui/material/colors';
 import { useTranslation } from 'react-i18next';
 import { is_TaiGer_Student } from '@taiger-common/core';
+import type { Theme } from '@mui/material/styles';
+import type {
+    IDocumentthreadPopulated,
+    IUserWithId
+} from '@taiger-common/model';
 
 import { putOriginAuthorConfirmedByStudent } from '@/api';
 import { appConfig } from '../../../../config';
 
-const OriginAuthorStatementBar = ({ thread, theme, user }) => {
+interface OriginAuthorStatementBarProps {
+    thread: IDocumentthreadPopulated;
+    theme: Theme;
+    user: IUserWithId;
+}
+
+const OriginAuthorStatementBar = ({
+    thread,
+    theme,
+    user
+}: OriginAuthorStatementBarProps) => {
     const [openOriginAuthorModal, setOpenOriginAuthorModal] = useState(false);
     const [originAuthorConfirmed, setOriginAuthorConfirmed] = useState(
         thread?.isOriginAuthorDeclarationConfirmedByStudent
@@ -31,7 +46,7 @@ const OriginAuthorStatementBar = ({ thread, theme, user }) => {
         useState(false);
     const { t } = useTranslation();
 
-    const postOriginAuthorConfirmed = (checked) => {
+    const postOriginAuthorConfirmed = (checked: boolean) => {
         setOriginAuthorConfirmed(checked);
         setIsLoading(true);
         putOriginAuthorConfirmedByStudent(

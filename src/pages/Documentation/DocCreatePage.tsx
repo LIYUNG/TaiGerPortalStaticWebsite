@@ -38,8 +38,14 @@ import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';
 import { useTranslation } from 'react-i18next';
 import { appConfig } from '../../config';
+import type { IDocumentationWithId } from '@taiger-common/model';
 
-const DocCreatePage = (props) => {
+interface DocCreatePageProps {
+    item?: string;
+    role?: string;
+}
+
+const DocCreatePage = (props: DocCreatePageProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const [DocCreatePageState, setDocCreatePage] = useState({
@@ -166,7 +172,7 @@ const DocCreatePage = (props) => {
         );
     };
 
-    const openDeleteDocModalWindow = (doc) => {
+    const openDeleteDocModalWindow = (doc: IDocumentationWithId) => {
         setDocCreatePage((prevState) => ({
             ...prevState,
             doc_id_toBeDelete: doc._id,
@@ -271,21 +277,23 @@ const DocCreatePage = (props) => {
 
     const documentlist_key = Object.keys(documentation_categories);
 
-    const document_list = (cat) => {
-        const sections = {};
-        sections[`${cat}`] = DocCreatePageState.documentlists.filter(
-            (document) => document.category === cat
+    const document_list = (cat: string) => {
+        const sections: Record<string, IDocumentationWithId[]> = {};
+        sections[`${cat}`] = (
+            DocCreatePageState.documentlists as IDocumentationWithId[]
+        ).filter((document: IDocumentationWithId) => document.category === cat);
+        return sections[`${cat}`].map(
+            (document: IDocumentationWithId, i: number) => (
+                <DocumentsListItems
+                    document={document}
+                    idx={i}
+                    key={i}
+                    openDeleteDocModalWindow={openDeleteDocModalWindow}
+                    path="/docs/search"
+                    user={user}
+                />
+            )
         );
-        return sections[`${cat}`].map((document, i) => (
-            <DocumentsListItems
-                document={document}
-                idx={i}
-                key={i}
-                openDeleteDocModalWindow={openDeleteDocModalWindow}
-                path="/docs/search"
-                user={user}
-            />
-        ));
     };
     TabTitle('Docs Database');
     return (

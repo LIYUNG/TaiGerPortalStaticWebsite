@@ -35,13 +35,17 @@ export interface SurveyStateValue {
 
 interface SurveyContextValue {
     survey: SurveyStateValue;
-    handleChangeAcademic: (e: ChangeEvent<HTMLInputElement>) => void;
+    handleChangeAcademic: (
+        e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => void;
     handleChangeApplicationPreference: (
-        e: ChangeEvent<HTMLInputElement>
+        e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => void;
     setApplicationPreferenceByField: (name: string) => (value: unknown) => void;
     handleTestDate: (name: string, newValue: unknown) => void;
-    handleChangeLanguage: (e: ChangeEvent<HTMLInputElement>) => void;
+    handleChangeLanguage: (
+        e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => void;
     handleAcademicBackgroundSubmit: (
         e: FormEvent,
         university: Record<string, unknown>
@@ -55,7 +59,9 @@ interface SurveyContextValue {
         application_preference: Record<string, unknown>
     ) => void;
     updateDocLink: (link: string, key: string) => void;
-    onChangeURL: (e: ChangeEvent<HTMLInputElement>) => void;
+    onChangeURL: (
+        e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => void;
 }
 
 const SurveyContext = createContext<SurveyContextValue | null>(null);
@@ -68,7 +74,9 @@ export interface SurveyProviderProps {
 export const SurveyProvider = ({ children, value }: SurveyProviderProps) => {
     const [surveyState, setSurveyState] = useState<SurveyStateValue>(value);
 
-    const handleChangeAcademic = (e: ChangeEvent<HTMLInputElement>) => {
+    const handleChangeAcademic = (
+        e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
         e.preventDefault();
         const university_temp = {
             ...surveyState.academic_background?.university
@@ -97,7 +105,7 @@ export const SurveyProvider = ({ children, value }: SurveyProviderProps) => {
     };
 
     const handleChangeApplicationPreference = (
-        e: ChangeEvent<HTMLInputElement>
+        e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => {
         e.preventDefault();
         setApplicationPreference(e.target.name, e.target.value);
@@ -124,7 +132,9 @@ export const SurveyProvider = ({ children, value }: SurveyProviderProps) => {
         }));
     };
 
-    const handleChangeLanguage = (e: ChangeEvent<HTMLInputElement>) => {
+    const handleChangeLanguage = (
+        e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
         e.preventDefault();
         const language_temp = {
             ...surveyState.academic_background?.language
@@ -328,7 +338,9 @@ export const SurveyProvider = ({ children, value }: SurveyProviderProps) => {
         );
     };
 
-    const onChangeURL = (e: ChangeEvent<HTMLInputElement>) => {
+    const onChangeURL = (
+        e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
         e.preventDefault();
         const url_temp = e.target.value;
         setSurveyState((prevState) => ({

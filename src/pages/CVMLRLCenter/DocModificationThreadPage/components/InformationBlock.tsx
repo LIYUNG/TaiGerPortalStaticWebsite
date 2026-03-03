@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import {
     Typography,
@@ -38,6 +38,11 @@ import {
     is_TaiGer_Student,
     is_TaiGer_role
 } from '@taiger-common/core';
+import type {
+    IUserWithId,
+    IDocumentthreadPopulated,
+    ITemplateWithId
+} from '@taiger-common/model';
 import { useTranslation } from 'react-i18next';
 
 import DEMO from '@store/constant';
@@ -51,6 +56,26 @@ import { TopBar } from '@components/TopBar/TopBar';
 import DescriptionBlock from './DescriptionBlock';
 import RequirementsBlock from './RequirementsBlock';
 import OriginAuthorStatementBar from './OriginAuthorStatementBar';
+
+interface InformationBlockProps {
+    agents: IUserWithId[];
+    deadline: string;
+    editors: IUserWithId[];
+    conflict_list: Array<{
+        _id: { toString: () => string };
+        firstname?: string;
+        lastname?: string;
+    }>;
+    documentsthreadId: string;
+    isFavorite: boolean;
+    isGeneralRL: boolean;
+    template_obj: ITemplateWithId | null;
+    startEditingEditor: () => void;
+    handleFavoriteToggle: (threadId: string) => void;
+    thread: IDocumentthreadPopulated;
+    user: IUserWithId;
+    children: React.ReactNode;
+}
 
 const InformationBlock = ({
     agents,
@@ -66,14 +91,14 @@ const InformationBlock = ({
     thread,
     user,
     children
-}) => {
+}: InformationBlockProps) => {
     const theme = useTheme();
     const isDarkMode = theme.palette.mode === 'dark';
     const { t } = useTranslation();
     const [requirementsDialogOpen, setRequirementsDialogOpen] = useState(false);
     const [instructionsDialogOpen, setInstructionsDialogOpen] = useState(false);
 
-    const getInitials = (firstname, lastname) => {
+    const getInitials = (firstname: string, lastname: string) => {
         return `${firstname?.charAt(0) || ''}${lastname?.charAt(0) || ''}`.toUpperCase();
     };
 
@@ -89,7 +114,7 @@ const InformationBlock = ({
     const urgent = isDeadlineUrgent();
 
     const getGradientColors = useMemo(() => {
-        const resolveColors = (colorType) => {
+        const resolveColors = (colorType: string) => {
             if (isDarkMode) {
                 switch (colorType) {
                     case 'urgent':

@@ -1,6 +1,22 @@
+import type {
+    IApplicationPopulated,
+    IStudentResponse
+} from '@taiger-common/model';
+
 import EditableFileThread from './EditableFileThread';
 
-const ManualFilesList = (props) => {
+interface ManualFilesListProps {
+    application: IApplicationPopulated | null;
+    student: IStudentResponse;
+    handleAsFinalFile: (...args: unknown[]) => void;
+    isLocked?: boolean;
+    onDeleteFileThread: (...args: unknown[]) => void;
+    onDeleteProgramSpecificThread?: (...args: unknown[]) => void;
+    onFormSubmit?: (...args: unknown[]) => void;
+    onTrashClick?: (...args: unknown[]) => void;
+}
+
+const ManualFilesList = (props: ManualFilesListProps) => {
     let message_threads;
     if (props.application === null) {
         // general

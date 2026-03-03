@@ -9,7 +9,7 @@ import {
     Link,
     Button
 } from '@mui/material';
-import type { MeetingResponse } from '@/api/types';
+import type { IMeeting } from '@taiger-common/model';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EventIcon from '@mui/icons-material/Event';
@@ -23,11 +23,11 @@ import LaunchIcon from '@mui/icons-material/Launch';
 import { useTranslation } from 'react-i18next';
 
 export interface MeetingCardProps {
-    meeting: MeetingResponse;
+    meeting: IMeeting;
     isPast: boolean;
-    onEdit: (meeting: MeetingResponse) => void;
-    onDelete: (meeting: MeetingResponse) => void;
-    onConfirm: (meeting: MeetingResponse) => void;
+    onEdit: (meeting: IMeeting) => void;
+    onDelete: (meeting: IMeeting) => void;
+    onConfirm: (meeting: IMeeting) => void;
     showActions?: boolean;
 }
 

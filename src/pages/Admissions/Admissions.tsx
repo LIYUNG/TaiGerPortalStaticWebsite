@@ -67,7 +67,7 @@ const Admissions = () => {
 
     const result = data?.result;
 
-    if (!is_TaiGer_role(user)) {
+    if (!is_TaiGer_role(user!)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
     TabTitle(`${appConfig.companyName} Admissions`);

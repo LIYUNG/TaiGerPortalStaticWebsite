@@ -6,7 +6,7 @@ import {
     updateEditors,
     updateProfileDocumentStatus
 } from '@/api';
-import { IStudentResponse } from '@/types/taiger-common';
+import type { IStudentResponse } from '@taiger-common/model';
 
 interface StudentRecord {
     _id: string;

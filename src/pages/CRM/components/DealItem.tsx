@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import {
     Box,
     Tooltip,
@@ -14,18 +14,28 @@ import {
     ExpandMore as ExpandMoreIcon,
     ExpandLess as ExpandLessIcon
 } from '@mui/icons-material';
+import type { TFunction } from 'i18next';
+import type { CRMDealItem } from '@taiger-common/model';
 import { isTerminalStatus, getStatusColor } from './statusUtils';
 
-/**
- * DealItem
- * Props:
- * - deal
- * - t: i18next t fn
- * - onOpenStatusMenu: (event, deal) => void
- * - onEditDeal: (deal) => void
- * - isUpdating: boolean
- */
-const DealItem = ({ deal, t, onOpenStatusMenu, onEditDeal, isUpdating }) => {
+interface DealItemProps {
+    deal: CRMDealItem;
+    t: TFunction;
+    onOpenStatusMenu: (
+        event: React.MouseEvent<HTMLElement>,
+        deal: CRMDealItem
+    ) => void;
+    onEditDeal: (deal: CRMDealItem) => void;
+    isUpdating: boolean;
+}
+
+const DealItem = ({
+    deal,
+    t,
+    onOpenStatusMenu,
+    onEditDeal,
+    isUpdating
+}: DealItemProps) => {
     const items = [
         { key: 'initiatedAt', status: 'initiated' },
         { key: 'sentAt', status: 'sent' },
@@ -44,7 +54,7 @@ const DealItem = ({ deal, t, onOpenStatusMenu, onEditDeal, isUpdating }) => {
                 onClick={hasTimeline ? () => setOpen((v) => !v) : undefined}
                 onKeyDown={
                     hasTimeline
-                        ? (e) => {
+                        ? (e: React.KeyboardEvent<HTMLDivElement>) => {
                               if (e.key === 'Enter' || e.key === ' ') {
                                   e.preventDefault();
                                   setOpen((v) => !v);
@@ -102,7 +112,9 @@ const DealItem = ({ deal, t, onOpenStatusMenu, onEditDeal, isUpdating }) => {
                                     ns: 'crm',
                                     defaultValue: deal?.status || 'N/A'
                                 })}
-                                onClick={(e) => {
+                                onClick={(
+                                    e: React.MouseEvent<HTMLDivElement>
+                                ) => {
                                     e.stopPropagation();
                                     onOpenStatusMenu(e, deal);
                                 }}

@@ -36,6 +36,46 @@ import { getCRMSalesReps } from '@/api';
 
 const statusValues = ['initiated', 'sent', 'signed', 'closed', 'canceled'];
 
+interface DealRecord {
+    id?: string;
+    leadId?: string;
+    salesUserId?: string;
+    dealSizeNtd?: string | number;
+    status?: string;
+    note?: string;
+    initiatedAt?: string;
+    sentAt?: string;
+    signedAt?: string;
+    closedAt?: string;
+    leadFullName?: string;
+    salesLabel?: string;
+    [key: string]: unknown;
+}
+
+interface DealFormValues {
+    leadId: string;
+    salesUserId: string;
+    dealSizeNtd: string | number;
+    status: string;
+    note: string;
+    initiatedAt: string;
+    sentAt: string;
+    signedAt: string;
+    closedAt: string;
+}
+
+interface DealModalProps {
+    open: boolean;
+    onClose: () => void;
+    deal?: DealRecord | null;
+    preselectedLeadId?: string;
+    preselectedSalesUserId?: string;
+    lockLeadSelect?: boolean;
+    lockSalesUserSelect?: boolean;
+    onCreated?: () => Promise<void> | void;
+    onUpdated?: () => Promise<void> | void;
+}
+
 const DealModal = ({
     open,
     onClose,
@@ -46,7 +86,7 @@ const DealModal = ({
     lockSalesUserSelect = false,
     onCreated,
     onUpdated // New prop for update callback
-}) => {
+}: DealModalProps) => {
     const { t } = useTranslation();
     const queryClient = useQueryClient();
     const isEditMode = !!deal;
@@ -54,12 +94,14 @@ const DealModal = ({
     const [uiStatus, setUiStatus] = useState(deal?.status || 'initiated');
 
     // Helper: format date/time for HTML datetime-local input (YYYY-MM-DDTHH:MM)
-    const formatDateForInput = (dateString) => {
+    const formatDateForInput = (
+        dateString: string | Date | null | undefined
+    ) => {
         if (!dateString) return '';
         // Handle both ISO strings and Date objects
         const date = new Date(dateString);
         if (isNaN(date.getTime())) return '';
-        const pad = (n) => String(n).padStart(2, '0');
+        const pad = (n: number) => String(n).padStart(2, '0');
         const yyyy = date.getFullYear();
         const mm = pad(date.getMonth() + 1);
         const dd = pad(date.getDate());
@@ -83,7 +125,7 @@ const DealModal = ({
             return res?.data?.data ?? res?.data ?? [];
         }
     });
-    const salesOptions = (salesData || []).map((s) => ({
+    const salesOptions = (salesData || []).map((s: Record<string, string>) => ({
         userId: s.userId || s.value,
         label:
             s.label ||
@@ -204,13 +246,13 @@ const DealModal = ({
         resetForm();
         onClose?.();
     };
-    const toIso = (v) => {
+    const toIso = (v: string | Date | null | undefined) => {
         if (!v) return undefined;
         const d = new Date(v);
         return isNaN(d.getTime()) ? undefined : d.toISOString();
     };
 
-    const handleSubmitWithValues = async (values) => {
+    const handleSubmitWithValues = async (values: DealFormValues) => {
         const newErrors = {};
 
         // Only validate leadId and salesUserId in create mode
@@ -246,7 +288,7 @@ const DealModal = ({
         try {
             if (isEditMode) {
                 // Update existing deal: send full payload (no diff)
-                const isoOrNull = (v) =>
+                const isoOrNull = (v: string | Date | null | undefined) =>
                     v === '' || v == null ? null : (toIso(v) ?? null);
                 const payloadUpdate = {
                     leadId: values.leadId,
@@ -296,7 +338,7 @@ const DealModal = ({
     const currentStatus = uiStatus;
     const statusIndex = statusValues.indexOf(currentStatus);
     const dateKeysInOrder = ['initiatedAt', 'sentAt', 'signedAt', 'closedAt'];
-    let allowedDateKeys = [];
+    let allowedDateKeys: string[] = [];
     if (!isEditMode) {
         // In create mode allow all date fields
         allowedDateKeys = dateKeysInOrder;
@@ -379,16 +421,26 @@ const DealModal = ({
                                     >
                                         {allLeads
                                             .filter(
-                                                (l) => l.status !== 'closed'
+                                                (l: {
+                                                    id: string;
+                                                    fullName: string;
+                                                    status?: string;
+                                                }) => l.status !== 'closed'
                                             )
-                                            .map((l) => (
-                                                <MenuItem
-                                                    key={l.id}
-                                                    value={l.id}
-                                                >
-                                                    {l.fullName}
-                                                </MenuItem>
-                                            ))}
+                                            .map(
+                                                (l: {
+                                                    id: string;
+                                                    fullName: string;
+                                                    status?: string;
+                                                }) => (
+                                                    <MenuItem
+                                                        key={l.id}
+                                                        value={l.id}
+                                                    >
+                                                        {l.fullName}
+                                                    </MenuItem>
+                                                )
+                                            )}
                                     </Select>
                                 </FormControl>
                             )}
@@ -439,14 +491,19 @@ const DealModal = ({
                                         }
                                         value={field.state.value}
                                     >
-                                        {salesOptions.map((s) => (
-                                            <MenuItem
-                                                key={s.userId}
-                                                value={s.userId}
-                                            >
-                                                {s.label}
-                                            </MenuItem>
-                                        ))}
+                                        {salesOptions.map(
+                                            (s: {
+                                                userId: string;
+                                                label: string;
+                                            }) => (
+                                                <MenuItem
+                                                    key={s.userId}
+                                                    value={s.userId}
+                                                >
+                                                    {s.label}
+                                                </MenuItem>
+                                            )
+                                        )}
                                     </Select>
                                 </FormControl>
                             )}
@@ -506,7 +563,7 @@ const DealModal = ({
                                             'signedAt',
                                             'closedAt'
                                         ];
-                                        let toReset = [];
+                                        let toReset: string[] = [];
                                         if (newStatus === 'canceled') {
                                             // Ensure closedAt is cleared when switching to canceled
                                             toReset = ['closedAt'];

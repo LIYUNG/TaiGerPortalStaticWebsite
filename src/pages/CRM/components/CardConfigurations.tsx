@@ -1,6 +1,7 @@
 import { Typography } from '@mui/material';
+import type { TFunction } from 'i18next';
 
-export const getLeadCardConfigurations = (t) => [
+export const getLeadCardConfigurations = (t: TFunction) => [
     {
         id: 'education',
         title: t('cards.education.title', { ns: 'crm' }),
@@ -149,7 +150,7 @@ export const getLeadCardConfigurations = (t) => [
                 key: 'workExperience',
                 label: t('cards.work.workExperience', { ns: 'crm' }),
                 type: 'custom',
-                render: (lead) => (
+                render: (lead: Record<string, unknown>) => (
                     <Typography sx={{ whiteSpace: 'pre-line' }} variant="body1">
                         {lead.workExperience ||
                             t('cards.work.noWorkExperience', { ns: 'crm' })}
@@ -225,7 +226,7 @@ export const getLeadCardConfigurations = (t) => [
     }
 ];
 
-export const getStudentCardConfigurations = (t) => [
+export const getStudentCardConfigurations = (t: TFunction) => [
     {
         id: 'academic-university',
         title: t('Academic Background Survey'),

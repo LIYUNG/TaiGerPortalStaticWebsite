@@ -14,6 +14,10 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { isProgramDecided } from '@taiger-common/core';
+import type {
+    IApplicationPopulated,
+    IStudentResponse
+} from '@taiger-common/model';
 
 import {
     isCVFinished,
@@ -25,12 +29,19 @@ import {
 import DEMO from '@store/constant';
 import { isInTheFuture } from '@utils/contants';
 
-const ReadyToSubmitTasks = ({ application, students }) => {
+const ReadyToSubmitTasks = ({
+    application,
+    students
+}: {
+    application: IApplicationPopulated;
+    students: IStudentResponse[];
+}) => {
     return (
         isProgramDecided(application) &&
         isCVFinished(
             students.find(
-                (std) => std._id.toString() === application.studentId?._id
+                (std: IStudentResponse) =>
+                    std._id.toString() === application.studentId?._id
             )
         ) &&
         is_program_ml_rl_essay_ready(application) &&
@@ -99,20 +110,28 @@ const ReadyToSubmitTasks = ({ application, students }) => {
     );
 };
 
-const ReadyToSubmitTasksCard = ({ applications, students }) => {
+const ReadyToSubmitTasksCard = ({
+    applications,
+    students
+}: {
+    applications: IApplicationPopulated[];
+    students: IStudentResponse[];
+}) => {
     // const { user } = useAuth();
     const { t } = useTranslation();
 
     // const ready_to_submit_tasks = students.filter((student) =>
     //     student.agents.some((agent) => agent._id === user._id.toString())
     // );
-    const readyToSubmittasks = applications.map((application, i) => (
-        <ReadyToSubmitTasks
-            application={application}
-            key={i}
-            students={students}
-        />
-    ));
+    const readyToSubmittasks = applications.map(
+        (application: IApplicationPopulated, i: number) => (
+            <ReadyToSubmitTasks
+                application={application}
+                key={i}
+                students={students}
+            />
+        )
+    );
 
     return (
         <Card sx={{ mb: 2 }}>

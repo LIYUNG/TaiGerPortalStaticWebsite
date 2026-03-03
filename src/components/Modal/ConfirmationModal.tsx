@@ -17,6 +17,7 @@ export interface ConfirmationModalProps {
     confirmText: string;
     closeText: string;
     isLoading?: boolean;
+    children?: React.ReactNode;
 }
 
 export const ConfirmationModal = ({
@@ -29,7 +30,7 @@ export const ConfirmationModal = ({
     closeText,
     isLoading,
     children
-}) => {
+}: ConfirmationModalProps) => {
     return (
         <Dialog onClose={onClose} open={open}>
             <DialogTitle>{title}</DialogTitle>

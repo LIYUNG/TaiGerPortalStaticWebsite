@@ -23,11 +23,40 @@ import {
     MRT_ToggleFiltersButton as MRTToggleFiltersButton
 } from 'material-react-table';
 import React, { useState, useMemo, useCallback } from 'react';
+import type { MRT_Row, MRT_TableInstance } from 'material-react-table';
 import DEMO from '@store/constant';
 import { useTranslation } from 'react-i18next';
 import { deleteProgramRequirement } from '@/api';
 
-const ProgramRequirementsOverview = ({ programRequirements }) => {
+interface ProgramCategory {
+    program_category?: string;
+    requiredECTS?: number;
+    keywordSets?: Array<{
+        keywords?: { en?: string[]; zh?: string[] };
+        antiKeywords?: { en?: string[]; zh?: string[] };
+        description?: string;
+    }>;
+}
+
+interface ProgramRequirementItem {
+    _id: string;
+    programId: Array<{
+        school?: string;
+        program_name?: string;
+        degree?: string;
+        lang?: string;
+    }>;
+    program_categories?: ProgramCategory[];
+    [key: string]: unknown;
+}
+
+interface ProgramRequirementsOverviewProps {
+    programRequirements: ProgramRequirementItem[];
+}
+
+const ProgramRequirementsOverview = ({
+    programRequirements
+}: ProgramRequirementsOverviewProps) => {
     const { t } = useTranslation();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -64,7 +93,8 @@ const ProgramRequirementsOverview = ({ programRequirements }) => {
         } else {
             setProgramRequirementsState(
                 programRequirementsState.filter(
-                    (r) => r._id !== requirementIdToBeDeleted
+                    (r: ProgramRequirementItem) =>
+                        r._id !== requirementIdToBeDeleted
                 )
             );
             setRequirementIdToBeDeleted('');
@@ -76,28 +106,32 @@ const ProgramRequirementsOverview = ({ programRequirements }) => {
     const columns = useMemo(
         () => [
             {
-                accessorFn: (row) => row.programId[0].school,
+                accessorFn: (row: ProgramRequirementItem) =>
+                    row.programId[0].school,
                 id: 'school',
                 header: 'School',
                 size: 200,
                 filterVariant: 'autocomplete'
             },
             {
-                accessorFn: (row) => row.programId[0].program_name,
+                accessorFn: (row: ProgramRequirementItem) =>
+                    row.programId[0].program_name,
                 id: 'program_name',
                 header: 'Program Name',
                 size: 250,
                 filterVariant: 'autocomplete'
             },
             {
-                accessorFn: (row) => row.programId[0].degree,
+                accessorFn: (row: ProgramRequirementItem) =>
+                    row.programId[0].degree,
                 id: 'degree',
                 header: 'Degree',
                 size: 120,
                 filterVariant: 'autocomplete'
             },
             {
-                accessorFn: (row) => row.programId[0].lang,
+                accessorFn: (row: ProgramRequirementItem) =>
+                    row.programId[0].lang,
                 id: 'language',
                 header: 'Language',
                 size: 100,
@@ -109,7 +143,7 @@ const ProgramRequirementsOverview = ({ programRequirements }) => {
                 size: 100,
                 enableColumnFilter: false,
                 enableSorting: false,
-                Cell: ({ row }) => (
+                Cell: ({ row }: { row: MRT_Row<ProgramRequirementItem> }) => (
                     <Box sx={{ display: 'flex', gap: '8px' }}>
                         <Tooltip title="Edit">
                             <IconButton
@@ -138,7 +172,11 @@ const ProgramRequirementsOverview = ({ programRequirements }) => {
         [handleDeleteModal, handleRequirementEdit]
     );
 
-    const renderDetailPanel = ({ row }) => {
+    const renderDetailPanel = ({
+        row
+    }: {
+        row: MRT_Row<ProgramRequirementItem>;
+    }) => {
         const categories = row.original.program_categories;
         return (
             <Box sx={{ p: 2 }}>
@@ -211,7 +249,11 @@ const ProgramRequirementsOverview = ({ programRequirements }) => {
         );
     };
 
-    const renderTopToolbar = ({ table }) => (
+    const renderTopToolbar = ({
+        table
+    }: {
+        table: MRT_TableInstance<ProgramRequirementItem>;
+    }) => (
         <Stack
             direction={isMobile ? 'column' : 'row'}
             spacing={2}

@@ -15,13 +15,23 @@ import {
 
 import { useTranslation } from 'react-i18next';
 
+import { ProgramRequirementRow } from '@components/ProgramRequirementsTable/ProgramRequirementsTable';
+
+interface CourseAnalysisConfirmDialogProps {
+    show: boolean;
+    data: ProgramRequirementRow[];
+    isButtonDisable: boolean;
+    setModalHide: () => void;
+    onAnalyse: (e: React.MouseEvent<HTMLButtonElement>) => void;
+}
+
 const CourseAnalysisConfirmDialog = ({
     show,
     data,
     isButtonDisable,
     setModalHide,
     onAnalyse
-}) => {
+}: CourseAnalysisConfirmDialogProps) => {
     const { t } = useTranslation();
 
     return (

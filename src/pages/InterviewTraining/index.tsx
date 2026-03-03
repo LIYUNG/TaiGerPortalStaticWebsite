@@ -8,6 +8,7 @@ import {
     isProgramDecided,
     isProgramRejected
 } from '@taiger-common/core';
+import type { IInterviewWithId, IUserWithId } from '@taiger-common/model';
 
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
@@ -89,30 +90,29 @@ const InterviewTraining = () => {
                     const { data, success, student } = resp.data;
                     const { status } = resp;
                     if (success) {
+                        const available_interview_request_programs =
+                            student?.applications
+                                ?.filter(
+                                    (application) =>
+                                        isProgramDecided(application) &&
+                                        !isProgramAdmitted(application) &&
+                                        !isProgramRejected(application) &&
+                                        !(data || []).find(
+                                            (interview: IInterviewWithId) =>
+                                                interview.program_id?._id?.toString() ===
+                                                application.programId?._id?.toString()
+                                        )
+                                )
+                                ?.map((application) => ({
+                                    key: application.programId?._id?.toString() ?? '',
+                                    value: `${application.programId?.school ?? ''} ${application.programId?.program_name ?? ''} ${application.programId?.degree ?? ''} ${application.programId?.semester ?? ''}`
+                                })) || [];
                         setInterviewTrainingState((prevState) => ({
                             ...prevState,
                             isLoaded: true,
                             interviewslist: data,
                             student: student,
-                            available_interview_request_programs:
-                                student?.applications
-                                    ?.filter(
-                                        (application) =>
-                                            isProgramDecided(application) &&
-                                            !isProgramAdmitted(application) &&
-                                            !isProgramRejected(application) &&
-                                            !interviewslist.find(
-                                                (interview) =>
-                                                    interview.program_id._id.toString() ===
-                                                    application.programId._id.toString()
-                                            )
-                                    )
-                                    .map((application) => {
-                                        return {
-                                            key: application.programId._id.toString(),
-                                            value: `${application.programId.school} ${application.programId.program_name} ${application.programId.degree} ${application.programId.semester}`
-                                        };
-                                    }) || [],
+                            available_interview_request_programs,
                             success: success,
                             res_status: status
                         }));
@@ -134,7 +134,7 @@ const InterviewTraining = () => {
                 }
             );
         }
-    }, [user, interviewslist]);
+    }, [user]);
 
     const handleClick = () => {
         navigate(`${DEMO.INTERVIEW_ADD_LINK}`);
@@ -260,7 +260,7 @@ const InterviewTraining = () => {
             }
         }
     ];
-    const transform = (interviews) => {
+    const transform = (interviews: IInterviewWithId[]) => {
         const result = [];
         if (!interviews) {
             return [];
@@ -290,7 +290,7 @@ const InterviewTraining = () => {
                 isDuplicate: studentIdCounts[studentId] > 1,
                 trainer_name:
                     interview.trainer_id
-                        ?.map((trainer) => trainer.firstname)
+                        ?.map((trainer: IUserWithId) => trainer.firstname)
                         ?.join(', ') || [],
                 program_name: `${interview.program_id.school} ${interview.program_id.program_name} ${interview.program_id.degree} ${interview.program_id.semester}`,
                 firstname_lastname: `${interview.student_id.firstname} ${interview.student_id.lastname}`

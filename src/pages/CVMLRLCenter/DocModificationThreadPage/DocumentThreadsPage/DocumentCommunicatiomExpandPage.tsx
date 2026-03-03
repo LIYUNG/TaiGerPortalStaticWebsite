@@ -28,6 +28,7 @@ import {
 
 import { useAuth } from '@components/AuthProvider';
 import { is_TaiGer_role } from '@taiger-common/core';
+import type { IDocumentthreadPopulated } from '@taiger-common/model';
 import DEMO from '@store/constant';
 import {
     FILE_OK_SYMBOL,
@@ -40,6 +41,38 @@ import { EmbeddedThreadComponent } from './EmbeddedThreadComponent';
 import ChildLoading from '@components/Loading/ChildLoading';
 import { APPROVAL_COUNTRIES } from '../../../Utils/util_functions';
 import { useTranslation } from 'react-i18next';
+
+interface StudentMetricItem {
+    _id: string;
+    firstname: string;
+    lastname: string;
+    threadCount: number;
+    completeThreadCount: number;
+    needToReply: boolean;
+    threads: string[];
+    application_preference?: {
+        expected_application_date?: string;
+        expected_application_semester?: string;
+    };
+}
+
+interface StudentsListProps {
+    students: StudentMetricItem[];
+    studentId: string | null;
+    handleOnClickStudent: (id: string) => void;
+    studentMetricsIsLoading: boolean;
+    setStudentSearchTerm: (term: string) => void;
+    studentSearchTerm: string;
+}
+
+interface ThreadsListProps {
+    studentThreadIsLoading: boolean;
+    showAllThreads: boolean;
+    sortedThreads: IDocumentthreadPopulated[];
+    onChange: (value: boolean) => void;
+    currentCategory: string;
+    handleOnClickThread: (id: string) => void;
+}
 
 const categories = {
     General: [
@@ -92,7 +125,7 @@ const getThreadByStudentQuery = (studentId: string) => ({
 });
 
 export interface StudentItemProps {
-    student: Record<string, unknown>;
+    student: StudentMetricItem;
     selectedStudentId?: string;
     onClick: () => void;
 }
@@ -162,7 +195,7 @@ const StudentItem = ({
 };
 
 export interface ThreadItemProps {
-    thread: Record<string, unknown>;
+    thread: IDocumentthreadPopulated;
     onClick: () => void;
 }
 
@@ -273,7 +306,7 @@ const StudentsList = ({
     studentMetricsIsLoading,
     setStudentSearchTerm,
     studentSearchTerm
-}) => {
+}: StudentsListProps) => {
     return studentMetricsIsLoading ? (
         <ChildLoading />
     ) : (
@@ -287,7 +320,7 @@ const StudentsList = ({
             </Stack>
             <List>
                 {students
-                    ?.filter((student) => {
+                    ?.filter((student: StudentMetricItem) => {
                         return (
                             `${student?.firstname} ${student?.lastname}`
                                 .toLowerCase()
@@ -300,7 +333,7 @@ const StudentsList = ({
                             )
                         );
                     })
-                    ?.sort((a, b) => {
+                    ?.sort((a: StudentMetricItem, b: StudentMetricItem) => {
                         const isAcompleted =
                             a.threadCount === a.completeThreadCount;
                         const isBcompleted =
@@ -313,7 +346,7 @@ const StudentsList = ({
                         }
                         return a.firstname.localeCompare(b.firstname);
                     })
-                    ?.map((student) => (
+                    ?.map((student: StudentMetricItem) => (
                         <StudentItem
                             key={student._id}
                             onClick={() => {
@@ -339,14 +372,14 @@ const ThreadsList = ({
     onChange,
     currentCategory,
     handleOnClickThread
-}) => {
+}: ThreadsListProps) => {
     return (
         <Box>
             {studentThreadIsLoading ? <ChildLoading /> : null}
             <Checkbox
                 checked={showAllThreads}
                 disabled={sortedThreads.every(
-                    (thread) => thread?.isFinalVersion
+                    (thread: IDocumentthreadPopulated) => thread?.isFinalVersion
                 )}
                 onChange={() => onChange(!showAllThreads)}
             />{' '}
@@ -354,9 +387,9 @@ const ThreadsList = ({
             <List>
                 {sortedThreads
                     ?.filter(
-                        (thread) => showAllThreads || !thread?.isFinalVersion
+                        (thread: IDocumentthreadPopulated) => showAllThreads || !thread?.isFinalVersion
                     )
-                    ?.map((thread) => {
+                    ?.map((thread: IDocumentthreadPopulated) => {
                         const category = getCategory(thread.file_type);
                         const showCategoryLabel = category !== currentCategory;
                         currentCategory = category;
@@ -396,9 +429,9 @@ const DocumentCommunicationExpandPage = () => {
 
     const { user } = useAuth();
     const [showAllThreads, setShowAllThreads] = useState(true);
-    const [studentId, setStudentId] = useState(null);
-    const [studentName, setStudentName] = useState(null);
-    const [threadId, setThreadId] = useState(documentsthreadId || null);
+    const [studentId, setStudentId] = useState<string | null>(null);
+    const [studentName, setStudentName] = useState<string | null>(null);
+    const [threadId, setThreadId] = useState<string | null>(documentsthreadId || null);
     const [studentSearchTerm, setStudentSearchTerm] = useState('');
 
     const {
@@ -420,7 +453,7 @@ const DocumentCommunicationExpandPage = () => {
         navigate(`/doc-communications/${threadId}`, { replace: true });
         // get student id by thread id
 
-        const student = students?.find((student) =>
+        const student = students?.find((student: StudentMetricItem) =>
             student?.threads?.includes(threadId)
         );
         const {
@@ -444,7 +477,7 @@ const DocumentCommunicationExpandPage = () => {
         // setThreadId(firstThreadId);
     }, [studentId]);
 
-    const handleOnClickStudent = (id) => {
+    const handleOnClickStudent = (id: string) => {
         if (id === studentId) {
             return;
         }
@@ -452,13 +485,13 @@ const DocumentCommunicationExpandPage = () => {
         setThreadId(null);
     };
 
-    const handleOnClickThread = (id) => {
+    const handleOnClickThread = (id: string) => {
         setThreadId(id);
     };
 
     const sortedThreads = studentThreads
-        ?.filter((thread) => thread?.student_id?._id.toString() === studentId)
-        ?.sort((a, b) => {
+        ?.filter((thread: IDocumentthreadPopulated) => thread?.student_id?._id?.toString() === studentId)
+        ?.sort((a: IDocumentthreadPopulated, b: IDocumentthreadPopulated) => {
             const categoryA = getCategory(a.file_type);
             const categoryB = getCategory(b.file_type);
             if (categoryA === categoryB) {

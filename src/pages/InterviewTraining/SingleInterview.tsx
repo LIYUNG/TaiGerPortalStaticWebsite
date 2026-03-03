@@ -1,4 +1,4 @@
-import { useState, useMemo, type MouseEvent } from 'react';
+import React, { useState, useMemo, type MouseEvent } from 'react';
 import {
     Link as LinkDom,
     useLocation,
@@ -36,10 +36,12 @@ import {
     ListItemButton,
     ListItemIcon,
     ListItemText,
-    Checkbox
+    Checkbox,
+    type Theme
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { is_TaiGer_role } from '@taiger-common/core';
+import type { IUserWithId } from '@taiger-common/model';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import TimezoneSelect from 'react-timezone-select';
 import dayjs from 'dayjs';
@@ -98,12 +100,22 @@ import NotesEditor from '../Notes/NotesEditor';
 import { OutputData } from '@editorjs/editorjs';
 
 // Interview Metadata Sidebar Component
+interface InterviewMetadataSidebarProps {
+    interview: Record<string, any>;
+    openDeleteDocModalWindow: (
+        e: MouseEvent<HTMLElement>,
+        interview: Record<string, any>
+    ) => void;
+    theme: Theme;
+    onInterviewUpdate: () => void;
+}
+
 const InterviewMetadataSidebar = ({
     interview,
     openDeleteDocModalWindow,
     theme,
     onInterviewUpdate
-}) => {
+}: InterviewMetadataSidebarProps) => {
     const { t } = useTranslation();
     const { user } = useAuth();
     const navigate = useNavigate();
@@ -113,7 +125,11 @@ const InterviewMetadataSidebar = ({
     const [showTrainerModal, setShowTrainerModal] = useState(false);
     const [editors, setEditors] = useState([]);
     const [trainerId, setTrainerId] = useState(
-        new Set(interview.trainer_id?.map((t_id) => t_id._id.toString()))
+        new Set(
+            interview.trainer_id?.map((t_id: IUserWithId) =>
+                t_id._id.toString()
+            )
+        )
     );
 
     // State for interview time
@@ -147,7 +163,7 @@ const InterviewMetadataSidebar = ({
     });
 
     // Theme-aware gradient colors
-    const getGradientColors = (colorType) => {
+    const getGradientColors = (colorType: string) => {
         if (isDarkMode) {
             switch (colorType) {
                 case 'status-closed':
@@ -258,7 +274,7 @@ const InterviewMetadataSidebar = ({
     const documentationGradient = getGradientColors('documentation');
 
     // Helper function to get initials for avatar
-    const getInitials = (firstname, lastname) => {
+    const getInitials = (firstname: string, lastname: string) => {
         return `${firstname?.charAt(0) || ''}${lastname?.charAt(0) || ''}`.toUpperCase();
     };
 
@@ -272,12 +288,16 @@ const InterviewMetadataSidebar = ({
 
     const toggleTrainerModal = () => {
         setTrainerId(
-            new Set(interview.trainer_id.map((t_id) => t_id._id.toString()))
+            new Set(
+                interview.trainer_id.map((t_id: IUserWithId) =>
+                    t_id._id.toString()
+                )
+            )
         );
         setShowTrainerModal(!showTrainerModal);
     };
 
-    const modifyTrainer = (new_trainerId, isActive) => {
+    const modifyTrainer = (new_trainerId: string, isActive: boolean) => {
         if (isActive) {
             const temp_0 = [...trainerId];
             const temp = new Set(temp_0);
@@ -310,7 +330,9 @@ const InterviewMetadataSidebar = ({
         }
     };
 
-    const handleChangeInterviewTrainingTime = (newValue) => {
+    const handleChangeInterviewTrainingTime = (
+        newValue: dayjs.Dayjs | null
+    ) => {
         setUtcTime(newValue);
         setInterviewTrainingTimeChange(true);
     };
@@ -349,7 +371,7 @@ const InterviewMetadataSidebar = ({
                     status: resp.status
                 });
             }
-        } catch (error) {
+        } catch (error: any) {
             let errorMessage =
                 'An error occurred while sending the interview invitation. Please try again later.';
             if (
@@ -373,7 +395,9 @@ const InterviewMetadataSidebar = ({
         navigate(DEMO.INTERVIEW_SINGLE_SURVEY_LINK(interview._id.toString()));
     };
 
-    const handleChange_UpdateInterview = (e) => {
+    const handleChange_UpdateInterview = (
+        e: React.ChangeEvent<HTMLInputElement>
+    ) => {
         setButtonDisabled(false);
         setLocalInterview((prevState) => ({
             ...prevState,
@@ -389,7 +413,10 @@ const InterviewMetadataSidebar = ({
         }));
     };
 
-    const handleClickSave = async (e, editorState: OutputData) => {
+    const handleClickSave = async (
+        e: MouseEvent<HTMLElement>,
+        editorState: OutputData
+    ) => {
         e.preventDefault();
         const notes = JSON.stringify(editorState);
         const { data, status } = await updateInterview(
@@ -522,7 +549,10 @@ const InterviewMetadataSidebar = ({
                                         gap={0.75}
                                     >
                                         {interview.trainer_id.map(
-                                            (trainer, idx) => (
+                                            (
+                                                trainer: IUserWithId,
+                                                idx: number
+                                            ) => (
                                                 <Tooltip
                                                     key={idx}
                                                     title={`${trainer.firstname} ${trainer.lastname}`}
@@ -1384,14 +1414,16 @@ const SingleInterview = () => {
         error
     } = useQuery({
         ...getInterviewQuery(interview_id),
-        onSuccess: (response) => {
+        onSuccess: (response: any) => {
             if (response.data.success && response.data.data) {
                 const messagesLength =
                     response.data.data.thread_id?.messages?.length || 0;
                 setAccordionKeys(
                     new Array(messagesLength)
-                        .fill()
-                        .map((x, i) => (i === messagesLength - 1 ? i : -1))
+                        .fill(undefined)
+                        .map((_x: undefined, i: number) =>
+                            i === messagesLength - 1 ? i : -1
+                        )
                 );
             }
         }
@@ -1399,14 +1431,21 @@ const SingleInterview = () => {
 
     // Mutations
     const submitMessageMutation = useMutation({
-        mutationFn: ({ threadId, studentId, formData }) =>
-            SubmitMessageWithAttachment(threadId, studentId, formData),
+        mutationFn: ({
+            threadId,
+            studentId,
+            formData
+        }: {
+            threadId: string;
+            studentId: string;
+            formData: FormData;
+        }) => SubmitMessageWithAttachment(threadId, studentId, formData),
         onSuccess: () => {
             queryClient.invalidateQueries(['interviews', interview_id]);
             setEditorInputState({ time: new Date(), blocks: [] });
             setFile(null);
         },
-        onError: (error) => {
+        onError: (error: any) => {
             setModalError({
                 show: true,
                 message:
@@ -1417,12 +1456,17 @@ const SingleInterview = () => {
     });
 
     const deleteMessageMutation = useMutation({
-        mutationFn: ({ threadId, messageId }) =>
-            deleteAMessageInThread(threadId, messageId),
+        mutationFn: ({
+            threadId,
+            messageId
+        }: {
+            threadId: string;
+            messageId: string;
+        }) => deleteAMessageInThread(threadId, messageId),
         onSuccess: () => {
             queryClient.invalidateQueries(['interviews', interview_id]);
         },
-        onError: (error) => {
+        onError: (error: any) => {
             setModalError({
                 show: true,
                 message:
@@ -1434,13 +1478,18 @@ const SingleInterview = () => {
     });
 
     const updateInterviewMutation = useMutation({
-        mutationFn: ({ interviewId, payload }) =>
-            updateInterview(interviewId, payload),
+        mutationFn: ({
+            interviewId,
+            payload
+        }: {
+            interviewId: string;
+            payload: Record<string, unknown>;
+        }) => updateInterview(interviewId, payload),
         onSuccess: () => {
             queryClient.invalidateQueries(['interviews', interview_id]);
             setCloseDialogOpen(false);
         },
-        onError: (error) => {
+        onError: (error: any) => {
             setModalError({
                 show: true,
                 message:
@@ -1452,11 +1501,11 @@ const SingleInterview = () => {
     });
 
     const deleteInterviewMutation = useMutation({
-        mutationFn: (interviewId) => deleteInterview(interviewId),
+        mutationFn: (interviewId: string) => deleteInterview(interviewId),
         onSuccess: () => {
             setDeleteDialogOpen(false);
         },
-        onError: (error) => {
+        onError: (error: any) => {
             setModalError({
                 show: true,
                 message:
@@ -1477,7 +1526,7 @@ const SingleInterview = () => {
         const formData = new FormData();
 
         if (file) {
-            file.forEach((f) => formData.append('files', f));
+            file.forEach((f: File) => formData.append('files', f));
         }
         formData.append('message', message);
 
@@ -1488,7 +1537,7 @@ const SingleInterview = () => {
         });
     };
 
-    const onFileChange = (e) => {
+    const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
         const fileNum = e.target.files.length;
         if (fileNum <= 3) {
@@ -1504,7 +1553,7 @@ const SingleInterview = () => {
         }
     };
 
-    const singleExpandtHandler = (idx) => {
+    const singleExpandtHandler = (idx: number) => {
         const newAccordionKeys = [...accordionKeys];
         newAccordionKeys[idx] = newAccordionKeys[idx] !== idx ? idx : -1;
         setAccordionKeys(newAccordionKeys);
@@ -1532,7 +1581,7 @@ const SingleInterview = () => {
         deleteInterviewMutation.mutate(interview._id.toString());
     };
 
-    const handleChange = (event, newValue) => {
+    const handleChange = (event: React.SyntheticEvent, newValue: number) => {
         setValue(newValue);
         window.location.hash = THREAD_REVERSED_TABS[newValue];
     };

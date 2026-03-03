@@ -11,15 +11,8 @@ import { differenceInDays } from 'date-fns';
 import { pdfjs } from 'react-pdf';
 
 import { convertDate, twoYearsInDays } from '@utils/contants';
-import {
-    DocumentThreadResponse,
-    IApplicationWithId,
-    IProgramWithId,
-    IStudentResponse,
-    OpenTaskRow,
-    type Application,
-    type IUserWithId
-} from '@/api/types';
+import type { DocumentThreadResponse, OpenTaskRow, Application } from '@/api/types';
+import type { IApplicationPopulated, IDocumentthreadMessage, IDocumentthreadPopulated, IProgramWithId, IStudentResponse, IUserWithId } from '@taiger-common/model';
 import {
     IUser,
     IUserAcademicBackground,
@@ -55,9 +48,9 @@ export const is_User_Archived = (user: IUserWithId): boolean =>
     user?.archiv === true;
 
 export const student_transform = (
-    students: IUserWithId[]
+    students: IStudentResponse[]
 ): Record<string, unknown>[] =>
-    students?.map((student: IUserWithId) => ({
+    students?.map((student: IStudentResponse) => ({
         ...student,
         name: `${student.firstname} ${student.lastname} | ${student.firstname_chinese} ${student.lastname_chinese}`,
         name_zh: `${student.lastname_chinese}${student.firstname_chinese}`,
@@ -187,7 +180,7 @@ export const calculateDisplayLength = (text: string): number => {
     let length = 0;
     for (let i = 0; i < text.length; i++) {
         // Check if the character is a Chinese character
-        const isChinese = text.codePointAt(i) > 255; // Adjust the threshold if needed
+        const isChinese = (text.codePointAt(i) ?? 0) > 255; // Adjust the threshold if needed
         length += isChinese ? 2 : 1;
     }
     return length;
@@ -198,7 +191,7 @@ export const truncateText = (text: string, maxLength: number) => {
     let truncatedText = '';
 
     for (let i = 0; i < text.length; i++) {
-        const isChinese = text.codePointAt(i) > 255; // Adjust the threshold if needed
+        const isChinese = (text.codePointAt(i) ?? 0) > 255; // Adjust the threshold if needed
         currentLength += isChinese ? 2 : 1;
 
         if (currentLength <= maxLength) {
@@ -324,7 +317,7 @@ export const based_documents_init = (
 };
 
 export const are_base_documents_missing = (student: IStudentResponse): boolean => {
-    if (student?.profile?.length > 0) {
+    if ((student?.profile?.length ?? 0) > 0) {
         const documentlist2_keys = Object.keys(ProfileNameType);
         const { object_init } = based_documents_init(student);
 
@@ -364,7 +357,7 @@ export const is_any_base_documents_uploaded = (
 
         // Update status for each profile document
         student.profile.forEach((profile) => {
-            documentStatus[profile.name] = profile.status;
+            documentStatus[profile.name] = (profile.status ?? DocumentStatusType.Missing) as DocumentStatusType;
         });
 
         // Check if any document is uploaded
@@ -424,8 +417,9 @@ export const needUpdateCourseSelection = (student: IUserWithId): string => {
 };
 
 export const to_register_application_portals = (
-    student: IUserWithId
+    student: IStudentResponse
 ): boolean => {
+    if (!student.applications) return false;
     for (const application of student.applications) {
         if (isProgramDecided(application) && application.closed === '-') {
             if (
@@ -485,30 +479,28 @@ export const check_languages_filled = (
         (academic_background.language.english_isPassed === 'X' &&
             differenceInDays(
                 today,
-                academic_background.language.english_test_date
+                academic_background.language.english_test_date ?? ''
             ) > 1) ||
         (academic_background.language.english_isPassed === 'X' &&
             academic_background.language.english_test_date === '') ||
         (academic_background.language.german_isPassed === 'X' &&
             differenceInDays(
                 today,
-                academic_background.language.german_test_date
+                academic_background.language.german_test_date ?? ''
             ) > 1) ||
         (academic_background.language.german_isPassed === 'X' &&
             academic_background.language.german_test_date === '') ||
         (academic_background.language.gre_isPassed === 'X' &&
-            parseInt(
-                differenceInDays(
-                    today,
-                    academic_background.language.gre_test_date
-                )
+            differenceInDays(
+                today,
+                academic_background.language.gre_test_date ?? ''
             ) > 1) ||
         (academic_background.language.gre_isPassed === 'X' &&
             academic_background.language.gre_test_date === '') ||
         (academic_background.language.gmat_isPassed === 'X' &&
             differenceInDays(
                 today,
-                academic_background.language.gmat_test_date
+                academic_background.language.gmat_test_date ?? ''
             ) > 1) ||
         (academic_background.language.gmat_isPassed === 'X' &&
             academic_background.language.gmat_test_date === '')
@@ -553,7 +545,7 @@ export const isProgramNotSelectedEnough = (
 ): boolean => {
     return students.some(
         (student) =>
-            student.applications?.length < student.applying_program_count
+            (student.applications?.length ?? 0) < (student.applying_program_count ?? 0)
     );
 };
 
@@ -592,7 +584,7 @@ export const areProgramsDecidedMoreThanContract = (
             isProgramDecided(application)
         ).length | 0;
 
-    return num_decided >= student.applying_program_count;
+    return num_decided >= (student?.applying_program_count ?? 0);
 };
 
 export const check_all_applications_decided = (
@@ -606,7 +598,7 @@ export const check_all_applications_decided = (
         return false;
     }
 
-    if (student.applications.length < student.applying_program_count) {
+    if (student.applications.length < (student.applying_program_count ?? 0)) {
         return false;
     }
 
@@ -705,7 +697,7 @@ export const check_student_needs_uni_assist = (
 };
 
 // Tested
-export const num_uni_assist_vpd_uploaded = (student: IUserWithId): number => {
+export const num_uni_assist_vpd_uploaded = (student: IStudentResponse): number => {
     let counter = 0;
     if (!student.applications) {
         return counter;
@@ -713,8 +705,8 @@ export const num_uni_assist_vpd_uploaded = (student: IUserWithId): number => {
     for (const application of student.applications) {
         if (
             isProgramDecided(application) &&
-            application.programId.uni_assist &&
-            application.programId.uni_assist.includes('VPD') &&
+            application.programId?.uni_assist &&
+            application.programId?.uni_assist.includes('VPD') &&
             application.uni_assist &&
             application.uni_assist.status !== DocumentStatusType.NotNeeded &&
             (application.uni_assist.status === DocumentStatusType.Uploaded ||
@@ -760,9 +752,9 @@ export const is_program_ml_rl_essay_finished = (
     // check ML, RL, Essay
     return (
         application.doc_modification_thread?.length === 0 ||
-        application.doc_modification_thread?.every(
+        (application.doc_modification_thread?.every(
             (thread) => thread.isFinalVersion
-        )
+        ) ?? false)
     );
 };
 
@@ -770,16 +762,16 @@ export const is_program_ml_rl_essay_finished = (
 export const is_cv_assigned = (student: IStudentResponse): boolean => {
     // check CV
     return (
-        student.generaldocs_threads?.findIndex(
-            (thread) => thread.doc_thread_id?.file_type === 'CV'
-        ) >= 0
+        (student.generaldocs_threads?.findIndex(
+            (thread) => (thread.doc_thread_id as { file_type?: string } | undefined)?.file_type === 'CV'
+        ) ?? -1) >= 0
     );
 };
 
 // Tested
 export const isCVFinished = (student: IStudentResponse): boolean => {
     const cv_thread = student?.generaldocs_threads?.find(
-        (thread) => thread.doc_thread_id?.file_type === 'CV'
+        (thread) => (thread.doc_thread_id as { file_type?: string } | undefined)?.file_type === 'CV'
     );
     return !!(cv_thread && cv_thread.isFinalVersion);
 };
@@ -985,21 +977,25 @@ export const requiredFields = [
     'linkedIn'
 ];
 
-export const is_personal_data_filled = (student) => {
+export const is_personal_data_filled = (student: IStudentResponse) => {
     return requiredFields.every(
-        (field) => student[field] !== undefined && student[field] !== ''
+        (field) => (student as unknown as Record<string, unknown>)[field] !== undefined && (student as unknown as Record<string, unknown>)[field] !== ''
     );
 };
 
-export const needGraduatedApplicantsButStudentNotGraduated = (student) => {
+export const needGraduatedApplicantsButStudentNotGraduated = (student: IStudentResponse) => {
     if (student.applications === undefined) {
         return false;
     }
-    for (let j = 0; j < student.applications.length; j += 1) {
+    for (const application of student.applications) {
+        const program = application.programId as IProgramWithId | undefined;
+        if (!program) {
+            continue;
+        }
         if (
-            isProgramDecided(student.applications[j]) &&
-            student.applications[j].programId.allowOnlyGraduatedApplicant &&
-            student.academic_background.university.isGraduated !== 'Yes'
+            isProgramDecided(application) &&
+            program.allowOnlyGraduatedApplicant &&
+            student.academic_background?.university?.isGraduated !== 'Yes'
         ) {
             return true;
         }
@@ -1075,7 +1071,7 @@ export const isEnglishCertificateExpiredBeforeDeadline = (student: IStudentRespo
         if (
             differenceInDays(
                 application_deadline_V2_calculator(app),
-                academic_background?.language?.english_test_date
+                academic_background?.language?.english_test_date ?? ''
             ) > twoYearsInDays
         ) {
             return true;
@@ -1108,7 +1104,7 @@ export const languageNotMatchedPrograms = (student: IStudentResponse) => {
 };
 
 export const englishCertificatedExpiredBeforeTheseProgramDeadlines = (
-    student
+    student: IStudentResponse
 ) => {
     return student.applications?.filter(
         (app: Application) =>
@@ -1118,7 +1114,7 @@ export const englishCertificatedExpiredBeforeTheseProgramDeadlines = (
             isEnglishProgram(app) &&
             differenceInDays(
                 application_deadline_V2_calculator(app),
-                student.academic_background.language.english_test_date
+                student.academic_background?.language?.english_test_date ?? ''
             ) > twoYearsInDays
     );
 };
@@ -1154,14 +1150,14 @@ export const is_all_uni_assist_vpd_uploaded = (student: IStudentResponse) => {
     return true;
 };
 
-export const getNumberOfFilesByStudent = (messages, student_id) => {
+export const getNumberOfFilesByStudent = (messages: IDocumentthreadMessage[] | undefined, student_id: string) => {
     if (!messages) {
         return 0;
     }
     let file_count = 0;
     let message_count = 0;
     for (const message of messages) {
-        if (message.user_id?._id?.toString() === student_id) {
+        if ((message.user_id as { _id?: { toString(): string } } | undefined)?._id?.toString() === student_id) {
             file_count += message.file?.length || 0;
             message_count += 1;
         }
@@ -1169,14 +1165,14 @@ export const getNumberOfFilesByStudent = (messages, student_id) => {
     return `${message_count}/${file_count}`;
 };
 
-export const getNumberOfFilesByEditor = (messages, student_id) => {
+export const getNumberOfFilesByEditor = (messages: IDocumentthreadMessage[] | undefined, student_id: string) => {
     if (!messages) {
         return 0;
     }
     let file_count = 0;
     let message_count = 0;
     for (const message of messages) {
-        if (message.user_id?._id?.toString() !== student_id) {
+        if ((message.user_id as { _id?: { toString(): string } } | undefined)?._id?.toString() !== student_id) {
             file_count += message.file?.length || 0;
             message_count += 1;
         }
@@ -1184,28 +1180,28 @@ export const getNumberOfFilesByEditor = (messages, student_id) => {
     return `${message_count}/${file_count}`;
 };
 
-export const latestReplyUserIdV2 = (thread) => {
+export const latestReplyUserIdV2 = (thread: IDocumentthreadPopulated) => {
     const messages = thread?.messages;
     if (!messages || messages?.length <= 0) {
         return '- None - ';
     }
     const latestMessageUser = messages[messages?.length - 1]?.user_id;
-    return latestMessageUser?._id.toString();
+    return (latestMessageUser as { _id?: { toString(): string } } | undefined)?._id?.toString();
 };
 
-export const latestReplyInfo = (thread) => {
+export const latestReplyInfo = (thread: { messages?: IDocumentthreadMessage[] }) => {
     const messages = thread?.messages;
     if (!messages || messages?.length <= 0) {
         return '- None - ';
     }
-    const latestMessageUser = messages[messages?.length - 1]?.user_id;
+    const latestMessageUser = messages[messages?.length - 1]?.user_id as { firstname?: string; lastname?: string } | undefined;
     return (
         latestMessageUser &&
         `${latestMessageUser?.firstname} ${latestMessageUser?.lastname}`
     );
 };
 
-export const prepTaskStudent = (student) => {
+export const prepTaskStudent = (student: IStudentResponse) => {
     return {
         firstname_lastname: `${student.firstname}, ${student.lastname}`,
         student_id: student._id.toString(),
@@ -1247,10 +1243,11 @@ export const has_agent_program_specific_tasks = (
     }
     for (const application of student.applications as Application[]) {
         if (isProgramDecided(application)) {
+            if (!application.doc_modification_thread) continue;
             for (const thread of application.doc_modification_thread) {
                 if (
                     ['Supplementary_Form', 'Curriculum_Analysis'].includes(
-                        thread.doc_thread_id?.file_type
+                        (thread.doc_thread_id as { file_type?: string } | undefined)?.file_type ?? ''
                     )
                 ) {
                     return true;
@@ -1336,9 +1333,9 @@ export const progressBarCounter = (
     ];
 
     const completedPoints = finished_pointes.reduce(
-        (sum, value) => sum + value,
+        (sum, value) => (sum ?? 0) + (value ?? 0),
         0
-    );
+    ) ?? 0;
     const totalPoints = all_points.reduce((sum, value) => sum + value, 0);
 
     const percentage = (completedPoints / totalPoints) * 100;
@@ -1346,7 +1343,7 @@ export const progressBarCounter = (
 };
 
 export const isEnglishOK = (
-    program: Record<string, unknown>,
+    program: IProgramWithId,
     student: IUserWithId
 ): boolean => {
     const lang = student?.academic_background?.language || {};
@@ -1366,29 +1363,29 @@ export const isEnglishOK = (
             english_score_listening,
             english_score_writing,
             english_score_speaking
-        ].every((score) => parseFloat(score))
+        ].every((score) => parseFloat(score ?? ''))
     ) {
         return false;
     }
 
     if (english_certificate === 'TOEFL') {
         if (
-            program.toefl > parseFloat(english_score) ||
-            program.toefl_reading > parseFloat(english_score_reading) ||
-            program.toefl_listening > parseFloat(english_score_listening) ||
-            program.toefl_writing > parseFloat(english_score_writing) ||
-            program.toefl_speaking > parseFloat(english_score_speaking)
+            parseFloat(program.toefl ?? '0') > parseFloat(english_score ?? '') ||
+            (program.toefl_reading ?? 0) > parseFloat(english_score_reading ?? '') ||
+            (program.toefl_listening ?? 0) > parseFloat(english_score_listening ?? '') ||
+            (program.toefl_writing ?? 0) > parseFloat(english_score_writing ?? '') ||
+            (program.toefl_speaking ?? 0) > parseFloat(english_score_speaking ?? '')
         ) {
             return false;
         }
     }
     if (english_certificate === 'IELTS') {
         if (
-            program.ielts > parseFloat(english_score) ||
-            program.ielts_reading > parseFloat(english_score_reading) ||
-            program.ielts_listening > parseFloat(english_score_listening) ||
-            program.ielts_writing > parseFloat(english_score_writing) ||
-            program.ielts_speaking > parseFloat(english_score_speaking)
+            parseFloat(program.ielts ?? '0') > parseFloat(english_score ?? '') ||
+            (program.ielts_reading ?? 0) > parseFloat(english_score_reading ?? '') ||
+            (program.ielts_listening ?? 0) > parseFloat(english_score_listening ?? '') ||
+            (program.ielts_writing ?? 0) > parseFloat(english_score_writing ?? '') ||
+            (program.ielts_speaking ?? 0) > parseFloat(english_score_speaking ?? '')
         ) {
             return false;
         }
@@ -1436,7 +1433,7 @@ export const application_date_calculator = (
     if (isProgramWithdraw(application)) {
         return 'WITHDRAW';
     }
-    const { application_start, semester } = application.programId;
+    const { application_start, semester } = application.programId ?? {};
 
     if (!application_start) {
         return 'No Data';
@@ -1450,13 +1447,13 @@ export const application_date_calculator = (
         return `${application_year}-Rolling`;
     }
     const deadline_month = parseInt(
-        application.programId.application_start.split('-')[0]
+        (application.programId?.application_start ?? '').split('-')[0]
     );
 
     application_year = adjustYearForSemester(
-        application_year,
+        application_year as number,
         deadline_month,
-        semester
+        semester ?? ''
     );
 
     return formatApplicationDate(application_year, application_start);
@@ -1469,27 +1466,27 @@ export const application_deadline_V2_calculator = (
         return 'WITHDRAW';
     }
     const { application_deadline, semester } =
-        application?.programId || application?.program_id || {};
+        application?.programId ?? {};
 
     if (!application_deadline) {
         return 'No Data';
     }
-    let application_year = application.application_year;
+    const application_year_raw = application.application_year;
     if (!application_deadline) {
-        return `${application_year}-<TBD>`;
+        return `${application_year_raw}-<TBD>`;
     }
     if (application_deadline?.toLowerCase()?.includes('rolling')) {
         // include Rolling
-        return `${application_year}-Rolling`;
+        return `${application_year_raw}-Rolling`;
     }
     const deadline_month = parseInt(
-        application.programId.application_deadline.split('-')[0]
+        (application.programId?.application_deadline ?? '').split('-')[0]
     );
 
-    application_year = adjustYearForSemester(
-        application_year,
+    const application_year = adjustYearForSemester(
+        parseInt(application_year_raw ?? '0'),
         deadline_month,
-        semester
+        semester ?? ''
     );
 
     return formatApplicationDate(application_year, application_deadline);
@@ -1502,7 +1499,7 @@ export const does_student_have_agents = (students: IStudentResponse[]): boolean 
 };
 
 export const getStudentEditorStatus = (
-    students: IUserWithId[]
+    students: IStudentResponse[]
 ): { allHaveEditors: boolean; countWithoutEditors: number } => {
     const studentsWithoutEditors = students.filter(
         (student) => !student.editors || student.editors.length === 0
@@ -1537,18 +1534,18 @@ export const has_admissions = (student: IStudentResponse): boolean => {
     );
 };
 
-const prepTaskV2 = (student: IStudentResponse, thread: DocumentThreadResponse) => {
+const prepTaskV2 = (student: IStudentResponse, thread: IDocumentthreadPopulated) => {
     return {
         ...prepTaskStudent(student),
         id: thread._id.toString(),
         latest_message_left_by_id: latestReplyUserIdV2(thread),
-        flag_by_user_id: thread?.flag_by_user_id,
+        flag_by_user_id: thread?.flag_by_user_id as string[] | undefined,
         isFinalVersion: thread.isFinalVersion,
         outsourced_user_id: thread?.outsourced_user_id,
         file_type: thread?.file_type,
-        aged_days: differenceInDays(new Date(), thread?.updatedAt),
+        aged_days: differenceInDays(new Date(), thread?.updatedAt ?? new Date()),
         latest_reply: latestReplyInfo(thread),
-        updatedAt: convertDate(thread?.updatedAt),
+        updatedAt: convertDate(thread?.updatedAt ?? new Date()),
         number_input_from_student: getNumberOfFilesByStudent(
             thread?.messages,
             student._id.toString()
@@ -1563,7 +1560,7 @@ const prepTaskV2 = (student: IStudentResponse, thread: DocumentThreadResponse) =
 const prepTask = (student: IStudentResponse, thread: DocumentThreadResponse) => {
     return {
         ...prepTaskStudent(student),
-        id: thread.doc_thread_id?._id?.toString(),
+        id: (thread.doc_thread_id as unknown as { _id?: { toString(): string } })?._id?.toString(),
         latest_message_left_by_id: thread.latest_message_left_by_id,
         flag_by_user_id: thread.doc_thread_id?.flag_by_user_id,
         isFinalVersion: thread.isFinalVersion,
@@ -1571,10 +1568,10 @@ const prepTask = (student: IStudentResponse, thread: DocumentThreadResponse) => 
         file_type: thread.doc_thread_id?.file_type,
         aged_days: differenceInDays(
             new Date(),
-            thread.doc_thread_id?.updatedAt
+            thread.doc_thread_id?.updatedAt ?? new Date()
         ),
         latest_reply: latestReplyInfo(thread.doc_thread_id),
-        updatedAt: convertDate(thread.doc_thread_id?.updatedAt),
+        updatedAt: convertDate(thread.doc_thread_id?.updatedAt ?? new Date()),
         number_input_from_student: getNumberOfFilesByStudent(
             thread.doc_thread_id?.messages,
             student._id.toString()
@@ -1586,7 +1583,7 @@ const prepTask = (student: IStudentResponse, thread: DocumentThreadResponse) => 
     };
 };
 
-const prepGeneralTaskV2 = (student, thread) => {
+const prepGeneralTaskV2 = (student: IStudentResponse, thread: IDocumentthreadPopulated) => {
     // TODO: CV application broken, need to fix it
     const { CVDeadline, daysLeftMin } = GetCVDeadlineV2([]);
     return {
@@ -1601,11 +1598,11 @@ const prepGeneralTaskV2 = (student, thread) => {
 };
 
 // student.generaldocs_threads
-const prepGeneralTask = (student, thread) => {
+const prepGeneralTask = (student: IStudentResponse, thread: DocumentThreadResponse) => {
     const { CVDeadline, daysLeftMin } = GetCVDeadline(student);
     return {
         ...prepTask(student, thread),
-        thread_id: thread.doc_thread_id?._id.toString(),
+        thread_id: (thread.doc_thread_id as unknown as { _id?: { toString(): string } })?._id?.toString(),
         deadline: CVDeadline,
         lang: '',
         show: true,
@@ -1614,7 +1611,7 @@ const prepGeneralTask = (student, thread) => {
     };
 };
 
-const prepApplicationTaskV2 = (student, application, program, thread) => {
+const prepApplicationTaskV2 = (student: IStudentResponse, application: IApplicationPopulated, program: IProgramWithId, thread: IDocumentthreadPopulated) => {
     const applicationWithProgram =
         application && program ? { ...application, programId: program } : null;
 
@@ -1664,7 +1661,7 @@ const prepApplicationTask = (student: IStudentResponse, application: Application
 
     return {
         ...prepTask(student, thread),
-        thread_id: thread.doc_thread_id?._id?.toString(),
+        thread_id: (thread.doc_thread_id as unknown as { _id?: { toString(): string } })?._id?.toString(),
         program_id: application.programId?._id.toString(),
         program: application.programId,
         isApplicationLocked: lockStatus.isLocked,
@@ -1682,18 +1679,19 @@ const prepApplicationTask = (student: IStudentResponse, application: Application
     };
 };
 
-export const open_tasks_v2 = (threads: DocumentThreadResponse[]) => {
+export const open_tasks_v2 = (threads: IDocumentthreadPopulated[]) => {
     const tasks: OpenTaskRow[] = [];
     for (const thread of threads) {
-        if (thread.student_id?.archiv !== true) {
+        const studentId = thread.student_id as IStudentResponse | undefined;
+        if (studentId?.archiv !== true) {
             if (!thread.application_id) {
-                tasks.push(prepGeneralTaskV2(thread.student_id, thread));
+                if (studentId) tasks.push(prepGeneralTaskV2(studentId, thread));
             } else {
-                tasks.push(
+                if (studentId) tasks.push(
                     prepApplicationTaskV2(
-                        thread.student_id,
-                        thread.application_id,
-                        thread.program_id,
+                        studentId,
+                        thread.application_id as IApplicationPopulated,
+                        thread.program_id as IProgramWithId,
                         thread
                     )
                 );
@@ -1703,37 +1701,37 @@ export const open_tasks_v2 = (threads: DocumentThreadResponse[]) => {
     return tasks;
 };
 
-export const open_tasks_with_editors = (students) => {
+export const open_tasks_with_editors = (students: IStudentResponse[]) => {
     const tasks = [];
     for (const student of students) {
         if (student.archiv !== true) {
-            for (const thread of student.generaldocs_threads) {
+            for (const thread of student.generaldocs_threads ?? []) {
                 tasks.push({
-                    ...prepGeneralTask(student, thread),
+                    ...prepGeneralTask(student, thread as unknown as DocumentThreadResponse),
                     isPotentials: false,
                     editors: student.editors,
                     editors_joined: student.editors
-                        ?.map((editor) => editor.firstname)
+                        ?.map((editor: IUser) => editor.firstname)
                         .join(' '),
                     agents: student.agents,
                     agents_joined: student.agents
-                        ?.map((agent) => agent.firstname)
+                        ?.map((agent: IUser) => agent.firstname)
                         .join(' ')
                 });
             }
-            for (const application of student.applications) {
-                for (const thread of application.doc_modification_thread) {
+            for (const application of student.applications ?? []) {
+                for (const thread of application.doc_modification_thread ?? []) {
                     tasks.push({
-                        ...prepApplicationTask(student, application, thread),
+                        ...prepApplicationTask(student, application, thread as unknown as DocumentThreadResponse),
                         isPotentials:
                             application.decided === '-' ? true : false,
                         editors: student.editors,
                         editors_joined: student.editors
-                            ?.map((editor) => editor.firstname)
+                            ?.map((editor: IUser) => editor.firstname)
                             .join(' '),
                         agents: student.agents,
                         agents_joined: student.agents
-                            ?.map((agent) => agent.firstname)
+                            ?.map((agent: IUser) => agent.firstname)
                             .join(' ')
                     });
                 }
@@ -1742,9 +1740,12 @@ export const open_tasks_with_editors = (students) => {
     }
     return tasks;
 };
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- API returns IApplicationWithId[] with populated studentId; complex reduce shape
-export const programs_refactor_v2 = (applications: IApplicationWithId[]) => {
-    const applicationsNew = applications.reduce((acc, application) => {
+
+export const programs_refactor_v2 = (applications: IApplicationPopulated[]) => {
+    const applicationsNew = applications.reduce((acc: Record<string, unknown>[], application) => {
+        if (!application.studentId || !application.programId) return acc;
+        const studentId = application.studentId as IStudentResponse;
+        const programId = application.programId as IProgramWithId;
         let isMissingBaseDocs = false;
 
         const object_init = Object.fromEntries(
@@ -1754,9 +1755,9 @@ export const programs_refactor_v2 = (applications: IApplicationWithId[]) => {
             ])
         );
 
-        if (application.studentId?.profile) {
-            application.studentId?.profile?.forEach((doc) => {
-                object_init[doc.name] = doc.status;
+        if (studentId.profile) {
+            studentId.profile.forEach((doc) => {
+                object_init[doc.name] = (doc.status ?? DocumentStatusType.Missing) as DocumentStatusType;
             });
         }
 
@@ -1766,7 +1767,7 @@ export const programs_refactor_v2 = (applications: IApplicationWithId[]) => {
                 object_init[key] !== DocumentStatusType.NotNeeded
         );
 
-        const is_cv_done = isCVFinished(application.studentId);
+        const is_cv_done = isCVFinished(studentId);
 
         const is_program_submitted = isProgramSubmitted(application);
         const is_program_decided = isProgramDecided(application);
@@ -1815,36 +1816,35 @@ export const programs_refactor_v2 = (applications: IApplicationWithId[]) => {
 
         acc.push({
             ...application,
-            id: `${application.studentId._id.toString()}-${application.programId._id.toString()}`,
-            target_year: `${application.application_year} ${application.programId.semester
-                }`,
-            school: application.programId.school,
-            country: application.programId.country,
+            id: `${studentId._id.toString()}-${programId._id.toString()}`,
+            target_year: `${application.application_year} ${programId.semester}`,
+            school: programId.school,
+            country: programId.country,
             application,
-            student: application.studentId,
-            firstname_lastname: `${application.studentId.firstname}, ${application.studentId.lastname}`,
-            program_name: application.programId.program_name,
-            program: `${application.programId.school} - ${application.programId.program_name} (${application.programId.degree})`,
-            editors: application.studentId.editors
+            student: studentId,
+            firstname_lastname: `${studentId.firstname}, ${studentId.lastname}`,
+            program_name: programId.program_name,
+            program: `${programId.school} - ${programId.program_name} (${programId.degree})`,
+            editors: studentId.editors
                 ?.map((editor) => editor.firstname)
                 .join(', '),
-            agents: application.studentId.agents
+            agents: studentId.agents
                 ?.map((agent) => agent.firstname)
                 .join(', '),
-            semester: application.programId.semester,
-            degree: application.programId.degree,
-            toefl: application.programId.toefl,
-            ielts: application.programId.ielts,
-            testdaf: application.programId.testdaf,
-            whoupdated: application.programId.whoupdated,
-            updatedAt: application.programId.updatedAt,
-            program_id: application.programId._id.toString(),
+            semester: programId.semester,
+            degree: programId.degree,
+            toefl: programId.toefl,
+            ielts: programId.ielts,
+            testdaf: programId.testdaf,
+            whoupdated: programId.whoupdated,
+            updatedAt: programId.updatedAt,
+            program_id: programId._id.toString(),
             application_deadline: deadline,
             isPotentials: application.decided === '-',
             decided: application.decided,
             closed: application.closed,
             admission: application.admission,
-            student_id: application.studentId._id.toString(),
+            student_id: studentId._id.toString(),
             deadline,
             days_left,
             base_docs,
@@ -1856,7 +1856,7 @@ export const programs_refactor_v2 = (applications: IApplicationWithId[]) => {
             status:
                 deadline === 'CLOSE'
                     ? 100
-                    : progressBarCounter(application.studentId, application),
+                    : progressBarCounter(studentId, application),
             lockStatus: lockStatusText,
             isLocked,
             lockStatusReason: lockStatus.reason
@@ -1868,7 +1868,7 @@ export const programs_refactor_v2 = (applications: IApplicationWithId[]) => {
     return applicationsNew;
 };
 export const programs_refactor = (students: IStudentResponse[]) => {
-    const applications = students.reduce((acc, student) => {
+    const applications = students.reduce((acc: Record<string, unknown>[], student) => {
         let isMissingBaseDocs = false;
 
         const object_init = Object.fromEntries(
@@ -1880,7 +1880,7 @@ export const programs_refactor = (students: IStudentResponse[]) => {
 
         if (student.profile) {
             student.profile.forEach((doc) => {
-                object_init[doc.name] = doc.status;
+                object_init[doc.name] = (doc.status ?? DocumentStatusType.Missing) as DocumentStatusType;
             });
         }
 
@@ -1978,33 +1978,34 @@ export const programs_refactor = (students: IStudentResponse[]) => {
                             : 'No'
                     : 'Undecided';
 
+                const prog = application.programId as IProgramWithId | undefined;
                 acc.push({
-                    id: `${student._id.toString()}-${application.programId?._id?.toString()}`,
+                    id: `${student._id.toString()}-${prog?._id?.toString()}`,
                     target_year: `${student.application_preference
                         ?.expected_application_date || '-'
                         } ${student.application_preference
                             ?.expected_application_semester || '-'
                         }`,
-                    school: application.programId.school,
+                    school: prog?.school,
                     application,
                     student: student,
                     firstname_lastname: `${student.firstname}, ${student.lastname}`,
-                    program_name: application.programId.program_name,
-                    program: `${application.programId.school} - ${application.programId.program_name} (${application.programId.degree})`,
+                    program_name: prog?.program_name,
+                    program: `${prog?.school} - ${prog?.program_name} (${prog?.degree})`,
                     editors: student.editors
                         ?.map((editor) => editor.firstname)
                         .join(', '),
                     agents: student.agents
                         ?.map((agent) => agent.firstname)
                         .join(', '),
-                    semester: application.programId.semester,
-                    degree: application.programId.degree,
-                    toefl: application.programId.toefl,
-                    ielts: application.programId.ielts,
-                    testdaf: application.programId.testdaf,
-                    whoupdated: application.programId.whoupdated,
-                    updatedAt: application.programId.updatedAt,
-                    program_id: application.programId._id?.toString(),
+                    semester: prog?.semester,
+                    degree: prog?.degree,
+                    toefl: prog?.toefl,
+                    ielts: prog?.ielts,
+                    testdaf: prog?.testdaf,
+                    whoupdated: prog?.whoupdated,
+                    updatedAt: prog?.updatedAt,
+                    program_id: prog?._id?.toString(),
                     application_deadline: deadline,
                     isPotentials: application.decided === '-',
                     decided: application.decided,
@@ -2033,9 +2034,9 @@ export const programs_refactor = (students: IStudentResponse[]) => {
     return applications;
 };
 
-export const toogleItemInArray = (arr, item) => {
+export const toogleItemInArray = (arr: string[], item: string) => {
     return arr?.includes(item)
-        ? arr?.filter((userId) => userId !== item)
+        ? arr?.filter((userId: string) => userId !== item)
         : arr?.length > 0
             ? [...arr, item]
             : [item];
@@ -2045,54 +2046,34 @@ const getNextProgram = (student: IStudentResponse) => {
     const nextProgram = programs_refactor([student])
         .filter(
             (application) =>
-                isProgramDecided(application) && application.closed === '-'
+                isProgramDecided(application as unknown as Application) && (application.closed as string) === '-'
         )
         .sort((a, b) =>
-            a.application_deadline > b.application_deadline ? 1 : -1
+            (a.application_deadline as string) > (b.application_deadline as string) ? 1 : -1
         );
     return nextProgram;
 };
 
-export const getNextProgramName = (student) => {
+export const getNextProgramName = (student: IStudentResponse) => {
     const nextProgram = getNextProgram(student);
     return nextProgram.length !== 0 ? nextProgram[0].program : '-';
 };
 
-export const getNextProgramDeadline = (student) => {
+export const getNextProgramDeadline = (student: IStudentResponse) => {
     const nextProgram = getNextProgram(student);
     return nextProgram.length !== 0 ? nextProgram[0].application_deadline : '-';
 };
 
-export const getNextProgramDayleft = (student) => {
+export const getNextProgramDayleft = (student: IStudentResponse) => {
     const nextProgram = getNextProgram(student);
     return nextProgram.length !== 0 ? nextProgram[0].days_left : '-';
 };
 
-export const getNextProgramStatus = (student) => {
+export const getNextProgramStatus = (student: IStudentResponse) => {
     const nextProgram = getNextProgram(student);
     return nextProgram.length !== 0
-        ? `${progressBarCounter(student, nextProgram[0].application)} %`
+        ? `${progressBarCounter(student, nextProgram[0].application as unknown as Application)} %`
         : '-';
-};
-
-export const numStudentYearDistribution = (students) => {
-    const map = {};
-    for (let i = 0; i < students.length; i++) {
-        if (students[i].application_preference.expected_application_date) {
-            map[students[i].application_preference.expected_application_date] =
-                map[
-                    students[i].application_preference.expected_application_date
-                ]
-                    ? map[
-                    students[i].application_preference
-                        .expected_application_date
-                    ] + 1
-                    : 1;
-        } else {
-            map['TBD'] = map['TBD'] ? map['TBD'] + 1 : 1;
-        }
-    }
-    return map;
 };
 
 export interface FrequencyDistributionTask {
@@ -2148,7 +2129,7 @@ export const frequencyDistribution = (
     return filteredMap;
 };
 
-export const extractTextFromDocx = async (arrayBuffer) => {
+export const extractTextFromDocx = async (arrayBuffer: ArrayBuffer) => {
     const zip = await JSZip.loadAsync(arrayBuffer);
     const documentXml = await zip.file('word/document.xml')?.async('string');
     // Extract text from the XML content
@@ -2187,14 +2168,14 @@ export const readPDF = async (file: File, studentName: string) => {
         reader.onload = async (event) => {
             try {
                 const content = event.target?.result;
-                const typedarray = new Uint8Array(content);
+                const typedarray = new Uint8Array(content as ArrayBuffer);
                 const pdf = await pdfjs.getDocument(typedarray).promise;
                 let text = '';
                 for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
                     const page = await pdf.getPage(pageNum);
                     const pageTextContent = await page.getTextContent();
                     pageTextContent.items.forEach((item) => {
-                        text += item?.str + ' ';
+                        text += (item as { str?: string })?.str + ' ';
                     });
                 }
                 if (text.toLowerCase().includes(studentName.toLowerCase())) {
@@ -2204,7 +2185,7 @@ export const readPDF = async (file: File, studentName: string) => {
                 }
                 resolve(checkPoints);
             } catch (error) {
-                checkPoints.error = { value: true, text: error?.message };
+                (checkPoints as Record<string, unknown>).error = { value: true, text: (error as Error)?.message };
                 reject(checkPoints);
             }
         };
@@ -2213,7 +2194,7 @@ export const readPDF = async (file: File, studentName: string) => {
     return result;
 };
 
-export const readDOCX = async (file, studentName) => {
+export const readDOCX = async (file: File, studentName: string) => {
     const checkPoints = {
         correctFirstname: {
             value: false,
@@ -2223,9 +2204,9 @@ export const readDOCX = async (file, studentName) => {
     const reader = new FileReader();
     const result = await new Promise((resolve) => {
         reader.onload = async (event) => {
-            const content = event.target.result;
+            const content = event.target?.result ?? null;
             const { headerText, textContent, footerText } =
-                await extractTextFromDocx(content);
+                await extractTextFromDocx(content as ArrayBuffer);
             const combinedText =
                 `${headerText}${textContent}${footerText}`.toLowerCase();
             if (combinedText.includes(studentName.toLowerCase())) {
@@ -2234,7 +2215,7 @@ export const readDOCX = async (file, studentName) => {
                     checkPoints.correctFirstname.text.replace('NOT ', '');
             }
             if (headerText || footerText) {
-                checkPoints.metadata = {
+                (checkPoints as Record<string, unknown>).metadata = {
                     hasMetadata: true,
                     metaData: `Potential Risky Metadata, please double check if this is safe: Header: ${headerText} Footer: ${footerText}.`
                 };
@@ -2246,7 +2227,7 @@ export const readDOCX = async (file, studentName) => {
     return result;
 };
 
-export const readXLSX = async (file, studentName: string) => {
+export const readXLSX = async (file: File, studentName: string) => {
     const checkPoints = {
         correctFirstname: {
             value: false,
@@ -2310,7 +2291,7 @@ export const calculateProgramLockStatus = (
     return { isLocked: false, reason: null };
 };
 
-export const calculateApplicationLockStatus = (application: Application | IApplicationWithId) => {
+export const calculateApplicationLockStatus = (application: Application | IApplicationPopulated) => {
     if (!application || !application.programId) {
         return { isLocked: true, reason: null };
     }
@@ -2388,7 +2369,7 @@ export const formatDate = (date: string | Date) => {
     });
 };
 
-export const flattenObject = (obj: Record<string, unknown>, parentKey = '', result = {}) => {
+export const flattenObject = (obj: Record<string, unknown>, parentKey = '', result: Record<string, unknown> = {}) => {
     for (const [key, value] of Object.entries(obj || {})) {
         const newKey = parentKey ? `${parentKey}_${key}` : key;
 
@@ -2398,7 +2379,7 @@ export const flattenObject = (obj: Record<string, unknown>, parentKey = '', resu
             !Array.isArray(value) &&
             !(value instanceof Date)
         ) {
-            flattenObject(value, newKey, result);
+            flattenObject(value as Record<string, unknown>, newKey, result);
         } else {
             result[newKey] = value;
         }
@@ -2410,7 +2391,7 @@ export const GetCVDeadlineV2 = (applications: Application[]) => {
     const today = new Date();
     let daysLeftMin = 3000;
     let CVDeadline = '';
-    let daysLeftRollingMin = 0;
+    let daysLeftRollingMin: number | string = 0;
     let CVDeadlineRolling = '';
     let hasRolling = false;
     applications.forEach((application) => {
@@ -2445,7 +2426,7 @@ export const GetCVDeadline = (
     const today = new Date();
     let daysLeftMin = 3000;
     let CVDeadline = '';
-    let daysLeftRollingMin = 0;
+    let daysLeftRollingMin: number | string = 0;
     let CVDeadlineRolling = '';
     let hasRolling = false;
     student.applications?.forEach((application) => {

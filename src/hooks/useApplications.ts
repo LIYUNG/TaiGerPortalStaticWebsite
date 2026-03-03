@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import queryString from 'query-string';
 
 import { getApplicationsQuery } from '@/api/query';
-import type { IApplicationWithId } from '@/api/types';
+import type { IApplicationPopulated } from '@taiger-common/model';
 
 export type ApplicationsParams = Record<
     string,
@@ -29,15 +29,15 @@ export function useApplications(
         queryFn: async () => {
             const res = await query.queryFn();
             return res as {
-                data?: IApplicationWithId[];
-                result?: IApplicationWithId[];
+                data?: IApplicationPopulated[];
+                result?: IApplicationPopulated[];
             };
         },
         select: (
             data:
                 | {
-                      data?: IApplicationWithId[];
-                      result?: IApplicationWithId[];
+                      data?: IApplicationPopulated[];
+                      result?: IApplicationPopulated[];
                   }
                 | undefined
         ) => data?.data ?? data?.result ?? [],

@@ -24,6 +24,11 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import { is_TaiGer_role } from '@taiger-common/core';
+import type {
+    IStudentResponse,
+    IAgentWithId,
+    IEditorWithId
+} from '@taiger-common/model';
 
 import { WidgetExportMessagePDF } from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
@@ -42,12 +47,54 @@ import { truncateText } from '../Utils/util_functions';
 import { getCommunicationQuery } from '@/api/query';
 import ChildLoading from '@components/Loading/ChildLoading';
 
+interface StudentDetailModalProps {
+    open: boolean;
+    anchorStudentDetailEl: HTMLElement | null;
+    dropdownId: string;
+    handleStudentDetailModalClose: (event: React.SyntheticEvent) => void;
+}
+
+interface AgentsEditorsModalProps {
+    open: boolean;
+    student: IStudentResponse | undefined;
+    agentsEditorsDropdownId: string;
+    anchorAgentsEditorsEl: HTMLElement | null;
+    handleAgentsEditorsStudentDetailModalClose: (
+        event: React.SyntheticEvent
+    ) => void;
+}
+
+interface DateProps {
+    date: string | Date;
+}
+
+interface TopBarProps {
+    isLoading: boolean;
+    isExportingMessageDisabled: boolean;
+    ismobile: boolean;
+    handleDrawerClose: () => void;
+    student: IStudentResponse;
+    student_name_english: string | false;
+    student_id: string | undefined;
+    agentsEditorsDropdownId: string;
+    handleAgentsEditorsModalOpen: (
+        event: React.MouseEvent<HTMLElement>
+    ) => void;
+    handleExportMessages: (event: React.MouseEvent<HTMLElement>) => void;
+    dropdownId: string;
+    handleStudentDetailModalOpen: (
+        event: React.MouseEvent<HTMLElement>
+    ) => void;
+    handleAgentsEditorsModalClose: (event: React.SyntheticEvent) => void;
+    isAgentsEditorsModalOpen: boolean;
+}
+
 const StudentDetailModal = ({
     open,
     anchorStudentDetailEl,
     dropdownId,
     handleStudentDetailModalClose
-}) => (
+}: StudentDetailModalProps) => (
     <Menu
         anchorEl={anchorStudentDetailEl}
         anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
@@ -80,7 +127,7 @@ const AgentsEditorsModal = ({
     agentsEditorsDropdownId,
     anchorAgentsEditorsEl,
     handleAgentsEditorsStudentDetailModalClose
-}) => (
+}: AgentsEditorsModalProps) => (
     <Menu
         anchorEl={anchorAgentsEditorsEl}
         anchorOrigin={{ horizontal: 'right', vertical: 60 }}
@@ -89,12 +136,12 @@ const AgentsEditorsModal = ({
         open={open}
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
     >
-        {student?.agents?.map((agent) => (
+        {student?.agents?.map((agent: IAgentWithId) => (
             <MenuItem key={agent._id}>
                 {agent.firstname} {agent.lastname}
             </MenuItem>
         ))}
-        {student?.editors?.map((editor) => (
+        {student?.editors?.map((editor: IEditorWithId) => (
             <MenuItem key={editor._id}>
                 {editor.firstname} {editor.lastname}
             </MenuItem>
@@ -104,15 +151,15 @@ const AgentsEditorsModal = ({
 
 const MemorizedStudentDetailModal = React.memo(StudentDetailModal);
 
-const LastLoginRelativeTime = ({ date }) => {
+const LastLoginRelativeTime = ({ date }: DateProps) => {
     return <>{convertDateUXFriendly(date)}</>;
 };
 
-const LastLoginAbsoluteTime = ({ date }) => {
+const LastLoginAbsoluteTime = ({ date }: DateProps) => {
     return <>{convertDate(date)}</>;
 };
 
-const LastLoginTime = ({ date }) => {
+const LastLoginTime = ({ date }: DateProps) => {
     const [view, setView] = useState(false);
     const { t } = useTranslation();
 
@@ -148,7 +195,7 @@ const TopBar = ({
     handleStudentDetailModalOpen,
     handleAgentsEditorsModalClose,
     isAgentsEditorsModalOpen
-}) => {
+}: TopBarProps) => {
     const { t } = useTranslation();
     return (
         !isLoading && (
@@ -274,13 +321,15 @@ const CommunicationExpandPage = () => {
     const APP_BAR_HEIGHT = 64;
 
     const [open, setOpen] = useState(ismobile);
-    const [anchorStudentDetailEl, setAnchorStudentDetailEl] = useState(null);
-    const [anchorAgentsEditorsEl, setAnchorAgentsEditorsEl] = useState(null);
+    const [anchorStudentDetailEl, setAnchorStudentDetailEl] =
+        useState<HTMLElement | null>(null);
+    const [anchorAgentsEditorsEl, setAnchorAgentsEditorsEl] =
+        useState<HTMLElement | null>(null);
     const isStudentDetailModalOpen = Boolean(anchorStudentDetailEl);
     const isAgentsEditorsModalOpen = Boolean(anchorAgentsEditorsEl);
     const [isExportingMessageDisabled, setIsExportingMessageDisabled] =
         useState(false);
-    const scrollableRef = useRef(null);
+    const scrollableRef = useRef<HTMLDivElement>(null);
     const scrollToBottom = () => {
         if (scrollableRef.current) {
             scrollableRef.current.scrollTop =
@@ -293,19 +342,25 @@ const CommunicationExpandPage = () => {
         setOpen(true);
     };
 
-    const handleStudentDetailModalOpen = (event) => {
+    const handleStudentDetailModalOpen = (
+        event: React.MouseEvent<HTMLElement>
+    ) => {
         event.stopPropagation();
         setAnchorStudentDetailEl(event.currentTarget);
     };
 
-    const handleAgentsEditorsModalOpen = (event) => {
+    const handleAgentsEditorsModalOpen = (
+        event: React.MouseEvent<HTMLElement>
+    ) => {
         setAnchorAgentsEditorsEl(event.currentTarget);
     };
 
-    const handleExportMessages = async (event) => {
+    const handleExportMessages = async (
+        event: React.MouseEvent<HTMLElement>
+    ) => {
         event.stopPropagation();
         setIsExportingMessageDisabled(true);
-        const downloadBlob = (blob, filename) => {
+        const downloadBlob = (blob: Blob, filename: string) => {
             // Create a URL for the Blob data
             const url = window.URL.createObjectURL(blob);
 
@@ -330,12 +385,12 @@ const CommunicationExpandPage = () => {
         setIsExportingMessageDisabled(false);
     };
 
-    const handleStudentDetailModalClose = (event) => {
+    const handleStudentDetailModalClose = (event: React.SyntheticEvent) => {
         event.stopPropagation();
         setAnchorStudentDetailEl(null);
     };
 
-    const handleAgentsEditorsModalClose = (event) => {
+    const handleAgentsEditorsModalClose = (event: React.SyntheticEvent) => {
         event.stopPropagation();
         setAnchorAgentsEditorsEl(null);
     };

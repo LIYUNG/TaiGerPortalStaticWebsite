@@ -1,4 +1,4 @@
-import { React, useState } from 'react';
+import React, { useState } from 'react';
 import {
     Box,
     Button,
@@ -24,7 +24,10 @@ import { programField2Label, sortProgramFields } from '@utils/contants';
 
 const IGNORE_KEYS = ['_id', 'updatedAt', 'whoupdated', 'createdAt', '__v'];
 
-const getAllKeys = (original, incoming) => {
+const getAllKeys = (
+    original: Record<string, unknown>,
+    incoming: Record<string, unknown>
+) => {
     const originalKeys = Object.keys(original);
     const updatedKeys = Object.keys(incoming);
     return [...new Set([...originalKeys, ...updatedKeys])].sort(
@@ -32,7 +35,10 @@ const getAllKeys = (original, incoming) => {
     );
 };
 
-const getDiffKeys = (original, incoming) => {
+const getDiffKeys = (
+    original: Record<string, unknown>,
+    incoming: Record<string, unknown>
+) => {
     const allKeys = getAllKeys(original, incoming);
     const modifiedKeys = [];
     const originalKey = [];
@@ -55,6 +61,20 @@ const getDiffKeys = (original, incoming) => {
     return { modifiedKeys, originalKey };
 };
 
+interface DiffRowProps {
+    fieldName: string;
+    original: unknown;
+    incoming: unknown;
+    updateField: (
+        fieldName: string,
+        value: unknown,
+        shouldRemove?: boolean
+    ) => void;
+    isAccepted: boolean;
+    showToggleButton?: boolean;
+    [key: string]: unknown;
+}
+
 const DiffRow = ({
     fieldName,
     original,
@@ -63,7 +83,7 @@ const DiffRow = ({
     isAccepted,
     showToggleButton = false,
     ...rowProps
-}) => {
+}: DiffRowProps) => {
     const { t } = useTranslation();
 
     const toggleAccept = () => {
@@ -120,16 +140,28 @@ const DiffRow = ({
     );
 };
 
+interface DiffTableContentProps {
+    originalProgram: Record<string, unknown>;
+    incomingProgram: Record<string, unknown>;
+    showOnlyModified?: boolean;
+    delta: Record<string, unknown>;
+    setDelta: React.Dispatch<React.SetStateAction<Record<string, unknown>>>;
+}
+
 const DiffTableContent = ({
     originalProgram,
     incomingProgram,
     showOnlyModified = false,
     delta,
     setDelta
-}) => {
+}: DiffTableContentProps) => {
     const [hideUnaltered, setHideUnaltered] = useState(showOnlyModified);
 
-    const updateField = (fieldName, value, shouldRemove = false) => {
+    const updateField = (
+        fieldName: string,
+        value: unknown,
+        shouldRemove = false
+    ) => {
         if (shouldRemove) {
             setDelta((prevDelta) => {
                 delete prevDelta[fieldName];
@@ -184,20 +216,26 @@ const DiffTableContent = ({
     );
 };
 
+interface ProgramCompareProps {
+    originalProgram: Record<string, unknown>;
+    incomingChanges: Record<string, any>;
+    submitCallBack?: () => void;
+}
+
 const ProgramCompare = ({
     originalProgram,
     incomingChanges,
     submitCallBack
-}) => {
+}: ProgramCompareProps) => {
     const { t } = useTranslation('common');
-    const [delta, setDelta] = useState({});
+    const [delta, setDelta] = useState<Record<string, unknown>>({});
     const incomingProgram = incomingChanges?.programChanges || {};
 
     const acceptAllChanges = () => {
         const { modifiedKeys } = getDiffKeys(originalProgram, incomingProgram);
         const modifiedDelta = Object.keys(incomingProgram)
             .filter((key) => modifiedKeys.includes(key))
-            .reduce((obj, key) => {
+            .reduce((obj: Record<string, unknown>, key: string) => {
                 obj[key] = incomingProgram[key];
                 return obj;
             }, {});

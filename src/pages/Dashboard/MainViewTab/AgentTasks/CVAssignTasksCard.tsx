@@ -15,7 +15,7 @@ import { Card, Typography } from '@mui/material';
 import { isCVFinished, is_cv_assigned } from '../../../Utils/util_functions';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
-import { IStudentResponse } from '@/api/types';
+import type { IStudentResponse } from '@taiger-common/model';
 
 const CVAssignTasks = ({ student }: { student: IStudentResponse }) => {
     return (

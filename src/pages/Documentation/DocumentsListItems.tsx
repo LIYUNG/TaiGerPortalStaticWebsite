@@ -6,7 +6,17 @@ import { is_TaiGer_Admin } from '@taiger-common/core';
 
 import { useAuth } from '@components/AuthProvider';
 
-const DocumentsListItems = (props) => {
+interface DocumentsListItemsProps {
+    document: { _id: string; title: string };
+    idx: number;
+    path: string;
+    openDeleteDocModalWindow: (document: {
+        _id: string;
+        title: string;
+    }) => void;
+}
+
+const DocumentsListItems = (props: DocumentsListItemsProps) => {
     const { user } = useAuth();
     return (
         <Box sx={{ mx: 2, my: 1 }}>

@@ -9,12 +9,12 @@ import {
 } from '@mui/material';
 import { program_fields } from '@utils/contants';
 import { LinkableNewlineText } from '../Utils/checking-functions';
-import type { IApplicationWithId, IProgramWithId } from '@/api/types';
+import type { IApplicationPopulated, IProgramWithId } from '@taiger-common/model';
 
 const ProgramDetailsComparisonTable = ({
     applications
 }: {
-    applications: IApplicationWithId[];
+    applications: IApplicationPopulated[];
 }) => {
     return (
         <TableContainer component={Paper} style={{ overflowX: 'auto' }}>

@@ -12,27 +12,35 @@ import {
     Typography
 } from '@mui/material';
 
+import type { IAgentWithId, IStudentResponse } from '@taiger-common/model';
+
 import { anyStudentWithoutApplicationSelection } from '../../../Utils/util_functions';
 import NoProgramStudentTask from '../../MainViewTab/AgentTasks/NoProgramStudentTask';
 import { useAuth } from '@components/AuthProvider';
 
-const NoProgramStudentTable = (props) => {
+interface NoProgramStudentTableProps {
+    students: IStudentResponse[];
+}
+
+const NoProgramStudentTable = (props: NoProgramStudentTableProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
 
     const no_programs_student_tasks = props.students
-        .filter((student) =>
-            student.agents.some((agent) => agent._id === user._id.toString())
+        .filter((student: IStudentResponse) =>
+            student.agents.some(
+                (agent: IAgentWithId) => agent._id === user._id.toString()
+            )
         )
-        .map((student, i) => (
+        .map((student: IStudentResponse, i: number) => (
             <NoProgramStudentTask key={i} student={student} />
         ));
 
     return (
         anyStudentWithoutApplicationSelection(
-            props.students.filter((student) =>
+            props.students.filter((student: IStudentResponse) =>
                 student.agents.some(
-                    (agent) => agent._id === user._id.toString()
+                    (agent: IAgentWithId) => agent._id === user._id.toString()
                 )
             )
         ) && (

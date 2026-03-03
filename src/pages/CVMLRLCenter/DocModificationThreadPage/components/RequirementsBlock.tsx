@@ -4,8 +4,14 @@ import { useTranslation } from 'react-i18next';
 
 import { LinkableNewlineText } from '../../../Utils/checking-functions';
 import { getRequirement } from '../../../Utils/util_functions';
+import type { IDocumentthreadPopulated } from '@taiger-common/model';
 
-const RequirementsBlock = ({ thread, isGeneralRL }) => {
+interface RequirementsBlockProps {
+    thread: IDocumentthreadPopulated;
+    isGeneralRL: boolean;
+}
+
+const RequirementsBlock = ({ thread, isGeneralRL }: RequirementsBlockProps) => {
     const theme = useTheme();
     const { t } = useTranslation();
 

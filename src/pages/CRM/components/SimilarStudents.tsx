@@ -585,12 +585,14 @@ const SimilarStudents = ({
             }
 
             // If semester and year are the same, sort by count of valid applications (O or X)
-            const validAppsCountA = (a.applications || []).filter((app) =>
-                ['O', 'X'].includes(app?.admission)
+            const validAppsCountA = (a.applications || []).filter(
+                (app: SimilarStudentApplication) =>
+                    ['O', 'X'].includes(app?.admission ?? '')
             ).length;
 
-            const validAppsCountB = (b.applications || []).filter((app) =>
-                ['O', 'X'].includes(app?.admission)
+            const validAppsCountB = (b.applications || []).filter(
+                (app: SimilarStudentApplication) =>
+                    ['O', 'X'].includes(app?.admission ?? '')
             ).length;
 
             if (validAppsCountA !== validAppsCountB) {

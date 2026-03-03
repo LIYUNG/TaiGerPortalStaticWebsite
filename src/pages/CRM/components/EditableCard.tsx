@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Card,
@@ -5,13 +6,29 @@ import {
     Typography,
     IconButton,
     Box,
-    CircularProgress
+    CircularProgress,
+    type SxProps,
+    type Theme
 } from '@mui/material';
 import {
     Edit as EditIcon,
     Save as SaveIcon,
     Cancel as CancelIcon
 } from '@mui/icons-material';
+
+interface EditableCardProps {
+    title: string;
+    isEditing: boolean;
+    onEdit: () => void;
+    onSave: () => void;
+    onCancel: () => void;
+    viewContent: ReactNode;
+    editContent: ReactNode;
+    isLoading?: boolean;
+    hasUnsavedChanges?: boolean;
+    disableEdit?: boolean;
+    gridProps?: { sx?: SxProps<Theme> };
+}
 
 const EditableCard = ({
     title,
@@ -25,7 +42,7 @@ const EditableCard = ({
     hasUnsavedChanges = false,
     disableEdit = false,
     gridProps = {}
-}) => {
+}: EditableCardProps) => {
     const { t } = useTranslation();
     return (
         <Card sx={{ height: '100%', ...gridProps.sx }}>

@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import DEMO from '@store/constant';
 import { convertDate } from '@utils/contants';
 import { calculateApplicationLockStatus } from '../../../Utils/util_functions';
-import { IStudentResponse } from '@/types/taiger-common';
+import type { IStudentResponse } from '@taiger-common/model';
 
 export interface RespondedThreadsProps {
     student: IStudentResponse;
@@ -15,7 +15,11 @@ export interface RespondedThreadsProps {
 
 const RespondedThreads = ({ student }: RespondedThreadsProps) => {
     const { t } = useTranslation();
-    const renderThreadLink = (content, url, locked) => {
+    const renderThreadLink = (
+        content: React.ReactNode,
+        url: string,
+        locked: boolean
+    ) => {
         if (locked) {
             return (
                 <Tooltip

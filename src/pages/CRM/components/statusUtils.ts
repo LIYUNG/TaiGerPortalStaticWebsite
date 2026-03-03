@@ -14,5 +14,5 @@ export const getStatusColor = (status: string) =>
         canceled: 'error'
     })[status] || 'default';
 
-export const getDealId = (deal) =>
+export const getDealId = (deal: Record<string, unknown> | null | undefined) =>
     deal?.id ?? deal?.dealId ?? deal?._id ?? deal?.uuid;

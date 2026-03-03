@@ -34,8 +34,21 @@ import EditAttributesSubpage from '../StudDocsOverview/EditAttributesSubpage';
 import { COLORS, stringAvatar } from '@utils/contants';
 import { useDialog } from '@hooks/useDialog';
 import { updateAgents, updateAttributes, updateEditors } from '@/api';
+import type { IUserWithId } from '@taiger-common/model';
 
-const TaiGerUsersAvartar = ({ users, link }) => {
+interface TaiGerUsersAvartarProps {
+    users:
+        | Array<{
+              _id: { toString: () => string };
+              firstname: string;
+              lastname: string;
+              pictureUrl?: string;
+          }>
+        | undefined;
+    link: (id: string) => string;
+}
+
+const TaiGerUsersAvartar = ({ users, link }: TaiGerUsersAvartarProps) => {
     return (
         users?.map((usr) => (
             <Tooltip
@@ -58,7 +71,38 @@ const TaiGerUsersAvartar = ({ users, link }) => {
     );
 };
 
-const StudentBriefOverview = (props) => {
+interface StudentBriefOverviewProps {
+    student: IUserWithId & {
+        application_preference: {
+            expected_application_date?: string;
+            expected_application_semester?: string;
+            target_degree?: string;
+        };
+        applying_program_count?: number;
+        firstname_chinese?: string;
+        lastname_chinese?: string;
+        agents?: Array<{
+            _id: { toString: () => string };
+            firstname: string;
+            lastname: string;
+            pictureUrl?: string;
+        }>;
+        editors?: Array<{
+            _id: { toString: () => string };
+            firstname: string;
+            lastname: string;
+            pictureUrl?: string;
+        }>;
+        attributes?: Array<{ _id: string; value: number; name: string }>;
+    };
+    updateStudentArchivStatus: (
+        student_id: string,
+        archiv: boolean,
+        shouldInform: boolean
+    ) => void;
+}
+
+const StudentBriefOverview = (props: StudentBriefOverviewProps) => {
     const { user } = useAuth();
     const [student, setStudent] = useState(props.student);
     const { t } = useTranslation();
@@ -73,7 +117,11 @@ const StudentBriefOverview = (props) => {
     const { open: openArchivDialog, setOpen: setOpenArchivDialog } =
         useDialog(false);
 
-    const updateStudentArchivStatus = (student_id, archiv, shouldInform) => {
+    const updateStudentArchivStatus = (
+        student_id: string,
+        archiv: boolean,
+        shouldInform: boolean
+    ) => {
         setIsLoading(true);
         props.updateStudentArchivStatus(student_id, archiv, shouldInform);
         setOpenArchivDialog(false);
@@ -86,7 +134,7 @@ const StudentBriefOverview = (props) => {
         updateAgentList: unknown,
         student_id: string
     ) => {
-        updateAgents(updateAgentList, student_id).then(
+        updateAgents(updateAgentList as string[], student_id).then(
             (resp) => {
                 const { data, success } = resp.data;
                 if (success) {
@@ -96,7 +144,7 @@ const StudentBriefOverview = (props) => {
                     setStudent(students_temp);
                 }
             },
-            (error) => {
+            (error: unknown) => {
                 console.error(error);
             }
         );
@@ -107,7 +155,7 @@ const StudentBriefOverview = (props) => {
         updateEditorList: unknown,
         student_id: string
     ) => {
-        updateEditors(updateEditorList, student_id).then(
+        updateEditors(updateEditorList as string[], student_id).then(
             (resp) => {
                 const { data, success } = resp.data;
                 if (success) {
@@ -120,7 +168,7 @@ const StudentBriefOverview = (props) => {
                     console.error(message);
                 }
             },
-            (error) => {
+            (error: unknown) => {
                 console.error(error);
             }
         );
@@ -132,7 +180,7 @@ const StudentBriefOverview = (props) => {
         student_id: string
     ) => {
         e.preventDefault();
-        updateAttributes(updateAttributesList, student_id).then(
+        updateAttributes(updateAttributesList as string[], student_id).then(
             (resp) => {
                 const { data, success } = resp.data;
                 if (success) {
@@ -144,7 +192,7 @@ const StudentBriefOverview = (props) => {
                     console.error(resp.data.message);
                 }
             },
-            (error) => {
+            (error: unknown) => {
                 console.error(error);
             }
         );

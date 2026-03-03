@@ -1,13 +1,13 @@
 import { Box, Typography, Divider } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import type { MeetingResponse } from '@/api/types';
+import type { IMeeting } from '@taiger-common/model';
 import { MeetingCard } from './MeetingCard';
 
 export interface MeetingListProps {
-    meetings?: MeetingResponse[];
-    onEdit: (meeting: MeetingResponse) => void;
-    onDelete: (meeting: MeetingResponse) => void;
-    onConfirm: (meeting: MeetingResponse) => void;
+    meetings?: IMeeting[];
+    onEdit: (meeting: IMeeting) => void;
+    onDelete: (meeting: IMeeting) => void;
+    onConfirm: (meeting: IMeeting) => void;
     showActions?: boolean;
 }
 

@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, useState } from 'react';
+import { ChangeEvent, MouseEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -20,7 +20,8 @@ import {
     IconButton
 } from '@mui/material';
 import { is_TaiGer_Admin } from '@taiger-common/core';
-import { DIFFICULTY, IProgram } from '@taiger-common/model';
+import { DIFFICULTY, IProgram, IProgramWithId } from '@taiger-common/model';
+import type { SelectChangeEvent } from '@mui/material/Select';
 
 import SearchableMultiSelect from '@components/Input/searchableMuliselect';
 import {
@@ -38,7 +39,6 @@ import {
 } from '@utils/contants';
 import { appConfig } from '../../config';
 import { useAuth } from '@components/AuthProvider';
-import { IProgramWithId } from '@/api';
 
 export interface NewProgramEditProps {
     program?: Record<string, unknown> & { is_rl_specific?: boolean };
@@ -61,55 +61,72 @@ const NewProgramEdit = (props: NewProgramEditProps) => {
         new Set(props.programs?.map((program) => program.school))
     );
 
-    const handleChangeByField = (field: keyof IProgram) => (value) => {
-        const newState = { ...programChanges };
-        if (value === initProgram[field] || (!initProgram[field] && !value)) {
-            delete newState[field];
-        } else {
-            newState[field] = value;
-        }
-        setProgramChanges(newState);
-        setIsChanged(Object.keys(newState).length > 0 ? true : false);
-    };
+    const handleChangeByField =
+        <K extends keyof IProgram>(field: K) =>
+        (value: IProgram[K]) => {
+            const newState = { ...programChanges };
+            if (
+                value === initProgram[field] ||
+                (!initProgram[field] && !value)
+            ) {
+                delete newState[field];
+            } else {
+                (newState as Record<string, unknown>)[field] = value;
+            }
+            setProgramChanges(newState);
+            setIsChanged(Object.keys(newState).length > 0 ? true : false);
+        };
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (
+        e:
+            | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+            | SelectChangeEvent<string | boolean>
+    ) => {
         const key = e.target?.name as keyof IProgram;
-        const value =
-            e.target.type === 'checkbox'
-                ? e.target.checked
-                : typeof e.target.value === 'string'
-                  ? e.target.value.trimLeft()
-                  : e.target.value;
+        const isCheckbox =
+            'type' in e.target &&
+            (e.target as HTMLInputElement).type === 'checkbox';
+        const value = isCheckbox
+            ? (e.target as HTMLInputElement).checked
+            : typeof e.target.value === 'string'
+              ? e.target.value.trimLeft()
+              : e.target.value;
 
         const newState = { ...programChanges } as Partial<IProgram>;
         if (value === initProgram[key] || (!initProgram[key] && !value)) {
             delete newState[key];
         } else {
-            newState[key] = value;
+            (newState as Record<string, unknown>)[key] = value;
         }
         setProgramChanges(newState);
-        if (e.target.id === 'school') {
-            setSearchTerm(value.trimLeft());
+        if (
+            'id' in e.target &&
+            (e.target as HTMLInputElement).id === 'school'
+        ) {
+            setSearchTerm(typeof value === 'string' ? value : '');
         }
         setIsChanged(Object.keys(newState).length > 0 ? true : false);
     };
 
     const handleSubmit = (
-        e: FormEvent<HTMLFormElement>,
+        e: MouseEvent<HTMLButtonElement>,
         program: IProgramWithId,
         programChanges: Partial<IProgram>
     ) => {
         if (isProgramValid(program)) {
             e.preventDefault();
-            props.handleSubmit_Program({ _id: program._id, ...programChanges });
+            props.handleSubmit_Program({
+                _id: program._id,
+                ...programChanges
+            } as IProgramWithId);
         } else {
             showFieldAlert(program);
         }
     };
 
-    const onClickResultHandler = (result) => {
+    const onClickResultHandler = (result: string) => {
         setProgramChanges((preState) => ({
-            ...preState.program,
+            ...preState,
             school: result
         }));
         setSearchTerm(result);
@@ -135,19 +152,19 @@ const NewProgramEdit = (props: NewProgramEditProps) => {
                         <Autocomplete
                             freeSolo
                             noOptionsText="No results" // Message when no results are found
-                            onChange={(event, value) =>
-                                onClickResultHandler(value)
+                            onChange={(_event, value) =>
+                                onClickResultHandler(value ?? '')
                             } // Handle selection
                             options={schoolName2Set} // Display filtered results
                             readOnly={
-                                props.type === 'edit' && !is_TaiGer_Admin(user)
+                                props.type === 'edit' && !is_TaiGer_Admin(user!)
                             } // Conditional readonly
                             renderInput={(params) => (
                                 <TextField
                                     {...params}
                                     InputProps={{
                                         ...params.InputProps,
-                                        // readOnly: props.type === 'edit' && !is_TaiGer_Admin(user), // Conditional readonly
+                                        // readOnly: props.type === 'edit' && !is_TaiGer_Admin(user!), // Conditional readonly
                                         disableUnderline: true,
                                         endAdornment:
                                             params.InputProps.endAdornment
@@ -175,7 +192,7 @@ const NewProgramEdit = (props: NewProgramEditProps) => {
                             InputProps={{
                                 readOnly:
                                     props.type === 'edit' &&
-                                    !is_TaiGer_Admin(user),
+                                    !is_TaiGer_Admin(user!),
                                 disableUnderline: true
                             }}
                             fullWidth
@@ -196,10 +213,10 @@ const NewProgramEdit = (props: NewProgramEditProps) => {
                     <Grid item sm={6} xs={12}>
                         <SearchableMultiSelect
                             data={PROGRAM_SUBJECTS_DETAILED}
-                            label={null}
+                            label={undefined}
                             name="programSubjects"
                             setValue={handleChangeByField('programSubjects')}
-                            value={program?.programSubjects}
+                            value={program?.programSubjects ?? []}
                         />
                     </Grid>
                     <Grid item md={6} xs={12}>
@@ -212,8 +229,8 @@ const NewProgramEdit = (props: NewProgramEditProps) => {
                             <Select
                                 disabled={
                                     props.type === 'edit'
-                                        ? !is_TaiGer_Admin(user)
-                                        : null
+                                        ? !is_TaiGer_Admin(user!)
+                                        : undefined
                                 }
                                 id="degree"
                                 labelId="degree"
@@ -243,8 +260,8 @@ const NewProgramEdit = (props: NewProgramEditProps) => {
                             <Select
                                 disabled={
                                     props.type === 'edit'
-                                        ? !is_TaiGer_Admin(user)
-                                        : null
+                                        ? !is_TaiGer_Admin(user!)
+                                        : undefined
                                 }
                                 id="semester"
                                 labelId="semester"
@@ -300,6 +317,7 @@ const NewProgramEdit = (props: NewProgramEditProps) => {
                     <Grid item md={6} xs={12}>
                         <FormGroup>
                             <FormControlLabel
+                                label=""
                                 control={
                                     <Checkbox
                                         checked={
@@ -410,6 +428,7 @@ const NewProgramEdit = (props: NewProgramEditProps) => {
                     <Grid item md={6} xs={12}>
                         <FormGroup>
                             <FormControlLabel
+                                label=""
                                 control={
                                     <Checkbox
                                         checked={program.englishTestHandLater}
@@ -568,6 +587,7 @@ const NewProgramEdit = (props: NewProgramEditProps) => {
                     <Grid item md={6} xs={12}>
                         <FormGroup>
                             <FormControlLabel
+                                label=""
                                 control={
                                     <Checkbox
                                         checked={program.germanTestHandLater}
@@ -865,8 +885,10 @@ const NewProgramEdit = (props: NewProgramEditProps) => {
                             >
                                 {YES_NO_BOOLEAN_OPTIONS.map((option) => (
                                     <MenuItem
-                                        key={option.value}
-                                        value={option.value}
+                                        key={String(option.value)}
+                                        value={
+                                            option.value as unknown as string
+                                        }
                                     >
                                         {option.label}
                                     </MenuItem>
@@ -991,8 +1013,10 @@ const NewProgramEdit = (props: NewProgramEditProps) => {
                             >
                                 {YES_NO_BOOLEAN_OPTIONS.map((option) => (
                                     <MenuItem
-                                        key={option.value}
-                                        value={option.value}
+                                        key={String(option.value)}
+                                        value={
+                                            option.value as unknown as string
+                                        }
                                     >
                                         {option.label}
                                     </MenuItem>
@@ -1430,10 +1454,10 @@ const NewProgramEdit = (props: NewProgramEditProps) => {
                     <Grid item sm={6} xs={12}>
                         <SearchableMultiSelect
                             data={SCHOOL_TAGS_DETAILED}
-                            label={null}
+                            label={undefined}
                             name="tags"
                             setValue={handleChangeByField('tags')}
-                            value={program?.tags}
+                            value={program?.tags ?? []}
                         />
                     </Grid>
                     <Grid item md={6} xs={12}>
@@ -1462,7 +1486,13 @@ const NewProgramEdit = (props: NewProgramEditProps) => {
                         ) : null
                     }
                     fullWidth
-                    onClick={(e) => handleSubmit(e, program, programChanges)}
+                    onClick={(e) =>
+                        handleSubmit(
+                            e,
+                            program as unknown as IProgramWithId,
+                            programChanges
+                        )
+                    }
                     size="small"
                     sx={{ my: 1 }}
                     variant="contained"

@@ -126,11 +126,16 @@ const SchoolDistributionPage = () => {
         return null;
     }
 
-    const handleChangePage = (event, newPage) => {
+    const handleChangePage = (
+        event: React.MouseEvent<HTMLButtonElement> | null,
+        newPage: number
+    ) => {
         setPage(newPage);
     };
 
-    const handleChangeRowsPerPage = (event) => {
+    const handleChangeRowsPerPage = (
+        event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
     };

@@ -134,11 +134,14 @@ export default function MyCourses() {
         );
     }, [student_id, user]);
 
-    const handleChangeValue = (event, newValue) => {
+    const handleChangeValue = (
+        event: React.SyntheticEvent,
+        newValue: number
+    ) => {
         setValue(newValue);
     };
 
-    const onChange = (new_data) => {
+    const onChange = (new_data: Record<string, string>[]) => {
         setStatedata((prevState) => ({
             ...prevState,
             coursesdata: new_data
@@ -163,7 +166,7 @@ export default function MyCourses() {
         }));
     };
 
-    const onChange_taiger_guided = (new_data) => {
+    const onChange_taiger_guided = (new_data: Record<string, string>[]) => {
         setStatedata((prevState) => ({
             ...prevState,
             coursesdata_taiger_guided: new_data
@@ -643,7 +646,8 @@ export default function MyCourses() {
                                         <LinkDom
                                             target="_blank"
                                             to={`${DEMO.COURSES_ANALYSIS_RESULT_V2_LINK(
-                                                statedata.student?._id?.toString() ?? ''
+                                                statedata.student?._id?.toString() ??
+                                                    ''
                                             )}`}
                                         >
                                             <Button

@@ -1,6 +1,11 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import { is_TaiGer_Editor, is_TaiGer_role } from '@taiger-common/core';
+import {
+    IAgentWithId,
+    IEditorWithId,
+    IStudentResponse
+} from '@taiger-common/model';
 import { TabTitle } from '../Utils/TabTitle';
 import { Navigate } from 'react-router-dom';
 import DEMO from '@store/constant';
@@ -25,9 +30,13 @@ const MyStudentsOverview = () => {
     const myStudents = useMemo(
         () =>
             students?.filter(
-                (student) =>
-                    student.editors.some((editor) => editor._id === userId) ||
-                    student.agents.some((agent) => agent._id === userId)
+                (student: IStudentResponse) =>
+                    student.editors.some(
+                        (editor: IEditorWithId) => editor._id === userId
+                    ) ||
+                    student.agents.some(
+                        (agent: IAgentWithId) => agent._id === userId
+                    )
             ) || [],
         [students, userId]
     );

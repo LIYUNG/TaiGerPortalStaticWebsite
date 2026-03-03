@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import SaveIcon from '@mui/icons-material/Save';
+import type { IUserWithId } from '@taiger-common/model';
 
 import { getEssayWriters } from '@/api';
 import { FILE_TYPE_E } from '../../../Utils/util_functions';
@@ -138,32 +139,37 @@ const EditEssayWritersSubpage = (props: EditEssayWritersSubpageProps) => {
                         <Table size="small">
                             <TableBody>
                                 {checkboxState.editors ? (
-                                    checkboxState.editors.map((editor, i) => (
-                                        <TableRow key={i + 1}>
-                                            <TableCell>
-                                                <FormControlLabel
-                                                    control={
-                                                        <Checkbox
-                                                            checked={
-                                                                checkboxState
-                                                                    ?.updateEditorList[
+                                    checkboxState.editors.map(
+                                        (editor: IUserWithId, i: number) => (
+                                            <TableRow key={i + 1}>
+                                                <TableCell>
+                                                    <FormControlLabel
+                                                        control={
+                                                            <Checkbox
+                                                                checked={
+                                                                    checkboxState
+                                                                        ?.updateEditorList[
+                                                                        editor
+                                                                            ._id
+                                                                    ] || false
+                                                                }
+                                                                onChange={(e) =>
+                                                                    handleChangeEditorlist(
+                                                                        e
+                                                                    )
+                                                                }
+                                                                value={
                                                                     editor._id
-                                                                ] || false
-                                                            }
-                                                            onChange={(e) =>
-                                                                handleChangeEditorlist(
-                                                                    e
-                                                                )
-                                                            }
-                                                            value={editor._id}
-                                                        />
-                                                    }
-                                                    label={`${editor.lastname} ${editor.firstname}`}
-                                                />
-                                            </TableCell>
-                                            <TableCell />
-                                        </TableRow>
-                                    ))
+                                                                }
+                                                            />
+                                                        }
+                                                        label={`${editor.lastname} ${editor.firstname}`}
+                                                    />
+                                                </TableCell>
+                                                <TableCell />
+                                            </TableRow>
+                                        )
+                                    )
                                 ) : (
                                     <TableRow>
                                         <TableCell>

@@ -12,7 +12,7 @@ import {
     StyledInputBase,
     menuWidth
 } from '@utils/contants';
-import { IStudentResponse } from '@/api/types';
+import type { IStudentResponse } from '@taiger-common/model';
 
 interface ChatListState {
     success: boolean;

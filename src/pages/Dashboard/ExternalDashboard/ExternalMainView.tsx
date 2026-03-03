@@ -7,7 +7,7 @@ import {
 
 import { useTranslation } from 'react-i18next';
 import ProgramReportCard from '../../Program/ProgramReportCard';
-import type { IStudentResponse } from '@/api/types';
+import type { IStudentResponse } from '@taiger-common/model';
 
 const ExternalMainView = ({ students }: { students: IStudentResponse[] }) => {
     const { t } = useTranslation();

@@ -3,16 +3,25 @@ import { Autocomplete, Checkbox, TextField } from '@mui/material';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { useTranslation } from 'react-i18next';
+import type { IStudentResponse, IUserAttribute } from '@taiger-common/model';
 import { ATTRIBUTES } from '@utils/contants';
 import { ConfirmationModal } from '@components/Modal/ConfirmationModal';
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
+interface AttributeInputSelectionProps {
+    onAttributesChange: (
+        e: React.SyntheticEvent,
+        newValue: IUserAttribute[]
+    ) => void;
+    updateAttributesList: IUserAttribute[];
+}
+
 const AttributeInputSelection = ({
     onAttributesChange,
     updateAttributesList
-}) => {
+}: AttributeInputSelectionProps) => {
     return (
         <Autocomplete
             disableCloseOnSelect
@@ -48,7 +57,19 @@ const AttributeInputSelection = ({
     );
 };
 
-const EditAttributesSubpage = (props) => {
+interface Props {
+    isLoading?: boolean;
+    onHide: () => void;
+    show: boolean;
+    student: IStudentResponse;
+    submitUpdateAttributeslist: (
+        e: React.MouseEvent<HTMLElement>,
+        updateAttributesList: unknown,
+        student_id: string
+    ) => void;
+}
+
+const EditAttributesSubpage = (props: Props) => {
     const { t } = useTranslation();
     const [checkboxState, setCheckboxState] = useState({
         updateAttributesList: props.student.attributes

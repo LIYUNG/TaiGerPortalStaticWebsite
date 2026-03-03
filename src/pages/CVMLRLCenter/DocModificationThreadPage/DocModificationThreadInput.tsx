@@ -50,13 +50,21 @@ import { appConfig } from '../../../config';
 const type2width = { word: 3, sentence: 5, paragraph: 12, essay: 12 };
 const type2rows = { word: 1, sentence: 1, paragraph: 4, essay: 10 };
 
+interface ProgressButtonProps {
+    label?: string;
+    progressLabel?: string;
+    onClick?: React.MouseEventHandler<HTMLButtonElement>;
+    isProgress?: boolean;
+    [key: string]: unknown;
+}
+
 const ProgressButton = ({
     label = 'Submit',
     progressLabel = 'Submitting',
     onClick,
     isProgress,
     ...buttonProps
-}) => {
+}: ProgressButtonProps) => {
     return (
         <Button {...buttonProps} onClick={onClick}>
             {isProgress ? (
@@ -171,6 +179,30 @@ const LastModifiedText = ({
     );
 };
 
+interface SurveyQuestionItem {
+    questionId: string;
+    question: string;
+    placeholder?: string;
+    answer?: string;
+    type: string;
+}
+
+interface SurveyFormProps {
+    title?: string | null;
+    surveyInput: {
+        isFinalVersion?: boolean;
+        updatedAt?: string | number;
+        surveyContent: SurveyQuestionItem[];
+    };
+    onChange: (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => void;
+    surveyType?: string;
+    disableEdit?: boolean;
+    showEditButton?: boolean;
+    isCollapse?: boolean;
+}
+
 const SurveyForm = ({
     title,
     surveyInput,
@@ -179,7 +211,7 @@ const SurveyForm = ({
     disableEdit = false,
     showEditButton = false,
     isCollapse = true
-}) => {
+}: SurveyFormProps) => {
     // editable by default no title, no edit button, or new survey
     const [editMode, setEditMode] = useState(
         !title || !showEditButton || !surveyInput?.updatedAt
@@ -304,13 +336,21 @@ const SurveyForm = ({
     );
 };
 
+interface InputGeneratorProps {
+    isChecked: boolean;
+    data: string;
+    isGenerating: boolean;
+    onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+    onGenerate: () => void;
+}
+
 const InputGenerator = ({
     isChecked,
     data,
     isGenerating,
     onChange,
     onGenerate
-}) => {
+}: InputGeneratorProps) => {
     return (
         <>
             <Typography gutterBottom variant="h5">
@@ -483,7 +523,9 @@ const DocModificationThreadInput = () => {
         }));
     };
 
-    const onChange = (e) => {
+    const onChange = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
         const id = e.target.id;
         const answer = e.target.value;
         const survey = e.target.getAttribute('survey');
@@ -536,7 +578,10 @@ const DocModificationThreadInput = () => {
         }));
     };
 
-    const updateSurveyInput = async (surveyInput, informEditor) => {
+    const updateSurveyInput = async (
+        surveyInput: SurveyInputItem & { _id?: string },
+        informEditor: boolean
+    ) => {
         let newSurvey;
         if (!surveyInput?._id) {
             newSurvey = await postSurveyInput(surveyInput, informEditor);

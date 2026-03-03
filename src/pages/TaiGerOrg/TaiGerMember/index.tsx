@@ -28,11 +28,10 @@ import {
 } from '@mui/icons-material';
 import { Navigate, Link as LinkDom } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
 import { is_TaiGer_Admin, is_TaiGer_role, Role } from '@taiger-common/core';
 
 import ErrorPage from '../../Utils/ErrorPage';
-import { getTeamMembersQuery } from '@/api/query';
+import { useTeamMembers } from '@hooks/useTeamMembers';
 import { TabTitle } from '../../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { appConfig } from '../../../config';
@@ -307,12 +306,8 @@ const TaiGerMember = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
 
-    const {
-        data: response,
-        isLoading,
-        isError,
-        error
-    } = useQuery(getTeamMembersQuery());
+    const { teams, isLoading, isError, error, success, status } =
+        useTeamMembers();
 
     if (!user || !is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
@@ -324,18 +319,18 @@ const TaiGerMember = () => {
         return <Loading />;
     }
 
-    if (isError || !response?.data?.success) {
-        const status =
-            response?.status ??
+    if (isError || !success) {
+        const resStatus =
+            status ??
             (error as { response?: { status?: number } })?.response?.status ??
             500;
-        return <ErrorPage res_status={status} />;
+        return <ErrorPage res_status={resStatus} />;
     }
 
-    const teams: TeamMember[] = response?.data?.data || [];
-    const admins = teams.filter((member) => member.role === Role.Admin);
-    const agents = teams.filter((member) => member.role === Role.Agent);
-    const editors = teams.filter((member) => member.role === Role.Editor);
+    const members: TeamMember[] = (teams as TeamMember[]) || [];
+    const admins = members.filter((member) => member.role === Role.Admin);
+    const agents = members.filter((member) => member.role === Role.Agent);
+    const editors = members.filter((member) => member.role === Role.Editor);
 
     return (
         <Box sx={{ p: { xs: 2, sm: 3 } }}>
@@ -381,7 +376,7 @@ const TaiGerMember = () => {
                             })}
                         </Typography>
                         <Typography sx={{ opacity: 0.9 }} variant="body1">
-                            {t('Total', { ns: 'common' })}: {teams.length}{' '}
+                            {t('Total', { ns: 'common' })}: {members.length}{' '}
                             {t('members', { ns: 'common' })}
                         </Typography>
                     </Box>

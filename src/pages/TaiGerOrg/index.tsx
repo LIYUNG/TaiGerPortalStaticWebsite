@@ -31,13 +31,13 @@ import {
     AdminPanelSettings as AdminPanelSettingsIcon,
     Shield as ShieldIcon
 } from '@mui/icons-material';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { is_TaiGer_Admin, is_TaiGer_role, Role } from '@taiger-common/core';
 import i18next from 'i18next';
 
 import ErrorPage from '../Utils/ErrorPage';
 import { updateUserPermission } from '@/api';
-import { getTeamMembersQuery } from '@/api/query';
+import { useTeamMembers } from '@hooks/useTeamMembers';
 import { queryClient } from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
@@ -467,12 +467,8 @@ const TaiGerOrg = () => {
         user_permissions: []
     });
 
-    const {
-        data: response,
-        isLoading,
-        isError,
-        error
-    } = useQuery(getTeamMembersQuery());
+    const { teams, isLoading, isError, error, success, status, queryKey } =
+        useTeamMembers();
 
     const { mutate: updatePermissionsMutation } = useMutation({
         mutationFn: ({
@@ -483,9 +479,7 @@ const TaiGerOrg = () => {
             permissions: UserPermissions;
         }) => updateUserPermission(userId, permissions),
         onSuccess: () => {
-            queryClient.invalidateQueries({
-                queryKey: ['team-members']
-            });
+            queryClient.invalidateQueries({ queryKey });
             setModalState({
                 modalShow: false,
                 managerModalShow: false,
@@ -551,17 +545,17 @@ const TaiGerOrg = () => {
         return <Loading />;
     }
 
-    if (isError || !response?.data?.success) {
-        const status =
-            response?.status ??
+    if (isError || !success) {
+        const resStatus =
+            status ??
             (error as { response?: { status?: number } })?.response?.status ??
             500;
-        return <ErrorPage res_status={status} />;
+        return <ErrorPage res_status={resStatus} />;
     }
 
-    const teams: TeamMember[] = response?.data?.data || [];
-    const admins = teams.filter((member) => member.role === Role.Admin);
-    const membersByRole = teams.reduce<Record<string, TeamMember[]>>(
+    const teamList: TeamMember[] = (teams as TeamMember[]) || [];
+    const admins = teamList.filter((member) => member.role === Role.Admin);
+    const membersByRole = teamList.reduce<Record<string, TeamMember[]>>(
         (acc, member) => {
             const role = member.role ?? 'unknown';
             if (!acc[role]) {

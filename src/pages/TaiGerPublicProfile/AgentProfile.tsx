@@ -24,7 +24,7 @@ import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';
-import { IAgentResponse } from '@taiger-common/model';
+import type { IAgent } from '@taiger-common/model';
 
 const AgentProfile = () => {
     const { user } = useAuth();
@@ -35,7 +35,7 @@ const AgentProfile = () => {
         isLoaded: false,
         data: null,
         success: false,
-        agent: {} as IAgentResponse,
+        agent: {} as IAgent,
         selectedTimezone:
             user.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
         updateconfirmed: false,

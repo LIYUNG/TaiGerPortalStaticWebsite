@@ -19,7 +19,7 @@ import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { ATTRIBUTES, COLORS } from '@utils/contants';
 import { IStudentResponse } from '@/api';
-import { type IUserAttribute } from '@taiger-common/model';
+import { type IUserAttribute, type IAgentWithId } from '@taiger-common/model';
 
 interface NoEditorsStudentsCardProps {
     student: IStudentResponse;
@@ -159,11 +159,13 @@ const NoEditorsStudentsCard = ({
                         {!student.agents || student.agents.length === 0 ? (
                             <Typography fontWeight="bold">No Agent</Typography>
                         ) : (
-                            student.agents.map((agent, i) => (
-                                <Typography
-                                    key={i}
-                                >{`${agent.firstname}`}</Typography>
-                            ))
+                            student.agents.map(
+                                (agent: IAgentWithId, i: number) => (
+                                    <Typography
+                                        key={i}
+                                    >{`${agent.firstname}`}</Typography>
+                                )
+                            )
                         )}
                     </TableCell>
                 </TableRow>

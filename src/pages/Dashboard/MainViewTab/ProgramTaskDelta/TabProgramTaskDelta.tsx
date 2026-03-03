@@ -6,9 +6,14 @@ import {
     TableRow
 } from '@mui/material';
 import ProgramTaskDelta from './ProgramTaskDelta';
+import type { ProgramTaskDeltaProps } from './ProgramTaskDelta';
 
-const TabProgramTaskDelta = ({ deltas }) => {
-    const taskDeltas = deltas.map((delta, i) => (
+interface TabProgramTaskDeltaProps {
+    deltas: ProgramTaskDeltaProps[];
+}
+
+const TabProgramTaskDelta = ({ deltas }: TabProgramTaskDeltaProps) => {
+    const taskDeltas = deltas.map((delta: ProgramTaskDeltaProps, i: number) => (
         <ProgramTaskDelta
             key={i}
             program={delta.program}

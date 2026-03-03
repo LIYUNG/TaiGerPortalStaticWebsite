@@ -1,4 +1,4 @@
-import { IUserWithId } from '@/types/taiger-common';
+import type { IUserWithId } from '@taiger-common/model';
 import {
     Dialog,
     DialogTitle,

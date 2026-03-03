@@ -16,6 +16,19 @@ import { getCheckDocumentPatternIsPassed } from '@/api';
 import { Stack } from '@mui/system';
 import { useTranslation } from 'react-i18next';
 
+interface DocumentCheckingResultModalProps {
+    open: boolean;
+    onClose: () => void;
+    onConfirm: () => void;
+    title: string;
+    isFinalVersion: boolean;
+    isSubmissionLoaded: boolean;
+    file_type: string;
+    thread_id: string;
+    student_name: string;
+    docName: string;
+}
+
 const DocumentCheckingResultModal = ({
     open,
     onClose,
@@ -27,7 +40,7 @@ const DocumentCheckingResultModal = ({
     thread_id,
     student_name,
     docName
-}) => {
+}: DocumentCheckingResultModalProps) => {
     const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
     const [reason, setReason] = useState('');
@@ -71,7 +84,7 @@ const DocumentCheckingResultModal = ({
             setCanProceed(false);
             setError('');
         }
-    }, [open, file_type, isFinalVersion, thread_id, fetchData]);
+    }, [open, file_type, isFinalVersion, thread_id]);
 
     return (
         <Dialog

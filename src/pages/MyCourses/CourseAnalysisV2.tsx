@@ -85,7 +85,36 @@ import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';
 import { appConfig } from '../../config';
 import { a11yProps, CustomTabPanel } from '@components/Tabs';
-import { IStudentResponse } from '@/types/taiger-common';
+import type { SelectChangeEvent } from '@mui/material';
+import type { GridRenderCellParams } from '@mui/x-data-grid';
+import type { IStudentResponse } from '@taiger-common/model';
+
+interface CategorySummaryRow {
+    credits: number;
+    requiredECTS: number;
+    maxScore?: number;
+    [key: string]: string | number | undefined;
+}
+
+interface ScoreEntry {
+    name: string;
+    label: string;
+    description?: string;
+}
+
+interface ProgramSheet {
+    sorted: Record<string, CategorySummaryRow[]>;
+    scores: Record<string, number> & {
+        firstRoundConsidered?: string[];
+        secondRoundConsidered?: string[];
+    };
+    suggestion: Record<string, Array<Record<string, string>>>;
+}
+
+interface ProgramSheetEntry {
+    key: string;
+    value: ProgramSheet;
+}
 
 // const getTop3Keywords = (keywords) => {
 //     const frequencyMap = {};
@@ -104,7 +133,10 @@ import { IStudentResponse } from '@/types/taiger-common';
 //     return top3;
 // };
 
-const countSuggestedCourses = (data, missingCourses) => {
+const countSuggestedCourses = (
+    data: Record<string, Array<Record<string, string>>>,
+    missingCourses: Record<string, number>
+) => {
     delete data.Others;
     const categories = Object.keys(data);
     for (const category of categories) {
@@ -127,19 +159,19 @@ const settings = {
     height: 150
 };
 
-const acquiredECTS = (table) => {
+const acquiredECTS = (table: CategorySummaryRow[]) => {
     return table[table.length - 1].credits;
 };
 
-const requiredECTS = (table) => {
+const requiredECTS = (table: CategorySummaryRow[]) => {
     return table[table.length - 1].requiredECTS;
 };
 
-const satisfiedRequirement = (table) => {
+const satisfiedRequirement = (table: CategorySummaryRow[]) => {
     return acquiredECTS(table) >= requiredECTS(table);
 };
 
-const getMaxScoreECTS = (table) => {
+const getMaxScoreECTS = (table: CategorySummaryRow[]) => {
     return table[table.length - 1].maxScore || 0;
 };
 
@@ -191,6 +223,17 @@ const CourseTable = ({ data = [], tableKey }: CourseTableProps) => {
     );
 };
 
+interface EstimationCardProps {
+    round: string[];
+    sortedCourses: Record<string, CategorySummaryRow[]>;
+    scores: Record<string, number>;
+    academic_background: IStudentResponse['academic_background'];
+    directAd: ScoreEntry;
+    directRej: ScoreEntry;
+    stage: number;
+    subtitle: string;
+}
+
 export const EstimationCard = ({
     round,
     sortedCourses,
@@ -200,7 +243,7 @@ export const EstimationCard = ({
     directRej,
     stage,
     subtitle
-}) => {
+}: EstimationCardProps) => {
     const [open, setOpen] = useState(false);
 
     const { Highest_GPA_Uni, Passing_GPA_Uni, My_GPA_Uni } =
@@ -217,19 +260,19 @@ export const EstimationCard = ({
             germanGPA = 0;
         }
     }
-    const acquiredECTS = (table) => {
+    const acquiredECTS = (table: CategorySummaryRow[]) => {
         return table[table.length - 1].credits;
     };
 
-    const requiredECTS = (table) => {
+    const requiredECTS = (table: CategorySummaryRow[]) => {
         return table[table.length - 1].requiredECTS;
     };
 
-    const satisfiedRequirement = (table) => {
+    const satisfiedRequirement = (table: CategorySummaryRow[]) => {
         return acquiredECTS(table) >= requiredECTS(table);
     };
 
-    const getMaxScoreECTS = (table) => {
+    const getMaxScoreECTS = (table: CategorySummaryRow[]) => {
         return table[table.length - 1].maxScore || 0;
     };
     const getOverallCourseScoreArray = () => {
@@ -266,7 +309,8 @@ export const EstimationCard = ({
 
     if (
         round.findIndex(
-            (consideredScore) => consideredScore === GENERAL_SCORES_COURSE.name
+            (consideredScore: string) =>
+                consideredScore === GENERAL_SCORES_COURSE.name
         ) > -1
     ) {
         const courseScore = getOverallCourseScore();
@@ -291,12 +335,12 @@ export const EstimationCard = ({
     }
     round
         .filter(
-            (consideredScore) =>
+            (consideredScore: string) =>
                 ![GENERAL_SCORES_COURSE.name, GENERAL_SCORES_GPA.name].includes(
                     consideredScore
                 )
         )
-        .forEach((consideredScore) => {
+        .forEach((consideredScore: string) => {
             data.push({
                 name: SCORES_TYPE_OBJ[consideredScore]?.label,
                 value25: scores[consideredScore] * 0.25,
@@ -308,7 +352,8 @@ export const EstimationCard = ({
 
     if (
         round.findIndex(
-            (consideredScore) => consideredScore === GENERAL_SCORES_GPA.name
+            (consideredScore: string) =>
+                consideredScore === GENERAL_SCORES_GPA.name
         ) > -1
     ) {
         const gpaMaxScore = scores[GENERAL_SCORES_GPA.name];
@@ -476,6 +521,16 @@ export const EstimationCard = ({
     );
 };
 
+interface CourseAnalysisComponentProps {
+    factor: number;
+    sheet: ProgramSheet;
+    student: IStudentResponse;
+    onBackToOverview: () => void;
+    currentProgram: number;
+    programs: string[];
+    onProgramChange: (event: SelectChangeEvent<number>) => void;
+}
+
 export const CourseAnalysisComponent = ({
     factor,
     sheet,
@@ -484,7 +539,7 @@ export const CourseAnalysisComponent = ({
     currentProgram,
     programs,
     onProgramChange
-}) => {
+}: CourseAnalysisComponentProps) => {
     const sortedCourses = sheet.sorted;
     const scores = sheet.scores;
     const firstRoundConsidered = scores.firstRoundConsidered;
@@ -549,18 +604,20 @@ export const CourseAnalysisComponent = ({
                                     size="small"
                                     value={currentProgram - 1}
                                 >
-                                    {programs.map((program, index) => (
-                                        <MenuItem
-                                            key={program}
-                                            sx={{
-                                                whiteSpace: 'normal',
-                                                wordWrap: 'break-word'
-                                            }}
-                                            value={index}
-                                        >
-                                            {program}
-                                        </MenuItem>
-                                    ))}
+                                    {programs.map(
+                                        (program: string, index: number) => (
+                                            <MenuItem
+                                                key={program}
+                                                sx={{
+                                                    whiteSpace: 'normal',
+                                                    wordWrap: 'break-word'
+                                                }}
+                                                value={index}
+                                            >
+                                                {program}
+                                            </MenuItem>
+                                        )
+                                    )}
                                 </Select>
                             </Grid>
                             <Grid item md={8} xs={12}>
@@ -799,8 +856,11 @@ export const CourseAnalysisComponent = ({
                                     </Typography>
                                     <Typography variant="body1">
                                         {suggestedCourses[category]
-                                            .map((sug) => sug['建議修課'])
-                                            .filter((sug) => sug)
+                                            .map(
+                                                (sug: Record<string, string>) =>
+                                                    sug['建議修課']
+                                            )
+                                            .filter((sug: string) => sug)
                                             .join('， ')}
                                     </Typography>
                                 </Box>
@@ -870,7 +930,9 @@ export const CourseAnalysisComponent = ({
     );
 };
 
-const allRequiredECTSCrossPrograms = (programSheetsArray) => {
+const allRequiredECTSCrossPrograms = (
+    programSheetsArray: ProgramSheetEntry[]
+) => {
     let sum = 0;
     for (let i = 0; i < programSheetsArray?.length; i += 1) {
         const sortedCourses = programSheetsArray[i]?.value?.sorted;
@@ -885,8 +947,10 @@ const allRequiredECTSCrossPrograms = (programSheetsArray) => {
     return sum;
 };
 
-const allMissCoursesCrossPrograms = (programSheetsArray) => {
-    let missingCourses = {};
+const allMissCoursesCrossPrograms = (
+    programSheetsArray: ProgramSheetEntry[]
+) => {
+    let missingCourses: Record<string, number> = {};
     for (let i = 0; i < programSheetsArray?.length; i += 1) {
         const suggestionCourses = programSheetsArray[i]?.value?.suggestion;
         missingCourses = countSuggestedCourses(
@@ -897,7 +961,9 @@ const allMissCoursesCrossPrograms = (programSheetsArray) => {
     return missingCourses;
 };
 
-const allAcquiredECTSCrossPrograms = (programSheetsArray) => {
+const allAcquiredECTSCrossPrograms = (
+    programSheetsArray: ProgramSheetEntry[]
+) => {
     let sum = 0;
     for (let i = 0; i < programSheetsArray?.length; i += 1) {
         const sortedCourses = programSheetsArray[i]?.value?.sorted;
@@ -919,7 +985,7 @@ const GPACard = memo(({ student, myGermanGPA }) => {
     const theme = useTheme();
     const university = student?.academic_background?.university || {};
 
-    const getGradeColor = (gpa) => {
+    const getGradeColor = (gpa: number) => {
         if (!gpa) return theme.palette.text.secondary;
         if (gpa <= 1.5) return theme.palette.success.main;
         if (gpa <= 2.5) return theme.palette.info.main;
@@ -927,7 +993,7 @@ const GPACard = memo(({ student, myGermanGPA }) => {
         return theme.palette.error.main;
     };
 
-    const getGradeLabel = (gpa) => {
+    const getGradeLabel = (gpa: number) => {
         if (!gpa) return 'N/A';
         if (gpa <= 1.5) return '(Sehr gut)';
         if (gpa <= 2.5) return '(Gut)';
@@ -1053,20 +1119,30 @@ const GPACard = memo(({ student, myGermanGPA }) => {
 });
 GPACard.displayName = 'GPACard';
 
+interface ProgramMatchingScoresProps {
+    programSheetsArray: ProgramSheetEntry[];
+    onProgramSelect: (index: number) => void;
+}
+
 const ProgramMatchingScores = memo(
-    ({ programSheetsArray, onProgramSelect }) => {
+    ({ programSheetsArray, onProgramSelect }: ProgramMatchingScoresProps) => {
         const theme = useTheme();
         const [viewMode, setViewMode] = useState('cards');
         const [pageSize, setPageSize] = useState(10);
         const [searchText, setSearchText] = useState('');
 
-        const handleViewChange = (event, newView) => {
+        const handleViewChange = (
+            _event: React.MouseEvent<HTMLElement>,
+            newView: string | null
+        ) => {
             if (newView !== null) {
                 setViewMode(newView);
             }
         };
 
-        const calculateProgramMatchingScore = (sortedCourses) => {
+        const calculateProgramMatchingScore = (
+            sortedCourses: Record<string, CategorySummaryRow[]>
+        ) => {
             const requiredects = Object.keys(sortedCourses).reduce(
                 (sum, category) => sum + requiredECTS(sortedCourses[category]),
                 0
@@ -1082,14 +1158,18 @@ const ProgramMatchingScores = memo(
             return requiredects > 0 ? (acquiredects * 100) / requiredects : 0;
         };
 
-        const calculateRequiredECTS = (sortedCourses) => {
+        const calculateRequiredECTS = (
+            sortedCourses: Record<string, CategorySummaryRow[]>
+        ) => {
             return Object.keys(sortedCourses).reduce(
                 (sum, category) => sum + requiredECTS(sortedCourses[category]),
                 0
             );
         };
 
-        const calculateAcquiredECTS = (sortedCourses) => {
+        const calculateAcquiredECTS = (
+            sortedCourses: Record<string, CategorySummaryRow[]>
+        ) => {
             return Object.keys(sortedCourses).reduce(
                 (sum, category) =>
                     sum +
@@ -1100,13 +1180,13 @@ const ProgramMatchingScores = memo(
             );
         };
 
-        const getScoreColor = (score) => {
+        const getScoreColor = (score: number) => {
             if (score >= 75) return theme.palette.primary.main;
             if (score >= 50) return theme.palette.success.main;
             return theme.palette.error.main;
         };
 
-        const getECTSColor = (acquired, required) => {
+        const getECTSColor = (acquired: number, required: number) => {
             const percentage = (acquired / required) * 100;
             if (percentage >= 100) return theme.palette.success.main;
             if (percentage >= 75) return theme.palette.primary.main;
@@ -1120,7 +1200,7 @@ const ProgramMatchingScores = memo(
                 headerName: 'Program Name',
                 flex: 2,
                 minWidth: 280,
-                renderCell: (params) => (
+                renderCell: (params: GridRenderCellParams) => (
                     <Link
                         component="button"
                         onClick={() => onProgramSelect(params.row.index)}
@@ -1143,7 +1223,7 @@ const ProgramMatchingScores = memo(
                 flex: 1,
                 minWidth: 150,
                 type: 'number',
-                renderCell: (params) => {
+                renderCell: (params: GridRenderCellParams) => {
                     const score = params.value;
                     return (
                         <Box
@@ -1179,14 +1259,15 @@ const ProgramMatchingScores = memo(
                         </Box>
                     );
                 },
-                sortComparator: (v1, v2) => Number(v1) - Number(v2)
+                sortComparator: (v1: string | number, v2: string | number) =>
+                    Number(v1) - Number(v2)
             },
             {
                 field: 'ectsProgress',
                 headerName: 'ECTS Progress',
                 flex: 1.5,
                 minWidth: 200,
-                renderCell: (params) => {
+                renderCell: (params: GridRenderCellParams) => {
                     const acquired = params.row.acquiredECTS;
                     const required = params.row.requiredECTS;
                     const percentage = Math.min(
@@ -1254,28 +1335,20 @@ const ProgramMatchingScores = memo(
             }
         ];
 
-        const rows = programSheetsArray.map(
-            (
-                {
-                    key,
-                    value
-                }: { key: string; value: { sorted: Record<string, unknown> } },
-                index: number
-            ) => {
-                const requiredECTS = calculateRequiredECTS(value.sorted);
-                const acquiredECTS = calculateAcquiredECTS(value.sorted);
-                return {
-                    id: index,
-                    index: index,
-                    programName: key,
-                    matchingScore: Number(
-                        calculateProgramMatchingScore(value.sorted)
-                    ).toFixed(0),
-                    requiredECTS,
-                    acquiredECTS
-                };
-            }
-        );
+        const rows = programSheetsArray.map(({ key, value }, index) => {
+            const requiredECTS = calculateRequiredECTS(value.sorted);
+            const acquiredECTS = calculateAcquiredECTS(value.sorted);
+            return {
+                id: index,
+                index: index,
+                programName: key,
+                matchingScore: Number(
+                    calculateProgramMatchingScore(value.sorted)
+                ).toFixed(0),
+                requiredECTS,
+                acquiredECTS
+            };
+        });
 
         const filteredRows = searchText
             ? rows.filter(
@@ -1384,7 +1457,7 @@ const ProgramMatchingScores = memo(
                                         ]
                                     }
                                 }}
-                                onPageSizeChange={(newPageSize) =>
+                                onPageSizeChange={(newPageSize: number) =>
                                     setPageSize(newPageSize)
                                 }
                                 onRowClick={(params) =>
@@ -1421,7 +1494,7 @@ const ProgramMatchingScores = memo(
 ProgramMatchingScores.displayName = 'ProgramMatchingScores';
 
 interface GeneralCourseAnalysisComponentProps {
-    sheets: Record<string, Record<string, Record<string, string[]>>>;
+    sheets: Record<string, ProgramSheet>;
     student: IStudentResponse;
     onProgramSelect: (index: number) => void;
 }
@@ -1434,9 +1507,12 @@ export const GeneralCourseAnalysisComponent = ({
     const [tabTag, setTabTag] = useState(0);
     const theme = useTheme();
 
-    const handleTabChange = useCallback((event, newValue) => {
-        setTabTag(newValue);
-    }, []);
+    const handleTabChange = useCallback(
+        (_event: React.SyntheticEvent, newValue: number) => {
+            setTabTag(newValue);
+        },
+        []
+    );
 
     const programSheetsArray = useMemo(
         () =>
@@ -1749,8 +1825,8 @@ export default function CourseAnalysisV2() {
     }, [user_id]);
 
     const handleProgramChange = useCallback(
-        (event) => {
-            const selectedIndex = event.target.value + 1;
+        (event: SelectChangeEvent<number>) => {
+            const selectedIndex = (event.target.value as number) + 1;
             setValue(selectedIndex);
             setSheetName(statedata.sheetNames[selectedIndex]);
         },
@@ -1758,7 +1834,7 @@ export default function CourseAnalysisV2() {
     );
 
     const handleProgramSelect = useCallback(
-        (index) => {
+        (index: number) => {
             const selectedIndex = index + 1;
             setValue(selectedIndex);
             setSheetName(statedata.sheetNames[selectedIndex]);

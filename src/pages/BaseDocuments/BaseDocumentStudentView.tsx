@@ -3,6 +3,10 @@ import { Alert, Box } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { PROFILE_NAME } from '@taiger-common/core';
 import { DocumentStatusType } from '@taiger-common/model';
+import type {
+    IBasedocumentationslinkWithId,
+    IUserProfileItem
+} from '@taiger-common/model';
 
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { SYMBOL_EXPLANATION } from '@utils/contants';
@@ -58,7 +62,7 @@ const BaseDocumentStudentView = ({
         }));
     };
 
-    const updateDocLink = (link, key) => {
+    const updateDocLink = (link: string, key: string) => {
         updateDocumentationHelperLink(link, key, 'base-documents').then(
             (resp) => {
                 const { helper_link, success } = resp.data;
@@ -106,34 +110,36 @@ const BaseDocumentStudentView = ({
     });
     // TODO: what if baseDocumentStudentViewState.student.profile[i].name key not in base_docs_link[i].key?
     if (base_docs_link) {
-        base_docs_link.forEach((baseDoc) => {
+        base_docs_link.forEach((baseDoc: IBasedocumentationslinkWithId) => {
             if (object_init[baseDoc.key]) {
                 object_init[baseDoc.key].link = baseDoc.link;
             }
         });
     }
     if (baseDocumentStudentViewState.student.profile) {
-        baseDocumentStudentViewState.student.profile.forEach((profile) => {
-            const document_split = profile.path.replace(/\\/g, '/');
-            const document_name = document_split.split('/')[1];
+        baseDocumentStudentViewState.student.profile.forEach(
+            (profile: IUserProfileItem) => {
+                const document_split = profile.path.replace(/\\/g, '/');
+                const document_name = document_split.split('/')[1];
 
-            switch (profile.status) {
-                case DocumentStatusType.Uploaded:
-                case DocumentStatusType.Accepted:
-                case DocumentStatusType.Rejected:
-                    object_init[profile.name].status = profile.status;
-                    object_init[profile.name].document_name = document_name;
-                    break;
-                case DocumentStatusType.NotNeeded:
-                case DocumentStatusType.Missing:
-                    object_init[profile.name].status = profile.status;
-                    object_init[profile.name].document_name = '';
-                    break;
+                switch (profile.status) {
+                    case DocumentStatusType.Uploaded:
+                    case DocumentStatusType.Accepted:
+                    case DocumentStatusType.Rejected:
+                        object_init[profile.name].status = profile.status;
+                        object_init[profile.name].document_name = document_name;
+                        break;
+                    case DocumentStatusType.NotNeeded:
+                    case DocumentStatusType.Missing:
+                        object_init[profile.name].status = profile.status;
+                        object_init[profile.name].document_name = '';
+                        break;
+                }
+
+                object_message[profile.name] = profile.feedback || '';
+                object_time_init[profile.name] = profile.updatedAt;
             }
-
-            object_message[profile.name] = profile.feedback || '';
-            object_time_init[profile.name] = profile.updatedAt;
-        });
+        );
     }
     const myDocumentsCard = profile_wtih_doc_link_list_key.map(
         (category, i) => (

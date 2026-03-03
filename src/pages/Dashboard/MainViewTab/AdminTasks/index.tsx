@@ -11,7 +11,7 @@ import AssignEssayWriterRow from '../Common/AssignEssayWriterRow';
 import AssignEditorRow from '../Common/AssignEditorRow';
 import AssignInterviewTrainerRow from '../Common/AssignInterviewTrainerRow';
 import type { TasksOverview } from '@/api/types';
-import { IStudentResponse } from '@/types/taiger-common';
+import type { IStudentResponse } from '@taiger-common/model';
 
 const AdminTasks = ({
     students,

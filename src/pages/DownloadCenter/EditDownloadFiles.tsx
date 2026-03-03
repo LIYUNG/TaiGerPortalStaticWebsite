@@ -17,8 +17,23 @@ import i18next from 'i18next';
 
 import { BASE_URL } from '@/api';
 import { templatelist } from '@utils/contants';
+import type { IUserWithId } from '@taiger-common/model';
 
-const EditDownloadFiles = (props) => {
+interface EditDownloadFilesProps {
+    user: IUserWithId | null;
+    templates: { category_name: string }[];
+    areLoaded: Record<string, boolean>;
+    submitFile: (e: React.FormEvent<HTMLFormElement>, prop: unknown) => void;
+    onDeleteTemplateFile: (
+        e: React.MouseEvent<HTMLElement>,
+        prop: string
+    ) => void;
+    onFileChange: (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => void;
+}
+
+const EditDownloadFiles = (props: EditDownloadFilesProps) => {
     const submitFile = (e: React.FormEvent<HTMLFormElement>, prop: unknown) => {
         e.preventDefault();
         props.submitFile(e, prop);

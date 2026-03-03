@@ -13,7 +13,11 @@ import DEMO from '@store/constant';
 import { documentation_categories } from '@utils/contants';
 import DocPageView from './DocPageView';
 
-const SingleDoc = (props) => {
+interface SingleDocProps {
+    item?: string;
+}
+
+const SingleDoc = (props: SingleDocProps) => {
     const { documentation_id } = useParams();
     const [singleDocState, setSingleDocState] = useState({
         error: '',

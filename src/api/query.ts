@@ -28,6 +28,7 @@ import {
     getMyStudentsThreads,
     getApplications,
     getApplicationStudentV2,
+    getQueryStudentsResults,
     getStudentAndDocLinks,
     getActiveStudents,
     getActiveStudentsApplications,
@@ -60,12 +61,12 @@ import {
     getBookedEvents
 } from '.';
 import type {
-    DocumentThreadResponse,
     IStudentResponse,
     QueryString,
     StudentId,
     UserId
 } from './types';
+import type { IDocumentthreadPopulated } from '@taiger-common/model';
 
 export const getMessagThreadQuery = (threadId: string): UseQueryOptions => ({
     queryKey: ['MessageThread', threadId],
@@ -88,7 +89,7 @@ export const getActiveThreadsQuery = (
     queryFn: () => getActiveThreads(queryString),
     staleTime: 1000 * 60 * 5, // 5 minutes
     select: (data: unknown) =>
-        (data as { data?: DocumentThreadResponse[] })?.data || []
+        (data as { data?: IDocumentthreadPopulated[] })?.data || []
 });
 
 export const getProgramQuery = ({ programId }: { programId: string }): UseQueryOptions => ({
@@ -176,7 +177,7 @@ export const getUsersCountQuery = (): UseQueryOptions => ({
     queryKey: ['users/count'],
     queryFn: () => getUsersCount(),
     staleTime: 1000 * 60 * 5, // 5 minutes
-    select: (data: { data?: { data?: unknown[] } }) => data.data?.data || []
+    select: (data: { data?: unknown[] }) => data.data || []
 });
 
 export const getUsersOverviewQuery = (): UseQueryOptions => ({
@@ -308,6 +309,13 @@ export const getApplicationStudentV2Query = ({
     queryFn: () => getApplicationStudentV2(studentId),
     staleTime: 1000 * 60 * 5, // 5 minutes
     select: (data: unknown) => data?.data || null
+});
+
+export const getQueryStudentsResultsQuery = (keywords: string): UseQueryOptions => ({
+    queryKey: ['search/students', keywords],
+    queryFn: () => getQueryStudentsResults(keywords),
+    enabled: !!keywords.trim(),
+    staleTime: 1000 * 60 * 2 // 2 minutes
 });
 
 export const getStudentAndDocLinksQuery = ({

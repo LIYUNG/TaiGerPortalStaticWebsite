@@ -66,14 +66,14 @@ export const InterviewsTable = ({
             new Set(
                 table
                     .getSelectedRowModel()
-                    .rows[0]?.original?.trainer_id?.map(({ _id }) =>
-                        _id.toString()
+                    .rows[0]?.original?.trainer_id?.map(
+                        ({ _id }: { _id: string }) => _id.toString()
                     )
             )
         );
     };
 
-    const modifyTrainer = (new_trainerId, isActive) => {
+    const modifyTrainer = (new_trainerId: string, isActive: boolean) => {
         if (isActive) {
             const temp_0 = [...trainerId];
             const temp = new Set(temp_0);

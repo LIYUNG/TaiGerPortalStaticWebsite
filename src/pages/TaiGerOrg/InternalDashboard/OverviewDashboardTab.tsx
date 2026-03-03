@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Typography, Grid, Card, Button, ButtonGroup } from '@mui/material';
 import dayjs from 'dayjs';
@@ -25,13 +25,30 @@ const cat = [
     'SUPPLEMENTARY_FORM'
 ];
 
+interface EditorDataItem {
+    firstname: string;
+    task_counts?: { active?: number; potentials?: number };
+}
+
+interface OverviewDashboardTabProps {
+    studentsCreationDates: { createdAt: string }[];
+    agentData: {
+        key: string;
+        student_num_no_offer: number;
+        student_num_with_offer: number;
+    }[];
+    editorData: EditorDataItem[];
+    studentsYearsPair: { name: string; uv: number }[];
+    documents: Record<string, { count?: number }>;
+}
+
 const OverviewDashboardTab = ({
     studentsCreationDates,
     agentData,
     editorData,
     studentsYearsPair,
     documents
-}) => {
+}: OverviewDashboardTabProps) => {
     const [viewMode, setViewMode] = useState('month');
     const { t } = useTranslation();
 
@@ -45,29 +62,37 @@ const OverviewDashboardTab = ({
     });
 
     // Process editor tasks distribution data (now using pre-aggregated counts from backend)
-    const editor_tasks_distribution_data = editorData.map((editor) => ({
-        name: `${editor.firstname}`,
-        active: editor.task_counts?.active || 0,
-        potentials: editor.task_counts?.potentials || 0
-    }));
+    const editor_tasks_distribution_data = editorData.map(
+        (editor: EditorDataItem) => ({
+            name: `${editor.firstname}`,
+            active: editor.task_counts?.active || 0,
+            potentials: editor.task_counts?.potentials || 0
+        })
+    );
 
     const groupedData =
         viewMode === 'month'
             ? groupByMonth(studentsCreationDates)
             : groupByWeek(studentsCreationDates);
 
-    function groupByMonth(data) {
-        return data.reduce((acc, { createdAt }) => {
-            const month = dayjs(createdAt).format('YYYY-MM');
-            if (!acc[month]) {
-                acc[month] = 0;
-            }
-            acc[month]++;
-            return acc;
-        }, {});
+    function groupByMonth(data: { createdAt: string }[]) {
+        return data.reduce(
+            (
+                acc: Record<string, number>,
+                { createdAt }: { createdAt: string }
+            ) => {
+                const month = dayjs(createdAt).format('YYYY-MM');
+                if (!acc[month]) {
+                    acc[month] = 0;
+                }
+                acc[month]++;
+                return acc;
+            },
+            {}
+        );
     }
 
-    function prepareChartData(groupedData) {
+    function prepareChartData(groupedData: Record<string, number>) {
         const labels = Object.keys(groupedData).sort((a, b) => {
             if (a.includes('-W') && b.includes('-W')) {
                 const [yearA, weekA] = a.split('-W').map(Number);
@@ -90,17 +115,23 @@ const OverviewDashboardTab = ({
         };
     }
 
-    function groupByWeek(data) {
-        return data.reduce((acc, { createdAt }) => {
-            const week = dayjs(createdAt).isoWeek();
-            const year = dayjs(createdAt).year();
-            const weekYear = `${year}-W${week}`;
-            if (!acc[weekYear]) {
-                acc[weekYear] = 0;
-            }
-            acc[weekYear]++;
-            return acc;
-        }, {});
+    function groupByWeek(data: { createdAt: string }[]) {
+        return data.reduce(
+            (
+                acc: Record<string, number>,
+                { createdAt }: { createdAt: string }
+            ) => {
+                const week = dayjs(createdAt).isoWeek();
+                const year = dayjs(createdAt).year();
+                const weekYear = `${year}-W${week}`;
+                if (!acc[weekYear]) {
+                    acc[weekYear] = 0;
+                }
+                acc[weekYear]++;
+                return acc;
+            },
+            {}
+        );
     }
     const chartData = prepareChartData(groupedData);
 

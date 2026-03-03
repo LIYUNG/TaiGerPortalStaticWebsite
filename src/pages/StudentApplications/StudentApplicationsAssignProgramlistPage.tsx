@@ -27,7 +27,7 @@ import { ImportStudentProgramsCard } from './ImportStudentProgramsCard';
 import { StudentPreferenceCard } from './StudentPreferenceCard';
 
 const ProgramList = React.lazy(() => import('../Program/ProgramList'));
-import type { IStudentResponse } from '@/api/types';
+import type { IStudentResponse } from '@taiger-common/model';
 
 export interface StudentApplicationsAssignProgramlistPageProps {
     student: IStudentResponse;

@@ -1,7 +1,8 @@
+import React from 'react';
 import { Navigate, Link as RouterLink } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { MaterialReactTable } from 'material-react-table';
+import { MaterialReactTable, type MRT_ColumnDef } from 'material-react-table';
 import { useState } from 'react';
 
 import {
@@ -27,6 +28,7 @@ import {
     getStatusColor
 } from '@pages/CRM/components/statusUtils';
 import { is_TaiGer_role } from '@taiger-common/core';
+import type { CRMDealItem } from '@taiger-common/model';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
@@ -38,7 +40,10 @@ import DealModal from '@pages/CRM/components/DealModal';
 import StatusMenu from '@pages/CRM/components/StatusMenu';
 
 // Simple currency formatter (defaults to TWD, no fraction digits)
-const currencyFormatter = (value, options = {}) => {
+const currencyFormatter = (
+    value: unknown,
+    options: Intl.NumberFormatOptions = {}
+) => {
     const n = Number(value);
     if (!Number.isFinite(n)) return value ?? '';
     try {
@@ -59,8 +64,11 @@ const DealDashboard = () => {
         `${t('breadcrumbs.crm', { ns: 'crm' })} - ${t('breadcrumbs.deals', { ns: 'crm' })}`
     );
     const [open, setOpen] = useState(false);
-    const [editingDeal, setEditingDeal] = useState(null);
-    const [statusMenu, setStatusMenu] = useState({ anchorEl: null, row: null });
+    const [editingDeal, setEditingDeal] = useState<CRMDealItem | null>(null);
+    const [statusMenu, setStatusMenu] = useState<{
+        anchorEl: HTMLElement | null;
+        row: CRMDealItem | null;
+    }>({ anchorEl: null, row: null });
 
     const { user } = useAuth();
     // prepare query so we can reuse its key for invalidation
@@ -68,7 +76,15 @@ const DealDashboard = () => {
     const { data, isLoading } = useQuery(dealsQuery);
     const queryClient = useQueryClient();
     const updateStatusMutation = useMutation({
-        mutationFn: async ({ id, status, closedAt }) => {
+        mutationFn: async ({
+            id,
+            status,
+            closedAt
+        }: {
+            id: string;
+            status: string;
+            closedAt?: string;
+        }) => {
             await updateCRMDeal(id, {
                 status,
                 ...(status === 'closed' && closedAt ? { closedAt } : {})
@@ -84,14 +100,14 @@ const DealDashboard = () => {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
-    const allDeals = data?.data?.data || [];
+    const allDeals: CRMDealItem[] = data?.data?.data || [];
 
     const handleCreateDeal = () => {
         setEditingDeal(null);
         setOpen(true);
     };
 
-    const handleEditDeal = (deal) => {
+    const handleEditDeal = (deal: CRMDealItem) => {
         setEditingDeal(deal);
         setOpen(true);
     };
@@ -101,8 +117,8 @@ const DealDashboard = () => {
         setEditingDeal(null);
     };
 
-    const getSalesColor = (salesName) => {
-        const colors = {
+    const getSalesColor = (salesName: string): string => {
+        const colors: Record<string, string> = {
             David: 'primary',
             Winnie: 'success'
         };
@@ -110,14 +126,17 @@ const DealDashboard = () => {
     };
 
     // status menu handlers
-    const openStatusMenu = (event, row) => {
+    const openStatusMenu = (
+        event: React.MouseEvent<HTMLElement>,
+        row: CRMDealItem
+    ) => {
         if (isTerminalStatus(row?.status)) return; // don't open for closed/canceled
         setStatusMenu({ anchorEl: event.currentTarget, row });
     };
     const closeStatusMenu = () => setStatusMenu({ anchorEl: null, row: null });
     // Note: status changes are handled in StatusMenu onChoose
 
-    const columns = [
+    const columns: MRT_ColumnDef<CRMDealItem>[] = [
         {
             accessorKey: 'status',
             header: t('common.status', { ns: 'crm' }),
@@ -155,7 +174,9 @@ const DealDashboard = () => {
                                         ns: 'crm',
                                         defaultValue: value
                                     })}
-                                    onClick={(e) => {
+                                    onClick={(
+                                        e: React.MouseEvent<HTMLDivElement>
+                                    ) => {
                                         if (terminal) return;
                                         e.stopPropagation();
                                         openStatusMenu(e, row.original);
@@ -327,9 +348,9 @@ const DealDashboard = () => {
                 muiTableBodyRowProps={({ row }) => ({
                     hover: true,
                     sx: { cursor: 'pointer' },
-                    onClick: (e) => {
+                    onClick: (e: React.MouseEvent<HTMLTableRowElement>) => {
                         // Ignore clicks from interactive elements (links, buttons, chips)
-                        const el = e.target;
+                        const el = e.target as HTMLElement;
                         if (
                             el.closest &&
                             el.closest(
@@ -481,7 +502,7 @@ const DealDashboard = () => {
             <StatusMenu
                 anchorEl={statusMenu.anchorEl}
                 currentStatus={statusMenu.row?.status}
-                onChoose={(s) => {
+                onChoose={(s: string) => {
                     const id = getDealId(statusMenu.row);
                     updateStatusMutation.mutate(
                         { id, status: s },

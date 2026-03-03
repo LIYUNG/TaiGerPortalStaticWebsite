@@ -16,10 +16,22 @@ import {
 import { useTranslation } from 'react-i18next';
 import queryString from 'query-string';
 import { Role } from '@taiger-common/core';
+import type { IStudentResponse, IUserWithId } from '@taiger-common/model';
 
 import { getUsers } from '@/api';
 
-const EditEditorsSubpage = (props) => {
+interface Props {
+    onHide: () => void;
+    show: boolean;
+    student: IStudentResponse;
+    submitUpdateEditorlist: (
+        e: React.SyntheticEvent,
+        updateEditorList: Record<string, boolean>,
+        student_id: string
+    ) => void;
+}
+
+const EditEditorsSubpage = (props: Props) => {
     const [checkboxState, setCheckboxState] = useState({});
     const [isLoaded, setIsLoaded] = useState(false);
     const { t } = useTranslation();
@@ -34,11 +46,14 @@ const EditEditorsSubpage = (props) => {
                     const editors = data; //get all editors
                     const { editors: student_editors } = props.student;
                     const updateEditorList = editors.reduce(
-                        (prev, { _id }) => ({
+                        (
+                            prev: Record<string, boolean>,
+                            { _id }: IUserWithId
+                        ) => ({
                             ...prev,
                             [_id]: student_editors
                                 ? student_editors.findIndex(
-                                      (student_agent) =>
+                                      (student_agent: { _id: string }) =>
                                           student_agent._id === _id
                                   ) > -1
                                 : false
@@ -87,32 +102,37 @@ const EditEditorsSubpage = (props) => {
                         <Table size="small">
                             <TableBody>
                                 {checkboxState.editors ? (
-                                    checkboxState.editors.map((editor, i) => (
-                                        <TableRow key={i + 1}>
-                                            <TableCell>
-                                                <FormControlLabel
-                                                    control={
-                                                        <Checkbox
-                                                            checked={
-                                                                checkboxState
-                                                                    ?.updateEditorList[
+                                    checkboxState.editors.map(
+                                        (editor: IUserWithId, i: number) => (
+                                            <TableRow key={i + 1}>
+                                                <TableCell>
+                                                    <FormControlLabel
+                                                        control={
+                                                            <Checkbox
+                                                                checked={
+                                                                    checkboxState
+                                                                        ?.updateEditorList[
+                                                                        editor
+                                                                            ._id
+                                                                    ] || false
+                                                                }
+                                                                onChange={(e) =>
+                                                                    handleChangeEditorlist(
+                                                                        e
+                                                                    )
+                                                                }
+                                                                value={
                                                                     editor._id
-                                                                ] || false
-                                                            }
-                                                            onChange={(e) =>
-                                                                handleChangeEditorlist(
-                                                                    e
-                                                                )
-                                                            }
-                                                            value={editor._id}
-                                                        />
-                                                    }
-                                                    label={`${editor.lastname} ${editor.firstname}`}
-                                                />
-                                            </TableCell>
-                                            <TableCell />
-                                        </TableRow>
-                                    ))
+                                                                }
+                                                            />
+                                                        }
+                                                        label={`${editor.lastname} ${editor.firstname}`}
+                                                    />
+                                                </TableCell>
+                                                <TableCell />
+                                            </TableRow>
+                                        )
+                                    )
                                 ) : (
                                     <TableRow>
                                         <TableCell>

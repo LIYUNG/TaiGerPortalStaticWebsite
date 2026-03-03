@@ -17,6 +17,22 @@ import { BASE_URL } from '@/api';
 import FilePreview from '@components/FilePreview/FilePreview';
 import { useAuth } from '@components/AuthProvider';
 
+interface AcceptProfileFileModelProps {
+    closePreviewWindow: () => void;
+    showPreview: boolean;
+    path: string;
+    k: string;
+    onUpdateProfileDocStatus: (
+        e: React.MouseEvent<HTMLButtonElement>,
+        k: string,
+        student_id: string,
+        status: string
+    ) => void;
+    isLoaded: boolean;
+    student_id: string;
+    preview_path: string;
+}
+
 const AcceptProfileFileModel = ({
     closePreviewWindow,
     showPreview,
@@ -26,7 +42,7 @@ const AcceptProfileFileModel = ({
     isLoaded,
     student_id,
     preview_path
-}) => {
+}: AcceptProfileFileModelProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
 

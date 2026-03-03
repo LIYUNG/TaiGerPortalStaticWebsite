@@ -1,4 +1,6 @@
+import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { TFunction } from 'i18next';
 import {
     Box,
     Typography,
@@ -9,11 +11,90 @@ import {
     MenuItem,
     Chip,
     Divider,
-    Grid
+    Grid,
+    SxProps,
+    Theme
 } from '@mui/material';
 
+interface SelectOption {
+    value: string;
+    label: string;
+}
+
+interface FieldEditConfig {
+    type?: string;
+    multiline?: boolean;
+    rows?: number;
+    inputType?: string;
+    options?: SelectOption[];
+}
+
+interface FieldConfig {
+    key: string;
+    label?: string;
+    type?: string;
+    sx?: SxProps<Theme>;
+    defaultValue?: string;
+    inputType?: string;
+    multiline?: boolean;
+    rows?: number;
+    accessor?: (record: Record<string, unknown>) => unknown;
+    color?: (
+        value: unknown
+    ) =>
+        | 'default'
+        | 'primary'
+        | 'secondary'
+        | 'error'
+        | 'info'
+        | 'success'
+        | 'warning';
+    additionalContent?: (record: Record<string, unknown>) => React.ReactNode;
+    render?: (record: Record<string, unknown>) => React.ReactNode;
+    editField?: FieldEditConfig;
+    options?: SelectOption[];
+}
+
+interface SectionConfig {
+    title?: string;
+    gridSize?: number;
+    fields: FieldConfig[];
+}
+
+interface CardConfig {
+    layout?: string;
+    sections?: SectionConfig[];
+    fields?: FieldConfig[];
+    divider?: boolean;
+    additionalContent?: (record: Record<string, unknown>) => React.ReactNode;
+    editAdditionalContent?: (
+        formData: Record<string, string>,
+        onFieldChange: (key: string, value: string) => void
+    ) => React.ReactNode;
+}
+
+interface ViewFieldProps {
+    field: FieldConfig;
+    lead: Record<string, unknown>;
+    t: TFunction;
+}
+
+interface EditFieldProps {
+    field: FieldConfig;
+    formData: Record<string, string>;
+    onFieldChange: (key: string, value: string) => void;
+}
+
+interface GenericCardContentProps {
+    config: CardConfig;
+    lead: Record<string, unknown>;
+    isEditing: boolean;
+    formData: Record<string, string>;
+    onFieldChange: (key: string, value: string) => void;
+}
+
 // Generic field renderer for view mode
-const ViewField = ({ field, lead, t }) => {
+const ViewField = ({ field, lead, t }: ViewFieldProps) => {
     const value = field.accessor ? field.accessor(lead) : lead[field.key];
 
     if (field.type === 'chip') {
@@ -41,7 +122,7 @@ const ViewField = ({ field, lead, t }) => {
 };
 
 // Generic field renderer for edit mode
-const EditField = ({ field, formData, onFieldChange }) => {
+const EditField = ({ field, formData, onFieldChange }: EditFieldProps) => {
     const value = formData[field.key] || '';
 
     // Use editField config if available, otherwise use the field itself
@@ -56,7 +137,7 @@ const EditField = ({ field, formData, onFieldChange }) => {
                     onChange={(e) => onFieldChange(field.key, e.target.value)}
                     value={value}
                 >
-                    {editConfig.options.map((option) => (
+                    {(editConfig.options ?? []).map((option: SelectOption) => (
                         <MenuItem key={option.value} value={option.value}>
                             {option.label}
                         </MenuItem>
@@ -87,7 +168,7 @@ export const GenericCardContent = ({
     isEditing,
     formData,
     onFieldChange
-}) => {
+}: GenericCardContentProps) => {
     const { t } = useTranslation();
     if (!isEditing) {
         return (

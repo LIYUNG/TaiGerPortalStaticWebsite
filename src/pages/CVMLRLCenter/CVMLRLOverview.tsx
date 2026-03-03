@@ -23,7 +23,21 @@ import { useTranslation } from 'react-i18next';
 import { MuiDataGrid } from '@components/MuiDataGrid';
 import DEMO from '@store/constant';
 import { APPROVAL_COUNTRIES } from '../Utils/util_functions';
+import type { GridRenderCellParams } from '@mui/x-data-grid';
 import type { OpenTaskRow } from '@/api/types';
+
+interface TaskAttribute {
+    _id: string;
+    name: string;
+    value: number;
+}
+
+interface FilterRow {
+    original?: OpenTaskRow & {
+        isApplicationLocked?: boolean;
+        isProgramLocked?: boolean;
+    };
+}
 
 export interface CVMLRLOverviewProps {
     handleFavoriteToggle: (id: string) => void;
@@ -43,7 +57,10 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
     const [tabTag, setTabTag] = useState(
         THREADS_TABLE_TABS[hash.replace('#', '')] || 0
     );
-    const handleTabChange = (event, newValue) => {
+    const handleTabChange = (
+        _event: React.SyntheticEvent,
+        newValue: number
+    ) => {
         setTabTag(newValue);
         window.location.hash = THREADS_TABLE_REVERSED_TABS[newValue];
     };
@@ -107,7 +124,7 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
             align: 'left',
             headerAlign: 'left',
             minWidth: 200,
-            renderCell: (params) => {
+            renderCell: (params: GridRenderCellParams) => {
                 const linkUrl = `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
                     params.row.student_id,
                     DEMO.PROFILE_HASH
@@ -168,14 +185,18 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
                 { value: 'Locked', label: t('Locked', { ns: 'common' }) },
                 { value: 'Unlocked', label: t('Unlocked', { ns: 'common' }) }
             ],
-            filterFn: (row, columnId, filterValue) => {
+            filterFn: (
+                row: FilterRow,
+                _columnId: string,
+                filterValue: string
+            ) => {
                 const isLocked =
                     row.original?.isApplicationLocked === true ||
                     row.original?.isProgramLocked === true;
                 const status = isLocked ? 'Locked' : 'Unlocked';
                 return status === filterValue;
             },
-            renderCell: (params) => {
+            renderCell: (params: GridRenderCellParams) => {
                 const isLocked =
                     params.row?.isApplicationLocked === true ||
                     params.row?.isProgramLocked === true;
@@ -200,7 +221,7 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
             field: 'document_name',
             headerName: t('Document name', { ns: 'common' }),
             minWidth: 380,
-            renderCell: (params) => {
+            renderCell: (params: GridRenderCellParams) => {
                 const linkUrl = `${DEMO.DOCUMENT_MODIFICATION_LINK(
                     params.row.thread_id
                 )}`;
@@ -219,10 +240,10 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
                 return (
                     <Box>
                         {params.row?.attributes
-                            ?.filter((attribute) =>
+                            ?.filter((attribute: TaskAttribute) =>
                                 [1, 3, 9, 10, 11].includes(attribute.value)
                             )
-                            ?.map((attribute) => (
+                            ?.map((attribute: TaskAttribute) => (
                                 <Tooltip
                                     key={attribute._id}
                                     title={`${attribute.name}: ${
@@ -330,7 +351,7 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
             align: 'left',
             headerAlign: 'left',
             width: 200,
-            renderCell: (params) => {
+            renderCell: (params: GridRenderCellParams) => {
                 return (
                     <>
                         <IconButton
@@ -374,14 +395,18 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
                 { value: 'Locked', label: t('Locked', { ns: 'common' }) },
                 { value: 'Unlocked', label: t('Unlocked', { ns: 'common' }) }
             ],
-            filterFn: (row, columnId, filterValue) => {
+            filterFn: (
+                row: FilterRow,
+                _columnId: string,
+                filterValue: string
+            ) => {
                 const isLocked =
                     row.original?.isApplicationLocked === true ||
                     row.original?.isProgramLocked === true;
                 const status = isLocked ? 'Locked' : 'Unlocked';
                 return status === filterValue;
             },
-            renderCell: (params) => {
+            renderCell: (params: GridRenderCellParams) => {
                 const isLocked =
                     params.row?.isApplicationLocked === true ||
                     params.row?.isProgramLocked === true;
@@ -406,7 +431,7 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
             field: 'document_name',
             headerName: t('Document name', { ns: 'common' }),
             width: 450,
-            renderCell: (params) => {
+            renderCell: (params: GridRenderCellParams) => {
                 const linkUrl = `${DEMO.DOCUMENT_MODIFICATION_LINK(
                     params.row.thread_id
                 )}`;

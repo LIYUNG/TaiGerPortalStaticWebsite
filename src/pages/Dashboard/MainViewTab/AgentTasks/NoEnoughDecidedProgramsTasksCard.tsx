@@ -19,7 +19,7 @@ import {
 } from '../../../Utils/util_functions';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
-import { IStudentResponse } from '@/api/types';
+import type { IStudentResponse } from '@taiger-common/model';
 
 const NoEnoughDecidedProgramsTasks = ({
     student

@@ -6,7 +6,12 @@ import DEMO from '@store/constant';
 import PortalCredentialsCard from './PortalCredentialsCard';
 import { useAuth } from '@components/AuthProvider';
 
-export default function PortalCredentialPage(props) {
+interface PortalCredentialPageProps {
+    student_id?: string;
+    showTitle?: boolean;
+}
+
+export default function PortalCredentialPage(props: PortalCredentialPageProps) {
     const { student_id } = useParams();
     const { user } = useAuth();
     if (!is_TaiGer_Student(user) && !student_id && !props.student_id) {

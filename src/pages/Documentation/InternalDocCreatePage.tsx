@@ -40,8 +40,14 @@ import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';
 import { appConfig } from '../../config';
+import type { IInternaldocWithId } from '@taiger-common/model';
 
-const InternalDocCreatePage = (props) => {
+interface InternalDocCreatePageProps {
+    item?: string;
+    role?: string;
+}
+
+const InternalDocCreatePage = (props: InternalDocCreatePageProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const [internalDocCreatePageState, setInternalDocCreatePageState] =
@@ -163,7 +169,7 @@ const InternalDocCreatePage = (props) => {
             }
         );
     };
-    const openDeleteDocModalWindow = (doc) => {
+    const openDeleteDocModalWindow = (doc: IInternaldocWithId) => {
         setInternalDocCreatePageState((prevState) => ({
             ...prevState,
             doc_id_toBeDelete: doc._id,
@@ -267,21 +273,23 @@ const InternalDocCreatePage = (props) => {
 
     const documentlist_key = Object.keys(internal_documentation_categories);
 
-    const document_list = (cat) => {
-        const sections = {};
-        sections[`${cat}`] = internalDocCreatePageState.documentlists.filter(
-            (document) => document.category === cat
+    const document_list = (cat: string) => {
+        const sections: Record<string, IInternaldocWithId[]> = {};
+        sections[`${cat}`] = (
+            internalDocCreatePageState.documentlists as IInternaldocWithId[]
+        ).filter((document: IInternaldocWithId) => document.category === cat);
+        return sections[`${cat}`].map(
+            (document: IInternaldocWithId, i: number) => (
+                <DocumentsListItems
+                    document={document}
+                    idx={i}
+                    key={i}
+                    openDeleteDocModalWindow={openDeleteDocModalWindow}
+                    path="/docs/internal/search"
+                    user={user}
+                />
+            )
         );
-        return sections[`${cat}`].map((document, i) => (
-            <DocumentsListItems
-                document={document}
-                idx={i}
-                key={i}
-                openDeleteDocModalWindow={openDeleteDocModalWindow}
-                path="/docs/internal/search"
-                user={user}
-            />
-        ));
     };
     TabTitle(t('Internal Docs Database', { ns: 'common' }));
     return (

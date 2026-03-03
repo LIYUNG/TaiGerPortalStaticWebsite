@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Tabs, Tab, Box, Typography, Breadcrumbs } from '@mui/material';
 import { Navigate, Link as LinkDom, useLocation } from 'react-router-dom';
 import { Link } from '@mui/material';
@@ -27,6 +27,12 @@ import {
     getStatisticsKPIQuery,
     getStatisticsResponseTimeQuery
 } from '@/api/query';
+
+interface FinishedDoc {
+    messages: { createdAt: string }[];
+    file_type: string;
+    student_id?: { firstname?: string; lastname?: string };
+}
 
 const InternalDashboard = () => {
     const { user } = useAuth();
@@ -84,14 +90,14 @@ const InternalDashboard = () => {
 
         const finished_docs = kpiData.finished_docs;
 
-        const refactor_finished_cv_docs = finished_docs
+        const refactor_finished_cv_docs = (finished_docs as FinishedDoc[])
             .filter(
-                (doc) =>
+                (doc: FinishedDoc) =>
                     doc.messages.length !== 0 &&
                     doc.messages.length > 2 &&
                     doc.file_type === 'CV'
             )
-            .map((finished_doc) => {
+            .map((finished_doc: FinishedDoc) => {
                 const start_date = finished_doc.messages[0].createdAt;
                 const end_date =
                     finished_doc.messages[finished_doc.messages.length - 1]
@@ -102,20 +108,22 @@ const InternalDashboard = () => {
                     end: end_date
                 };
             });
-        const CVdataWithDuration = refactor_finished_cv_docs.map((item) => ({
-            ...item,
-            name: `${item.name}`,
-            uv: calculateDuration(item.start, item.end)
-        }));
+        const CVdataWithDuration = refactor_finished_cv_docs.map(
+            (item: { name: string; start: string; end: string }) => ({
+                ...item,
+                name: `${item.name}`,
+                uv: calculateDuration(item.start, item.end)
+            })
+        );
 
-        const refactor_finished_ml_docs = finished_docs
+        const refactor_finished_ml_docs = (finished_docs as FinishedDoc[])
             .filter(
-                (doc) =>
+                (doc: FinishedDoc) =>
                     doc.messages.length !== 0 &&
                     doc.messages.length > 2 &&
                     doc.file_type === 'ML'
             )
-            .map((finished_doc) => {
+            .map((finished_doc: FinishedDoc) => {
                 const start_date = finished_doc.messages[0].createdAt;
                 const end_date =
                     finished_doc.messages[finished_doc.messages.length - 1]
@@ -126,15 +134,17 @@ const InternalDashboard = () => {
                     end: end_date
                 };
             });
-        const MLdataWithDuration = refactor_finished_ml_docs.map((item) => ({
-            ...item,
-            name: `${item.name}`,
-            uv: calculateDuration(item.start, item.end)
-        }));
+        const MLdataWithDuration = refactor_finished_ml_docs.map(
+            (item: { name: string; start: string; end: string }) => ({
+                ...item,
+                name: `${item.name}`,
+                uv: calculateDuration(item.start, item.end)
+            })
+        );
 
-        const refactor_finished_rl_docs = finished_docs
+        const refactor_finished_rl_docs = (finished_docs as FinishedDoc[])
             .filter(
-                (doc) =>
+                (doc: FinishedDoc) =>
                     doc.messages.length !== 0 &&
                     doc.messages.length > 2 &&
                     (doc.file_type === 'RL_A' ||
@@ -144,7 +154,7 @@ const InternalDashboard = () => {
                         doc.file_type === 'Recommendation_Letter_B' ||
                         doc.file_type === 'Recommendation_Letter_C')
             )
-            .map((finished_doc) => {
+            .map((finished_doc: FinishedDoc) => {
                 const start_date = finished_doc.messages[0].createdAt;
                 const end_date =
                     finished_doc.messages[finished_doc.messages.length - 1]
@@ -155,11 +165,13 @@ const InternalDashboard = () => {
                     end: end_date
                 };
             });
-        const RLdataWithDuration = refactor_finished_rl_docs.map((item) => ({
-            ...item,
-            name: `${item.name}`,
-            uv: calculateDuration(item.start, item.end)
-        }));
+        const RLdataWithDuration = refactor_finished_rl_docs.map(
+            (item: { name: string; start: string; end: string }) => ({
+                ...item,
+                name: `${item.name}`,
+                uv: calculateDuration(item.start, item.end)
+            })
+        );
 
         return { CVdataWithDuration, MLdataWithDuration, RLdataWithDuration };
     }, [kpiData]);
@@ -175,7 +187,7 @@ const InternalDashboard = () => {
         (value === 2 && (isLoadingKPI || !kpiData)) ||
         (value === 3 && (isLoadingResponseTime || !responseTimeData));
 
-    const handleChange = (event, newValue) => {
+    const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
         setValue(newValue);
         window.location.hash = INTERNAL_DASHBOARD_REVERSED_TABS[newValue];
         // Trigger refetch for the newly active tab if data hasn't been loaded
@@ -270,7 +282,17 @@ const InternalDashboard = () => {
                 {responseTimeData && (
                     <ResponseTimeDashboardTab
                         agents={responseTimeData.agents_data.reduce(
-                            (acc, agent) => {
+                            (
+                                acc: Record<
+                                    string,
+                                    { firstname: string; lastname: string }
+                                >,
+                                agent: {
+                                    _id: string;
+                                    firstname: string;
+                                    lastname: string;
+                                }
+                            ) => {
                                 acc[agent._id] = {
                                     firstname: agent.firstname,
                                     lastname: agent.lastname
@@ -280,7 +302,17 @@ const InternalDashboard = () => {
                             {}
                         )}
                         editors={responseTimeData.editors_data.reduce(
-                            (acc, editor) => {
+                            (
+                                acc: Record<
+                                    string,
+                                    { firstname: string; lastname: string }
+                                >,
+                                editor: {
+                                    _id: string;
+                                    firstname: string;
+                                    lastname: string;
+                                }
+                            ) => {
                                 acc[editor._id] = {
                                     firstname: editor.firstname,
                                     lastname: editor.lastname

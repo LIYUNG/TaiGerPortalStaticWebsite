@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import {
     Box,
@@ -15,8 +14,12 @@ import { useTranslation } from 'react-i18next';
 
 import { convertDate } from '@utils/contants';
 import DEMO from '@store/constant';
+import type { IAudit } from '@taiger-common/model';
 
-const Audit = ({ audit }) => {
+export interface AuditProps {
+    audit: IAudit[];
+}
+const Audit = ({ audit }: AuditProps) => {
     const { t } = useTranslation();
 
     return (
@@ -64,14 +67,20 @@ const Audit = ({ audit }) => {
                                 ].includes(record?.field);
                                 const addedUsers = record?.changes?.after?.added
                                     ?.map(
-                                        (user) =>
+                                        (user: {
+                                            firstname: string;
+                                            lastname: string;
+                                        }) =>
                                             `${user.firstname} ${user.lastname}`
                                     )
                                     .join(', ');
                                 const removedUsers =
                                     record?.changes?.after?.removed
                                         ?.map(
-                                            (user) =>
+                                            (user: {
+                                                firstname: string;
+                                                lastname: string;
+                                            }) =>
                                                 `${user.firstname} ${user.lastname}`
                                         )
                                         .join(', ');

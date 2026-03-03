@@ -3,6 +3,8 @@ import { Alert, Button, Card, Grid, Link, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { Link as LinkDom } from 'react-router-dom';
 import { is_TaiGer_role, isProgramDecided } from '@taiger-common/core';
+import type { Application } from '@/api/types';
+import type { EditorDocsProgressStudent } from './EditorDocsProgress';
 
 import ManualFilesList from './ManualFilesList';
 import ToggleableUploadFileForm from './ToggleableUploadFileForm';
@@ -21,7 +23,44 @@ import {
 import { useAuth } from '@components/AuthProvider';
 import DEMO from '@store/constant';
 
-const ManualFiles = (props) => {
+interface ManualFilesProps {
+    application: Application | null;
+    applications?: Application[];
+    filetype: 'General' | 'ProgramSpecific';
+    student: EditorDocsProgressStudent;
+    handleAsFinalFile: (
+        doc_thread_id: string,
+        student_id: string,
+        application_id: string,
+        isFinal: boolean,
+        docName: string
+    ) => void;
+    handleProgramStatus?: (
+        student_id: string,
+        application_id: string,
+        isApplicationSubmitted: boolean
+    ) => void;
+    initGeneralFileThread: (
+        e: MouseEvent<HTMLElement>,
+        studentId: string,
+        fileCategory: string
+    ) => void;
+    initProgramSpecificFileThread: (
+        e: MouseEvent<HTMLElement>,
+        studentId: string,
+        applicationId: string,
+        fileCategory: string
+    ) => void;
+    onDeleteFileThread: (
+        doc_thread_id: string,
+        application: Application | null,
+        studentId: string,
+        docName: string
+    ) => void;
+    openRequirements_ModalWindow?: (requirements: string) => void;
+}
+
+const ManualFiles = (props: ManualFilesProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const [categoryState, setCategory] = useState('');
@@ -46,7 +85,13 @@ const ManualFiles = (props) => {
               ns: 'common'
           });
 
-    const formatDocumentMessage = (docEntry) => {
+    const formatDocumentMessage = (docEntry: {
+        docKey: string;
+        docType?: string;
+        status?: string;
+        scope?: string;
+        counts?: { required: number; provided: number; delta: number };
+    }) => {
         if (!docEntry) {
             return '';
         }
@@ -99,10 +144,10 @@ const ManualFiles = (props) => {
     };
 
     const handleCreateProgramSpecificMessageThread = (
-        e,
-        studentId,
-        applicationId,
-        fileCategory
+        e: MouseEvent<HTMLElement>,
+        studentId: string,
+        applicationId: string,
+        fileCategory: string
     ) => {
         e.preventDefault();
         if (!categoryState) {

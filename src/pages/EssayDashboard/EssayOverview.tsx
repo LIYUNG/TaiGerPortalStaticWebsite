@@ -15,6 +15,7 @@ import StarRoundedIcon from '@mui/icons-material/StarRounded';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { is_TaiGer_role } from '@taiger-common/core';
+import type { Row } from '@tanstack/react-table';
 
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import Banner from '@components/Banner/Banner';
@@ -58,7 +59,7 @@ const EssayOverview = (props: EssayOverviewProps) => {
     });
     const [value, setValue] = useState(0);
 
-    const handleChange = (event, newValue) => {
+    const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
         setValue(newValue);
     };
 
@@ -127,7 +128,14 @@ const EssayOverview = (props: EssayOverviewProps) => {
                 minWidth: 120,
                 renderCell: (params) => {
                     return (
-                        params.row.outsourced_user_id?.map((outsourcer) => (
+                        (
+                            params.row.outsourced_user_id as
+                                | Array<{
+                                      _id: { toString: () => string };
+                                      firstname: string;
+                                  }>
+                                | undefined
+                        )?.map((outsourcer) => (
                             <Link
                                 component={LinkDom}
                                 key={`${outsourcer._id.toString()}`}
@@ -151,7 +159,14 @@ const EssayOverview = (props: EssayOverviewProps) => {
                 headerAlign: 'left',
                 minWidth: 120,
                 renderCell: (params) => {
-                    return params.row.editors?.map((editor) => (
+                    return (
+                        params.row.editors as
+                            | Array<{
+                                  _id: { toString: () => string };
+                                  firstname: string;
+                              }>
+                            | undefined
+                    )?.map((editor) => (
                         <Link
                             component={LinkDom}
                             key={`${editor._id.toString()}`}
@@ -170,7 +185,14 @@ const EssayOverview = (props: EssayOverviewProps) => {
                 headerName: t('Agent', { ns: 'common' }),
                 minWidth: 120,
                 renderCell: (params) => {
-                    return params.row.agents?.map((agent) => (
+                    return (
+                        params.row.agents as
+                            | Array<{
+                                  _id: { toString: () => string };
+                                  firstname: string;
+                              }>
+                            | undefined
+                    )?.map((agent) => (
                         <Link
                             component={LinkDom}
                             key={`${agent._id.toString()}`}
@@ -206,7 +228,11 @@ const EssayOverview = (props: EssayOverviewProps) => {
                         label: t('Unlocked', { ns: 'common' })
                     }
                 ],
-                filterFn: (row, columnId, filterValue) => {
+                filterFn: (
+                    row: Row<OpenTaskRow>,
+                    columnId: string,
+                    filterValue: string
+                ) => {
                     const isLocked =
                         row.original?.isApplicationLocked === true ||
                         row.original?.isProgramLocked === true;
@@ -258,7 +284,15 @@ const EssayOverview = (props: EssayOverviewProps) => {
                         : false;
                     return (
                         <>
-                            {params.row?.attributes?.map(
+                            {(
+                                params.row?.attributes as
+                                    | Array<{
+                                          _id: string;
+                                          value: number;
+                                          name: string;
+                                      }>
+                                    | undefined
+                            )?.map(
                                 (attribute) =>
                                     [1, 3, 9, 10, 11].includes(
                                         attribute.value

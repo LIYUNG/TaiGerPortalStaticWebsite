@@ -1,13 +1,18 @@
-import React from 'react';
 import { Typography, Grid, Card } from '@mui/material';
 
 import SingleBarChart from '@components/Charts/SingleBarChart';
+
+interface KPIDashboardTabProps {
+    CVdataWithDuration: Record<string, string | number>[];
+    MLdataWithDuration: Record<string, string | number>[];
+    RLdataWithDuration: Record<string, string | number>[];
+}
 
 const KPIDashboardTab = ({
     CVdataWithDuration,
     MLdataWithDuration,
     RLdataWithDuration
-}) => {
+}: KPIDashboardTabProps) => {
     return (
         <Grid container spacing={2}>
             <Grid item md={4} xs={12}>

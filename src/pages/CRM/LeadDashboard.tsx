@@ -1,7 +1,12 @@
+import React from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { MaterialReactTable } from 'material-react-table';
+import {
+    MaterialReactTable,
+    type MRT_ColumnDef,
+    type MRT_Row
+} from 'material-react-table';
 import { useState } from 'react';
 
 import {
@@ -23,6 +28,7 @@ import {
 } from '@mui/icons-material';
 
 import { is_TaiGer_role } from '@taiger-common/core';
+import type { CRMLeadItem } from '@taiger-common/model';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
@@ -44,7 +50,7 @@ const LeadDashboard = () => {
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
-    const leads = data?.data?.data || [];
+    const leads: CRMLeadItem[] = data?.data?.data || [];
     const allLeads = leads.filter((lead) => lead.status !== 'migrated');
 
     const openLeads = allLeads.filter(
@@ -59,16 +65,16 @@ const LeadDashboard = () => {
     const closedLeads = allLeads.filter((lead) => lead.status === 'closed');
     const migratedLeads = leads.filter((lead) => lead.status === 'migrated');
 
-    const getSalesColor = (salesName) => {
-        const colors = {
+    const getSalesColor = (salesName: string): string => {
+        const colors: Record<string, string> = {
             David: 'primary',
             Winnie: 'success'
         };
         return colors[salesName] || 'default';
     };
 
-    const getStatusColor = (status) => {
-        const colors = {
+    const getStatusColor = (status: string): string => {
+        const colors: Record<string, string> = {
             open: 'info',
             contacted: 'warning',
             qualified: 'success',
@@ -79,8 +85,8 @@ const LeadDashboard = () => {
         return colors[status] || 'default';
     };
 
-    const getCloseLikelihoodColor = (closeLikelihood) => {
-        const colors = {
+    const getCloseLikelihoodColor = (closeLikelihood: string): string => {
+        const colors: Record<string, string> = {
             high: 'success',
             medium: 'warning',
             low: 'error'
@@ -88,7 +94,7 @@ const LeadDashboard = () => {
         return colors[closeLikelihood] || 'default';
     };
 
-    const columns = [
+    const columns: MRT_ColumnDef<CRMLeadItem>[] = [
         {
             accessorKey: 'closeLikelihood',
             header: t('leads.chance', { ns: 'crm' }),
@@ -189,7 +195,8 @@ const LeadDashboard = () => {
         },
         {
             accessorFn: (row) =>
-                row.salesRep?.label ?? t('common.na', { ns: 'crm' }),
+                (row.salesRep as unknown as { label?: string })?.label ??
+                t('common.na', { ns: 'crm' }),
             header: t('common.sales', { ns: 'crm' }),
             size: 100,
             Cell: ({ cell }) => (
@@ -234,7 +241,10 @@ const LeadDashboard = () => {
         }
     ];
 
-    const handleTabChange = (event, newValue) => {
+    const handleTabChange = (
+        _event: React.SyntheticEvent,
+        newValue: number
+    ) => {
         setTabValue(newValue);
     };
 

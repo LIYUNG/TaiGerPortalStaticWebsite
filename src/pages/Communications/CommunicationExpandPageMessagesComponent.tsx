@@ -6,8 +6,17 @@ import MessageList from './MessageList';
 import CommunicationThreadEditor from './CommunicationThreadEditor';
 import { useAuth } from '@components/AuthProvider';
 import useCommunications from '@hooks/useCommunications';
+import type { IStudentResponse } from '@taiger-common/model';
 
-const CommunicationExpandPageMessagesComponent = ({ data, student }) => {
+interface CommunicationExpandPageMessagesComponentProps {
+    data: unknown[];
+    student: IStudentResponse;
+}
+
+const CommunicationExpandPageMessagesComponent = ({
+    data,
+    student
+}: CommunicationExpandPageMessagesComponentProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const theme = useTheme();
