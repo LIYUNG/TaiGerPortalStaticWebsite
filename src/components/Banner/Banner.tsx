@@ -7,7 +7,7 @@ export interface BannerProps {
     removeBanner?: (e: React.SyntheticEvent, notification_key: string) => void;
     notification_key?: string;
     path?: string;
-    text?: string;
+    text?: string | React.ReactNode;
     title?: string;
 }
 

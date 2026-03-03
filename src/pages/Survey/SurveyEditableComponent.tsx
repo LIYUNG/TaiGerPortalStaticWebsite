@@ -1,4 +1,4 @@
-import { useState, type MouseEvent } from 'react';
+import React, { useState, type MouseEvent } from 'react';
 import {
     Box,
     Button,
@@ -56,6 +56,11 @@ import {
     check_languages_filled,
     check_application_preference_filled
 } from '../Utils/util_functions';
+import type {
+    IUser,
+    IUserAcademicBackground,
+    IUserApplicationPreference
+} from '@taiger-common/model';
 import {
     APPLICATION_YEARS_FUTURE,
     EXPECTATION_APPLICATION_YEARS
@@ -65,7 +70,6 @@ import SearchableMultiSelect from '@components/Input/searchableMuliselect';
 import { useAuth } from '@components/AuthProvider';
 import { useSurvey } from '@components/SurveyProvider';
 import { grey } from '@mui/material/colors';
-import i18next from 'i18next';
 
 export interface SurveyEditableComponentProps {
     [key: string]: unknown;
@@ -125,7 +129,7 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
             ...prevState,
             baseDocsflagOffcanvasButtonDisable: true
         }));
-        updateDocLink(survey.survey_link, 'Grading_System'); // props.k is the grading system name
+        updateDocLink(survey.survey_link ?? '', 'Grading_System'); // props.k is the grading system name
         setSurveyEditableComponentState((prevState) => ({
             ...prevState,
             baseDocsflagOffcanvasButtonDisable: false,
@@ -137,15 +141,17 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
         <Box>
             {!check_academic_background_filled(survey.academic_background) ||
             !check_application_preference_filled(
-                survey.application_preference
+                survey.application_preference as IUserApplicationPreference
             ) ? (
                 <Card sx={{ padding: 2 }}>
                     <Typography fontWeight="bold">
                         {t('The followings information are still missing')}
                     </Typography>
                     {MissingSurveyFieldsListArray({
-                        academic_background: survey.academic_background,
-                        application_preference: survey.application_preference
+                        academic_background:
+                            survey.academic_background as IUserAcademicBackground,
+                        application_preference:
+                            survey.application_preference as IUserApplicationPreference
                     })?.map((field) => <li key={field}>{t(field)}</li>)}
                 </Card>
             ) : null}
@@ -337,12 +343,12 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                                         label={`${
                                             survey.academic_background
                                                 ?.university
-                                                .high_school_isGraduated ===
+                                                ?.high_school_isGraduated ===
                                             'Yes'
                                                 ? t('High School Graduate Year')
                                                 : survey.academic_background
                                                         ?.university
-                                                        .high_school_isGraduated ===
+                                                        ?.high_school_isGraduated ===
                                                     'No'
                                                   ? t(
                                                         'High School Graduate leaved Year'
@@ -421,7 +427,8 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                             </TextField>
                         </Grid>
                         {['Yes', 'pending'].includes(
-                            survey.academic_background?.university?.isGraduated
+                            survey.academic_background?.university
+                                ?.isGraduated as string
                         ) ? (
                             <>
                                 <Grid item sm={6} xs={12}>
@@ -511,13 +518,13 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                                             id="expected_grad_date"
                                             label={`${
                                                 survey?.academic_background
-                                                    ?.university.isGraduated ===
-                                                'No'
+                                                    ?.university
+                                                    ?.isGraduated === 'No'
                                                     ? t('Leaved Year')
                                                     : survey
                                                             ?.academic_background
                                                             ?.university
-                                                            .isGraduated ===
+                                                            ?.isGraduated ===
                                                         'Yes'
                                                       ? t('Graduated Year')
                                                       : t(
@@ -722,11 +729,14 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                                         <b>
                                             {Bayerische_Formel(
                                                 survey.academic_background
-                                                    .university.Highest_GPA_Uni,
+                                                    ?.university
+                                                    ?.Highest_GPA_Uni as number,
                                                 survey.academic_background
-                                                    .university.Passing_GPA_Uni,
+                                                    ?.university
+                                                    ?.Passing_GPA_Uni as number,
                                                 survey.academic_background
-                                                    .university.My_GPA_Uni
+                                                    ?.university
+                                                    ?.My_GPA_Uni as number
                                             )}
                                         </b>
                                     ) : (
@@ -734,11 +744,10 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                                     )}
                                 </Typography>
                                 <HelpIcon
-                                    onClick={handleRowClick}
+                                    onClick={
+                                        handleRowClick as unknown as React.MouseEventHandler<SVGSVGElement>
+                                    }
                                     style={{ color: grey[400] }}
-                                    title={i18next.t('explanation', {
-                                        ns: 'common'
-                                    })}
                                 />
                                 <Popover
                                     anchorEl={anchorEl}
@@ -752,37 +761,43 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                                     <Typography sx={{ m: 2 }}>
                                         <b>
                                             {Bayerische_Formel(
-                                                survey.academic_background
+                                                (survey.academic_background
                                                     ?.university
-                                                    ?.Highest_GPA_Uni ?? 0,
-                                                survey.academic_background
+                                                    ?.Highest_GPA_Uni as number) ??
+                                                    0,
+                                                (survey.academic_background
                                                     ?.university
-                                                    ?.Passing_GPA_Uni ?? 0,
-                                                survey.academic_background
-                                                    ?.university?.My_GPA_Uni ??
-                                                    0
+                                                    ?.Passing_GPA_Uni as number) ??
+                                                    0,
+                                                (survey.academic_background
+                                                    ?.university
+                                                    ?.My_GPA_Uni as number) ?? 0
                                             )}
                                         </b>{' '}
                                         = 1 + (3 * (highest - my)) / (highest -
                                         passing) = 1 + (3 * (
                                         {
                                             survey.academic_background
-                                                ?.university?.Highest_GPA_Uni
+                                                ?.university
+                                                ?.Highest_GPA_Uni as string
                                         }{' '}
                                         -{' '}
                                         {
                                             survey.academic_background
-                                                ?.university?.My_GPA_Uni
+                                                ?.university
+                                                ?.My_GPA_Uni as string
                                         }
                                         )) / (
                                         {
                                             survey.academic_background
-                                                ?.university?.Highest_GPA_Uni
+                                                ?.university
+                                                ?.Highest_GPA_Uni as string
                                         }{' '}
                                         -{' '}
                                         {
                                             survey.academic_background
-                                                ?.university?.Passing_GPA_Uni
+                                                ?.university
+                                                ?.Passing_GPA_Uni as string
                                         }
                                         )
                                     </Typography>
@@ -809,11 +824,10 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                                             ? survey.survey_link
                                             : '/'
                                     }
-                                    variant="outlined"
                                 >
                                     <LinkIcon fontSize="small" />
                                 </IconButton>
-                                {is_TaiGer_Admin(user) ? (
+                                {user && is_TaiGer_Admin(user as IUser) ? (
                                     <Button
                                         onClick={openOffcanvasWindow}
                                         style={{ cursor: 'pointer' }}
@@ -824,7 +838,8 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                             </Stack>
                         </Grid>
                         {['Yes'].includes(
-                            survey.academic_background?.university?.isGraduated
+                            survey.academic_background?.university
+                                ?.isGraduated as string
                         ) ? (
                             <>
                                 <Grid item xs={12}>
@@ -881,7 +896,7 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                                 </Grid>
                                 {['Yes', 'pending'].includes(
                                     survey.academic_background?.university
-                                        ?.isSecondGraduated
+                                        ?.isSecondGraduated as string
                                 ) ? (
                                     <>
                                         <Grid item sm={6} xs={12}>
@@ -980,13 +995,13 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                                                         survey
                                                             ?.academic_background
                                                             ?.university
-                                                            .isSecondGraduated ===
+                                                            ?.isSecondGraduated ===
                                                         'No'
                                                             ? t('Leaved Year')
                                                             : survey
                                                                     ?.academic_background
                                                                     ?.university
-                                                                    .isSecondGraduated ===
+                                                                    ?.isSecondGraduated ===
                                                                 'Yes'
                                                               ? t(
                                                                     'Graduated Year'
@@ -1235,10 +1250,10 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                                     ?.updatedAt
                                     ? convertDate(
                                           survey.academic_background?.university
-                                              .updatedAt
+                                              .updatedAt as string
                                       )
                                     : ''}
-                                {user.archiv !== true ? (
+                                {user?.archiv !== true ? (
                                     <>
                                         <br />
                                         <Button
@@ -1251,7 +1266,7 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                                                 handleAcademicBackgroundSubmit(
                                                     e,
                                                     survey.academic_background
-                                                        .university
+                                                        ?.university ?? {}
                                                 )
                                             }
                                             sx={{ mt: 2 }}
@@ -1280,7 +1295,7 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                                 )}
                             >
                                 <TextField
-                                    disabled={is_TaiGer_Student(user)}
+                                    disabled={is_TaiGer_Student(user as IUser)}
                                     error={
                                         survey.application_preference
                                             ?.expected_application_date === ''
@@ -1299,7 +1314,6 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                                             ns: 'survey'
                                         }
                                     )})`}
-                                    labelid="expected_application_date"
                                     name="expected_application_date"
                                     onChange={(e) =>
                                         handleChangeApplicationPreference(e)
@@ -1331,7 +1345,10 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                                 )}
                             >
                                 <TextField
-                                    disabled={is_TaiGer_Student(user)}
+                                    disabled={
+                                        !!user &&
+                                        is_TaiGer_Student(user as IUser)
+                                    }
                                     error={
                                         survey.application_preference
                                             ?.expected_application_semester ===
@@ -1381,8 +1398,9 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                                     'targetApplicationSubjects'
                                 )}
                                 value={
-                                    survey.application_preference
-                                        ?.targetApplicationSubjects
+                                    (survey.application_preference
+                                        ?.targetApplicationSubjects as string[]) ||
+                                    []
                                 }
                             />
                         </Grid>
@@ -1580,8 +1598,10 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                                 variant="outlined"
                             />
                             <Badge>
-                                {survey?.application_preference?.special_wished
-                                    ?.length || 0}
+                                {(
+                                    survey?.application_preference
+                                        ?.special_wished as string
+                                )?.length || 0}
                                 /600
                             </Badge>
                         </Grid>
@@ -1592,13 +1612,13 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                                 {survey.application_preference?.updatedAt
                                     ? convertDate(
                                           survey.application_preference
-                                              .updatedAt
+                                              .updatedAt as string
                                       )
                                     : ''}
                             </Typography>
                         </Grid>
                     </Grid>
-                    {user.archiv !== true ? (
+                    {user?.archiv !== true ? (
                         <>
                             <br />
                             <Button
@@ -1610,7 +1630,7 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                                 onClick={(e: MouseEvent<HTMLButtonElement>) =>
                                     handleApplicationPreferenceSubmit(
                                         e,
-                                        survey.application_preference
+                                        survey.application_preference ?? {}
                                     )
                                 }
                                 variant="contained"
@@ -1632,7 +1652,6 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                                 link_name=""
                                 notification_key={undefined}
                                 path="/"
-                                removeBanner={null}
                                 text="若還沒考過，請在 Passed 處選 No，並填上檢定以及預計考試時間。若不需要（如德語），請填 Not Needed。方便顧問了解你的進度。"
                                 title="warning"
                             />
@@ -1709,7 +1728,11 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                                         id="english_certificate"
                                         label={t('English Certificate')}
                                         name="english_certificate"
-                                        onChange={handleChangeLanguage}
+                                        onChange={
+                                            handleChangeLanguage as unknown as React.ComponentProps<
+                                                typeof Select
+                                            >['onChange']
+                                        }
                                         value={
                                             survey.academic_background?.language
                                                 ?.english_certificate || ''
@@ -1732,7 +1755,7 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                         <Grid item lg={4} sx={{ mb: 2 }} xs={12}>
                             {['O', 'X'].includes(
                                 survey?.academic_background?.language
-                                    ?.english_isPassed
+                                    ?.english_isPassed as string
                             ) ? (
                                 <LocalizationProvider
                                     dateAdapter={AdapterDayjs}
@@ -1756,8 +1779,10 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                                             )
                                         }
                                         value={dayjs(
-                                            survey.academic_background?.language
-                                                ?.english_test_date || ''
+                                            (survey.academic_background
+                                                ?.language
+                                                ?.english_test_date as string) ||
+                                                ''
                                         )}
                                     />
                                 </LocalizationProvider>
@@ -1959,7 +1984,11 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                                         id="german_certificate"
                                         label={t('German Certificate')}
                                         name="german_certificate"
-                                        onChange={handleChangeLanguage}
+                                        onChange={
+                                            handleChangeLanguage as unknown as React.ComponentProps<
+                                                typeof Select
+                                            >['onChange']
+                                        }
                                         value={
                                             survey.academic_background?.language
                                                 ?.german_certificate || ''
@@ -1983,7 +2012,7 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                         <Grid item sm={4} xs={12}>
                             {['O', 'X'].includes(
                                 survey?.academic_background?.language
-                                    ?.german_isPassed
+                                    ?.german_isPassed as string
                             ) ? (
                                 <LocalizationProvider
                                     dateAdapter={AdapterDayjs}
@@ -2005,8 +2034,10 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                                             )
                                         }
                                         value={dayjs(
-                                            survey.academic_background?.language
-                                                ?.german_test_date || ''
+                                            (survey.academic_background
+                                                ?.language
+                                                ?.german_test_date as string) ||
+                                                ''
                                         )}
                                     />
                                 </LocalizationProvider>
@@ -2081,7 +2112,11 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                                         id="gre_certificate"
                                         label="GRE Test"
                                         name="gre_certificate"
-                                        onChange={handleChangeLanguage}
+                                        onChange={
+                                            handleChangeLanguage as unknown as React.ComponentProps<
+                                                typeof Select
+                                            >['onChange']
+                                        }
                                         value={
                                             survey.academic_background?.language
                                                 ?.gre_certificate || ''
@@ -2105,7 +2140,7 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                         <Grid item sm={4} xs={12}>
                             {['O', 'X'].includes(
                                 survey.academic_background?.language
-                                    .gre_isPassed
+                                    ?.gre_isPassed as string
                             ) ? (
                                 <LocalizationProvider
                                     dateAdapter={AdapterDayjs}
@@ -2114,7 +2149,7 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                                         format="D. MMM. YYYY"
                                         label={
                                             survey.academic_background?.language
-                                                .gre_isPassed === 'X'
+                                                ?.gre_isPassed === 'X'
                                                 ? t('Expected GRE Test Date')
                                                 : t('GRE Test Date')
                                         }
@@ -2126,8 +2161,9 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                                             )
                                         }
                                         value={dayjs(
-                                            survey.academic_background?.language
-                                                ?.gre_test_date || ''
+                                            (survey.academic_background
+                                                ?.language
+                                                ?.gre_test_date as string) || ''
                                         )}
                                     />
                                 </LocalizationProvider>
@@ -2207,7 +2243,11 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                                         id="gmat_certificate"
                                         label="GMAT Test"
                                         name="gmat_certificate"
-                                        onChange={handleChangeLanguage}
+                                        onChange={
+                                            handleChangeLanguage as unknown as React.ComponentProps<
+                                                typeof Select
+                                            >['onChange']
+                                        }
                                         value={
                                             survey.academic_background?.language
                                                 ?.gmat_certificate || ''
@@ -2231,7 +2271,7 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                         <Grid item sm={4} xs={12}>
                             {['O', 'X'].includes(
                                 survey.academic_background?.language
-                                    ?.gmat_isPassed
+                                    ?.gmat_isPassed as string
                             ) ? (
                                 <LocalizationProvider
                                     dateAdapter={AdapterDayjs}
@@ -2252,8 +2292,10 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                                             )
                                         }
                                         value={dayjs(
-                                            survey.academic_background?.language
-                                                ?.gmat_test_date || ''
+                                            (survey.academic_background
+                                                ?.language
+                                                ?.gmat_test_date as string) ||
+                                                ''
                                         )}
                                     />
                                 </LocalizationProvider>
@@ -2294,10 +2336,10 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                             survey.academic_background?.language.updatedAt
                                 ? convertDate(
                                       survey.academic_background?.language
-                                          .updatedAt
+                                          .updatedAt as string
                                   )
                                 : ''}
-                            {user.archiv !== true ? (
+                            {user?.archiv !== true ? (
                                 <>
                                     <br />
                                     <Button
@@ -2310,7 +2352,7 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                                             handleSurveyLanguageSubmit(
                                                 e,
                                                 survey.academic_background
-                                                    .language
+                                                    ?.language ?? {}
                                             )
                                         }
                                         sx={{ mt: 2 }}
@@ -2339,7 +2381,9 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                 </DialogContent>
                 <DialogActions>
                     <Button
-                        disabled={survey.baseDocsflagOffcanvasButtonDisable}
+                        disabled={
+                            surveyEditableComponentState.baseDocsflagOffcanvasButtonDisable
+                        }
                         onClick={(e) => handleUpdateDocLink(e)}
                     >
                         {t('Save', { ns: 'common' })}

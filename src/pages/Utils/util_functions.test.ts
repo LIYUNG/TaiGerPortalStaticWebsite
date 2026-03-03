@@ -1,5 +1,6 @@
 import { ProfileNameType } from '@taiger-common/core';
 import { DocumentStatusType } from '@taiger-common/model';
+import type { IStudentResponse, IUserAcademicBackground } from '@taiger-common/model';
 import {
     is_cv_assigned,
     isCVFinished,
@@ -41,8 +42,8 @@ describe('Role checking', () => {
             role: 'Student',
             generaldocs_threads: [{ doc_thread_id: { file_type: 'RL_A' } }]
         };
-        expect(is_cv_assigned(studentHasCVTask)).toEqual(true);
-        expect(is_cv_assigned(studentHasNoCVTask)).toEqual(false);
+        expect(is_cv_assigned(studentHasCVTask as unknown as IStudentResponse)).toEqual(true);
+        expect(is_cv_assigned(studentHasNoCVTask as unknown as IStudentResponse)).toEqual(false);
     });
 
     test('calculateDisplayLength', () => {
@@ -72,15 +73,15 @@ describe('Role checking', () => {
             role: 'Student',
             generaldocs_threads: [{ doc_thread_id: { file_type: 'CV' } }]
         };
-        expect(isCVFinished(studentIsCVFinished)).toEqual(true);
-        expect(isCVFinished(studentIsCVNotFinished)).toEqual(false);
+        expect(isCVFinished(studentIsCVFinished as unknown as IStudentResponse)).toEqual(true);
+        expect(isCVFinished(studentIsCVNotFinished as unknown as IStudentResponse)).toEqual(false);
     });
 });
 
 describe('getRequirement', () => {
     test('should return false if thread is not provided', () => {
-        expect(getRequirement(null)).toBe(false);
-        expect(getRequirement(undefined)).toBe(false);
+        expect(getRequirement(null as unknown as { file_type?: string; program_id?: Record<string, string> })).toBe(false);
+        expect(getRequirement(undefined as unknown as { file_type?: string; program_id?: Record<string, string> })).toBe(false);
     });
 
     test('should return false if fileType or program is not provided', () => {
@@ -198,8 +199,8 @@ describe('getRequirement', () => {
 
 describe('isLanguageInfoComplete', () => {
     test('should return false if academic_background is not provided', () => {
-        expect(isLanguageInfoComplete(null)).toBe(false);
-        expect(isLanguageInfoComplete(undefined)).toBe(false);
+        expect(isLanguageInfoComplete(null as unknown as IUserAcademicBackground)).toBe(false);
+        expect(isLanguageInfoComplete(undefined as unknown as IUserAcademicBackground)).toBe(false);
     });
 
     test('should return false if academic_background.language is not provided', () => {
@@ -250,8 +251,8 @@ describe('isLanguageInfoComplete', () => {
 
 describe('isEnglishLanguageInfoComplete', () => {
     test('should return false if academic_background is not provided', () => {
-        expect(isEnglishLanguageInfoComplete(null)).toBe(false);
-        expect(isEnglishLanguageInfoComplete(undefined)).toBe(false);
+        expect(isEnglishLanguageInfoComplete(null as unknown as IUserAcademicBackground)).toBe(false);
+        expect(isEnglishLanguageInfoComplete(undefined as unknown as IUserAcademicBackground)).toBe(false);
     });
 
     test('should return false if academic_background.language is not provided', () => {
@@ -298,8 +299,8 @@ describe('isEnglishLanguageInfoComplete', () => {
 
 describe('check_if_there_is_german_language_info', () => {
     test('should return false if academic_background is not provided', () => {
-        expect(check_if_there_is_german_language_info(null)).toBe(false);
-        expect(check_if_there_is_german_language_info(undefined)).toBe(false);
+        expect(check_if_there_is_german_language_info(null as unknown as IUserAcademicBackground)).toBe(false);
+        expect(check_if_there_is_german_language_info(undefined as unknown as IUserAcademicBackground)).toBe(false);
     });
 
     test('should return false if academic_background.language is not provided', () => {
