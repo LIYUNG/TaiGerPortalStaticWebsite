@@ -1,4 +1,4 @@
-node_modules/@editorjs/editorjs/types/tools/adapters/tool-type.ts(4,13): error TS1294: This syntax is not allowed when 'erasableSyntaxOnly' is enabled.
+﻿node_modules/@editorjs/editorjs/types/tools/adapters/tool-type.ts(4,13): error TS1294: This syntax is not allowed when 'erasableSyntaxOnly' is enabled.
 node_modules/@editorjs/editorjs/types/utils/popover/popover-event.ts(5,13): error TS1294: This syntax is not allowed when 'erasableSyntaxOnly' is enabled.
 node_modules/@editorjs/editorjs/types/utils/popover/popover-item-type.ts(4,13): error TS1294: This syntax is not allowed when 'erasableSyntaxOnly' is enabled.
 src/api/query.ts(64,5): error TS2724: '"./types"' has no exported member named 'IStudentResponse'. Did you mean 'StudentResponseFull'?
@@ -73,8 +73,6 @@ src/components/ApplicationProgressCard/ApplicationProgressCardBody.tsx(53,52): e
   Property 'file_type' does not exist on type 'string'.
 src/components/ApplicationProgressCard/ApplicationProgressCardBody.tsx(56,70): error TS2339: Property 'updatedAt' does not exist on type 'string | IDocumentthread | ObjectId'.
   Property 'updatedAt' does not exist on type 'string'.
-src/components/ApplicationProgressCard/ApplicationProgressCardBody.tsx(63,33): error TS2345: Argument of type 'IProgramWithId' is not assignable to parameter of type 'Record<string, unknown>'.
-  Index signature for type 'string' is missing in type 'IProgramWithId'.
 src/components/ApplicationProgressCard/ApplicationProgressCardBody.tsx(281,54): error TS2339: Property '_id' does not exist on type 'ObjectId'.
 src/components/ApplicationProgressCard/ApplicationProgressCardBody.tsx(287,55): error TS2339: Property '_id' does not exist on type 'ObjectId'.
 src/components/ApplicationProgressCard/ApplicationProgressCardBody.tsx(300,52): error TS2339: Property 'file_type' does not exist on type 'ObjectId'.
@@ -449,6 +447,9 @@ src/components/StudentOverviewTable/index.tsx(287,21): error TS2769: No overload
           Index signature for type 'string' is missing in type 'IApplicationPopulated'.
 src/components/StudentOverviewTable/index.tsx(288,62): error TS2339: Property 'some' does not exist on type '{}'.
 src/components/StudentOverviewTable/index.tsx(319,36): error TS18048: 'student.applying_program_count' is possibly 'undefined'.
+src/components/StudentOverviewTable/index.tsx(323,13): error TS2322: Type 'unknown' is not assignable to type 'string | undefined'.
+src/components/StudentOverviewTable/index.tsx(324,13): error TS2322: Type 'unknown' is not assignable to type 'string | undefined'.
+src/components/StudentOverviewTable/index.tsx(325,13): error TS2322: Type 'unknown' is not assignable to type 'string | number | undefined'.
 src/components/StudentOverviewTable/index.tsx(344,17): error TS18048: 'student.applications' is possibly 'undefined'.
 src/components/StudentOverviewTable/index.tsx(345,21): error TS2769: No overload matches this call.
   Overload 1 of 2, '(predicate: (value: IApplicationPopulated, index: number, array: IApplicationPopulated[]) => value is IApplicationPopulated, thisArg?: any): IApplicationPopulated[]', gave the following error.
@@ -524,24 +525,24 @@ src/components/StudentOverviewTable/index.tsx(856,17): error TS2322: Type 'MuiDa
 src/components/StudentOverviewTable/index.tsx(858,17): error TS2322: Type 'TransformedStudentRow[]' is not assignable to type 'Record<string, unknown>[]'.
   Type 'TransformedStudentRow' is not assignable to type 'Record<string, unknown>'.
     Index signature for type 'string' is missing in type 'TransformedStudentRow'.
-src/components/SurveyProvider/index.tsx(144,9): error TS6133: 'e' is declared but its value is never read.
-src/components/SurveyProvider/index.tsx(148,13): error TS2345: Argument of type 'Record<string, unknown>' is not assignable to parameter of type 'string'.
-src/components/SurveyProvider/index.tsx(151,13): error TS2345: Argument of type '(resp: { data: { data?: Record<string, unknown>; success?: boolean; message?: string; }; status?: number; }) => void' is not assignable to parameter of type '(value: AxiosResponse<UpdateAcademicBackgroundResponse>) => void | PromiseLike<void>'.
+src/components/SurveyProvider/index.tsx(154,9): error TS6133: 'e' is declared but its value is never read.
+src/components/SurveyProvider/index.tsx(158,13): error TS2345: Argument of type 'Record<string, unknown>' is not assignable to parameter of type 'string'.
+src/components/SurveyProvider/index.tsx(161,13): error TS2345: Argument of type '(resp: { data: { data?: Record<string, unknown>; success?: boolean; message?: string; }; status?: number; }) => void' is not assignable to parameter of type '(value: AxiosResponse<UpdateAcademicBackgroundResponse>) => void | PromiseLike<void>'.
   Types of parameters 'resp' and 'value' are incompatible.
     Type 'AxiosResponse<UpdateAcademicBackgroundResponse>' is not assignable to type '{ data: { data?: Record<string, unknown> | undefined; success?: boolean | undefined; message?: string | undefined; }; status?: number | undefined; }'.
       The types of 'data.data' are incompatible between these types.
         Type 'IUserAcademicBackgroundUniversity | undefined' is not assignable to type 'Record<string, unknown> | undefined'.
           Type 'IUserAcademicBackgroundUniversity' is not assignable to type 'Record<string, unknown>'.
             Index signature for type 'string' is missing in type 'IUserAcademicBackgroundUniversity'.
-src/components/SurveyProvider/index.tsx(198,29): error TS2345: Argument of type 'Record<string, unknown>' is not assignable to parameter of type 'string'.
-src/components/SurveyProvider/index.tsx(199,13): error TS2345: Argument of type '(resp: { data: { data?: Record<string, unknown>; success?: boolean; message?: string; }; status?: number; }) => void' is not assignable to parameter of type '(value: AxiosResponse<UpdateLanguageSkillResponse>) => void | PromiseLike<void>'.
+src/components/SurveyProvider/index.tsx(208,29): error TS2345: Argument of type 'Record<string, unknown>' is not assignable to parameter of type 'string'.
+src/components/SurveyProvider/index.tsx(209,13): error TS2345: Argument of type '(resp: { data: { data?: Record<string, unknown>; success?: boolean; message?: string; }; status?: number; }) => void' is not assignable to parameter of type '(value: AxiosResponse<UpdateLanguageSkillResponse>) => void | PromiseLike<void>'.
   Types of parameters 'resp' and 'value' are incompatible.
     Type 'AxiosResponse<UpdateLanguageSkillResponse>' is not assignable to type '{ data: { data?: Record<string, unknown> | undefined; success?: boolean | undefined; message?: string | undefined; }; status?: number | undefined; }'.
       The types of 'data.data' are incompatible between these types.
         Type 'IUserAcademicBackgroundLanguage | undefined' is not assignable to type 'Record<string, unknown> | undefined'.
           Type 'IUserAcademicBackgroundLanguage' is not assignable to type 'Record<string, unknown>'.
             Index signature for type 'string' is missing in type 'IUserAcademicBackgroundLanguage'.
-src/components/SurveyProvider/index.tsx(250,13): error TS2345: Argument of type '(resp: { data: { data?: Record<string, unknown>; success?: boolean; message?: string; }; status?: number; }) => void' is not assignable to parameter of type '(value: AxiosResponse<UpdateApplicationPreferenceResponse>) => void | PromiseLike<void>'.
+src/components/SurveyProvider/index.tsx(260,13): error TS2345: Argument of type '(resp: { data: { data?: Record<string, unknown>; success?: boolean; message?: string; }; status?: number; }) => void' is not assignable to parameter of type '(value: AxiosResponse<UpdateApplicationPreferenceResponse>) => void | PromiseLike<void>'.
   Types of parameters 'resp' and 'value' are incompatible.
     Type 'AxiosResponse<UpdateApplicationPreferenceResponse>' is not assignable to type '{ data: { data?: Record<string, unknown> | undefined; success?: boolean | undefined; message?: string | undefined; }; status?: number | undefined; }'.
       The types of 'data.data' are incompatible between these types.
@@ -796,6 +797,10 @@ src/pages/ApplicantsOverview/ApplicationOverviewTabs.tsx(223,42): error TS2345: 
 src/pages/ApplicantsOverview/ApplicationOverviewTabs.tsx(361,37): error TS2322: Type 'Record<string, unknown>' is not assignable to type 'Application'.
   Property '_id' is missing in type 'Record<string, unknown>' but required in type 'IApplicationPopulated'.
 src/pages/ApplicantsOverview/ApplicationOverviewTabs.tsx(367,37): error TS2741: Property '_id' is missing in type 'Record<string, unknown>' but required in type 'IStudentResponse'.
+src/pages/ApplicantsOverview/ApplicationOverviewTabs.tsx(379,47): error TS2322: Type 'Record<string, unknown>[]' is not assignable to type 'ProgramUpdateStatusRow[]'.
+  Type 'Record<string, unknown>' is missing the following properties from type 'ProgramUpdateStatusRow': program_id, school, program_name, degree, semester
+src/pages/ApplicantsOverview/ApplicationOverviewTabs.tsx(383,25): error TS2322: Type 'Record<string, unknown>[]' is not assignable to type 'ProgramUpdateStatusRow[]'.
+  Type 'Record<string, unknown>' is missing the following properties from type 'ProgramUpdateStatusRow': program_id, school, program_name, degree, semester
 src/pages/ApplicantsOverview/ApplicationOverviewTabs.tsx(385,33): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'ApplicationDecisionLike'.
 src/pages/ApplicantsOverview/index.test.tsx(14,25): error TS2339: Property 'to' does not exist on type '{}'.
 src/pages/ApplicantsOverview/index.test.tsx(17,18): error TS2339: Property 'children' does not exist on type '{}'.
@@ -1801,7 +1806,7 @@ src/pages/CRM/LeadPage.tsx(975,65): error TS2769: No overload matches this call.
   Overload 2 of 2, '(props: DefaultComponentProps<BoxTypeMap<{}, "div", Theme>>): Element | null', gave the following error.
     Type '{}' is not assignable to type 'Key | null | undefined'.
 src/pages/CRM/LeadPage.tsx(1150,38): error TS2739: Type '{ disableEdit: true; title: string; viewContent: Element; }' is missing the following properties from type 'EditableCardProps': isEditing, onEdit, onSave, onCancel, editContent
-src/pages/CRM/LeadPage.tsx(1154,46): error TS2741: Property 'formData' is missing in type '{ config: { id: string; title: string; gridSize: { xs: number; md: number; }; layout: string; sections: { title: string; gridSize: number; fields: { key: string; label: string; type: string; }[]; }[]; fields?: undefined; } | { ...; } | { ...; }; isEditing: false; lead: {}; onFieldChange: (field: string, value: strin...' but required in type 'GenericCardContentProps'.
+src/pages/CRM/LeadPage.tsx(1154,46): error TS2741: Property 'formData' is missing in type '{ config: { id: string; title: string; gridSize: { xs: number; md: number; }; layout: string; sections: { title: string; gridSize: number; fields: { key: string; label: string; type: string; }[]; }[]; fields?: undefined; } | { ...; } | { ...; }; isEditing: false; lead: Record<...>; onFieldChange: (field: string, val...' but required in type 'GenericCardContentProps'.
 src/pages/CRM/LeadPage.tsx(1219,49): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{}'.
   No index signature with a parameter of type 'string' was found on type '{}'.
 src/pages/CRM/LeadPage.tsx(1256,17): error TS2322: Type 'null' is not assignable to type 'CreateUserFromLeadLead'.
@@ -2605,8 +2610,8 @@ src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(129,21): error TS2353: Obje
 src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(140,27): error TS7053: Element implicitly has an 'any' type because expression of type 'number' can't be used to index type '{}'.
   No index signature with a parameter of type 'number' was found on type '{}'.
 src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(155,29): error TS2339: Property 'program_name' does not exist on type 'IApplication'.
-src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(158,15): error TS2339: Property 'application_deadline' does not exist on type 'never'.
-src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(158,40): error TS2339: Property 'application_deadline' does not exist on type 'never'.
+src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(158,13): error TS18046: 'a.application_deadline' is of type 'unknown'.
+src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(158,38): error TS18046: 'b.application_deadline' is of type 'unknown'.
 src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(163,46): error TS18046: 'myStudentsThreads' is of type 'unknown'.
 src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(167,53): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
   Type 'undefined' is not assignable to type 'string'.
@@ -2619,20 +2624,25 @@ src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(197,37): error TS2322: Type
 src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(203,37): error TS2322: Type '(e: MouseEvent<HTMLElement>) => void' is not assignable to type '(e: SyntheticEvent<Element, Event>, notification_key: string) => void'.
   Types of parameters 'e' and 'e' are incompatible.
     Type 'SyntheticEvent<Element, Event>' is missing the following properties from type 'MouseEvent<HTMLElement, MouseEvent>': altKey, button, buttons, clientX, and 14 more.
-src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(315,73): error TS2339: Property 'student' does not exist on type 'never'.
-src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(316,73): error TS2339: Property 'application' does not exist on type 'never'.
-src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(325,70): error TS2339: Property 'studentId' does not exist on type 'never'.
-src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(333,81): error TS2339: Property 'firstname_lastname' does not exist on type 'never'.
-src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(340,73): error TS2339: Property 'application_deadline' does not exist on type 'never'.
-src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(344,70): error TS2339: Property 'school' does not exist on type 'never'.
-src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(348,73): error TS2339: Property 'program_name' does not exist on type 'never'.
+src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(315,61): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'IUserWithId'.
+src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(324,65): error TS18046: 'application.studentId' is of type 'unknown'.
+src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(332,65): error TS2322: Type 'unknown' is not assignable to type 'string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | null | undefined'.
+src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(339,57): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
+src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(344,57): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
+src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(347,57): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
 src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(352,50): error TS7053: Element implicitly has an 'any' type because expression of type 'number' can't be used to index type '{}'.
   No index signature with a parameter of type 'number' was found on type '{}'.
 src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(355,68): error TS2322: Type 'string' is not assignable to type 'number'.
-src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(358,81): error TS2339: Property 'application' does not exist on type 'never'.
-src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(361,81): error TS2339: Property 'student' does not exist on type 'never'.
-src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(388,29): error TS2322: Type '{ applications: never[]; students: IStudentResponse[]; user: IUserWithId | null; }' is not assignable to type 'IntrinsicAttributes & { applications: IApplicationPopulated[]; }'.
-  Property 'students' does not exist on type 'IntrinsicAttributes & { applications: IApplicationPopulated[]; }'.
+src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(357,65): error TS2322: Type 'unknown' is not assignable to type 'Application'.
+  Type 'unknown' is not assignable to type 'IApplicationPopulated'.
+src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(360,65): error TS2322: Type 'unknown' is not assignable to type 'IStudentResponse'.
+src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(378,29): error TS2322: Type 'Record<string, unknown>[]' is not assignable to type 'IApplicationPopulated[]'.
+  Property '_id' is missing in type 'Record<string, unknown>' but required in type 'IApplicationPopulated'.
+src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(384,39): error TS2345: Argument of type 'Record<string, unknown>[]' is not assignable to parameter of type 'Application[]'.
+  Type 'Record<string, unknown>' is not assignable to type 'Application'.
+    Property '_id' is missing in type 'Record<string, unknown>' but required in type 'IApplicationPopulated'.
+src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(387,29): error TS2322: Type 'Record<string, unknown>[]' is not assignable to type 'IApplicationPopulated[]'.
+  Property '_id' is missing in type 'Record<string, unknown>' but required in type 'IApplicationPopulated'.
 src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(403,66): error TS2322: Type '{ students: IStudentResponse[]; user: IUserWithId | null; }' is not assignable to type 'IntrinsicAttributes & { students: IStudentResponse[]; }'.
   Property 'user' does not exist on type 'IntrinsicAttributes & { students: IStudentResponse[]; }'.
 src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(415,25): error TS2322: Type '{ students: IStudentResponse[]; user: IUserWithId | null; }' is not assignable to type 'IntrinsicAttributes & { students: IStudentResponse[]; }'.
@@ -2980,28 +2990,26 @@ src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(147,13): error TS18048:
 src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(147,58): error TS18047: 'user' is possibly 'null'.
 src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(155,13): error TS18048: 'student.agents' is possibly 'undefined'.
 src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(155,58): error TS18047: 'user' is possibly 'null'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(165,29): error TS2339: Property 'closed' does not exist on type 'never'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(166,29): error TS2339: Property 'program_name' does not exist on type 'never'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(169,15): error TS2339: Property 'application_deadline' does not exist on type 'never'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(169,40): error TS2339: Property 'application_deadline' does not exist on type 'never'.
+src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(169,13): error TS18046: 'a.application_deadline' is of type 'unknown'.
+src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(169,38): error TS18046: 'b.application_deadline' is of type 'unknown'.
 src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(176,49): error TS2339: Property 'isRead_new_base_docs_uploaded' does not exist on type 'Notification[]'.
 src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(182,33): error TS2322: Type 'Element' is not assignable to type 'string'.
 src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(185,37): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
   Type 'undefined' is not assignable to type 'string'.
 src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(190,41): error TS2345: Argument of type 'SyntheticEvent<Element, Event>' is not assignable to parameter of type 'MouseEvent<HTMLElement, MouseEvent>'.
   Type 'SyntheticEvent<Element, Event>' is missing the following properties from type 'MouseEvent<HTMLElement, MouseEvent>': altKey, button, buttons, clientX, and 14 more.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(227,73): error TS2339: Property 'student_id' does not exist on type 'never'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(232,73): error TS2339: Property 'firstname_lastname' does not exist on type 'never'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(239,65): error TS2339: Property 'application_deadline' does not exist on type 'never'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(243,62): error TS2339: Property 'school' does not exist on type 'never'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(247,65): error TS2339: Property 'student' does not exist on type 'never'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(248,65): error TS2339: Property 'application' does not exist on type 'never'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(253,62): error TS2339: Property 'program_name' does not exist on type 'never'.
+src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(227,61): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
+src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(231,57): error TS2322: Type 'unknown' is not assignable to type 'ReactI18NextChildren | Iterable<ReactI18NextChildren>'.
+src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(238,49): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
+src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(243,49): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
+src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(247,53): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'IUserWithId'.
+src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(253,49): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
 src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(256,42): error TS7053: Element implicitly has an 'any' type because expression of type 'number' can't be used to index type '{}'.
   No index signature with a parameter of type 'number' was found on type '{}'.
 src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(260,53): error TS2322: Type 'string' is not assignable to type 'number'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(263,73): error TS2339: Property 'application' does not exist on type 'never'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(266,73): error TS2339: Property 'student' does not exist on type 'never'.
+src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(262,57): error TS2322: Type 'unknown' is not assignable to type 'Application'.
+  Type 'unknown' is not assignable to type 'IApplicationPopulated'.
+src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(265,57): error TS2322: Type 'unknown' is not assignable to type 'IStudentResponse'.
 src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(284,25): error TS18048: 'student.agents' is possibly 'undefined'.
 src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(285,54): error TS18047: 'user' is possibly 'null'.
 src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(289,65): error TS2322: Type '{ students: IStudentResponse[]; user: IUserWithId | null; }' is not assignable to type 'IntrinsicAttributes & { applications: IApplicationPopulated[]; students: IStudentResponse[]; }'.
@@ -4178,9 +4186,7 @@ src/pages/OfficeHours/index.tsx(232,43): error TS2345: Argument of type 'string 
 src/pages/OfficeHours/index.tsx(300,22): error TS7053: Element implicitly has an 'any' type because expression of type '0' can't be used to index type '{}'.
   Property '0' does not exist on type '{}'.
 src/pages/OfficeHours/index.tsx(379,29): error TS2322: Type 'null' is not assignable to type '((e: SyntheticEvent<Element, Event>, notification_key: string) => void) | undefined'.
-src/pages/OfficeHours/index.tsx(380,29): error TS2322: Type 'Element' is not assignable to type 'string'.
 src/pages/OfficeHours/index.tsx(395,29): error TS2322: Type 'null' is not assignable to type '((e: SyntheticEvent<Element, Event>, notification_key: string) => void) | undefined'.
-src/pages/OfficeHours/index.tsx(396,29): error TS2322: Type 'Element' is not assignable to type 'string'.
 src/pages/OfficeHours/index.tsx(409,25): error TS2322: Type '(e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void' is not assignable to type '(e: { target: { value: string; }; }) => void'.
   Types of parameters 'e' and 'e' are incompatible.
     Type '{ target: { value: string; }; }' is missing the following properties from type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>': nativeEvent, currentTarget, bubbles, cancelable, and 10 more.
@@ -4463,196 +4469,6 @@ src/pages/Program/AssignProgramsToStudentDialog.tsx(52,27): error TS2345: Argume
 src/pages/Program/AssignProgramsToStudentDialog.tsx(53,38): error TS18047: 'user' is possibly 'null'.
 src/pages/Program/AssignProgramsToStudentDialog.tsx(99,27): error TS6133: 'e' is declared but its value is never read.
 src/pages/Program/AssignProgramsToStudentDialog.tsx(100,46): error TS2339: Property '_id' does not exist on type 'IProgram'.
-src/pages/Program/NewProgramEdit.tsx(41,10): error TS2305: Module '"@/api"' has no exported member 'IProgramWithId'.
-src/pages/Program/NewProgramEdit.tsx(93,13): error TS2322: Type 'string | boolean' is not assignable to type 'undefined'.
-  Type 'string' is not assignable to type 'undefined'.
-src/pages/Program/NewProgramEdit.tsx(97,33): error TS2339: Property 'trimLeft' does not exist on type 'string | boolean'.
-  Property 'trimLeft' does not exist on type 'false'.
-src/pages/Program/NewProgramEdit.tsx(117,25): error TS2339: Property 'program' does not exist on type 'Partial<IProgram>'.
-src/pages/Program/NewProgramEdit.tsx(143,40): error TS6133: 'event' is declared but its value is never read.
-src/pages/Program/NewProgramEdit.tsx(144,54): error TS2345: Argument of type 'string | null | undefined' is not assignable to parameter of type 'string'.
-  Type 'undefined' is not assignable to type 'string'.
-src/pages/Program/NewProgramEdit.tsx(148,75): error TS2345: Argument of type 'IUserWithId | null' is not assignable to parameter of type 'IUser'.
-  Type 'null' is not assignable to type 'IUser'.
-src/pages/Program/NewProgramEdit.tsx(163,71): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(183,54): error TS2345: Argument of type 'IUserWithId | null' is not assignable to parameter of type 'IUser'.
-  Type 'null' is not assignable to type 'IUser'.
-src/pages/Program/NewProgramEdit.tsx(189,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(204,29): error TS2322: Type 'null' is not assignable to type 'string | undefined'.
-src/pages/Program/NewProgramEdit.tsx(207,29): error TS2322: Type 'string[] | undefined' is not assignable to type 'string[]'.
-  Type 'undefined' is not assignable to type 'string[]'.
-src/pages/Program/NewProgramEdit.tsx(218,33): error TS2322: Type 'boolean | null' is not assignable to type 'boolean | undefined'.
-  Type 'null' is not assignable to type 'boolean | undefined'.
-src/pages/Program/NewProgramEdit.tsx(220,60): error TS2345: Argument of type 'IUserWithId | null' is not assignable to parameter of type 'IUser'.
-  Type 'null' is not assignable to type 'IUser'.
-src/pages/Program/NewProgramEdit.tsx(226,63): error TS2345: Argument of type 'SelectChangeEvent<string>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'Event & { target: { value: string; name: string; }; }' is missing the following properties from type 'ChangeEvent<HTMLInputElement>': nativeEvent, isDefaultPrevented, isPropagationStopped, persist
-src/pages/Program/NewProgramEdit.tsx(249,33): error TS2322: Type 'boolean | null' is not assignable to type 'boolean | undefined'.
-  Type 'null' is not assignable to type 'boolean | undefined'.
-src/pages/Program/NewProgramEdit.tsx(251,60): error TS2345: Argument of type 'IUserWithId | null' is not assignable to parameter of type 'IUser'.
-  Type 'null' is not assignable to type 'IUser'.
-src/pages/Program/NewProgramEdit.tsx(257,63): error TS2345: Argument of type 'SelectChangeEvent<string>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'Event & { target: { value: string; name: string; }; }' is missing the following properties from type 'ChangeEvent<HTMLInputElement>': nativeEvent, isDefaultPrevented, isPropagationStopped, persist
-src/pages/Program/NewProgramEdit.tsx(283,63): error TS2345: Argument of type 'SelectChangeEvent<string>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'Event & { target: { value: string; name: string; }; }' is missing the following properties from type 'ChangeEvent<HTMLInputElement>': nativeEvent, isDefaultPrevented, isPropagationStopped, persist
-src/pages/Program/NewProgramEdit.tsx(307,30): error TS2741: Property 'label' is missing in type '{ control: Element; }' but required in type 'FormControlLabelProps'.
-src/pages/Program/NewProgramEdit.tsx(332,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(349,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(369,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(389,71): error TS2345: Argument of type 'SelectChangeEvent<string>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'Event & { target: { value: string; name: string; }; }' is missing the following properties from type 'ChangeEvent<HTMLInputElement>': nativeEvent, isDefaultPrevented, isPropagationStopped, persist
-src/pages/Program/NewProgramEdit.tsx(417,30): error TS2741: Property 'label' is missing in type '{ control: Element; }' but required in type 'FormControlLabelProps'.
-src/pages/Program/NewProgramEdit.tsx(438,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(451,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(464,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(477,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(490,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(507,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(520,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(533,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(546,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(559,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(575,30): error TS2741: Property 'label' is missing in type '{ control: Element; }' but required in type 'FormControlLabelProps'.
-src/pages/Program/NewProgramEdit.tsx(599,63): error TS2345: Argument of type 'SelectChangeEvent<string>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'Event & { target: { value: string; name: string; }; }' is missing the following properties from type 'ChangeEvent<HTMLInputElement>': nativeEvent, isDefaultPrevented, isPropagationStopped, persist
-src/pages/Program/NewProgramEdit.tsx(623,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(640,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(657,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(674,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(692,63): error TS2345: Argument of type 'SelectChangeEvent<string>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'Event & { target: { value: string; name: string; }; }' is missing the following properties from type 'ChangeEvent<HTMLInputElement>': nativeEvent, isDefaultPrevented, isPropagationStopped, persist
-src/pages/Program/NewProgramEdit.tsx(718,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(737,63): error TS2345: Argument of type 'SelectChangeEvent<string>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'Event & { target: { value: string; name: string; }; }' is missing the following properties from type 'ChangeEvent<HTMLInputElement>': nativeEvent, isDefaultPrevented, isPropagationStopped, persist
-src/pages/Program/NewProgramEdit.tsx(763,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(782,63): error TS2345: Argument of type 'SelectChangeEvent<string>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'Event & { target: { value: string; name: string; }; }' is missing the following properties from type 'ChangeEvent<HTMLInputElement>': nativeEvent, isDefaultPrevented, isPropagationStopped, persist
-src/pages/Program/NewProgramEdit.tsx(808,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(827,63): error TS2345: Argument of type 'SelectChangeEvent<string>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'Event & { target: { value: string; name: string; }; }' is missing the following properties from type 'ChangeEvent<HTMLInputElement>': nativeEvent, isDefaultPrevented, isPropagationStopped, persist
-src/pages/Program/NewProgramEdit.tsx(867,63): error TS2345: Argument of type 'SelectChangeEvent<boolean>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'Event & { target: { value: boolean; name: string; }; }' is missing the following properties from type 'ChangeEvent<HTMLInputElement>': nativeEvent, isDefaultPrevented, isPropagationStopped, persist
-src/pages/Program/NewProgramEdit.tsx(873,41): error TS2769: No overload matches this call.
-  Overload 2 of 3, '(props: { component: ElementType<any, keyof IntrinsicElements>; } & MenuItemOwnProps & Omit<ButtonBaseOwnProps, "classes"> & CommonProps & Omit<...>): Element | null', gave the following error.
-    Type 'boolean' is not assignable to type 'Key | null | undefined'.
-src/pages/Program/NewProgramEdit.tsx(893,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(912,63): error TS2345: Argument of type 'SelectChangeEvent<string>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'Event & { target: { value: string; name: string; }; }' is missing the following properties from type 'ChangeEvent<HTMLInputElement>': nativeEvent, isDefaultPrevented, isPropagationStopped, persist
-src/pages/Program/NewProgramEdit.tsx(967,63): error TS2345: Argument of type 'SelectChangeEvent<string>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'Event & { target: { value: string; name: string; }; }' is missing the following properties from type 'ChangeEvent<HTMLInputElement>': nativeEvent, isDefaultPrevented, isPropagationStopped, persist
-src/pages/Program/NewProgramEdit.tsx(993,63): error TS2345: Argument of type 'SelectChangeEvent<true>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'Event & { target: { value: true; name: string; }; }' is missing the following properties from type 'ChangeEvent<HTMLInputElement>': nativeEvent, isDefaultPrevented, isPropagationStopped, persist
-src/pages/Program/NewProgramEdit.tsx(999,41): error TS2769: No overload matches this call.
-  Overload 2 of 3, '(props: { component: ElementType<any, keyof IntrinsicElements>; } & MenuItemOwnProps & Omit<ButtonBaseOwnProps, "classes"> & CommonProps & Omit<...>): Element | null', gave the following error.
-    Type 'boolean' is not assignable to type 'Key | null | undefined'.
-src/pages/Program/NewProgramEdit.tsx(1019,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(1038,63): error TS2345: Argument of type 'SelectChangeEvent<string>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'Event & { target: { value: string; name: string; }; }' is missing the following properties from type 'ChangeEvent<HTMLInputElement>': nativeEvent, isDefaultPrevented, isPropagationStopped, persist
-src/pages/Program/NewProgramEdit.tsx(1064,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(1085,63): error TS2345: Argument of type 'SelectChangeEvent<string>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'Event & { target: { value: string; name: string; }; }' is missing the following properties from type 'ChangeEvent<HTMLInputElement>': nativeEvent, isDefaultPrevented, isPropagationStopped, persist
-src/pages/Program/NewProgramEdit.tsx(1115,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(1138,63): error TS2345: Argument of type 'SelectChangeEvent<string>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'Event & { target: { value: string; name: string; }; }' is missing the following properties from type 'ChangeEvent<HTMLInputElement>': nativeEvent, isDefaultPrevented, isPropagationStopped, persist
-src/pages/Program/NewProgramEdit.tsx(1168,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(1191,63): error TS2345: Argument of type 'SelectChangeEvent<string>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'Event & { target: { value: string; name: string; }; }' is missing the following properties from type 'ChangeEvent<HTMLInputElement>': nativeEvent, isDefaultPrevented, isPropagationStopped, persist
-src/pages/Program/NewProgramEdit.tsx(1219,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(1238,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(1257,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(1276,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(1294,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(1311,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(1330,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(1347,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(1366,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(1384,63): error TS2345: Argument of type 'SelectChangeEvent<string>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'Event & { target: { value: string; name: string; }; }' is missing the following properties from type 'ChangeEvent<HTMLInputElement>': nativeEvent, isDefaultPrevented, isPropagationStopped, persist
-src/pages/Program/NewProgramEdit.tsx(1423,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(1438,29): error TS2322: Type 'null' is not assignable to type 'string | undefined'.
-src/pages/Program/NewProgramEdit.tsx(1441,29): error TS2322: Type 'string[] | undefined' is not assignable to type 'string[]'.
-  Type 'undefined' is not assignable to type 'string[]'.
-src/pages/Program/NewProgramEdit.tsx(1452,59): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Program/NewProgramEdit.tsx(1470,50): error TS2345: Argument of type 'MouseEvent<HTMLButtonElement, MouseEvent>' is not assignable to parameter of type 'FormEvent<HTMLFormElement>'.
-  Types of property 'currentTarget' are incompatible.
-    Type 'EventTarget & HTMLButtonElement' is not assignable to type 'EventTarget & HTMLFormElement'.
-      Type 'EventTarget & HTMLButtonElement' is missing the following properties from type 'HTMLFormElement': acceptCharset, action, autocomplete, elements, and 12 more.
 src/pages/Program/ProgramChangeRequestPage.tsx(82,60): error TS2339: Property '_id' does not exist on type 'never'.
 src/pages/Program/ProgramChangeRequestPage.tsx(90,34): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
   Type 'undefined' is not assignable to type 'string'.
@@ -5508,240 +5324,10 @@ src/pages/Survey/index.tsx(38,32): error TS2345: Argument of type 'IUserWithId |
 src/pages/Survey/index.tsx(66,21): error TS2322: Type 'unknown' is not assignable to type '{ university?: Record<string, unknown> | undefined; language?: Record<string, unknown> | undefined; } | undefined'.
 src/pages/Survey/index.tsx(67,21): error TS2322: Type 'unknown' is not assignable to type 'Record<string, unknown> | undefined'.
 src/pages/Survey/index.tsx(69,33): error TS18047: 'user' is possibly 'null'.
-src/pages/Survey/SurveyEditableComponent.tsx(128,23): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
-  Type 'undefined' is not assignable to type 'string'.
-src/pages/Survey/SurveyEditableComponent.tsx(140,17): error TS2345: Argument of type 'Record<string, unknown> | undefined' is not assignable to parameter of type 'IUserApplicationPreference'.
-  Type 'undefined' is not assignable to type 'IUserApplicationPreference'.
-src/pages/Survey/SurveyEditableComponent.tsx(147,25): error TS2322: Type '{ university?: Record<string, unknown> | undefined; language?: Record<string, unknown> | undefined; } | undefined' is not assignable to type 'IUserAcademicBackground'.
-  Type 'undefined' is not assignable to type 'IUserAcademicBackground'.
-src/pages/Survey/SurveyEditableComponent.tsx(148,25): error TS2322: Type 'Record<string, unknown> | undefined' is not assignable to type 'IUserApplicationPreference'.
-  Type 'undefined' is not assignable to type 'IUserApplicationPreference'.
-src/pages/Survey/SurveyEditableComponent.tsx(288,71): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(313,71): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(338,45): error TS18048: 'survey.academic_background.university' is possibly 'undefined'.
-src/pages/Survey/SurveyEditableComponent.tsx(343,51): error TS18048: 'survey.academic_background.university' is possibly 'undefined'.
-src/pages/Survey/SurveyEditableComponent.tsx(360,66): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(404,71): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(424,29): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
-src/pages/Survey/SurveyEditableComponent.tsx(448,66): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(480,66): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(513,49): error TS18048: 'survey.academic_background.university' is possibly 'undefined'.
-src/pages/Survey/SurveyEditableComponent.tsx(517,55): error TS18048: 'survey.academic_background.university' is possibly 'undefined'.
-src/pages/Survey/SurveyEditableComponent.tsx(529,70): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(574,66): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(625,66): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(663,66): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(698,66): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(724,49): error TS2345: Argument of type '{}' is not assignable to parameter of type 'number'.
-src/pages/Survey/SurveyEditableComponent.tsx(736,34): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(props: { component: ElementType<any, keyof IntrinsicElements>; } & SvgIconOwnProps & CommonProps & Omit<any, "children" | ... 10 more ... | "viewBox">): Element | null', gave the following error.
-    Property 'component' is missing in type '{ onClick: (event: MouseEvent<HTMLElement, MouseEvent>) => void; style: { color: "#bdbdbd"; }; title: string; }' but required in type '{ component: ElementType<any, keyof IntrinsicElements>; }'.
-  Overload 2 of 2, '(props: DefaultComponentProps<SvgIconTypeMap<{}, "svg">>): Element | null', gave the following error.
-    Type '(event: MouseEvent<HTMLElement>) => void' is not assignable to type 'MouseEventHandler<SVGSVGElement>'.
-      Types of parameters 'event' and 'event' are incompatible.
-        Type 'MouseEvent<SVGSVGElement, MouseEvent>' is not assignable to type 'MouseEvent<HTMLElement, MouseEvent>'.
-          Type 'SVGSVGElement' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, autocorrect, and 26 more.
-src/pages/Survey/SurveyEditableComponent.tsx(752,38): error TS2769: No overload matches this call.
-  Overload 2 of 2, '(props: DefaultComponentProps<TypographyTypeMap<{}, "span">>): Element | null', gave the following error.
-    Type 'unknown' is not assignable to type 'ReactNode'.
-  Overload 2 of 2, '(props: DefaultComponentProps<TypographyTypeMap<{}, "span">>): Element | null', gave the following error.
-    Type 'unknown' is not assignable to type 'ReactNode'.
-  Overload 2 of 2, '(props: DefaultComponentProps<TypographyTypeMap<{}, "span">>): Element | null', gave the following error.
-    Type 'unknown' is not assignable to type 'ReactNode'.
-  Overload 2 of 2, '(props: DefaultComponentProps<TypographyTypeMap<{}, "span">>): Element | null', gave the following error.
-    Type 'unknown' is not assignable to type 'ReactNode'.
-src/pages/Survey/SurveyEditableComponent.tsx(755,49): error TS2345: Argument of type '{}' is not assignable to parameter of type 'number'.
-src/pages/Survey/SurveyEditableComponent.tsx(801,34): error TS2769: No overload matches this call.
-  Overload 1 of 3, '(props: { href: string; } & IconButtonOwnProps & Omit<ButtonBaseOwnProps, "classes"> & CommonProps & Omit<Omit<DetailedHTMLProps<AnchorHTMLAttributes<HTMLAnchorElement>, HTMLAnchorElement>, "ref"> & { ...; }, "children" | ... 19 more ... | "edge">): Element', gave the following error.
-    Type '{ children: Element; component: ForwardRefExoticComponent<LinkProps & RefAttributes<HTMLAnchorElement>>; ... 4 more ...; variant: string; }' is not assignable to type 'IntrinsicAttributes & { href: string; } & IconButtonOwnProps & Omit<ButtonBaseOwnProps, "classes"> & CommonProps & Omit<...>'.
-      Property 'component' does not exist on type 'IntrinsicAttributes & { href: string; } & IconButtonOwnProps & Omit<ButtonBaseOwnProps, "classes"> & CommonProps & Omit<...>'.
-  Overload 2 of 3, '(props: { component: ForwardRefExoticComponent<LinkProps & RefAttributes<HTMLAnchorElement>>; } & IconButtonOwnProps & Omit<...> & CommonProps & Omit<...>): Element | null', gave the following error.
-    Type '{ children: Element; component: ForwardRefExoticComponent<LinkProps & RefAttributes<HTMLAnchorElement>>; ... 4 more ...; variant: string; }' is not assignable to type 'IntrinsicAttributes & { component: ForwardRefExoticComponent<LinkProps & RefAttributes<HTMLAnchorElement>>; } & IconButtonOwnProps & Omit<...> & CommonProps & Omit<...>'.
-      Property 'variant' does not exist on type 'IntrinsicAttributes & { component: ForwardRefExoticComponent<LinkProps & RefAttributes<HTMLAnchorElement>>; } & IconButtonOwnProps & Omit<...> & CommonProps & Omit<...>'.
-  Overload 3 of 3, '(props: DefaultComponentProps<ExtendButtonBaseTypeMap<IconButtonTypeMap<{}, "button">>>): Element | null', gave the following error.
-    Type '{ children: Element; component: ForwardRefExoticComponent<LinkProps & RefAttributes<HTMLAnchorElement>>; ... 4 more ...; variant: string; }' is not assignable to type 'IntrinsicAttributes & IconButtonOwnProps & Omit<ButtonBaseOwnProps, "classes"> & CommonProps & Omit<...>'.
-      Property 'component' does not exist on type 'IntrinsicAttributes & IconButtonOwnProps & Omit<ButtonBaseOwnProps, "classes"> & CommonProps & Omit<...>'.
-src/pages/Survey/SurveyEditableComponent.tsx(816,50): error TS2345: Argument of type 'IUserWithId | null' is not assignable to parameter of type 'IUser'.
-  Type 'null' is not assignable to type 'IUser'.
-src/pages/Survey/SurveyEditableComponent.tsx(827,29): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
-src/pages/Survey/SurveyEditableComponent.tsx(861,66): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(883,37): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
-src/pages/Survey/SurveyEditableComponent.tsx(908,74): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(941,74): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(980,57): error TS18048: 'survey.academic_background.university' is possibly 'undefined'.
-src/pages/Survey/SurveyEditableComponent.tsx(986,63): error TS18048: 'survey.academic_background.university' is possibly 'undefined'.
-src/pages/Survey/SurveyEditableComponent.tsx(1000,78): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(1065,74): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(1108,74): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(1150,74): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(1181,71): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(1214,71): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(1237,43): error TS2345: Argument of type '{}' is not assignable to parameter of type 'string | number | Date'.
-src/pages/Survey/SurveyEditableComponent.tsx(1241,34): error TS18047: 'user' is possibly 'null'.
-src/pages/Survey/SurveyEditableComponent.tsx(1253,53): error TS18048: 'survey.academic_background' is possibly 'undefined'.
-src/pages/Survey/SurveyEditableComponent.tsx(1253,53): error TS2345: Argument of type 'Record<string, unknown> | undefined' is not assignable to parameter of type 'Record<string, unknown>'.
-  Type 'undefined' is not assignable to type 'Record<string, unknown>'.
-src/pages/Survey/SurveyEditableComponent.tsx(1283,65): error TS2345: Argument of type 'IUserWithId | null' is not assignable to parameter of type 'IUser'.
-  Type 'null' is not assignable to type 'IUser'.
-src/pages/Survey/SurveyEditableComponent.tsx(1302,37): error TS2322: Type '{ children: Element[]; disabled: boolean; error: boolean; fullWidth: true; helperText: string | null; id: string; label: string; labelid: string; name: string; onChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void; select: true; value: {}; }' is not assignable to type 'IntrinsicAttributes & { variant?: TextFieldVariants | undefined; } & Omit<StandardTextFieldProps | FilledTextFieldProps | OutlinedTextFieldProps, "variant">'.
-  Property 'labelid' does not exist on type 'IntrinsicAttributes & { variant?: TextFieldVariants | undefined; } & Omit<StandardTextFieldProps | FilledTextFieldProps | OutlinedTextFieldProps, "variant">'. Did you mean 'label'?
-src/pages/Survey/SurveyEditableComponent.tsx(1305,75): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(1334,65): error TS2345: Argument of type 'IUserWithId | null' is not assignable to parameter of type 'IUser'.
-  Type 'null' is not assignable to type 'IUser'.
-src/pages/Survey/SurveyEditableComponent.tsx(1355,75): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(1383,33): error TS2322: Type 'unknown' is not assignable to type 'string[]'.
-src/pages/Survey/SurveyEditableComponent.tsx(1405,75): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(1434,71): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(1469,71): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(1508,71): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(1545,71): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(1573,71): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(1584,39): error TS2339: Property 'length' does not exist on type '{}'.
-src/pages/Survey/SurveyEditableComponent.tsx(1594,43): error TS2345: Argument of type '{}' is not assignable to parameter of type 'string | number | Date'.
-src/pages/Survey/SurveyEditableComponent.tsx(1601,22): error TS18047: 'user' is possibly 'null'.
-src/pages/Survey/SurveyEditableComponent.tsx(1613,41): error TS2345: Argument of type 'Record<string, unknown> | undefined' is not assignable to parameter of type 'Record<string, unknown>'.
-  Type 'undefined' is not assignable to type 'Record<string, unknown>'.
-src/pages/Survey/SurveyEditableComponent.tsx(1635,33): error TS2322: Type 'null' is not assignable to type '((e: SyntheticEvent<Element, Event>, notification_key: string) => void) | undefined'.
-src/pages/Survey/SurveyEditableComponent.tsx(1653,37): error TS2322: Type 'Element' is not assignable to type 'string'.
-src/pages/Survey/SurveyEditableComponent.tsx(1712,41): error TS2322: Type '(e: ChangeEvent<HTMLInputElement>) => void' is not assignable to type '(event: SelectChangeEvent<{}>, child: ReactNode) => void'.
-  Types of parameters 'e' and 'event' are incompatible.
-    Type 'SelectChangeEvent<{}>' is not assignable to type 'ChangeEvent<HTMLInputElement>'.
-      Type 'Event & { target: { value: {}; name: string; }; }' is missing the following properties from type 'ChangeEvent<HTMLInputElement>': nativeEvent, isDefaultPrevented, isPropagationStopped, persist
-src/pages/Survey/SurveyEditableComponent.tsx(1734,33): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
-src/pages/Survey/SurveyEditableComponent.tsx(1759,45): error TS2769: No overload matches this call.
-  Overload 1 of 3, '(date?: string | number | Date | Dayjs | null | undefined): Dayjs', gave the following error.
-    Argument of type '{}' is not assignable to parameter of type 'string | number | Date | Dayjs | null | undefined'.
-  Overload 2 of 3, '(date?: string | number | Date | Dayjs | null | undefined, format?: OptionType | undefined, strict?: boolean | undefined): Dayjs', gave the following error.
-    Argument of type '{}' is not assignable to parameter of type 'string | number | Date | Dayjs | null | undefined'.
-  Overload 3 of 3, '(date?: string | number | Date | Dayjs | null | undefined, format?: OptionType | undefined, locale?: string | undefined, strict?: boolean | undefined): Dayjs', gave the following error.
-    Argument of type '{}' is not assignable to parameter of type 'string | number | Date | Dayjs | null | undefined'.
-src/pages/Survey/SurveyEditableComponent.tsx(1784,66): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(1812,66): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(1840,66): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(1868,66): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(1896,66): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(1962,41): error TS2322: Type '(e: ChangeEvent<HTMLInputElement>) => void' is not assignable to type '(event: SelectChangeEvent<{}>, child: ReactNode) => void'.
-  Types of parameters 'e' and 'event' are incompatible.
-    Type 'SelectChangeEvent<{}>' is not assignable to type 'ChangeEvent<HTMLInputElement>'.
-      Type 'Event & { target: { value: {}; name: string; }; }' is missing the following properties from type 'ChangeEvent<HTMLInputElement>': nativeEvent, isDefaultPrevented, isPropagationStopped, persist
-src/pages/Survey/SurveyEditableComponent.tsx(1985,33): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
-src/pages/Survey/SurveyEditableComponent.tsx(2008,45): error TS2769: No overload matches this call.
-  Overload 1 of 3, '(date?: string | number | Date | Dayjs | null | undefined): Dayjs', gave the following error.
-    Argument of type '{}' is not assignable to parameter of type 'string | number | Date | Dayjs | null | undefined'.
-  Overload 2 of 3, '(date?: string | number | Date | Dayjs | null | undefined, format?: OptionType | undefined, strict?: boolean | undefined): Dayjs', gave the following error.
-    Argument of type '{}' is not assignable to parameter of type 'string | number | Date | Dayjs | null | undefined'.
-  Overload 3 of 3, '(date?: string | number | Date | Dayjs | null | undefined, format?: OptionType | undefined, locale?: string | undefined, strict?: boolean | undefined): Dayjs', gave the following error.
-    Argument of type '{}' is not assignable to parameter of type 'string | number | Date | Dayjs | null | undefined'.
-src/pages/Survey/SurveyEditableComponent.tsx(2028,75): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(2084,41): error TS2322: Type '(e: ChangeEvent<HTMLInputElement>) => void' is not assignable to type '(event: SelectChangeEvent<{}>, child: ReactNode) => void'.
-  Types of parameters 'e' and 'event' are incompatible.
-    Type 'SelectChangeEvent<{}>' is not assignable to type 'ChangeEvent<HTMLInputElement>'.
-      Type 'Event & { target: { value: {}; name: string; }; }' is missing the following properties from type 'ChangeEvent<HTMLInputElement>': nativeEvent, isDefaultPrevented, isPropagationStopped, persist
-src/pages/Survey/SurveyEditableComponent.tsx(2107,33): error TS18048: 'survey.academic_background.language' is possibly 'undefined'.
-src/pages/Survey/SurveyEditableComponent.tsx(2107,33): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
-src/pages/Survey/SurveyEditableComponent.tsx(2116,45): error TS18048: 'survey.academic_background.language' is possibly 'undefined'.
-src/pages/Survey/SurveyEditableComponent.tsx(2129,45): error TS2769: No overload matches this call.
-  Overload 1 of 3, '(date?: string | number | Date | Dayjs | null | undefined): Dayjs', gave the following error.
-    Argument of type '{}' is not assignable to parameter of type 'string | number | Date | Dayjs | null | undefined'.
-  Overload 2 of 3, '(date?: string | number | Date | Dayjs | null | undefined, format?: OptionType | undefined, strict?: boolean | undefined): Dayjs', gave the following error.
-    Argument of type '{}' is not assignable to parameter of type 'string | number | Date | Dayjs | null | undefined'.
-  Overload 3 of 3, '(date?: string | number | Date | Dayjs | null | undefined, format?: OptionType | undefined, locale?: string | undefined, strict?: boolean | undefined): Dayjs', gave the following error.
-    Argument of type '{}' is not assignable to parameter of type 'string | number | Date | Dayjs | null | undefined'.
-src/pages/Survey/SurveyEditableComponent.tsx(2152,75): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(2210,41): error TS2322: Type '(e: ChangeEvent<HTMLInputElement>) => void' is not assignable to type '(event: SelectChangeEvent<{}>, child: ReactNode) => void'.
-  Types of parameters 'e' and 'event' are incompatible.
-    Type 'SelectChangeEvent<{}>' is not assignable to type 'ChangeEvent<HTMLInputElement>'.
-      Type 'Event & { target: { value: {}; name: string; }; }' is missing the following properties from type 'ChangeEvent<HTMLInputElement>': nativeEvent, isDefaultPrevented, isPropagationStopped, persist
-src/pages/Survey/SurveyEditableComponent.tsx(2233,33): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
-src/pages/Survey/SurveyEditableComponent.tsx(2255,45): error TS2769: No overload matches this call.
-  Overload 1 of 3, '(date?: string | number | Date | Dayjs | null | undefined): Dayjs', gave the following error.
-    Argument of type '{}' is not assignable to parameter of type 'string | number | Date | Dayjs | null | undefined'.
-  Overload 2 of 3, '(date?: string | number | Date | Dayjs | null | undefined, format?: OptionType | undefined, strict?: boolean | undefined): Dayjs', gave the following error.
-    Argument of type '{}' is not assignable to parameter of type 'string | number | Date | Dayjs | null | undefined'.
-  Overload 3 of 3, '(date?: string | number | Date | Dayjs | null | undefined, format?: OptionType | undefined, locale?: string | undefined, strict?: boolean | undefined): Dayjs', gave the following error.
-    Argument of type '{}' is not assignable to parameter of type 'string | number | Date | Dayjs | null | undefined'.
-src/pages/Survey/SurveyEditableComponent.tsx(2278,75): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(2296,39): error TS2345: Argument of type '{}' is not assignable to parameter of type 'string | number | Date'.
-src/pages/Survey/SurveyEditableComponent.tsx(2300,30): error TS18047: 'user' is possibly 'null'.
-src/pages/Survey/SurveyEditableComponent.tsx(2312,49): error TS18048: 'survey.academic_background' is possibly 'undefined'.
-src/pages/Survey/SurveyEditableComponent.tsx(2312,49): error TS2345: Argument of type 'Record<string, unknown> | undefined' is not assignable to parameter of type 'Record<string, unknown>'.
-  Type 'undefined' is not assignable to type 'Record<string, unknown>'.
-src/pages/Survey/SurveyEditableComponent.tsx(2335,54): error TS2345: Argument of type 'ChangeEvent<HTMLInputElement | HTMLTextAreaElement>' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement>'.
-  Type 'HTMLInputElement | HTMLTextAreaElement' is not assignable to type 'HTMLInputElement'.
-    Type 'HTMLTextAreaElement' is missing the following properties from type 'HTMLInputElement': accept, align, alt, capture, and 29 more.
-src/pages/Survey/SurveyEditableComponent.tsx(2342,42): error TS2339: Property 'baseDocsflagOffcanvasButtonDisable' does not exist on type 'SurveyStateValue'.
+src/pages/Survey/SurveyEditableComponent.tsx(1650,33): error TS2322: Type '{ ReadOnlyMode: boolean; bg: string; link_name: string; notification_key: undefined; path: string; text: string; title: string; }' is not assignable to type 'IntrinsicAttributes & BannerProps'.
+  Property 'ReadOnlyMode' does not exist on type 'IntrinsicAttributes & BannerProps'.
+src/pages/Survey/SurveyEditableComponent.tsx(1667,37): error TS2322: Type '{ ReadOnlyMode: boolean; bg: string; link_name: string; notification_key: undefined; path: string; text: Element; title: string; }' is not assignable to type 'IntrinsicAttributes & BannerProps'.
+  Property 'ReadOnlyMode' does not exist on type 'IntrinsicAttributes & BannerProps'.
 src/pages/TaiGerAI/CVMLRLGenerator.tsx(53,24): error TS18047: 'response.body' is possibly 'null'.
 src/pages/TaiGerAI/CVMLRLGenerator.tsx(82,25): error TS2345: Argument of type 'IUserWithId | null' is not assignable to parameter of type 'IUser'.
   Type 'null' is not assignable to type 'IUser'.
@@ -6029,340 +5615,101 @@ src/pages/Utils/checking-functions.tsx(175,29): error TS7053: Element implicitly
   No index signature with a parameter of type 'string' was found on type 'IUserApplicationPreference'.
 src/pages/Utils/checking-functions.tsx(176,24): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type 'IUserApplicationPreference'.
   No index signature with a parameter of type 'string' was found on type 'IUserApplicationPreference'.
-src/pages/Utils/util_functions.test.ts(44,31): error TS2345: Argument of type '{ role: string; generaldocs_threads: { doc_thread_id: { file_type: string; }; }[]; }' is not assignable to parameter of type 'IStudentResponse'.
-  Property '_id' is missing in type '{ role: string; generaldocs_threads: { doc_thread_id: { file_type: string; }; }[]; }' but required in type 'IStudentResponse'.
-src/pages/Utils/util_functions.test.ts(45,31): error TS2345: Argument of type '{ role: string; generaldocs_threads: { doc_thread_id: { file_type: string; }; }[]; }' is not assignable to parameter of type 'IStudentResponse'.
-  Property '_id' is missing in type '{ role: string; generaldocs_threads: { doc_thread_id: { file_type: string; }; }[]; }' but required in type 'IStudentResponse'.
-src/pages/Utils/util_functions.test.ts(75,29): error TS2345: Argument of type '{ role: string; generaldocs_threads: { doc_thread_id: { file_type: string; }; isFinalVersion: boolean; }[]; }' is not assignable to parameter of type 'IStudentResponse'.
-  Property '_id' is missing in type '{ role: string; generaldocs_threads: { doc_thread_id: { file_type: string; }; isFinalVersion: boolean; }[]; }' but required in type 'IStudentResponse'.
-src/pages/Utils/util_functions.test.ts(76,29): error TS2345: Argument of type '{ role: string; generaldocs_threads: { doc_thread_id: { file_type: string; }; }[]; }' is not assignable to parameter of type 'IStudentResponse'.
-  Property '_id' is missing in type '{ role: string; generaldocs_threads: { doc_thread_id: { file_type: string; }; }[]; }' but required in type 'IStudentResponse'.
-src/pages/Utils/util_functions.test.ts(82,31): error TS2345: Argument of type 'null' is not assignable to parameter of type '{ file_type?: string | undefined; program_id?: { [key: string]: string; } | undefined; }'.
-src/pages/Utils/util_functions.test.ts(83,31): error TS2345: Argument of type 'undefined' is not assignable to parameter of type '{ file_type?: string | undefined; program_id?: { [key: string]: string; } | undefined; }'.
-src/pages/Utils/util_functions.test.ts(201,39): error TS2345: Argument of type 'null' is not assignable to parameter of type 'IUserAcademicBackground'.
-src/pages/Utils/util_functions.test.ts(202,39): error TS2345: Argument of type 'undefined' is not assignable to parameter of type 'IUserAcademicBackground'.
-src/pages/Utils/util_functions.test.ts(253,46): error TS2345: Argument of type 'null' is not assignable to parameter of type 'IUserAcademicBackground'.
-src/pages/Utils/util_functions.test.ts(254,46): error TS2345: Argument of type 'undefined' is not assignable to parameter of type 'IUserAcademicBackground'.
-src/pages/Utils/util_functions.test.ts(301,55): error TS2345: Argument of type 'null' is not assignable to parameter of type 'IUserAcademicBackground'.
-src/pages/Utils/util_functions.test.ts(302,55): error TS2345: Argument of type 'undefined' is not assignable to parameter of type 'IUserAcademicBackground'.
-src/pages/Utils/util_functions.test.ts(374,50): error TS2345: Argument of type 'null' is not assignable to parameter of type 'IUserAcademicBackground | undefined'.
-src/pages/Utils/util_functions.test.ts(398,53): error TS2345: Argument of type 'null' is not assignable to parameter of type 'IUserAcademicBackground | undefined'.
-src/pages/Utils/util_functions.test.ts(420,49): error TS2345: Argument of type 'null' is not assignable to parameter of type 'IUserAcademicBackground | undefined'.
-src/pages/Utils/util_functions.test.ts(442,52): error TS2345: Argument of type 'null' is not assignable to parameter of type 'IUserAcademicBackground | undefined'.
-src/pages/Utils/util_functions.test.ts(452,54): error TS2345: Argument of type '{ profile: never[]; }' is not assignable to parameter of type 'IStudentResponse'.
+src/pages/Utils/util_functions.test.ts(375,50): error TS2345: Argument of type 'null' is not assignable to parameter of type 'IUserAcademicBackground | undefined'.
+src/pages/Utils/util_functions.test.ts(399,53): error TS2345: Argument of type 'null' is not assignable to parameter of type 'IUserAcademicBackground | undefined'.
+src/pages/Utils/util_functions.test.ts(421,49): error TS2345: Argument of type 'null' is not assignable to parameter of type 'IUserAcademicBackground | undefined'.
+src/pages/Utils/util_functions.test.ts(443,52): error TS2345: Argument of type 'null' is not assignable to parameter of type 'IUserAcademicBackground | undefined'.
+src/pages/Utils/util_functions.test.ts(453,54): error TS2345: Argument of type '{ profile: never[]; }' is not assignable to parameter of type 'IStudentResponse'.
   Property '_id' is missing in type '{ profile: never[]; }' but required in type 'IStudentResponse'.
-src/pages/Utils/util_functions.test.ts(477,54): error TS2345: Argument of type '{ profile: { name: string; status: DocumentStatusType; }[]; }' is not assignable to parameter of type 'IStudentResponse'.
+src/pages/Utils/util_functions.test.ts(478,54): error TS2345: Argument of type '{ profile: { name: string; status: DocumentStatusType; }[]; }' is not assignable to parameter of type 'IStudentResponse'.
   Property '_id' is missing in type '{ profile: { name: string; status: DocumentStatusType; }[]; }' but required in type 'IStudentResponse'.
-src/pages/Utils/util_functions.test.ts(499,54): error TS2345: Argument of type '{ profile: { name: string; status: DocumentStatusType; }[]; }' is not assignable to parameter of type 'IStudentResponse'.
+src/pages/Utils/util_functions.test.ts(500,54): error TS2345: Argument of type '{ profile: { name: string; status: DocumentStatusType; }[]; }' is not assignable to parameter of type 'IStudentResponse'.
   Property '_id' is missing in type '{ profile: { name: string; status: DocumentStatusType; }[]; }' but required in type 'IStudentResponse'.
-src/pages/Utils/util_functions.test.ts(515,54): error TS2345: Argument of type '{ profile: { name: string; status: DocumentStatusType; }[]; }' is not assignable to parameter of type 'IStudentResponse'.
+src/pages/Utils/util_functions.test.ts(516,54): error TS2345: Argument of type '{ profile: { name: string; status: DocumentStatusType; }[]; }' is not assignable to parameter of type 'IStudentResponse'.
   Property '_id' is missing in type '{ profile: { name: string; status: DocumentStatusType; }[]; }' but required in type 'IStudentResponse'.
-src/pages/Utils/util_functions.test.ts(531,54): error TS2345: Argument of type '{ profile: { name: string; status: DocumentStatusType; }[]; }' is not assignable to parameter of type 'IStudentResponse'.
+src/pages/Utils/util_functions.test.ts(532,54): error TS2345: Argument of type '{ profile: { name: string; status: DocumentStatusType; }[]; }' is not assignable to parameter of type 'IStudentResponse'.
   Property '_id' is missing in type '{ profile: { name: string; status: DocumentStatusType; }[]; }' but required in type 'IStudentResponse'.
-src/pages/Utils/util_functions.test.ts(567,47): error TS2345: Argument of type '{ profile: { name: string; status: DocumentStatusType; }[]; }[]' is not assignable to parameter of type 'IStudentResponse[]'.
+src/pages/Utils/util_functions.test.ts(568,47): error TS2345: Argument of type '{ profile: { name: string; status: DocumentStatusType; }[]; }[]' is not assignable to parameter of type 'IStudentResponse[]'.
   Property '_id' is missing in type '{ profile: { name: string; status: DocumentStatusType; }[]; }' but required in type 'IStudentResponse'.
-src/pages/Utils/util_functions.test.ts(589,47): error TS2345: Argument of type '{ profile: { name: string; status: DocumentStatusType; }[]; }[]' is not assignable to parameter of type 'IStudentResponse[]'.
+src/pages/Utils/util_functions.test.ts(590,47): error TS2345: Argument of type '{ profile: { name: string; status: DocumentStatusType; }[]; }[]' is not assignable to parameter of type 'IStudentResponse[]'.
   Property '_id' is missing in type '{ profile: { name: string; status: DocumentStatusType; }[]; }' but required in type 'IStudentResponse'.
-src/pages/Utils/util_functions.test.ts(597,47): error TS2345: Argument of type 'null' is not assignable to parameter of type 'IStudentResponse[]'.
-src/pages/Utils/util_functions.test.ts(598,47): error TS2345: Argument of type 'undefined' is not assignable to parameter of type 'IStudentResponse[]'.
-src/pages/Utils/util_functions.test.ts(605,55): error TS2345: Argument of type '{ applications: undefined; }' is not assignable to parameter of type 'IStudentResponse'.
+src/pages/Utils/util_functions.test.ts(598,47): error TS2345: Argument of type 'null' is not assignable to parameter of type 'IStudentResponse[]'.
+src/pages/Utils/util_functions.test.ts(599,47): error TS2345: Argument of type 'undefined' is not assignable to parameter of type 'IStudentResponse[]'.
+src/pages/Utils/util_functions.test.ts(606,55): error TS2345: Argument of type '{ applications: undefined; }' is not assignable to parameter of type 'IStudentResponse'.
   Property '_id' is missing in type '{ applications: undefined; }' but required in type 'IStudentResponse'.
-src/pages/Utils/util_functions.test.ts(622,55): error TS2345: Argument of type '{ applications: { programId: { uni_assist: string; }; decided: string; uni_assist: { status: DocumentStatusType; vpd_file_path: string; }; }[]; }' is not assignable to parameter of type 'IStudentResponse'.
+src/pages/Utils/util_functions.test.ts(623,55): error TS2345: Argument of type '{ applications: { programId: { uni_assist: string; }; decided: string; uni_assist: { status: DocumentStatusType; vpd_file_path: string; }; }[]; }' is not assignable to parameter of type 'IStudentResponse'.
   Property '_id' is missing in type '{ applications: { programId: { uni_assist: string; }; decided: string; uni_assist: { status: DocumentStatusType; vpd_file_path: string; }; }[]; }' but required in type 'IStudentResponse'.
-src/pages/Utils/util_functions.test.ts(636,55): error TS2345: Argument of type '{ applications: { programId: { uni_assist: string[]; }; decided: string; uni_assist: undefined; }[]; }' is not assignable to parameter of type 'IStudentResponse'.
+src/pages/Utils/util_functions.test.ts(637,55): error TS2345: Argument of type '{ applications: { programId: { uni_assist: string[]; }; decided: string; uni_assist: undefined; }[]; }' is not assignable to parameter of type 'IStudentResponse'.
   Property '_id' is missing in type '{ applications: { programId: { uni_assist: string[]; }; decided: string; uni_assist: undefined; }[]; }' but required in type 'IStudentResponse'.
-src/pages/Utils/util_functions.test.ts(658,55): error TS2345: Argument of type '{ applications: ({ programId: { uni_assist: string[]; }; decided: string; uni_assist: { status: DocumentStatusType; vpd_file_path?: undefined; }; } | { programId: { uni_assist: string[]; }; decided: string; uni_assist: { ...; }; })[]; }' is not assignable to parameter of type 'IStudentResponse'.
+src/pages/Utils/util_functions.test.ts(659,55): error TS2345: Argument of type '{ applications: ({ programId: { uni_assist: string[]; }; decided: string; uni_assist: { status: DocumentStatusType; vpd_file_path?: undefined; }; } | { programId: { uni_assist: string[]; }; decided: string; uni_assist: { ...; }; })[]; }' is not assignable to parameter of type 'IStudentResponse'.
   Property '_id' is missing in type '{ applications: ({ programId: { uni_assist: string[]; }; decided: string; uni_assist: { status: DocumentStatusType; vpd_file_path?: undefined; }; } | { programId: { uni_assist: string[]; }; decided: string; uni_assist: { ...; }; })[]; }' but required in type 'IStudentResponse'.
-src/pages/Utils/util_functions.test.ts(675,55): error TS2345: Argument of type '{ applications: { programId: { uni_assist: string[]; }; decided: string; uni_assist: { status: DocumentStatusType; vpd_file_path: string; }; }[]; }' is not assignable to parameter of type 'IStudentResponse'.
+src/pages/Utils/util_functions.test.ts(676,55): error TS2345: Argument of type '{ applications: { programId: { uni_assist: string[]; }; decided: string; uni_assist: { status: DocumentStatusType; vpd_file_path: string; }; }[]; }' is not assignable to parameter of type 'IStudentResponse'.
   Property '_id' is missing in type '{ applications: { programId: { uni_assist: string[]; }; decided: string; uni_assist: { status: DocumentStatusType; vpd_file_path: string; }; }[]; }' but required in type 'IStudentResponse'.
-src/pages/Utils/util_functions.test.ts(700,55): error TS2345: Argument of type '{ applications: { programId: { uni_assist: string[]; }; decided: string; uni_assist: { status: DocumentStatusType; vpd_file_path: string; }; }[]; }' is not assignable to parameter of type 'IStudentResponse'.
+src/pages/Utils/util_functions.test.ts(701,55): error TS2345: Argument of type '{ applications: { programId: { uni_assist: string[]; }; decided: string; uni_assist: { status: DocumentStatusType; vpd_file_path: string; }; }[]; }' is not assignable to parameter of type 'IStudentResponse'.
   Property '_id' is missing in type '{ applications: { programId: { uni_assist: string[]; }; decided: string; uni_assist: { status: DocumentStatusType; vpd_file_path: string; }; }[]; }' but required in type 'IStudentResponse'.
-src/pages/Utils/util_functions.test.ts(707,39): error TS2345: Argument of type 'null' is not assignable to parameter of type 'IUserAcademicBackground | undefined'.
-src/pages/Utils/util_functions.test.ts(777,49): error TS2345: Argument of type 'null' is not assignable to parameter of type 'IUserAcademicBackground | undefined'.
-src/pages/Utils/util_functions.test.ts(780,51): error TS2322: Type 'null' is not assignable to type 'IUserAcademicBackgroundUniversity | undefined'.
-src/pages/Utils/util_functions.test.ts(797,49): error TS2345: Argument of type '{ university: { attended_high_school: boolean; high_school_isGraduated: string; Has_Exchange_Experience: string; Has_Internship_Experience: string; Has_Working_Experience: string; attended_university: boolean; attended_university_program: string; }; }' is not assignable to parameter of type 'IUserAcademicBackground'.
+src/pages/Utils/util_functions.test.ts(708,39): error TS2345: Argument of type 'null' is not assignable to parameter of type 'IUserAcademicBackground | undefined'.
+src/pages/Utils/util_functions.test.ts(778,49): error TS2345: Argument of type 'null' is not assignable to parameter of type 'IUserAcademicBackground | undefined'.
+src/pages/Utils/util_functions.test.ts(781,51): error TS2322: Type 'null' is not assignable to type 'IUserAcademicBackgroundUniversity | undefined'.
+src/pages/Utils/util_functions.test.ts(798,49): error TS2345: Argument of type '{ university: { attended_high_school: boolean; high_school_isGraduated: string; Has_Exchange_Experience: string; Has_Internship_Experience: string; Has_Working_Experience: string; attended_university: boolean; attended_university_program: string; }; }' is not assignable to parameter of type 'IUserAcademicBackground'.
   The types of 'university.attended_high_school' are incompatible between these types.
     Type 'boolean' is not assignable to type 'string'.
-src/pages/Utils/util_functions.test.ts(814,49): error TS2345: Argument of type '{ university: { attended_high_school: boolean; high_school_isGraduated: string; Has_Exchange_Experience: string; Has_Internship_Experience: string; Has_Working_Experience: string; attended_university: boolean; attended_university_program: string; }; }' is not assignable to parameter of type 'IUserAcademicBackground'.
+src/pages/Utils/util_functions.test.ts(815,49): error TS2345: Argument of type '{ university: { attended_high_school: boolean; high_school_isGraduated: string; Has_Exchange_Experience: string; Has_Internship_Experience: string; Has_Working_Experience: string; attended_university: boolean; attended_university_program: string; }; }' is not assignable to parameter of type 'IUserAcademicBackground'.
   The types of 'university.attended_high_school' are incompatible between these types.
     Type 'boolean' is not assignable to type 'string'.
-src/pages/Utils/util_functions.test.ts(829,49): error TS2345: Argument of type '{ university: { attended_high_school: boolean; high_school_isGraduated: string; attended_university: boolean; attended_university_program: string; }; }' is not assignable to parameter of type 'IUserAcademicBackground'.
+src/pages/Utils/util_functions.test.ts(830,49): error TS2345: Argument of type '{ university: { attended_high_school: boolean; high_school_isGraduated: string; attended_university: boolean; attended_university_program: string; }; }' is not assignable to parameter of type 'IUserAcademicBackground'.
   The types of 'university.attended_high_school' are incompatible between these types.
     Type 'boolean' is not assignable to type 'string'.
-src/pages/Utils/util_functions.test.ts(1076,52): error TS2345: Argument of type '{ applications: never[]; }' is not assignable to parameter of type 'IUserWithId'.
-  Property '_id' is missing in type '{ applications: never[]; }' but required in type 'IUserWithId'.
-src/pages/Utils/util_functions.test.ts(1090,52): error TS2345: Argument of type '{ applications: { programId: { uni_assist: string; }; decided: string; }[]; }' is not assignable to parameter of type 'IUserWithId'.
-  Property '_id' is missing in type '{ applications: { programId: { uni_assist: string; }; decided: string; }[]; }' but required in type 'IUserWithId'.
-src/pages/Utils/util_functions.test.ts(1110,52): error TS2345: Argument of type '{ applications: { programId: { uni_assist: string; }; uni_assist: { status: string; }; decided: string; }[]; }' is not assignable to parameter of type 'IUserWithId'.
-  Property '_id' is missing in type '{ applications: { programId: { uni_assist: string; }; uni_assist: { status: string; }; decided: string; }[]; }' but required in type 'IUserWithId'.
-src/pages/Utils/util_functions.test.ts(1145,52): error TS2345: Argument of type '{ applications: ({ programId: { uni_assist: string; }; uni_assist: { status: string; vpd_file_path: string; }; decided: string; } | { programId: { uni_assist: string; }; uni_assist: { status?: undefined; vpd_file_path?: undefined; }; decided: string; } | { ...; })[]; }' is not assignable to parameter of type 'IUserWithId'.
-  Property '_id' is missing in type '{ applications: ({ programId: { uni_assist: string; }; uni_assist: { status: string; vpd_file_path: string; }; decided: string; } | { programId: { uni_assist: string; }; uni_assist: { status?: undefined; vpd_file_path?: undefined; }; decided: string; } | { ...; })[]; }' but required in type 'IUserWithId'.
-src/pages/Utils/util_functions.test.ts(1156,50): error TS2345: Argument of type '{ applications: never[]; }' is not assignable to parameter of type 'IStudentResponse'.
+src/pages/Utils/util_functions.test.ts(1077,52): error TS2345: Argument of type '{ applications: never[]; }' is not assignable to parameter of type 'IStudentResponse'.
   Property '_id' is missing in type '{ applications: never[]; }' but required in type 'IStudentResponse'.
-src/pages/Utils/util_functions.test.ts(1175,50): error TS2345: Argument of type '{ applications: { programId: { uni_assist: string; }; }[]; }' is not assignable to parameter of type 'IStudentResponse'.
+src/pages/Utils/util_functions.test.ts(1091,52): error TS2345: Argument of type '{ applications: { programId: { uni_assist: string; }; decided: string; }[]; }' is not assignable to parameter of type 'IStudentResponse'.
+  Property '_id' is missing in type '{ applications: { programId: { uni_assist: string; }; decided: string; }[]; }' but required in type 'IStudentResponse'.
+src/pages/Utils/util_functions.test.ts(1111,52): error TS2345: Argument of type '{ applications: { programId: { uni_assist: string; }; uni_assist: { status: string; }; decided: string; }[]; }' is not assignable to parameter of type 'IStudentResponse'.
+  Property '_id' is missing in type '{ applications: { programId: { uni_assist: string; }; uni_assist: { status: string; }; decided: string; }[]; }' but required in type 'IStudentResponse'.
+src/pages/Utils/util_functions.test.ts(1146,52): error TS2345: Argument of type '{ applications: ({ programId: { uni_assist: string; }; uni_assist: { status: string; vpd_file_path: string; }; decided: string; } | { programId: { uni_assist: string; }; uni_assist: { status?: undefined; vpd_file_path?: undefined; }; decided: string; } | { ...; })[]; }' is not assignable to parameter of type 'IStudentResponse'.
+  Property '_id' is missing in type '{ applications: ({ programId: { uni_assist: string; }; uni_assist: { status: string; vpd_file_path: string; }; decided: string; } | { programId: { uni_assist: string; }; uni_assist: { status?: undefined; vpd_file_path?: undefined; }; decided: string; } | { ...; })[]; }' but required in type 'IStudentResponse'.
+src/pages/Utils/util_functions.test.ts(1157,50): error TS2345: Argument of type '{ applications: never[]; }' is not assignable to parameter of type 'IStudentResponse'.
+  Property '_id' is missing in type '{ applications: never[]; }' but required in type 'IStudentResponse'.
+src/pages/Utils/util_functions.test.ts(1176,50): error TS2345: Argument of type '{ applications: { programId: { uni_assist: string; }; }[]; }' is not assignable to parameter of type 'IStudentResponse'.
   Property '_id' is missing in type '{ applications: { programId: { uni_assist: string; }; }[]; }' but required in type 'IStudentResponse'.
-src/pages/Utils/util_functions.test.ts(1205,50): error TS2345: Argument of type '{ applications: ({ programId: { uni_assist: string; }; uni_assist: { status?: undefined; }; decided: string; } | { programId: { uni_assist: string; }; uni_assist: { status: string; }; decided: string; })[]; }' is not assignable to parameter of type 'IStudentResponse'.
+src/pages/Utils/util_functions.test.ts(1206,50): error TS2345: Argument of type '{ applications: ({ programId: { uni_assist: string; }; uni_assist: { status?: undefined; }; decided: string; } | { programId: { uni_assist: string; }; uni_assist: { status: string; }; decided: string; })[]; }' is not assignable to parameter of type 'IStudentResponse'.
   Property '_id' is missing in type '{ applications: ({ programId: { uni_assist: string; }; uni_assist: { status?: undefined; }; decided: string; } | { programId: { uni_assist: string; }; uni_assist: { status: string; }; decided: string; })[]; }' but required in type 'IStudentResponse'.
-src/pages/Utils/util_functions.test.ts(1216,56): error TS2345: Argument of type '{ doc_modification_thread: never[]; }' is not assignable to parameter of type 'Application'.
+src/pages/Utils/util_functions.test.ts(1217,56): error TS2345: Argument of type '{ doc_modification_thread: never[]; }' is not assignable to parameter of type 'Application'.
   Property '_id' is missing in type '{ doc_modification_thread: never[]; }' but required in type 'IApplicationPopulated'.
-src/pages/Utils/util_functions.test.ts(1229,56): error TS2345: Argument of type '{ doc_modification_thread: { isFinalVersion: boolean; }[]; }' is not assignable to parameter of type 'Application'.
+src/pages/Utils/util_functions.test.ts(1230,56): error TS2345: Argument of type '{ doc_modification_thread: { isFinalVersion: boolean; }[]; }' is not assignable to parameter of type 'Application'.
   Property '_id' is missing in type '{ doc_modification_thread: { isFinalVersion: boolean; }[]; }' but required in type 'IApplicationPopulated'.
-src/pages/Utils/util_functions.test.ts(1242,56): error TS2345: Argument of type '{ doc_modification_thread: { isFinalVersion: boolean; }[]; }' is not assignable to parameter of type 'Application'.
+src/pages/Utils/util_functions.test.ts(1243,56): error TS2345: Argument of type '{ doc_modification_thread: { isFinalVersion: boolean; }[]; }' is not assignable to parameter of type 'Application'.
   Property '_id' is missing in type '{ doc_modification_thread: { isFinalVersion: boolean; }[]; }' but required in type 'IApplicationPopulated'.
-src/pages/Utils/util_functions.test.ts(1250,45): error TS2345: Argument of type '{}' is not assignable to parameter of type 'Application'.
+src/pages/Utils/util_functions.test.ts(1251,45): error TS2345: Argument of type '{}' is not assignable to parameter of type 'Application'.
   Property '_id' is missing in type '{}' but required in type 'IApplicationPopulated'.
-src/pages/Utils/util_functions.test.ts(1256,45): error TS2345: Argument of type '{ programId: {}; }' is not assignable to parameter of type 'Application'.
+src/pages/Utils/util_functions.test.ts(1257,45): error TS2345: Argument of type '{ programId: {}; }' is not assignable to parameter of type 'Application'.
   Property '_id' is missing in type '{ programId: {}; }' but required in type 'IApplicationPopulated'.
-src/pages/Utils/util_functions.test.ts(1262,45): error TS2345: Argument of type '{ programId: { uni_assist: string; }; }' is not assignable to parameter of type 'Application'.
+src/pages/Utils/util_functions.test.ts(1263,45): error TS2345: Argument of type '{ programId: { uni_assist: string; }; }' is not assignable to parameter of type 'Application'.
   Property '_id' is missing in type '{ programId: { uni_assist: string; }; }' but required in type 'IApplicationPopulated'.
-src/pages/Utils/util_functions.test.ts(1272,45): error TS2345: Argument of type '{ programId: { uni_assist: string; }; uni_assist: {}; decided: string; }' is not assignable to parameter of type 'Application'.
+src/pages/Utils/util_functions.test.ts(1273,45): error TS2345: Argument of type '{ programId: { uni_assist: string; }; uni_assist: {}; decided: string; }' is not assignable to parameter of type 'Application'.
   Property '_id' is missing in type '{ programId: { uni_assist: string; }; uni_assist: {}; decided: string; }' but required in type 'IApplicationPopulated'.
-src/pages/Utils/util_functions.test.ts(1282,45): error TS2345: Argument of type '{ programId: { uni_assist: string; }; uni_assist: { status: DocumentStatusType; }; decided: string; }' is not assignable to parameter of type 'Application'.
+src/pages/Utils/util_functions.test.ts(1283,45): error TS2345: Argument of type '{ programId: { uni_assist: string; }; uni_assist: { status: DocumentStatusType; }; decided: string; }' is not assignable to parameter of type 'Application'.
   Property '_id' is missing in type '{ programId: { uni_assist: string; }; uni_assist: { status: DocumentStatusType; }; decided: string; }' but required in type 'IApplicationPopulated'.
-src/pages/Utils/util_functions.test.ts(1290,44): error TS2339: Property 'Pending' does not exist on type 'typeof DocumentStatusType'.
-src/pages/Utils/util_functions.test.ts(1295,45): error TS2345: Argument of type '{ programId: { uni_assist: string; }; uni_assist: { status: any; vpd_file_path: string; }; decided: string; }' is not assignable to parameter of type 'Application'.
+src/pages/Utils/util_functions.test.ts(1291,44): error TS2339: Property 'Pending' does not exist on type 'typeof DocumentStatusType'.
+src/pages/Utils/util_functions.test.ts(1296,45): error TS2345: Argument of type '{ programId: { uni_assist: string; }; uni_assist: { status: any; vpd_file_path: string; }; decided: string; }' is not assignable to parameter of type 'Application'.
   Property '_id' is missing in type '{ programId: { uni_assist: string; }; uni_assist: { status: any; vpd_file_path: string; }; decided: string; }' but required in type 'IApplicationPopulated'.
-src/pages/Utils/util_functions.test.ts(1308,45): error TS2345: Argument of type '{ programId: { uni_assist: string; }; uni_assist: { status: DocumentStatusType; vpd_file_path: string; }; decided: string; }' is not assignable to parameter of type 'Application'.
+src/pages/Utils/util_functions.test.ts(1309,45): error TS2345: Argument of type '{ programId: { uni_assist: string; }; uni_assist: { status: DocumentStatusType; vpd_file_path: string; }; decided: string; }' is not assignable to parameter of type 'Application'.
   Property '_id' is missing in type '{ programId: { uni_assist: string; }; uni_assist: { status: DocumentStatusType; vpd_file_path: string; }; decided: string; }' but required in type 'IApplicationPopulated'.
-src/pages/Utils/util_functions.test.ts(1317,61): error TS2345: Argument of type '{}' is not assignable to parameter of type 'Application'.
+src/pages/Utils/util_functions.test.ts(1318,61): error TS2345: Argument of type '{}' is not assignable to parameter of type 'Application'.
   Property '_id' is missing in type '{}' but required in type 'IApplicationPopulated'.
-src/pages/Utils/util_functions.test.ts(1328,61): error TS2345: Argument of type '{ uni_assist: { isPaid: boolean; }; }' is not assignable to parameter of type 'Application'.
+src/pages/Utils/util_functions.test.ts(1329,61): error TS2345: Argument of type '{ uni_assist: { isPaid: boolean; }; }' is not assignable to parameter of type 'Application'.
   Property '_id' is missing in type '{ uni_assist: { isPaid: boolean; }; }' but required in type 'IApplicationPopulated'.
-src/pages/Utils/util_functions.test.ts(1339,61): error TS2345: Argument of type '{ uni_assist: { isPaid: boolean; }; }' is not assignable to parameter of type 'Application'.
+src/pages/Utils/util_functions.test.ts(1340,61): error TS2345: Argument of type '{ uni_assist: { isPaid: boolean; }; }' is not assignable to parameter of type 'Application'.
   Property '_id' is missing in type '{ uni_assist: { isPaid: boolean; }; }' but required in type 'IApplicationPopulated'.
-src/pages/Utils/util_functions.test.ts(1348,55): error TS2345: Argument of type '{ applications: never[]; }' is not assignable to parameter of type 'IStudentResponse'.
+src/pages/Utils/util_functions.test.ts(1349,55): error TS2345: Argument of type '{ applications: never[]; }' is not assignable to parameter of type 'IStudentResponse'.
   Property '_id' is missing in type '{ applications: never[]; }' but required in type 'IStudentResponse'.
-src/pages/Utils/util_functions.test.ts(1357,55): error TS2345: Argument of type '{ applications: { programId: { uni_assist: string; }; decided: string; }[]; }' is not assignable to parameter of type 'IStudentResponse'.
+src/pages/Utils/util_functions.test.ts(1358,55): error TS2345: Argument of type '{ applications: { programId: { uni_assist: string; }; decided: string; }[]; }' is not assignable to parameter of type 'IStudentResponse'.
   Property '_id' is missing in type '{ applications: { programId: { uni_assist: string; }; decided: string; }[]; }' but required in type 'IStudentResponse'.
-src/pages/Utils/util_functions.test.ts(1369,55): error TS2345: Argument of type '{ applications: { programId: { uni_assist: string; }; decided: string; }[]; }' is not assignable to parameter of type 'IStudentResponse'.
+src/pages/Utils/util_functions.test.ts(1370,55): error TS2345: Argument of type '{ applications: { programId: { uni_assist: string; }; decided: string; }[]; }' is not assignable to parameter of type 'IStudentResponse'.
   Property '_id' is missing in type '{ applications: { programId: { uni_assist: string; }; decided: string; }[]; }' but required in type 'IStudentResponse'.
-src/pages/Utils/util_functions.test.ts(1381,55): error TS2345: Argument of type '{ applications: { programId: { uni_assist: string; }; decided: string; }[]; }' is not assignable to parameter of type 'IStudentResponse'.
+src/pages/Utils/util_functions.test.ts(1382,55): error TS2345: Argument of type '{ applications: { programId: { uni_assist: string; }; decided: string; }[]; }' is not assignable to parameter of type 'IStudentResponse'.
   Property '_id' is missing in type '{ applications: { programId: { uni_assist: string; }; decided: string; }[]; }' but required in type 'IStudentResponse'.
-src/pages/Utils/util_functions.test.ts(1393,55): error TS2345: Argument of type '{ applications: { programId: { uni_assist: string; }; decided: string; }[]; }' is not assignable to parameter of type 'IStudentResponse'.
+src/pages/Utils/util_functions.test.ts(1394,55): error TS2345: Argument of type '{ applications: { programId: { uni_assist: string; }; decided: string; }[]; }' is not assignable to parameter of type 'IStudentResponse'.
   Property '_id' is missing in type '{ applications: { programId: { uni_assist: string; }; decided: string; }[]; }' but required in type 'IStudentResponse'.
-src/pages/Utils/util_functions.ts(68,29): error TS2339: Property 'agents' does not exist on type 'IUserWithId'.
-src/pages/Utils/util_functions.ts(71,30): error TS2339: Property 'editors' does not exist on type 'IUserWithId'.
-src/pages/Utils/util_functions.ts(183,27): error TS2532: Object is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(194,27): error TS2532: Object is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(320,9): error TS18048: 'student.profile.length' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(360,13): error TS2322: Type 'string | undefined' is not assignable to type 'DocumentStatusType'.
-  Type 'undefined' is not assignable to type 'DocumentStatusType'.
-src/pages/Utils/util_functions.ts(422,39): error TS2339: Property 'applications' does not exist on type 'IUserWithId'.
-src/pages/Utils/util_functions.ts(481,17): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string | number | Date'.
-  Type 'undefined' is not assignable to type 'string | number | Date'.
-src/pages/Utils/util_functions.ts(488,17): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string | number | Date'.
-  Type 'undefined' is not assignable to type 'string | number | Date'.
-src/pages/Utils/util_functions.ts(494,17): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
-src/pages/Utils/util_functions.ts(496,21): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string | number | Date'.
-  Type 'undefined' is not assignable to type 'string | number | Date'.
-src/pages/Utils/util_functions.ts(504,17): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string | number | Date'.
-  Type 'undefined' is not assignable to type 'string | number | Date'.
-src/pages/Utils/util_functions.ts(549,13): error TS18048: 'student.applications.length' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(549,44): error TS18048: 'student.applying_program_count' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(602,39): error TS18048: 'student.applying_program_count' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(703,18): error TS2339: Property 'applications' does not exist on type 'IUserWithId'.
-src/pages/Utils/util_functions.ts(706,39): error TS2339: Property 'applications' does not exist on type 'IUserWithId'.
-src/pages/Utils/util_functions.ts(754,5): error TS2322: Type 'boolean | undefined' is not assignable to type 'boolean'.
-  Type 'undefined' is not assignable to type 'boolean'.
-src/pages/Utils/util_functions.ts(766,9): error TS2532: Object is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(767,47): error TS2339: Property 'file_type' does not exist on type 'string | IDocumentthread | ObjectId'.
-  Property 'file_type' does not exist on type 'string'.
-src/pages/Utils/util_functions.ts(775,43): error TS2339: Property 'file_type' does not exist on type 'string | IDocumentthread | ObjectId'.
-  Property 'file_type' does not exist on type 'string'.
-src/pages/Utils/util_functions.ts(983,20): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type 'IStudentResponse'.
-  No index signature with a parameter of type 'string' was found on type 'IStudentResponse'.
-src/pages/Utils/util_functions.ts(983,52): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type 'IStudentResponse'.
-  No index signature with a parameter of type 'string' was found on type 'IStudentResponse'.
-src/pages/Utils/util_functions.ts(1075,17): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string | number | Date'.
-  Type 'undefined' is not assignable to type 'string | number | Date'.
-src/pages/Utils/util_functions.ts(1118,17): error TS18048: 'student.academic_background' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1118,17): error TS18048: 'student.academic_background.language' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1118,17): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string | number | Date'.
-  Type 'undefined' is not assignable to type 'string | number | Date'.
-src/pages/Utils/util_functions.ts(1161,30): error TS2339: Property '_id' does not exist on type 'string | IUser | ObjectId'.
-  Property '_id' does not exist on type 'string'.
-src/pages/Utils/util_functions.ts(1176,30): error TS2339: Property '_id' does not exist on type 'string | IUser | ObjectId'.
-  Property '_id' does not exist on type 'string'.
-src/pages/Utils/util_functions.ts(1190,31): error TS2339: Property '_id' does not exist on type 'string | IUser | ObjectId'.
-  Property '_id' does not exist on type 'string'.
-src/pages/Utils/util_functions.ts(1201,31): error TS2339: Property 'firstname' does not exist on type 'string | IUser | ObjectId'.
-  Property 'firstname' does not exist on type 'string'.
-src/pages/Utils/util_functions.ts(1201,63): error TS2339: Property 'lastname' does not exist on type 'string | IUser | ObjectId'.
-  Property 'lastname' does not exist on type 'string'.
-src/pages/Utils/util_functions.ts(1247,34): error TS18048: 'application.doc_modification_thread' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1250,47): error TS2339: Property 'file_type' does not exist on type 'ObjectId'.
-src/pages/Utils/util_functions.ts(1299,25): error TS2345: Argument of type 'IProgramWithId' is not assignable to parameter of type 'Record<string, unknown>'.
-  Index signature for type 'string' is missing in type 'IProgramWithId'.
-src/pages/Utils/util_functions.ts(1336,25): error TS18048: 'sum' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1336,31): error TS18048: 'value' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1341,25): error TS18048: 'completedPoints' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1366,39): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
-  Type 'undefined' is not assignable to type 'string'.
-src/pages/Utils/util_functions.ts(1373,13): error TS18046: 'program.toefl' is of type 'unknown'.
-src/pages/Utils/util_functions.ts(1373,40): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
-  Type 'undefined' is not assignable to type 'string'.
-src/pages/Utils/util_functions.ts(1374,13): error TS18046: 'program.toefl_reading' is of type 'unknown'.
-src/pages/Utils/util_functions.ts(1374,48): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
-  Type 'undefined' is not assignable to type 'string'.
-src/pages/Utils/util_functions.ts(1375,13): error TS18046: 'program.toefl_listening' is of type 'unknown'.
-src/pages/Utils/util_functions.ts(1375,50): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
-  Type 'undefined' is not assignable to type 'string'.
-src/pages/Utils/util_functions.ts(1376,13): error TS18046: 'program.toefl_writing' is of type 'unknown'.
-src/pages/Utils/util_functions.ts(1376,48): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
-  Type 'undefined' is not assignable to type 'string'.
-src/pages/Utils/util_functions.ts(1377,13): error TS18046: 'program.toefl_speaking' is of type 'unknown'.
-src/pages/Utils/util_functions.ts(1377,49): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
-  Type 'undefined' is not assignable to type 'string'.
-src/pages/Utils/util_functions.ts(1384,13): error TS18046: 'program.ielts' is of type 'unknown'.
-src/pages/Utils/util_functions.ts(1384,40): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
-  Type 'undefined' is not assignable to type 'string'.
-src/pages/Utils/util_functions.ts(1385,13): error TS18046: 'program.ielts_reading' is of type 'unknown'.
-src/pages/Utils/util_functions.ts(1385,48): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
-  Type 'undefined' is not assignable to type 'string'.
-src/pages/Utils/util_functions.ts(1386,13): error TS18046: 'program.ielts_listening' is of type 'unknown'.
-src/pages/Utils/util_functions.ts(1386,50): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
-  Type 'undefined' is not assignable to type 'string'.
-src/pages/Utils/util_functions.ts(1387,13): error TS18046: 'program.ielts_writing' is of type 'unknown'.
-src/pages/Utils/util_functions.ts(1387,48): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
-  Type 'undefined' is not assignable to type 'string'.
-src/pages/Utils/util_functions.ts(1388,13): error TS18046: 'program.ielts_speaking' is of type 'unknown'.
-src/pages/Utils/util_functions.ts(1388,49): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
-  Type 'undefined' is not assignable to type 'string'.
-src/pages/Utils/util_functions.ts(1436,13): error TS2339: Property 'application_start' does not exist on type 'IProgramWithId | undefined'.
-src/pages/Utils/util_functions.ts(1436,32): error TS2339: Property 'semester' does not exist on type 'IProgramWithId | undefined'.
-src/pages/Utils/util_functions.ts(1450,9): error TS18048: 'application.programId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1450,9): error TS18048: 'application.programId.application_start' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1454,9): error TS2345: Argument of type 'string | number' is not assignable to parameter of type 'number'.
-  Type 'string' is not assignable to type 'number'.
-src/pages/Utils/util_functions.ts(1469,48): error TS2551: Property 'program_id' does not exist on type 'Application'. Did you mean 'programId'?
-src/pages/Utils/util_functions.ts(1483,9): error TS18048: 'application.programId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1483,9): error TS18048: 'application.programId.application_deadline' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1486,5): error TS2322: Type 'string | number' is not assignable to type 'string | undefined'.
-  Type 'number' is not assignable to type 'string'.
-src/pages/Utils/util_functions.ts(1487,9): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'number'.
-  Type 'undefined' is not assignable to type 'number'.
-src/pages/Utils/util_functions.ts(1492,34): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string | number'.
-  Type 'undefined' is not assignable to type 'string | number'.
-src/pages/Utils/util_functions.ts(1505,31): error TS2339: Property 'editors' does not exist on type 'IUserWithId'.
-src/pages/Utils/util_functions.ts(1505,50): error TS2339: Property 'editors' does not exist on type 'IUserWithId'.
-src/pages/Utils/util_functions.ts(1546,49): error TS2345: Argument of type 'Date | undefined' is not assignable to parameter of type 'string | number | Date'.
-  Type 'undefined' is not assignable to type 'string | number | Date'.
-src/pages/Utils/util_functions.ts(1548,32): error TS2345: Argument of type 'Date | undefined' is not assignable to parameter of type 'string | number | Date'.
-  Type 'undefined' is not assignable to type 'string | number | Date'.
-src/pages/Utils/util_functions.ts(1563,35): error TS2339: Property '_id' does not exist on type 'IDocumentthread'.
-src/pages/Utils/util_functions.ts(1571,13): error TS2345: Argument of type 'Date | undefined' is not assignable to parameter of type 'string | number | Date'.
-  Type 'undefined' is not assignable to type 'string | number | Date'.
-src/pages/Utils/util_functions.ts(1574,32): error TS2345: Argument of type 'Date | undefined' is not assignable to parameter of type 'string | number | Date'.
-  Type 'undefined' is not assignable to type 'string | number | Date'.
-src/pages/Utils/util_functions.ts(1605,42): error TS2339: Property '_id' does not exist on type 'IDocumentthread'.
-src/pages/Utils/util_functions.ts(1664,42): error TS2339: Property '_id' does not exist on type 'IDocumentthread'.
-src/pages/Utils/util_functions.ts(1685,32): error TS2339: Property 'archiv' does not exist on type 'string | IStudentResponse'.
-  Property 'archiv' does not exist on type 'string'.
-src/pages/Utils/util_functions.ts(1687,28): error TS2345: Argument of type '{ thread_id: string; deadline: string; lang: string; show: boolean; document_name: string; days_left: string | number; id: string; latest_message_left_by_id: any; flag_by_user_id: IUserWithId[] | undefined; ... 14 more ...; editors_joined: string | undefined; }' is not assignable to parameter of type 'OpenTaskRow'.
-  Types of property 'flag_by_user_id' are incompatible.
-    Type 'IUserWithId[] | undefined' is not assignable to type 'string[] | undefined'.
-      Type 'IUserWithId[]' is not assignable to type 'string[]'.
-        Type 'IUserWithId' is not assignable to type 'string'.
-src/pages/Utils/util_functions.ts(1687,46): error TS2345: Argument of type 'string | IStudentResponse' is not assignable to parameter of type 'IStudentResponse'.
-  Type 'string' is not assignable to type 'IStudentResponse'.
-src/pages/Utils/util_functions.ts(1690,21): error TS2345: Argument of type '{ thread_id: string; program_id: string; program: IProgramWithId; isApplicationLocked: boolean; isProgramLocked: boolean; lockReason: string | null; deadline: string; ... 25 more ...; editors_joined: string | undefined; }' is not assignable to parameter of type 'OpenTaskRow'.
-  Types of property 'flag_by_user_id' are incompatible.
-    Type 'IUserWithId[] | undefined' is not assignable to type 'string[] | undefined'.
-      Type 'IUserWithId[]' is not assignable to type 'string[]'.
-        Type 'IUserWithId' is not assignable to type 'string'.
-src/pages/Utils/util_functions.ts(1691,25): error TS2345: Argument of type 'string | IStudentResponse' is not assignable to parameter of type 'IStudentResponse'.
-  Type 'string' is not assignable to type 'IStudentResponse'.
-src/pages/Utils/util_functions.ts(1707,34): error TS18048: 'student.generaldocs_threads' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1709,49): error TS2345: Argument of type 'IUserGeneraldocsThread' is not assignable to parameter of type 'DocumentThreadResponse'.
-  Type 'IUserGeneraldocsThread' is missing the following properties from type 'DocumentThreadResponse': _id, flag_by_user_id
-src/pages/Utils/util_functions.ts(1721,39): error TS18048: 'student.applications' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1722,38): error TS18048: 'application.doc_modification_thread' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1724,70): error TS2345: Argument of type 'IApplicationDocModificationThreadItem' is not assignable to parameter of type 'DocumentThreadResponse'.
-  Type 'IApplicationDocModificationThreadItem' is missing the following properties from type 'DocumentThreadResponse': _id, flag_by_user_id
-src/pages/Utils/util_functions.ts(1756,17): error TS2322: Type 'string | undefined' is not assignable to type 'DocumentStatusType'.
-  Type 'undefined' is not assignable to type 'DocumentStatusType'.
-src/pages/Utils/util_functions.ts(1766,41): error TS2345: Argument of type 'IStudentResponse | undefined' is not assignable to parameter of type 'IStudentResponse'.
-  Type 'undefined' is not assignable to type 'IStudentResponse'.
-src/pages/Utils/util_functions.ts(1813,18): error TS2345: Argument of type '{ id: string; target_year: string; school: string; country: string | undefined; application: IApplicationPopulated; student: IStudentResponse | undefined; ... 42 more ...; credential_b_filled?: boolean | undefined; }' is not assignable to parameter of type 'never'.
-src/pages/Utils/util_functions.ts(1815,20): error TS18048: 'application.studentId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1815,60): error TS18048: 'application.programId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1816,61): error TS18048: 'application.programId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1818,21): error TS18048: 'application.programId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1819,22): error TS18048: 'application.programId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1822,36): error TS18048: 'application.studentId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1822,72): error TS18048: 'application.studentId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1823,27): error TS18048: 'application.programId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1824,25): error TS18048: 'application.programId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1824,59): error TS18048: 'application.programId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1824,98): error TS18048: 'application.programId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1825,22): error TS18048: 'application.studentId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1828,21): error TS18048: 'application.studentId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1831,23): error TS18048: 'application.programId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1832,21): error TS18048: 'application.programId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1833,20): error TS18048: 'application.programId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1834,20): error TS18048: 'application.programId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1835,22): error TS18048: 'application.programId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1836,25): error TS18048: 'application.programId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1837,24): error TS18048: 'application.programId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1838,25): error TS18048: 'application.programId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1844,25): error TS18048: 'application.studentId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1856,42): error TS2345: Argument of type 'IStudentResponse | undefined' is not assignable to parameter of type 'IUserWithId'.
-  Type 'undefined' is not assignable to type 'IUserWithId'.
-src/pages/Utils/util_functions.ts(1880,17): error TS2322: Type 'string | undefined' is not assignable to type 'DocumentStatusType'.
-  Type 'undefined' is not assignable to type 'DocumentStatusType'.
-src/pages/Utils/util_functions.ts(1893,22): error TS2345: Argument of type '{ id: string; target_year: string; school: string; application: {}; student: IStudentResponse; firstname_lastname: string; program_name: string; program: string; editors: string | undefined; ... 21 more ...; status: string; }' is not assignable to parameter of type 'never'.
-src/pages/Utils/util_functions.ts(1978,26): error TS2345: Argument of type '{ id: string; target_year: string; school: string; application: IApplicationPopulated; student: IStudentResponse; firstname_lastname: string; ... 26 more ...; status: number; }' is not assignable to parameter of type 'never'.
-src/pages/Utils/util_functions.ts(1985,29): error TS18048: 'application.programId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1989,35): error TS18048: 'application.programId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1990,33): error TS18048: 'application.programId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1990,67): error TS18048: 'application.programId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1990,106): error TS18048: 'application.programId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1997,31): error TS18048: 'application.programId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1998,29): error TS18048: 'application.programId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(1999,28): error TS18048: 'application.programId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(2000,28): error TS18048: 'application.programId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(2001,30): error TS18048: 'application.programId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(2002,33): error TS18048: 'application.programId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(2003,32): error TS18048: 'application.programId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(2004,33): error TS18048: 'application.programId' is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(2045,62): error TS2339: Property 'closed' does not exist on type 'never'.
-src/pages/Utils/util_functions.ts(2048,15): error TS2339: Property 'application_deadline' does not exist on type 'never'.
-src/pages/Utils/util_functions.ts(2048,40): error TS2339: Property 'application_deadline' does not exist on type 'never'.
-src/pages/Utils/util_functions.ts(2055,54): error TS2339: Property 'program' does not exist on type 'never'.
-src/pages/Utils/util_functions.ts(2060,54): error TS2339: Property 'application_deadline' does not exist on type 'never'.
-src/pages/Utils/util_functions.ts(2065,54): error TS2339: Property 'days_left' does not exist on type 'never'.
-src/pages/Utils/util_functions.ts(2071,57): error TS2339: Property 'application' does not exist on type 'never'.
-src/pages/Utils/util_functions.ts(2078,13): error TS2532: Object is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(2079,17): error TS2532: Object is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(2079,17): error TS2538: Type 'undefined' cannot be used as an index type.
-src/pages/Utils/util_functions.ts(2081,21): error TS2532: Object is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(2081,21): error TS2538: Type 'undefined' cannot be used as an index type.
-src/pages/Utils/util_functions.ts(2084,21): error TS2532: Object is possibly 'undefined'.
-src/pages/Utils/util_functions.ts(2084,21): error TS2538: Type 'undefined' cannot be used as an index type.
-src/pages/Utils/util_functions.ts(2089,13): error TS7053: Element implicitly has an 'any' type because expression of type '"TBD"' can't be used to index type '{}'.
-  Property 'TBD' does not exist on type '{}'.
-src/pages/Utils/util_functions.ts(2089,26): error TS7053: Element implicitly has an 'any' type because expression of type '"TBD"' can't be used to index type '{}'.
-  Property 'TBD' does not exist on type '{}'.
-src/pages/Utils/util_functions.ts(2089,39): error TS7053: Element implicitly has an 'any' type because expression of type '"TBD"' can't be used to index type '{}'.
-  Property 'TBD' does not exist on type '{}'.
-src/pages/Utils/util_functions.ts(2187,51): error TS2769: No overload matches this call.
-  The last overload gave the following error.
-    Argument of type 'string | ArrayBuffer | null | undefined' is not assignable to parameter of type 'ArrayBuffer | ArrayLike<number>'.
-      Type 'undefined' is not assignable to type 'ArrayBuffer | ArrayLike<number>'.
-src/pages/Utils/util_functions.ts(2194,39): error TS2339: Property 'str' does not exist on type 'TextItem | TextMarkedContent'.
-  Property 'str' does not exist on type 'TextMarkedContent'.
-src/pages/Utils/util_functions.ts(2204,29): error TS2339: Property 'error' does not exist on type '{ correctFirstname: { value: boolean; text: string; }; }'.
-src/pages/Utils/util_functions.ts(2204,65): error TS2339: Property 'message' does not exist on type '{}'.
-src/pages/Utils/util_functions.ts(2223,29): error TS18047: 'event.target' is possibly 'null'.
-src/pages/Utils/util_functions.ts(2225,43): error TS2345: Argument of type 'string | ArrayBuffer | null' is not assignable to parameter of type 'ArrayBuffer'.
-  Type 'null' is not assignable to type 'ArrayBuffer'.
-src/pages/Utils/util_functions.ts(2234,29): error TS2339: Property 'metadata' does not exist on type '{ correctFirstname: { value: boolean; text: string; }; }'.
-src/pages/Utils/util_functions.ts(2398,27): error TS2345: Argument of type 'object' is not assignable to parameter of type 'Record<string, unknown>'.
-  Index signature for type 'string' is missing in type '{}'.
-src/pages/Utils/util_functions.ts(2400,13): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{}'.
-  No index signature with a parameter of type 'string' was found on type '{}'.
-src/pages/Utils/util_functions.ts(2419,17): error TS2322: Type 'string' is not assignable to type 'number'.
-src/pages/Utils/util_functions.ts(2454,17): error TS2322: Type 'string' is not assignable to type 'number'.
 src/reportWebVitals.ts(1,36): error TS2307: Cannot find module 'web-vitals' or its corresponding type declarations.
 src/reportWebVitals.ts(5,16): error TS2307: Cannot find module 'web-vitals' or its corresponding type declarations.
 src/routes.tsx(93,9): error TS2322: Type 'Promise<typeof import("C:/Users/steve/workspace/TaiGerPortalStaticWebsite/src/pages/CVMLRLCenter/DocModificationThreadPage/DocumentThreadsPage/DocumentCommunicatiomExpandPage")>' is not assignable to type 'Promise<{ default: ComponentType<any>; }>'.

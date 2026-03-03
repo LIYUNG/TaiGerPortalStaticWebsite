@@ -2,9 +2,9 @@
 
 ## Context
 
-`npx tsc --noEmit -p tsconfig.app.json` on TaiGerPortalStaticWebsite reports **4,270 errors** across ~120 source files. The root cause is a mismatch between how `@taiger-common/model` defines interfaces (raw Mongoose schema types with `T | Schema.Types.ObjectId | string` unions, no `_id`) and how the frontend consumes them (always populated, always has `_id`). This causes cascading TS2339/TS2345 errors everywhere.
+`npx tsc --noEmit -p tsconfig.app.json` on TaiGerPortalStaticWebsite reports **~2,926 errors** across ~120 source files (as of latest `tsc-errors.txt`). The root cause is a mismatch between how `@taiger-common/model` defines interfaces (raw Mongoose schema types with `T | Schema.Types.ObjectId | string` unions, no `_id`) and how the frontend consumes them (always populated, always has `_id`). This causes cascading TS2339/TS2345 errors everywhere.
 
-**Goal:** Refactor `taiger-model` to cleanly separate "model layer" (Mongoose/backend) from "API layer" (populated, serialized, frontend-friendly) types, then migrate the frontend to use the correct types — eliminating the majority of the 4,270 errors at their source.
+**Goal:** Refactor `taiger-model` to cleanly separate "model layer" (Mongoose/backend) from "API layer" (populated, serialized, frontend-friendly) types, then migrate the frontend to use the correct types — eliminating the majority of the remaining errors at their source.
 
 ---
 
@@ -17,6 +17,8 @@
 ---
 
 ## Part 2: taiger-model Refactoring ✅ DONE (4,267 → 4,189 errors, -78)
+
+**Current frontend error count (post–Part 2 + Phase 3A/3B):** ~2,926 (see `tsc-errors.txt`).
 
 ### Phase 2A: Add Role-Specific Serialized Types ✅
 
@@ -155,22 +157,23 @@ With taiger-model providing proper populated types, many frontend-only types bec
 | `AgentResponse` | `IAgentWithId` | Already has all fields |
 | `InterviewResponse` | Keep or align with `IInterviewWithId` populated variant |
 
-### Phase 3B: Fix Untyped Parameters (TS7006/TS7031 — ~1,011 errors)
+### Phase 3B: Fix Untyped Parameters (TS7006/TS7031) ✅ DONE
 
-These are files with `noImplicitAny` violations — functions and component props without type annotations. Top files:
+TS7006/TS7031 have been eliminated. Remaining high-error files (from current `tsc-errors.txt`):
 
 | File | Errors | Fix |
 |------|--------|-----|
-| `src/pages/Utils/util_functions.ts` | 255 | Type function params using new populated types |
-| `src/pages/InterviewTraining/SingleInterview.tsx` | 112 | Define prop interfaces for sub-components |
-| `src/pages/MyCourses/CourseAnalysisV2.tsx` | 102 | Define prop interfaces and callback types |
-| `src/pages/Program/SingleProgramView.tsx` | 96 | Define prop interfaces |
-| `src/pages/Survey/SurveyEditableComponent.tsx` | 89 | Define prop interfaces |
-| `src/pages/CVMLRLCenter/.../DocModificationThreadPage.tsx` | 87 | Type params with populated thread types |
+| `src/pages/Program/SingleProgramView.tsx` | 85 | Define prop interfaces, fix type mismatches |
 | `src/utils/contants.tsx` | 79 | Type function params |
-| `src/pages/Program/NewProgramEdit.tsx` | 79 | Define prop interfaces |
-| `src/pages/PortalCredentialPage/PortalCredentialsCard.tsx` | 75 | Define prop interfaces |
-| `src/pages/CRM/components/DealModal.tsx` | 67 | Type CRM-related params |
+| `src/pages/CVMLRLCenter/.../DocModificationThreadPage.tsx` | 77 | Type params with populated thread types |
+| `src/pages/PortalCredentialPage/PortalCredentialsCard.tsx` | 71 | Define prop interfaces |
+| `src/pages/InterviewTraining/SingleInterview.tsx` | 71 | Define prop interfaces for sub-components |
+| `src/pages/StudentApplications/StudentApplicationsTableTemplate.tsx` | 58 | Type template props/callbacks |
+| `src/pages/MyCourses/index.tsx` | 54 | Define prop interfaces and callback types |
+| `src/pages/Utils/util_functions.test.ts` | 51 | Type test helpers/params |
+| `src/pages/CVMLRLCenter/ManualFiles.tsx` | 50 | Type file/upload handlers |
+| `src/pages/Program/ProgramsOverviewPage.tsx` | 46 | Define prop interfaces |
+| `src/pages/CRM/components/DealModal.tsx` | 20 | Type CRM-related params |
 
 **Approach:** For each file, define a `Props` interface using the new taiger-model types. Many of these are component files that just need `{ student: IStudentResponse }` or `{ application: IApplicationPopulated }` etc.
 
@@ -219,11 +222,13 @@ These are "possibly null" / "possibly undefined" errors. Most resolve naturally 
 - `package.json` — Version bump
 
 ### TaiGerPortalStaticWebsite
-- `src/api/types.ts` — Simplify using new taiger-model types
-- `src/pages/Utils/util_functions.ts` (255 errors) — Type all function params
-- `src/pages/InterviewTraining/SingleInterview.tsx` (112 errors) — Add prop types
-- `src/pages/MyCourses/CourseAnalysisV2.tsx` (102 errors) — Add prop types
-- ~115 more files with decreasing error counts
+- `src/api/types.ts` — Simplify using new taiger-model types (export IStudentResponse, StudentId, UserId from types or re-export from model)
+- `src/pages/Program/SingleProgramView.tsx` (85 errors) — Add prop types, fix mismatches
+- `src/utils/contants.tsx` (79 errors) — Type function params
+- `src/pages/CVMLRLCenter/DocModificationThreadPage/DocModificationThreadPage.tsx` (77 errors) — Type thread/params
+- `src/pages/PortalCredentialPage/PortalCredentialsCard.tsx` (71) — Prop interfaces
+- `src/pages/InterviewTraining/SingleInterview.tsx` (71) — Prop types
+- ~100+ more files with decreasing error counts
 
 ---
 
@@ -247,78 +252,81 @@ These are "possibly null" / "possibly undefined" errors. Most resolve naturally 
 | 3A (frontend types cleanup) | ~50-100 |
 | 3B (type untyped params) | ~1,000+ |
 | 3C+3D (null safety + remaining) | ~500+ |
-| **Total estimated** | **~2,000-3,000 of 4,270** |
+| **Total (from original ~4,270)** | **~2,000-3,000** |
 
-Remaining errors after all phases would primarily be in complex component interactions, third-party library typing issues, and edge cases requiring manual review.
+**Current:** ~2,926 errors remaining. After 3C+3D, remaining errors would primarily be in complex component interactions, third-party library typing issues, and edge cases requiring manual review.
 
 ---
 
 ## Appendix: Current Error Breakdown
 
+*(From latest `tsc-errors.txt` — ~2,926 errors total.)*
+
 ### By Error Code (Top 15)
 
 | Code | Count | Description |
 |------|-------|-------------|
-| TS2339 | 956 | Property does not exist on type |
-| TS2345 | 840 | Argument type not assignable |
-| TS7006 | 706 | Parameter implicitly has 'any' type |
-| TS2322 | 368 | Type not assignable |
-| TS7031 | 305 | Binding element implicitly has 'any' type |
-| TS18048 | 253 | Possibly undefined |
-| TS18047 | 145 | Possibly null |
-| TS2769 | 144 | No overload matches |
-| TS7053 | 140 | Index signature issue |
-| TS18046 | 104 | Type is unknown |
-| TS6133 | 74 | Declared but never read |
-| TS2741 | 28 | Missing required property |
-| TS2559 | 19 | No common properties |
-| TS2551 | 19 | Property name typo |
+| TS2345 | 757 | Argument type not assignable |
+| TS2339 | 679 | Property does not exist on type |
+| TS2322 | 472 | Type not assignable |
+| TS18048 | 276 | Possibly undefined |
+| TS2769 | 155 | No overload matches |
+| TS18047 | 148 | Possibly null |
+| TS7053 | 105 | Index signature issue |
+| TS18046 | 68 | Type is unknown |
+| TS6133 | 52 | Declared but never read |
+| TS2741 | 24 | Missing required property |
+| TS2551 | 18 | Property name typo |
+| TS2353 | 14 | Object literal excess props |
+| TS2559 | 14 | No common properties |
 | TS7016 | 14 | Missing type declarations |
+| TS2722 | 13 | Object may be undefined |
 
 ### By File (Top 40)
 
 | File | Errors |
 |------|--------|
-| src/pages/Utils/util_functions.ts | 255 |
-| src/pages/InterviewTraining/SingleInterview.tsx | 112 |
-| src/pages/MyCourses/CourseAnalysisV2.tsx | 102 |
-| src/pages/Program/SingleProgramView.tsx | 96 |
-| src/pages/Survey/SurveyEditableComponent.tsx | 89 |
-| src/pages/CVMLRLCenter/.../DocModificationThreadPage.tsx | 87 |
+| src/pages/Program/SingleProgramView.tsx | 85 |
 | src/utils/contants.tsx | 79 |
-| src/pages/Program/NewProgramEdit.tsx | 79 |
-| src/pages/PortalCredentialPage/PortalCredentialsCard.tsx | 75 |
-| src/pages/CRM/components/DealModal.tsx | 67 |
-| src/pages/TaiGerOrg/InternalDashboard/ResponseTimeDashboardTab.tsx | 62 |
-| src/pages/StudentApplications/StudentApplicationsTableTemplate.tsx | 60 |
-| src/pages/OfficeHours/taiger_index.tsx | 57 |
-| src/pages/MyCourses/index.tsx | 56 |
-| src/pages/CRM/LeadPage.tsx | 56 |
-| src/pages/Program/ProgramsOverviewPage.tsx | 55 |
-| src/pages/Utils/util_functions.test.ts | 53 |
-| src/pages/BaseDocuments/MyDocumentCard.tsx | 50 |
-| src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx | 49 |
-| src/pages/StudentDatabase/SingleStudentPage.tsx | 46 |
-| src/pages/OfficeHours/index.tsx | 46 |
-| src/pages/CVMLRLCenter/.../DocModificationThreadInput.tsx | 46 |
-| src/pages/Communications/CommunicationExpandPage.tsx | 45 |
-| src/pages/CVMLRLCenter/CVMLRLOverview.tsx | 41 |
-| src/components/StudentOverviewTable/index.tsx | 41 |
-| src/pages/InterviewTraining/AddInterview.tsx | 40 |
-| src/pages/Dashboard/AgentDashboard/AgentMainView.tsx | 40 |
-| src/pages/CourseAnalysis/ProgramRequirements/ProgramRequirementsNew.tsx | 40 |
-| src/pages/InterviewTraining/InterviewSurveyForm.tsx | 39 |
-| src/pages/EssayDashboard/EssayOverview.tsx | 39 |
-| src/pages/CVMLRLCenter/.../DocumentCommunicatiomExpandPage.tsx | 39 |
-| src/pages/CourseAnalysis/CourseKeywordsEdit/CourseKeywordsOverview.tsx | 38 |
-| src/pages/CVMLRLCenter/index.tsx | 35 |
-| src/pages/UniAssist/UniAssistProgramBlock.tsx | 34 |
-| src/pages/TaiGerOrg/InternalDashboard/index.tsx | 34 |
-| src/pages/Communications/Message.tsx | 33 |
-| src/pages/Communications/CommunicationThreadEditor.tsx | 33 |
-| src/pages/CRM/MeetingDashboard.tsx | 33 |
-| src/pages/CRM/DealDashboard.tsx | 33 |
-| src/pages/Users/UsersList.tsx | 32 |
+| src/pages/CVMLRLCenter/DocModificationThreadPage/DocModificationThreadPage.tsx | 77 |
+| src/pages/PortalCredentialPage/PortalCredentialsCard.tsx | 71 |
+| src/pages/InterviewTraining/SingleInterview.tsx | 71 |
+| src/pages/StudentApplications/StudentApplicationsTableTemplate.tsx | 58 |
+| src/pages/MyCourses/index.tsx | 54 |
+| src/pages/Utils/util_functions.test.ts | 51 |
+| src/pages/CVMLRLCenter/ManualFiles.tsx | 50 |
+| src/pages/Program/ProgramsOverviewPage.tsx | 46 |
+| src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx | 44 |
+| src/pages/CRM/LeadPage.tsx | 44 |
+| src/pages/InterviewTraining/AddInterview.tsx | 44 |
+| src/pages/InterviewTraining/index.tsx | 43 |
+| src/components/StudentOverviewTable/index.tsx | 40 |
+| src/pages/InterviewTraining/InterviewSurveyForm.tsx | 38 |
+| src/pages/CVMLRLCenter/DocModificationThreadPage/DocModificationThreadInput.tsx | 37 |
+| src/pages/OfficeHours/taiger_index.tsx | 37 |
+| src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx | 35 |
+| src/pages/CourseAnalysis/ProgramRequirements/ProgramRequirementsNew.tsx | 35 |
+| src/pages/Dashboard/AgentDashboard/AgentMainView.tsx | 34 |
+| src/pages/MyCourses/CourseAnalysisV2.tsx | 34 |
+| src/pages/OfficeHours/all_index.tsx | 32 |
+| src/pages/Communications/CommunicationThreadEditor.tsx | 32 |
+| src/pages/BaseDocuments/MyDocumentCard.tsx | 31 |
+| src/pages/BaseDocuments/BaseDocumentStudentView.tsx | 30 |
+| src/pages/OfficeHours/index.tsx | 28 |
+| src/pages/CVMLRLCenter/index.tsx | 27 |
+| src/pages/Audit/MiniAudit.tsx | 27 |
+| src/pages/MyCourses/CourseWidgetBody.tsx | 26 |
+| src/pages/EssayDashboard/EssayOverview.tsx | 25 |
+| src/pages/Dashboard/StudentDashboard/StudentDashboard.tsx | 25 |
+| src/pages/Documentation/SingleInternalDoc.tsx | 24 |
+| src/pages/Communications/Message.tsx | 24 |
+| src/pages/StudentDatabase/SingleStudentPage.tsx | 24 |
+| src/pages/Audit/index.tsx | 23 |
+| src/pages/Program/SchoolDistributionPage.tsx | 23 |
+| src/pages/Documentation/SingleDoc.tsx | 23 |
+| src/pages/DownloadCenter/DownloadPage.tsx | 22 |
+| src/pages/CVMLRLCenter/CVMLRLOverview.tsx | 22 |
+| src/pages/Program/ProgramReport.tsx | 22 |
 
 ### Root Cause Cascade
 

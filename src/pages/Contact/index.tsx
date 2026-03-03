@@ -47,10 +47,10 @@ const Contact = () => {
     };
 
     if (
-        user.role !== Role.Admin &&
-        user.role !== Role.Editor &&
-        user.role !== Role.Agent &&
-        user.role !== Role.Student
+        user?.role !== Role.Admin &&
+        user?.role !== Role.Editor &&
+        user?.role !== Role.Agent &&
+        user?.role !== Role.Student
     ) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
