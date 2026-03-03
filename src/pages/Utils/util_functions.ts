@@ -1641,6 +1641,7 @@ const prepApplicationTaskV2 = (student: IStudentResponse, application: IApplicat
         school: program?.school,
         program_name: program?.program_name,
         degree: program?.degree,
+        essay_difficulty: program?.essay_difficulty,
         lang: `${program?.lang}`,
         country: program?.country,
         days_left:
