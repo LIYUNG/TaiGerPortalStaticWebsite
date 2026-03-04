@@ -1,3 +1,4 @@
+#!/usr/bin/env sh
 echo "Running tests"
 npm run-script test:ci
 
