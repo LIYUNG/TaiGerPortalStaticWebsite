@@ -1,4 +1,4 @@
-import React, { useState, type MouseEvent } from 'react';
+import React, { type MouseEvent } from 'react';
 import {
     Box,
     Button,
@@ -10,12 +10,6 @@ import {
     Grid,
     FormControl,
     InputLabel,
-    Badge,
-    Tooltip,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
     Stack,
     Popover,
     IconButton
@@ -24,19 +18,13 @@ import HelpIcon from '@mui/icons-material/Help';
 import LinkIcon from '@mui/icons-material/Link';
 import { Link as LinkDom } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import {
-    Bayerische_Formel,
-    is_TaiGer_Admin,
-    is_TaiGer_Student
-} from '@taiger-common/core';
+import { Bayerische_Formel, is_TaiGer_Admin } from '@taiger-common/core';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
-import { differenceInDays } from 'date-fns';
 
 import {
     BACHELOR_GRADUATE_STATUS_OPTIONS,
-    DEGREE_ARRAY_OPTIONS,
     DUAL_STATE_OPTIONS,
     ENGLISH_CERTIFICATE_ARRAY_OPTIONS,
     GERMAN_CERTIFICATE_ARRAY_OPTIONS,
@@ -44,51 +32,27 @@ import {
     GRE_CERTIFICATE_ARRAY_OPTIONS,
     HIG_SCHOOL_TRI_STATE_OPTIONS,
     IS_PASSED_OPTIONS,
-    LANGUAGES_PREFERENCE_ARRAY_OPTIONS,
-    SEMESTER_ARRAY_OPTIONS,
-    TRI_STATE_OPTIONS,
-    PROGRAM_SUBJECTS_DETAILED,
     convertDate
 } from '@utils/contants';
-import { MissingSurveyFieldsListArray } from '../Utils/checking-functions';
-import {
-    check_academic_background_filled,
-    check_languages_filled,
-    check_application_preference_filled
-} from '../Utils/util_functions';
-import type {
-    IUser,
-    IUserAcademicBackground,
-    IUserApplicationPreference
-} from '@taiger-common/model';
-import {
-    APPLICATION_YEARS_FUTURE,
-    EXPECTATION_APPLICATION_YEARS
-} from '@utils/contants';
+import type { IUser } from '@taiger-common/model';
+import { APPLICATION_YEARS_FUTURE } from '@utils/contants';
 import Banner from '@components/Banner/Banner';
-import SearchableMultiSelect from '@components/Input/searchableMuliselect';
 import { useAuth } from '@components/AuthProvider';
-import { useSurvey } from '@components/SurveyProvider';
+import type { SurveyStateActions } from '@components/SurveyProvider/useSurveyState';
 import { grey } from '@mui/material/colors';
 
-export interface SurveyEditableComponentProps {
-    [key: string]: unknown;
+import { useSurveyEditableLocalState } from './hooks/useSurveyEditableLocalState';
+import SurveyMissingFieldsAlerts from './components/SurveyMissingFieldsAlerts';
+import SurveyDocLinkEditDialog from './components/SurveyDocLinkEditDialog';
+import SurveyApplicationPreferenceCard from './components/SurveyApplicationPreferenceCard';
+
+export interface SurveyEditableComponentProps extends SurveyStateActions {
+    docName?: string;
 }
 
 const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
-    const surveyContext = useSurvey();
-    const [surveyEditableComponentState, setSurveyEditableComponentState] =
-        useState({
-            baseDocsflagOffcanvas: false,
-            baseDocsflagOffcanvasButtonDisable: false
-        });
-    const { user } = useAuth();
-    const { t } = useTranslation();
-    const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-
-    if (!surveyContext) return null;
-
     const {
+        survey,
         handleChangeAcademic,
         handleTestDate,
         handleChangeLanguage,
@@ -98,172 +62,32 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
         handleSurveyLanguageSubmit,
         handleApplicationPreferenceSubmit,
         updateDocLink,
-        onChangeURL,
-        survey
-    } = surveyContext;
-    const open = Boolean(anchorEl);
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-    const handleRowClick = (event: MouseEvent<HTMLElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const closeOffcanvasWindow = () => {
-        setSurveyEditableComponentState((prevState) => ({
-            ...prevState,
-            baseDocsflagOffcanvas: false
-        }));
-    };
-
-    const openOffcanvasWindow = () => {
-        setSurveyEditableComponentState((prevState) => ({
-            ...prevState,
-            baseDocsflagOffcanvas: true
-        }));
-    };
+        onChangeURL
+    } = props;
+    const { user } = useAuth();
+    const { t } = useTranslation();
+    const localState = useSurveyEditableLocalState();
+    const {
+        baseDocsflagOffcanvas,
+        baseDocsflagOffcanvasButtonDisable,
+        anchorEl,
+        closeOffcanvasWindow,
+        openOffcanvasWindow,
+        openPopover,
+        handleClosePopover: handleClose,
+        handleRowClick
+    } = localState;
 
     const handleUpdateDocLink = (e: MouseEvent<HTMLElement>) => {
         e.preventDefault();
-        setSurveyEditableComponentState((prevState) => ({
-            ...prevState,
-            baseDocsflagOffcanvasButtonDisable: true
-        }));
-        updateDocLink(survey.survey_link ?? '', 'Grading_System'); // props.k is the grading system name
-        setSurveyEditableComponentState((prevState) => ({
-            ...prevState,
-            baseDocsflagOffcanvasButtonDisable: false,
-            baseDocsflagOffcanvas: false
-        }));
+        localState.setOffcanvasSaving(true);
+        updateDocLink(survey.survey_link ?? '', 'Grading_System');
+        localState.setOffcanvasSaving(false);
     };
 
     return (
         <Box>
-            {!check_academic_background_filled(survey.academic_background) ||
-            !check_application_preference_filled(
-                survey.application_preference as IUserApplicationPreference
-            ) ? (
-                <Card sx={{ padding: 2 }}>
-                    <Typography fontWeight="bold">
-                        {t('The followings information are still missing')}
-                    </Typography>
-                    {MissingSurveyFieldsListArray({
-                        academic_background:
-                            survey.academic_background as IUserAcademicBackground,
-                        application_preference:
-                            survey.application_preference as IUserApplicationPreference
-                    })?.map((field) => <li key={field}>{t(field)}</li>)}
-                </Card>
-            ) : null}
-            {!check_languages_filled(survey.academic_background) ? (
-                <Card sx={{ padding: 2 }}>
-                    <Typography fontWeight="bold">
-                        {t(
-                            'Your language skills and certificates information are still missing or not up-to-date'
-                        )}
-                    </Typography>
-                    {survey.academic_background?.language?.english_isPassed ===
-                        '-' ||
-                    !survey.academic_background?.language?.english_isPassed ? (
-                        <li>{t('Do you need English Test')}?</li>
-                    ) : survey.academic_background?.language
-                          ?.english_isPassed === 'X' &&
-                      differenceInDays(
-                          new Date(),
-                          new Date(
-                              (survey.academic_background?.language
-                                  ?.english_test_date ?? new Date()) as
-                                  | string
-                                  | number
-                                  | Date
-                          )
-                      ) > 1 ? (
-                        <li>{t('English Passed ? (IELTS 6.5 / TOEFL 88)')}</li>
-                    ) : survey.academic_background?.language
-                          ?.english_isPassed !== '--' &&
-                      survey.academic_background?.language
-                          ?.english_test_date === '' ? (
-                        <li>{t('English Test Date missing !')}</li>
-                    ) : null}
-                    {survey.academic_background?.language?.german_isPassed ===
-                        '-' ||
-                    !survey.academic_background?.language?.german_isPassed ? (
-                        <li>
-                            {t(
-                                'German Passed ? (Set Not need if applying English taught programs.)'
-                            )}
-                        </li>
-                    ) : survey.academic_background?.language
-                          ?.german_isPassed === 'X' &&
-                      differenceInDays(
-                          new Date(),
-                          new Date(
-                              (survey.academic_background?.language
-                                  ?.german_test_date ?? new Date()) as
-                                  | string
-                                  | number
-                                  | Date
-                          )
-                      ) > 1 ? (
-                        <li>
-                            {t(
-                                'German Passed ? (Set Not need if applying English taught programs.)'
-                            )}
-                        </li>
-                    ) : survey.academic_background?.language
-                          ?.german_isPassed === 'X' &&
-                      survey.academic_background?.language?.german_test_date ===
-                          '' ? (
-                        <li>{t('Expected German Test Date')}</li>
-                    ) : null}
-                    {survey.academic_background?.language?.gre_isPassed ===
-                        '-' ||
-                    !survey.academic_background?.language?.gre_isPassed ? (
-                        <li>{t('Do you need GRE Test')}</li>
-                    ) : survey.academic_background?.language?.gre_isPassed ===
-                          'X' &&
-                      differenceInDays(
-                          new Date(),
-                          new Date(
-                              (survey.academic_background?.language
-                                  ?.gre_test_date ?? new Date()) as
-                                  | string
-                                  | number
-                                  | Date
-                          )
-                      ) > 1 ? (
-                        <li>{t('GRE Test passed ?')}</li>
-                    ) : survey.academic_background?.language?.gre_isPassed ===
-                          'X' &&
-                      survey.academic_background?.language?.gre_test_date ===
-                          '' ? (
-                        <li>GRE Test Date not given</li>
-                    ) : null}
-                    {survey.academic_background?.language?.gmat_isPassed ===
-                        '-' ||
-                    !survey.academic_background?.language?.gmat_isPassed ? (
-                        <li>{t('Do you need GMAT Test')}?</li>
-                    ) : survey.academic_background?.language?.gmat_isPassed ===
-                          'X' &&
-                      differenceInDays(
-                          new Date(),
-                          new Date(
-                              (survey.academic_background?.language
-                                  ?.gmat_test_date ?? new Date()) as
-                                  | string
-                                  | number
-                                  | Date
-                          )
-                      ) > 1 ? (
-                        <li>{t('GMAT Test passed ?')}</li>
-                    ) : survey.academic_background?.language?.gmat_isPassed ===
-                          'X' &&
-                      survey.academic_background?.language?.gmat_test_date ===
-                          '' ? (
-                        <li>GMAT Test Date not given</li>
-                    ) : null}
-                </Card>
-            ) : null}
+            <SurveyMissingFieldsAlerts survey={survey} t={t} />
             <Box>
                 <Card sx={{ mt: 2, padding: 2 }}>
                     <Grid container spacing={2}>
@@ -756,7 +580,7 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                                         horizontal: 'left'
                                     }}
                                     onClose={handleClose}
-                                    open={open}
+                                    open={openPopover}
                                 >
                                     <Typography sx={{ m: 2 }}>
                                         <b>
@@ -1280,366 +1104,20 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                         </Grid>
                     </Grid>
                 </Card>
-                <Card sx={{ mt: 2, padding: 2 }}>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12}>
-                            <Typography variant="h6">
-                                {t('Application Preference')}
-                            </Typography>
-                        </Grid>
-                        <Grid item sm={6} xs={12}>
-                            <Tooltip
-                                placement="top"
-                                title={t(
-                                    'If you want to change this, please contact your agent.'
-                                )}
-                            >
-                                <TextField
-                                    disabled={is_TaiGer_Student(user as IUser)}
-                                    error={
-                                        survey.application_preference
-                                            ?.expected_application_date === ''
-                                    }
-                                    fullWidth
-                                    helperText={
-                                        survey.application_preference
-                                            ?.expected_application_date === ''
-                                            ? 'Please provide the info.'
-                                            : null
-                                    }
-                                    id="expected_application_date"
-                                    label={`${t('Expected Application Year')} (${t(
-                                        'Agent fill',
-                                        {
-                                            ns: 'survey'
-                                        }
-                                    )})`}
-                                    name="expected_application_date"
-                                    onChange={(e) =>
-                                        handleChangeApplicationPreference(e)
-                                    }
-                                    select
-                                    value={
-                                        survey.application_preference
-                                            ?.expected_application_date || ''
-                                    }
-                                >
-                                    {EXPECTATION_APPLICATION_YEARS().map(
-                                        (option) => (
-                                            <MenuItem
-                                                key={option.value}
-                                                value={option.value}
-                                            >
-                                                {option.label}
-                                            </MenuItem>
-                                        )
-                                    )}
-                                </TextField>
-                            </Tooltip>
-                        </Grid>
-                        <Grid item sm={6} xs={12}>
-                            <Tooltip
-                                placement="top"
-                                title={t(
-                                    'If you want to change this, please contact your agent.'
-                                )}
-                            >
-                                <TextField
-                                    disabled={
-                                        !!user &&
-                                        is_TaiGer_Student(user as IUser)
-                                    }
-                                    error={
-                                        survey.application_preference
-                                            ?.expected_application_semester ===
-                                        ''
-                                    }
-                                    fullWidth
-                                    helperText={
-                                        survey.application_preference
-                                            ?.expected_application_semester ===
-                                        ''
-                                            ? 'Please provide the info.'
-                                            : null
-                                    }
-                                    id="expected_application_semester"
-                                    label={`${t('Expected Application Semester')} (${t(
-                                        'Agent fill',
-                                        { ns: 'survey' }
-                                    )})`}
-                                    name="expected_application_semester"
-                                    onChange={(e) =>
-                                        handleChangeApplicationPreference(e)
-                                    }
-                                    select
-                                    value={
-                                        survey?.application_preference
-                                            ?.expected_application_semester ||
-                                        ''
-                                    }
-                                >
-                                    {SEMESTER_ARRAY_OPTIONS.map((option) => (
-                                        <MenuItem
-                                            key={option.value}
-                                            value={option.value}
-                                        >
-                                            {option.label}
-                                        </MenuItem>
-                                    ))}
-                                </TextField>
-                            </Tooltip>
-                        </Grid>
-                        <Grid item sm={6} xs={12}>
-                            <SearchableMultiSelect
-                                data={PROGRAM_SUBJECTS_DETAILED}
-                                label={t('Target Application Subjects')}
-                                name="target-application-subjects"
-                                setValue={setApplicationPreferenceByField(
-                                    'targetApplicationSubjects'
-                                )}
-                                value={
-                                    (survey.application_preference
-                                        ?.targetApplicationSubjects as string[]) ||
-                                    []
-                                }
-                            />
-                        </Grid>
-                        {survey.application_preference
-                            ?.target_application_field != '' ? (
-                            <Grid item sm={6} xs={12}>
-                                <TextField
-                                    disabled
-                                    fullWidth
-                                    helperText={
-                                        survey.application_preference
-                                            ?.target_application_field === ''
-                                            ? 'Please provide the info.'
-                                            : null
-                                    }
-                                    id="target_application_field"
-                                    label={t('Target Application Fields')}
-                                    name="target_application_field"
-                                    onChange={(e) =>
-                                        handleChangeApplicationPreference(e)
-                                    }
-                                    placeholder="Data Science, Comupter Science, etc. (max. 40 characters)"
-                                    value={
-                                        survey.application_preference
-                                            ?.target_application_field || ''
-                                    }
-                                    variant="outlined"
-                                />
-                            </Grid>
-                        ) : null}
-
-                        <Grid item sm={6} xs={12}>
-                            <TextField
-                                error={
-                                    survey.application_preference
-                                        ?.target_degree === ''
-                                }
-                                fullWidth
-                                helperText={
-                                    survey.application_preference
-                                        ?.target_degree === ''
-                                        ? 'Please provide the info.'
-                                        : null
-                                }
-                                id="target_degree"
-                                label={t('Target Degree Programs')}
-                                name="target_degree"
-                                onChange={(e) =>
-                                    handleChangeApplicationPreference(e)
-                                }
-                                select
-                                value={
-                                    survey.application_preference
-                                        ?.target_degree || ''
-                                }
-                            >
-                                {DEGREE_ARRAY_OPTIONS.map((option) => (
-                                    <MenuItem
-                                        key={option.value}
-                                        value={option.value}
-                                    >
-                                        {option.label}
-                                    </MenuItem>
-                                ))}
-                            </TextField>
-                        </Grid>
-                        <Grid item sm={6} xs={12}>
-                            <TextField
-                                error={
-                                    !survey.application_preference
-                                        ?.target_program_language
-                                }
-                                fullWidth
-                                helperText={
-                                    !survey.application_preference
-                                        ?.target_program_language
-                                        ? 'Please provide the info.'
-                                        : null
-                                }
-                                id="target_program_language"
-                                label={t('Target Program Language')}
-                                name="target_program_language"
-                                onChange={(e) =>
-                                    handleChangeApplicationPreference(e)
-                                }
-                                select
-                                value={
-                                    survey.application_preference
-                                        ?.target_program_language || ''
-                                }
-                            >
-                                {LANGUAGES_PREFERENCE_ARRAY_OPTIONS.map(
-                                    (option) => (
-                                        <MenuItem
-                                            key={option.value}
-                                            value={option.value}
-                                        >
-                                            {t(option.label)}
-                                        </MenuItem>
-                                    )
-                                )}
-                            </TextField>
-                        </Grid>
-                        <Grid item sm={6} xs={12}>
-                            <TextField
-                                error={
-                                    survey.application_preference
-                                        ?.application_outside_germany === '-'
-                                }
-                                fullWidth
-                                helperText={
-                                    survey.application_preference
-                                        ?.application_outside_germany === '-'
-                                        ? 'Please provide the info.'
-                                        : null
-                                }
-                                id="application_outside_germany"
-                                label={t(
-                                    'Considering universities outside Germany?'
-                                )}
-                                name="application_outside_germany"
-                                onChange={(e) =>
-                                    handleChangeApplicationPreference(e)
-                                }
-                                select
-                                value={
-                                    survey?.application_preference
-                                        ?.application_outside_germany || '-'
-                                }
-                            >
-                                {TRI_STATE_OPTIONS.map((option) => (
-                                    <MenuItem
-                                        key={option.value}
-                                        value={option.value}
-                                    >
-                                        {option.label}
-                                    </MenuItem>
-                                ))}
-                            </TextField>
-                        </Grid>
-                        <Grid item sm={6} xs={12}>
-                            <TextField
-                                error={
-                                    survey.application_preference
-                                        ?.considered_privat_universities === '-'
-                                }
-                                fullWidth
-                                helperText={
-                                    survey.application_preference
-                                        ?.considered_privat_universities === '-'
-                                        ? 'Please provide the info.'
-                                        : null
-                                }
-                                id="considered_privat_universities"
-                                label={t(
-                                    'Considering private universities? (Tuition Fee: ~15000 EURO/year)'
-                                )}
-                                name="considered_privat_universities"
-                                onChange={(e) =>
-                                    handleChangeApplicationPreference(e)
-                                }
-                                select
-                                value={
-                                    survey.application_preference
-                                        ?.considered_privat_universities || ''
-                                }
-                            >
-                                {TRI_STATE_OPTIONS.map((option) => (
-                                    <MenuItem
-                                        key={option.value}
-                                        value={option.value}
-                                    >
-                                        {option.label}
-                                    </MenuItem>
-                                ))}
-                            </TextField>
-                        </Grid>
-                        <Grid item sm={6} xs={12}>
-                            <TextField
-                                fullWidth
-                                id="special_wished"
-                                inputProps={{ maxLength: 600 }}
-                                label={t('Other wish', { ns: 'survey' })}
-                                minRows={5}
-                                multiline
-                                name="special_wished"
-                                onChange={(e) =>
-                                    handleChangeApplicationPreference(e)
-                                }
-                                placeholder="Example: QS Ranking 300, 只要德國"
-                                value={
-                                    survey.application_preference
-                                        ?.special_wished || ''
-                                }
-                                variant="outlined"
-                            />
-                            <Badge>
-                                {(
-                                    survey?.application_preference
-                                        ?.special_wished as string
-                                )?.length || 0}
-                                /600
-                            </Badge>
-                        </Grid>
-                        {/* <Grid item xs={12} sm={6}></Grid> */}
-                        <Grid item sm={6} xs={12}>
-                            <Typography sx={{ mt: 2 }} variant="body2">
-                                {t('Last update at')}:{' '}
-                                {survey.application_preference?.updatedAt
-                                    ? convertDate(
-                                          survey.application_preference
-                                              .updatedAt as string
-                                      )
-                                    : ''}
-                            </Typography>
-                        </Grid>
-                    </Grid>
-                    {user?.archiv !== true ? (
-                        <>
-                            <br />
-                            <Button
-                                color="primary"
-                                disabled={
-                                    !survey.changed_application_preference
-                                }
-                                fullWidth
-                                onClick={(e: MouseEvent<HTMLButtonElement>) =>
-                                    handleApplicationPreferenceSubmit(
-                                        e,
-                                        survey.application_preference ?? {}
-                                    )
-                                }
-                                variant="contained"
-                            >
-                                {t('Update', { ns: 'common' })}
-                            </Button>
-                        </>
-                    ) : null}
-                </Card>
+                <SurveyApplicationPreferenceCard
+                    survey={survey}
+                    user={user}
+                    t={t}
+                    handleChangeApplicationPreference={
+                        handleChangeApplicationPreference
+                    }
+                    setApplicationPreferenceByField={
+                        setApplicationPreferenceByField
+                    }
+                    handleApplicationPreferenceSubmit={
+                        handleApplicationPreferenceSubmit
+                    }
+                />
                 <Card sx={{ mt: 2, padding: 2 }}>
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
@@ -1647,10 +1125,7 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                                 {t('Languages Test and Certificates')}
                             </Typography>
                             <Banner
-                                ReadOnlyMode={true}
-                                bg="primary"
                                 link_name=""
-                                notification_key={undefined}
                                 path="/"
                                 text="若還沒考過，請在 Passed 處選 No，並填上檢定以及預計考試時間。若不需要（如德語），請填 Not Needed。方便顧問了解你的進度。"
                                 title="warning"
@@ -1664,10 +1139,7 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                             survey.academic_background?.language
                                 ?.gmat_isPassed === 'X' ? (
                                 <Banner
-                                    ReadOnlyMode={true}
-                                    bg="danger"
                                     link_name=""
-                                    notification_key={undefined}
                                     path="/"
                                     text={
                                         <>
@@ -2366,30 +1838,16 @@ const SurveyEditableComponent = (props: SurveyEditableComponentProps) => {
                     </Box>
                 </Card>
             </Box>
-            <Dialog
+            <SurveyDocLinkEditDialog
+                open={baseDocsflagOffcanvas}
                 onClose={closeOffcanvasWindow}
-                open={surveyEditableComponentState.baseDocsflagOffcanvas}
-            >
-                <DialogTitle>{t('Edit', { ns: 'common' })}</DialogTitle>
-                <DialogContent>
-                    <TextField
-                        label={`Documentation Link for ${props?.docName ?? 'Grading System'}`}
-                        onChange={(e) => onChangeURL(e)}
-                        placeholder="https://taigerconsultancy-portal.com/docs/search/12345678"
-                        value={survey.survey_link}
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Button
-                        disabled={
-                            surveyEditableComponentState.baseDocsflagOffcanvasButtonDisable
-                        }
-                        onClick={(e) => handleUpdateDocLink(e)}
-                    >
-                        {t('Save', { ns: 'common' })}
-                    </Button>
-                </DialogActions>
-            </Dialog>
+                onSave={handleUpdateDocLink}
+                surveyLink={survey.survey_link}
+                onChangeURL={onChangeURL}
+                docName={props?.docName}
+                saving={baseDocsflagOffcanvasButtonDisable}
+                t={t}
+            />
         </Box>
     );
 };
