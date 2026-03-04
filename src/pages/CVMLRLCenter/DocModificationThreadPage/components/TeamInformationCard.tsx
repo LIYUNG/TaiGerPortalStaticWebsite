@@ -14,7 +14,10 @@ import PersonIcon from '@mui/icons-material/Person';
 import AddIcon from '@mui/icons-material/Add';
 
 import { is_TaiGer_role } from '@taiger-common/core';
-import type { IUserWithId, IDocumentthreadPopulated } from '@taiger-common/model';
+import type {
+    IUserWithId,
+    IDocumentthreadPopulated
+} from '@taiger-common/model';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@mui/material';
 
@@ -89,10 +92,7 @@ const TeamInformationCard = ({
                     <Stack direction="row" flexWrap="wrap" gap={0.75}>
                         {agents.length > 0 ? (
                             agents.map((agent, i) => (
-                                <Tooltip
-                                    key={i}
-                                    title={`${agent.firstname}`}
-                                >
+                                <Tooltip key={i} title={`${agent.firstname}`}>
                                     {is_TaiGer_role(user) ? (
                                         <Chip
                                             avatar={

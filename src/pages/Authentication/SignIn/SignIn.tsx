@@ -33,7 +33,11 @@ export default function SignIn() {
     const [reactivateAccount, setReactivateAccount] = useState(false);
     const { t } = useTranslation();
 
-    const { mutate: submitLogin, isPending, isError } = useMutation<
+    const {
+        mutate: submitLogin,
+        isPending,
+        isError
+    } = useMutation<
         IUserWithId,
         LoginError,
         { email: string; password: string }

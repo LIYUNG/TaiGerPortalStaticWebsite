@@ -73,7 +73,10 @@ describe('useSurveyState', () => {
         act(() => {
             result.current.handleChangeAcademic({
                 preventDefault: vi.fn(),
-                target: { name: 'attended_high_school', value: 'Test High School' }
+                target: {
+                    name: 'attended_high_school',
+                    value: 'Test High School'
+                }
             } as React.ChangeEvent<HTMLInputElement>);
         });
 
@@ -96,9 +99,7 @@ describe('useSurveyState', () => {
             } as React.ChangeEvent<HTMLInputElement>);
         });
 
-        expect(result.current.survey.changed_application_preference).toBe(
-            true
-        );
+        expect(result.current.survey.changed_application_preference).toBe(true);
         expect(
             result.current.survey.application_preference?.target_degree
         ).toBe('Master');
@@ -118,9 +119,7 @@ describe('useSurveyState', () => {
             setTargetSubjects(['CS', 'DS']);
         });
 
-        expect(result.current.survey.changed_application_preference).toBe(
-            true
-        );
+        expect(result.current.survey.changed_application_preference).toBe(true);
         expect(
             result.current.survey.application_preference
                 ?.targetApplicationSubjects

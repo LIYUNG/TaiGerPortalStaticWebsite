@@ -1,9 +1,6 @@
 import React, { Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-    Compare as CompareIcon,
-    Info as InfoIcon
-} from '@mui/icons-material';
+import { Compare as CompareIcon, Info as InfoIcon } from '@mui/icons-material';
 import {
     Box,
     Button,
@@ -234,7 +231,9 @@ const ProgramInfoTabs = ({
                                             `${program_field.prop}_speaking`
                                         ] ? (
                                             <Typography fontWeight="bold">
-                                                {t('Speaking', { ns: 'common' })}
+                                                {t('Speaking', {
+                                                    ns: 'common'
+                                                })}
                                                 :{' '}
                                                 {
                                                     program[
@@ -509,7 +508,9 @@ const ProgramInfoTabs = ({
                                                         (keys?.length || 0) + 1
                                                     }
                                                 >
-                                                    <div>{change.changedBy}</div>
+                                                    <div>
+                                                        {change.changedBy}
+                                                    </div>
                                                     <div>
                                                         {convertDate(
                                                             change.changedAt

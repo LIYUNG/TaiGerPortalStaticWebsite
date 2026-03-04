@@ -47,9 +47,7 @@ const SurveyAcademicBackgroundCard = ({
                     <Typography variant="h6">
                         {t('Academic Background Survey')}
                     </Typography>
-                    <Typography variant="body1">
-                        {t('High School')}
-                    </Typography>
+                    <Typography variant="body1">{t('High School')}</Typography>
                 </Grid>
                 <Grid item sm={6} xs={12}>
                     <TextField
@@ -100,10 +98,7 @@ const SurveyAcademicBackgroundCard = ({
                         }
                     >
                         {HIG_SCHOOL_TRI_STATE_OPTIONS.map((option) => (
-                            <MenuItem
-                                key={option.value}
-                                value={option.value}
-                            >
+                            <MenuItem key={option.value} value={option.value}>
                                 {t(option.label, { ns: 'common' })}
                             </MenuItem>
                         ))}
@@ -117,13 +112,10 @@ const SurveyAcademicBackgroundCard = ({
                                 fullWidth
                                 id="high_school_graduated_year"
                                 label={`${
-                                    survey.academic_background
-                                        ?.university
-                                        ?.high_school_isGraduated ===
-                                    'Yes'
+                                    survey.academic_background?.university
+                                        ?.high_school_isGraduated === 'Yes'
                                         ? t('High School Graduate Year')
-                                        : survey.academic_background
-                                                ?.university
+                                        : survey.academic_background?.university
                                                 ?.high_school_isGraduated ===
                                             'No'
                                           ? t(
@@ -138,16 +130,12 @@ const SurveyAcademicBackgroundCard = ({
                                             )
                                 }`}
                                 name="high_school_graduated_year"
-                                onChange={(e) =>
-                                    handleChangeAcademic(e)
-                                }
+                                onChange={(e) => handleChangeAcademic(e)}
                                 placeholder="2016"
                                 value={
-                                    survey.academic_background
-                                        ?.university
+                                    survey.academic_background?.university
                                         ?.high_school_graduated_year
-                                        ? survey.academic_background
-                                              .university
+                                        ? survey.academic_background.university
                                               .high_school_graduated_year
                                         : ''
                                 }
@@ -190,16 +178,11 @@ const SurveyAcademicBackgroundCard = ({
                                 ?.isGraduated || '-'
                         }
                     >
-                        {BACHELOR_GRADUATE_STATUS_OPTIONS.map(
-                            (option) => (
-                                <MenuItem
-                                    key={option.value}
-                                    value={option.value}
-                                >
-                                    {option.label}
-                                </MenuItem>
-                            )
-                        )}
+                        {BACHELOR_GRADUATE_STATUS_OPTIONS.map((option) => (
+                            <MenuItem key={option.value} value={option.value}>
+                                {option.label}
+                            </MenuItem>
+                        ))}
                     </TextField>
                 </Grid>
                 {['Yes', 'pending'].includes(
@@ -210,30 +193,23 @@ const SurveyAcademicBackgroundCard = ({
                         <Grid item sm={6} xs={12}>
                             <TextField
                                 error={
-                                    survey.academic_background
-                                        ?.university
+                                    survey.academic_background?.university
                                         ?.attended_university === ''
                                 }
                                 fullWidth
                                 helperText={
-                                    survey.academic_background
-                                        ?.university
+                                    survey.academic_background?.university
                                         ?.attended_university === ''
                                         ? 'Please provide University name info.'
                                         : null
                                 }
                                 id="attended_university"
-                                label={t(
-                                    'University Name (Bachelor degree)'
-                                )}
+                                label={t('University Name (Bachelor degree)')}
                                 name="attended_university"
-                                onChange={(e) =>
-                                    handleChangeAcademic(e)
-                                }
+                                onChange={(e) => handleChangeAcademic(e)}
                                 placeholder="National Yilan University"
                                 value={
-                                    survey.academic_background
-                                        ?.university
+                                    survey.academic_background?.university
                                         ?.attended_university || ''
                                 }
                                 variant="outlined"
@@ -242,32 +218,24 @@ const SurveyAcademicBackgroundCard = ({
                         <Grid item sm={6} xs={12}>
                             <TextField
                                 error={
-                                    survey.academic_background
-                                        ?.university
-                                        ?.attended_university_program ===
-                                    ''
+                                    survey.academic_background?.university
+                                        ?.attended_university_program === ''
                                 }
                                 fullWidth
                                 helperText={
-                                    survey.academic_background
-                                        ?.university
-                                        ?.attended_university_program ===
-                                    ''
+                                    survey.academic_background?.university
+                                        ?.attended_university_program === ''
                                         ? 'Please provide program name info.'
                                         : null
                                 }
                                 id="attended_university_program"
                                 label={t('Program Name')}
                                 name="attended_university_program"
-                                onChange={(e) =>
-                                    handleChangeAcademic(e)
-                                }
+                                onChange={(e) => handleChangeAcademic(e)}
                                 placeholder="B.Sc. Electrical Engineering"
                                 value={
-                                    survey.academic_background
-                                        ?.university
-                                        ?.attended_university_program ||
-                                    ''
+                                    survey.academic_background?.university
+                                        ?.attended_university_program || ''
                                 }
                                 variant="outlined"
                             />
@@ -279,42 +247,32 @@ const SurveyAcademicBackgroundCard = ({
                                 ?.isGraduated !== 'No' ? (
                                 <TextField
                                     error={
-                                        survey.academic_background
-                                            ?.university
+                                        survey.academic_background?.university
                                             ?.expected_grad_date === '-'
                                     }
                                     fullWidth
                                     helperText={
-                                        survey.academic_background
-                                            ?.university
+                                        survey.academic_background?.university
                                             ?.expected_grad_date === '-'
                                             ? 'Please provide graduate date info.'
                                             : null
                                     }
                                     id="expected_grad_date"
                                     label={`${
-                                        survey?.academic_background
-                                            ?.university
+                                        survey?.academic_background?.university
                                             ?.isGraduated === 'No'
                                             ? t('Leaved Year')
-                                            : survey
-                                                    ?.academic_background
+                                            : survey?.academic_background
                                                     ?.university
-                                                    ?.isGraduated ===
-                                                'Yes'
+                                                    ?.isGraduated === 'Yes'
                                               ? t('Graduated Year')
-                                              : t(
-                                                    'Expected Graduate Year'
-                                                )
+                                              : t('Expected Graduate Year')
                                     }`}
                                     name="expected_grad_date"
-                                    onChange={(e) =>
-                                        handleChangeAcademic(e)
-                                    }
+                                    onChange={(e) => handleChangeAcademic(e)}
                                     select
                                     value={
-                                        survey.academic_background
-                                            ?.university
+                                        survey.academic_background?.university
                                             ?.expected_grad_date || '-'
                                     }
                                 >
@@ -334,32 +292,23 @@ const SurveyAcademicBackgroundCard = ({
                         <Grid item sm={6} xs={12}>
                             <TextField
                                 error={
-                                    survey.academic_background
-                                        ?.university
-                                        ?.Has_Exchange_Experience ===
-                                    '-'
+                                    survey.academic_background?.university
+                                        ?.Has_Exchange_Experience === '-'
                                 }
                                 fullWidth
                                 helperText={
-                                    survey.academic_background
-                                        ?.university
-                                        ?.Has_Exchange_Experience ===
-                                    '-'
+                                    survey.academic_background?.university
+                                        ?.Has_Exchange_Experience === '-'
                                         ? 'Please provide university exchange student info.'
                                         : null
                                 }
                                 id="Has_Exchange_Experience"
-                                label={t(
-                                    'Exchange Student Experience ?'
-                                )}
+                                label={t('Exchange Student Experience ?')}
                                 name="Has_Exchange_Experience"
-                                onChange={(e) =>
-                                    handleChangeAcademic(e)
-                                }
+                                onChange={(e) => handleChangeAcademic(e)}
                                 select
                                 value={
-                                    survey.academic_background
-                                        ?.university
+                                    survey.academic_background?.university
                                         ?.Has_Exchange_Experience || '-'
                                 }
                             >
@@ -376,25 +325,20 @@ const SurveyAcademicBackgroundCard = ({
                         <Grid item sm={6} xs={12}>
                             <TextField
                                 defaultValue={
-                                    survey.academic_background
-                                        ?.university?.Highest_GPA_Uni ||
-                                    0
+                                    survey.academic_background?.university
+                                        ?.Highest_GPA_Uni || 0
                                 }
                                 error={
-                                    survey.academic_background
-                                        ?.university
+                                    survey.academic_background?.university
                                         ?.Highest_GPA_Uni === '0' ||
-                                    survey.academic_background
-                                        ?.university
+                                    survey.academic_background?.university
                                         ?.Highest_GPA_Uni === null
                                 }
                                 fullWidth
                                 helperText={
-                                    survey.academic_background
-                                        ?.university
+                                    survey.academic_background?.university
                                         ?.Highest_GPA_Uni === '0' ||
-                                    survey.academic_background
-                                        ?.university
+                                    survey.academic_background?.university
                                         ?.Highest_GPA_Uni === null
                                         ? 'Please provide highest GPA from your university.'
                                         : null
@@ -404,9 +348,7 @@ const SurveyAcademicBackgroundCard = ({
                                     'Highest Score GPA of your university program'
                                 )}
                                 name="Highest_GPA_Uni"
-                                onChange={(e) =>
-                                    handleChangeAcademic(e)
-                                }
+                                onChange={(e) => handleChangeAcademic(e)}
                                 placeholder="4.3"
                                 type="number"
                             />
@@ -414,25 +356,20 @@ const SurveyAcademicBackgroundCard = ({
                         <Grid item sm={6} xs={12}>
                             <TextField
                                 defaultValue={
-                                    survey.academic_background
-                                        ?.university?.Passing_GPA_Uni ||
-                                    0
+                                    survey.academic_background?.university
+                                        ?.Passing_GPA_Uni || 0
                                 }
                                 error={
-                                    survey.academic_background
-                                        ?.university
+                                    survey.academic_background?.university
                                         ?.Passing_GPA_Uni === '0' ||
-                                    survey.academic_background
-                                        ?.university
+                                    survey.academic_background?.university
                                         ?.Passing_GPA_Uni === null
                                 }
                                 fullWidth
                                 helperText={
-                                    survey.academic_background
-                                        ?.university
+                                    survey.academic_background?.university
                                         ?.Passing_GPA_Uni === '0' ||
-                                    survey.academic_background
-                                        ?.university
+                                    survey.academic_background?.university
                                         ?.Passing_GPA_Uni === null
                                         ? 'Please provide passing GPA from your university.'
                                         : null
@@ -442,9 +379,7 @@ const SurveyAcademicBackgroundCard = ({
                                     'Passing Score GPA of your university program'
                                 )}
                                 name="Passing_GPA_Uni"
-                                onChange={(e) =>
-                                    handleChangeAcademic(e)
-                                }
+                                onChange={(e) => handleChangeAcademic(e)}
                                 placeholder="1.7"
                                 type="number"
                             />
@@ -452,34 +387,28 @@ const SurveyAcademicBackgroundCard = ({
                         <Grid item sm={6} xs={12}>
                             <TextField
                                 defaultValue={
-                                    survey.academic_background
-                                        ?.university?.My_GPA_Uni || 0
+                                    survey.academic_background?.university
+                                        ?.My_GPA_Uni || 0
                                 }
                                 error={
-                                    survey.academic_background
-                                        ?.university?.My_GPA_Uni ===
-                                        '0' ||
-                                    survey.academic_background
-                                        ?.university?.My_GPA_Uni ===
-                                        null
+                                    survey.academic_background?.university
+                                        ?.My_GPA_Uni === '0' ||
+                                    survey.academic_background?.university
+                                        ?.My_GPA_Uni === null
                                 }
                                 fullWidth
                                 helperText={
-                                    survey.academic_background
-                                        ?.university?.My_GPA_Uni ===
-                                        '0' ||
-                                    survey.academic_background
-                                        ?.university?.My_GPA_Uni ===
-                                        null
+                                    survey.academic_background?.university
+                                        ?.My_GPA_Uni === '0' ||
+                                    survey.academic_background?.university
+                                        ?.My_GPA_Uni === null
                                         ? 'Please provide passing GPA from your university.'
                                         : null
                                 }
                                 id="My_GPA_Uni"
                                 label={t('My GPA')}
                                 name="My_GPA_Uni"
-                                onChange={(e) =>
-                                    handleChangeAcademic(e)
-                                }
+                                onChange={(e) => handleChangeAcademic(e)}
                                 placeholder="3.7"
                                 type="number"
                             />
@@ -504,14 +433,11 @@ const SurveyAcademicBackgroundCard = ({
                                 ?.Highest_GPA_Uni ? (
                                 <b>
                                     {Bayerische_Formel(
-                                        survey.academic_background
-                                            ?.university
+                                        survey.academic_background?.university
                                             ?.Highest_GPA_Uni as number,
-                                        survey.academic_background
-                                            ?.university
+                                        survey.academic_background?.university
                                             ?.Passing_GPA_Uni as number,
-                                        survey.academic_background
-                                            ?.university
+                                        survey.academic_background?.university
                                             ?.My_GPA_Uni as number
                                     )}
                                 </b>
@@ -537,42 +463,33 @@ const SurveyAcademicBackgroundCard = ({
                             <Typography sx={{ m: 2 }}>
                                 <b>
                                     {Bayerische_Formel(
-                                        (survey.academic_background
-                                            ?.university
-                                            ?.Highest_GPA_Uni as number) ??
-                                            0,
-                                        (survey.academic_background
-                                            ?.university
-                                            ?.Passing_GPA_Uni as number) ??
-                                            0,
-                                        (survey.academic_background
-                                            ?.university
+                                        (survey.academic_background?.university
+                                            ?.Highest_GPA_Uni as number) ?? 0,
+                                        (survey.academic_background?.university
+                                            ?.Passing_GPA_Uni as number) ?? 0,
+                                        (survey.academic_background?.university
                                             ?.My_GPA_Uni as number) ?? 0
                                     )}
                                 </b>{' '}
-                                = 1 + (3 * (highest - my)) / (highest -
-                                passing) = 1 + (3 * (
+                                = 1 + (3 * (highest - my)) / (highest - passing)
+                                = 1 + (3 * (
                                 {
-                                    survey.academic_background
-                                        ?.university
+                                    survey.academic_background?.university
                                         ?.Highest_GPA_Uni as string
                                 }{' '}
                                 -{' '}
                                 {
-                                    survey.academic_background
-                                        ?.university
+                                    survey.academic_background?.university
                                         ?.My_GPA_Uni as string
                                 }
                                 )) / (
                                 {
-                                    survey.academic_background
-                                        ?.university
+                                    survey.academic_background?.university
                                         ?.Highest_GPA_Uni as string
                                 }{' '}
                                 -{' '}
                                 {
-                                    survey.academic_background
-                                        ?.university
+                                    survey.academic_background?.university
                                         ?.Passing_GPA_Uni as string
                                 }
                                 )
@@ -581,11 +498,7 @@ const SurveyAcademicBackgroundCard = ({
                     </Stack>
                 </Grid>
                 <Grid item sm={6} xs={12}>
-                    <Stack
-                        alignItems="center"
-                        direction="row"
-                        spacing={1}
-                    >
+                    <Stack alignItems="center" direction="row" spacing={1}>
                         <Typography variant="body1">
                             {t('gpa-instructions')}
                         </Typography>
@@ -630,30 +543,23 @@ const SurveyAcademicBackgroundCard = ({
                         <Grid item sm={6} xs={12}>
                             <TextField
                                 error={
-                                    survey.academic_background
-                                        ?.university
+                                    survey.academic_background?.university
                                         ?.isSecondGraduated === '-'
                                 }
                                 fullWidth
                                 helperText={
-                                    survey.academic_background
-                                        ?.university
+                                    survey.academic_background?.university
                                         ?.isSecondGraduated === '-'
                                         ? 'Please provide Second Degree info.'
                                         : null
                                 }
                                 id="isSecondGraduated"
-                                label={t(
-                                    'Already Second Degree graduated ?'
-                                )}
+                                label={t('Already Second Degree graduated ?')}
                                 name="isSecondGraduated"
-                                onChange={(e) =>
-                                    handleChangeAcademic(e)
-                                }
+                                onChange={(e) => handleChangeAcademic(e)}
                                 select
                                 value={
-                                    survey.academic_background
-                                        ?.university
+                                    survey.academic_background?.university
                                         ?.isSecondGraduated || '-'
                                 }
                             >
@@ -741,24 +647,20 @@ const SurveyAcademicBackgroundCard = ({
                                     />
                                 </Grid>
                                 <Grid item sm={6} xs={12}>
-                                    {survey.academic_background
-                                        ?.university
+                                    {survey.academic_background?.university
                                         ?.isSecondGraduated !== '-' &&
-                                    survey.academic_background
-                                        ?.university
+                                    survey.academic_background?.university
                                         ?.isSecondGraduated !== 'No' ? (
                                         <TextField
                                             error={
-                                                survey
-                                                    .academic_background
+                                                survey.academic_background
                                                     ?.university
                                                     ?.expectedSecondDegreeGradDate ===
                                                 '-'
                                             }
                                             fullWidth
                                             helperText={
-                                                survey
-                                                    .academic_background
+                                                survey.academic_background
                                                     ?.university
                                                     ?.expectedSecondDegreeGradDate ===
                                                 '-'
@@ -767,20 +669,16 @@ const SurveyAcademicBackgroundCard = ({
                                             }
                                             id="expectedSecondDegreeGradDate"
                                             label={`${
-                                                survey
-                                                    ?.academic_background
+                                                survey?.academic_background
                                                     ?.university
-                                                    ?.isSecondGraduated ===
-                                                'No'
+                                                    ?.isSecondGraduated === 'No'
                                                     ? t('Leaved Year')
                                                     : survey
                                                             ?.academic_background
                                                             ?.university
                                                             ?.isSecondGraduated ===
                                                         'Yes'
-                                                      ? t(
-                                                            'Graduated Year'
-                                                        )
+                                                      ? t('Graduated Year')
                                                       : t(
                                                             'Expected Graduate Year'
                                                         )
@@ -791,8 +689,7 @@ const SurveyAcademicBackgroundCard = ({
                                             }
                                             select
                                             value={
-                                                survey
-                                                    .academic_background
+                                                survey.academic_background
                                                     ?.university
                                                     ?.expectedSecondDegreeGradDate ||
                                                 '-'
@@ -801,12 +698,8 @@ const SurveyAcademicBackgroundCard = ({
                                             {APPLICATION_YEARS_FUTURE().map(
                                                 (option) => (
                                                     <MenuItem
-                                                        key={
-                                                            option.value
-                                                        }
-                                                        value={
-                                                            option.value
-                                                        }
+                                                        key={option.value}
+                                                        value={option.value}
                                                     >
                                                         {option.label}
                                                     </MenuItem>
@@ -820,8 +713,7 @@ const SurveyAcademicBackgroundCard = ({
                                         defaultValue={
                                             survey.academic_background
                                                 ?.university
-                                                ?.highestSecondDegreeGPA ||
-                                            0
+                                                ?.highestSecondDegreeGPA || 0
                                         }
                                         error={
                                             survey.academic_background
@@ -863,8 +755,7 @@ const SurveyAcademicBackgroundCard = ({
                                         defaultValue={
                                             survey.academic_background
                                                 ?.university
-                                                ?.passingSecondDegreeGPA ||
-                                            0
+                                                ?.passingSecondDegreeGPA || 0
                                         }
                                         error={
                                             survey.academic_background
@@ -911,30 +802,24 @@ const SurveyAcademicBackgroundCard = ({
                                         error={
                                             survey.academic_background
                                                 ?.university
-                                                ?.mySecondDegreeGPA ===
-                                                '0' ||
+                                                ?.mySecondDegreeGPA === '0' ||
                                             survey.academic_background
                                                 ?.university
-                                                ?.mySecondDegreeGPA ===
-                                                null
+                                                ?.mySecondDegreeGPA === null
                                         }
                                         fullWidth
                                         helperText={
                                             survey.academic_background
                                                 ?.university
-                                                ?.mySecondDegreeGPA ===
-                                                '0' ||
+                                                ?.mySecondDegreeGPA === '0' ||
                                             survey.academic_background
                                                 ?.university
-                                                ?.mySecondDegreeGPA ===
-                                                null
+                                                ?.mySecondDegreeGPA === null
                                                 ? 'Please provide passing GPA from your university.'
                                                 : null
                                         }
                                         id="mySecondDegreeGPA"
-                                        label={t(
-                                            'My Second Degree GPA'
-                                        )}
+                                        label={t('My Second Degree GPA')}
                                         name="mySecondDegreeGPA"
                                         onChange={(e) =>
                                             handleChangeAcademic(e)
@@ -976,10 +861,7 @@ const SurveyAcademicBackgroundCard = ({
                         }
                     >
                         {DUAL_STATE_OPTIONS.map((option) => (
-                            <MenuItem
-                                key={option.value}
-                                value={option.value}
-                            >
+                            <MenuItem key={option.value} value={option.value}>
                                 {option.label}
                             </MenuItem>
                         ))}
@@ -1009,10 +891,7 @@ const SurveyAcademicBackgroundCard = ({
                         }
                     >
                         {DUAL_STATE_OPTIONS.map((option) => (
-                            <MenuItem
-                                key={option.value}
-                                value={option.value}
-                            >
+                            <MenuItem key={option.value} value={option.value}>
                                 {option.label}
                             </MenuItem>
                         ))}
@@ -1021,8 +900,7 @@ const SurveyAcademicBackgroundCard = ({
                 <Grid item xs={12}>
                     <Typography sx={{ mt: 2 }} variant="body2">
                         {t('Last update at')}:{' '}
-                        {survey.academic_background?.university
-                            ?.updatedAt
+                        {survey.academic_background?.university?.updatedAt
                             ? convertDate(
                                   survey.academic_background?.university
                                       .updatedAt as string

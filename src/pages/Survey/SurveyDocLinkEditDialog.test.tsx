@@ -16,12 +16,16 @@ describe('SurveyDocLinkEditDialog', () => {
     it('renders when open', () => {
         render(<SurveyDocLinkEditDialog {...defaultProps} />);
         expect(screen.getByText('Edit')).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
+        expect(
+            screen.getByRole('button', { name: 'Save' })
+        ).toBeInTheDocument();
     });
 
     it('shows survey link in text field', () => {
         render(<SurveyDocLinkEditDialog {...defaultProps} />);
-        expect(screen.getByDisplayValue('https://example.com/doc')).toBeInTheDocument();
+        expect(
+            screen.getByDisplayValue('https://example.com/doc')
+        ).toBeInTheDocument();
     });
 
     it('calls onSave when Save is clicked', () => {

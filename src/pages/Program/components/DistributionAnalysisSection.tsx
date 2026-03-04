@@ -13,11 +13,7 @@ import {
     ListItemText,
     Typography
 } from '@mui/material';
-import {
-    School,
-    Language,
-    Public
-} from '@mui/icons-material';
+import { School, Language, Public } from '@mui/icons-material';
 
 interface DistributionItem {
     country?: string;
@@ -178,46 +174,42 @@ const DistributionAnalysisSection = ({
                                 <Divider sx={{ mb: 2 }} />
                                 <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
                                     <List dense>
-                                        {byDegree.map(
-                                            (item, index) => (
-                                                <ListItem key={index}>
-                                                    <ListItemText
-                                                        primary={
-                                                            <Box
-                                                                alignItems="center"
-                                                                display="flex"
-                                                                justifyContent="space-between"
-                                                            >
-                                                                <Typography>
-                                                                    {
-                                                                        item.degree
-                                                                    }
-                                                                </Typography>
-                                                                <Chip
-                                                                    color="secondary"
-                                                                    label={
-                                                                        item.count
-                                                                    }
-                                                                    size="small"
-                                                                />
-                                                            </Box>
-                                                        }
-                                                        secondary={
-                                                            <LinearProgress
+                                        {byDegree.map((item, index) => (
+                                            <ListItem key={index}>
+                                                <ListItemText
+                                                    primary={
+                                                        <Box
+                                                            alignItems="center"
+                                                            display="flex"
+                                                            justifyContent="space-between"
+                                                        >
+                                                            <Typography>
+                                                                {item.degree}
+                                                            </Typography>
+                                                            <Chip
                                                                 color="secondary"
-                                                                sx={{ mt: 1 }}
-                                                                value={
-                                                                    (item.count /
-                                                                        totalPrograms) *
-                                                                    100
+                                                                label={
+                                                                    item.count
                                                                 }
-                                                                variant="determinate"
+                                                                size="small"
                                                             />
-                                                        }
-                                                    />
-                                                </ListItem>
-                                            )
-                                        )}
+                                                        </Box>
+                                                    }
+                                                    secondary={
+                                                        <LinearProgress
+                                                            color="secondary"
+                                                            sx={{ mt: 1 }}
+                                                            value={
+                                                                (item.count /
+                                                                    totalPrograms) *
+                                                                100
+                                                            }
+                                                            variant="determinate"
+                                                        />
+                                                    }
+                                                />
+                                            </ListItem>
+                                        ))}
                                     </List>
                                 </Box>
                             </CardContent>
@@ -266,46 +258,42 @@ const DistributionAnalysisSection = ({
                                 <Divider sx={{ mb: 2 }} />
                                 <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
                                     <List dense>
-                                        {byLanguage.map(
-                                            (item, index) => (
-                                                <ListItem key={index}>
-                                                    <ListItemText
-                                                        primary={
-                                                            <Box
-                                                                alignItems="center"
-                                                                display="flex"
-                                                                justifyContent="space-between"
-                                                            >
-                                                                <Typography>
-                                                                    {
-                                                                        item.language
-                                                                    }
-                                                                </Typography>
-                                                                <Chip
-                                                                    color="success"
-                                                                    label={
-                                                                        item.count
-                                                                    }
-                                                                    size="small"
-                                                                />
-                                                            </Box>
-                                                        }
-                                                        secondary={
-                                                            <LinearProgress
+                                        {byLanguage.map((item, index) => (
+                                            <ListItem key={index}>
+                                                <ListItemText
+                                                    primary={
+                                                        <Box
+                                                            alignItems="center"
+                                                            display="flex"
+                                                            justifyContent="space-between"
+                                                        >
+                                                            <Typography>
+                                                                {item.language}
+                                                            </Typography>
+                                                            <Chip
                                                                 color="success"
-                                                                sx={{ mt: 1 }}
-                                                                value={
-                                                                    (item.count /
-                                                                        totalPrograms) *
-                                                                    100
+                                                                label={
+                                                                    item.count
                                                                 }
-                                                                variant="determinate"
+                                                                size="small"
                                                             />
-                                                        }
-                                                    />
-                                                </ListItem>
-                                            )
-                                        )}
+                                                        </Box>
+                                                    }
+                                                    secondary={
+                                                        <LinearProgress
+                                                            color="success"
+                                                            sx={{ mt: 1 }}
+                                                            value={
+                                                                (item.count /
+                                                                    totalPrograms) *
+                                                                100
+                                                            }
+                                                            variant="determinate"
+                                                        />
+                                                    }
+                                                />
+                                            </ListItem>
+                                        ))}
                                     </List>
                                 </Box>
                             </CardContent>

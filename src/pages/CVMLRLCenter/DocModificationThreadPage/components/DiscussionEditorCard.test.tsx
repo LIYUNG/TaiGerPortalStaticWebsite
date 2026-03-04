@@ -6,7 +6,10 @@ vi.mock('@components/Message/DocThreadEditor', () => ({
     default: ({
         handleClickSave
     }: {
-        handleClickSave: (e: React.MouseEvent<HTMLElement>, state: unknown) => void;
+        handleClickSave: (
+            e: React.MouseEvent<HTMLElement>,
+            state: unknown
+        ) => void;
     }) => (
         <div data-testid="doc-thread-editor">
             <button

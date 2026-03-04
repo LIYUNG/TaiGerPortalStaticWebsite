@@ -52,9 +52,7 @@ describe('SurveyLanguagesCard', () => {
     it('renders English isPassed dropdown', () => {
         renderCard();
         expect(
-            screen.getByLabelText(
-                'English Passed ? (IELTS 6.5 / TOEFL 88)'
-            )
+            screen.getByLabelText('English Passed ? (IELTS 6.5 / TOEFL 88)')
         ).toBeInTheDocument();
     });
 
@@ -170,9 +168,7 @@ describe('SurveyLanguagesCard', () => {
             }
         };
         renderCard({ ...baseProps, survey });
-        expect(
-            screen.getByLabelText('German Certificate')
-        ).toBeInTheDocument();
+        expect(screen.getByLabelText('German Certificate')).toBeInTheDocument();
     });
 
     it('shows passport warning banner when english_isPassed is "X"', () => {
@@ -265,9 +261,7 @@ describe('SurveyLanguagesCard', () => {
         renderCard({ ...baseProps, survey });
         const updateButton = screen.getByRole('button', { name: 'Update' });
         fireEvent.click(updateButton);
-        expect(
-            baseProps.handleSurveyLanguageSubmit
-        ).toHaveBeenCalledTimes(1);
+        expect(baseProps.handleSurveyLanguageSubmit).toHaveBeenCalledTimes(1);
     });
 
     it('shows GRE certificate select when gre_isPassed is "O"', () => {
@@ -315,9 +309,7 @@ describe('SurveyLanguagesCard', () => {
             }
         };
         renderCard({ ...baseProps, survey });
-        expect(
-            screen.getByLabelText('GRE Test Score')
-        ).toBeInTheDocument();
+        expect(screen.getByLabelText('GRE Test Score')).toBeInTheDocument();
     });
 
     it('shows GMAT score field when gmat_isPassed is "O" and gmat_certificate is set', () => {
@@ -333,8 +325,6 @@ describe('SurveyLanguagesCard', () => {
             }
         };
         renderCard({ ...baseProps, survey });
-        expect(
-            screen.getByLabelText('GMAT Test Score')
-        ).toBeInTheDocument();
+        expect(screen.getByLabelText('GMAT Test Score')).toBeInTheDocument();
     });
 });

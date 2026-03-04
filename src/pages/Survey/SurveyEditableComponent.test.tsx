@@ -52,10 +52,7 @@ const renderWithRouter = (ui: React.ReactElement) =>
 describe('SurveyEditableComponent', () => {
     it('renders without crashing when given survey and handlers', () => {
         renderWithRouter(
-            <SurveyEditableComponent
-                survey={mockSurvey}
-                {...mockHandlers}
-            />
+            <SurveyEditableComponent survey={mockSurvey} {...mockHandlers} />
         );
         expect(
             screen.getByText('Academic Background Survey')
@@ -64,20 +61,14 @@ describe('SurveyEditableComponent', () => {
 
     it('renders Application Preference section', () => {
         renderWithRouter(
-            <SurveyEditableComponent
-                survey={mockSurvey}
-                {...mockHandlers}
-            />
+            <SurveyEditableComponent survey={mockSurvey} {...mockHandlers} />
         );
         expect(screen.getByText('Application Preference')).toBeInTheDocument();
     });
 
     it('renders Languages Test and Certificates section', () => {
         renderWithRouter(
-            <SurveyEditableComponent
-                survey={mockSurvey}
-                {...mockHandlers}
-            />
+            <SurveyEditableComponent survey={mockSurvey} {...mockHandlers} />
         );
         expect(
             screen.getByText('Languages Test and Certificates')

@@ -122,7 +122,10 @@ const LeadPage = () => {
         }
     });
 
-    const getChangedFields = (orig: Record<string, unknown>, cur: Record<string, unknown>) => {
+    const getChangedFields = (
+        orig: Record<string, unknown>,
+        cur: Record<string, unknown>
+    ) => {
         const out = {};
         Object.keys(cur).forEach((k) => {
             if (['createdAt', 'updatedAt', 'meetings', 'id'].includes(k))
@@ -314,7 +317,10 @@ const LeadPage = () => {
                 onCancel={() => handleCancel('personal')}
                 onFieldChange={handleFieldChange}
                 onCreateUser={handleCreateUser}
-                onCreateDeal={() => { setEditingDeal(null); setShowDealModal(true); }}
+                onCreateDeal={() => {
+                    setEditingDeal(null);
+                    setShowDealModal(true);
+                }}
                 onEditDeal={handleEditDeal}
                 updateStatusMutation={updateStatusMutation}
                 openStatusMenu={openStatusMenu}

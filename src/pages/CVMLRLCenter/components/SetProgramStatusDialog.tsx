@@ -33,9 +33,8 @@ const SetProgramStatusDialog = ({
         <DialogTitle>{i18next.t('Attention')}</DialogTitle>
         <DialogContent>
             <DialogContentText>
-                Do you want to{' '}
-                {isApplicationSubmitted ? 're-open' : 'close'} this program for{' '}
-                {studentFirstname}?
+                Do you want to {isApplicationSubmitted ? 're-open' : 'close'}{' '}
+                this program for {studentFirstname}?
             </DialogContentText>
         </DialogContent>
         <DialogActions>

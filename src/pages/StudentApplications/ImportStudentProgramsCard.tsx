@@ -85,7 +85,8 @@ export const ImportStudentProgramsCard = (
         String(app.programId?._id ?? '')
     );
     const selectedProgramIds = importSourceProgramIds.filter(
-        (id) => !importStudentProgramsCard.deselectedImportProgramIds.includes(id)
+        (id) =>
+            !importStudentProgramsCard.deselectedImportProgramIds.includes(id)
     );
 
     const { results: searchDisplayResults, isSuccess: searchQueryIsSuccess } =

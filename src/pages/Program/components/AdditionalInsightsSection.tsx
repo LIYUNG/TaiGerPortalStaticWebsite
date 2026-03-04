@@ -19,17 +19,25 @@ import {
     TableRow,
     Typography
 } from '@mui/material';
-import {
-    School,
-    Category,
-    Person
-} from '@mui/icons-material';
+import { School, Category, Person } from '@mui/icons-material';
 
 interface AdditionalInsightsSectionProps {
     bySubject?: { subject: string; count: number }[];
-    bySchoolType?: { schoolType: string; count: number; isPrivateSchool?: boolean; isPartnerSchool?: boolean; avgPrograms?: number }[];
-    topContributors?: { contributor?: string; lastUpdate?: string; updateCount?: number; name?: string; email?: string; programsAdded?: number }[];
-    totalPrograms: number;
+    bySchoolType?: {
+        schoolType: string;
+        count: number;
+        isPrivateSchool?: boolean;
+        isPartnerSchool?: boolean;
+        avgPrograms?: number;
+    }[];
+    topContributors?: {
+        contributor?: string;
+        lastUpdate?: string;
+        updateCount?: number;
+        name?: string;
+        email?: string;
+        programsAdded?: number;
+    }[];
     t: (key: string, opts?: Record<string, unknown>) => string;
 }
 
@@ -37,7 +45,6 @@ const AdditionalInsightsSection = ({
     bySubject,
     bySchoolType,
     topContributors,
-    totalPrograms: _totalPrograms,
     t
 }: AdditionalInsightsSectionProps) => {
     const navigate = useNavigate();
@@ -61,9 +68,7 @@ const AdditionalInsightsSection = ({
                     <Grid item md={6} xs={12}>
                         <Card
                             onClick={() =>
-                                navigate(
-                                    '/programs/distribution/subject'
-                                )
+                                navigate('/programs/distribution/subject')
                             }
                             sx={{ height: 450, cursor: 'pointer' }}
                         >
@@ -81,25 +86,18 @@ const AdditionalInsightsSection = ({
                                         justifyContent="space-between"
                                         mb={2}
                                     >
-                                        <Box
-                                            alignItems="center"
-                                            display="flex"
-                                        >
+                                        <Box alignItems="center" display="flex">
                                             <Category sx={{ mr: 1 }} />
                                             <Typography variant="h6">
-                                                {t(
-                                                    'Top Program Subjects',
-                                                    {
-                                                        ns: 'common'
-                                                    }
-                                                )}
+                                                {t('Top Program Subjects', {
+                                                    ns: 'common'
+                                                })}
                                             </Typography>
                                         </Box>
                                         <Chip
-                                            label={t(
-                                                'Click for details',
-                                                { ns: 'common' }
-                                            )}
+                                            label={t('Click for details', {
+                                                ns: 'common'
+                                            })}
                                             size="small"
                                             variant="outlined"
                                         />
@@ -112,57 +110,53 @@ const AdditionalInsightsSection = ({
                                         }}
                                     >
                                         <List dense>
-                                            {bySubject.map(
-                                                (item, index) => (
-                                                    <ListItem
-                                                        key={index}
-                                                    >
-                                                        <ListItemText
-                                                            primary={
-                                                                <Box
-                                                                    alignItems="center"
-                                                                    display="flex"
-                                                                    justifyContent="space-between"
-                                                                >
-                                                                    <Typography>
-                                                                        {
-                                                                            item.subject
-                                                                        }
-                                                                    </Typography>
-                                                                    <Chip
-                                                                        color="info"
-                                                                        label={
-                                                                            item.count
-                                                                        }
-                                                                        size="small"
-                                                                    />
-                                                                </Box>
-                                                            }
-                                                            secondary={
-                                                                <LinearProgress
-                                                                    color="info"
-                                                                    sx={{
-                                                                        mt: 1
-                                                                    }}
-                                                                    value={
-                                                                        (item.count /
-                                                                            Math.max(
-                                                                                ...bySubject.map(
-                                                                                    (
-                                                                                        s
-                                                                                    ) =>
-                                                                                        s.count
-                                                                                )
-                                                                            )) *
-                                                                        100
+                                            {bySubject.map((item, index) => (
+                                                <ListItem key={index}>
+                                                    <ListItemText
+                                                        primary={
+                                                            <Box
+                                                                alignItems="center"
+                                                                display="flex"
+                                                                justifyContent="space-between"
+                                                            >
+                                                                <Typography>
+                                                                    {
+                                                                        item.subject
                                                                     }
-                                                                    variant="determinate"
+                                                                </Typography>
+                                                                <Chip
+                                                                    color="info"
+                                                                    label={
+                                                                        item.count
+                                                                    }
+                                                                    size="small"
                                                                 />
-                                                            }
-                                                        />
-                                                    </ListItem>
-                                                )
-                                            )}
+                                                            </Box>
+                                                        }
+                                                        secondary={
+                                                            <LinearProgress
+                                                                color="info"
+                                                                sx={{
+                                                                    mt: 1
+                                                                }}
+                                                                value={
+                                                                    (item.count /
+                                                                        Math.max(
+                                                                            ...bySubject.map(
+                                                                                (
+                                                                                    s
+                                                                                ) =>
+                                                                                    s.count
+                                                                            )
+                                                                        )) *
+                                                                    100
+                                                                }
+                                                                variant="determinate"
+                                                            />
+                                                        }
+                                                    />
+                                                </ListItem>
+                                            ))}
                                         </List>
                                     </Box>
                                 </CardContent>
@@ -182,11 +176,7 @@ const AdditionalInsightsSection = ({
                                     flexDirection: 'column'
                                 }}
                             >
-                                <Box
-                                    alignItems="center"
-                                    display="flex"
-                                    mb={2}
-                                >
+                                <Box alignItems="center" display="flex" mb={2}>
                                     <School sx={{ mr: 1 }} />
                                     <Typography variant="h6">
                                         {t('School Type Distribution', {
@@ -227,33 +217,26 @@ const AdditionalInsightsSection = ({
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
-                                            {bySchoolType?.map(
-                                                (type) => (
-                                                    <TableRow
-                                                        key={
-                                                            type.schoolType
-                                                        }
-                                                    >
-                                                        <TableCell>
-                                                            {type.schoolType ||
-                                                                '-'}
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            {type.isPrivateSchool
-                                                                ? '✓'
-                                                                : '✗'}
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            {type.isPartnerSchool
-                                                                ? '✓'
-                                                                : '✗'}
-                                                        </TableCell>
-                                                        <TableCell align="right">
-                                                            {type.count}
-                                                        </TableCell>
-                                                    </TableRow>
-                                                )
-                                            )}
+                                            {bySchoolType?.map((type) => (
+                                                <TableRow key={type.schoolType}>
+                                                    <TableCell>
+                                                        {type.schoolType || '-'}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {type.isPrivateSchool
+                                                            ? '✓'
+                                                            : '✗'}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {type.isPartnerSchool
+                                                            ? '✓'
+                                                            : '✗'}
+                                                    </TableCell>
+                                                    <TableCell align="right">
+                                                        {type.count}
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
                                         </TableBody>
                                     </Table>
                                 </TableContainer>
@@ -263,113 +246,102 @@ const AdditionalInsightsSection = ({
                 )}
 
                 {/* Top Contributors */}
-                {topContributors &&
-                    topContributors.length > 0 && (
-                        <Grid item md={6} xs={12}>
-                            <Card sx={{ height: 450 }}>
-                                <CardContent
+                {topContributors && topContributors.length > 0 && (
+                    <Grid item md={6} xs={12}>
+                        <Card sx={{ height: 450 }}>
+                            <CardContent
+                                sx={{
+                                    height: '100%',
+                                    display: 'flex',
+                                    flexDirection: 'column'
+                                }}
+                            >
+                                <Box alignItems="center" display="flex" mb={2}>
+                                    <Person sx={{ mr: 1 }} />
+                                    <Typography variant="h6">
+                                        {t('Top Contributors', {
+                                            ns: 'common'
+                                        })}
+                                    </Typography>
+                                </Box>
+                                <Divider sx={{ mb: 2 }} />
+                                <Box
                                     sx={{
-                                        height: '100%',
-                                        display: 'flex',
-                                        flexDirection: 'column'
+                                        flexGrow: 1,
+                                        overflow: 'auto'
                                     }}
                                 >
-                                    <Box
-                                        alignItems="center"
-                                        display="flex"
-                                        mb={2}
-                                    >
-                                        <Person sx={{ mr: 1 }} />
-                                        <Typography variant="h6">
-                                            {t('Top Contributors', {
-                                                ns: 'common'
-                                            })}
-                                        </Typography>
-                                    </Box>
-                                    <Divider sx={{ mb: 2 }} />
-                                    <Box
-                                        sx={{
-                                            flexGrow: 1,
-                                            overflow: 'auto'
-                                        }}
-                                    >
-                                        <List dense>
-                                            {topContributors.map(
-                                                (
-                                                    contributor,
-                                                    index
-                                                ) => (
-                                                    <ListItem
-                                                        key={index}
-                                                    >
-                                                        <ListItemText
-                                                            primary={
-                                                                <Box
-                                                                    alignItems="center"
-                                                                    display="flex"
-                                                                    justifyContent="space-between"
-                                                                >
-                                                                    <Box>
-                                                                        <Typography>
+                                    <List dense>
+                                        {topContributors.map(
+                                            (contributor, index) => (
+                                                <ListItem key={index}>
+                                                    <ListItemText
+                                                        primary={
+                                                            <Box
+                                                                alignItems="center"
+                                                                display="flex"
+                                                                justifyContent="space-between"
+                                                            >
+                                                                <Box>
+                                                                    <Typography>
+                                                                        {
+                                                                            contributor.contributor
+                                                                        }
+                                                                    </Typography>
+                                                                    <Typography
+                                                                        color="textSecondary"
+                                                                        variant="caption"
+                                                                    >
+                                                                        {t(
+                                                                            'Last update',
                                                                             {
-                                                                                contributor.contributor
+                                                                                ns: 'common'
                                                                             }
-                                                                        </Typography>
-                                                                        <Typography
-                                                                            color="textSecondary"
-                                                                            variant="caption"
-                                                                        >
-                                                                            {t(
-                                                                                'Last update',
-                                                                                {
-                                                                                    ns: 'common'
-                                                                                }
-                                                                            )}
-
-                                                                            :{' '}
-                                                                            {new Date(
-                                                                                contributor.lastUpdate
-                                                                            ).toLocaleDateString()}
-                                                                        </Typography>
-                                                                    </Box>
-                                                                    <Chip
-                                                                        color="warning"
-                                                                        label={`${contributor.updateCount} ${t('updates', { ns: 'common' })}`}
-                                                                        size="small"
-                                                                    />
+                                                                        )}
+                                                                        :{' '}
+                                                                        {new Date(
+                                                                            contributor.lastUpdate
+                                                                        ).toLocaleDateString()}
+                                                                    </Typography>
                                                                 </Box>
-                                                            }
-                                                            secondary={
-                                                                <LinearProgress
+                                                                <Chip
                                                                     color="warning"
-                                                                    sx={{
-                                                                        mt: 1
-                                                                    }}
-                                                                    value={
-                                                                        (contributor.updateCount /
-                                                                            Math.max(
-                                                                                ...topContributors.map(
-                                                                                    (
-                                                                                        c
-                                                                                    ) =>
-                                                                                        c.updateCount
-                                                                                )
-                                                                            )) *
-                                                                        100
-                                                                    }
-                                                                    variant="determinate"
+                                                                    label={`${contributor.updateCount} ${t('updates', { ns: 'common' })}`}
+                                                                    size="small"
                                                                 />
-                                                            }
-                                                        />
-                                                    </ListItem>
-                                                )
-                                            )}
-                                        </List>
-                                    </Box>
-                                </CardContent>
-                            </Card>
-                        </Grid>
-                    )}
+                                                            </Box>
+                                                        }
+                                                        secondary={
+                                                            <LinearProgress
+                                                                color="warning"
+                                                                sx={{
+                                                                    mt: 1
+                                                                }}
+                                                                value={
+                                                                    (contributor.updateCount /
+                                                                        Math.max(
+                                                                            ...topContributors.map(
+                                                                                (
+                                                                                    c
+                                                                                ) =>
+                                                                                    c.updateCount
+                                                                            )
+                                                                        )) *
+                                                                    100
+                                                                }
+                                                                variant="determinate"
+                                                            />
+                                                        }
+                                                    />
+                                                </ListItem>
+                                            )
+                                        )}
+                                    </List>
+                                </Box>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                )}
             </Grid>
         </>
     );

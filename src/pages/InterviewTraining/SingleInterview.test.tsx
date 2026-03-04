@@ -29,17 +29,28 @@ vi.mock('react-router-dom', async (importOriginal) => {
     return {
         ...actual,
         useParams: () => ({ interview_id: 'interview-001' }),
-        useLocation: () => ({ hash: '', pathname: '/', search: '', state: null }),
+        useLocation: () => ({
+            hash: '',
+            pathname: '/',
+            search: '',
+            state: null
+        }),
         useNavigate: () => vi.fn()
     };
 });
 
 vi.mock('@/api', () => ({
-    SubmitMessageWithAttachment: vi.fn().mockResolvedValue({ data: { success: true } }),
-    deleteAMessageInThread: vi.fn().mockResolvedValue({ data: { success: true } }),
+    SubmitMessageWithAttachment: vi
+        .fn()
+        .mockResolvedValue({ data: { success: true } }),
+    deleteAMessageInThread: vi
+        .fn()
+        .mockResolvedValue({ data: { success: true } }),
     deleteInterview: vi.fn().mockResolvedValue({ data: { success: true } }),
     updateInterview: vi.fn().mockResolvedValue({ data: { success: true } }),
-    addInterviewTrainingDateTime: vi.fn().mockResolvedValue({ data: { success: true } }),
+    addInterviewTrainingDateTime: vi
+        .fn()
+        .mockResolvedValue({ data: { success: true } }),
     getEssayWriters: vi.fn().mockResolvedValue({ data: { data: [] } })
 }));
 
@@ -133,9 +144,7 @@ vi.mock('./InterviewFeedback', () => ({
 }));
 
 vi.mock('./components/InterviewMetadataSidebar', () => ({
-    default: () => (
-        <div data-testid="interview-metadata-sidebar">Sidebar</div>
-    )
+    default: () => <div data-testid="interview-metadata-sidebar">Sidebar</div>
 }));
 
 const createTestQueryClient = () =>
@@ -194,15 +203,15 @@ describe('SingleInterview', () => {
         );
         expect(screen.getByTestId('loading')).toBeInTheDocument();
         // Resolve to clean up
-        resolveQuery!({ data: { success: false, data: null, interviewAuditLog: [] } });
+        resolveQuery!({
+            data: { success: false, data: null, interviewAuditLog: [] }
+        });
     });
 
     it('renders after data loads', async () => {
         renderSingleInterview();
         await waitFor(() => {
-            expect(
-                screen.queryByTestId('loading')
-            ).not.toBeInTheDocument();
+            expect(screen.queryByTestId('loading')).not.toBeInTheDocument();
         });
     });
 
@@ -218,9 +227,7 @@ describe('SingleInterview', () => {
         renderSingleInterview();
         await waitFor(() => {
             // At least the discussion-thread tab should be present
-            expect(
-                screen.getByText('discussion-thread')
-            ).toBeInTheDocument();
+            expect(screen.getByText('discussion-thread')).toBeInTheDocument();
         });
     });
 

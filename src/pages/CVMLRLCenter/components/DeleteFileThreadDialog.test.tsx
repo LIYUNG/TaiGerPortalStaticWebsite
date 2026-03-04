@@ -34,9 +34,7 @@ describe('DeleteFileThreadDialog', () => {
     });
 
     it('disables confirm button when deleteField is not "delete"', () => {
-        render(
-            <DeleteFileThreadDialog {...defaultProps} deleteField="del" />
-        );
+        render(<DeleteFileThreadDialog {...defaultProps} deleteField="del" />);
         expect(screen.getByText('Yes')).toBeDisabled();
     });
 

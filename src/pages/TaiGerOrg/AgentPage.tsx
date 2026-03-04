@@ -60,7 +60,10 @@ const AgentPage = () => {
         );
 
     const stats = useMemo(() => {
-        if (!myStudentsApplications?.applications?.length || !fetchedMyStudents) {
+        if (
+            !myStudentsApplications?.applications?.length ||
+            !fetchedMyStudents
+        ) {
             return {
                 totalStudents: 0,
                 totalApplications: 0,

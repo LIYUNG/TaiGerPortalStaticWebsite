@@ -86,9 +86,8 @@ const MeetingsList = ({ meetings, t }: MeetingsListProps) => {
                                         }}
                                         underline="hover"
                                     >
-                                        {sanitizeMeetingTitle(
-                                            meeting.title
-                                        ) || 'N/A'}
+                                        {sanitizeMeetingTitle(meeting.title) ||
+                                            'N/A'}
                                     </Link>
                                 </Box>
                                 <Box

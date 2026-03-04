@@ -19,9 +19,7 @@ import type { IMeeting, IStudentResponse } from '@taiger-common/model';
 export interface MeetingFormModalProps {
     open: boolean;
     onClose: () => void;
-    onSave: (
-        data: Partial<IMeeting> & { dateTime?: string | null }
-    ) => void;
+    onSave: (data: Partial<IMeeting> & { dateTime?: string | null }) => void;
     meeting?: IMeeting | null;
     isLoading?: boolean;
     student?: IStudentResponse | null;

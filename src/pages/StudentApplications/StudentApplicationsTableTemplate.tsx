@@ -609,7 +609,10 @@ const StudentApplicationsTableTemplate = (
                                             </TableRow>
                                         ) : (
                                             studentToShow.applications.map(
-                                                (application, application_idx) => (
+                                                (
+                                                    application,
+                                                    application_idx
+                                                ) => (
                                                     <ApplicationTableRow
                                                         key={application_idx}
                                                         application={

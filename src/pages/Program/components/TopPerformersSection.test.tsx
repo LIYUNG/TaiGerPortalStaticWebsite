@@ -11,7 +11,12 @@ const t = (key: string) => key;
 
 const defaultProps = {
     topSchools: [
-        { school: 'TU Munich', country: 'Germany', city: 'Munich', programCount: 120 },
+        {
+            school: 'TU Munich',
+            country: 'Germany',
+            city: 'Munich',
+            programCount: 120
+        },
         { school: 'MIT', country: 'USA', city: 'Cambridge', programCount: 95 }
     ],
     topApplicationPrograms: [

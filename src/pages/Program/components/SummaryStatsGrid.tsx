@@ -1,17 +1,6 @@
 import React from 'react';
-import {
-    Box,
-    Card,
-    CardContent,
-    Grid,
-    Typography
-} from '@mui/material';
-import {
-    TrendingUp,
-    School,
-    Public,
-    Assessment
-} from '@mui/icons-material';
+import { Box, Card, CardContent, Grid, Typography } from '@mui/material';
+import { TrendingUp, School, Public, Assessment } from '@mui/icons-material';
 
 interface SummaryStatsGridProps {
     totalPrograms: number;
@@ -57,9 +46,7 @@ const SummaryStatsGrid = ({
                                     {totalPrograms.toLocaleString()}
                                 </Typography>
                             </Box>
-                            <TrendingUp
-                                sx={{ fontSize: 40, opacity: 0.7 }}
-                            />
+                            <TrendingUp sx={{ fontSize: 40, opacity: 0.7 }} />
                         </Box>
                     </CardContent>
                 </Card>
@@ -162,9 +149,7 @@ const SummaryStatsGrid = ({
                                     {avgAdmissionRate}%
                                 </Typography>
                             </Box>
-                            <Assessment
-                                sx={{ fontSize: 40, opacity: 0.7 }}
-                            />
+                            <Assessment sx={{ fontSize: 40, opacity: 0.7 }} />
                         </Box>
                     </CardContent>
                 </Card>

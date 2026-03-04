@@ -8,11 +8,15 @@ import { useActiveStudents } from '@hooks/useActiveStudents';
 vi.mock('react-router-dom', () => ({
     Navigate: () => null,
     Link: forwardRef((props, ref) =>
-        createElement('a', {
-            href: props.to,
-            ref,
-            ...props
-        }, props.children)
+        createElement(
+            'a',
+            {
+                href: props.to,
+                ref,
+                ...props
+            },
+            props.children
+        )
     )
 }));
 
@@ -21,7 +25,11 @@ vi.mock('@hooks/useActiveStudents');
 
 vi.mock('@components/StudentOverviewTable', () => ({
     default: () =>
-        createElement('div', { 'data-testid': 'student-overview-table' }, 'Table')
+        createElement(
+            'div',
+            { 'data-testid': 'student-overview-table' },
+            'Table'
+        )
 }));
 
 const mockAgentUser = {

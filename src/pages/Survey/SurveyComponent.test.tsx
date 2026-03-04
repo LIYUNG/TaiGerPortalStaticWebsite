@@ -10,10 +10,15 @@ vi.mock('./SurveyEditableComponent', () => ({
     default: (props: Record<string, unknown>) => (
         <div data-testid="survey-editable">
             <span data-testid="survey-student-id">
-                {String((props.survey as { student_id?: string })?.student_id ?? '')}
+                {String(
+                    (props.survey as { student_id?: string })?.student_id ?? ''
+                )}
             </span>
             <span data-testid="survey-link">
-                {String((props.survey as { survey_link?: string })?.survey_link ?? '')}
+                {String(
+                    (props.survey as { survey_link?: string })?.survey_link ??
+                        ''
+                )}
             </span>
         </div>
     )

@@ -14,8 +14,9 @@ export function useProgramsOverview() {
 
     return {
         ...result,
-        data: (result.data as { data?: Record<string, unknown> } | undefined)
-            ?.data ?? {},
+        data:
+            (result.data as { data?: Record<string, unknown> } | undefined)
+                ?.data ?? {},
         queryKey: query.queryKey
     };
 }

@@ -37,9 +37,9 @@ export function useMyStudentsApplicationsV2(
         enabled: options?.enabled ?? true
     });
 
-    const data: MyStudentsApplicationsV2Data =
-        (result.data as { data?: MyStudentsApplicationsV2Data } | undefined)
-            ?.data ?? { applications: [] };
+    const data: MyStudentsApplicationsV2Data = (
+        result.data as { data?: MyStudentsApplicationsV2Data } | undefined
+    )?.data ?? { applications: [] };
 
     return {
         ...result,

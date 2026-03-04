@@ -42,6 +42,8 @@ describe('SurveyApplicationPreferenceCard', () => {
 
     it('renders Update button when user is not archived', () => {
         render(<SurveyApplicationPreferenceCard {...defaultProps} />);
-        expect(screen.getByRole('button', { name: 'Update' })).toBeInTheDocument();
+        expect(
+            screen.getByRole('button', { name: 'Update' })
+        ).toBeInTheDocument();
     });
 });

@@ -138,8 +138,7 @@ const LeadProfileHeader = ({
                                 }}
                                 variant="h5"
                             >
-                                {lead.fullName ||
-                                    t('common.na', { ns: 'crm' })}
+                                {lead.fullName || t('common.na', { ns: 'crm' })}
                             </Typography>
                             <Typography
                                 sx={{
@@ -223,8 +222,7 @@ const LeadProfileHeader = ({
                                     label={
                                         lead.closeLikelihood === 'high'
                                             ? 'H'
-                                            : lead.closeLikelihood ===
-                                                'medium'
+                                            : lead.closeLikelihood === 'medium'
                                               ? 'M'
                                               : 'L'
                                     }
@@ -287,15 +285,13 @@ const LeadProfileHeader = ({
                                     variant="body2"
                                 >
                                     {t('common.sales', { ns: 'crm' })}:{' '}
-                                    {(lead?.salesRep as Record<string, unknown>)?.label ||
+                                    {(lead?.salesRep as Record<string, unknown>)
+                                        ?.label ||
                                         t('leads.unassigned', {
                                             ns: 'crm'
                                         })}
                                 </Typography>
-                                <IconButton
-                                    onClick={onEdit}
-                                    size="small"
-                                >
+                                <IconButton onClick={onEdit} size="small">
                                     <EditIcon />
                                 </IconButton>
                             </Box>
@@ -417,32 +413,52 @@ const LeadProfileHeader = ({
                                         gap: 1
                                     }}
                                 >
-                                    {(lead.deals as Record<string, unknown>[]).map((deal: Record<string, unknown>, idx: number) => {
-                                        const id = getDealId(deal);
-                                        const isUpdating =
-                                            updateStatusMutation.isPending &&
-                                            updateStatusMutation.variables
-                                                ?.id === id;
-                                        const handleEditDeal = (d: Record<string, unknown>) => {
-                                            d.leadFullName = lead?.fullName;
-                                            d.salesLabel =
-                                                (deal?.salesRep as Record<string, unknown>)?.label;
-                                            onEditDeal(d);
-                                        };
-                                        return (
-                                            <Box key={String(id) || String(idx)}>
-                                                <DealItem
-                                                    deal={deal}
-                                                    isUpdating={isUpdating}
-                                                    onEditDeal={handleEditDeal}
-                                                    onOpenStatusMenu={
-                                                        openStatusMenu
+                                    {(
+                                        lead.deals as Record<string, unknown>[]
+                                    ).map(
+                                        (
+                                            deal: Record<string, unknown>,
+                                            idx: number
+                                        ) => {
+                                            const id = getDealId(deal);
+                                            const isUpdating =
+                                                updateStatusMutation.isPending &&
+                                                updateStatusMutation.variables
+                                                    ?.id === id;
+                                            const handleEditDeal = (
+                                                d: Record<string, unknown>
+                                            ) => {
+                                                d.leadFullName = lead?.fullName;
+                                                d.salesLabel = (
+                                                    deal?.salesRep as Record<
+                                                        string,
+                                                        unknown
+                                                    >
+                                                )?.label;
+                                                onEditDeal(d);
+                                            };
+                                            return (
+                                                <Box
+                                                    key={
+                                                        String(id) ||
+                                                        String(idx)
                                                     }
-                                                    t={t}
-                                                />
-                                            </Box>
-                                        );
-                                    })}
+                                                >
+                                                    <DealItem
+                                                        deal={deal}
+                                                        isUpdating={isUpdating}
+                                                        onEditDeal={
+                                                            handleEditDeal
+                                                        }
+                                                        onOpenStatusMenu={
+                                                            openStatusMenu
+                                                        }
+                                                        t={t}
+                                                    />
+                                                </Box>
+                                            );
+                                        }
+                                    )}
                                 </Box>
                             </Box>
                         )}
@@ -505,17 +521,12 @@ const LeadProfileHeader = ({
                                     label={t('leads.gender', { ns: 'crm' })}
                                     labelId="gender-select-label"
                                     onChange={(e) =>
-                                        onFieldChange(
-                                            'gender',
-                                            e.target.value
-                                        )
+                                        onFieldChange('gender', e.target.value)
                                     }
                                     value={formData.gender || ''}
                                 >
                                     <MenuItem value="male">Male</MenuItem>
-                                    <MenuItem value="female">
-                                        Female
-                                    </MenuItem>
+                                    <MenuItem value="female">Female</MenuItem>
                                     <MenuItem value="other">Other</MenuItem>
                                 </Select>
                             </FormControl>
@@ -548,13 +559,14 @@ const LeadProfileHeader = ({
                                     onChange={(e) => {
                                         const selectedId = e.target.value;
                                         const selected = salesOptions.find(
-                                            (s: { userId: string; label: string }) => s.userId === selectedId
+                                            (s: {
+                                                userId: string;
+                                                label: string;
+                                            }) => s.userId === selectedId
                                         );
                                         onFieldChange(
                                             'salesUserId',
-                                            selectedId
-                                                ? selected?.userId
-                                                : null
+                                            selectedId ? selected?.userId : null
                                         );
                                     }}
                                     value={formData?.salesUserId || ''}
@@ -564,14 +576,19 @@ const LeadProfileHeader = ({
                                             ns: 'crm'
                                         })}
                                     </MenuItem>
-                                    {salesOptions.map((s: { userId: string; label: string }) => (
-                                        <MenuItem
-                                            key={s.userId}
-                                            value={s.userId}
-                                        >
-                                            {s.label}
-                                        </MenuItem>
-                                    ))}
+                                    {salesOptions.map(
+                                        (s: {
+                                            userId: string;
+                                            label: string;
+                                        }) => (
+                                            <MenuItem
+                                                key={s.userId}
+                                                value={s.userId}
+                                            >
+                                                {s.label}
+                                            </MenuItem>
+                                        )
+                                    )}
                                 </Select>
                             </FormControl>
                         </Grid>
@@ -618,10 +635,7 @@ const LeadProfileHeader = ({
                                     })}
                                     labelId="status-select-label"
                                     onChange={(e) =>
-                                        onFieldChange(
-                                            'status',
-                                            e.target.value
-                                        )
+                                        onFieldChange('status', e.target.value)
                                     }
                                     value={formData.status || ''}
                                 >
@@ -629,9 +643,7 @@ const LeadProfileHeader = ({
                                     <MenuItem value="not-qualified">
                                         Not Qualified
                                     </MenuItem>
-                                    <MenuItem value="closed">
-                                        Closed
-                                    </MenuItem>
+                                    <MenuItem value="closed">Closed</MenuItem>
                                     <MenuItem value="converted">
                                         Converted
                                     </MenuItem>
@@ -659,9 +671,7 @@ const LeadProfileHeader = ({
                                     value={formData.closeLikelihood || ''}
                                 >
                                     <MenuItem value="high">High</MenuItem>
-                                    <MenuItem value="medium">
-                                        Medium
-                                    </MenuItem>
+                                    <MenuItem value="medium">Medium</MenuItem>
                                     <MenuItem value="low">Low</MenuItem>
                                 </Select>
                             </FormControl>
@@ -673,10 +683,7 @@ const LeadProfileHeader = ({
                                 minRows={3}
                                 multiline
                                 onChange={(e) =>
-                                    onFieldChange(
-                                        'salesNote',
-                                        e.target.value
-                                    )
+                                    onFieldChange('salesNote', e.target.value)
                                 }
                                 size="small"
                                 value={formData.salesNote || ''}
@@ -707,27 +714,47 @@ const LeadProfileHeader = ({
                                                 gap: 1
                                             }}
                                         >
-                                            {(lead.deals as Record<string, unknown>[]).map(
-                                                (deal: Record<string, unknown>, idx: number) => {
-                                                    const id =
-                                                        getDealId(deal);
+                                            {(
+                                                lead.deals as Record<
+                                                    string,
+                                                    unknown
+                                                >[]
+                                            ).map(
+                                                (
+                                                    deal: Record<
+                                                        string,
+                                                        unknown
+                                                    >,
+                                                    idx: number
+                                                ) => {
+                                                    const id = getDealId(deal);
                                                     const isUpdating =
                                                         updateStatusMutation.isPending &&
                                                         updateStatusMutation
-                                                            .variables
-                                                            ?.id === id;
+                                                            .variables?.id ===
+                                                            id;
                                                     const handleEditDealItem = (
-                                                        d: Record<string, unknown>
+                                                        d: Record<
+                                                            string,
+                                                            unknown
+                                                        >
                                                     ) => {
                                                         d.leadFullName =
                                                             lead?.fullName;
-                                                        d.salesLabel =
-                                                            (lead?.salesRep as Record<string, unknown>)?.label;
+                                                        d.salesLabel = (
+                                                            lead?.salesRep as Record<
+                                                                string,
+                                                                unknown
+                                                            >
+                                                        )?.label;
                                                         onEditDeal(d);
                                                     };
                                                     return (
                                                         <Box
-                                                            key={String(id) || String(idx)}
+                                                            key={
+                                                                String(id) ||
+                                                                String(idx)
+                                                            }
                                                         >
                                                             <DealItem
                                                                 deal={deal}

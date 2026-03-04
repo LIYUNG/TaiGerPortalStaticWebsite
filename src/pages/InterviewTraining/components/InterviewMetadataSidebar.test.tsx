@@ -164,9 +164,7 @@ describe('InterviewMetadataSidebar', () => {
 
     it('shows interview time section', () => {
         renderSidebar();
-        expect(
-            screen.getByText('Interview Training Time')
-        ).toBeInTheDocument();
+        expect(screen.getByText('Interview Training Time')).toBeInTheDocument();
     });
 
     it('shows "To be announced" when no meeting time is set for student', () => {
@@ -209,8 +207,9 @@ describe('InterviewMetadataSidebar', () => {
         renderSidebar();
         expect(screen.getByText('Student Information')).toBeInTheDocument();
         expect(
-            screen.getByText((content) =>
-                content.includes('Alice') && content.includes('Smith')
+            screen.getByText(
+                (content) =>
+                    content.includes('Alice') && content.includes('Smith')
             )
         ).toBeInTheDocument();
         expect(screen.getByText('alice@example.com')).toBeInTheDocument();
@@ -241,9 +240,7 @@ describe('InterviewMetadataSidebar', () => {
     it('does not show Official Details card for non-TaiGer role users', () => {
         vi.mocked(is_TaiGer_role).mockReturnValue(false);
         renderSidebar();
-        expect(
-            screen.queryByText('Official Details')
-        ).not.toBeInTheDocument();
+        expect(screen.queryByText('Official Details')).not.toBeInTheDocument();
     });
 
     it('shows Delete Interview button for TaiGer role users', () => {

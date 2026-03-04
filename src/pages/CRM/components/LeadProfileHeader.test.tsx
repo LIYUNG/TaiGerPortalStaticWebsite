@@ -86,7 +86,9 @@ describe('LeadProfileHeader', () => {
 
     it('shows edit form fields when isEditing is true', () => {
         render_({ ...baseProps, isEditing: true });
-        expect(screen.getByRole('textbox', { name: /leads\.fullName/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('textbox', { name: /leads\.fullName/i })
+        ).toBeInTheDocument();
     });
 
     it('shows fullName TextField in edit mode', () => {

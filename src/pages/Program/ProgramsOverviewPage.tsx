@@ -23,12 +23,7 @@ import {
     Tooltip,
     Typography
 } from '@mui/material';
-import {
-    Update,
-    Refresh,
-    Assessment,
-    Info
-} from '@mui/icons-material';
+import { Update, Refresh, Assessment, Info } from '@mui/icons-material';
 import { is_TaiGer_role } from '@taiger-common/core';
 import type { ProgramsOverviewData } from '@taiger-common/model';
 
@@ -263,7 +258,6 @@ const ProgramsOverviewPage = () => {
                 bySubject={overview.bySubject}
                 bySchoolType={overview.bySchoolType}
                 topContributors={overview.topContributors}
-                totalPrograms={overview.totalPrograms}
                 t={t}
             />
 

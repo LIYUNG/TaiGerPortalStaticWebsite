@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-    Typography,
-    Card,
-    Box,
-    Stack,
-    Divider
-} from '@mui/material';
+import { Typography, Card, Box, Stack, Divider } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import LanguageIcon from '@mui/icons-material/Language';
 import SchoolIcon from '@mui/icons-material/School';
@@ -68,10 +62,7 @@ const ProgramDetailsCard = ({
                                 color="action"
                                 sx={{ fontSize: 18 }}
                             />
-                            <Typography
-                                color="text.secondary"
-                                variant="body2"
-                            >
+                            <Typography color="text.secondary" variant="body2">
                                 {t('Semester', { ns: 'common' })}
                             </Typography>
                         </Stack>
@@ -94,10 +85,7 @@ const ProgramDetailsCard = ({
                                 color="action"
                                 sx={{ fontSize: 18 }}
                             />
-                            <Typography
-                                color="text.secondary"
-                                variant="body2"
-                            >
+                            <Typography color="text.secondary" variant="body2">
                                 {t('Program Language', { ns: 'common' })}
                             </Typography>
                         </Stack>

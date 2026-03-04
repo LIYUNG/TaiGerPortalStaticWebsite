@@ -29,10 +29,7 @@ import {
 } from '@taiger-common/core';
 import i18next from 'i18next';
 
-import {
-    getActiveEventsNumber,
-    getMyCommunicationUnreadNumber
-} from '@/api';
+import { getActiveEventsNumber, getMyCommunicationUnreadNumber } from '@/api';
 import { appConfig } from '../../config';
 import { useAuth } from '../AuthProvider';
 import NavSearch from './NavSearch';

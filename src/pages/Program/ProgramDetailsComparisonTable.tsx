@@ -9,7 +9,10 @@ import {
 } from '@mui/material';
 import { program_fields } from '@utils/contants';
 import { LinkableNewlineText } from '../Utils/checking-functions';
-import type { IApplicationPopulated, IProgramWithId } from '@taiger-common/model';
+import type {
+    IApplicationPopulated,
+    IProgramWithId
+} from '@taiger-common/model';
 
 const ProgramDetailsComparisonTable = ({
     applications

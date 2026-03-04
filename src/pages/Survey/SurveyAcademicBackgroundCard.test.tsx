@@ -87,9 +87,7 @@ describe('SurveyAcademicBackgroundCard', () => {
 
     it('renders Practical Experience section', () => {
         renderCard();
-        expect(
-            screen.getByText('Practical Experience')
-        ).toBeInTheDocument();
+        expect(screen.getByText('Practical Experience')).toBeInTheDocument();
     });
 
     it('renders GPA section with Corresponding German GPA System label', () => {
@@ -111,16 +109,12 @@ describe('SurveyAcademicBackgroundCard', () => {
             }
         };
         renderCard({ ...baseProps, survey });
-        expect(
-            screen.getByPlaceholderText('2016')
-        ).toBeInTheDocument();
+        expect(screen.getByPlaceholderText('2016')).toBeInTheDocument();
     });
 
     it('does not show high school graduation year field when high_school_isGraduated is "-"', () => {
         renderCard();
-        expect(
-            screen.queryByPlaceholderText('2016')
-        ).not.toBeInTheDocument();
+        expect(screen.queryByPlaceholderText('2016')).not.toBeInTheDocument();
     });
 
     it('shows university name field when isGraduated is "Yes"', () => {
@@ -177,9 +171,7 @@ describe('SurveyAcademicBackgroundCard', () => {
         };
         renderCard({ ...baseProps, survey });
         expect(
-            screen.getByText(
-                'Second degree (Another Bachelor or Master)'
-            )
+            screen.getByText('Second degree (Another Bachelor or Master)')
         ).toBeInTheDocument();
     });
 
@@ -196,9 +188,7 @@ describe('SurveyAcademicBackgroundCard', () => {
         };
         renderCard({ ...baseProps, survey });
         expect(
-            screen.queryByText(
-                'Second degree (Another Bachelor or Master)'
-            )
+            screen.queryByText('Second degree (Another Bachelor or Master)')
         ).not.toBeInTheDocument();
     });
 
@@ -235,8 +225,13 @@ describe('SurveyAcademicBackgroundCard', () => {
 
     it('shows Edit button for admin users', () => {
         vi.mocked(is_TaiGer_Admin).mockReturnValue(true);
-        renderCard({ ...baseProps, user: { ...baseUser, role: 'Admin' } as unknown as IUser });
-        expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument();
+        renderCard({
+            ...baseProps,
+            user: { ...baseUser, role: 'Admin' } as unknown as IUser
+        });
+        expect(
+            screen.getByRole('button', { name: 'Edit' })
+        ).toBeInTheDocument();
     });
 
     it('calls handleChangeAcademic when High School Name field changes', () => {
@@ -256,7 +251,9 @@ describe('SurveyAcademicBackgroundCard', () => {
         renderCard({ ...baseProps, survey });
         const updateButton = screen.getByRole('button', { name: 'Update' });
         fireEvent.click(updateButton);
-        expect(baseProps.handleAcademicBackgroundSubmit).toHaveBeenCalledTimes(1);
+        expect(baseProps.handleAcademicBackgroundSubmit).toHaveBeenCalledTimes(
+            1
+        );
     });
 
     it('calls openOffcanvasWindow when Edit button is clicked by admin', () => {

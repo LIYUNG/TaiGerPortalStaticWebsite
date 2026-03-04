@@ -27,7 +27,11 @@ vi.mock('react-router-dom', () => ({
     Navigate: () => null,
     Link: forwardRef(
         (
-            { children, to, ...props }: { to: string; children?: React.ReactNode },
+            {
+                children,
+                to,
+                ...props
+            }: { to: string; children?: React.ReactNode },
             ref
         ) => createElement('a', { href: to, ref, ...props }, children)
     ),

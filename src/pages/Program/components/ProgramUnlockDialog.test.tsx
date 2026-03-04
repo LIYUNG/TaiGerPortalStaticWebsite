@@ -38,9 +38,7 @@ describe('ProgramUnlockDialog', () => {
 
     it('renders dialog title when open', () => {
         render(<ProgramUnlockDialog {...defaultProps} />);
-        expect(
-            screen.getByText('Unlock Program Manually')
-        ).toBeInTheDocument();
+        expect(screen.getByText('Unlock Program Manually')).toBeInTheDocument();
     });
 
     it('renders warning content', () => {

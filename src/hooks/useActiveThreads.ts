@@ -21,7 +21,7 @@ export function useActiveThreads(params: ActiveThreadsParams = {}) {
 
     return {
         ...result,
-        data: result.data as IDocumentthreadPopulated[] ?? [],
+        data: (result.data as IDocumentthreadPopulated[]) ?? [],
         queryKey: query.queryKey
     };
 }

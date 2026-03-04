@@ -1,8 +1,4 @@
-import {
-    MouseEvent,
-    SyntheticEvent,
-    ChangeEvent
-} from 'react';
+import { MouseEvent, SyntheticEvent, ChangeEvent } from 'react';
 import {
     FormControl,
     IconButton,
@@ -217,8 +213,12 @@ const ApplicationTableRow = ({
                         value={application.decided}
                     >
                         <MenuItem value="-">-</MenuItem>
-                        <MenuItem value="X">{t('No', { ns: 'common' })}</MenuItem>
-                        <MenuItem value="O">{t('Yes', { ns: 'common' })}</MenuItem>
+                        <MenuItem value="X">
+                            {t('No', { ns: 'common' })}
+                        </MenuItem>
+                        <MenuItem value="O">
+                            {t('Yes', { ns: 'common' })}
+                        </MenuItem>
                     </Select>
                 </FormControl>
             </TableCell>
@@ -286,7 +286,8 @@ const ApplicationTableRow = ({
                                 !(
                                     application.closed !== '-' &&
                                     application.closed !== 'X'
-                                ) || (application.finalEnrolment ?? false)
+                                ) ||
+                                (application.finalEnrolment ?? false)
                             }
                             id="admission"
                             labelId="admission"
@@ -295,7 +296,10 @@ const ApplicationTableRow = ({
                             size="small"
                         >
                             {IS_SUBMITTED_STATE_OPTIONS.map((option) => (
-                                <MenuItem key={option.value} value={option.value}>
+                                <MenuItem
+                                    key={option.value}
+                                    value={option.value}
+                                >
                                     {t(option.label, { ns: 'common' })}
                                 </MenuItem>
                             ))}
@@ -350,11 +354,7 @@ const ApplicationTableRow = ({
                             <Tooltip arrow title="Undo Withdraw">
                                 <RedoIcon
                                     onClick={(e) =>
-                                        handleWithdraw(
-                                            e,
-                                            application_idx,
-                                            '-'
-                                        )
+                                        handleWithdraw(e, application_idx, '-')
                                     }
                                 />
                             </Tooltip>
@@ -362,11 +362,7 @@ const ApplicationTableRow = ({
                             <Tooltip arrow title="Withdraw">
                                 <UndoIcon
                                     onClick={(e) =>
-                                        handleWithdraw(
-                                            e,
-                                            application_idx,
-                                            'X'
-                                        )
+                                        handleWithdraw(e, application_idx, 'X')
                                     }
                                 />
                             </Tooltip>

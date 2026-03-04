@@ -60,7 +60,9 @@ describe('SameProgramStudentsCard', () => {
         const { container } = render(
             <SameProgramStudentsCard isLoading={true} students={[]} />
         );
-        expect(container.querySelector('.MuiSkeleton-root')).toBeInTheDocument();
+        expect(
+            container.querySelector('.MuiSkeleton-root')
+        ).toBeInTheDocument();
     });
 
     it('renders In Progress students', () => {

@@ -7,139 +7,276 @@ import {
     putData,
     request
 } from './request';
-import type { LoginCredentials, ResetPasswordPayload, ForgotPasswordPayload, ApiPayload, QueryString } from './types';
+import type {
+    LoginCredentials,
+    ResetPasswordPayload,
+    ForgotPasswordPayload,
+    ApiPayload,
+    QueryString
+} from './types';
 import type {
     // Model types
     IUserWithId,
-    StudentId, ApplicationId, UserId, ProgramId, DocumentThreadId,
-    MessageId, SurveyId, TicketId, MeetingId, InterviewId, LeadId,
+    StudentId,
+    ApplicationId,
+    UserId,
+    ProgramId,
+    DocumentThreadId,
+    MessageId,
+    SurveyId,
+    TicketId,
+    MeetingId,
+    InterviewId,
+    LeadId,
     // Auth
-    AuthVerifyResponse, AuthLoginResponse, AuthOAuthCallbackResponse,
-    AuthRegisterResponse, ForgotPasswordResponse, ResetPasswordResponse,
-    ActivationResponse, ResendActivationResponse, LogoutResponse,
+    AuthVerifyResponse,
+    AuthLoginResponse,
+    AuthOAuthCallbackResponse,
+    AuthRegisterResponse,
+    ForgotPasswordResponse,
+    ResetPasswordResponse,
+    ActivationResponse,
+    ResendActivationResponse,
+    LogoutResponse,
     // Audit
     GetAuditLogResponse,
     // Search
-    GetQueryStudentsResultsResponse, GetQueryResultsResponse,
-    GetQueryPublicResultsResponse, GetQueryStudentResultsResponse,
+    GetQueryStudentsResultsResponse,
+    GetQueryResultsResponse,
+    GetQueryPublicResultsResponse,
+    GetQueryStudentResultsResponse,
     // Users
-    GetUsersResponse, GetUsersCountResponse, GetUsersOverviewResponse,
-    GetUserResponse, AddUserResponse, UpdateUserResponse,
-    DeleteUserResponse, UpdateArchivUserResponse, GetEssayWritersResponse,
+    GetUsersResponse,
+    GetUsersCountResponse,
+    GetUsersOverviewResponse,
+    GetUserResponse,
+    AddUserResponse,
+    UpdateUserResponse,
+    DeleteUserResponse,
+    UpdateArchivUserResponse,
+    GetEssayWritersResponse,
     // Students
-    GetStudentsResponse, GetStudentResponse, GetActiveStudentsResponse,
-    GetStudentDocLinksResponse, GetStudentsAndDocLinksResponse,
-    UpdateArchivStudentsResponse, UpdateStudentAgentsResponse,
-    UpdateStudentEditorsResponse, UpdateStudentAttributesResponse,
-    UpdateDocumentationHelperLinkResponse, UploadStudentFileResponse,
-    DeleteStudentFileResponse, UploadVPDFileResponse, DeleteVPDFileResponse,
-    SetAsNotNeededResponse, SetUniAssistPaidResponse,
-    UpdateProfileDocStatusResponse, GetStudentUniAssistResponse,
-    GetArchivStudentsResponse, GetSameProgramStudentsResponse,
+    GetStudentsResponse,
+    GetStudentResponse,
+    GetActiveStudentsResponse,
+    GetStudentDocLinksResponse,
+    GetStudentsAndDocLinksResponse,
+    UpdateArchivStudentsResponse,
+    UpdateStudentAgentsResponse,
+    UpdateStudentEditorsResponse,
+    UpdateStudentAttributesResponse,
+    UpdateDocumentationHelperLinkResponse,
+    UploadStudentFileResponse,
+    DeleteStudentFileResponse,
+    UploadVPDFileResponse,
+    DeleteVPDFileResponse,
+    SetAsNotNeededResponse,
+    SetUniAssistPaidResponse,
+    UpdateProfileDocStatusResponse,
+    GetStudentUniAssistResponse,
+    GetArchivStudentsResponse,
+    GetSameProgramStudentsResponse,
     // Applications
-    GetApplicationsResponse, GetMyStudentsApplicationsResponse,
-    GetActiveStudentsApplicationsResponse, GetStudentApplicationsResponse,
-    CreateApplicationResponse, UpdateStudentApplicationsResponse,
-    UpdateApplicationResponse, DeleteApplicationResponse,
-    RefreshApplicationResponse, GetApplicationConflictsResponse,
-    GetApplicationTaskDeltasResponse, UpdateStudentApplicationResultResponse,
-    GetAdmissionsResponse, GetAdmissionsOverviewResponse,
+    GetApplicationsResponse,
+    GetMyStudentsApplicationsResponse,
+    GetActiveStudentsApplicationsResponse,
+    GetStudentApplicationsResponse,
+    CreateApplicationResponse,
+    UpdateStudentApplicationsResponse,
+    UpdateApplicationResponse,
+    DeleteApplicationResponse,
+    RefreshApplicationResponse,
+    GetApplicationConflictsResponse,
+    GetApplicationTaskDeltasResponse,
+    UpdateStudentApplicationResultResponse,
+    GetAdmissionsResponse,
+    GetAdmissionsOverviewResponse,
     // Programs
-    GetProgramsResponse, GetProgramsOverviewResponse, GetProgramResponse,
-    GetSchoolsDistributionResponse, GetDistinctSchoolsResponse,
-    UpdateSchoolAttributesResponse, CreateProgramResponse,
-    UpdateProgramResponse, DeleteProgramResponse,
-    GetProgramChangeRequestsResponse, ReviewProgramChangeRequestsResponse,
+    GetProgramsResponse,
+    GetProgramsOverviewResponse,
+    GetProgramResponse,
+    GetSchoolsDistributionResponse,
+    GetDistinctSchoolsResponse,
+    UpdateSchoolAttributesResponse,
+    CreateProgramResponse,
+    UpdateProgramResponse,
+    DeleteProgramResponse,
+    GetProgramChangeRequestsResponse,
+    ReviewProgramChangeRequestsResponse,
     RefreshProgramResponse,
     // Program Requirements
-    GetProgramRequirementsResponse, GetProgramRequirementResponse,
-    GetProgramsAndKeywordSetsResponse, CreateProgramRequirementResponse,
-    UpdateProgramRequirementResponse, DeleteProgramRequirementResponse,
+    GetProgramRequirementsResponse,
+    GetProgramRequirementResponse,
+    GetProgramsAndKeywordSetsResponse,
+    CreateProgramRequirementResponse,
+    UpdateProgramRequirementResponse,
+    DeleteProgramRequirementResponse,
     // Courses / Keywords
-    GetAllCoursesResponse, GetAllCourseResponse, CreateAllCourseResponse,
-    UpdateAllCourseResponse, DeleteAllCourseResponse,
-    GetCourseKeywordsetsResponse, GetCourseKeywordsetResponse,
-    CreateKeywordsetResponse, UpdateKeywordsetResponse, DeleteKeywordsetResponse,
-    GetStudentCoursesResponse, UpdateStudentCoursesResponse,
+    GetAllCoursesResponse,
+    GetAllCourseResponse,
+    CreateAllCourseResponse,
+    UpdateAllCourseResponse,
+    DeleteAllCourseResponse,
+    GetCourseKeywordsetsResponse,
+    GetCourseKeywordsetResponse,
+    CreateKeywordsetResponse,
+    UpdateKeywordsetResponse,
+    DeleteKeywordsetResponse,
+    GetStudentCoursesResponse,
+    UpdateStudentCoursesResponse,
     // Account
-    UpdateBannerResponse, UpdateAgentBannerResponse,
-    UpdateAcademicBackgroundResponse, UpdateLanguageSkillResponse,
-    UpdateApplicationPreferenceResponse, GetMyAcademicBackgroundResponse,
-    GetTemplatesResponse, UploadTemplateResponse, DeleteTemplateFileResponse,
-    UpdatePersonalDataResponse, UpdateCredentialsResponse, UpdateOfficehoursResponse,
+    UpdateBannerResponse,
+    UpdateAgentBannerResponse,
+    UpdateAcademicBackgroundResponse,
+    UpdateLanguageSkillResponse,
+    UpdateApplicationPreferenceResponse,
+    GetMyAcademicBackgroundResponse,
+    GetTemplatesResponse,
+    UploadTemplateResponse,
+    DeleteTemplateFileResponse,
+    UpdatePersonalDataResponse,
+    UpdateCredentialsResponse,
+    UpdateOfficehoursResponse,
     // Documentations
-    GetCategorizedDocumentationResponse, GetAllDocumentationsResponse,
-    GetDocumentationResponse, CreateDocumentationResponse,
-    UpdateDocumentationResponse, DeleteDocumentationResponse,
-    GetDocspageResponse, UpdateDocspageResponse,
-    GetAllInternalDocumentationsResponse, GetInternaldocResponse,
-    GetInternalDocumentationPageResponse, UpdateInternalDocumentationPageResponse,
-    CreateInternaldocResponse, UpdateInternaldocResponse, DeleteInternaldocResponse,
-    UploadDocImageResponse, UploadDocDocsResponse,
+    GetCategorizedDocumentationResponse,
+    GetAllDocumentationsResponse,
+    GetDocumentationResponse,
+    CreateDocumentationResponse,
+    UpdateDocumentationResponse,
+    DeleteDocumentationResponse,
+    GetDocspageResponse,
+    UpdateDocspageResponse,
+    GetAllInternalDocumentationsResponse,
+    GetInternaldocResponse,
+    GetInternalDocumentationPageResponse,
+    UpdateInternalDocumentationPageResponse,
+    CreateInternaldocResponse,
+    UpdateInternaldocResponse,
+    DeleteInternaldocResponse,
+    UploadDocImageResponse,
+    UploadDocDocsResponse,
     // Document threads
-    GetActiveThreadsResponse, GetThreadsByStudentResponse,
-    GetMyStudentThreadsResponse, GetMyStudentThreadMetricsResponse,
-    GetCheckDocumentPatternResponse, GetMessagesThreadResponse,
-    SetFileFinalResponse, InitGeneralThreadResponse, InitApplicationThreadResponse,
-    SubmitMessageResponse, DeleteGeneralFileThreadResponse,
-    DeleteProgramSpecificFileThreadResponse, DeleteMessageInThreadResponse,
-    UpdateEssayWriterResponse, UploadDocumentThreadImageResponse,
-    PutOriginAuthorConfirmedResponse, IgnoreMessageThreadResponse,
-    PutThreadFavoriteResponse, GetSurveyInputsResponse,
-    PostSurveyInputResponse, PutSurveyInputResponse, DeleteSurveyInputResponse,
+    GetActiveThreadsResponse,
+    GetThreadsByStudentResponse,
+    GetMyStudentThreadsResponse,
+    GetMyStudentThreadMetricsResponse,
+    GetCheckDocumentPatternResponse,
+    GetMessagesThreadResponse,
+    SetFileFinalResponse,
+    InitGeneralThreadResponse,
+    InitApplicationThreadResponse,
+    SubmitMessageResponse,
+    DeleteGeneralFileThreadResponse,
+    DeleteProgramSpecificFileThreadResponse,
+    DeleteMessageInThreadResponse,
+    UpdateEssayWriterResponse,
+    UploadDocumentThreadImageResponse,
+    PutOriginAuthorConfirmedResponse,
+    IgnoreMessageThreadResponse,
+    PutThreadFavoriteResponse,
+    GetSurveyInputsResponse,
+    PostSurveyInputResponse,
+    PutSurveyInputResponse,
+    DeleteSurveyInputResponse,
     // Portals
-    GetPortalCredentialsResponse, CreatePortalCredentialsResponse,
+    GetPortalCredentialsResponse,
+    CreatePortalCredentialsResponse,
     // Communications
-    GetCommunicationThreadResponse, GetMyCommunicationThreadResponse,
-    GetCommunicationUnreadNumberResponse, LoadCommunicationThreadResponse,
-    PostCommunicationResponse, UpdateCommunicationMessageResponse,
-    DeleteCommunicationMessageResponse, IgnoreCommunicationMessageResponse,
+    GetCommunicationThreadResponse,
+    GetMyCommunicationThreadResponse,
+    GetCommunicationUnreadNumberResponse,
+    LoadCommunicationThreadResponse,
+    PostCommunicationResponse,
+    UpdateCommunicationMessageResponse,
+    DeleteCommunicationMessageResponse,
+    IgnoreCommunicationMessageResponse,
     // Events
-    GetActiveEventsNumberResponse, GetEventsResponse, GetBookedEventsResponse,
-    PostEventResponse, ConfirmEventResponse, UpdateEventResponse, DeleteEventResponse,
+    GetActiveEventsNumberResponse,
+    GetEventsResponse,
+    GetBookedEventsResponse,
+    PostEventResponse,
+    ConfirmEventResponse,
+    UpdateEventResponse,
+    DeleteEventResponse,
     // Teams / Stats
-    GetTeamMembersResponse, GetStatisticsV2Response, GetStatisticsOverviewResponse,
-    GetStatisticsAgentsResponse, GetStatisticsKPIResponse,
-    GetStatisticsResponseTimeResponse, GetTasksOverviewResponse,
-    GetIsManagerResponse, GetResponseIntervalByStudentResponse,
-    GetAgentProfileResponse, GetExpenseResponse,
+    GetTeamMembersResponse,
+    GetStatisticsV2Response,
+    GetStatisticsOverviewResponse,
+    GetStatisticsAgentsResponse,
+    GetStatisticsKPIResponse,
+    GetStatisticsResponseTimeResponse,
+    GetTasksOverviewResponse,
+    GetIsManagerResponse,
+    GetResponseIntervalByStudentResponse,
+    GetAgentProfileResponse,
+    GetExpenseResponse,
     // Notes
-    GetStudentNotesResponse, UpdateStudentNotesResponse,
+    GetStudentNotesResponse,
+    UpdateStudentNotesResponse,
     // Interviews
-    GetInterviewsResponse, GetInterviewResponse, GetMyInterviewsResponse,
-    GetInterviewsByProgramIdResponse, GetInterviewsByStudentIdResponse,
-    GetInterviewSurveyResponse, UpdateInterviewSurveyResponse,
-    CreateInterviewResponse, DeleteInterviewResponse, UpdateInterviewResponse,
+    GetInterviewsResponse,
+    GetInterviewResponse,
+    GetMyInterviewsResponse,
+    GetInterviewsByProgramIdResponse,
+    GetInterviewsByStudentIdResponse,
+    GetInterviewSurveyResponse,
+    UpdateInterviewSurveyResponse,
+    CreateInterviewResponse,
+    DeleteInterviewResponse,
+    UpdateInterviewResponse,
     AddInterviewTrainingDateTimeResponse,
     // Tickets & Complaints
-    GetProgramTicketsResponse, GetProgramTicketResponse,
-    CreateTicketResponse, UpdateTicketResponse, DeleteTicketResponse,
-    GetComplaintsResponse, GetComplaintResponse, CreateComplaintResponse,
-    UpdateComplaintResponse, DeleteComplaintResponse,
-    PostMessageInComplaintResponse, DeleteMessageInComplaintResponse,
+    GetProgramTicketsResponse,
+    GetProgramTicketResponse,
+    CreateTicketResponse,
+    UpdateTicketResponse,
+    DeleteTicketResponse,
+    GetComplaintsResponse,
+    GetComplaintResponse,
+    CreateComplaintResponse,
+    UpdateComplaintResponse,
+    DeleteComplaintResponse,
+    PostMessageInComplaintResponse,
+    DeleteMessageInComplaintResponse,
     // CRM
-    GetCRMStatsResponse, GetCRMLeadsResponse, GetCRMLeadResponse,
-    GetLeadIdByUserIdResponse, CreateLeadFromStudentResponse,
-    GetCRMMeetingsResponse, GetCRMMeetingResponse, UpdateCRMMeetingResponse,
-    GetCRMDealsResponse, CreateCRMDealResponse, UpdateCRMDealResponse,
-    GetCRMSalesRepsResponse, InstantInviteResponse,
+    GetCRMStatsResponse,
+    GetCRMLeadsResponse,
+    GetCRMLeadResponse,
+    GetLeadIdByUserIdResponse,
+    CreateLeadFromStudentResponse,
+    GetCRMMeetingsResponse,
+    GetCRMMeetingResponse,
+    UpdateCRMMeetingResponse,
+    GetCRMDealsResponse,
+    CreateCRMDealResponse,
+    UpdateCRMDealResponse,
+    GetCRMSalesRepsResponse,
+    InstantInviteResponse,
     // Meetings
-    GetStudentMeetingsResponse, GetStudentMeetingResponse,
-    CreateStudentMeetingResponse, UpdateStudentMeetingResponse,
+    GetStudentMeetingsResponse,
+    GetStudentMeetingResponse,
+    CreateStudentMeetingResponse,
+    UpdateStudentMeetingResponse,
     DeleteStudentMeetingResponse,
     // Permissions
     UpdateUserPermissionResponse,
     // Widgets / AI
-    WidgetTranscriptResponse, WidgetDownloadJsonResponse,
-    TranscriptAnalyserResponse, AnalyzedFileDownloadResponse,
-    ProcessProgramListResponse, TaigerAiResponse, CvmlrlAiResponse,
+    WidgetTranscriptResponse,
+    WidgetDownloadJsonResponse,
+    TranscriptAnalyserResponse,
+    AnalyzedFileDownloadResponse,
+    ProcessProgramListResponse,
+    TaigerAiResponse,
+    CvmlrlAiResponse
 } from '@taiger-common/model';
 
 export const login = (credentials: LoginCredentials) =>
     request.post<AuthLoginResponse>('/auth/login', credentials);
 
 export const googleOAuthCallback = (code: string) =>
-    postData<AuthOAuthCallbackResponse>('/auth/oauth/google/callback', { code });
+    postData<AuthOAuthCallbackResponse>('/auth/oauth/google/callback', {
+        code
+    });
 
 export const logout = () => request.get<LogoutResponse>('/auth/logout');
 
@@ -154,14 +291,20 @@ export const resetPassword = ({
     password,
     token
 }: ResetPasswordPayload) =>
-    request.post<ResetPasswordResponse>('/auth/reset-password', { email, password, token });
+    request.post<ResetPasswordResponse>('/auth/reset-password', {
+        email,
+        password,
+        token
+    });
 
 export const activation = (email: string, token: string) =>
     request.post<ActivationResponse>('/auth/activation', { email, token });
 
 // TODO: make resendActivation works
 export const resendActivation = ({ email }: ForgotPasswordPayload) =>
-    request.post<ResendActivationResponse>('/auth/resend-activation', { email });
+    request.post<ResendActivationResponse>('/auth/resend-activation', {
+        email
+    });
 
 export const verify = () => request.get('/auth/verify');
 export const verifyV2 = () => getData<AuthVerifyResponse>('/auth/verify');
@@ -172,13 +315,19 @@ export const getAuditLog = (queryString: QueryString) =>
 
 // Search API
 export const getQueryStudentsResults = (keywords: string) =>
-    request.get<GetQueryStudentsResultsResponse>(`/api/search/students?q=${keywords}`);
+    request.get<GetQueryStudentsResultsResponse>(
+        `/api/search/students?q=${keywords}`
+    );
 export const getQueryResults = (keywords: string) =>
     request.get<GetQueryResultsResponse>(`/api/search?q=${keywords}`);
 export const getQueryPublicResults = (keywords: string) =>
-    request.get<GetQueryPublicResultsResponse>(`/api/search/public?q=${keywords}`);
+    request.get<GetQueryPublicResultsResponse>(
+        `/api/search/public?q=${keywords}`
+    );
 export const getQueryStudentResults = (keywords: string) =>
-    request.get<GetQueryStudentResultsResponse>(`/api/communications?q=${keywords}`);
+    request.get<GetQueryStudentResultsResponse>(
+        `/api/communications?q=${keywords}`
+    );
 // User APIs
 export const getUsers = (queryString: QueryString) =>
     request.get<GetUsersResponse>(`/api/users?${queryString}`);
@@ -200,9 +349,11 @@ export const updateUser = (user: IUserWithId) =>
 export const changeUserRole = ({ id, role }: { id: string; role: string }) =>
     updateUser({ _id: id, role } as IUserWithId);
 
-export const getEssayWriters = () => request.get<GetEssayWritersResponse>('/api/essay-writers');
+export const getEssayWriters = () =>
+    request.get<GetEssayWritersResponse>('/api/essay-writers');
 
-export const getStudents = () => request.get<GetStudentsResponse>(`/api/students`);
+export const getStudents = () =>
+    request.get<GetStudentsResponse>(`/api/students`);
 
 export const getStudentsV3 = (queryString: QueryString) =>
     getData<GetStudentsResponse>(`/api/students/v3?${queryString}`);
@@ -219,10 +370,15 @@ export const getMyStudentsApplications = ({
 }: {
     userId: UserId;
     queryString: QueryString;
-}) => getData<GetMyStudentsApplicationsResponse>(`/api/applications/taiger-user/${userId}?${queryString}`);
+}) =>
+    getData<GetMyStudentsApplicationsResponse>(
+        `/api/applications/taiger-user/${userId}?${queryString}`
+    );
 
 export const getActiveStudentsApplications = () =>
-    getData<GetActiveStudentsApplicationsResponse>(`/api/applications/all/active/applications`);
+    getData<GetActiveStudentsApplicationsResponse>(
+        `/api/applications/all/active/applications`
+    );
 
 export const getActiveStudents = (queryString: QueryString) =>
     getData<GetActiveStudentsResponse>(`/api/students/active?${queryString}`);
@@ -234,10 +390,14 @@ export const getAdmissionsOverview = () =>
     getData<GetAdmissionsOverviewResponse>(`/api/admissions/overview`);
 
 export const getApplicationConflicts = () =>
-    request.get<GetApplicationConflictsResponse>(`/api/student-applications/conflicts`);
+    request.get<GetApplicationConflictsResponse>(
+        `/api/student-applications/conflicts`
+    );
 
 export const getApplicationTaskDeltas = () =>
-    request.get<GetApplicationTaskDeltasResponse>(`/api/student-applications/deltas`);
+    request.get<GetApplicationTaskDeltasResponse>(
+        `/api/student-applications/deltas`
+    );
 
 // TODO: thread creation attached to application problem. (thread creation is ok))
 export const createApplicationV2 = ({
@@ -247,13 +407,18 @@ export const createApplicationV2 = ({
     studentId: StudentId;
     program_ids: string[];
 }) =>
-    postData<CreateApplicationResponse>(`/api/applications/student/${studentId}`, {
-        program_id_set: program_ids
-    });
+    postData<CreateApplicationResponse>(
+        `/api/applications/student/${studentId}`,
+        {
+            program_id_set: program_ids
+        }
+    );
 
 // Tested manually OK.
 export const getApplicationStudentV2 = (studentId: StudentId) =>
-    getData<GetStudentApplicationsResponse>(`/api/applications/student/${studentId}`);
+    getData<GetStudentApplicationsResponse>(
+        `/api/applications/student/${studentId}`
+    );
 
 // TODO:
 export const updateStudentApplications = (
@@ -261,10 +426,13 @@ export const updateStudentApplications = (
     applications: ApiPayload,
     applying_program_count: number
 ) =>
-    request.put<UpdateStudentApplicationsResponse>(`/api/applications/student/${studentId}`, {
-        applications,
-        applying_program_count
-    });
+    request.put<UpdateStudentApplicationsResponse>(
+        `/api/applications/student/${studentId}`,
+        {
+            applications,
+            applying_program_count
+        }
+    );
 
 export const updateStudentApplication = (
     studentId: StudentId,
@@ -278,26 +446,36 @@ export const updateStudentApplication = (
 
 // TODO: thread is empty!! application delete ok.
 export const deleteApplicationStudentV2 = (applicationId: ApplicationId) =>
-    request.delete<DeleteApplicationResponse>(`/api/applications/application/${applicationId}`);
+    request.delete<DeleteApplicationResponse>(
+        `/api/applications/application/${applicationId}`
+    );
 
 export const refreshApplication = (applicationId: string) =>
-    postData<RefreshApplicationResponse>(`/api/applications/${applicationId}/refresh`, {});
+    postData<RefreshApplicationResponse>(
+        `/api/applications/${applicationId}/refresh`,
+        {}
+    );
 
 export const getStudentUniAssistV2 = ({ studentId }: { studentId: string }) =>
     getData<GetStudentUniAssistResponse>(`/api/uniassist/${studentId}`);
 
 export const getArchivStudents = (TaiGerStaffId?: string) =>
-    request.get<GetArchivStudentsResponse>(`/api/teams/archiv/${TaiGerStaffId ?? ''}`);
+    request.get<GetArchivStudentsResponse>(
+        `/api/teams/archiv/${TaiGerStaffId ?? ''}`
+    );
 
 export const updateArchivStudents = (
     studentId: StudentId,
     isArchived: boolean,
     shouldInform: boolean
 ) =>
-    request.post<UpdateArchivStudentsResponse>(`/api/students/archiv/${studentId}`, {
-        isArchived,
-        shouldInform
-    });
+    request.post<UpdateArchivStudentsResponse>(
+        `/api/students/archiv/${studentId}`,
+        {
+            isArchived,
+            shouldInform
+        }
+    );
 
 export const updateArchivUser = ({
     user_id,
@@ -312,15 +490,25 @@ export const updateArchivUser = ({
 
 // Student APIs
 export const updateAgents = (agentsId: string[], studentId: StudentId) =>
-    request.post<UpdateStudentAgentsResponse>(`/api/students/${studentId}/agents`, agentsId);
+    request.post<UpdateStudentAgentsResponse>(
+        `/api/students/${studentId}/agents`,
+        agentsId
+    );
 
 export const updateEditors = (editorsId: string[], studentId: StudentId) =>
-    request.post<UpdateStudentEditorsResponse>(`/api/students/${studentId}/editors`, editorsId);
+    request.post<UpdateStudentEditorsResponse>(
+        `/api/students/${studentId}/editors`,
+        editorsId
+    );
 
 export const updateAttributes = (
     attributesId: string[],
     studentId: StudentId
-) => request.post<UpdateStudentAttributesResponse>(`/api/students/${studentId}/attributes`, attributesId);
+) =>
+    request.post<UpdateStudentAttributesResponse>(
+        `/api/students/${studentId}/attributes`,
+        attributesId
+    );
 
 export const downloadProfile = (category: string, studentId: StudentId) =>
     request.get(`/api/students/${studentId}/files/${category}`, {
@@ -340,19 +528,31 @@ export const uploadforstudentV2 = ({
     category: string;
     studentId: StudentId;
     formData: FormData;
-}) => postData<UploadStudentFileResponse>(`/api/students/${studentId}/files/${category}`, formData);
+}) =>
+    postData<UploadStudentFileResponse>(
+        `/api/students/${studentId}/files/${category}`,
+        formData
+    );
 
 export const getStudentAndDocLinks = (studentId: StudentId) =>
-    request.get<GetStudentDocLinksResponse>(`/api/students/doc-links/${studentId}`);
+    request.get<GetStudentDocLinksResponse>(
+        `/api/students/doc-links/${studentId}`
+    );
 
 export const getStudentsAndDocLinks2 = (queryString: QueryString) =>
-    getData<GetStudentsAndDocLinksResponse>(`/api/students/doc-links?${queryString}`);
+    getData<GetStudentsAndDocLinksResponse>(
+        `/api/students/doc-links?${queryString}`
+    );
 
 export const updateDocumentationHelperLink = (
     link: string,
     key: string,
     category: string
-) => request.post<UpdateDocumentationHelperLinkResponse>(`/api/students/doc-links`, { link, key, category });
+) =>
+    request.post<UpdateDocumentationHelperLinkResponse>(
+        `/api/students/doc-links`,
+        { link, key, category }
+    );
 
 export const deleteFileV2 = ({
     category,
@@ -360,7 +560,10 @@ export const deleteFileV2 = ({
 }: {
     category: string;
     studentId: StudentId;
-}) => deleteData<DeleteStudentFileResponse>(`/api/students/${studentId}/files/${category}`);
+}) =>
+    deleteData<DeleteStudentFileResponse>(
+        `/api/students/${studentId}/files/${category}`
+    );
 
 export const uploadVPDforstudentV2 = ({
     studentId,
@@ -386,7 +589,10 @@ export const deleteVPDFileV2 = ({
     studentId: StudentId;
     applicationId: ApplicationId;
     fileType: string;
-}) => deleteData<DeleteVPDFileResponse>(`/api/students/${studentId}/vpd/${applicationId}/${fileType}`);
+}) =>
+    deleteData<DeleteVPDFileResponse>(
+        `/api/students/${studentId}/vpd/${applicationId}/${fileType}`
+    );
 
 export const SetAsNotNeededV2 = ({
     studentId,
@@ -394,7 +600,11 @@ export const SetAsNotNeededV2 = ({
 }: {
     studentId: StudentId;
     applicationId: ApplicationId;
-}) => putData<SetAsNotNeededResponse>(`/api/students/${studentId}/vpd/${applicationId}/VPD`, {});
+}) =>
+    putData<SetAsNotNeededResponse>(
+        `/api/students/${studentId}/vpd/${applicationId}/VPD`,
+        {}
+    );
 
 export const SetUniAssistPaidV2 = ({
     studentId,
@@ -405,9 +615,12 @@ export const SetUniAssistPaidV2 = ({
     applicationId: ApplicationId;
     isPaid: boolean;
 }) =>
-    postData<SetUniAssistPaidResponse>(`/api/students/${studentId}/vpd/${applicationId}/payments`, {
-        isPaid
-    });
+    postData<SetUniAssistPaidResponse>(
+        `/api/students/${studentId}/vpd/${applicationId}/payments`,
+        {
+            isPaid
+        }
+    );
 
 export const updateProfileDocumentStatus = (
     category: string,
@@ -415,10 +628,13 @@ export const updateProfileDocumentStatus = (
     status: string,
     message: string
 ) =>
-    request.post<UpdateProfileDocStatusResponse>(`/api/students/${studentId}/${category}/status`, {
-        status: status,
-        feedback: message
-    });
+    request.post<UpdateProfileDocStatusResponse>(
+        `/api/students/${studentId}/${category}/status`,
+        {
+            status: status,
+            feedback: message
+        }
+    );
 
 export const updateProfileDocumentStatusV2 = ({
     category,
@@ -431,17 +647,26 @@ export const updateProfileDocumentStatusV2 = ({
     status: string;
     feedback: string;
 }) =>
-    postData<UpdateProfileDocStatusResponse>(`/api/students/${student_id}/${category}/status`, {
-        status,
-        feedback
-    });
+    postData<UpdateProfileDocStatusResponse>(
+        `/api/students/${student_id}/${category}/status`,
+        {
+            status,
+            feedback
+        }
+    );
 
 // Account APIs
-export const getTemplates = () => request.get<GetTemplatesResponse>(`/api/account/files/template`);
+export const getTemplates = () =>
+    request.get<GetTemplatesResponse>(`/api/account/files/template`);
 export const uploadtemplate = (category: string, data: ApiPayload) =>
-    request.post<UploadTemplateResponse>(`/api/account/files/template/${category}`, data);
+    request.post<UploadTemplateResponse>(
+        `/api/account/files/template/${category}`,
+        data
+    );
 export const deleteTemplateFile = (category: string) =>
-    request.delete<DeleteTemplateFileResponse>(`/api/account/files/template/${category}`);
+    request.delete<DeleteTemplateFileResponse>(
+        `/api/account/files/template/${category}`
+    );
 export const getTemplateDownload = (category: string) =>
     request.get(`/api/account/files/template/${category}`, {
         responseType: 'blob'
@@ -453,14 +678,19 @@ export const WidgetTranscriptanalyserV2 = (
     requirementIds: ApiPayload,
     factor: ApiPayload
 ) =>
-    request.post<WidgetTranscriptResponse>(`/api/widgets/transcript/engine/v2/${language}`, {
-        courses,
-        requirementIds,
-        factor
-    });
+    request.post<WidgetTranscriptResponse>(
+        `/api/widgets/transcript/engine/v2/${language}`,
+        {
+            courses,
+            requirementIds,
+            factor
+        }
+    );
 
 export const WidgetanalyzedFileV2Download = (adminId: string) =>
-    request.get<WidgetDownloadJsonResponse>(`/api/widgets/transcript/v2/${adminId}`);
+    request.get<WidgetDownloadJsonResponse>(
+        `/api/widgets/transcript/v2/${adminId}`
+    );
 
 export const WidgetExportMessagePDF = (student_id: string) =>
     request.get(`/api/widgets/messages/export/${student_id}`, {
@@ -478,26 +708,43 @@ export const transcriptanalyser_testV2 = ({
     requirementIds: string[];
     factor: string;
 }) =>
-    request.post<TranscriptAnalyserResponse>(`/api/courses/transcript/v2/${studentId}/${language}`, {
-        requirementIds,
-        factor
-    });
+    request.post<TranscriptAnalyserResponse>(
+        `/api/courses/transcript/v2/${studentId}/${language}`,
+        {
+            requirementIds,
+            factor
+        }
+    );
 
 export const analyzedFileV2Download = (user_id: UserId) =>
-    request.get<AnalyzedFileDownloadResponse>(`/api/courses/transcript/v2/${user_id}`);
+    request.get<AnalyzedFileDownloadResponse>(
+        `/api/courses/transcript/v2/${user_id}`
+    );
 
-export const getCourseKeywordSets = () => request.get<GetCourseKeywordsetsResponse>(`/api/course-keywords`);
+export const getCourseKeywordSets = () =>
+    request.get<GetCourseKeywordsetsResponse>(`/api/course-keywords`);
 export const getCourseKeywordSet = (keywordsSetId: string) =>
-    request.get<GetCourseKeywordsetResponse>(`/api/course-keywords/${keywordsSetId}`);
+    request.get<GetCourseKeywordsetResponse>(
+        `/api/course-keywords/${keywordsSetId}`
+    );
 export const postKeywordSet = (keywordsSet: ApiPayload) =>
-    request.post<CreateKeywordsetResponse>('/api/course-keywords/new', keywordsSet);
+    request.post<CreateKeywordsetResponse>(
+        '/api/course-keywords/new',
+        keywordsSet
+    );
 export const putKeywordSet = (keywordsSetId: string, keywordsSet: ApiPayload) =>
-    request.put<UpdateKeywordsetResponse>(`/api/course-keywords/${keywordsSetId}`, keywordsSet);
+    request.put<UpdateKeywordsetResponse>(
+        `/api/course-keywords/${keywordsSetId}`,
+        keywordsSet
+    );
 export const deleteKeywordSet = (keywordsSetId: string) =>
-    request.delete<DeleteKeywordsetResponse>(`/api/course-keywords/${keywordsSetId}`);
+    request.delete<DeleteKeywordsetResponse>(
+        `/api/course-keywords/${keywordsSetId}`
+    );
 
 // Courses DB
-export const getAllCourses = () => getData<GetAllCoursesResponse>(`/api/all-courses`);
+export const getAllCourses = () =>
+    getData<GetAllCoursesResponse>(`/api/all-courses`);
 export const getCourse = ({ courseId }: { courseId: string }) =>
     getData<GetAllCourseResponse>(`/api/all-courses/${courseId}`);
 export const updateCourse = ({
@@ -519,20 +766,35 @@ export const getProgramRequirementsV2 = () =>
     getData<GetProgramRequirementsResponse>(`/api/program-requirements`);
 
 export const getSameProgramStudents = ({ programId }: { programId: string }) =>
-    getData<GetSameProgramStudentsResponse>(`/api/programs/same-program-students/${programId}`);
+    getData<GetSameProgramStudentsResponse>(
+        `/api/programs/same-program-students/${programId}`
+    );
 
 export const postProgramRequirements = (payload: ApiPayload) =>
-    request.post<CreateProgramRequirementResponse>(`/api/program-requirements/new`, payload);
+    request.post<CreateProgramRequirementResponse>(
+        `/api/program-requirements/new`,
+        payload
+    );
 export const getProgramsAndCourseKeywordSets = () =>
-    request.get<GetProgramsAndKeywordSetsResponse>(`/api/program-requirements/programs-and-keywords`);
+    request.get<GetProgramsAndKeywordSetsResponse>(
+        `/api/program-requirements/programs-and-keywords`
+    );
 export const getProgramRequirement = (programRequirementId: string) =>
-    request.get<GetProgramRequirementResponse>(`/api/program-requirements/${programRequirementId}`);
+    request.get<GetProgramRequirementResponse>(
+        `/api/program-requirements/${programRequirementId}`
+    );
 export const putProgramRequirement = (
     programRequirementId: string,
     payload: ApiPayload
-) => request.put<UpdateProgramRequirementResponse>(`/api/program-requirements/${programRequirementId}`, payload);
+) =>
+    request.put<UpdateProgramRequirementResponse>(
+        `/api/program-requirements/${programRequirementId}`,
+        payload
+    );
 export const deleteProgramRequirement = (programRequirementId: string) =>
-    request.delete<DeleteProgramRequirementResponse>(`/api/program-requirements/${programRequirementId}`);
+    request.delete<DeleteProgramRequirementResponse>(
+        `/api/program-requirements/${programRequirementId}`
+    );
 
 export const updateStudentApplicationResult = (
     studentId: StudentId,
@@ -549,7 +811,10 @@ export const updateStudentApplicationResult = (
 export const deleteGenralFileThread = (
     documentsthreadId: string,
     studentId: StudentId
-) => request.delete<DeleteGeneralFileThreadResponse>(`/api/document-threads/${documentsthreadId}/${studentId}`);
+) =>
+    request.delete<DeleteGeneralFileThreadResponse>(
+        `/api/document-threads/${documentsthreadId}/${studentId}`
+    );
 
 export const deleteProgramSpecificFileThread = (
     documentsthreadId: string,
@@ -569,13 +834,19 @@ export const getCheckDocumentPatternIsPassed = (
     );
 
 export const getActiveThreads = (queryString: QueryString) =>
-    getData<GetActiveThreadsResponse>(`/api/document-threads/overview/all?${queryString}`);
+    getData<GetActiveThreadsResponse>(
+        `/api/document-threads/overview/all?${queryString}`
+    );
 
 export const getMyStudentThreadMetrics = () =>
-    request.get<GetMyStudentThreadMetricsResponse>(`/api/document-threads/overview/my-student-metrics`);
+    request.get<GetMyStudentThreadMetricsResponse>(
+        `/api/document-threads/overview/my-student-metrics`
+    );
 
 export const getThreadsByStudent = (studentId: StudentId) =>
-    getData<GetThreadsByStudentResponse>(`/api/document-threads/student-threads/${studentId}`);
+    getData<GetThreadsByStudentResponse>(
+        `/api/document-threads/student-threads/${studentId}`
+    );
 
 export const getMyStudentsThreads = ({
     userId,
@@ -593,22 +864,32 @@ export const SetFileAsFinal = (
     studentId: StudentId,
     application_id: string
 ) =>
-    request.put<SetFileFinalResponse>(`/api/document-threads/${documentsthreadId}/${studentId}`, {
-        application_id
-    });
+    request.put<SetFileFinalResponse>(
+        `/api/document-threads/${documentsthreadId}/${studentId}`,
+        {
+            application_id
+        }
+    );
 
 export const updateEssayWriter = (
     editor_id: string,
     documentsthreadId: string
 ) =>
-    request.post<UpdateEssayWriterResponse>(`/api/document-threads/${documentsthreadId}/essay`, editor_id);
+    request.post<UpdateEssayWriterResponse>(
+        `/api/document-threads/${documentsthreadId}/essay`,
+        editor_id
+    );
 
 export const putThreadFavorite = (documentsthreadId: string) =>
-    request.put<PutThreadFavoriteResponse>(`/api/document-threads/${documentsthreadId}/favorite`);
+    request.put<PutThreadFavoriteResponse>(
+        `/api/document-threads/${documentsthreadId}/favorite`
+    );
 
 // Portal Informations APIs
 export const getPortalCredentials = (student_id: string) =>
-    request.get<GetPortalCredentialsResponse>(`/api/portal-informations/${student_id}`);
+    request.get<GetPortalCredentialsResponse>(
+        `/api/portal-informations/${student_id}`
+    );
 export const postPortalCredentials = (
     student_id: string,
     applicationId: ApplicationId,
@@ -623,14 +904,22 @@ export const postPortalCredentials = (
 export const getMycourses = (student_id: string) =>
     request.get<GetStudentCoursesResponse>(`/api/courses/${student_id}`);
 export const putMycourses = (student_id: string, locked: ApiPayload) =>
-    request.put<UpdateStudentCoursesResponse>(`/api/courses/${student_id}`, locked);
+    request.put<UpdateStudentCoursesResponse>(
+        `/api/courses/${student_id}`,
+        locked
+    );
 
 // Documentation APIs
 // Internal docs
 export const getInternalDocumentationPage = () =>
-    request.get<GetInternalDocumentationPageResponse>(`/api/docs/taiger/internal/confidential`);
+    request.get<GetInternalDocumentationPageResponse>(
+        `/api/docs/taiger/internal/confidential`
+    );
 export const updateInternalDocumentationPage = (doc: ApiPayload) =>
-    request.put<UpdateInternalDocumentationPageResponse>(`/api/docs/taiger/internal/confidential`, doc);
+    request.put<UpdateInternalDocumentationPageResponse>(
+        `/api/docs/taiger/internal/confidential`,
+        doc
+    );
 // External docs
 export const uploadImage = (formData: FormData) =>
     request.post<UploadDocImageResponse>(`/api/docs/upload/image`, formData);
@@ -646,7 +935,8 @@ export const deleteDocumentation = (doc_id: string) =>
     request.delete<DeleteDocumentationResponse>(`/api/docs/${doc_id}`);
 export const getDocumentation = (doc_id: string) =>
     request.get<GetDocumentationResponse>(`/api/docs/search/${doc_id}`);
-export const getAllDocumentations = () => request.get<GetAllDocumentationsResponse>(`/api/docs/all`);
+export const getAllDocumentations = () =>
+    request.get<GetAllDocumentationsResponse>(`/api/docs/all`);
 
 export const updateDocumentation = (doc_id: string, doc: ApiPayload) =>
     request.put<UpdateDocumentationResponse>(`/api/docs/${doc_id}`, doc);
@@ -670,10 +960,16 @@ export const getProgramsV2 = () =>
 export const getProgramsOverview = () =>
     getData<GetProgramsOverviewResponse>('/api/programs/overview');
 export const getSchoolsDistribution = () =>
-    getData<GetSchoolsDistributionResponse>('/api/programs/schools-distribution');
-export const getDistinctSchools = () => request.get<GetDistinctSchoolsResponse>('/api/programs/schools');
+    getData<GetSchoolsDistributionResponse>(
+        '/api/programs/schools-distribution'
+    );
+export const getDistinctSchools = () =>
+    request.get<GetDistinctSchoolsResponse>('/api/programs/schools');
 export const updateSchoolAttributes = (schoolAttributes: ApiPayload) =>
-    request.put<UpdateSchoolAttributesResponse>('/api/programs/schools', schoolAttributes);
+    request.put<UpdateSchoolAttributesResponse>(
+        '/api/programs/schools',
+        schoolAttributes
+    );
 
 export const getProgram = (programId: string) =>
     request.get<GetProgramResponse>(`/api/programs/${programId}`);
@@ -690,26 +986,33 @@ export const createProgramV2 = ({ program }: { program: ApiPayload }) =>
 export const updateProgram = (program: {
     _id: string;
     [key: string]: unknown;
-}) => request.put<UpdateProgramResponse>(`/api/programs/${program._id}`, program);
+}) =>
+    request.put<UpdateProgramResponse>(`/api/programs/${program._id}`, program);
 
 export const updateProgramV2 = ({
     program
 }: {
-    program: { _id: string;[key: string]: unknown };
+    program: { _id: string; [key: string]: unknown };
 }) => putData(`/api/programs/${program._id}`, program);
 
 export const getProgramChangeRequests = (programId: string) =>
-    request.get<GetProgramChangeRequestsResponse>(`/api/programs/${programId}/change-requests`);
+    request.get<GetProgramChangeRequestsResponse>(
+        `/api/programs/${programId}/change-requests`
+    );
 
 export const reviewProgramChangeRequests = (requestId: string) =>
-    request.post<ReviewProgramChangeRequestsResponse>(`/api/programs/review-changes/${requestId}`);
+    request.post<ReviewProgramChangeRequestsResponse>(
+        `/api/programs/review-changes/${requestId}`
+    );
 
 export const refreshProgram = (programId: ProgramId) =>
     postData<RefreshProgramResponse>(`/api/programs/${programId}/refresh`, {});
 
 // Docs APIs
-export const deleteDoc = (id: string) => request.delete<DeleteDocumentationResponse>(`/api/docs/${id}`);
-export const addDoc = (id: string) => request.post<CreateDocumentationResponse>(`/api/docs/${id}`);
+export const deleteDoc = (id: string) =>
+    request.delete<DeleteDocumentationResponse>(`/api/docs/${id}`);
+export const addDoc = (id: string) =>
+    request.post<CreateDocumentationResponse>(`/api/docs/${id}`);
 export const updateDoc = (id: string, doc_temp: ApiPayload) =>
     request.post<UpdateDocumentationResponse>(`/api/docs/${id}`, doc_temp);
 
@@ -719,7 +1022,8 @@ export const createArticle = (article: ApiPayload) =>
 export const updateArticle = (id: string, article: ApiPayload) =>
     request.post<UpdateDocumentationResponse>(`/api/docs/${id}`, article);
 
-const getArticle = (type: string) => request.get<GetCategorizedDocumentationResponse>(`/api/docs/${type}`);
+const getArticle = (type: string) =>
+    request.get<GetCategorizedDocumentationResponse>(`/api/docs/${type}`);
 
 export const getApplicationArticle = () => getArticle('application');
 
@@ -768,13 +1072,17 @@ export const getMessageFileDownload = (
     );
 
 export const getMyCommunicationUnreadNumber = () =>
-    request.get<GetCommunicationUnreadNumberResponse>('/api/communications/ping/all');
+    request.get<GetCommunicationUnreadNumberResponse>(
+        '/api/communications/ping/all'
+    );
 export const getMyCommunicationThread = () =>
     request.get<GetMyCommunicationThreadResponse>('/api/communications/all');
 export const getMyCommunicationThreadV2 = () =>
     getData<GetMyCommunicationThreadResponse>('/api/communications/all');
 export const getCommunicationThread = (studentId: StudentId) =>
-    request.get<GetCommunicationThreadResponse>(`/api/communications/${studentId}`);
+    request.get<GetCommunicationThreadResponse>(
+        `/api/communications/${studentId}`
+    );
 export const getCommunicationThreadV2 = ({
     studentId
 }: {
@@ -784,14 +1092,21 @@ export const getCommunicationThreadV2 = ({
 export const loadCommunicationThread = (
     studentId: StudentId,
     pageNumber: number
-) => request.get<LoadCommunicationThreadResponse>(`/api/communications/${studentId}/pages/${pageNumber}`);
+) =>
+    request.get<LoadCommunicationThreadResponse>(
+        `/api/communications/${studentId}/pages/${pageNumber}`
+    );
 export const postCommunicationThreadV2 = ({
     studentId,
     formData
 }: {
     studentId: StudentId;
     formData: FormData | ApiPayload;
-}) => postData<PostCommunicationResponse>(`/api/communications/${studentId}`, formData);
+}) =>
+    postData<PostCommunicationResponse>(
+        `/api/communications/${studentId}`,
+        formData
+    );
 export const updateAMessageInCommunicationThreadV2 = ({
     communication_id,
     communication_messageId,
@@ -820,7 +1135,9 @@ export const deleteAMessageInCommunicationThreadV2 = ({
     student_id: StudentId;
     communication_messageId: string;
 }) =>
-    deleteData<DeleteCommunicationMessageResponse>(`/api/communications/${student_id}/${communication_messageId}`);
+    deleteData<DeleteCommunicationMessageResponse>(
+        `/api/communications/${student_id}/${communication_messageId}`
+    );
 
 export const IgnoreMessageV2 = ({
     student_id,
@@ -839,29 +1156,41 @@ export const IgnoreMessageV2 = ({
     );
 
 export const getSurveyInputs = (documentsthreadId: string) =>
-    request.get<GetSurveyInputsResponse>(`/api/document-threads/${documentsthreadId}/survey-inputs`);
+    request.get<GetSurveyInputsResponse>(
+        `/api/document-threads/${documentsthreadId}/survey-inputs`
+    );
 
 export const putSurveyInput = (
     surveyId: string,
     input: ApiPayload,
     informEditor: boolean
 ) =>
-    request.put<PutSurveyInputResponse>(`/api/document-threads/survey-input/${surveyId}`, {
-        input,
-        informEditor
-    });
+    request.put<PutSurveyInputResponse>(
+        `/api/document-threads/survey-input/${surveyId}`,
+        {
+            input,
+            informEditor
+        }
+    );
 
 export const postSurveyInput = (input: ApiPayload, informEditor: boolean) =>
-    request.post<PostSurveyInputResponse>(`/api/document-threads/survey-input/`, {
-        input,
-        informEditor
-    });
+    request.post<PostSurveyInputResponse>(
+        `/api/document-threads/survey-input/`,
+        {
+            input,
+            informEditor
+        }
+    );
 
 export const resetSurveyInput = (surveyId: SurveyId) =>
-    request.delete<DeleteSurveyInputResponse>(`/api/document-threads/survey-input/${surveyId}`);
+    request.delete<DeleteSurveyInputResponse>(
+        `/api/document-threads/survey-input/${surveyId}`
+    );
 
 export const getMessagThread = (documentsthreadId: DocumentThreadId) =>
-    request.get<GetMessagesThreadResponse>(`/api/document-threads/${documentsthreadId}`);
+    request.get<GetMessagesThreadResponse>(
+        `/api/document-threads/${documentsthreadId}`
+    );
 export const deleteAMessageInThread = (
     documentsthreadId: DocumentThreadId,
     messageId: MessageId
@@ -908,38 +1237,54 @@ export const updateAgentBanner = (
     notification_key: string,
     student_id: string
 ) =>
-    request.post<UpdateAgentBannerResponse>(`/api/account/agent/notifications`, {
-        notification_key,
-        student_id
-    });
+    request.post<UpdateAgentBannerResponse>(
+        `/api/account/agent/notifications`,
+        {
+            notification_key,
+            student_id
+        }
+    );
 
 //Survey:
 export const updateAcademicBackground = (
     university: string,
     student_id: string
 ) =>
-    request.post<UpdateAcademicBackgroundResponse>(`/api/account/survey/university/${student_id}`, {
-        university
-    });
+    request.post<UpdateAcademicBackgroundResponse>(
+        `/api/account/survey/university/${student_id}`,
+        {
+            university
+        }
+    );
 export const updateLanguageSkill = (language: string, student_id: string) =>
-    request.post<UpdateLanguageSkillResponse>(`/api/account/survey/language/${student_id}`, { language });
+    request.post<UpdateLanguageSkillResponse>(
+        `/api/account/survey/language/${student_id}`,
+        { language }
+    );
 export const updateApplicationPreference = (
     application_preference: ApiPayload,
     student_id: StudentId
 ) =>
-    request.post<UpdateApplicationPreferenceResponse>(`/api/account/survey/preferences/${student_id}`, {
-        application_preference
-    });
+    request.post<UpdateApplicationPreferenceResponse>(
+        `/api/account/survey/preferences/${student_id}`,
+        {
+            application_preference
+        }
+    );
 
-export const getMyAcademicBackground = () => request.get<GetMyAcademicBackgroundResponse>('/api/account/survey');
+export const getMyAcademicBackground = () =>
+    request.get<GetMyAcademicBackgroundResponse>('/api/account/survey');
 
 export const getStudentNotes = (student_id: string) =>
     request.get<GetStudentNotesResponse>(`/api/notes/${student_id}`);
 export const updateStudentNotes = (student_id: string, notes: ApiPayload) =>
-    request.put<UpdateStudentNotesResponse>(`/api/notes/${student_id}`, { notes });
+    request.put<UpdateStudentNotesResponse>(`/api/notes/${student_id}`, {
+        notes
+    });
 
 // Time Slot events:
-export const getActiveEventsNumber = () => request.get<GetActiveEventsNumberResponse>(`/api/events/ping`);
+export const getActiveEventsNumber = () =>
+    request.get<GetActiveEventsNumberResponse>(`/api/events/ping`);
 export const getEvents = (queryString: QueryString) =>
     request.get<GetEventsResponse>(`/api/events?${queryString}`);
 export const getBookedEvents = ({
@@ -949,10 +1294,16 @@ export const getBookedEvents = ({
     startTime: string;
     endTime: string;
 }) =>
-    request.get<GetBookedEventsResponse>(`/api/events/booked?startTime=${startTime}&endTime=${endTime}`);
-export const postEvent = (event: ApiPayload) => postData<PostEventResponse>(`/api/events`, event);
+    request.get<GetBookedEventsResponse>(
+        `/api/events/booked?startTime=${startTime}&endTime=${endTime}`
+    );
+export const postEvent = (event: ApiPayload) =>
+    postData<PostEventResponse>(`/api/events`, event);
 export const confirmEvent = (event_id: string, updated_event: ApiPayload) =>
-    request.put<ConfirmEventResponse>(`/api/events/${event_id}/confirm`, updated_event);
+    request.put<ConfirmEventResponse>(
+        `/api/events/${event_id}/confirm`,
+        updated_event
+    );
 export const updateEvent = (event_id: string, updated_event: ApiPayload) =>
     request.put<UpdateEventResponse>(`/api/events/${event_id}`, updated_event);
 export const deleteEvent = (event_id: string) =>
@@ -962,25 +1313,37 @@ export const updateOfficehours = (
     officehours: ApiPayload,
     timezone: string
 ) =>
-    request.put<UpdateOfficehoursResponse>(`/api/account/profile/officehours/${user_id}`, {
-        officehours,
-        timezone
-    });
+    request.put<UpdateOfficehoursResponse>(
+        `/api/account/profile/officehours/${user_id}`,
+        {
+            officehours,
+            timezone
+        }
+    );
 
 // Teams
-export const getTeamMembers = () => request.get<GetTeamMembersResponse>('/api/teams');
-export const getStatisticsV2 = () => getData<GetStatisticsV2Response>('/api/teams/statistics');
+export const getTeamMembers = () =>
+    request.get<GetTeamMembersResponse>('/api/teams');
+export const getStatisticsV2 = () =>
+    getData<GetStatisticsV2Response>('/api/teams/statistics');
 export const getStatisticsOverviewV2 = () =>
     getData<GetStatisticsOverviewResponse>('/api/teams/statistics/overview');
 export const getStatisticsAgentsV2 = () =>
     getData<GetStatisticsAgentsResponse>('/api/teams/statistics/agents');
-export const getStatisticsKPIV2 = () => getData<GetStatisticsKPIResponse>('/api/teams/statistics/kpi');
+export const getStatisticsKPIV2 = () =>
+    getData<GetStatisticsKPIResponse>('/api/teams/statistics/kpi');
 export const getStatisticsResponseTimeV2 = () =>
-    getData<GetStatisticsResponseTimeResponse>('/api/teams/statistics/response-time');
-export const getTasksOverview = () => getData<GetTasksOverviewResponse>('/api/teams/tasks-overview');
-export const getIsManager = () => getData<GetIsManagerResponse>('/api/teams/is-manager');
+    getData<GetStatisticsResponseTimeResponse>(
+        '/api/teams/statistics/response-time'
+    );
+export const getTasksOverview = () =>
+    getData<GetTasksOverviewResponse>('/api/teams/tasks-overview');
+export const getIsManager = () =>
+    getData<GetIsManagerResponse>('/api/teams/is-manager');
 export const getResponseIntervalByStudent = (studentId: string) =>
-    request.get<GetResponseIntervalByStudentResponse>(`/api/teams/response-interval/${studentId}`);
+    request.get<GetResponseIntervalByStudentResponse>(
+        `/api/teams/response-interval/${studentId}`
+    );
 
 export const getAgentProfile = (agent_id: string) =>
     request.get<GetAgentProfileResponse>(`/api/agents/profile/${agent_id}`);
@@ -989,21 +1352,35 @@ export const getExpense = (taiger_user_id: string) =>
 export const updateUserPermission = (
     taiger_user_id: string,
     permissions: ApiPayload
-) => request.post<UpdateUserPermissionResponse>(`/api/permissions/${taiger_user_id}`, permissions);
+) =>
+    request.post<UpdateUserPermissionResponse>(
+        `/api/permissions/${taiger_user_id}`,
+        permissions
+    );
 
 //Personal Data:
 export const updatePersonalData = (user_id: string, personaldata: ApiPayload) =>
-    request.post<UpdatePersonalDataResponse>(`/api/account/profile/${user_id}`, { personaldata });
+    request.post<UpdatePersonalDataResponse>(
+        `/api/account/profile/${user_id}`,
+        { personaldata }
+    );
 
 export const updateCredentials = (
     credentials: ApiPayload,
     email: string,
     password: string
-) => request.post<UpdateCredentialsResponse>(`/api/account/credentials`, { credentials, email, password });
+) =>
+    request.post<UpdateCredentialsResponse>(`/api/account/credentials`, {
+        credentials,
+        email,
+        password
+    });
 
 //TaiGer AI:
 export const processProgramList = (programId: ProgramId) =>
-    request.get<ProcessProgramListResponse>(`/api/taigerai/program/${programId}`);
+    request.get<ProcessProgramListResponse>(
+        `/api/taigerai/program/${programId}`
+    );
 export const TaiGerAiGeneral = (prompt: string) =>
     request.post<TaigerAiResponse>(`/api/taigerai/general`, {
         prompt
@@ -1074,10 +1451,12 @@ export const cvmlrlAi = (
     });
 
 //Interview:
-export const getAllInterviews = () => request.get<GetInterviewsResponse>('/api/interviews');
+export const getAllInterviews = () =>
+    request.get<GetInterviewsResponse>('/api/interviews');
 export const getInterviews = (queryString: QueryString) =>
     getData<GetInterviewsResponse>(`/api/interviews?${queryString}`);
-export const getAllOpenInterviews = () => request.get<GetInterviewsResponse>('/api/interviews/open');
+export const getAllOpenInterviews = () =>
+    request.get<GetInterviewsResponse>('/api/interviews/open');
 export const getInterview = (interview_id: InterviewId) =>
     request.get<GetInterviewResponse>(`/api/interviews/${interview_id}`);
 export const deleteInterview = (interview_id: InterviewId) =>
@@ -1085,13 +1464,23 @@ export const deleteInterview = (interview_id: InterviewId) =>
 export const updateInterview = (
     interview_id: InterviewId,
     payload: ApiPayload
-) => request.put<UpdateInterviewResponse>(`/api/interviews/${interview_id}`, payload);
+) =>
+    request.put<UpdateInterviewResponse>(
+        `/api/interviews/${interview_id}`,
+        payload
+    );
 export const updateInterviewSurvey = (
     interview_id: InterviewId,
     payload: ApiPayload
-) => request.put<UpdateInterviewSurveyResponse>(`/api/interviews/${interview_id}/survey`, payload);
+) =>
+    request.put<UpdateInterviewSurveyResponse>(
+        `/api/interviews/${interview_id}/survey`,
+        payload
+    );
 export const getInterviewSurvey = (interview_id: InterviewId) =>
-    request.get<GetInterviewSurveyResponse>(`/api/interviews/${interview_id}/survey`);
+    request.get<GetInterviewSurveyResponse>(
+        `/api/interviews/${interview_id}/survey`
+    );
 export const getMyInterviews = () =>
     request.get<GetMyInterviewsResponse>(`/api/interviews/my-interviews`);
 export const createInterview = (
@@ -1099,40 +1488,67 @@ export const createInterview = (
     student_id: StudentId,
     payload: ApiPayload
 ) =>
-    request.post<CreateInterviewResponse>(`/api/interviews/create/${program_id}/${student_id}`, payload);
+    request.post<CreateInterviewResponse>(
+        `/api/interviews/create/${program_id}/${student_id}`,
+        payload
+    );
 export const addInterviewTrainingDateTime = (
     interview_id: InterviewId,
     payload: ApiPayload
-) => request.post<AddInterviewTrainingDateTimeResponse>(`/api/interviews/time/${interview_id}`, payload);
+) =>
+    request.post<AddInterviewTrainingDateTimeResponse>(
+        `/api/interviews/time/${interview_id}`,
+        payload
+    );
 
 export const getInterviewsByProgramId = (program_id: ProgramId) =>
-    getData<GetInterviewsByProgramIdResponse>(`/api/interviews/interview/${program_id}`);
+    getData<GetInterviewsByProgramIdResponse>(
+        `/api/interviews/interview/${program_id}`
+    );
 export const getInterviewsByStudentId = (student_id: StudentId) =>
-    getData<GetInterviewsByStudentIdResponse>(`/api/interviews/interviews/${student_id}`);
+    getData<GetInterviewsByStudentIdResponse>(
+        `/api/interviews/interviews/${student_id}`
+    );
 
 // Program feedback Ticket
 export const createProgramReport = (
     program_id: ProgramId,
     description: string,
     type: string
-) => request.post<CreateTicketResponse>(`/api/tickets/`, { program_id, description, type });
+) =>
+    request.post<CreateTicketResponse>(`/api/tickets/`, {
+        program_id,
+        description,
+        type
+    });
 export const getProgramTicket = (type: string, program_id: ProgramId) =>
-    request.get<GetProgramTicketResponse>(`/api/tickets?type=${type}&program_id=${program_id}`);
+    request.get<GetProgramTicketResponse>(
+        `/api/tickets?type=${type}&program_id=${program_id}`
+    );
 export const updateProgramTicket = (
     ticket_id: TicketId,
     updatedTicket: ApiPayload
-) => request.put<UpdateTicketResponse>(`/api/tickets/${ticket_id}`, updatedTicket);
+) =>
+    request.put<UpdateTicketResponse>(
+        `/api/tickets/${ticket_id}`,
+        updatedTicket
+    );
 export const deleteProgramTicket = (ticket_id: TicketId) =>
     request.delete<DeleteTicketResponse>(`/api/tickets/${ticket_id}`);
 export const getProgramTickets = (type: string, status: string) =>
-    request.get<GetProgramTicketsResponse>(`/api/tickets?type=${type}&status=${status}`);
+    request.get<GetProgramTicketsResponse>(
+        `/api/tickets?type=${type}&status=${status}`
+    );
 export const getProgramTicketsV2 = ({
     type,
     status
 }: {
     type: string;
     status: string;
-}) => getData<GetProgramTicketsResponse>(`/api/tickets?type=${type}&status=${status}`);
+}) =>
+    getData<GetProgramTicketsResponse>(
+        `/api/tickets?type=${type}&status=${status}`
+    );
 
 // Complaint
 export const createComplaintTicket = (ticket: ApiPayload) =>
@@ -1144,7 +1560,11 @@ export const getComplaintsTickets = (type?: string) =>
 export const updateComplaintsTicket = (
     ticketId: TicketId,
     updatedTicket: ApiPayload
-) => request.put<UpdateComplaintResponse>(`/api/complaints/${ticketId}`, updatedTicket);
+) =>
+    request.put<UpdateComplaintResponse>(
+        `/api/complaints/${ticketId}`,
+        updatedTicket
+    );
 export const deleteComplaintsTicket = (ticketId: TicketId) =>
     request.delete<DeleteComplaintResponse>(`/api/complaints/${ticketId}`);
 export const submitMessageInTicketWithAttachment = (
@@ -1159,28 +1579,41 @@ export const submitMessageInTicketWithAttachment = (
 export const deleteAMessageinTicket = (
     ticketId: TicketId,
     message_id: string
-) => request.delete<DeleteMessageInComplaintResponse>(`/api/complaints/${ticketId}/${message_id}`);
+) =>
+    request.delete<DeleteMessageInComplaintResponse>(
+        `/api/complaints/${ticketId}/${message_id}`
+    );
 
 // CRM
-export const getCRMStats = () => request.get<GetCRMStatsResponse>(`/api/crm/stats`);
-export const getCRMLeads = () => request.get<GetCRMLeadsResponse>(`/api/crm/leads`);
+export const getCRMStats = () =>
+    request.get<GetCRMStatsResponse>(`/api/crm/stats`);
+export const getCRMLeads = () =>
+    request.get<GetCRMLeadsResponse>(`/api/crm/leads`);
 export const getCRMLead = (leadId: LeadId) =>
     request.get<GetCRMLeadResponse>(`/api/crm/leads/${leadId}`);
 export const getLeadIdByUserId = (userId: UserId) =>
     request.get<GetLeadIdByUserIdResponse>(`/api/crm/students/${userId}/lead`);
 export const createLeadFromStudent = (userId: UserId) =>
-    request.post<CreateLeadFromStudentResponse>(`/api/crm/students/${userId}/lead`);
-export const getCRMMeetings = () => request.get<GetCRMMeetingsResponse>(`/api/crm/meetings`);
+    request.post<CreateLeadFromStudentResponse>(
+        `/api/crm/students/${userId}/lead`
+    );
+export const getCRMMeetings = () =>
+    request.get<GetCRMMeetingsResponse>(`/api/crm/meetings`);
 export const getCRMMeeting = (meetingId: MeetingId) =>
     request.get<GetCRMMeetingResponse>(`/api/crm/meetings/${meetingId}`);
 export const updateCRMMeeting = (meetingId: MeetingId, payload: ApiPayload) =>
-    request.put<UpdateCRMMeetingResponse>(`/api/crm/meetings/${meetingId}`, payload);
-export const getCRMDeals = () => request.get<GetCRMDealsResponse>(`/api/crm/deals`);
+    request.put<UpdateCRMMeetingResponse>(
+        `/api/crm/meetings/${meetingId}`,
+        payload
+    );
+export const getCRMDeals = () =>
+    request.get<GetCRMDealsResponse>(`/api/crm/deals`);
 export const createCRMDeal = (payload: ApiPayload) =>
     request.post<CreateCRMDealResponse>(`/api/crm/deals`, payload);
 export const updateCRMDeal = (dealId: string, payload: ApiPayload) =>
     request.put<UpdateCRMDealResponse>(`/api/crm/deals/${dealId}`, payload);
-export const getCRMSalesReps = () => request.get<GetCRMSalesRepsResponse>(`/api/crm/sales-reps`);
+export const getCRMSalesReps = () =>
+    request.get<GetCRMSalesRepsResponse>(`/api/crm/sales-reps`);
 export const instantInviteTA = (meetingSummary: string, meetingLink: string) =>
     request.post<InstantInviteResponse>(`/api/crm/instant-invite`, {
         meetingSummary,
@@ -1197,13 +1630,24 @@ export const getStudentMeeting = (studentId: StudentId, meetingId: MeetingId) =>
 export const createStudentMeeting = (
     studentId: StudentId,
     payload: ApiPayload
-) => postData<CreateStudentMeetingResponse>(`/api/students/${studentId}/meetings`, payload);
+) =>
+    postData<CreateStudentMeetingResponse>(
+        `/api/students/${studentId}/meetings`,
+        payload
+    );
 export const updateStudentMeeting = (
     studentId: StudentId,
     meetingId: MeetingId,
     payload: ApiPayload
-) => putData<UpdateStudentMeetingResponse>(`/api/students/${studentId}/meetings/${meetingId}`, payload);
+) =>
+    putData<UpdateStudentMeetingResponse>(
+        `/api/students/${studentId}/meetings/${meetingId}`,
+        payload
+    );
 export const deleteStudentMeeting = (
     studentId: StudentId,
     meetingId: MeetingId
-) => deleteData<DeleteStudentMeetingResponse>(`/api/students/${studentId}/meetings/${meetingId}`);
+) =>
+    deleteData<DeleteStudentMeetingResponse>(
+        `/api/students/${studentId}/meetings/${meetingId}`
+    );
