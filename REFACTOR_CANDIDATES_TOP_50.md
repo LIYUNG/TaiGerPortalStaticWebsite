@@ -10,7 +10,7 @@ Components and pages ranked by line count (excluding test files). Splitting thes
 
 | Done | Files refactored | Tests before | Tests after |
 |------|-----------------|-------------|-------------|
-| ✅ #1–#7 | 7 of 50 | 404 (60 files) | 465 (69 files) |
+| ✅ #1–#10 | 10 of 50 | 502 (82 files) | 519 (85 files) |
 
 ---
 
@@ -27,9 +27,9 @@ Legend: ✅ Done · 🔲 Pending
 | 5 | 1334 | 399 | pages/Program/ProgramsOverviewPage.tsx | ✅ Extracted: `SummaryStatsGrid`, `DistributionAnalysisSection`, `TopPerformersSection`, `AdditionalInsightsSection` |
 | 6 | 1266 | 512 | pages/CRM/LeadPage.tsx | ✅ Extracted: `LeadProfileHeader`, `MeetingsList` |
 | 7 | 1256 | 979 | pages/CVMLRLCenter/DocModificationThreadPage/DocModificationThreadPage.tsx | ✅ Extracted: `SimilarThreadsTab`, `DiscussionEditorCard` |
-| 8 | 1252 | — | pages/Program/SingleProgramView.tsx | 🔲 |
-| 9 | 1135 | — | pages/CVMLRLCenter/EditorDocsProgress.tsx | 🔲 |
-| 10 | 1135 | — | pages/StudentApplications/StudentApplicationsTableTemplate.tsx | 🔲 |
+| 8 | 1252 | 359 | pages/Program/SingleProgramView.tsx | ✅ Extracted: `ProgramInfoTabs`, `SameProgramStudentsCard`, `ProgramUnlockDialog` |
+| 9 | 1135 | 756 | pages/CVMLRLCenter/EditorDocsProgress.tsx | ✅ Extracted: `ApplicationAccordionSummary`, `ApplicationAccordionList`, `DeleteFileThreadDialog`, `SetAsFinalFileDialog`, `RequirementsModal`, `SetProgramStatusDialog` |
+| 10 | 1135 | 771 | pages/StudentApplications/StudentApplicationsTableTemplate.tsx | ✅ Extracted: `ApplicationTableRow`, `ApplicationsTableBanners`, `ProgramCorrectnessReminderDialog` |
 | 11 | 1124 | — | pages/CRM/components/SimilarStudents.tsx | 🔲 |
 | 12 | 1113 | — | pages/OfficeHours/taiger_index.tsx | 🔲 |
 | 13 | 1001 | — | pages/OfficeHours/index.tsx | 🔲 |
@@ -84,7 +84,7 @@ Legend: ✅ Done · 🔲 Pending
 | **P0** | ProgramsOverviewPage.tsx (1334) | Program overview; extract table, filters, and detail panels. | ✅ Done |
 | **P1** | LeadPage.tsx (1266) | CRM lead; split lead header, timeline, and forms into subcomponents. | ✅ Done |
 | **P1** | DocModificationThreadPage.tsx (1256) | Doc thread; extract thread list, message view, and input area. | ✅ Done |
-| **P1** | SingleProgramView.tsx (1252) | Program view; extract requirement sections, lock UI, and actions. | 🔲 Next |
+| **P1** | SingleProgramView.tsx (1252) | Program view; extract requirement sections, lock UI, and actions. | ✅ Done |
 | **P1** | EditorDocsProgress.tsx (1135) | Editor progress; split by document type or stage. | 🔲 |
 | **P1** | StudentApplicationsTableTemplate.tsx (1135) | Table template; extract toolbar, row, and cell components. | 🔲 |
 | **P1** | taiger_index.tsx (1113) & OfficeHours index (1001) | Office hours; share layout and extract schedule, slots, and settings. | 🔲 |

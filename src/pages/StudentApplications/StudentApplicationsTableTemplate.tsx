@@ -11,18 +11,11 @@ import {
     Button,
     Card,
     CircularProgress,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
     FormControl,
     Grid,
-    IconButton,
     Link,
     MenuItem,
     Select,
-    Stack,
     Table,
     TableBody,
     TableCell,
@@ -30,37 +23,26 @@ import {
     TableHead,
     TableRow,
     TextField,
-    Typography,
-    Tooltip
+    Typography
 } from '@mui/material';
 
 import { Link as LinkDom } from 'react-router-dom';
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
-import { Undo as UndoIcon, Redo as RedoIcon } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import {
     is_TaiGer_role,
     is_TaiGer_Student,
     is_TaiGer_Admin,
-    isProgramDecided,
-    isProgramSubmitted,
-    isProgramWithdraw,
-    isProgramAdmitted
+    isProgramDecided
 } from '@taiger-common/core';
 import type { Application } from '@/api/types';
-import { differenceInDays } from 'date-fns';
 
 import {
     isProgramNotSelectedEnough,
-    is_num_Program_Not_specified,
-    is_program_ml_rl_essay_ready,
-    is_the_uni_assist_vpd_uploaded,
-    isCVFinished,
-    application_deadline_V2_calculator
+    is_num_Program_Not_specified
 } from '../Utils/util_functions';
-import OverlayButton from '@components/Overlay/OverlayButton';
-import Banner from '@components/Banner/Banner';
+import ApplicationTableRow from './components/ApplicationTableRow';
+import ApplicationsTableBanners from './components/ApplicationsTableBanners';
+import ProgramCorrectnessReminderDialog from './components/ProgramCorrectnessReminderDialog';
 import {
     IS_SUBMITTED_STATE_OPTIONS,
     APPLICATION_YEARS_FUTURE,
@@ -446,383 +428,8 @@ const StudentApplicationsTableTemplate = (
     if (res_status >= 400) {
         return <ErrorPage res_status={res_status} />;
     }
-    let applying_university_info;
     const today = new Date();
-    if (
-        studentToShow.applications === undefined ||
-        studentToShow.applications.length === 0
-    ) {
-        applying_university_info = (
-            <TableRow>
-                {!is_TaiGer_Student(user) ? <TableCell /> : null}
-                <TableCell>
-                    <Typography>No University</Typography>
-                </TableCell>
-                <TableCell>
-                    <Typography>No Program</Typography>
-                </TableCell>
-                <TableCell>
-                    <Typography>No Date</Typography>
-                </TableCell>
-                <TableCell>
-                    <Typography> - </Typography>
-                </TableCell>
-                <TableCell>
-                    <Typography> - </Typography>
-                </TableCell>
-                <TableCell>
-                    <Typography> - </Typography>
-                </TableCell>
-                <TableCell>
-                    <Typography> - </Typography>
-                </TableCell>
-                <TableCell>
-                    <Typography> - </Typography>
-                </TableCell>
-                <TableCell>
-                    <Typography> - </Typography>
-                </TableCell>
-                <TableCell>
-                    <Typography> - </Typography>
-                </TableCell>
-                <TableCell>
-                    <Typography> - </Typography>
-                </TableCell>
-                <TableCell>
-                    <Typography> - </Typography>
-                </TableCell>
-            </TableRow>
-        );
-    } else {
-        applying_university_info = studentToShow.applications!.map(
-            (application, application_idx) => (
-                <TableRow key={application_idx}>
-                    {!is_TaiGer_Student(user) ? (
-                        <TableCell>
-                            <Stack direction="row" spacing={1}>
-                                <IconButton
-                                    color="primary"
-                                    onClick={(
-                                        e: MouseEvent<HTMLButtonElement>
-                                    ) =>
-                                        handleDelete(
-                                            e,
-                                            application._id as string,
-                                            studentToShow._id as string
-                                        )
-                                    }
-                                    variant="contained"
-                                >
-                                    <DeleteIcon />
-                                </IconButton>
-                                <IconButton
-                                    color="secondary"
-                                    onClick={(
-                                        e: MouseEvent<HTMLButtonElement>
-                                    ) =>
-                                        handleEdit(
-                                            e,
-                                            application._id as string,
-                                            application.application_year,
-                                            studentToShow._id as string
-                                        )
-                                    }
-                                    variant="contained"
-                                >
-                                    <EditIcon />
-                                </IconButton>
-                            </Stack>
-                        </TableCell>
-                    ) : null}
-                    <TableCell>
-                        <Typography>
-                            <Link
-                                component={LinkDom}
-                                style={{ textDecoration: 'none' }}
-                                to={`${DEMO.SINGLE_PROGRAM_LINK(application.programId._id)}`}
-                            >
-                                {application.programId.school}
-                            </Link>
-                        </Typography>
-                    </TableCell>
-                    <TableCell>
-                        <Typography>
-                            <Link
-                                component={LinkDom}
-                                style={{ textDecoration: 'none' }}
-                                to={`${DEMO.SINGLE_PROGRAM_LINK(application.programId._id)}`}
-                            >
-                                {application.programId.degree}
-                            </Link>
-                        </Typography>
-                    </TableCell>
-                    <TableCell>
-                        <Typography>
-                            <Link
-                                component={LinkDom}
-                                style={{ textDecoration: 'none' }}
-                                to={`${DEMO.SINGLE_PROGRAM_LINK(application.programId._id)}`}
-                            >
-                                {application.programId.program_name}
-                            </Link>
-                        </Typography>
-                    </TableCell>
-                    <TableCell>
-                        <Typography>
-                            <Link
-                                component={LinkDom}
-                                style={{ textDecoration: 'none' }}
-                                to={`${DEMO.SINGLE_PROGRAM_LINK(application.programId._id)}`}
-                            >
-                                {application.programId.semester}
-                            </Link>
-                        </Typography>
-                    </TableCell>
-                    <TableCell>
-                        <Typography>
-                            <Link
-                                component={LinkDom}
-                                style={{ textDecoration: 'none' }}
-                                to={`${DEMO.SINGLE_PROGRAM_LINK(application.programId._id)}`}
-                            >
-                                {application.programId.toefl
-                                    ? application.programId.toefl
-                                    : '-'}
-                            </Link>
-                        </Typography>
-                    </TableCell>
-                    <TableCell>
-                        <Typography>
-                            <Link
-                                component={LinkDom}
-                                style={{ textDecoration: 'none' }}
-                                to={`${DEMO.SINGLE_PROGRAM_LINK(application.programId._id)}`}
-                            >
-                                {application.programId.ielts
-                                    ? application.programId.ielts
-                                    : '-'}
-                            </Link>
-                        </Typography>
-                    </TableCell>
-                    <TableCell>
-                        {isProgramSubmitted(application) ? (
-                            <Typography>
-                                {t('Close', { ns: 'common' })}
-                            </Typography>
-                        ) : (
-                            <Typography>
-                                {application_deadline_V2_calculator(
-                                    application
-                                )}
-                            </Typography>
-                        )}
-                    </TableCell>
-                    <TableCell>
-                        <FormControl fullWidth>
-                            <Select
-                                disabled={application.closed !== '-'}
-                                id="decided"
-                                labelId="decided"
-                                name="decided"
-                                onChange={(e) =>
-                                    handleChange(e, application_idx)
-                                }
-                                size="small"
-                                value={application.decided}
-                            >
-                                <MenuItem value="-">-</MenuItem>
-                                <MenuItem value="X">
-                                    {t('No', { ns: 'common' })}
-                                </MenuItem>
-                                <MenuItem value="O">
-                                    {t('Yes', { ns: 'common' })}
-                                </MenuItem>
-                            </Select>
-                        </FormControl>
-                    </TableCell>
-                    {isProgramDecided(application) &&
-                    !isProgramWithdraw(application) ? (
-                        <TableCell>
-                            {/* When all thread finished */}
-                            {isProgramSubmitted(application) ||
-                            (is_program_ml_rl_essay_ready(application) &&
-                                isCVFinished(studentToShow) &&
-                                (!appConfig.vpdEnable ||
-                                    is_the_uni_assist_vpd_uploaded(
-                                        application
-                                    ))) ? (
-                                <FormControl fullWidth>
-                                    <Select
-                                        id="closed"
-                                        labelId="closed"
-                                        name="closed"
-                                        onChange={(e) =>
-                                            handleChange(e, application_idx)
-                                        }
-                                        size="small"
-                                        value={application.closed}
-                                    >
-                                        <MenuItem value="-">
-                                            {t('Not Yet', { ns: 'common' })}
-                                        </MenuItem>
-                                        <MenuItem value="O">
-                                            {t('Submitted', {
-                                                ns: 'common'
-                                            })}
-                                        </MenuItem>
-                                    </Select>
-                                </FormControl>
-                            ) : (
-                                <OverlayButton
-                                    text={`Please make sure ${
-                                        !isCVFinished(studentToShow)
-                                            ? 'CV '
-                                            : ''
-                                    }${
-                                        !is_program_ml_rl_essay_ready(
-                                            application
-                                        )
-                                            ? 'ML/RL/Essay '
-                                            : ''
-                                    }${
-                                        !is_the_uni_assist_vpd_uploaded(
-                                            application
-                                        )
-                                            ? 'Uni-Assist '
-                                            : ''
-                                    }are prepared to unlock this.`}
-                                />
-                            )}
-                        </TableCell>
-                    ) : (
-                        <TableCell>
-                            {isProgramWithdraw(application) ? (
-                                <Typography color="error" fontWeight="bold">
-                                    WITHDRAW
-                                </Typography>
-                            ) : (
-                                '-'
-                            )}
-                        </TableCell>
-                    )}
-                    {isProgramDecided(application) &&
-                    isProgramSubmitted(application) ? (
-                        <TableCell>
-                            <FormControl fullWidth>
-                                <Select
-                                    defaultValue={application.admission ?? '-'}
-                                    disabled={
-                                        !(
-                                            application.closed !== '-' &&
-                                            application.closed !== 'X'
-                                        ) ||
-                                        (application.finalEnrolment ?? false)
-                                    }
-                                    id="admission"
-                                    labelId="admission"
-                                    name="admission"
-                                    onChange={(e) =>
-                                        handleChange(e, application_idx)
-                                    }
-                                    size="small"
-                                >
-                                    {IS_SUBMITTED_STATE_OPTIONS.map(
-                                        (option) => (
-                                            <MenuItem
-                                                key={option.value}
-                                                value={option.value}
-                                            >
-                                                {t(option.label, {
-                                                    ns: 'common'
-                                                })}
-                                            </MenuItem>
-                                        )
-                                    )}
-                                </Select>
-                            </FormControl>
-                        </TableCell>
-                    ) : (
-                        <TableCell>-</TableCell>
-                    )}
-                    {isProgramDecided(application) &&
-                    isProgramSubmitted(application) &&
-                    isProgramAdmitted(application) ? (
-                        <TableCell>
-                            <FormControl fullWidth>
-                                <Select
-                                    defaultValue={
-                                        application.finalEnrolment ?? false
-                                    }
-                                    id="finalEnrolment"
-                                    labelId="finalEnrolment"
-                                    name="finalEnrolment"
-                                    onChange={(e) =>
-                                        handleChange(e, application_idx)
-                                    }
-                                    size="small"
-                                >
-                                    <MenuItem value={false}>
-                                        {t('No', { ns: 'common' })}
-                                    </MenuItem>
-                                    <MenuItem value={true}>
-                                        {t('Yes', { ns: 'common' })}
-                                    </MenuItem>
-                                </Select>
-                            </FormControl>
-                        </TableCell>
-                    ) : (
-                        <TableCell>-</TableCell>
-                    )}
-                    <TableCell>
-                        <Typography>
-                            {isProgramSubmitted(application)
-                                ? '-'
-                                : application.programId.application_deadline
-                                  ? differenceInDays(
-                                        application_deadline_V2_calculator(
-                                            application
-                                        ),
-                                        today
-                                    )
-                                  : '-'}
-                        </Typography>
-                    </TableCell>
-                    {is_TaiGer_role(user) && (
-                        <TableCell>
-                            {isProgramDecided(application) &&
-                                !isProgramSubmitted(application) &&
-                                // only show withdraw/undo button when the program is decided but not submitted
-                                (isProgramWithdraw(application) ? (
-                                    <Tooltip arrow title="Undo Withdraw">
-                                        <RedoIcon
-                                            onClick={(e) =>
-                                                handleWithdraw(
-                                                    e,
-                                                    application_idx,
-                                                    '-' // Not Withdrawn - Not yet
-                                                )
-                                            }
-                                        />
-                                    </Tooltip>
-                                ) : (
-                                    <Tooltip arrow title="Withdraw">
-                                        <UndoIcon
-                                            onClick={(e) =>
-                                                handleWithdraw(
-                                                    e,
-                                                    application_idx,
-                                                    'X' // Withdrawn
-                                                )
-                                            }
-                                        />
-                                    </Tooltip>
-                                ))}
-                        </TableCell>
-                    )}
-                </TableRow>
-            )
-        );
-    }
+
     return (
         <Box>
             {res_modal_status >= 400 ? (
@@ -833,25 +440,10 @@ const StudentApplicationsTableTemplate = (
                 />
             ) : null}
             {is_TaiGer_Student(user) ? (
-                <Dialog open={showProgramCorrectnessReminderModal}>
-                    <DialogTitle>{t('Warning', { ns: 'common' })}</DialogTitle>
-                    <DialogContent>
-                        <DialogContentText>
-                            {`${appConfig.companyName} Portal 網站上的學程資訊主要為管理申請進度為主，學校學程詳細資訊仍以學校網站為主。`}{' '}
-                            {`若發現 ${appConfig.companyName} Portal 資訊和學校官方網站資料有不同之處，請和顧問討論。`}
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button
-                            color="primary"
-                            fullWidth
-                            onClick={closeProgramCorrectnessModal}
-                            variant="contained"
-                        >
-                            {t('Accept', { ns: 'common' })}
-                        </Button>
-                    </DialogActions>
-                </Dialog>
+                <ProgramCorrectnessReminderDialog
+                    onClose={closeProgramCorrectnessModal}
+                    open={showProgramCorrectnessReminderModal}
+                />
             ) : null}
             <Breadcrumbs aria-label="breadcrumb">
                 <Link
@@ -962,36 +554,7 @@ const StudentApplicationsTableTemplate = (
                 <Box>
                     <Card>
                         <Box>
-                            <Banner
-                                ReadOnlyMode={true}
-                                bg="primary"
-                                link_name=""
-                                notification_key={undefined}
-                                removeBanner={null}
-                                text={`${appConfig.companyName} Portal 網站上的學程資訊主要為管理申請進度為主，學校學程詳細資訊仍以學校網站為主。`}
-                                title="info"
-                                to={`${DEMO.BASE_DOCUMENTS_LINK}`}
-                            />
-                            <Banner
-                                ReadOnlyMode={true}
-                                bg="secondary"
-                                link_name=""
-                                notification_key={undefined}
-                                removeBanner={null}
-                                text="請選擇要申請的學程打在 Decided: Yes，不要申請打的 No。"
-                                title="warning"
-                                to={`${DEMO.BASE_DOCUMENTS_LINK}`}
-                            />
-                            <Banner
-                                ReadOnlyMode={true}
-                                bg="danger"
-                                link_name=""
-                                notification_key={undefined}
-                                removeBanner={null}
-                                text="請選擇要申請的學程打在 Submitted: Submitted，若想中斷申請請告知顧問，或是 選擇 Withdraw (如果東西都已準備好且解鎖)"
-                                title="warning"
-                                to={`${DEMO.BASE_DOCUMENTS_LINK}`}
-                            />
+                            <ApplicationsTableBanners />
                             <TableContainer style={{ overflowX: 'auto' }}>
                                 <Table size="small">
                                     <TableHead>
@@ -1013,7 +576,67 @@ const StudentApplicationsTableTemplate = (
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {applying_university_info}
+                                        {!studentToShow.applications ||
+                                        studentToShow.applications.length ===
+                                            0 ? (
+                                            <TableRow>
+                                                {!is_TaiGer_Student(user) ? (
+                                                    <TableCell />
+                                                ) : null}
+                                                <TableCell>
+                                                    <Typography>
+                                                        No University
+                                                    </Typography>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Typography>
+                                                        No Program
+                                                    </Typography>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Typography>
+                                                        No Date
+                                                    </Typography>
+                                                </TableCell>
+                                                {[...Array(10)].map((_, i) => (
+                                                    <TableCell key={i}>
+                                                        <Typography>
+                                                            {' '}
+                                                            -{' '}
+                                                        </Typography>
+                                                    </TableCell>
+                                                ))}
+                                            </TableRow>
+                                        ) : (
+                                            studentToShow.applications.map(
+                                                (application, application_idx) => (
+                                                    <ApplicationTableRow
+                                                        key={application_idx}
+                                                        application={
+                                                            application
+                                                        }
+                                                        application_idx={
+                                                            application_idx
+                                                        }
+                                                        handleChange={
+                                                            handleChange
+                                                        }
+                                                        handleDelete={
+                                                            handleDelete
+                                                        }
+                                                        handleEdit={handleEdit}
+                                                        handleWithdraw={
+                                                            handleWithdraw
+                                                        }
+                                                        studentToShow={
+                                                            studentToShow
+                                                        }
+                                                        today={today}
+                                                        user={user}
+                                                    />
+                                                )
+                                            )
+                                        )}
                                     </TableBody>
                                 </Table>
                             </TableContainer>
