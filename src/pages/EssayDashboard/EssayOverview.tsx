@@ -36,7 +36,7 @@ export interface EssayOverviewProps {
     followup_tasks?: OpenTaskRow[];
     pending_progress_tasks?: OpenTaskRow[];
     closed_tasks?: OpenTaskRow[];
-    no_essay_writer_tasks?: OpenTaskRow[];
+    no_essay_writer_tasks: OpenTaskRow[];
     all_active_message_tasks?: OpenTaskRow[];
     isLoading?: boolean;
 }
@@ -259,6 +259,11 @@ const EssayOverview = (props: EssayOverviewProps) => {
                         />
                     );
                 }
+            },
+            {
+                field: 'essay_difficulty',
+                headerName: t('Essay Difficulty', { ns: 'common' }),
+                minWidth: 80
             },
             {
                 field: 'document_name',

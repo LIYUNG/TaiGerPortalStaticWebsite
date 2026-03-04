@@ -6,7 +6,6 @@ import SurveyComponent from './SurveyComponent';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
-import { SurveyProvider } from '@components/SurveyProvider';
 import { useTranslation } from 'react-i18next';
 import { appConfig } from '../../config';
 
@@ -61,16 +60,14 @@ const Survey = () => {
                 </Typography>
                 <Box />
             </Box>
-            <SurveyProvider
-                value={{
+            <SurveyComponent
+                initialSurvey={{
                     academic_background: data?.academic_background,
                     application_preference: data?.application_preference,
                     survey_link: survey_link ?? '',
                     student_id: user._id?.toString() ?? ''
                 }}
-            >
-                <SurveyComponent />
-            </SurveyProvider>
+            />
         </Box>
     );
 };

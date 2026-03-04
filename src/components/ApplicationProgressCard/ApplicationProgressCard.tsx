@@ -553,7 +553,7 @@ export default function ApplicationProgressCard(
                 )} ${application.programId?.school} - ${application.programId?.degree} - ${application.programId?.program_name}?`}
                 isLoading={isLoading}
                 onClose={closeUndoModal}
-                onConfirm={() => handleUpdateResult('', '-')}
+                onConfirm={(e: MouseEvent<HTMLButtonElement>) => handleUpdateResult(e, '-')}
                 open={showUndoModal}
                 title={i18next.t('Attention')}
             />

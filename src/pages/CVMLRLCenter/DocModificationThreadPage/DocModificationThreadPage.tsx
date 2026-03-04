@@ -7,38 +7,24 @@ import {
     type MouseEvent,
     type RefObject
 } from 'react';
-import { Link as LinkDom, useLocation, useParams } from 'react-router-dom';
-import ArticleIcon from '@mui/icons-material/Article';
+import { useLocation, useParams } from 'react-router-dom';
 import ChatIcon from '@mui/icons-material/Chat';
 import FolderIcon from '@mui/icons-material/Folder';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import HistoryIcon from '@mui/icons-material/History';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
-import HelpIcon from '@mui/icons-material/Help';
 import {
     Typography,
-    Button,
-    Card,
-    Link,
     Box,
-    CircularProgress,
-    useTheme,
-    Avatar,
-    Stack,
     Tabs,
-    Tab,
-    Chip,
-    Tooltip
+    Tab
 } from '@mui/material';
 import { pdfjs } from 'react-pdf';
 import { is_TaiGer_role } from '@taiger-common/core';
 
-import DocThreadEditor from '@components/Message/DocThreadEditor';
 import ErrorPage from '../../Utils/ErrorPage';
 import ModalMain from '../../Utils/ModalHandler/ModalMain';
-import { stringAvatar, templatelist, THREAD_TABS } from '@utils/contants';
+import { templatelist, THREAD_TABS } from '@utils/contants';
 import {
     FILE_TYPE_E,
     readDOCX,
@@ -56,7 +42,6 @@ import {
     putThreadFavorite
 } from '@/api';
 import { TabTitle } from '../../Utils/TabTitle';
-import DEMO from '@store/constant';
 import FilesList from './FilesList';
 import { useAuth } from '@components/AuthProvider';
 import EditEssayWritersSubpage from '@pages/Dashboard/MainViewTab/StudDocsOverview/EditEssayWritersSubpage';
@@ -69,7 +54,8 @@ import i18next from 'i18next';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import GeneralRLRequirementsTab from './DocumentThreadsPage/GeneralRLRequirementsTab';
 import InformationBlock from '@pages/CVMLRLCenter/DocModificationThreadPage/components/InformationBlock';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import SimilarThreadsTab, { type SimilarThread } from './components/SimilarThreadsTab';
+import DiscussionEditorCard from './components/DiscussionEditorCard';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 
@@ -118,7 +104,6 @@ const DocModificationThreadPage = ({
     threadauditLog
 }: DocModificationThreadPageProps) => {
     const { user } = useAuth();
-    const theme = useTheme();
     const { documentsthreadId } = useParams();
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
     const { t } = useTranslation();
@@ -889,213 +874,25 @@ const DocModificationThreadPage = ({
                         thread={thread}
                         user={user}
                     />
-                    {user.archiv !== true ? (
-                        <Card
-                            sx={{
-                                borderRadius: 2,
-                                border: `1px solid ${theme.palette.divider}`,
-                                boxShadow: theme.shadows[1],
-                                overflow: 'hidden',
-                                mt: 1,
-                                transition: 'all 0.3s',
-                                '&:hover': {
-                                    boxShadow: theme.shadows[3],
-                                    borderColor: theme.palette.primary.main
-                                }
-                            }}
-                        >
-                            {isReadOnlyThread ? (
-                                <Box
-                                    sx={{
-                                        p: 3,
-                                        textAlign: 'center'
-                                    }}
-                                >
-                                    {isLocked ? (
-                                        <WarningAmberIcon
-                                            color="warning"
-                                            sx={{ fontSize: 48, mb: 1 }}
-                                        />
-                                    ) : (
-                                        <CheckCircleIcon
-                                            color="success"
-                                            sx={{ fontSize: 48, mb: 1 }}
-                                        />
-                                    )}
-                                    <Typography
-                                        color="text.secondary"
-                                        variant="body1"
-                                    >
-                                        {isLocked
-                                            ? lockTooltip
-                                            : i18next.t('thread-close')}
-                                    </Typography>
-                                </Box>
-                            ) : (
-                                <>
-                                    {/* Header */}
-                                    <Box
-                                        sx={{
-                                            background: `linear-gradient(135deg, ${theme.palette.primary.light} 0%, ${theme.palette.primary.main} 100%)`,
-                                            color: theme.palette.primary
-                                                .contrastText,
-                                            p: 1.5
-                                        }}
-                                    >
-                                        <Stack
-                                            alignItems="center"
-                                            direction="row"
-                                            spacing={1.5}
-                                        >
-                                            <Avatar
-                                                {...stringAvatar(
-                                                    `${user.firstname} ${user.lastname}`
-                                                )}
-                                                src={user?.pictureUrl}
-                                                sx={{
-                                                    width: 36,
-                                                    height: 36,
-                                                    border: '2px solid white'
-                                                }}
-                                            />
-                                            <Box>
-                                                <Typography
-                                                    fontWeight="600"
-                                                    variant="body2"
-                                                >
-                                                    {user.firstname}{' '}
-                                                    {user.lastname}
-                                                </Typography>
-                                                <Typography
-                                                    sx={{
-                                                        fontSize: '0.7rem',
-                                                        opacity: 0.9
-                                                    }}
-                                                    variant="caption"
-                                                >
-                                                    Write a reply
-                                                </Typography>
-                                            </Box>
-                                        </Stack>
-                                    </Box>
-
-                                    {/* Editor Content */}
-                                    <Box
-                                        sx={{
-                                            p: 2,
-                                            overflowWrap: 'break-word'
-                                        }}
-                                    >
-                                        <DocThreadEditor
-                                            buttonDisabled={
-                                                docModificationThreadPageState.buttonDisabled
-                                            }
-                                            checkResult={checkResult}
-                                            doc_title="docModificationThreadPageState.doc_title"
-                                            editorState={
-                                                docModificationThreadPageState.editorState
-                                            }
-                                            file={
-                                                docModificationThreadPageState.file
-                                            }
-                                            handleClickSave={handleClickSave}
-                                            onFileChange={onFileChange}
-                                            readOnly={isLocked}
-                                            readOnlyTooltip={lockTooltip}
-                                            thread={thread}
-                                        />
-                                    </Box>
-                                </>
-                            )}
-                        </Card>
-                    ) : (
-                        <Card
-                            sx={{
-                                borderRadius: 2,
-                                border: `1px solid ${theme.palette.divider}`,
-                                mt: 2,
-                                p: 3,
-                                textAlign: 'center',
-                                bgcolor: 'grey.50'
-                            }}
-                        >
-                            <CancelOutlinedIcon
-                                color="disabled"
-                                sx={{ fontSize: 48, mb: 1 }}
-                            />
-                            <Typography color="text.secondary" variant="body1">
-                                Your service is finished. Therefore, you are in
-                                read-only mode.
-                            </Typography>
-                        </Card>
-                    )}
-                    {is_TaiGer_role(user) ? (
-                        isLocked ? (
-                            <Tooltip title={lockTooltip}>
-                                <span>
-                                    <Button
-                                        color="success"
-                                        disabled
-                                        fullWidth
-                                        sx={{ mt: 2 }}
-                                        variant={
-                                            thread.isFinalVersion
-                                                ? 'outlined'
-                                                : 'contained'
-                                        }
-                                    >
-                                        {thread.isFinalVersion
-                                            ? i18next.t('Mark as open')
-                                            : i18next.t('Mark as finished')}
-                                    </Button>
-                                </span>
-                            </Tooltip>
-                        ) : !thread.isFinalVersion ? (
-                            <Button
-                                color="success"
-                                fullWidth
-                                onClick={() =>
-                                    handleAsFinalFile(
-                                        thread._id,
-                                        thread.student_id._id,
-                                        thread.program_id,
-                                        thread.isFinalVersion,
-                                        thread.application_id
-                                    )
-                                }
-                                sx={{ mt: 2 }}
-                                variant="contained"
-                            >
-                                {isSubmissionLoaded ? (
-                                    t('Mark as finished')
-                                ) : (
-                                    <CircularProgress />
-                                )}
-                            </Button>
-                        ) : (
-                            <Button
-                                color="secondary"
-                                fullWidth
-                                onClick={() =>
-                                    handleAsFinalFile(
-                                        thread._id,
-                                        thread.student_id._id,
-                                        thread.program_id,
-                                        thread.isFinalVersion,
-                                        thread.application_id
-                                    )
-                                }
-                                sx={{ mt: 2 }}
-                                variant="outlined"
-                            >
-                                {isSubmissionLoaded ? (
-                                    t('Mark as open')
-                                ) : (
-                                    <CircularProgress />
-                                )}
-                            </Button>
-                        )
-                    ) : null}
+                    <DiscussionEditorCard
+                        buttonDisabled={
+                            docModificationThreadPageState.buttonDisabled
+                        }
+                        checkResult={checkResult}
+                        editorState={docModificationThreadPageState.editorState}
+                        file={docModificationThreadPageState.file}
+                        handleAsFinalFile={handleAsFinalFile}
+                        handleClickSave={handleClickSave}
+                        isLocked={isLocked}
+                        isReadOnlyThread={isReadOnlyThread}
+                        isSubmissionLoaded={isSubmissionLoaded}
+                        isTaiGerUser={isTaiGerUser}
+                        lockTooltip={lockTooltip}
+                        onFileChange={onFileChange}
+                        t={t}
+                        thread={thread}
+                        user={user}
+                    />
                 </InformationBlock>
             </CustomTabPanel>
             {isGeneralRL ? (
@@ -1125,132 +922,10 @@ const DocModificationThreadPage = ({
             </CustomTabPanel>
             {isTaiGerUser ? (
                 <CustomTabPanel index={databaseTabIndex} value={value}>
-                    {similarThreads && similarThreads?.length > 0 ? (
-                        <Stack spacing={1.5} sx={{ mx: 2 }}>
-                            {(
-                                similarThreads as Array<{
-                                    _id: string;
-                                    student_id?: {
-                                        firstname?: string;
-                                        lastname?: string;
-                                    };
-                                    application_id?: {
-                                        application_year?: string;
-                                        admission?: string;
-                                    };
-                                    file_type?: string;
-                                }>
-                            ).map((t) => (
-                                <Card
-                                    key={t._id}
-                                    sx={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                        gap: 2,
-                                        p: 2,
-                                        borderRadius: 2,
-                                        transition: 'all 0.2s',
-                                        '&:hover': {
-                                            backgroundColor: 'action.hover'
-                                        }
-                                    }}
-                                >
-                                    <Link
-                                        component={LinkDom}
-                                        sx={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: 1.5,
-                                            flex: 1,
-                                            textDecoration: 'none'
-                                        }}
-                                        target="_blank"
-                                        to={DEMO.DOCUMENT_MODIFICATION_LINK(
-                                            t._id
-                                        )}
-                                    >
-                                        <ArticleIcon
-                                            sx={{ color: 'primary.main' }}
-                                        />
-                                        <Box sx={{ flex: 1 }}>
-                                            <Typography
-                                                fontWeight="bold"
-                                                variant="subtitle1"
-                                            >
-                                                {`${t.student_id?.firstname} ${t.student_id?.lastname}`}
-                                            </Typography>
-                                            <Typography
-                                                color="text.secondary"
-                                                variant="body2"
-                                            >
-                                                {`${t.application_id?.application_year} - ${t.file_type}`}
-                                            </Typography>
-                                        </Box>
-                                    </Link>
-                                    {t.application_id?.admission === 'O' ? (
-                                        <Chip
-                                            color="success"
-                                            icon={
-                                                <CheckCircleIcon
-                                                    sx={{
-                                                        color: 'inherit !important'
-                                                    }}
-                                                />
-                                            }
-                                            label="Admitted"
-                                            size="small"
-                                            sx={{
-                                                fontWeight: 'bold',
-                                                minWidth: 100
-                                            }}
-                                        />
-                                    ) : t.application_id?.admission === 'X' ? (
-                                        <Chip
-                                            color="error"
-                                            icon={
-                                                <CancelOutlinedIcon
-                                                    sx={{
-                                                        color: 'inherit !important'
-                                                    }}
-                                                />
-                                            }
-                                            label="Rejected"
-                                            size="small"
-                                            sx={{
-                                                fontWeight: 'bold',
-                                                minWidth: 100
-                                            }}
-                                        />
-                                    ) : (
-                                        <Chip
-                                            color="default"
-                                            icon={
-                                                <HelpIcon
-                                                    sx={{
-                                                        color: 'inherit !important'
-                                                    }}
-                                                />
-                                            }
-                                            label="Pending"
-                                            size="small"
-                                            sx={{
-                                                fontWeight: 'bold',
-                                                minWidth: 100
-                                            }}
-                                            variant="outlined"
-                                        />
-                                    )}
-                                </Card>
-                            ))}
-                        </Stack>
-                    ) : (
-                        <Typography sx={{ m: 2 }} variant="text.secondary">
-                            {t('No similar threads found', {
-                                ns: 'common'
-                            })}
-                        </Typography>
-                    )}
+                    <SimilarThreadsTab
+                        similarThreads={similarThreads as SimilarThread[]}
+                        t={t}
+                    />
                 </CustomTabPanel>
             ) : null}
             <CustomTabPanel index={auditTabIndex} value={value}>

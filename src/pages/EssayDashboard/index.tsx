@@ -37,7 +37,7 @@ const EssayDashboard = () => {
         }
     });
 
-    const open_tasks_arr = open_tasks_v2(data as unknown[]);
+    const open_tasks_arr = open_tasks_v2(data);
 
     const handleFavoriteToggle = (id: string) => {
         handleFavoriteToggleMutation(id);
@@ -51,11 +51,11 @@ const EssayDashboard = () => {
         return <Loading />;
     }
 
-    const open_tasks_withMyEssay_arr = open_tasks_arr?.filter(
+    const open_tasks_withMyEssay_arr = open_tasks_arr.filter(
         (open_task: { show?: boolean; isFinalVersion?: boolean }) =>
             open_task.show && !open_task.isFinalVersion
     );
-    const no_essay_writer_tasks = open_tasks_withMyEssay_arr?.filter(
+    const no_essay_writer_tasks = open_tasks_withMyEssay_arr.filter(
         (open_task: { outsourced_user_id?: unknown[] }) =>
             open_task.outsourced_user_id === undefined ||
             open_task.outsourced_user_id.length === 0

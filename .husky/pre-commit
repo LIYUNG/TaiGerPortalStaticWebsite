@@ -1,3 +1,4 @@
+#!/usr/bin/env sh
 echo "Running precommit"
 echo "npm run pre-commit"
 

@@ -67,7 +67,6 @@ import { appConfig } from '../../config';
 import { useAuth } from '@components/AuthProvider';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import { CustomTabPanel, a11yProps } from '@components/Tabs';
-import { SurveyProvider } from '@components/SurveyProvider';
 import ProgramDetailsComparisonTable from '../Program/ProgramDetailsComparisonTable';
 import StudentBriefOverview from '@pages/Dashboard/MainViewTab/StudentBriefOverview/StudentBriefOverview';
 import ProgramLanguageNotMatchedBanner from '@components/Banner/ProgramLanguageNotMatchedBanner';
@@ -686,8 +685,8 @@ export const SingleStudentPageMainContent = ({
                         />
                     </CustomTabPanel>
                     <CustomTabPanel index={5} value={value}>
-                        <SurveyProvider
-                            value={{
+                        <SurveyComponent
+                            initialSurvey={{
                                 academic_background:
                                     singleStudentPage.student
                                         .academic_background,
@@ -698,13 +697,8 @@ export const SingleStudentPageMainContent = ({
                                 student_id:
                                     singleStudentPage.student._id.toString()
                             }}
-                        >
-                            <SurveyComponent
-                                updateconfirmed={
-                                    singleStudentPage.updateconfirmed
-                                }
-                            />
-                        </SurveyProvider>
+                            onSurveySuccess={refetch}
+                        />
                     </CustomTabPanel>
                     <CustomTabPanel index={6} value={value}>
                         <Link

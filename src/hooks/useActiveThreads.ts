@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import queryString from 'query-string';
 
 import { getActiveThreadsQuery } from '@/api/query';
+import { IDocumentthreadPopulated } from '@taiger-common/model';
 
 export type ActiveThreadsParams = Record<
     string,
@@ -20,7 +21,7 @@ export function useActiveThreads(params: ActiveThreadsParams = {}) {
 
     return {
         ...result,
-        data: result.data ?? [],
+        data: result.data as IDocumentthreadPopulated[] ?? [],
         queryKey: query.queryKey
     };
 }
