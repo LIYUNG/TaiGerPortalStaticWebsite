@@ -653,14 +653,6 @@ const StudentApplicationsTableTemplate = (
                                     ))) ? (
                                 <FormControl fullWidth>
                                     <Select
-                                        disabled={
-                                            !(
-                                                application.closed !== '-' &&
-                                                application.closed !== 'X'
-                                            ) ||
-                                            (application.finalEnrolment ??
-                                                false)
-                                        }
                                         id="closed"
                                         labelId="closed"
                                         name="closed"
