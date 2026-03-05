@@ -327,7 +327,7 @@ const SurveyLanguagesCard = ({
                         sx={{ mt: 1 }}
                         value={
                             survey.academic_background?.language
-                                ?.german_isPassed
+                                ?.german_isPassed ?? '-'
                         }
                     >
                         {IS_PASSED_OPTIONS.map((option) => (
@@ -445,7 +445,8 @@ const SurveyLanguagesCard = ({
                         select
                         sx={{ mt: 1 }}
                         value={
-                            survey.academic_background?.language?.gre_isPassed
+                            survey.academic_background?.language
+                                ?.gre_isPassed ?? '-'
                         }
                     >
                         {IS_PASSED_OPTIONS.map((option) => (
@@ -563,7 +564,8 @@ const SurveyLanguagesCard = ({
                         select
                         sx={{ mt: 1 }}
                         value={
-                            survey.academic_background?.language?.gmat_isPassed
+                            survey.academic_background?.language
+                                ?.gmat_isPassed ?? '-'
                         }
                     >
                         {IS_PASSED_OPTIONS.map((option) => (

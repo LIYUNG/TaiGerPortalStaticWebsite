@@ -6,7 +6,7 @@ vi.mock('@taiger-common/core', () => ({
     isProgramDecided: vi.fn(() => false)
 }));
 
-const mockCheckUniAssist = vi.fn(() => false);
+const mockCheckUniAssist = vi.hoisted(() => vi.fn(() => false));
 vi.mock('../Utils/util_functions', () => ({
     check_student_needs_uni_assist: mockCheckUniAssist
 }));

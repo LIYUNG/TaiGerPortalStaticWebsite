@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
-const mockUseQuery = vi.fn();
+const mockUseQuery = vi.hoisted(() => vi.fn());
 vi.mock('@tanstack/react-query', () => ({
     useQuery: mockUseQuery
 }));

@@ -4,7 +4,7 @@ import { MemoryRouter } from 'react-router-dom';
 import EssayOverview from './EssayOverview';
 
 vi.mock('@components/AuthProvider', () => ({
-    useAuth: () => ({ user: { role: 'Agent', _id: 'a1', _id: { toString: () => 'a1' } } })
+    useAuth: () => ({ user: { role: 'Agent', _id: 'a1' } })
 }));
 
 vi.mock('@taiger-common/core', () => ({

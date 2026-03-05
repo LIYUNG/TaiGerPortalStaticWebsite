@@ -5,7 +5,7 @@ import MyStudentsOverview from './MyStudentsOverview';
 
 vi.mock('@components/AuthProvider', () => ({
     useAuth: () => ({
-        user: { role: 'Agent', _id: 'a1', _id: { toString: () => 'a1' } }
+        user: { role: 'Agent', _id: 'a1' }
     })
 }));
 

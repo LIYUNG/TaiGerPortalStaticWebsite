@@ -15,13 +15,28 @@ vi.mock('../../config', () => ({
 
 vi.mock('@utils/contants', () => ({
     isProgramValid: vi.fn(() => true),
-    BINARY_STATE_ARRAY_OPTIONS: [{ value: 'true', label: 'Yes' }],
+    BINARY_STATE_ARRAY_OPTIONS: [
+        { value: 'no', label: 'No' },
+        { value: 'yes', label: 'Yes' }
+    ],
     COUNTRIES_ARRAY_OPTIONS: [{ value: 'DE', label: 'Germany' }],
-    DEGREE_CATOGARY_ARRAY_OPTIONS: [{ value: 'Master', label: 'Master' }],
-    LANGUAGES_ARRAY_OPTIONS: [{ value: 'en', label: 'English' }],
-    SEMESTER_ARRAY_OPTIONS: [{ value: 'WS', label: 'Winter Semester' }],
+    DEGREE_CATOGARY_ARRAY_OPTIONS: [
+        { value: '-', label: '-' },
+        { value: 'Master', label: 'Master' }
+    ],
+    LANGUAGES_ARRAY_OPTIONS: [
+        { value: '-', label: '-' },
+        { value: 'en', label: 'English' }
+    ],
+    SEMESTER_ARRAY_OPTIONS: [
+        { value: '-', label: '-' },
+        { value: 'WS', label: 'Winter Semester' }
+    ],
     UNI_ASSIST_ARRAY_OPTIONS: [{ value: 'yes', label: 'Yes' }],
-    YES_NO_BOOLEAN_OPTIONS: [{ value: 'true', label: 'Yes' }],
+    YES_NO_BOOLEAN_OPTIONS: [
+        { value: true, label: 'Yes' },
+        { value: false, label: 'No' }
+    ],
     showFieldAlert: vi.fn(() => false),
     PROGRAM_SUBJECTS_DETAILED: [],
     SCHOOL_TAGS_DETAILED: []
@@ -42,8 +57,8 @@ const defaultProps = {
         program_name: 'Computer Science',
         degree: 'Master',
         semester: 'WS',
-        country: 'Germany',
-        lang: 'English'
+        country: 'DE',
+        lang: 'en'
     },
     programs: [{ school: 'TU Berlin' }, { school: 'LMU Munich' }],
     type: 'edit' as const,

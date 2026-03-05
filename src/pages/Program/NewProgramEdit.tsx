@@ -613,8 +613,15 @@ const NewProgramEdit = (props: NewProgramEditProps) => {
                                 name="goetheZertifikat"
                                 onChange={(e) => handleChange(e)}
                                 size="small"
-                                value={program.goetheZertifikat || '-'}
+                                value={
+                                    ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].includes(
+                                        program.goetheZertifikat as string
+                                    )
+                                        ? (program.goetheZertifikat as string)
+                                        : '-'
+                                }
                             >
+                                <MenuItem value="-">-</MenuItem>
                                 {['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].map(
                                     (level) => (
                                         <MenuItem key={level} value={level}>
@@ -881,7 +888,12 @@ const NewProgramEdit = (props: NewProgramEditProps) => {
                                 name="is_rl_specific"
                                 onChange={(e) => handleChange(e)}
                                 size="small"
-                                value={program.is_rl_specific}
+                                value={
+                                    program.is_rl_specific === true ||
+                                    program.is_rl_specific === false
+                                        ? program.is_rl_specific
+                                        : false
+                                }
                             >
                                 {YES_NO_BOOLEAN_OPTIONS.map((option) => (
                                     <MenuItem
