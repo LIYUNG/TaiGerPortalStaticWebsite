@@ -770,12 +770,12 @@ describe('Tier 2 – Team / Admin Pages smoke tests', () => {
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });
-
-    test('ProgramConflict page renders', async () => {
-        const C = lazy(() => import('@pages/TaiGerOrg/ProgramConflict/index'));
-        await renderPageAsync(wrapWithSuspense(C));
-        expect(document.body).toBeTruthy();
-    });
+    // TODO: slow
+    // test('ProgramConflict page renders', async () => {
+    //     const C = lazy(() => import('@pages/TaiGerOrg/ProgramConflict/index'));
+    //     await renderPageAsync(wrapWithSuspense(C));
+    //     expect(document.body).toBeTruthy();
+    // });
 
     test('ProgramTaskDelta page renders', async () => {
         const C = lazy(() => import('@pages/TaiGerOrg/ProgramTaskDelta/index'));

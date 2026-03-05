@@ -30,7 +30,10 @@ const mockSurvey = {
             Passing_GPA_Uni: '2.0',
             My_GPA_Uni: '3.5',
             isGraduated: 'graduated',
-            expected_graduation_date: ''
+            expected_graduation_date: '',
+            high_school_isGraduated: 'Yes',
+            Has_Internship_Experience: 'No',
+            Has_Working_Experience: 'No'
         },
         high_school: {
             isGraduated: '',
