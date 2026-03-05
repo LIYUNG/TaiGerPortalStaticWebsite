@@ -29,7 +29,8 @@ vi.mock('@hooks/useStudents', () => ({
 }));
 
 vi.mock('./AssignEditorsPage', () => ({
-    default: () => createElement('div', { 'data-testid': 'assign-editors-page' })
+    default: () =>
+        createElement('div', { 'data-testid': 'assign-editors-page' })
 }));
 
 vi.mock('../../Utils/ModalHandler/ModalMain', () => ({

@@ -32,21 +32,41 @@ vi.mock('@mui/x-charts/ChartsAxis', () => ({ axisClasses: {} }));
 
 // Stub the role-specific dashboard views — they are tested individually.
 // Mocking them here prevents rendering heavy MUI tables/charts in this smoke-level test.
-vi.mock('@pages/Dashboard/AgentDashboard/AgentMainView', () => ({ default: () => null }));
-vi.mock('@pages/Dashboard/AdminDashboard/AdminMainView', () => ({ default: () => null }));
-vi.mock('@pages/Dashboard/EditorDashboard/EditorMainView', () => ({ default: () => null }));
-vi.mock('@pages/Dashboard/ManagerDashboard/ManagerMainView', () => ({ default: () => null }));
-vi.mock('@pages/Dashboard/StudentDashboard/StudentDashboard', () => ({ default: () => null }));
-vi.mock('@pages/Dashboard/GuestDashboard/GuestDashboard', () => ({ default: () => null }));
-vi.mock('@pages/Dashboard/ExternalDashboard/ExternalMainView', () => ({ default: () => null }));
+vi.mock('@pages/Dashboard/AgentDashboard/AgentMainView', () => ({
+    default: () => null
+}));
+vi.mock('@pages/Dashboard/AdminDashboard/AdminMainView', () => ({
+    default: () => null
+}));
+vi.mock('@pages/Dashboard/EditorDashboard/EditorMainView', () => ({
+    default: () => null
+}));
+vi.mock('@pages/Dashboard/ManagerDashboard/ManagerMainView', () => ({
+    default: () => null
+}));
+vi.mock('@pages/Dashboard/StudentDashboard/StudentDashboard', () => ({
+    default: () => null
+}));
+vi.mock('@pages/Dashboard/GuestDashboard/GuestDashboard', () => ({
+    default: () => null
+}));
+vi.mock('@pages/Dashboard/ExternalDashboard/ExternalMainView', () => ({
+    default: () => null
+}));
 
 vi.mock('react-router-dom', async (importOriginal) => {
-    const actual = (await importOriginal()) as typeof import('react-router-dom');
+    const actual =
+        (await importOriginal()) as typeof import('react-router-dom');
     return {
         ...actual,
         Navigate: () => null,
-        Link: forwardRef((props: { to?: string; children?: React.ReactNode }, ref) =>
-            createElement('a', { href: props.to ?? '', ref, ...props }, props.children)
+        Link: forwardRef(
+            (props: { to?: string; children?: React.ReactNode }, ref) =>
+                createElement(
+                    'a',
+                    { href: props.to ?? '', ref, ...props },
+                    props.children
+                )
         ),
         useLoaderData: () => ({
             studentAndEssaysAndInterview: {
@@ -56,13 +76,19 @@ vi.mock('react-router-dom', async (importOriginal) => {
             }
         }),
         useNavigate: () => vi.fn(),
-        useLocation: () => ({ search: '', pathname: '/dashboard', hash: '', state: null }),
+        useLocation: () => ({
+            search: '',
+            pathname: '/dashboard',
+            hash: '',
+            state: null
+        }),
         useParams: () => ({})
     };
 });
 
 vi.mock('@tanstack/react-query', async (importOriginal) => {
-    const actual = (await importOriginal()) as typeof import('@tanstack/react-query');
+    const actual =
+        (await importOriginal()) as typeof import('@tanstack/react-query');
     return {
         ...actual,
         useQuery: vi.fn().mockReturnValue({

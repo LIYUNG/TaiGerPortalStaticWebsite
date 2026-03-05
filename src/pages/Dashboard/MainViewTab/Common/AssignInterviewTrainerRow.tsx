@@ -4,7 +4,11 @@ import type { TasksOverview } from '@/api/types';
 import DEMO from '@store/constant';
 import { t } from 'i18next';
 
-const AssignInterviewTrainerRow = ({ tasksOverview }: { tasksOverview: TasksOverview }) => {
+const AssignInterviewTrainerRow = ({
+    tasksOverview
+}: {
+    tasksOverview: TasksOverview;
+}) => {
     return (
         <TableRow>
             <TableCell>

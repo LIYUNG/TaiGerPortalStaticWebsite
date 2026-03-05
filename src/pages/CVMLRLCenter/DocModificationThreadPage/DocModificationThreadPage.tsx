@@ -13,12 +13,7 @@ import FolderIcon from '@mui/icons-material/Folder';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import HistoryIcon from '@mui/icons-material/History';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import {
-    Typography,
-    Box,
-    Tabs,
-    Tab
-} from '@mui/material';
+import { Typography, Box, Tabs, Tab } from '@mui/material';
 import { pdfjs } from 'react-pdf';
 import { is_TaiGer_role } from '@taiger-common/core';
 
@@ -54,7 +49,9 @@ import i18next from 'i18next';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import GeneralRLRequirementsTab from './DocumentThreadsPage/GeneralRLRequirementsTab';
 import InformationBlock from '@pages/CVMLRLCenter/DocModificationThreadPage/components/InformationBlock';
-import SimilarThreadsTab, { type SimilarThread } from './components/SimilarThreadsTab';
+import SimilarThreadsTab, {
+    type SimilarThread
+} from './components/SimilarThreadsTab';
 import DiscussionEditorCard from './components/DiscussionEditorCard';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;

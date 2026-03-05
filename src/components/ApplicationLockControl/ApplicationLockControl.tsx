@@ -25,7 +25,11 @@ import { useAuth } from '../AuthProvider';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import DEMO from '@store/constant';
 import { type IApplication } from '@taiger-common/model';
-import type { ApplicationId, ProgramId, IProgramWithId } from '@taiger-common/model';
+import type {
+    ApplicationId,
+    ProgramId,
+    IProgramWithId
+} from '@taiger-common/model';
 
 interface ApplicationLockControlProps {
     application: IApplication;

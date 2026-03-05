@@ -53,10 +53,16 @@ const SimilarThreadsTab = ({ similarThreads, t }: SimilarThreadsTabProps) => {
                         >
                             <ArticleIcon sx={{ color: 'primary.main' }} />
                             <Box sx={{ flex: 1 }}>
-                                <Typography fontWeight="bold" variant="subtitle1">
+                                <Typography
+                                    fontWeight="bold"
+                                    variant="subtitle1"
+                                >
                                     {`${thread.student_id?.firstname} ${thread.student_id?.lastname}`}
                                 </Typography>
-                                <Typography color="text.secondary" variant="body2">
+                                <Typography
+                                    color="text.secondary"
+                                    variant="body2"
+                                >
                                     {`${thread.application_id?.application_year} - ${thread.file_type}`}
                                 </Typography>
                             </Box>

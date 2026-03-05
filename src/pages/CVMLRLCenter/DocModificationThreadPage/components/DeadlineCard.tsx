@@ -15,7 +15,10 @@ import StarBorderRoundedIcon from '@mui/icons-material/StarBorderRounded';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
 
 import { is_TaiGer_AdminAgent } from '@taiger-common/core';
-import type { IUserWithId, IDocumentthreadPopulated } from '@taiger-common/model';
+import type {
+    IUserWithId,
+    IDocumentthreadPopulated
+} from '@taiger-common/model';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@mui/material';
 
@@ -120,9 +123,7 @@ const DeadlineCard = ({
                             }
                         >
                             <IconButton
-                                onClick={() =>
-                                    handleFavoriteToggle(thread._id)
-                                }
+                                onClick={() => handleFavoriteToggle(thread._id)}
                                 size="small"
                                 sx={{
                                     color: 'white',

@@ -14,17 +14,18 @@ vi.mock('@utils/contants', () => ({
 import { EstimationCard } from './EstimationCard';
 import type { CategorySummaryRow } from './utils';
 
-const makeRow = (credits: number, required: number, maxScore?: number): CategorySummaryRow => ({
+const makeRow = (
+    credits: number,
+    required: number,
+    maxScore?: number
+): CategorySummaryRow => ({
     credits,
     requiredECTS: required,
     maxScore
 });
 
 const sortedCourses = {
-    Math: [
-        { Math: 'Calculus', credits: 6, requiredECTS: 6 },
-        makeRow(6, 6, 5)
-    ]
+    Math: [{ Math: 'Calculus', credits: 6, requiredECTS: 6 }, makeRow(6, 6, 5)]
 };
 
 const baseProps = {

@@ -14,7 +14,7 @@ const makeStudent = (overrides = {}): IStudentResponse =>
                 ...overrides
             }
         }
-    } as unknown as IStudentResponse);
+    }) as unknown as IStudentResponse;
 
 describe('GPACard', () => {
     it('renders GPA Information title', () => {
@@ -33,7 +33,12 @@ describe('GPACard', () => {
     });
 
     it('displays student My_GPA_Uni value', () => {
-        render(<GPACard student={makeStudent({ My_GPA_Uni: 3.5 })} myGermanGPA={2.3} />);
+        render(
+            <GPACard
+                student={makeStudent({ My_GPA_Uni: 3.5 })}
+                myGermanGPA={2.3}
+            />
+        );
         expect(screen.getByText('3.5')).toBeInTheDocument();
     });
 
@@ -54,7 +59,12 @@ describe('GPACard', () => {
     });
 
     it('displays passing grade', () => {
-        render(<GPACard student={makeStudent({ Passing_GPA_Uni: 2.0 })} myGermanGPA={2.3} />);
+        render(
+            <GPACard
+                student={makeStudent({ Passing_GPA_Uni: 2.0 })}
+                myGermanGPA={2.3}
+            />
+        );
         expect(screen.getByText(/Passing Grade:/)).toBeInTheDocument();
     });
 

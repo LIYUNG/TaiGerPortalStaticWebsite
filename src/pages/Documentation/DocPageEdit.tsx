@@ -30,10 +30,7 @@ const DocPageEdit = (props: DocPageEditProps) => {
         });
     }, [props.document_title]);
 
-    const handleClickSave = (
-        e: React.MouseEvent,
-        editorState: OutputData
-    ) => {
+    const handleClickSave = (e: React.MouseEvent, editorState: OutputData) => {
         e.preventDefault();
         props.handleClickSave(e, docPageEditState.doc_title, editorState);
     };

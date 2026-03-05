@@ -26,16 +26,22 @@ describe('ApplicationsTableBanners', () => {
 
     it('renders primary info banner with company name', () => {
         render(<ApplicationsTableBanners />);
-        expect(screen.getByTestId('banner-primary').textContent).toContain('TaiGer');
+        expect(screen.getByTestId('banner-primary').textContent).toContain(
+            'TaiGer'
+        );
     });
 
     it('renders secondary warning banner', () => {
         render(<ApplicationsTableBanners />);
-        expect(screen.getByTestId('banner-secondary').textContent).toContain('Decided');
+        expect(screen.getByTestId('banner-secondary').textContent).toContain(
+            'Decided'
+        );
     });
 
     it('renders danger warning banner', () => {
         render(<ApplicationsTableBanners />);
-        expect(screen.getByTestId('banner-danger').textContent).toContain('Submitted');
+        expect(screen.getByTestId('banner-danger').textContent).toContain(
+            'Submitted'
+        );
     });
 });

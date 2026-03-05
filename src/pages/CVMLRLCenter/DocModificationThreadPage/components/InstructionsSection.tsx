@@ -12,7 +12,10 @@ import {
 } from '@mui/material';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
-import type { IDocumentthreadPopulated, ITemplateWithId } from '@taiger-common/model';
+import type {
+    IDocumentthreadPopulated,
+    ITemplateWithId
+} from '@taiger-common/model';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@mui/material';
 

@@ -58,7 +58,12 @@ describe('MeetingsList', () => {
     it('renders multiple meetings', () => {
         const meetings = [
             baseMeeting,
-            { id: 'meeting-2', title: 'Follow Up', date: '2024-04-01T09:00:00Z', summary: { gist: 'Follow up notes' } }
+            {
+                id: 'meeting-2',
+                title: 'Follow Up',
+                date: '2024-04-01T09:00:00Z',
+                summary: { gist: 'Follow up notes' }
+            }
         ];
         render(<MeetingsList meetings={meetings} t={t} />);
         expect(screen.getByText('Intro Call')).toBeInTheDocument();

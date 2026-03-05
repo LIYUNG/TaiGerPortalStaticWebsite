@@ -86,6 +86,8 @@ describe('StudentDatabase', () => {
             </MemoryRouter>
         );
 
-        expect(screen.queryByTestId('student_datdabase')).not.toBeInTheDocument();
+        expect(
+            screen.queryByTestId('student_datdabase')
+        ).not.toBeInTheDocument();
     });
 });

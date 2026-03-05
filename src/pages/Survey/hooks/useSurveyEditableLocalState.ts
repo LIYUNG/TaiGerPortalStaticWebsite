@@ -14,7 +14,10 @@ export interface UseSurveyEditableLocalStateReturn {
 
 export function useSurveyEditableLocalState(): UseSurveyEditableLocalStateReturn {
     const [baseDocsflagOffcanvas, setBaseDocsflagOffcanvas] = useState(false);
-    const [baseDocsflagOffcanvasButtonDisable, setBaseDocsflagOffcanvasButtonDisable] = useState(false);
+    const [
+        baseDocsflagOffcanvasButtonDisable,
+        setBaseDocsflagOffcanvasButtonDisable
+    ] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
     const closeOffcanvasWindow = useCallback(() => {

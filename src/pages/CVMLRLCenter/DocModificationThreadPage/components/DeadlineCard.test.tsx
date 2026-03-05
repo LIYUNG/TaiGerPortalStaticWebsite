@@ -90,7 +90,9 @@ describe('DeadlineCard', () => {
 
     it('shows filled star icon when favorited', () => {
         renderCard({ isFavorite: true });
-        const button = screen.getByRole('button', { name: 'Remove from favorites' });
+        const button = screen.getByRole('button', {
+            name: 'Remove from favorites'
+        });
         expect(button).toBeInTheDocument();
     });
 

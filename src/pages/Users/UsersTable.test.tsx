@@ -18,7 +18,11 @@ vi.mock('react-router-dom', () => ({
     Navigate: () => null,
     Link: forwardRef(
         (
-            { children, to, ...props }: { to: string; children?: React.ReactNode },
+            {
+                children,
+                to,
+                ...props
+            }: { to: string; children?: React.ReactNode },
             ref
         ) => createElement('a', { href: to, ref, ...props }, children)
     )
@@ -42,7 +46,8 @@ vi.mock('./AddUserModal', () => ({
 }));
 
 vi.mock('@tanstack/react-query', async (importOriginal) => {
-    const actual = await importOriginal<typeof import('@tanstack/react-query')>();
+    const actual =
+        await importOriginal<typeof import('@tanstack/react-query')>();
     return {
         ...actual,
         useQuery: vi.fn((options: { queryKey?: unknown[] }) => {

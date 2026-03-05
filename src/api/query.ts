@@ -60,12 +60,7 @@ import {
     getEvents,
     getBookedEvents
 } from '.';
-import type {
-    IStudentResponse,
-    QueryString,
-    StudentId,
-    UserId
-} from './types';
+import type { IStudentResponse, QueryString, StudentId, UserId } from './types';
 import type { IDocumentthreadPopulated } from '@taiger-common/model';
 
 export const getMessagThreadQuery = (threadId: string): UseQueryOptions => ({
@@ -79,7 +74,7 @@ export const getMessagThreadQuery = (threadId: string): UseQueryOptions => ({
             throw error;
         }
     },
-    staleTime: 1000 * 60, // 1 minutes
+    staleTime: 1000 * 60 // 1 minutes
 });
 
 export const getActiveThreadsQuery = (
@@ -92,7 +87,11 @@ export const getActiveThreadsQuery = (
         (data as { data?: IDocumentthreadPopulated[] })?.data || []
 });
 
-export const getProgramQuery = ({ programId }: { programId: string }): UseQueryOptions => ({
+export const getProgramQuery = ({
+    programId
+}: {
+    programId: string;
+}): UseQueryOptions => ({
     queryKey: ['programs', programId],
     queryFn: () => getProgramV2(programId),
     staleTime: 1000 * 60 // 1 minutes
@@ -160,7 +159,11 @@ export const getTasksOverviewQuery = (): UseQueryOptions => ({
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
 
-export const getIsManagerQuery = ({ userId }: { userId: UserId }): UseQueryOptions => ({
+export const getIsManagerQuery = ({
+    userId
+}: {
+    userId: UserId;
+}): UseQueryOptions => ({
     queryKey: ['is-manager', userId],
     queryFn: getIsManager,
     staleTime: 1000 * 60 * 5 // 5 minutes
@@ -196,7 +199,9 @@ export const getActiveStudentsQuery = (
         (data as { data?: IStudentResponse[] })?.data || []
 });
 
-export const getStudentsV3Query = (queryString: QueryString): UseQueryOptions => ({
+export const getStudentsV3Query = (
+    queryString: QueryString
+): UseQueryOptions => ({
     queryKey: ['students/v3', queryString],
     queryFn: () => getStudentsV3(queryString),
     staleTime: 1000 * 60 * 5 // 5 minutes
@@ -220,19 +225,25 @@ export const getCoursessQuery = (courseId: string): UseQueryOptions => ({
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
 
-export const getCommunicationQuery = (studentId: StudentId): UseQueryOptions => ({
+export const getCommunicationQuery = (
+    studentId: StudentId
+): UseQueryOptions => ({
     queryKey: ['communications', studentId],
     queryFn: () => getCommunicationThreadV2({ studentId }),
     staleTime: 1000 * 50 // 50 seconds
 });
 
-export const getInterviewsByStudentIdQuery = (studentId: StudentId): UseQueryOptions => ({
+export const getInterviewsByStudentIdQuery = (
+    studentId: StudentId
+): UseQueryOptions => ({
     queryKey: ['interviews/student', studentId],
     queryFn: () => getInterviewsByStudentId(studentId),
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
 
-export const getInterviewsByProgramIdQuery = (programId: string): UseQueryOptions => ({
+export const getInterviewsByProgramIdQuery = (
+    programId: string
+): UseQueryOptions => ({
     queryKey: ['interviews/program', programId],
     queryFn: () => getInterviewsByProgramId(programId),
     staleTime: 1000 * 60 * 5 // 5 minutes
@@ -294,7 +305,9 @@ export const getVerifyQuery = (): UseQueryOptions => ({
     staleTime: 1000 * 60 * 10 // 10 minutes
 });
 
-export const getApplicationsQuery = (queryString: QueryString): UseQueryOptions => ({
+export const getApplicationsQuery = (
+    queryString: QueryString
+): UseQueryOptions => ({
     queryKey: ['applications', queryString],
     queryFn: () => getApplications(queryString),
     staleTime: 1000 * 60 * 5 // 5 minutes
@@ -311,7 +324,9 @@ export const getApplicationStudentV2Query = ({
     select: (data: unknown) => data?.data || null
 });
 
-export const getQueryStudentsResultsQuery = (keywords: string): UseQueryOptions => ({
+export const getQueryStudentsResultsQuery = (
+    keywords: string
+): UseQueryOptions => ({
     queryKey: ['search/students', keywords],
     queryFn: () => getQueryStudentsResults(keywords),
     enabled: !!keywords.trim(),
@@ -359,13 +374,17 @@ export const getMyStudentsThreadsQuery = ({
     select: (response: { data?: unknown } | null) => response?.data || null
 });
 
-export const getStudentsAndDocLinks2Query = (queryString: QueryString): UseQueryOptions => ({
+export const getStudentsAndDocLinks2Query = (
+    queryString: QueryString
+): UseQueryOptions => ({
     queryKey: ['students/doc-links', queryString],
     queryFn: () => getStudentsAndDocLinks2(queryString),
     staleTime: 1000 * 60 * 1 // 1 minutes
 });
 
-export const getAdmissionsQuery = (queryString: QueryString): UseQueryOptions => ({
+export const getAdmissionsQuery = (
+    queryString: QueryString
+): UseQueryOptions => ({
     queryKey: ['admissions', queryString],
     queryFn: () => getAdmissions(queryString),
     staleTime: 1000 * 60 * 5 // 5 minutes
@@ -377,13 +396,17 @@ export const getAdmissionsOverviewQuery = (): UseQueryOptions => ({
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
 
-export const getInterviewsQuery = (queryString: QueryString): UseQueryOptions => ({
+export const getInterviewsQuery = (
+    queryString: QueryString
+): UseQueryOptions => ({
     queryKey: ['interviews', queryString],
     queryFn: () => getInterviews(queryString),
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
 
-export const getAuditLogQuery = (queryString: QueryString): UseQueryOptions => ({
+export const getAuditLogQuery = (
+    queryString: QueryString
+): UseQueryOptions => ({
     queryKey: ['audit-log', queryString],
     queryFn: () => getAuditLog(queryString),
     staleTime: 1000 * 60 * 5 // 5 minutes
@@ -437,7 +460,9 @@ export const getInterviewQuery = (interviewId: string): UseQueryOptions => ({
     staleTime: 1000 * 60 * 1 // 1 minute
 });
 
-export const getArchivStudentsQuery = (TaiGerStaffId: string): UseQueryOptions => ({
+export const getArchivStudentsQuery = (
+    TaiGerStaffId: string
+): UseQueryOptions => ({
     queryKey: ['archiv-students', TaiGerStaffId],
     queryFn: () => getArchivStudents(TaiGerStaffId),
     staleTime: 1000 * 60 * 5 // 5 minutes
@@ -467,7 +492,9 @@ export const getMycoursesQuery = (studentId: StudentId): UseQueryOptions => ({
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
 
-export const getStudentMeetingsQuery = (studentId: StudentId): UseQueryOptions => ({
+export const getStudentMeetingsQuery = (
+    studentId: StudentId
+): UseQueryOptions => ({
     queryKey: ['student-meetings', studentId],
     queryFn: () => getStudentMeetings(studentId),
     staleTime: 1000 * 60 * 2 // 2 minutes

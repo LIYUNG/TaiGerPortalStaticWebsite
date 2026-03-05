@@ -31,7 +31,10 @@ describe('ProgramCorrectnessReminderDialog', () => {
     it('calls onClose when Accept is clicked', () => {
         const onClose = vi.fn();
         render(
-            <ProgramCorrectnessReminderDialog {...defaultProps} onClose={onClose} />
+            <ProgramCorrectnessReminderDialog
+                {...defaultProps}
+                onClose={onClose}
+            />
         );
         fireEvent.click(screen.getByText('Accept'));
         expect(onClose).toHaveBeenCalledTimes(1);

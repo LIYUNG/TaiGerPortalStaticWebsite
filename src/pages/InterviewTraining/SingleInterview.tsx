@@ -1,9 +1,5 @@
 import React, { useState, useMemo, type MouseEvent } from 'react';
-import {
-    Link as LinkDom,
-    useLocation,
-    useParams
-} from 'react-router-dom';
+import { Link as LinkDom, useLocation, useParams } from 'react-router-dom';
 import {
     Card,
     Link,
@@ -30,9 +26,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { is_TaiGer_role } from '@taiger-common/core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-    CheckCircle as CheckCircleIcon
-} from '@mui/icons-material';
+import { CheckCircle as CheckCircleIcon } from '@mui/icons-material';
 
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';

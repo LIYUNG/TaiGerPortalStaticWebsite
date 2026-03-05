@@ -142,7 +142,8 @@ export default function ApplicationProgressCard(
 
     const applicationFromProps = props.application as Application;
 
-    const [application, setApplication] = useState<Application>(applicationFromProps);
+    const [application, setApplication] =
+        useState<Application>(applicationFromProps);
     const [resultState, setResultState] = useState('-');
     const [letter, setLetter] = useState<File | null>(null);
     const [returnedMessage, setReturnedMessage] = useState('');
@@ -553,7 +554,9 @@ export default function ApplicationProgressCard(
                 )} ${application.programId?.school} - ${application.programId?.degree} - ${application.programId?.program_name}?`}
                 isLoading={isLoading}
                 onClose={closeUndoModal}
-                onConfirm={(e: MouseEvent<HTMLButtonElement>) => handleUpdateResult(e, '-')}
+                onConfirm={(e: MouseEvent<HTMLButtonElement>) =>
+                    handleUpdateResult(e, '-')
+                }
                 open={showUndoModal}
                 title={i18next.t('Attention')}
             />

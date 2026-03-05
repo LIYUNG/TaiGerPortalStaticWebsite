@@ -1,5 +1,11 @@
 import { type MouseEvent } from 'react';
-import { Accordion, AccordionDetails, Alert, Divider, Typography } from '@mui/material';
+import {
+    Accordion,
+    AccordionDetails,
+    Alert,
+    Divider,
+    Typography
+} from '@mui/material';
 import type { Application } from '@/api/types';
 import { calculateApplicationLockStatus } from '../../Utils/util_functions';
 import ManualFiles from '../ManualFiles';

@@ -29,7 +29,10 @@ export function useStudentSearch(
     const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
 
     useEffect(() => {
-        const t = setTimeout(() => setDebouncedSearchTerm(searchTerm), debounceMs);
+        const t = setTimeout(
+            () => setDebouncedSearchTerm(searchTerm),
+            debounceMs
+        );
         return () => clearTimeout(t);
     }, [searchTerm, debounceMs]);
 

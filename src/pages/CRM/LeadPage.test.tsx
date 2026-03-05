@@ -27,10 +27,15 @@ vi.mock('@hooks/useLead', () => ({
 }));
 
 vi.mock('@tanstack/react-query', async (importOriginal) => {
-    const actual = (await importOriginal()) as typeof import('@tanstack/react-query');
+    const actual =
+        (await importOriginal()) as typeof import('@tanstack/react-query');
     return {
         ...actual,
-        useMutation: vi.fn(() => ({ mutate: vi.fn(), mutateAsync: vi.fn(), isPending: false })),
+        useMutation: vi.fn(() => ({
+            mutate: vi.fn(),
+            mutateAsync: vi.fn(),
+            isPending: false
+        })),
         useQuery: vi.fn(() => ({ data: null, isLoading: false })),
         useQueryClient: vi.fn(() => ({
             invalidateQueries: vi.fn(),
@@ -53,7 +58,9 @@ vi.mock('@taiger-common/core', () => ({
 
 vi.mock('@pages/CRM/components/LeadProfileHeader', () => ({
     default: ({ lead }: { lead: Record<string, unknown> }) => (
-        <div data-testid="lead-profile-header">{String(lead.fullName || '')}</div>
+        <div data-testid="lead-profile-header">
+            {String(lead.fullName || '')}
+        </div>
     )
 }));
 

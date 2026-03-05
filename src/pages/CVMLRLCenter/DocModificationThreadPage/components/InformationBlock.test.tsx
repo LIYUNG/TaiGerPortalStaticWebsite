@@ -38,7 +38,9 @@ vi.mock('@components/TopBar/TopBar', () => ({
 }));
 
 vi.mock('./OriginAuthorStatementBar', () => ({
-    default: () => <div data-testid="origin-author-bar">OriginAuthorStatementBar</div>
+    default: () => (
+        <div data-testid="origin-author-bar">OriginAuthorStatementBar</div>
+    )
 }));
 
 vi.mock('./DescriptionBlock', () => ({

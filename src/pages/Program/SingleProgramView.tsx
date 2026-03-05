@@ -252,12 +252,9 @@ const SingleProgramView = (props: SingleProgramViewProps) => {
                                                           ns: 'common'
                                                       }
                                                   )
-                                                : t(
-                                                      'Unlock program manually',
-                                                      {
-                                                          ns: 'common'
-                                                      }
-                                                  )
+                                                : t('Unlock program manually', {
+                                                      ns: 'common'
+                                                  })
                                         }
                                         variant="outlined"
                                     >

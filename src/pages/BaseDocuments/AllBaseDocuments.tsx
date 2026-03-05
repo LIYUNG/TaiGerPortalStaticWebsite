@@ -16,8 +16,9 @@ const AllBaseDocuments = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
 
-    const { students, isLoading, isError, error } =
-        useStudentsAndDocLinks({ archiv: false });
+    const { students, isLoading, isError, error } = useStudentsAndDocLinks({
+        archiv: false
+    });
 
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;

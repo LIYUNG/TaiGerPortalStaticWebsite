@@ -47,21 +47,20 @@ const SurveyLanguagesCard = ({
                         text="若還沒考過，請在 Passed 處選 No，並填上檢定以及預計考試時間。若不需要（如德語），請填 Not Needed。方便顧問了解你的進度。"
                         title="warning"
                     />
-                    {survey.academic_background?.language
-                        ?.english_isPassed === 'X' ||
-                    survey.academic_background?.language
-                        ?.german_isPassed === 'X' ||
-                    survey.academic_background?.language
-                        ?.gre_isPassed === 'X' ||
-                    survey.academic_background?.language
-                        ?.gmat_isPassed === 'X' ? (
+                    {survey.academic_background?.language?.english_isPassed ===
+                        'X' ||
+                    survey.academic_background?.language?.german_isPassed ===
+                        'X' ||
+                    survey.academic_background?.language?.gre_isPassed ===
+                        'X' ||
+                    survey.academic_background?.language?.gmat_isPassed ===
+                        'X' ? (
                         <Banner
                             link_name=""
                             path="/"
                             text={
                                 <>
-                                    報名考試時，請確認 <b>護照</b>{' '}
-                                    有無過期。
+                                    報名考試時，請確認 <b>護照</b> 有無過期。
                                 </>
                             }
                             title="warning"
@@ -84,9 +83,7 @@ const SurveyLanguagesCard = ({
                                 : null
                         }
                         id="english_isPassed"
-                        label={t(
-                            'English Passed ? (IELTS 6.5 / TOEFL 88)'
-                        )}
+                        label={t('English Passed ? (IELTS 6.5 / TOEFL 88)')}
                         name="english_isPassed"
                         onChange={handleChangeLanguage}
                         select
@@ -97,20 +94,17 @@ const SurveyLanguagesCard = ({
                         }
                     >
                         {IS_PASSED_OPTIONS.map((option) => (
-                            <MenuItem
-                                key={option.value}
-                                value={option.value}
-                            >
+                            <MenuItem key={option.value} value={option.value}>
                                 {option.label}
                             </MenuItem>
                         ))}
                     </TextField>
                 </Grid>
                 <Grid item sm={4} xs={12}>
-                    {survey?.academic_background?.language
-                        ?.english_isPassed === 'O' ||
-                    survey?.academic_background?.language
-                        ?.english_isPassed === 'X' ? (
+                    {survey?.academic_background?.language?.english_isPassed ===
+                        'O' ||
+                    survey?.academic_background?.language?.english_isPassed ===
+                        'X' ? (
                         <FormControl fullWidth sx={{ mt: 1 }}>
                             <InputLabel id="english_certificate">
                                 {t('English Certificate')}
@@ -152,12 +146,9 @@ const SurveyLanguagesCard = ({
                             <DatePicker
                                 format="D. MMM. YYYY"
                                 label={
-                                    survey?.academic_background
-                                        ?.language?.english_isPassed ===
-                                    'X'
-                                        ? t(
-                                              'Expected English Test Date'
-                                          )
+                                    survey?.academic_background?.language
+                                        ?.english_isPassed === 'X'
+                                        ? t('Expected English Test Date')
                                         : t('English Test Date')
                                 }
                                 name="english_test_date"
@@ -168,23 +159,20 @@ const SurveyLanguagesCard = ({
                                     )
                                 }
                                 value={dayjs(
-                                    (survey.academic_background
-                                        ?.language
-                                        ?.english_test_date as string) ||
-                                        ''
+                                    (survey.academic_background?.language
+                                        ?.english_test_date as string) || ''
                                 )}
                             />
                         </LocalizationProvider>
                     ) : null}
                 </Grid>
-                {survey?.academic_background?.language
-                    ?.english_isPassed === 'O' ? (
+                {survey?.academic_background?.language?.english_isPassed ===
+                'O' ? (
                     <>
                         <Grid item sm={4} xs={12}>
                             <TextField
                                 disabled={
-                                    survey.academic_background
-                                        .language &&
+                                    survey.academic_background.language &&
                                     survey.academic_background.language
                                         .english_certificate === 'No'
                                         ? true
@@ -194,9 +182,7 @@ const SurveyLanguagesCard = ({
                                 id="english_score"
                                 label="Overall"
                                 name="english_score"
-                                onChange={(e) =>
-                                    handleChangeLanguage(e)
-                                }
+                                onChange={(e) => handleChangeLanguage(e)}
                                 placeholder={`${
                                     survey.academic_background.language
                                         .english_certificate === 'IELTS'
@@ -222,9 +208,7 @@ const SurveyLanguagesCard = ({
                                 id="english_score_reading"
                                 label="Reading"
                                 name="english_score_reading"
-                                onChange={(e) =>
-                                    handleChangeLanguage(e)
-                                }
+                                onChange={(e) => handleChangeLanguage(e)}
                                 placeholder={`${
                                     survey.academic_background.language
                                         .english_certificate === 'IELTS'
@@ -250,9 +234,7 @@ const SurveyLanguagesCard = ({
                                 id="english_score_listening"
                                 label="Listening"
                                 name="english_score_listening"
-                                onChange={(e) =>
-                                    handleChangeLanguage(e)
-                                }
+                                onChange={(e) => handleChangeLanguage(e)}
                                 placeholder={`${
                                     survey.academic_background.language
                                         .english_certificate === 'IELTS'
@@ -278,9 +260,7 @@ const SurveyLanguagesCard = ({
                                 id="english_score_writing"
                                 label="Writing"
                                 name="english_score_writing"
-                                onChange={(e) =>
-                                    handleChangeLanguage(e)
-                                }
+                                onChange={(e) => handleChangeLanguage(e)}
                                 placeholder={`${
                                     survey.academic_background.language
                                         .english_certificate === 'IELTS'
@@ -306,9 +286,7 @@ const SurveyLanguagesCard = ({
                                 id="english_score_speaking"
                                 label="Speaking"
                                 name="english_score_speaking"
-                                onChange={(e) =>
-                                    handleChangeLanguage(e)
-                                }
+                                onChange={(e) => handleChangeLanguage(e)}
                                 placeholder={`${
                                     survey.academic_background.language
                                         .english_certificate === 'IELTS'
@@ -353,19 +331,16 @@ const SurveyLanguagesCard = ({
                         }
                     >
                         {IS_PASSED_OPTIONS.map((option) => (
-                            <MenuItem
-                                key={option.value}
-                                value={option.value}
-                            >
+                            <MenuItem key={option.value} value={option.value}>
                                 {option.label}
                             </MenuItem>
                         ))}
                     </TextField>
                 </Grid>
-                {survey?.academic_background?.language
-                    ?.german_isPassed === 'O' ||
-                survey?.academic_background?.language
-                    ?.german_isPassed === 'X' ? (
+                {survey?.academic_background?.language?.german_isPassed ===
+                    'O' ||
+                survey?.academic_background?.language?.german_isPassed ===
+                    'X' ? (
                     <Grid item sm={4} xs={12}>
                         <FormControl fullWidth sx={{ mt: 1 }}>
                             <InputLabel id="german_certificate">
@@ -409,32 +384,26 @@ const SurveyLanguagesCard = ({
                             <DatePicker
                                 format="D. MMM. YYYY"
                                 label={
-                                    survey?.academic_background
-                                        ?.language?.german_isPassed ===
-                                    'X'
+                                    survey?.academic_background?.language
+                                        ?.german_isPassed === 'X'
                                         ? t('Expected German Test Date')
                                         : t('German Test Date')
                                 }
                                 name="german_test_date"
                                 onChange={(newValue) =>
-                                    handleTestDate(
-                                        'german_test_date',
-                                        newValue
-                                    )
+                                    handleTestDate('german_test_date', newValue)
                                 }
                                 value={dayjs(
-                                    (survey.academic_background
-                                        ?.language
-                                        ?.german_test_date as string) ||
-                                        ''
+                                    (survey.academic_background?.language
+                                        ?.german_test_date as string) || ''
                                 )}
                             />
                         </LocalizationProvider>
                     ) : null}
                 </Grid>
                 <Grid item sm={12} xs={12}>
-                    {survey?.academic_background?.language
-                        ?.german_isPassed === 'O' ? (
+                    {survey?.academic_background?.language?.german_isPassed ===
+                    'O' ? (
                         <TextField
                             disabled={
                                 survey.academic_background?.language
@@ -476,25 +445,21 @@ const SurveyLanguagesCard = ({
                         select
                         sx={{ mt: 1 }}
                         value={
-                            survey.academic_background?.language
-                                ?.gre_isPassed
+                            survey.academic_background?.language?.gre_isPassed
                         }
                     >
                         {IS_PASSED_OPTIONS.map((option) => (
-                            <MenuItem
-                                key={option.value}
-                                value={option.value}
-                            >
+                            <MenuItem key={option.value} value={option.value}>
                                 {option.label}
                             </MenuItem>
                         ))}
                     </TextField>
                 </Grid>
                 <Grid item sm={4} xs={12}>
-                    {survey.academic_background?.language
-                        ?.gre_isPassed === 'O' ||
-                    survey.academic_background?.language
-                        ?.gre_isPassed === 'X' ? (
+                    {survey.academic_background?.language?.gre_isPassed ===
+                        'O' ||
+                    survey.academic_background?.language?.gre_isPassed ===
+                        'X' ? (
                         <FormControl fullWidth sx={{ mt: 1 }}>
                             <InputLabel id="gre_certificate">
                                 {t('GRE Test')}
@@ -513,17 +478,15 @@ const SurveyLanguagesCard = ({
                                         ?.gre_certificate || ''
                                 }
                             >
-                                {GRE_CERTIFICATE_ARRAY_OPTIONS.map(
-                                    (option) => (
-                                        <MenuItem
-                                            disabled={option.disabled}
-                                            key={option.value}
-                                            value={option.value}
-                                        >
-                                            {option.label}
-                                        </MenuItem>
-                                    )
-                                )}
+                                {GRE_CERTIFICATE_ARRAY_OPTIONS.map((option) => (
+                                    <MenuItem
+                                        disabled={option.disabled}
+                                        key={option.value}
+                                        value={option.value}
+                                    >
+                                        {option.label}
+                                    </MenuItem>
+                                ))}
                             </Select>
                         </FormControl>
                     ) : null}
@@ -544,24 +507,18 @@ const SurveyLanguagesCard = ({
                                 }
                                 name="gre_test_date"
                                 onChange={(newValue) =>
-                                    handleTestDate(
-                                        'gre_test_date',
-                                        newValue
-                                    )
+                                    handleTestDate('gre_test_date', newValue)
                                 }
                                 value={dayjs(
-                                    (survey.academic_background
-                                        ?.language
+                                    (survey.academic_background?.language
                                         ?.gre_test_date as string) || ''
                                 )}
                             />
                         </LocalizationProvider>
                     ) : null}
                 </Grid>
-                {survey.academic_background?.language?.gre_isPassed ===
-                    'O' &&
-                survey.academic_background?.language
-                    ?.gre_certificate !== '' ? (
+                {survey.academic_background?.language?.gre_isPassed === 'O' &&
+                survey.academic_background?.language?.gre_certificate !== '' ? (
                     <Grid item sm={12} xs={12}>
                         <TextField
                             disabled={
@@ -606,24 +563,18 @@ const SurveyLanguagesCard = ({
                         select
                         sx={{ mt: 1 }}
                         value={
-                            survey.academic_background?.language
-                                ?.gmat_isPassed
+                            survey.academic_background?.language?.gmat_isPassed
                         }
                     >
                         {IS_PASSED_OPTIONS.map((option) => (
-                            <MenuItem
-                                key={option.value}
-                                value={option.value}
-                            >
+                            <MenuItem key={option.value} value={option.value}>
                                 {option.label}
                             </MenuItem>
                         ))}
                     </TextField>
                 </Grid>
-                {survey.academic_background?.language?.gmat_isPassed ===
-                    'O' ||
-                survey.academic_background?.language?.gmat_isPassed ===
-                    'X' ? (
+                {survey.academic_background?.language?.gmat_isPassed === 'O' ||
+                survey.academic_background?.language?.gmat_isPassed === 'X' ? (
                     <Grid item sm={4} xs={12}>
                         <FormControl fullWidth sx={{ mt: 1 }}>
                             <InputLabel id="gmat_certificate">
@@ -643,17 +594,15 @@ const SurveyLanguagesCard = ({
                                         ?.gmat_certificate || ''
                                 }
                             >
-                                {GMAT_CERTIFICATE_OPTIONS.map(
-                                    (option) => (
-                                        <MenuItem
-                                            disabled={option.disabled}
-                                            key={option.value}
-                                            value={option.value}
-                                        >
-                                            {option.label}
-                                        </MenuItem>
-                                    )
-                                )}
+                                {GMAT_CERTIFICATE_OPTIONS.map((option) => (
+                                    <MenuItem
+                                        disabled={option.disabled}
+                                        key={option.value}
+                                        value={option.value}
+                                    >
+                                        {option.label}
+                                    </MenuItem>
+                                ))}
                             </Select>
                         </FormControl>
                     </Grid>
@@ -674,25 +623,19 @@ const SurveyLanguagesCard = ({
                                 }
                                 name="gmat_test_date"
                                 onChange={(newValue) =>
-                                    handleTestDate(
-                                        'gmat_test_date',
-                                        newValue
-                                    )
+                                    handleTestDate('gmat_test_date', newValue)
                                 }
                                 value={dayjs(
-                                    (survey.academic_background
-                                        ?.language
-                                        ?.gmat_test_date as string) ||
-                                        ''
+                                    (survey.academic_background?.language
+                                        ?.gmat_test_date as string) || ''
                                 )}
                             />
                         </LocalizationProvider>
                     ) : null}
                 </Grid>
-                {survey.academic_background?.language?.gmat_isPassed ===
-                    'O' &&
-                survey.academic_background?.language
-                    ?.gmat_certificate !== '' ? (
+                {survey.academic_background?.language?.gmat_isPassed === 'O' &&
+                survey.academic_background?.language?.gmat_certificate !==
+                    '' ? (
                     <Grid item sm={12} xs={12}>
                         <TextField
                             disabled={
@@ -734,13 +677,11 @@ const SurveyLanguagesCard = ({
                                 color="primary"
                                 disabled={!survey.changed_language}
                                 fullWidth
-                                onClick={(
-                                    e: MouseEvent<HTMLButtonElement>
-                                ) =>
+                                onClick={(e: MouseEvent<HTMLButtonElement>) =>
                                     handleSurveyLanguageSubmit(
                                         e,
-                                        survey.academic_background
-                                            ?.language ?? {}
+                                        survey.academic_background?.language ??
+                                            {}
                                     )
                                 }
                                 sx={{ mt: 2 }}

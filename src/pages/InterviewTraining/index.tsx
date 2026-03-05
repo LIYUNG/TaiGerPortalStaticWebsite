@@ -104,7 +104,9 @@ const InterviewTraining = () => {
                                         )
                                 )
                                 ?.map((application) => ({
-                                    key: application.programId?._id?.toString() ?? '',
+                                    key:
+                                        application.programId?._id?.toString() ??
+                                        '',
                                     value: `${application.programId?.school ?? ''} ${application.programId?.program_name ?? ''} ${application.programId?.degree ?? ''} ${application.programId?.semester ?? ''}`
                                 })) || [];
                         setInterviewTrainingState((prevState) => ({

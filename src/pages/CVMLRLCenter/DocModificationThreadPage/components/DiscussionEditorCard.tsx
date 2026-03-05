@@ -113,10 +113,7 @@ const DiscussionEditorCard = ({
                                     sx={{ fontSize: 48, mb: 1 }}
                                 />
                             )}
-                            <Typography
-                                color="text.secondary"
-                                variant="body1"
-                            >
+                            <Typography color="text.secondary" variant="body1">
                                 {isLocked
                                     ? lockTooltip
                                     : i18next.t('thread-close')}

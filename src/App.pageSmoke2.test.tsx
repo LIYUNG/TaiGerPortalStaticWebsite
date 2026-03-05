@@ -52,14 +52,30 @@ vi.mock('react-router-dom', async (importOriginal) => {
                 props.children
             )
         ),
-        useLocation: () => ({ search: '', pathname: '/', hash: '', state: null }),
+        useLocation: () => ({
+            search: '',
+            pathname: '/',
+            hash: '',
+            state: null
+        }),
         useNavigate: () => vi.fn(),
-        useParams: () => ({ student_id: 'test-student', studentId: 'test-student', programId: 'test-program', user_id: 'test-user', taiger_user_id: 'test-user', distributionType: 'country' }),
+        useParams: () => ({
+            student_id: 'test-student',
+            studentId: 'test-student',
+            programId: 'test-program',
+            user_id: 'test-user',
+            taiger_user_id: 'test-user',
+            distributionType: 'country'
+        }),
         useLoaderData: () => mockLoaderData,
         useSearchParams: () => [new URLSearchParams(), vi.fn()],
         useRevalidator: () => ({ revalidate: vi.fn(), state: 'idle' }),
         Await: ({ children }: { children: (data: unknown) => ReactNode }) =>
-            createElement('div', null, typeof children === 'function' ? children([]) : children)
+            createElement(
+                'div',
+                null,
+                typeof children === 'function' ? children([]) : children
+            )
     };
 });
 
@@ -83,32 +99,74 @@ vi.mock('@components/AuthProvider', () => ({
 // ─── API mocks ───────────────────────────────────────────────────────────────
 vi.mock('@/api', async (importOriginal) => ({
     ...(await importOriginal<typeof import('@/api')>()),
-    getProgramTickets: vi.fn().mockResolvedValue({ data: { success: true, data: [] } }),
-    getAdmissions: vi.fn().mockResolvedValue({ data: { result: [] }, success: true }),
+    getProgramTickets: vi
+        .fn()
+        .mockResolvedValue({ data: { success: true, data: [] } }),
+    getAdmissions: vi
+        .fn()
+        .mockResolvedValue({ data: { result: [] }, success: true }),
     getArchivStudents: vi.fn().mockResolvedValue({ data: [], status: 200 }),
     getStudents: vi.fn().mockResolvedValue({ data: [], status: 200 }),
-    getUsersCount: vi.fn().mockResolvedValue({ data: { studentCount: 0, agentCount: 0, editorCount: 0, externalCount: 0, adminCount: 0 } }),
+    getUsersCount: vi
+        .fn()
+        .mockResolvedValue({
+            data: {
+                studentCount: 0,
+                agentCount: 0,
+                editorCount: 0,
+                externalCount: 0,
+                adminCount: 0
+            }
+        }),
     getUsers: vi.fn().mockResolvedValue({ data: { data: [] } }),
     getUsersOverview: vi.fn().mockResolvedValue({ data: [] }),
-    getStudentsAndDocLinks2: vi.fn().mockResolvedValue({ data: [], base_docs_link: [] }),
+    getStudentsAndDocLinks2: vi
+        .fn()
+        .mockResolvedValue({ data: [], base_docs_link: [] }),
     getProgramsAndCourseKeywordSetsLoader: vi.fn().mockResolvedValue({}),
     getApplicationStudentV2: vi.fn().mockResolvedValue({ data: null }),
     getComplaintsTickets: vi.fn().mockResolvedValue({ data: { data: [] } }),
-    getComplaintsTicket: vi.fn().mockResolvedValue({ data: { data: {} }, status: 200 }),
+    getComplaintsTicket: vi
+        .fn()
+        .mockResolvedValue({ data: { data: {} }, status: 200 }),
     getMyAcademicBackground: vi.fn().mockResolvedValue({ data: {} }),
     getProgram: vi.fn().mockResolvedValue({ data: {} }),
     getAllOpenInterviews: vi.fn().mockResolvedValue({ data: [] }),
-    getMyStudentsThreads: vi.fn().mockResolvedValue({ data: { threads: [] }, success: true, status: 200 }),
-    getThreadsByStudent: vi.fn().mockResolvedValue({ data: { threads: [] }, success: true, status: 200 }),
-    updateCredentials: vi.fn().mockResolvedValue({ data: { success: true }, status: 200 }),
+    getMyStudentsThreads: vi
+        .fn()
+        .mockResolvedValue({
+            data: { threads: [] },
+            success: true,
+            status: 200
+        }),
+    getThreadsByStudent: vi
+        .fn()
+        .mockResolvedValue({
+            data: { threads: [] },
+            success: true,
+            status: 200
+        }),
+    updateCredentials: vi
+        .fn()
+        .mockResolvedValue({ data: { success: true }, status: 200 }),
     // Team/Admin APIs
-    getTeamMembers: vi.fn().mockResolvedValue({ data: { data: [], success: true } }),
-    updateUserPermission: vi.fn().mockResolvedValue({ data: { success: true } }),
-    getAgentProfile: vi.fn().mockResolvedValue({ data: { data: {}, success: true }, status: 200 }),
+    getTeamMembers: vi
+        .fn()
+        .mockResolvedValue({ data: { data: [], success: true } }),
+    updateUserPermission: vi
+        .fn()
+        .mockResolvedValue({ data: { success: true } }),
+    getAgentProfile: vi
+        .fn()
+        .mockResolvedValue({ data: { data: {}, success: true }, status: 200 }),
     // Program APIs
     getProgramsV2: vi.fn().mockResolvedValue({ data: { data: [] } }),
-    getProgramsOverview: vi.fn().mockResolvedValue({ data: { data: {}, success: true } }),
-    getSchoolsDistribution: vi.fn().mockResolvedValue({ data: { data: [], success: true } }),
+    getProgramsOverview: vi
+        .fn()
+        .mockResolvedValue({ data: { data: {}, success: true } }),
+    getSchoolsDistribution: vi
+        .fn()
+        .mockResolvedValue({ data: { data: [], success: true } }),
     getProgramV2: vi.fn().mockResolvedValue({ data: { data: {} } }),
     getProgramTicketsV2: vi.fn().mockResolvedValue({ data: { data: [] } }),
     deleteProgramV2: vi.fn().mockResolvedValue({ data: { success: true } }),
@@ -118,18 +176,28 @@ vi.mock('@/api', async (importOriginal) => ({
     updateProgramV2: vi.fn().mockResolvedValue({ data: { success: true } }),
     getProgramChangeRequests: vi.fn().mockResolvedValue({ data: { data: [] } }),
     // Application task delta / conflict
-    getApplicationTaskDeltas: vi.fn().mockResolvedValue({ data: { data: [], success: true }, status: 200 }),
-    getApplicationConflicts: vi.fn().mockResolvedValue({ data: { data: [], success: true }, status: 200 }),
+    getApplicationTaskDeltas: vi
+        .fn()
+        .mockResolvedValue({ data: { data: [], success: true }, status: 200 }),
+    getApplicationConflicts: vi
+        .fn()
+        .mockResolvedValue({ data: { data: [], success: true }, status: 200 }),
     // Thread / student
     putThreadFavorite: vi.fn().mockResolvedValue({ data: { success: true } }),
     getActiveStudents: vi.fn().mockResolvedValue({ data: [] }),
-    getActiveStudentsApplications: vi.fn().mockResolvedValue({ data: { data: [] } }),
+    getActiveStudentsApplications: vi
+        .fn()
+        .mockResolvedValue({ data: { data: [] } }),
     getActiveThreads: vi.fn().mockResolvedValue({ data: [] }),
     getStudentsV3: vi.fn().mockResolvedValue({ data: [] }),
     getStudent: vi.fn().mockResolvedValue({ data: { data: {} } }),
     getLeadIdByUserId: vi.fn().mockResolvedValue({ data: { data: null } }),
-    createLeadFromStudent: vi.fn().mockResolvedValue({ data: { success: true } }),
-    getMyStudentsApplications: vi.fn().mockResolvedValue({ data: { data: [] } }),
+    createLeadFromStudent: vi
+        .fn()
+        .mockResolvedValue({ data: { success: true } }),
+    getMyStudentsApplications: vi
+        .fn()
+        .mockResolvedValue({ data: { data: [] } }),
     // Expense
     getExpense: vi.fn().mockResolvedValue({ data: { data: [] } }),
     // Statistics
@@ -138,9 +206,14 @@ vi.mock('@/api', async (importOriginal) => ({
     getStatisticsAgentsV2: vi.fn().mockResolvedValue({ data: {} }),
     getStatisticsKPIV2: vi.fn().mockResolvedValue({ data: {} }),
     getStatisticsResponseTimeV2: vi.fn().mockResolvedValue({ data: {} }),
-    createComplaintTicket: vi.fn().mockResolvedValue({ data: { success: true } }),
+    createComplaintTicket: vi
+        .fn()
+        .mockResolvedValue({ data: { success: true } }),
     // queryClient
-    queryClient: { invalidateQueries: vi.fn().mockResolvedValue(undefined), setQueryData: vi.fn() }
+    queryClient: {
+        invalidateQueries: vi.fn().mockResolvedValue(undefined),
+        setQueryData: vi.fn()
+    }
 }));
 
 // ─── MUI Charts ──────────────────────────────────────────────────────────────
@@ -154,18 +227,24 @@ vi.mock('@mui/x-charts/Gauge', () => ({ Gauge: () => null }));
 
 // ─── Heavy component stubs ──────────────────────────────────────────────────
 vi.mock('material-react-table', () => ({
-    MaterialReactTable: () => createElement('div', { 'data-testid': 'mrt-table' }, 'Table'),
+    MaterialReactTable: () =>
+        createElement('div', { 'data-testid': 'mrt-table' }, 'Table'),
     useMaterialReactTable: () => ({})
 }));
 
 vi.mock('@pages/Users/UsersTable', async () => {
     const { createElement: ce } = await import('react');
-    return { default: () => ce('div', { 'data-testid': 'users-table' }, 'Users') };
+    return {
+        default: () => ce('div', { 'data-testid': 'users-table' }, 'Users')
+    };
 });
 
 vi.mock('@pages/Survey/SurveyComponent', async () => {
     const { createElement: ce } = await import('react');
-    return { default: () => ce('div', { 'data-testid': 'survey-component' }, 'Survey') };
+    return {
+        default: () =>
+            ce('div', { 'data-testid': 'survey-component' }, 'Survey')
+    };
 });
 
 vi.mock('@pages/Notes/index', async () => {
@@ -189,9 +268,27 @@ vi.mock('@tanstack/react-query', async (importOriginal) => ({
     useQuery: vi.fn((options: { queryKey?: unknown[] }) => {
         const key = options?.queryKey?.[0];
         if (key === 'users/count') {
-            return { data: { studentCount: 0, agentCount: 0, editorCount: 0, externalCount: 0, adminCount: 0 }, isLoading: false, isError: false, error: null, refetch: vi.fn() };
+            return {
+                data: {
+                    studentCount: 0,
+                    agentCount: 0,
+                    editorCount: 0,
+                    externalCount: 0,
+                    adminCount: 0
+                },
+                isLoading: false,
+                isError: false,
+                error: null,
+                refetch: vi.fn()
+            };
         }
-        return { data: { data: [], success: true, base_docs_link: [], result: [] }, isLoading: false, isError: false, error: null, refetch: vi.fn() };
+        return {
+            data: { data: [], success: true, base_docs_link: [], result: [] },
+            isLoading: false,
+            isError: false,
+            error: null,
+            refetch: vi.fn()
+        };
     }),
     useMutation: vi.fn(() => ({
         mutate: vi.fn(),
@@ -219,7 +316,16 @@ vi.mock('@/api/query', async (importOriginal) => {
         }),
         getUsersCountQuery: () => ({
             queryKey: ['users/count'],
-            queryFn: () => Promise.resolve({ data: { studentCount: 0, agentCount: 0, editorCount: 0, externalCount: 0, adminCount: 0 } }),
+            queryFn: () =>
+                Promise.resolve({
+                    data: {
+                        studentCount: 0,
+                        agentCount: 0,
+                        editorCount: 0,
+                        externalCount: 0,
+                        adminCount: 0
+                    }
+                }),
             staleTime: 300000
         }),
         getUsersQuery: () => ({
@@ -229,12 +335,14 @@ vi.mock('@/api/query', async (importOriginal) => {
         }),
         getTeamMembersQuery: () => ({
             queryKey: ['team-members'],
-            queryFn: () => Promise.resolve({ data: { data: [], success: true } }),
+            queryFn: () =>
+                Promise.resolve({ data: { data: [], success: true } }),
             staleTime: 300000
         }),
         getApplicationConflictsQuery: () => ({
             queryKey: ['application-conflicts'],
-            queryFn: () => Promise.resolve({ data: { data: [], success: true } }),
+            queryFn: () =>
+                Promise.resolve({ data: { data: [], success: true } }),
             staleTime: 300000
         }),
         getActiveStudentsQuery: (qs: string) => ({
@@ -297,7 +405,11 @@ vi.mock('@/api/query', async (importOriginal) => {
             enabled: false
         }),
         getMyStudentsThreadsQuery: () => ({
-            queryKey: ['document-threads/overview/taiger-user', 'test-user', ''],
+            queryKey: [
+                'document-threads/overview/taiger-user',
+                'test-user',
+                ''
+            ],
             queryFn: () => Promise.resolve({ data: null }),
             staleTime: 300000
         }),
@@ -470,7 +582,12 @@ const renderPageAsync = async (ui: React.ReactElement): Promise<void> => {
 // ═════════════════════════════════════════════════════════════════════════════
 describe('Tier 1 – Core Application Pages smoke tests', () => {
     test('StudentApplications page renders', async () => {
-        const C = lazy(() => import('@pages/StudentApplications/StudentApplicationsIndividual'));
+        const C = lazy(
+            () =>
+                import(
+                    '@pages/StudentApplications/StudentApplicationsIndividual'
+                )
+        );
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });
@@ -482,7 +599,9 @@ describe('Tier 1 – Core Application Pages smoke tests', () => {
     });
 
     test('SingleStudentPage renders', async () => {
-        const C = lazy(() => import('@pages/StudentDatabase/SingleStudentPage'));
+        const C = lazy(
+            () => import('@pages/StudentDatabase/SingleStudentPage')
+        );
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     }, 10000);
@@ -512,7 +631,9 @@ describe('Tier 1 – Core Application Pages smoke tests', () => {
     });
 
     test('MyStudentOverviewPage renders', async () => {
-        const C = lazy(() => import('@pages/StudentOverview/MyStudentsOverview'));
+        const C = lazy(
+            () => import('@pages/StudentOverview/MyStudentsOverview')
+        );
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });
@@ -566,7 +687,9 @@ describe('Tier 1 – Core Application Pages smoke tests', () => {
     });
 
     test('CustomerTicketDetailPage renders', async () => {
-        const C = lazy(() => import('@pages/CustomerSupport/CustomerTicketDetailPage'));
+        const C = lazy(
+            () => import('@pages/CustomerSupport/CustomerTicketDetailPage')
+        );
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });
@@ -613,13 +736,23 @@ describe('Tier 2 – Team / Admin Pages smoke tests', () => {
     });
 
     test('EssayWritersAssignment page renders', async () => {
-        const C = lazy(() => import('@pages/AssignmentAgentsEditors/AssignEssayWriters/index'));
+        const C = lazy(
+            () =>
+                import(
+                    '@pages/AssignmentAgentsEditors/AssignEssayWriters/index'
+                )
+        );
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });
 
     test('InterviewTrainersAssignment page renders', async () => {
-        const C = lazy(() => import('@pages/AssignmentAgentsEditors/AssignInterviewTrainers/index'));
+        const C = lazy(
+            () =>
+                import(
+                    '@pages/AssignmentAgentsEditors/AssignInterviewTrainers/index'
+                )
+        );
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });
@@ -631,7 +764,9 @@ describe('Tier 2 – Team / Admin Pages smoke tests', () => {
     });
 
     test('SingleBalanceSheetOverview page renders', async () => {
-        const C = lazy(() => import('@pages/Accounting/SingleBalanceSheetOverview'));
+        const C = lazy(
+            () => import('@pages/Accounting/SingleBalanceSheetOverview')
+        );
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });
@@ -661,13 +796,17 @@ describe('Tier 2 – Team / Admin Pages smoke tests', () => {
     });
 
     test('InternalDashboard page renders', async () => {
-        const C = lazy(() => import('@pages/TaiGerOrg/InternalDashboard/index'));
+        const C = lazy(
+            () => import('@pages/TaiGerOrg/InternalDashboard/index')
+        );
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });
 
     test('ProgramDistributionDetailPage renders', async () => {
-        const C = lazy(() => import('@pages/Program/ProgramDistributionDetailPage'));
+        const C = lazy(
+            () => import('@pages/Program/ProgramDistributionDetailPage')
+        );
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });

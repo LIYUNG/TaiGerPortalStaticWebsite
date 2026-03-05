@@ -243,9 +243,7 @@ const MyCalendar = ({
                 localizer={localizer}
                 onSelectEvent={handleSelectEvent}
                 onSelectSlot={
-                    user &&
-                    (is_TaiGer_Agent(user) ||
-                        is_TaiGer_Editor(user))
+                    user && (is_TaiGer_Agent(user) || is_TaiGer_Editor(user))
                         ? handleSelectSlot
                         : () => {}
                 }

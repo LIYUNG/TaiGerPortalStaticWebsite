@@ -36,7 +36,7 @@ const makeUser = (overrides = {}) =>
         firstname: 'Alice',
         lastname: 'Smith',
         pictureUrl: ''
-    } as any);
+    }) as any;
 
 const makeThread = (overrides = {}) =>
     ({
@@ -47,7 +47,7 @@ const makeThread = (overrides = {}) =>
         program_id: null,
         isFinalVersion: false,
         ...overrides
-    } as any);
+    }) as any;
 
 const teamGradient = { start: '#1565c0', end: '#1976d2' };
 

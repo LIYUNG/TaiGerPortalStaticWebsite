@@ -1,23 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import {
-    Box,
-    Breadcrumbs,
-    Link,
-    Typography,
-    Button
-} from '@mui/material';
+import { Box, Breadcrumbs, Link, Typography, Button } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { Link as LinkDom, useParams } from 'react-router-dom';
 import 'react-datasheet-grid/dist/style.css';
-import {
-    is_TaiGer_AdminAgent,
-    is_TaiGer_role
-} from '@taiger-common/core';
+import { is_TaiGer_AdminAgent, is_TaiGer_role } from '@taiger-common/core';
 import MessageIcon from '@mui/icons-material/Message';
 
-import {
-    convertDate
-} from '@utils/contants';
+import { convertDate } from '@utils/contants';
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { analyzedFileV2Download, WidgetanalyzedFileV2Download } from '@/api';

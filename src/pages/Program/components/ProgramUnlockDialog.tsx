@@ -59,20 +59,16 @@ const ProgramUnlockDialog = ({
                                 { ns: 'common' }
                             )}
                         </Typography>
-                        <Box
-                            component="ul"
-                            sx={{ mt: 1, mb: 1, pl: 3 }}
-                        >
+                        <Box component="ul" sx={{ mt: 1, mb: 1, pl: 3 }}>
                             <Typography component="li" variant="body2">
                                 {t('Application deadlines and dates', {
                                     ns: 'common'
                                 })}
                             </Typography>
                             <Typography component="li" variant="body2">
-                                {t(
-                                    'Language requirements and test scores',
-                                    { ns: 'common' }
-                                )}
+                                {t('Language requirements and test scores', {
+                                    ns: 'common'
+                                })}
                             </Typography>
                             <Typography component="li" variant="body2">
                                 {t(
@@ -81,10 +77,9 @@ const ProgramUnlockDialog = ({
                                 )}
                             </Typography>
                             <Typography component="li" variant="body2">
-                                {t(
-                                    'Any other program-specific information',
-                                    { ns: 'common' }
-                                )}
+                                {t('Any other program-specific information', {
+                                    ns: 'common'
+                                })}
                             </Typography>
                         </Box>
                         <Typography sx={{ mt: 1 }} variant="body2">

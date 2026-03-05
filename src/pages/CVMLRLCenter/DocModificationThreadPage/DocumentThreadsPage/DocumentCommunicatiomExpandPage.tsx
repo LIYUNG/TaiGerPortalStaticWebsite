@@ -387,7 +387,8 @@ const ThreadsList = ({
             <List>
                 {sortedThreads
                     ?.filter(
-                        (thread: IDocumentthreadPopulated) => showAllThreads || !thread?.isFinalVersion
+                        (thread: IDocumentthreadPopulated) =>
+                            showAllThreads || !thread?.isFinalVersion
                     )
                     ?.map((thread: IDocumentthreadPopulated) => {
                         const category = getCategory(thread.file_type);
@@ -431,7 +432,9 @@ const DocumentCommunicationExpandPage = () => {
     const [showAllThreads, setShowAllThreads] = useState(true);
     const [studentId, setStudentId] = useState<string | null>(null);
     const [studentName, setStudentName] = useState<string | null>(null);
-    const [threadId, setThreadId] = useState<string | null>(documentsthreadId || null);
+    const [threadId, setThreadId] = useState<string | null>(
+        documentsthreadId || null
+    );
     const [studentSearchTerm, setStudentSearchTerm] = useState('');
 
     const {
@@ -490,7 +493,10 @@ const DocumentCommunicationExpandPage = () => {
     };
 
     const sortedThreads = studentThreads
-        ?.filter((thread: IDocumentthreadPopulated) => thread?.student_id?._id?.toString() === studentId)
+        ?.filter(
+            (thread: IDocumentthreadPopulated) =>
+                thread?.student_id?._id?.toString() === studentId
+        )
         ?.sort((a: IDocumentthreadPopulated, b: IDocumentthreadPopulated) => {
             const categoryA = getCategory(a.file_type);
             const categoryB = getCategory(b.file_type);

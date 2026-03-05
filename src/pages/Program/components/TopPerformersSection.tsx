@@ -18,10 +18,7 @@ import {
     Tooltip,
     Typography
 } from '@mui/material';
-import {
-    TrendingUp,
-    School
-} from '@mui/icons-material';
+import { TrendingUp, School } from '@mui/icons-material';
 
 import DEMO from '@store/constant';
 
@@ -133,26 +130,22 @@ const TopPerformersSection = ({
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
-                                            {topSchools.map(
-                                                (school, index) => (
-                                                    <TableRow key={index}>
-                                                        <TableCell>
-                                                            {school.school}
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            {school.country}
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            {school.city}
-                                                        </TableCell>
-                                                        <TableCell align="right">
-                                                            {
-                                                                school.programCount
-                                                            }
-                                                        </TableCell>
-                                                    </TableRow>
-                                                )
-                                            )}
+                                            {topSchools.map((school, index) => (
+                                                <TableRow key={index}>
+                                                    <TableCell>
+                                                        {school.school}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {school.country}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {school.city}
+                                                    </TableCell>
+                                                    <TableCell align="right">
+                                                        {school.programCount}
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
                                         </TableBody>
                                     </Table>
                                 </TableContainer>

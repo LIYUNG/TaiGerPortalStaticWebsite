@@ -42,7 +42,9 @@ describe('SetAsFinalFileDialog', () => {
 
     it('calls onConfirm when Yes is clicked', () => {
         const onConfirm = vi.fn();
-        render(<SetAsFinalFileDialog {...defaultProps} onConfirm={onConfirm} />);
+        render(
+            <SetAsFinalFileDialog {...defaultProps} onConfirm={onConfirm} />
+        );
         fireEvent.click(screen.getByText('Yes'));
         expect(onConfirm).toHaveBeenCalledTimes(1);
     });

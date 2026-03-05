@@ -151,7 +151,8 @@ const StudentTasksResponsive = ({
                                           <>
                                               <TableCell>
                                                   {renderThreadLink(
-                                                      docThread?.file_type ?? '',
+                                                      docThread?.file_type ??
+                                                          '',
                                                       DEMO.DOCUMENT_MODIFICATION_LINK(
                                                           docThreadIdStr
                                                       ),
@@ -189,10 +190,12 @@ const StudentTasksResponsive = ({
     return (
         <>
             {!check_academic_background_filled(student.academic_background) ||
-            !(student.application_preference &&
+            !(
+                student.application_preference &&
                 check_application_preference_filled(
                     student.application_preference
-                )) ||
+                )
+            ) ||
             !check_languages_filled(student.academic_background) ? (
                 <TableRow>
                     <TableCell>

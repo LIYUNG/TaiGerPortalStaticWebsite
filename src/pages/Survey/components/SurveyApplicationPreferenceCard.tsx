@@ -36,37 +36,52 @@ const SurveyApplicationPreferenceCard = ({
         <Card sx={{ mt: 2, padding: 2 }}>
             <Grid container spacing={2}>
                 <Grid item xs={12}>
-                    <Typography variant="h6">{t('Application Preference')}</Typography>
+                    <Typography variant="h6">
+                        {t('Application Preference')}
+                    </Typography>
                 </Grid>
                 <Grid item sm={6} xs={12}>
                     <Tooltip
                         placement="top"
-                        title={t('If you want to change this, please contact your agent.')}
+                        title={t(
+                            'If you want to change this, please contact your agent.'
+                        )}
                     >
                         <TextField
                             disabled={is_TaiGer_Student(user as IUser)}
                             error={
-                                survey.application_preference?.expected_application_date === ''
+                                survey.application_preference
+                                    ?.expected_application_date === ''
                             }
                             fullWidth
                             helperText={
-                                survey.application_preference?.expected_application_date === ''
+                                survey.application_preference
+                                    ?.expected_application_date === ''
                                     ? 'Please provide the info.'
                                     : null
                             }
                             id="expected_application_date"
-                            label={`${t('Expected Application Year')} (${t('Agent fill', {
-                                ns: 'survey'
-                            })})`}
+                            label={`${t('Expected Application Year')} (${t(
+                                'Agent fill',
+                                {
+                                    ns: 'survey'
+                                }
+                            )})`}
                             name="expected_application_date"
-                            onChange={(e) => handleChangeApplicationPreference(e)}
+                            onChange={(e) =>
+                                handleChangeApplicationPreference(e)
+                            }
                             select
                             value={
-                                survey.application_preference?.expected_application_date || ''
+                                survey.application_preference
+                                    ?.expected_application_date || ''
                             }
                         >
                             {EXPECTATION_APPLICATION_YEARS().map((option) => (
-                                <MenuItem key={option.value} value={option.value}>
+                                <MenuItem
+                                    key={option.value}
+                                    value={option.value}
+                                >
                                     {option.label}
                                 </MenuItem>
                             ))}
@@ -76,13 +91,17 @@ const SurveyApplicationPreferenceCard = ({
                 <Grid item sm={6} xs={12}>
                     <Tooltip
                         placement="top"
-                        title={t('If you want to change this, please contact your agent.')}
+                        title={t(
+                            'If you want to change this, please contact your agent.'
+                        )}
                     >
                         <TextField
-                            disabled={!!user && is_TaiGer_Student(user as IUser)}
+                            disabled={
+                                !!user && is_TaiGer_Student(user as IUser)
+                            }
                             error={
-                                survey.application_preference?.expected_application_semester ===
-                                ''
+                                survey.application_preference
+                                    ?.expected_application_semester === ''
                             }
                             fullWidth
                             helperText={
@@ -92,19 +111,27 @@ const SurveyApplicationPreferenceCard = ({
                                     : null
                             }
                             id="expected_application_semester"
-                            label={`${t('Expected Application Semester')} (${t('Agent fill', {
-                                ns: 'survey'
-                            })})`}
+                            label={`${t('Expected Application Semester')} (${t(
+                                'Agent fill',
+                                {
+                                    ns: 'survey'
+                                }
+                            )})`}
                             name="expected_application_semester"
-                            onChange={(e) => handleChangeApplicationPreference(e)}
+                            onChange={(e) =>
+                                handleChangeApplicationPreference(e)
+                            }
                             select
                             value={
-                                survey?.application_preference?.expected_application_semester ||
-                                ''
+                                survey?.application_preference
+                                    ?.expected_application_semester || ''
                             }
                         >
                             {SEMESTER_ARRAY_OPTIONS.map((option) => (
-                                <MenuItem key={option.value} value={option.value}>
+                                <MenuItem
+                                    key={option.value}
+                                    value={option.value}
+                                >
                                     {option.label}
                                 </MenuItem>
                             ))}
@@ -116,30 +143,37 @@ const SurveyApplicationPreferenceCard = ({
                         data={PROGRAM_SUBJECTS_DETAILED}
                         label={t('Target Application Subjects')}
                         name="target-application-subjects"
-                        setValue={setApplicationPreferenceByField('targetApplicationSubjects')}
+                        setValue={setApplicationPreferenceByField(
+                            'targetApplicationSubjects'
+                        )}
                         value={
                             (survey.application_preference
                                 ?.targetApplicationSubjects as string[]) || []
                         }
                     />
                 </Grid>
-                {survey.application_preference?.target_application_field != '' ? (
+                {survey.application_preference?.target_application_field !=
+                '' ? (
                     <Grid item sm={6} xs={12}>
                         <TextField
                             disabled
                             fullWidth
                             helperText={
-                                survey.application_preference?.target_application_field === ''
+                                survey.application_preference
+                                    ?.target_application_field === ''
                                     ? 'Please provide the info.'
                                     : null
                             }
                             id="target_application_field"
                             label={t('Target Application Fields')}
                             name="target_application_field"
-                            onChange={(e) => handleChangeApplicationPreference(e)}
+                            onChange={(e) =>
+                                handleChangeApplicationPreference(e)
+                            }
                             placeholder="Data Science, Comupter Science, etc. (max. 40 characters)"
                             value={
-                                survey.application_preference?.target_application_field || ''
+                                survey.application_preference
+                                    ?.target_application_field || ''
                             }
                             variant="outlined"
                         />
@@ -147,7 +181,9 @@ const SurveyApplicationPreferenceCard = ({
                 ) : null}
                 <Grid item sm={6} xs={12}>
                     <TextField
-                        error={survey.application_preference?.target_degree === ''}
+                        error={
+                            survey.application_preference?.target_degree === ''
+                        }
                         fullWidth
                         helperText={
                             survey.application_preference?.target_degree === ''
@@ -159,7 +195,9 @@ const SurveyApplicationPreferenceCard = ({
                         name="target_degree"
                         onChange={(e) => handleChangeApplicationPreference(e)}
                         select
-                        value={survey.application_preference?.target_degree || ''}
+                        value={
+                            survey.application_preference?.target_degree || ''
+                        }
                     >
                         {DEGREE_ARRAY_OPTIONS.map((option) => (
                             <MenuItem key={option.value} value={option.value}>
@@ -170,10 +208,14 @@ const SurveyApplicationPreferenceCard = ({
                 </Grid>
                 <Grid item sm={6} xs={12}>
                     <TextField
-                        error={!survey.application_preference?.target_program_language}
+                        error={
+                            !survey.application_preference
+                                ?.target_program_language
+                        }
                         fullWidth
                         helperText={
-                            !survey.application_preference?.target_program_language
+                            !survey.application_preference
+                                ?.target_program_language
                                 ? 'Please provide the info.'
                                 : null
                         }
@@ -183,7 +225,8 @@ const SurveyApplicationPreferenceCard = ({
                         onChange={(e) => handleChangeApplicationPreference(e)}
                         select
                         value={
-                            survey.application_preference?.target_program_language || ''
+                            survey.application_preference
+                                ?.target_program_language || ''
                         }
                     >
                         {LANGUAGES_PREFERENCE_ARRAY_OPTIONS.map((option) => (
@@ -196,11 +239,13 @@ const SurveyApplicationPreferenceCard = ({
                 <Grid item sm={6} xs={12}>
                     <TextField
                         error={
-                            survey.application_preference?.application_outside_germany === '-'
+                            survey.application_preference
+                                ?.application_outside_germany === '-'
                         }
                         fullWidth
                         helperText={
-                            survey.application_preference?.application_outside_germany === '-'
+                            survey.application_preference
+                                ?.application_outside_germany === '-'
                                 ? 'Please provide the info.'
                                 : null
                         }
@@ -210,7 +255,8 @@ const SurveyApplicationPreferenceCard = ({
                         onChange={(e) => handleChangeApplicationPreference(e)}
                         select
                         value={
-                            survey?.application_preference?.application_outside_germany || '-'
+                            survey?.application_preference
+                                ?.application_outside_germany || '-'
                         }
                     >
                         {TRI_STATE_OPTIONS.map((option) => (
@@ -223,13 +269,13 @@ const SurveyApplicationPreferenceCard = ({
                 <Grid item sm={6} xs={12}>
                     <TextField
                         error={
-                            survey.application_preference?.considered_privat_universities ===
-                            '-'
+                            survey.application_preference
+                                ?.considered_privat_universities === '-'
                         }
                         fullWidth
                         helperText={
-                            survey.application_preference?.considered_privat_universities ===
-                            '-'
+                            survey.application_preference
+                                ?.considered_privat_universities === '-'
                                 ? 'Please provide the info.'
                                 : null
                         }
@@ -241,7 +287,8 @@ const SurveyApplicationPreferenceCard = ({
                         onChange={(e) => handleChangeApplicationPreference(e)}
                         select
                         value={
-                            survey.application_preference?.considered_privat_universities || ''
+                            survey.application_preference
+                                ?.considered_privat_universities || ''
                         }
                     >
                         {TRI_STATE_OPTIONS.map((option) => (
@@ -262,11 +309,16 @@ const SurveyApplicationPreferenceCard = ({
                         name="special_wished"
                         onChange={(e) => handleChangeApplicationPreference(e)}
                         placeholder="Example: QS Ranking 300, 只要德國"
-                        value={survey.application_preference?.special_wished || ''}
+                        value={
+                            survey.application_preference?.special_wished || ''
+                        }
                         variant="outlined"
                     />
                     <Badge>
-                        {(survey?.application_preference?.special_wished as string)?.length || 0}
+                        {(
+                            survey?.application_preference
+                                ?.special_wished as string
+                        )?.length || 0}
                         /600
                     </Badge>
                 </Grid>
@@ -275,7 +327,8 @@ const SurveyApplicationPreferenceCard = ({
                         {t('Last update at')}:{' '}
                         {survey.application_preference?.updatedAt
                             ? convertDate(
-                                  survey.application_preference.updatedAt as string
+                                  survey.application_preference
+                                      .updatedAt as string
                               )
                             : ''}
                     </Typography>

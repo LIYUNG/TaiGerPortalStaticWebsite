@@ -34,13 +34,22 @@ vi.mock('react-router-dom', async (importOriginal) => {
         ...actual,
         Navigate: () => null,
         Link: forwardRef((props: { to?: string; children?: ReactNode }, ref) =>
-            createElement('a', {
-                href: props.to ?? '',
-                ref,
-                ...props
-            }, props.children)
+            createElement(
+                'a',
+                {
+                    href: props.to ?? '',
+                    ref,
+                    ...props
+                },
+                props.children
+            )
         ),
-        useLocation: () => ({ search: '', pathname: '/', hash: '', state: null }),
+        useLocation: () => ({
+            search: '',
+            pathname: '/',
+            hash: '',
+            state: null
+        }),
         useNavigate: () => vi.fn(),
         useParams: () => ({}),
         useLoaderData: () => mockLoaderData,
@@ -48,7 +57,11 @@ vi.mock('react-router-dom', async (importOriginal) => {
         useRevalidator: () => ({ revalidate: vi.fn(), state: 'idle' }),
         // Render Await children immediately with empty data (avoids Suspense boundary delay)
         Await: ({ children }: { children: (data: unknown) => ReactNode }) =>
-            createElement('div', null, typeof children === 'function' ? children([]) : children)
+            createElement(
+                'div',
+                null,
+                typeof children === 'function' ? children([]) : children
+            )
     };
 });
 
@@ -70,30 +83,69 @@ vi.mock('@components/AuthProvider', () => ({
 
 vi.mock('@/api', async (importOriginal) => ({
     ...(await importOriginal<typeof import('@/api')>()),
-    getProgramTickets: vi.fn().mockResolvedValue({ data: { success: true, data: [] } }),
-    getAdmissions: vi.fn().mockResolvedValue({ data: { result: [] }, success: true }),
+    getProgramTickets: vi
+        .fn()
+        .mockResolvedValue({ data: { success: true, data: [] } }),
+    getAdmissions: vi
+        .fn()
+        .mockResolvedValue({ data: { result: [] }, success: true }),
     getArchivStudents: vi.fn().mockResolvedValue({ data: [], status: 200 }),
     getStudents: vi.fn().mockResolvedValue({ data: [], status: 200 }),
-    getUsersCount: vi.fn().mockResolvedValue({ data: { studentCount: 0, agentCount: 0, editorCount: 0, externalCount: 0, adminCount: 0 } }),
+    getUsersCount: vi
+        .fn()
+        .mockResolvedValue({
+            data: {
+                studentCount: 0,
+                agentCount: 0,
+                editorCount: 0,
+                externalCount: 0,
+                adminCount: 0
+            }
+        }),
     getUsers: vi.fn().mockResolvedValue({ data: { data: [] } }),
     getUsersOverview: vi.fn().mockResolvedValue({ data: [] }),
-    getStudentsAndDocLinks2: vi.fn().mockResolvedValue({ data: [], base_docs_link: [] }),
+    getStudentsAndDocLinks2: vi
+        .fn()
+        .mockResolvedValue({ data: [], base_docs_link: [] }),
     getProgramsAndCourseKeywordSetsLoader: vi.fn().mockResolvedValue({}),
     getApplicationStudentV2: vi.fn().mockResolvedValue({ data: null }),
     getComplaintsTickets: vi.fn().mockResolvedValue({ data: { data: [] } }),
-    getComplaintsTicket: vi.fn().mockResolvedValue({ data: { data: {} }, status: 200 }),
+    getComplaintsTicket: vi
+        .fn()
+        .mockResolvedValue({ data: { data: {} }, status: 200 }),
     getMyAcademicBackground: vi.fn().mockResolvedValue({ data: {} }),
     getProgram: vi.fn().mockResolvedValue({ data: {} }),
     getAllOpenInterviews: vi.fn().mockResolvedValue({ data: [] }),
-    getMyStudentsThreads: vi.fn().mockResolvedValue({ data: { threads: [] }, success: true, status: 200 }),
-    getThreadsByStudent: vi.fn().mockResolvedValue({ data: { threads: [] }, success: true, status: 200 }),
-    updateCredentials: vi.fn().mockResolvedValue({ data: { success: true }, status: 200 }),
+    getMyStudentsThreads: vi
+        .fn()
+        .mockResolvedValue({
+            data: { threads: [] },
+            success: true,
+            status: 200
+        }),
+    getThreadsByStudent: vi
+        .fn()
+        .mockResolvedValue({
+            data: { threads: [] },
+            success: true,
+            status: 200
+        }),
+    updateCredentials: vi
+        .fn()
+        .mockResolvedValue({ data: { success: true }, status: 200 }),
     // Additional explicit mocks to prevent any unguarded real API calls
-    getUser: vi.fn().mockResolvedValue({ data: { success: true, data: {} }, status: 200 }),
+    getUser: vi
+        .fn()
+        .mockResolvedValue({ data: { success: true, data: {} }, status: 200 }),
     getActiveStudents: vi.fn().mockResolvedValue({ data: [] }),
     getActiveThreads: vi.fn().mockResolvedValue({ data: [] }),
-    getMyStudentsApplications: vi.fn().mockResolvedValue({ data: { data: [] } }),
-    queryClient: { invalidateQueries: vi.fn().mockResolvedValue(undefined), setQueryData: vi.fn() }
+    getMyStudentsApplications: vi
+        .fn()
+        .mockResolvedValue({ data: { data: [] } }),
+    queryClient: {
+        invalidateQueries: vi.fn().mockResolvedValue(undefined),
+        setQueryData: vi.fn()
+    }
 }));
 
 vi.mock('@mui/x-charts/BarChart', () => ({
@@ -112,7 +164,8 @@ vi.mock('@pages/Users/UsersTable', async () => {
 vi.mock('@pages/Survey/SurveyComponent', async () => {
     const { createElement: ce } = await import('react');
     return {
-        default: () => ce('div', { 'data-testid': 'survey-component' }, 'Survey')
+        default: () =>
+            ce('div', { 'data-testid': 'survey-component' }, 'Survey')
     };
 });
 
@@ -153,7 +206,16 @@ vi.mock('@/api/query', async (importOriginal) => {
         }),
         getUsersCountQuery: () => ({
             queryKey: ['users/count'],
-            queryFn: () => Promise.resolve({ data: { studentCount: 0, agentCount: 0, editorCount: 0, externalCount: 0, adminCount: 0 } }),
+            queryFn: () =>
+                Promise.resolve({
+                    data: {
+                        studentCount: 0,
+                        agentCount: 0,
+                        editorCount: 0,
+                        externalCount: 0,
+                        adminCount: 0
+                    }
+                }),
             staleTime: 1000 * 60 * 5
         }),
         getUsersQuery: () => ({
@@ -189,7 +251,6 @@ vi.mock('@hooks/useStudentsAndDocLinks', () => ({
     })
 }));
 
- 
 const wrapWithSuspense = (
     Component: LazyExoticComponent<ComponentType<any>>
 ) => (

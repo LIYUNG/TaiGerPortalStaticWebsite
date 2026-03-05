@@ -14,9 +14,7 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import LaunchIcon from '@mui/icons-material/Launch';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
-import {
-    is_TaiGer_Student
-} from '@taiger-common/core';
+import { is_TaiGer_Student } from '@taiger-common/core';
 import type {
     IUserWithId,
     IDocumentthreadPopulated,
@@ -91,40 +89,88 @@ const InformationBlock = ({
             if (isDarkMode) {
                 switch (colorType) {
                     case 'urgent':
-                        return { start: theme.palette.error.dark, end: theme.palette.error.main };
+                        return {
+                            start: theme.palette.error.dark,
+                            end: theme.palette.error.main
+                        };
                     case 'deadline':
-                        return { start: theme.palette.primary.dark, end: theme.palette.primary.main };
+                        return {
+                            start: theme.palette.primary.dark,
+                            end: theme.palette.primary.main
+                        };
                     case 'team':
-                        return { start: theme.palette.primary.dark, end: theme.palette.primary.main };
+                        return {
+                            start: theme.palette.primary.dark,
+                            end: theme.palette.primary.main
+                        };
                     case 'program':
-                        return { start: theme.palette.secondary.dark, end: theme.palette.secondary.main };
+                        return {
+                            start: theme.palette.secondary.dark,
+                            end: theme.palette.secondary.main
+                        };
                     case 'profile':
-                        return { start: theme.palette.info.dark, end: theme.palette.info.main };
+                        return {
+                            start: theme.palette.info.dark,
+                            end: theme.palette.info.main
+                        };
                     case 'conflict':
-                        return { start: theme.palette.warning.dark, end: theme.palette.warning.main };
+                        return {
+                            start: theme.palette.warning.dark,
+                            end: theme.palette.warning.main
+                        };
                     case 'noConflict':
-                        return { start: theme.palette.success.dark, end: theme.palette.success.main };
+                        return {
+                            start: theme.palette.success.dark,
+                            end: theme.palette.success.main
+                        };
                     default:
-                        return { start: theme.palette.primary.dark, end: theme.palette.primary.main };
+                        return {
+                            start: theme.palette.primary.dark,
+                            end: theme.palette.primary.main
+                        };
                 }
             }
             switch (colorType) {
                 case 'urgent':
-                    return { start: theme.palette.error.dark, end: theme.palette.error.main };
+                    return {
+                        start: theme.palette.error.dark,
+                        end: theme.palette.error.main
+                    };
                 case 'deadline':
-                    return { start: theme.palette.primary.dark, end: theme.palette.primary.main };
+                    return {
+                        start: theme.palette.primary.dark,
+                        end: theme.palette.primary.main
+                    };
                 case 'team':
-                    return { start: theme.palette.primary.light, end: theme.palette.primary.main };
+                    return {
+                        start: theme.palette.primary.light,
+                        end: theme.palette.primary.main
+                    };
                 case 'program':
-                    return { start: theme.palette.secondary.light, end: theme.palette.secondary.main };
+                    return {
+                        start: theme.palette.secondary.light,
+                        end: theme.palette.secondary.main
+                    };
                 case 'profile':
-                    return { start: theme.palette.info.light, end: theme.palette.info.main };
+                    return {
+                        start: theme.palette.info.light,
+                        end: theme.palette.info.main
+                    };
                 case 'conflict':
-                    return { start: theme.palette.warning.light, end: theme.palette.warning.main };
+                    return {
+                        start: theme.palette.warning.light,
+                        end: theme.palette.warning.main
+                    };
                 case 'noConflict':
-                    return { start: theme.palette.success.light, end: theme.palette.success.main };
+                    return {
+                        start: theme.palette.success.light,
+                        end: theme.palette.success.main
+                    };
                 default:
-                    return { start: theme.palette.primary.light, end: theme.palette.primary.main };
+                    return {
+                        start: theme.palette.primary.light,
+                        end: theme.palette.primary.main
+                    };
             }
         };
         return resolveColors;
@@ -179,7 +225,9 @@ const InformationBlock = ({
                             <RequirementsSection
                                 isGeneralRL={isGeneralRL}
                                 requirementsDialogOpen={requirementsDialogOpen}
-                                setRequirementsDialogOpen={setRequirementsDialogOpen}
+                                setRequirementsDialogOpen={
+                                    setRequirementsDialogOpen
+                                }
                                 template_obj={template_obj}
                                 thread={thread}
                                 user={user}
@@ -188,7 +236,9 @@ const InformationBlock = ({
                             <InstructionsSection
                                 documentsthreadId={documentsthreadId}
                                 instructionsDialogOpen={instructionsDialogOpen}
-                                setInstructionsDialogOpen={setInstructionsDialogOpen}
+                                setInstructionsDialogOpen={
+                                    setInstructionsDialogOpen
+                                }
                                 template_obj={template_obj}
                                 thread={thread}
                             />
@@ -224,7 +274,10 @@ const InformationBlock = ({
                                             textAlign: 'center'
                                         }}
                                     >
-                                        <Typography fontWeight="600" variant="body2">
+                                        <Typography
+                                            fontWeight="600"
+                                            variant="body2"
+                                        >
                                             Profile Photo
                                         </Typography>
                                     </Box>
@@ -272,7 +325,10 @@ const InformationBlock = ({
                                                 Upload
                                                 <LaunchIcon
                                                     fontSize="inherit"
-                                                    sx={{ ml: 0.2, verticalAlign: 'middle' }}
+                                                    sx={{
+                                                        ml: 0.2,
+                                                        verticalAlign: 'middle'
+                                                    }}
                                                 />
                                             </Link>
                                         </Typography>
@@ -305,17 +361,28 @@ const InformationBlock = ({
                                             {conflict_list.length > 0 && (
                                                 <WarningAmberIcon fontSize="small" />
                                             )}
-                                            <Typography fontWeight="600" variant="body2">
+                                            <Typography
+                                                fontWeight="600"
+                                                variant="body2"
+                                            >
                                                 {t('Conflict')}
                                             </Typography>
                                         </Stack>
                                     </Box>
                                     <Box sx={{ p: 2 }}>
                                         {conflict_list.length === 0 ? (
-                                            <Box sx={{ textAlign: 'center', py: 1.5 }}>
+                                            <Box
+                                                sx={{
+                                                    textAlign: 'center',
+                                                    py: 1.5
+                                                }}
+                                            >
                                                 <CheckCircleIcon
                                                     color="success"
-                                                    sx={{ fontSize: 32, mb: 0.5 }}
+                                                    sx={{
+                                                        fontSize: 32,
+                                                        mb: 0.5
+                                                    }}
                                                 />
                                                 <Typography
                                                     color="success.main"
@@ -327,27 +394,35 @@ const InformationBlock = ({
                                             </Box>
                                         ) : (
                                             <Stack spacing={0.75}>
-                                                {conflict_list.map((conflict_student, j) => (
-                                                    <Chip
-                                                        clickable
-                                                        color="warning"
-                                                        component={LinkDom}
-                                                        icon={
-                                                            <WarningAmberIcon
-                                                                sx={{ fontSize: 16 }}
-                                                            />
-                                                        }
-                                                        key={j}
-                                                        label={`${conflict_student.firstname} ${conflict_student.lastname}`}
-                                                        size="small"
-                                                        sx={{ fontSize: '0.75rem', height: 26 }}
-                                                        to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                                                            conflict_student._id.toString(),
-                                                            DEMO.CVMLRL_HASH
-                                                        )}`}
-                                                        variant="outlined"
-                                                    />
-                                                ))}
+                                                {conflict_list.map(
+                                                    (conflict_student, j) => (
+                                                        <Chip
+                                                            clickable
+                                                            color="warning"
+                                                            component={LinkDom}
+                                                            icon={
+                                                                <WarningAmberIcon
+                                                                    sx={{
+                                                                        fontSize: 16
+                                                                    }}
+                                                                />
+                                                            }
+                                                            key={j}
+                                                            label={`${conflict_student.firstname} ${conflict_student.lastname}`}
+                                                            size="small"
+                                                            sx={{
+                                                                fontSize:
+                                                                    '0.75rem',
+                                                                height: 26
+                                                            }}
+                                                            to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
+                                                                conflict_student._id.toString(),
+                                                                DEMO.CVMLRL_HASH
+                                                            )}`}
+                                                            variant="outlined"
+                                                        />
+                                                    )
+                                                )}
                                             </Stack>
                                         )}
                                     </Box>

@@ -51,7 +51,12 @@ export default function Reactivation(props: ReactivationProps) {
                             'Please click "Resend" to receive the new activation link in your email.'
                         )}
                     </Typography>
-                    <Button color="primary" onClick={(e: MouseEvent<HTMLButtonElement>) => handleSubmit(e)}>
+                    <Button
+                        color="primary"
+                        onClick={(e: MouseEvent<HTMLButtonElement>) =>
+                            handleSubmit(e)
+                        }
+                    >
                         {t('Resend')}
                     </Button>
                 </>

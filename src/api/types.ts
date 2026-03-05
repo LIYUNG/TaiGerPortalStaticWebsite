@@ -4,13 +4,18 @@ import type { IDocumentthread } from '@taiger-common/model';
 // Frontend-specific types (no equivalent in @taiger-common/model)
 // ---------------------------------------------------------------------------
 
-import type { IProgramWithId, IUserWithId, IStudentResponse, IApplicationPopulated } from '@taiger-common/model';
+import type {
+    IProgramWithId,
+    IUserWithId,
+    IStudentResponse,
+    IApplicationPopulated
+} from '@taiger-common/model';
 
 /** Application object as returned by API / used in student.applications. */
 export type Application = IApplicationPopulated & {
     interview_id?: string;
     interview_status?: string;
-    interview_training_event?: { start?: string;[key: string]: unknown };
+    interview_training_event?: { start?: string; [key: string]: unknown };
 };
 
 /** Auth context value (used by useAuth) */
@@ -114,8 +119,8 @@ export interface DocumentThreadResponse {
     messages?: Array<{
         _id?: string;
         user_id?:
-        | string
-        | { firstname?: string; lastname?: string;[key: string]: unknown };
+            | string
+            | { firstname?: string; lastname?: string; [key: string]: unknown };
         message?: string;
         file_path?: string;
         file?: Array<{ name: string; path: string }>;
@@ -142,7 +147,7 @@ export interface StudentResponseFull extends IStudentResponse {
 /** Document thread message with optional file attachments */
 export interface DocumentThreadMessage {
     _id?: string;
-    user_id?: { firstname?: string; lastname?: string;[key: string]: unknown };
+    user_id?: { firstname?: string; lastname?: string; [key: string]: unknown };
     message?: string;
     file_path?: string;
     file?: Array<{ name: string; path: string }>;

@@ -7,7 +7,8 @@ vi.mock('@/api', () => ({
 }));
 
 vi.mock('@tanstack/react-query', async (importOriginal) => {
-    const actual = (await importOriginal()) as typeof import('@tanstack/react-query');
+    const actual =
+        (await importOriginal()) as typeof import('@tanstack/react-query');
     return {
         ...actual,
         useQuery: vi.fn().mockReturnValue({ data: null, isPending: false })

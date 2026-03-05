@@ -10,11 +10,15 @@ import { mockSingleData } from '../../test/testingStudentData';
 vi.mock('react-router-dom', () => ({
     Navigate: () => null,
     Link: forwardRef((props, ref) =>
-        createElement('a', {
-            href: props.to,
-            ref,
-            ...props
-        }, props.children)
+        createElement(
+            'a',
+            {
+                href: props.to,
+                ref,
+                ...props
+            },
+            props.children
+        )
     )
 }));
 

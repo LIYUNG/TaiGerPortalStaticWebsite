@@ -60,7 +60,12 @@ vi.mock('react-router-dom', async (importOriginal) => {
                 props.children
             )
         ),
-        useLocation: () => ({ search: '', pathname: '/', hash: '', state: null }),
+        useLocation: () => ({
+            search: '',
+            pathname: '/',
+            hash: '',
+            state: null
+        }),
         useNavigate: () => vi.fn(),
         useParams: () => ({
             student_id: 'test-student',
@@ -81,7 +86,11 @@ vi.mock('react-router-dom', async (importOriginal) => {
         useSearchParams: () => [new URLSearchParams(), vi.fn()],
         useRevalidator: () => ({ revalidate: vi.fn(), state: 'idle' }),
         Await: ({ children }: { children: (data: unknown) => ReactNode }) =>
-            createElement('div', null, typeof children === 'function' ? children([]) : children)
+            createElement(
+                'div',
+                null,
+                typeof children === 'function' ? children([]) : children
+            )
     };
 });
 
@@ -106,12 +115,22 @@ vi.mock('@components/AuthProvider', () => ({
 vi.mock('@/api', async (importOriginal) => ({
     ...(await importOriginal<typeof import('@/api')>()),
     // General
-    getProgramTickets: vi.fn().mockResolvedValue({ data: { success: true, data: [] } }),
+    getProgramTickets: vi
+        .fn()
+        .mockResolvedValue({ data: { success: true, data: [] } }),
     getStudents: vi.fn().mockResolvedValue({ data: [], status: 200 }),
     getActiveStudents: vi.fn().mockResolvedValue({ data: [] }),
-    getActiveStudentsApplications: vi.fn().mockResolvedValue({ data: { data: [] } }),
+    getActiveStudentsApplications: vi
+        .fn()
+        .mockResolvedValue({ data: { data: [] } }),
     getActiveThreads: vi.fn().mockResolvedValue({ data: [] }),
-    getMyStudentsThreads: vi.fn().mockResolvedValue({ data: { threads: [] }, success: true, status: 200 }),
+    getMyStudentsThreads: vi
+        .fn()
+        .mockResolvedValue({
+            data: { threads: [] },
+            success: true,
+            status: 200
+        }),
     putThreadFavorite: vi.fn().mockResolvedValue({ data: { success: true } }),
     getApplicationStudentV2: vi.fn().mockResolvedValue({ data: null }),
     // CRM
@@ -123,9 +142,15 @@ vi.mock('@/api', async (importOriginal) => ({
     getCRMDeals: vi.fn().mockResolvedValue({ data: { data: [] } }),
     getCRMSalesReps: vi.fn().mockResolvedValue({ data: { data: [] } }),
     // Interview
-    getMyInterviews: vi.fn().mockResolvedValue({ data: { data: [], success: true }, status: 200 }),
-    getAllInterviews: vi.fn().mockResolvedValue({ data: { data: [], success: true }, status: 200 }),
-    getInterview: vi.fn().mockResolvedValue({ data: { data: {}, success: true } }),
+    getMyInterviews: vi
+        .fn()
+        .mockResolvedValue({ data: { data: [], success: true }, status: 200 }),
+    getAllInterviews: vi
+        .fn()
+        .mockResolvedValue({ data: { data: [], success: true }, status: 200 }),
+    getInterview: vi
+        .fn()
+        .mockResolvedValue({ data: { data: {}, success: true } }),
     getInterviews: vi.fn().mockResolvedValue({ data: { data: [] } }),
     getInterviewsByStudentId: vi.fn().mockResolvedValue({ data: { data: [] } }),
     getInterviewsByProgramId: vi.fn().mockResolvedValue({ data: { data: [] } }),
@@ -133,14 +158,51 @@ vi.mock('@/api', async (importOriginal) => ({
     // UniAssist
     getStudentUniAssistV2: vi.fn().mockResolvedValue({ data: { data: {} } }),
     // Communication
-    getCommunicationThreadV2: vi.fn().mockResolvedValue({ data: { data: { messages: [] }, success: true } }),
-    getMyCommunicationThreadV2: vi.fn().mockResolvedValue({ data: { data: [] } }),
-    getMessagThread: vi.fn().mockResolvedValue({ data: { data: { student_id: { firstname: 'Test', lastname: 'Student' } }, success: true, agents: [], editors: [], conflict_list: [], deadline: null, threadAuditLog: [], similarThreads: [] } }),
+    getCommunicationThreadV2: vi
+        .fn()
+        .mockResolvedValue({ data: { data: { messages: [] }, success: true } }),
+    getMyCommunicationThreadV2: vi
+        .fn()
+        .mockResolvedValue({ data: { data: [] } }),
+    getMessagThread: vi
+        .fn()
+        .mockResolvedValue({
+            data: {
+                data: {
+                    student_id: { firstname: 'Test', lastname: 'Student' }
+                },
+                success: true,
+                agents: [],
+                editors: [],
+                conflict_list: [],
+                deadline: null,
+                threadAuditLog: [],
+                similarThreads: []
+            }
+        }),
     // Documentation
-    getCategorizedDocumentationPage: vi.fn().mockResolvedValue({ data: { data: { text: null, author: '' }, success: true }, status: 200 }),
-    updateDocumentationPage: vi.fn().mockResolvedValue({ data: { success: true } }),
+    getCategorizedDocumentationPage: vi
+        .fn()
+        .mockResolvedValue({
+            data: { data: { text: null, author: '' }, success: true },
+            status: 200
+        }),
+    updateDocumentationPage: vi
+        .fn()
+        .mockResolvedValue({ data: { success: true } }),
     // Calendar
-    getEvents: vi.fn().mockResolvedValue({ data: { data: [], success: true, agents: {}, editors: [], hasEvents: false }, status: 200 }),
+    getEvents: vi
+        .fn()
+        .mockResolvedValue({
+            data: {
+                data: [],
+                success: true,
+                agents: {},
+                editors: [],
+                hasEvents: false
+            },
+            status: 200
+        }),
     getBookedEvents: vi.fn().mockResolvedValue({ data: { data: [] } }),
     postEvent: vi.fn().mockResolvedValue({ data: { success: true } }),
     updateEvent: vi.fn().mockResolvedValue({ data: { success: true } }),
@@ -154,7 +216,9 @@ vi.mock('@/api', async (importOriginal) => ({
     // AI
     cvmlrlAi2: vi.fn().mockResolvedValue({ data: { data: '' } }),
     TaiGerAiGeneral2: vi.fn().mockResolvedValue({ data: { data: '' } }),
-    getSurveyInputs: vi.fn().mockResolvedValue({ data: { data: {}, success: true }, status: 200 }),
+    getSurveyInputs: vi
+        .fn()
+        .mockResolvedValue({ data: { data: {}, success: true }, status: 200 }),
     // Auth APIs
     login: vi.fn().mockResolvedValue({ data: { data: {} }, status: 200 }),
     activation: vi.fn().mockResolvedValue({ data: { success: true } }),
@@ -163,7 +227,10 @@ vi.mock('@/api', async (importOriginal) => ({
     resetPassword: vi.fn().mockResolvedValue({ data: { success: true } }),
     googleOAuthCallback: vi.fn().mockResolvedValue({ data: {} }),
     // Misc
-    queryClient: { invalidateQueries: vi.fn().mockResolvedValue(undefined), setQueryData: vi.fn() }
+    queryClient: {
+        invalidateQueries: vi.fn().mockResolvedValue(undefined),
+        setQueryData: vi.fn()
+    }
 }));
 
 // ─── MUI Charts ──────────────────────────────────────────────────────────────
@@ -177,7 +244,8 @@ vi.mock('@mui/x-charts/Gauge', () => ({ Gauge: () => null }));
 
 // ─── Heavy component stubs ──────────────────────────────────────────────────
 vi.mock('material-react-table', () => ({
-    MaterialReactTable: () => createElement('div', { 'data-testid': 'mrt-table' }, 'Table'),
+    MaterialReactTable: () =>
+        createElement('div', { 'data-testid': 'mrt-table' }, 'Table'),
     useMaterialReactTable: () => ({})
 }));
 
@@ -203,7 +271,8 @@ vi.mock('react-markdown', () => ({
 }));
 
 vi.mock('react-datasheet-grid', () => ({
-    DataSheetGrid: () => createElement('div', { 'data-testid': 'datasheet-grid' }, 'DataSheet'),
+    DataSheetGrid: () =>
+        createElement('div', { 'data-testid': 'datasheet-grid' }, 'DataSheet'),
     textColumn: {},
     keyColumn: () => ({}),
     floatColumn: {},
@@ -214,33 +283,43 @@ vi.mock('react-datasheet-grid', () => ({
 // EditorJS stubs
 vi.mock('@components/EditorJs/EditorNew', () => ({
     __esModule: true,
-    default: () => createElement('div', { 'data-testid': 'editor-new' }, 'Editor')
+    default: () =>
+        createElement('div', { 'data-testid': 'editor-new' }, 'Editor')
 }));
 vi.mock('@components/EditorJs/EditorSimple', () => ({
     __esModule: true,
-    default: () => createElement('div', { 'data-testid': 'editor-simple' }, 'Editor')
+    default: () =>
+        createElement('div', { 'data-testid': 'editor-simple' }, 'Editor')
 }));
 vi.mock('@components/EditorJs/EditorNote', () => ({
     __esModule: true,
-    default: () => createElement('div', { 'data-testid': 'editor-note' }, 'Editor')
+    default: () =>
+        createElement('div', { 'data-testid': 'editor-note' }, 'Editor')
 }));
 
 // Calendar stub
 vi.mock('@components/Calendar/components/Calendar', () => ({
     __esModule: true,
-    default: () => createElement('div', { 'data-testid': 'calendar' }, 'Calendar')
+    default: () =>
+        createElement('div', { 'data-testid': 'calendar' }, 'Calendar')
 }));
 
 // EmbeddedChatList stub
 vi.mock('@components/EmbeddedChatList', () => ({
     __esModule: true,
-    default: () => createElement('div', { 'data-testid': 'embedded-chat-list' }, 'ChatList')
+    default: () =>
+        createElement(
+            'div',
+            { 'data-testid': 'embedded-chat-list' },
+            'ChatList'
+        )
 }));
 
 // PDFViewer stub
 vi.mock('@components/PDFViewer', () => ({
     __esModule: true,
-    default: () => createElement('div', { 'data-testid': 'pdf-viewer' }, 'PDFViewer')
+    default: () =>
+        createElement('div', { 'data-testid': 'pdf-viewer' }, 'PDFViewer')
 }));
 
 // ─── useQuery / useMutation / React Query ────────────────────────────────────
@@ -279,36 +358,91 @@ vi.mock('@/api/query', async (importOriginal) => {
         ...actual,
         getCRMStatsQuery: () => factory(['crm/stats'], { data: { data: {} } }),
         getCRMLeadsQuery: () => factory(['crm/leads'], { data: { data: [] } }),
-        getCRMLeadQuery: () => factory(['crm/lead', 'test'], { data: { data: {} } }),
-        getCRMMeetingsQuery: () => factory(['crm/meetings'], { data: { data: [] } }),
-        getCRMMeetingQuery: () => factory(['crm/meeting', 'test'], { data: { data: {} } }),
+        getCRMLeadQuery: () =>
+            factory(['crm/lead', 'test'], { data: { data: {} } }),
+        getCRMMeetingsQuery: () =>
+            factory(['crm/meetings'], { data: { data: [] } }),
+        getCRMMeetingQuery: () =>
+            factory(['crm/meeting', 'test'], { data: { data: {} } }),
         getCRMDealsQuery: () => factory(['crm/deals'], { data: { data: [] } }),
-        getCRMSalesRepsQuery: () => factory(['crm/sales-reps'], { data: { data: [] } }),
-        getInterviewsQuery: () => factory(['interviews', ''], { data: { data: [] } }),
-        getInterviewQuery: () => factory(['interviews', 'test'], { data: { data: {} } }),
-        getStudentUniAssistQuery: () => factory(['uniassist', 'test'], { data: { data: {} } }),
-        getCommunicationQuery: () => factory(['communications', 'test'], { data: { data: { messages: [] } } }),
-        getMyCommunicationQuery: () => factory(['communications', 'my'], { data: { data: [] } }),
-        getMessagThreadQuery: () => factory(['MessageThread', 'test'], { data: { data: {} } }),
-        getActiveThreadsQuery: (qs: string) => factory(['active-threads', qs], { data: [] }),
-        getActiveStudentsQuery: (qs: string) => factory(['students/active', qs], { data: [] }),
-        getAllCoursessQuery: () => factory(['all-courses/all'], { data: { data: [] } }),
-        getCoursessQuery: () => factory(['all-courses/all', 'test'], { data: { data: {} } }),
-        getProgramRequirementsQuery: () => factory(['program-requirements/all'], { data: { data: [] } }),
-        getEventsQuery: () => factory(['events', ''], { data: { data: [], success: true, agents: {}, editors: [], hasEvents: false } }),
-        getBookedEventsQuery: () => factory(['events', 'booked'], { data: { data: [] } }),
-        getMycoursesQuery: () => factory(['mycourses', 'test'], { data: { data: [] } }),
-        getStudentsAndDocLinks2Query: (qs: string) => factory(['students/doc-links', qs], { data: [], base_docs_link: [] }),
-        getUsersCountQuery: () => factory(['users/count'], { data: { studentCount: 0, agentCount: 0, editorCount: 0, externalCount: 0, adminCount: 0 } }),
+        getCRMSalesRepsQuery: () =>
+            factory(['crm/sales-reps'], { data: { data: [] } }),
+        getInterviewsQuery: () =>
+            factory(['interviews', ''], { data: { data: [] } }),
+        getInterviewQuery: () =>
+            factory(['interviews', 'test'], { data: { data: {} } }),
+        getStudentUniAssistQuery: () =>
+            factory(['uniassist', 'test'], { data: { data: {} } }),
+        getCommunicationQuery: () =>
+            factory(['communications', 'test'], {
+                data: { data: { messages: [] } }
+            }),
+        getMyCommunicationQuery: () =>
+            factory(['communications', 'my'], { data: { data: [] } }),
+        getMessagThreadQuery: () =>
+            factory(['MessageThread', 'test'], { data: { data: {} } }),
+        getActiveThreadsQuery: (qs: string) =>
+            factory(['active-threads', qs], { data: [] }),
+        getActiveStudentsQuery: (qs: string) =>
+            factory(['students/active', qs], { data: [] }),
+        getAllCoursessQuery: () =>
+            factory(['all-courses/all'], { data: { data: [] } }),
+        getCoursessQuery: () =>
+            factory(['all-courses/all', 'test'], { data: { data: {} } }),
+        getProgramRequirementsQuery: () =>
+            factory(['program-requirements/all'], { data: { data: [] } }),
+        getEventsQuery: () =>
+            factory(['events', ''], {
+                data: {
+                    data: [],
+                    success: true,
+                    agents: {},
+                    editors: [],
+                    hasEvents: false
+                }
+            }),
+        getBookedEventsQuery: () =>
+            factory(['events', 'booked'], { data: { data: [] } }),
+        getMycoursesQuery: () =>
+            factory(['mycourses', 'test'], { data: { data: [] } }),
+        getStudentsAndDocLinks2Query: (qs: string) =>
+            factory(['students/doc-links', qs], {
+                data: [],
+                base_docs_link: []
+            }),
+        getUsersCountQuery: () =>
+            factory(['users/count'], {
+                data: {
+                    studentCount: 0,
+                    agentCount: 0,
+                    editorCount: 0,
+                    externalCount: 0,
+                    adminCount: 0
+                }
+            }),
         getUsersQuery: () => factory(['users'], { data: { data: [] } }),
-        getTeamMembersQuery: () => factory(['team-members'], { data: { data: [], success: true } }),
-        getApplicationStudentV2Query: () => factory(['applications/student', 'test'], { data: null }),
-        getProgramsOverviewQuery: () => factory(['programs', 'overview'], { data: { data: {} } }),
-        getSchoolsDistributionQuery: () => factory(['programs', 'schools-distribution'], { data: { data: [] } }),
-        getInterviewsByStudentIdQuery: () => factory(['interviews/student', 'test'], { data: { data: [] } }),
-        getInterviewsByProgramIdQuery: () => factory(['interviews/program', 'test'], { data: { data: [] } }),
-        getMyStudentsThreadsQuery: () => factory(['document-threads/overview/taiger-user', 'test', ''], { data: null }),
-        getMyStudentsApplicationsV2Query: () => factory(['applications/taiger-user', 'test', ''], { data: { data: [] } }),
+        getTeamMembersQuery: () =>
+            factory(['team-members'], { data: { data: [], success: true } }),
+        getApplicationStudentV2Query: () =>
+            factory(['applications/student', 'test'], { data: null }),
+        getProgramsOverviewQuery: () =>
+            factory(['programs', 'overview'], { data: { data: {} } }),
+        getSchoolsDistributionQuery: () =>
+            factory(['programs', 'schools-distribution'], {
+                data: { data: [] }
+            }),
+        getInterviewsByStudentIdQuery: () =>
+            factory(['interviews/student', 'test'], { data: { data: [] } }),
+        getInterviewsByProgramIdQuery: () =>
+            factory(['interviews/program', 'test'], { data: { data: [] } }),
+        getMyStudentsThreadsQuery: () =>
+            factory(['document-threads/overview/taiger-user', 'test', ''], {
+                data: null
+            }),
+        getMyStudentsApplicationsV2Query: () =>
+            factory(['applications/taiger-user', 'test', ''], {
+                data: { data: [] }
+            }),
         getStudentsV3Query: () => factory(['students/v3', ''], { data: [] }),
         getProgramsAndCourseKeywordSetsLoader: vi.fn().mockResolvedValue({})
     };
@@ -531,13 +665,17 @@ describe('Tier 3 – Interview pages smoke tests', () => {
     });
 
     test('SingleInterview renders', async () => {
-        const C = lazy(() => import('@pages/InterviewTraining/SingleInterview'));
+        const C = lazy(
+            () => import('@pages/InterviewTraining/SingleInterview')
+        );
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });
 
     test('Questionnaire (InterviewSurveyForm) renders', async () => {
-        const C = lazy(() => import('@pages/InterviewTraining/InterviewSurveyForm'));
+        const C = lazy(
+            () => import('@pages/InterviewTraining/InterviewSurveyForm')
+        );
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });
@@ -547,7 +685,13 @@ describe('Tier 3 – UniAssist smoke test', () => {
     test('UniAssist page renders', async () => {
         // UniAssist requires Student role
         vi.mocked(useAuth).mockReturnValueOnce({
-            user: { _id: 'test-student-id', role: 'Student', firstname: 'Test', lastname: 'Student', email: 'student@example.com' },
+            user: {
+                _id: 'test-student-id',
+                role: 'Student',
+                firstname: 'Test',
+                lastname: 'Student',
+                email: 'student@example.com'
+            },
             isAuthenticated: true,
             isLoaded: true,
             login: vi.fn(),
@@ -561,19 +705,28 @@ describe('Tier 3 – UniAssist smoke test', () => {
 
 describe('Tier 3 – Communications pages smoke tests', () => {
     test('CommunicationSinglePage renders', async () => {
-        const C = lazy(() => import('@pages/Communications/CommunicationSinglePage'));
+        const C = lazy(
+            () => import('@pages/Communications/CommunicationSinglePage')
+        );
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });
 
     test('CommunicationExpandPage renders', async () => {
-        const C = lazy(() => import('@pages/Communications/CommunicationExpandPage'));
+        const C = lazy(
+            () => import('@pages/Communications/CommunicationExpandPage')
+        );
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });
 
     test('DocumentCommunicationExpandPage renders', async () => {
-        const C = lazy(() => import('@pages/CVMLRLCenter/DocModificationThreadPage/DocumentThreadsPage/DocumentCommunicatiomExpandPage'));
+        const C = lazy(
+            () =>
+                import(
+                    '@pages/CVMLRLCenter/DocModificationThreadPage/DocumentThreadsPage/DocumentCommunicatiomExpandPage'
+                )
+        );
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });
@@ -611,7 +764,9 @@ describe('Tier 3 – Documentation pages smoke tests', () => {
     });
 
     test('InternalDocCreatePage renders', async () => {
-        const C = lazy(() => import('@pages/Documentation/InternalDocCreatePage'));
+        const C = lazy(
+            () => import('@pages/Documentation/InternalDocCreatePage')
+        );
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });
@@ -639,31 +794,41 @@ describe('Tier 3 – Office Hours pages smoke tests', () => {
 
 describe('Tier 3 – Course Analysis pages smoke tests', () => {
     test('AllCourses renders', async () => {
-        const C = lazy(() => import('@pages/CourseAnalysis/AllCourses/AllCourses'));
+        const C = lazy(
+            () => import('@pages/CourseAnalysis/AllCourses/AllCourses')
+        );
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });
 
     test('CourseNew renders', async () => {
-        const C = lazy(() => import('@pages/CourseAnalysis/AllCourses/CourseNew'));
+        const C = lazy(
+            () => import('@pages/CourseAnalysis/AllCourses/CourseNew')
+        );
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });
 
     test('CourseEdit renders', async () => {
-        const C = lazy(() => import('@pages/CourseAnalysis/AllCourses/CourseEdit'));
+        const C = lazy(
+            () => import('@pages/CourseAnalysis/AllCourses/CourseEdit')
+        );
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });
 
     test('CourseKeywordsEdit renders', async () => {
-        const C = lazy(() => import('@pages/CourseAnalysis/CourseKeywordsEdit'));
+        const C = lazy(
+            () => import('@pages/CourseAnalysis/CourseKeywordsEdit')
+        );
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });
 
     test('ProgramRequirements renders', async () => {
-        const C = lazy(() => import('@pages/CourseAnalysis/ProgramRequirements'));
+        const C = lazy(
+            () => import('@pages/CourseAnalysis/ProgramRequirements')
+        );
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });
@@ -677,7 +842,12 @@ describe('Tier 3 – AI / Widget pages smoke tests', () => {
     });
 
     test('CVMLRL_Modification_Thread renders', async () => {
-        const C = lazy(() => import('@pages/CVMLRLCenter/DocModificationThreadPage/DocumentThreadsPage/SingleThreadPage'));
+        const C = lazy(
+            () =>
+                import(
+                    '@pages/CVMLRLCenter/DocModificationThreadPage/DocumentThreadsPage/SingleThreadPage'
+                )
+        );
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });
@@ -733,7 +903,9 @@ describe('Tier 4 – Authentication / Public Pages smoke tests', () => {
             login: vi.fn(),
             logout: vi.fn()
         } as never);
-        const C = lazy(() => import('@pages/Authentication/Activation/Activation'));
+        const C = lazy(
+            () => import('@pages/Authentication/Activation/Activation')
+        );
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });
@@ -746,7 +918,12 @@ describe('Tier 4 – Authentication / Public Pages smoke tests', () => {
             login: vi.fn(),
             logout: vi.fn()
         } as never);
-        const C = lazy(() => import('@pages/Authentication/ResetPasswordRequest/ResetPasswordRequest'));
+        const C = lazy(
+            () =>
+                import(
+                    '@pages/Authentication/ResetPasswordRequest/ResetPasswordRequest'
+                )
+        );
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });
@@ -759,7 +936,9 @@ describe('Tier 4 – Authentication / Public Pages smoke tests', () => {
             login: vi.fn(),
             logout: vi.fn()
         } as never);
-        const C = lazy(() => import('@pages/Authentication/ResetPassword/ResetPassword'));
+        const C = lazy(
+            () => import('@pages/Authentication/ResetPassword/ResetPassword')
+        );
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });
@@ -772,7 +951,9 @@ describe('Tier 4 – Authentication / Public Pages smoke tests', () => {
             login: vi.fn(),
             logout: vi.fn()
         } as never);
-        const C = lazy(() => import('@pages/Authentication/GoogleOauthCallback/index'));
+        const C = lazy(
+            () => import('@pages/Authentication/GoogleOauthCallback/index')
+        );
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });

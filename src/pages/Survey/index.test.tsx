@@ -9,7 +9,8 @@ const mockLoaderData = {
     data: {
         data: {
             academic_background: mockSingleData.data[0].academic_background,
-            application_preference: mockSingleData.data[0].application_preference
+            application_preference:
+                mockSingleData.data[0].application_preference
         },
         survey_link: 'dummylink'
     }
@@ -18,11 +19,15 @@ const mockLoaderData = {
 vi.mock('react-router-dom', () => ({
     Navigate: () => null,
     Link: forwardRef((props, ref) =>
-        createElement('a', {
-            href: props.to,
-            ref,
-            ...props
-        }, props.children)
+        createElement(
+            'a',
+            {
+                href: props.to,
+                ref,
+                ...props
+            },
+            props.children
+        )
     ),
     useLoaderData: () => mockLoaderData
 }));
