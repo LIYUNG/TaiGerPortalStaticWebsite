@@ -41,7 +41,7 @@ const GPACard = memo(({ student, myGermanGPA }: GPACardProps) => {
             <CardHeader
                 sx={{ pb: 1 }}
                 title="GPA Information"
-                titleTypography={{ variant: 'h6', fontWeight: 'medium' }}
+                titleTypographyProps={{ variant: 'h6', fontWeight: 'medium' }}
             />
             <CardContent>
                 <Grid container spacing={3}>

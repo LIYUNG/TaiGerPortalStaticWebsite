@@ -132,7 +132,7 @@ const CVMLRLGenerator = () => {
                     'Submit'
                 )}
             </Button>
-            <Typography variant="body1">
+            <Typography component="div" variant="body1">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
                     {cVMLRLGeneratorState.data}
                 </ReactMarkdown>

@@ -62,9 +62,9 @@ const ProgramReportDeleteModal = ({
                 {t('Description', { ns: 'common' })}
                 <TextField
                     defaultValue={ticket.description}
+                    error={(ticket.description?.length ?? 0) > 2000}
                     fullWidth
                     inputProps={{ maxLength: 2000 }}
-                    isInvalid={ticket.description?.length > 2000}
                     minRows={4}
                     multiline
                     onChange={(e) => handleChange(e)}
@@ -79,9 +79,9 @@ const ProgramReportDeleteModal = ({
                 </DialogContentText>
                 <TextField
                     defaultValue={ticket.feedback}
+                    error={(ticket.feedback?.length ?? 0) > 2000}
                     fullWidth
                     inputProps={{ maxLength: 2000 }}
-                    isInvalid={ticket.feedback?.length > 2000}
                     minRows={4}
                     multiline
                     onChange={(e) => handleChange(e)}

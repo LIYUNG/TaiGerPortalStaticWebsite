@@ -255,7 +255,7 @@ export const MeetingFormModal = ({
                             }
                             required
                             type="datetime-local"
-                            value={formData.dateTime}
+                            value={formData.dateTime ?? ''}
                         />
                     </Box>
                     <TextField

@@ -1,25 +1,38 @@
+import { ReactNode, forwardRef, Ref } from 'react';
 import { render, screen } from '@testing-library/react';
 import ProgramRequirementsEditIndex from './ProgramRequirementsEditIndex';
 
-vi.mock('react-router-dom', () => ({
-    useLoaderData: () => ({ programRequirement: null }),
-    useNavigate: () => vi.fn(),
-    useParams: () => ({ requirementId: 'req-123' }),
-    Link: ({ children }: { children: React.ReactNode }) => <a>{children}</a>,
-    Await: ({
-        children
-    }: {
-        children: ((data: unknown) => React.ReactNode) | React.ReactNode;
-        resolve: unknown;
-    }) => (
-        <>
-            {typeof children === 'function'
-                ? children({ distinctPrograms: [], keywordsets: [] })
-                : children}
-        </>
-    ),
-    Suspense: ({ children }: { children: React.ReactNode }) => <>{children}</>
-}));
+vi.mock('react-router-dom', () => {
+    return {
+        useLoaderData: () => ({ programRequirement: null }),
+        useNavigate: () => vi.fn(),
+        useParams: () => ({ requirementId: 'req-123' }),
+        Link: forwardRef(function LinkMock(
+            props: { children?: ReactNode; to?: string },
+            ref: Ref<HTMLAnchorElement>
+        ) {
+            const { children, to, ...rest } = props;
+            return (
+                <a ref={ref} href={to ?? '#'} {...rest}>
+                    {children}
+                </a>
+            );
+        }),
+        Await: ({
+            children
+        }: {
+            children: ((data: unknown) => React.ReactNode) | React.ReactNode;
+            resolve: unknown;
+        }) => (
+            <>
+                {typeof children === 'function'
+                    ? children({ distinctPrograms: [], keywordsets: [] })
+                    : children}
+            </>
+        ),
+        Suspense: ({ children }: { children: ReactNode }) => <>{children}</>
+    };
+});
 
 vi.mock('@store/constant', () => ({
     default: {

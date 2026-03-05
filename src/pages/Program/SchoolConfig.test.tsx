@@ -54,19 +54,26 @@ describe('SchoolConfig', () => {
         );
     });
 
-    it('renders without crashing', () => {
+    it('renders without crashing', async () => {
+        await screen.findByTestId('school-config-content');
         expect(screen.getByTestId('school_config')).toBeInTheDocument();
     });
 
     it('renders SchoolConfigContent after data resolves', async () => {
-        expect(await screen.findByTestId('school-config-content')).toBeInTheDocument();
+        expect(
+            await screen.findByTestId('school-config-content')
+        ).toBeInTheDocument();
     });
 
     it('renders breadcrumb navigation', async () => {
-        expect(await screen.findByRole('navigation', { name: 'breadcrumb' })).toBeInTheDocument();
+        expect(
+            await screen.findByRole('navigation', { name: 'breadcrumb' })
+        ).toBeInTheDocument();
     });
 
     it('renders School Configuration breadcrumb text', async () => {
-        expect(await screen.findByText('School Configuration')).toBeInTheDocument();
+        expect(
+            await screen.findByText('School Configuration')
+        ).toBeInTheDocument();
     });
 });

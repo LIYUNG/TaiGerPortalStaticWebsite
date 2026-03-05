@@ -1,15 +1,29 @@
+import { ReactNode, forwardRef, Ref } from 'react';
 import { render, screen } from '@testing-library/react';
 import { vi } from 'vitest';
 
-vi.mock('react-router-dom', async (orig) => ({
-    ...(await orig<typeof import('react-router-dom')>()),
-    useParams: () => ({ studentId: 'stu1' }),
-    useNavigate: () => vi.fn(),
-    Navigate: ({ to }: { to: string }) => (
-        <div data-testid="navigate" data-to={to} />
-    ),
-    Link: ({ children }: { children: React.ReactNode }) => <a>{children}</a>
-}));
+vi.mock('react-router-dom', async (orig) => {
+    const actual = await orig<typeof import('react-router-dom')>();
+    return {
+        ...actual,
+        useParams: () => ({ studentId: 'stu1' }),
+        useNavigate: () => vi.fn(),
+        Navigate: ({ to }: { to: string }) => (
+            <div data-testid="navigate" data-to={to} />
+        ),
+        Link: forwardRef(function LinkMock(
+            props: { children?: ReactNode; to?: string },
+            ref: Ref<HTMLAnchorElement>
+        ) {
+            const { children, to, ...rest } = props;
+            return (
+                <a ref={ref} href={to ?? '#'} {...rest}>
+                    {children}
+                </a>
+            );
+        })
+    };
+});
 
 vi.mock('@tanstack/react-query', async (orig) => ({
     ...(await orig<typeof import('@tanstack/react-query')>()),

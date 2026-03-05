@@ -1,10 +1,19 @@
+import { forwardRef, ReactNode } from 'react';
 import { render, screen } from '@testing-library/react';
 import CourseKeywords from './index';
 
 vi.mock('react-router-dom', () => ({
     useLoaderData: () => ({ courseKeywordSets: [] }),
     useNavigate: () => vi.fn(),
-    Link: ({ children }: { children: React.ReactNode }) => <a>{children}</a>,
+    Link: forwardRef<HTMLAnchorElement, { children?: ReactNode; to?: string }>(
+        function LinkMock({ children, to }, ref) {
+            return (
+                <a ref={ref} href={to ?? '#'}>
+                    {children}
+                </a>
+            );
+        }
+    ),
     Await: ({
         children
     }: {

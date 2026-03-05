@@ -44,11 +44,12 @@ const ProgramReportModal = ({
             <DialogContent>
                 What information is inaccurate for {uni_name} - {program_name}?
                 <TextField
+                    error={
+                        (programReportModalState.description?.length ?? 0) >
+                        2000
+                    }
                     fullWidth
                     inputProps={{ maxLength: 2000 }}
-                    isInvalid={
-                        programReportModalState.description?.length > 2000
-                    }
                     minRows={10}
                     multiline
                     onChange={(e) => handleChange(e)}

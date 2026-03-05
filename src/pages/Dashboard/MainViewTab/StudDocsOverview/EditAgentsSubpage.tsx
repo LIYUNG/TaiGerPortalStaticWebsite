@@ -119,10 +119,9 @@ const EditAgentsSubpage = (props: Props) => {
     return (
         <Dialog
             aria-labelledby="contained-modal-title-vcenter"
-            centered
+            maxWidth="sm"
             onClose={props.onHide}
             open={props.show}
-            size="large"
         >
             <DialogTitle>
                 Agent for {props.student.firstname} - {props.student.lastname}{' '}

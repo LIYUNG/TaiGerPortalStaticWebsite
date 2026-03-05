@@ -69,7 +69,8 @@ describe('ProgramCreatePage', () => {
         expect(editor).toBeInTheDocument();
     });
 
-    it('renders a container div', () => {
+    it('renders a container div', async () => {
+        await screen.findByTestId('new-program-edit');
         expect(document.querySelector('div')).toBeInTheDocument();
     });
 });
