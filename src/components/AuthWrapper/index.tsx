@@ -1,10 +1,10 @@
-import React from 'react';
+import { ReactNode } from 'react';
 import { Box, Container, CssBaseline, useTheme } from '@mui/material';
 import Footer from '../Footer/Footer';
 import { appConfig } from '../../config';
 
 interface AuthWrapperProps {
-    children: React.ReactNode;
+    children: ReactNode;
 }
 
 export default function AuthWrapper({

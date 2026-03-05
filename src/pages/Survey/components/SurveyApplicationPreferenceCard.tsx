@@ -1,4 +1,4 @@
-import React, { type MouseEvent } from 'react';
+import { type MouseEvent } from 'react';
 import {
     Badge,
     Button,

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link as LinkDom, useParams } from 'react-router-dom';
 import {
     Avatar,

@@ -1,4 +1,4 @@
-import React from 'react';
+import { MouseEvent } from 'react';
 import {
     Box,
     Avatar,
@@ -49,7 +49,7 @@ interface LeadProfileHeaderProps {
         variables?: { id: string };
         mutate: (args: unknown, opts?: unknown) => void;
     };
-    openStatusMenu: (e: React.MouseEvent<HTMLElement>, deal: unknown) => void;
+    openStatusMenu: (e: MouseEvent<HTMLElement>, deal: unknown) => void;
     t: (key: string, opts?: Record<string, unknown>) => string;
 }
 

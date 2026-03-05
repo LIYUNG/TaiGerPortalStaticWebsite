@@ -34,21 +34,19 @@ vi.mock('@hooks/useStudentsAndDocLinks', () => ({
 vi.mock('../Utils/TabTitle', () => ({ TabTitle: vi.fn() }));
 
 describe('BaseDocuments', () => {
-    test('renders Loading when isLoading is true', () => {
+    beforeEach(() => {
         render(
             <MemoryRouter>
                 <BaseDocuments />
             </MemoryRouter>
         );
+    });
+
+    test('renders Loading when isLoading is true', () => {
         expect(screen.getByTestId('loading')).toBeInTheDocument();
     });
 
     test('renders company name in breadcrumb', () => {
-        render(
-            <MemoryRouter>
-                <BaseDocuments />
-            </MemoryRouter>
-        );
         expect(screen.getByText('TaiGer')).toBeInTheDocument();
     });
 });

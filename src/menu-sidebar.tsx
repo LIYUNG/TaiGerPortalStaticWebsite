@@ -1,4 +1,4 @@
-import React from 'react';
+import { ReactNode } from 'react';
 import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined';
 import DownloadIcon from '@mui/icons-material/Download';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
@@ -37,7 +37,7 @@ export interface MenuItem {
     id: string;
     title: string;
     type: 'item' | 'collapse';
-    icon: React.ReactNode;
+    icon: ReactNode;
     url?: string;
     target?: boolean;
     breadcrumbs?: boolean;

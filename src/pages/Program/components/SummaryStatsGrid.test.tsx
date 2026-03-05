@@ -12,34 +12,35 @@ const defaultProps = {
 };
 
 describe('SummaryStatsGrid', () => {
-    it('renders Total Programs value', () => {
+    beforeEach(() => {
         render(<SummaryStatsGrid {...defaultProps} />);
+    });
+
+    it('renders Total Programs value', () => {
         expect(screen.getByText('1,234')).toBeInTheDocument();
     });
 
     it('renders Countries value', () => {
-        render(<SummaryStatsGrid {...defaultProps} />);
         expect(screen.getByText('42')).toBeInTheDocument();
     });
 
     it('renders Total Universities value', () => {
-        render(<SummaryStatsGrid {...defaultProps} />);
         expect(screen.getByText('300')).toBeInTheDocument();
     });
 
     it('renders Avg Admission Rate with % sign', () => {
-        render(<SummaryStatsGrid {...defaultProps} />);
         expect(screen.getByText('67.5%')).toBeInTheDocument();
     });
 
     it('renders 4 stat card labels', () => {
-        render(<SummaryStatsGrid {...defaultProps} />);
         expect(screen.getByText('Total Programs')).toBeInTheDocument();
         expect(screen.getByText('Countries')).toBeInTheDocument();
         expect(screen.getByText('Total Universities')).toBeInTheDocument();
         expect(screen.getByText('Avg Admission Rate')).toBeInTheDocument();
     });
+});
 
+describe('SummaryStatsGrid – variant props', () => {
     it('renders numeric avgAdmissionRate as number prop', () => {
         render(<SummaryStatsGrid {...defaultProps} avgAdmissionRate={0} />);
         expect(screen.getByText('0%')).toBeInTheDocument();

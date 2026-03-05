@@ -10,9 +10,17 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'happy-dom',
-    testTimeout: 60000,
+    testTimeout: 10000,
     exclude: ['node_modules', 'dist', 'build', 'public', 'src/i18n'],
     setupFiles: ['./setupTests.ts'],
+  },
+  pool: 'forks',
+  reporter: ['verbose'],
+  poolOptions: {
+    forks: {
+      maxForks: 8,
+      minForks: 4,
+    },
   },
   resolve: {
     alias: {

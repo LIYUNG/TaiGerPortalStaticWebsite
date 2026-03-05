@@ -1,4 +1,4 @@
-import React from 'react';
+import { MouseEvent } from 'react';
 import { Navigate, Link as RouterLink } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -127,7 +127,7 @@ const DealDashboard = () => {
 
     // status menu handlers
     const openStatusMenu = (
-        event: React.MouseEvent<HTMLElement>,
+        event: MouseEvent<HTMLElement>,
         row: CRMDealItem
     ) => {
         if (isTerminalStatus(row?.status)) return; // don't open for closed/canceled
@@ -175,7 +175,7 @@ const DealDashboard = () => {
                                         defaultValue: value
                                     })}
                                     onClick={(
-                                        e: React.MouseEvent<HTMLDivElement>
+                                        e: MouseEvent<HTMLDivElement>
                                     ) => {
                                         if (terminal) return;
                                         e.stopPropagation();
@@ -348,7 +348,7 @@ const DealDashboard = () => {
                 muiTableBodyRowProps={({ row }) => ({
                     hover: true,
                     sx: { cursor: 'pointer' },
-                    onClick: (e: React.MouseEvent<HTMLTableRowElement>) => {
+                    onClick: (e: MouseEvent<HTMLTableRowElement>) => {
                         // Ignore clicks from interactive elements (links, buttons, chips)
                         const el = e.target as HTMLElement;
                         if (

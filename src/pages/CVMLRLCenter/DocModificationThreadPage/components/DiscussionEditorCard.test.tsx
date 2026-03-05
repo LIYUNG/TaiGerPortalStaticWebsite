@@ -74,79 +74,83 @@ const baseProps: DiscussionEditorCardProps = {
 };
 
 describe('DiscussionEditorCard', () => {
-    it('renders DocThreadEditor when not read-only and not archived', () => {
+    beforeEach(() => {
         render(<DiscussionEditorCard {...baseProps} />);
+    });
+
+    it('renders DocThreadEditor when not read-only and not archived', () => {
         expect(screen.getByTestId('doc-thread-editor')).toBeInTheDocument();
     });
 
-    it('renders "read-only mode" message when user is archived', () => {
-        render(
-            <DiscussionEditorCard
-                {...baseProps}
-                user={{ ...baseUser, archiv: true }}
-            />
-        );
-        expect(
-            screen.getByText(
-                /Your service is finished. Therefore, you are in read-only mode./
-            )
-        ).toBeInTheDocument();
-    });
-
-    it('renders lock warning icon when isLocked is true and thread is read-only', () => {
-        render(
-            <DiscussionEditorCard
-                {...baseProps}
-                isLocked={true}
-                isReadOnlyThread={true}
-            />
-        );
-        // The lockTooltip text is shown when isLocked is true
-        expect(screen.getByText('locked msg')).toBeInTheDocument();
-    });
-
-    it('renders checkmark icon when thread is finished (isReadOnlyThread and not isLocked)', () => {
-        render(
-            <DiscussionEditorCard
-                {...baseProps}
-                isLocked={false}
-                isReadOnlyThread={true}
-            />
-        );
-        // i18next.t('thread-close') returns 'thread-close' from our mock
-        expect(screen.getByText('thread-close')).toBeInTheDocument();
-    });
-
     it('renders Mark as finished button for TaiGer users when not locked', () => {
-        render(<DiscussionEditorCard {...baseProps} />);
         expect(
             screen.getByRole('button', { name: 'Mark as finished' })
         ).toBeInTheDocument();
     });
 
-    it('renders Mark as open button when isFinalVersion is true and not locked', () => {
-        render(
-            <DiscussionEditorCard
-                {...baseProps}
-                thread={{ ...baseThread, isFinalVersion: true }}
-            />
-        );
-        expect(
-            screen.getByRole('button', { name: 'Mark as open' })
-        ).toBeInTheDocument();
-    });
+    describe('with different props', () => {
+        it('renders "read-only mode" message when user is archived', () => {
+            render(
+                <DiscussionEditorCard
+                    {...baseProps}
+                    user={{ ...baseUser, archiv: true }}
+                />
+            );
+            expect(
+                screen.getByText(
+                    /Your service is finished. Therefore, you are in read-only mode./
+                )
+            ).toBeInTheDocument();
+        });
 
-    it('calls handleAsFinalFile when Mark as finished button is clicked', () => {
-        const handleAsFinalFile = vi.fn();
-        render(
-            <DiscussionEditorCard
-                {...baseProps}
-                handleAsFinalFile={handleAsFinalFile}
-            />
-        );
-        fireEvent.click(
-            screen.getByRole('button', { name: 'Mark as finished' })
-        );
-        expect(handleAsFinalFile).toHaveBeenCalledTimes(1);
+        it('renders lock warning icon when isLocked is true and thread is read-only', () => {
+            render(
+                <DiscussionEditorCard
+                    {...baseProps}
+                    isLocked={true}
+                    isReadOnlyThread={true}
+                />
+            );
+            // The lockTooltip text is shown when isLocked is true
+            expect(screen.getByText('locked msg')).toBeInTheDocument();
+        });
+
+        it('renders checkmark icon when thread is finished (isReadOnlyThread and not isLocked)', () => {
+            render(
+                <DiscussionEditorCard
+                    {...baseProps}
+                    isLocked={false}
+                    isReadOnlyThread={true}
+                />
+            );
+            // i18next.t('thread-close') returns 'thread-close' from our mock
+            expect(screen.getByText('thread-close')).toBeInTheDocument();
+        });
+
+        it('renders Mark as open button when isFinalVersion is true and not locked', () => {
+            render(
+                <DiscussionEditorCard
+                    {...baseProps}
+                    thread={{ ...baseThread, isFinalVersion: true }}
+                />
+            );
+            expect(
+                screen.getByRole('button', { name: 'Mark as open' })
+            ).toBeInTheDocument();
+        });
+
+        it('calls handleAsFinalFile when Mark as finished button is clicked', () => {
+            const handleAsFinalFile = vi.fn();
+            render(
+                <DiscussionEditorCard
+                    {...baseProps}
+                    handleAsFinalFile={handleAsFinalFile}
+                />
+            );
+            fireEvent.click(
+                screen.getAllByRole('button', { name: 'Mark as finished' })[1]
+            );
+            expect(handleAsFinalFile).toHaveBeenCalledTimes(1);
+        });
     });
 });

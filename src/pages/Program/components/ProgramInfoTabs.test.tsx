@@ -1,4 +1,4 @@
-import React from 'react';
+import { ReactNode } from 'react';
 import { render, screen } from '@testing-library/react';
 import ProgramInfoTabs from './ProgramInfoTabs';
 
@@ -37,7 +37,7 @@ vi.mock('@components/Tabs', () => ({
         index,
         value
     }: {
-        children: React.ReactNode;
+        children: ReactNode;
         index: number;
         value: number;
     }) => (index === value ? <div>{children}</div> : null)
@@ -57,41 +57,44 @@ const defaultProps = {
 };
 
 describe('ProgramInfoTabs', () => {
-    it('renders overview tab content', () => {
+    beforeEach(() => {
         render(<ProgramInfoTabs {...defaultProps} />);
+    });
+
+    it('renders overview tab content', () => {
         expect(screen.getByText('School')).toBeInTheDocument();
     });
 
     it('renders program school value in overview', () => {
-        render(<ProgramInfoTabs {...defaultProps} />);
         expect(screen.getByText('MIT')).toBeInTheDocument();
     });
 
     it('does not render Edit History tab when versions has no changes', () => {
-        render(<ProgramInfoTabs {...defaultProps} />);
         expect(screen.queryByText('Edit History')).not.toBeInTheDocument();
     });
 
-    it('renders Edit History tab when changes exist', () => {
-        const props = {
-            ...defaultProps,
-            versions: {
-                changes: [
-                    {
-                        changedBy: 'Admin',
-                        changedAt: '2025-01-01',
-                        originalValues: { school: 'old' },
-                        updatedValues: { school: 'new' }
-                    }
-                ]
-            }
-        };
-        render(<ProgramInfoTabs {...props} />);
-        expect(screen.getByText('Edit History')).toBeInTheDocument();
-    });
+    describe('with different props', () => {
+        it('renders Edit History tab when changes exist', () => {
+            const props = {
+                ...defaultProps,
+                versions: {
+                    changes: [
+                        {
+                            changedBy: 'Admin',
+                            changedAt: '2025-01-01',
+                            originalValues: { school: 'old' },
+                            updatedValues: { school: 'new' }
+                        }
+                    ]
+                }
+            };
+            render(<ProgramInfoTabs {...props} />);
+            expect(screen.getByText('Edit History')).toBeInTheDocument();
+        });
 
-    it('renders Others tab when value is 4', () => {
-        render(<ProgramInfoTabs {...defaultProps} value={4} />);
-        expect(screen.getByText('Country')).toBeInTheDocument();
+        it('renders Others tab when value is 4', () => {
+            render(<ProgramInfoTabs {...defaultProps} value={4} />);
+            expect(screen.getByText('Country')).toBeInTheDocument();
+        });
     });
 });

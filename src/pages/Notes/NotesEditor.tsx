@@ -1,4 +1,4 @@
-import React from 'react';
+import { MouseEvent } from 'react';
 import { Button, Tooltip, Card } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
@@ -12,7 +12,7 @@ interface NotesEditorProps {
     readOnly?: boolean;
     thread?: unknown;
     buttonDisabled: boolean;
-    handleClickSave: (e: React.MouseEvent, editorState: OutputData) => void;
+    handleClickSave: (e: MouseEvent, editorState: OutputData) => void;
 }
 
 const NotesEditor = ({

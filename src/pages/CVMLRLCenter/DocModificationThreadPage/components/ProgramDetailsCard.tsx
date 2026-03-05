@@ -1,4 +1,3 @@
-import React from 'react';
 import { Typography, Card, Box, Stack, Divider } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import LanguageIcon from '@mui/icons-material/Language';

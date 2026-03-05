@@ -1,4 +1,4 @@
-import React from 'react';
+import { ReactElement } from 'react';
 import { render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material/styles';
 import { createTheme } from '@mui/material/styles';
@@ -6,7 +6,7 @@ import { TopBar } from './TopBar';
 
 const theme = createTheme();
 
-const renderWithTheme = (ui: React.ReactElement) =>
+const renderWithTheme = (ui: ReactElement) =>
     render(<ThemeProvider theme={theme}>{ui}</ThemeProvider>);
 
 describe('TopBar', () => {

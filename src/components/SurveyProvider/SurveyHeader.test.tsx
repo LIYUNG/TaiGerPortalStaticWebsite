@@ -1,9 +1,9 @@
-import React from 'react';
+import { ReactElement } from 'react';
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import SurveyHeader from './SurveyHeader';
 
-const renderWithRouter = (ui: React.ReactElement) =>
+const renderWithRouter = (ui: ReactElement) =>
     render(<BrowserRouter>{ui}</BrowserRouter>);
 
 describe('SurveyHeader', () => {

@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 
 import GPACard from './GPACard';
@@ -17,21 +16,30 @@ const makeStudent = (overrides = {}): IStudentResponse =>
     }) as unknown as IStudentResponse;
 
 describe('GPACard', () => {
-    it('renders GPA Information title', () => {
+    beforeEach(() => {
         render(<GPACard student={makeStudent()} myGermanGPA={2.3} />);
+    });
+
+    it('renders GPA Information title', () => {
         expect(screen.getByText('GPA Information')).toBeInTheDocument();
     });
 
     it('renders My GPA section', () => {
-        render(<GPACard student={makeStudent()} myGermanGPA={2.3} />);
         expect(screen.getByText('My GPA')).toBeInTheDocument();
     });
 
     it('renders German GPA Equivalent section', () => {
-        render(<GPACard student={makeStudent()} myGermanGPA={2.3} />);
         expect(screen.getByText('German GPA Equivalent')).toBeInTheDocument();
     });
 
+    it('displays German scale note', () => {
+        expect(
+            screen.getByText('German Scale: 1.0 (Best) - 4.0 (Passing)')
+        ).toBeInTheDocument();
+    });
+});
+
+describe('GPACard – variant props', () => {
     it('displays student My_GPA_Uni value', () => {
         render(
             <GPACard
@@ -66,12 +74,5 @@ describe('GPACard', () => {
             />
         );
         expect(screen.getByText(/Passing Grade:/)).toBeInTheDocument();
-    });
-
-    it('displays German scale note', () => {
-        render(<GPACard student={makeStudent()} myGermanGPA={2.3} />);
-        expect(
-            screen.getByText('German Scale: 1.0 (Best) - 4.0 (Passing)')
-        ).toBeInTheDocument();
     });
 });

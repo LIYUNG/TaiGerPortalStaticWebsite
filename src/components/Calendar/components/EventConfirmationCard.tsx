@@ -1,4 +1,4 @@
-import React from 'react';
+import { MouseEvent } from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@mui/material';
@@ -74,15 +74,15 @@ interface EventConfirmationCardProps {
     event: EventConfirmationCardEvent;
     disabled?: boolean;
     handleConfirmAppointmentModalOpen: (
-        e: React.MouseEvent,
+        e: MouseEvent,
         event: EventConfirmationCardEvent
     ) => void;
     handleEditAppointmentModalOpen: (
-        e: React.MouseEvent,
+        e: MouseEvent,
         event: EventConfirmationCardEvent
     ) => void;
     handleDeleteAppointmentModalOpen: (
-        e: React.MouseEvent,
+        e: MouseEvent,
         event: EventConfirmationCardEvent
     ) => void;
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import { MouseEvent } from 'react';
 import { CircularProgress, IconButton, Tooltip } from '@mui/material';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -47,7 +47,7 @@ export const CommentsIconButton = ({
 export interface DeleteIconButtonProps {
     isLoading: boolean;
     onDeleteFileWarningPopUp: (
-        e: React.MouseEvent,
+        e: MouseEvent,
         category: string,
         student_id: string,
         docName: string
@@ -84,7 +84,7 @@ export interface UploadIconButtonProps {
     isLoading: boolean;
     buttonState: { student_id: string };
     handleGeneralDocSubmit: (
-        e: React.ChangeEvent<HTMLInputElement>,
+        e: ChangeEvent<HTMLInputElement>,
         category: string,
         student_id: string
     ) => void;
@@ -126,7 +126,7 @@ export const UploadIconButton = ({
 
 export interface SetNotNeededIconButtonProps {
     onUpdateProfileDocStatus: (
-        e: React.MouseEvent,
+        e: MouseEvent,
         category: string,
         student_id: string,
         status: DocumentStatusType
@@ -159,7 +159,7 @@ export const SetNotNeededIconButton = ({
 
 export interface SetNeededIconButtonProps {
     onUpdateProfileDocStatus: (
-        e: React.MouseEvent,
+        e: MouseEvent,
         category: string,
         student_id: string,
         status: DocumentStatusType

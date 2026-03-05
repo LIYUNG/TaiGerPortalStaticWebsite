@@ -1,4 +1,4 @@
-import React from 'react';
+import { ReactElement } from 'react';
 import { DateTime, IANAZone } from 'luxon';
 import moment from 'moment-timezone';
 import { styled, alpha } from '@mui/material/styles';
@@ -880,7 +880,7 @@ export const valid_internal_categories = [
     { key: 'others', value: 'Others' }
 ];
 
-export const split_header = (header_name: string): React.ReactElement => {
+export const split_header = (header_name: string): ReactElement => {
     const rest = header_name.substring(0, header_name.lastIndexOf(' ') + 1);
     const last = header_name.substring(
         header_name.lastIndexOf(' ') + 1,

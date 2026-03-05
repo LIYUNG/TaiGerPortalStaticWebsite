@@ -16,24 +16,27 @@ const defaultProps = {
 };
 
 describe('RequirementsModal', () => {
-    beforeEach(() => vi.clearAllMocks());
+    beforeEach(() => {
+        vi.clearAllMocks();
+        render(<RequirementsModal {...defaultProps} />);
+    });
 
     it('renders when open', () => {
-        render(<RequirementsModal {...defaultProps} />);
         expect(screen.getByText('Special Requirements')).toBeInTheDocument();
     });
 
     it('displays requirements text', () => {
-        render(<RequirementsModal {...defaultProps} />);
         expect(
             screen.getByText('Must have 2 years experience.')
         ).toBeInTheDocument();
     });
 
-    it('calls onClose when Close is clicked', () => {
-        const onClose = vi.fn();
-        render(<RequirementsModal {...defaultProps} onClose={onClose} />);
-        fireEvent.click(screen.getByText('Close'));
-        expect(onClose).toHaveBeenCalledTimes(1);
+    describe('button interactions', () => {
+        it('calls onClose when Close is clicked', () => {
+            const onClose = vi.fn();
+            render(<RequirementsModal {...defaultProps} onClose={onClose} />);
+            fireEvent.click(screen.getAllByText('Close')[1]);
+            expect(onClose).toHaveBeenCalledTimes(1);
+        });
     });
 });

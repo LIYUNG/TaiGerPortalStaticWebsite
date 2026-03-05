@@ -1,10 +1,10 @@
-import React from 'react';
+import { ReactNode } from 'react';
 import { Card, CardContent, CardHeader, Stack } from '@mui/material';
 import { Gauge, GaugeFormatterParams, gaugeClasses } from '@mui/x-charts';
 import { useTheme } from '@mui/material/styles';
 
 interface GaugeCardProps {
-    title?: React.ReactNode;
+    title?: ReactNode;
     score: number;
     onClick?: () => void;
     minHeight?: number;
@@ -15,7 +15,7 @@ interface GaugeCardProps {
     CardProps?: Record<string, unknown> & { sx?: object };
     CardHeaderProps?: Record<string, unknown> & { sx?: object };
     GaugeProps?: Record<string, unknown> & { sx?: object };
-    subtitle?: React.ReactNode;
+    subtitle?: ReactNode;
     sx?: object;
 }
 

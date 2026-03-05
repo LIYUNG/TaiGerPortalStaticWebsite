@@ -32,21 +32,19 @@ vi.mock('@components/BreadcrumbsNavigation/BreadcrumbsNavigation', () => ({
 vi.mock('../Utils/TabTitle', () => ({ TabTitle: vi.fn() }));
 
 describe('AllBaseDocuments', () => {
-    test('renders Loading when isLoading is true', () => {
+    beforeEach(() => {
         render(
             <MemoryRouter>
                 <AllBaseDocuments />
             </MemoryRouter>
         );
+    });
+
+    test('renders Loading when isLoading is true', () => {
         expect(screen.getByTestId('loading')).toBeInTheDocument();
     });
 
     test('renders breadcrumbs navigation', () => {
-        render(
-            <MemoryRouter>
-                <AllBaseDocuments />
-            </MemoryRouter>
-        );
         expect(screen.getByTestId('breadcrumbs')).toBeInTheDocument();
     });
 });

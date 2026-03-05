@@ -1,4 +1,4 @@
-import React from 'react';
+import { ReactNode } from 'react';
 import { render, screen } from '@testing-library/react';
 import SameProgramStudentsCard from './SameProgramStudentsCard';
 
@@ -7,7 +7,7 @@ vi.mock('react-router-dom', async (importOriginal) => {
         (await importOriginal()) as typeof import('react-router-dom');
     return {
         ...actual,
-        Link: ({ children, to }: { children: React.ReactNode; to: string }) => (
+        Link: ({ children, to }: { children: ReactNode; to: string }) => (
             <a href={to}>{children}</a>
         )
     };
@@ -24,7 +24,7 @@ vi.mock('@components/Tabs', () => ({
         index,
         value
     }: {
-        children: React.ReactNode;
+        children: ReactNode;
         index: number;
         value: number;
     }) => (index === value ? <div>{children}</div> : null)

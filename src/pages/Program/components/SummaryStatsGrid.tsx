@@ -1,4 +1,3 @@
-import React from 'react';
 import { Box, Card, CardContent, Grid, Typography } from '@mui/material';
 import { TrendingUp, School, Public, Assessment } from '@mui/icons-material';
 

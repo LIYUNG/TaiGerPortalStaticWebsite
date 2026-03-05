@@ -1,10 +1,10 @@
-import React from 'react';
+import { ReactNode } from 'react';
 import { Box, Modal } from '@mui/material';
 
 interface ModalNewProps {
     open: boolean;
     onClose: () => void;
-    children: React.ReactNode;
+    children: ReactNode;
     width?: string;
     height?: string;
 }
