@@ -88,12 +88,6 @@ const InterviewSurveyForm = () => {
                     acc[item.questionId] = item.answer;
                     return acc;
                 }, {});
-                console.log(
-                    'fetchInterviewAndSurvey - data:',
-                    data,
-                    'result:',
-                    result
-                );
 
                 // Map questionsAnswered numeric values back to strings
                 const questionsAnsweredReverseMap = {
@@ -116,7 +110,6 @@ const InterviewSurveyForm = () => {
                     isFinal: data?.isFinal || false
                 };
 
-                console.log('mappedValues:', mappedValues);
                 setValues(mappedValues);
             }
         } catch (error) {

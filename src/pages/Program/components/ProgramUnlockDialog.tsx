@@ -42,7 +42,10 @@ const ProgramUnlockDialog = ({
                 {t('Unlock Program Manually', { ns: 'common' })}
             </DialogTitle>
             <DialogContent>
-                <DialogContentText id="unlock-dialog-description">
+                <DialogContentText
+                    component="div"
+                    id="unlock-dialog-description"
+                >
                     <Alert severity="warning" sx={{ mb: 2 }}>
                         <Typography
                             sx={{ fontWeight: 'bold', mb: 1 }}

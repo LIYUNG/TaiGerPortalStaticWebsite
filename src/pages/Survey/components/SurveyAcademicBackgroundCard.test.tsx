@@ -13,7 +13,7 @@ vi.mock('@utils/contants', () => ({
     DUAL_STATE_OPTIONS: [{ value: 'No', label: 'No' }],
     HIG_SCHOOL_TRI_STATE_OPTIONS: [{ value: 'Yes', label: 'Yes' }],
     convertDate: (d: string) => d,
-    APPLICATION_YEARS_FUTURE: [{ value: '2025', label: '2025' }]
+    APPLICATION_YEARS_FUTURE: () => [{ value: 2025, label: '2025' }]
 }));
 
 vi.mock('@mui/material/colors', () => ({

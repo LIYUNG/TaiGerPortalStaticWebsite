@@ -25,8 +25,6 @@ const AssignEssayWriters = () => {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
-    console.log(data);
-
     return (
         <Box>
             <BreadcrumbsNavigation

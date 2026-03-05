@@ -165,7 +165,6 @@ const NewProgramEdit = (props: NewProgramEditProps) => {
                                     InputProps={{
                                         ...params.InputProps,
                                         // readOnly: props.type === 'edit' && !is_TaiGer_Admin(user!), // Conditional readonly
-                                        disableUnderline: true,
                                         endAdornment:
                                             params.InputProps.endAdornment
                                     }}
@@ -192,8 +191,7 @@ const NewProgramEdit = (props: NewProgramEditProps) => {
                             InputProps={{
                                 readOnly:
                                     props.type === 'edit' &&
-                                    !is_TaiGer_Admin(user!),
-                                disableUnderline: true
+                                    !is_TaiGer_Admin(user!)
                             }}
                             fullWidth
                             id="program_name"

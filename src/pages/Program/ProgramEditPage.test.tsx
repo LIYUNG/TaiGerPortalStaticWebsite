@@ -85,8 +85,9 @@ describe('ProgramEditPage', () => {
         expect(editor).toBeInTheDocument();
     });
 
-    it('renders a Box container', () => {
-        // Container box should be present
+    it('renders a Box container', async () => {
+        // Wait for suspended Await to resolve so updates happen inside act()
+        await screen.findByTestId('new-program-edit');
         expect(document.querySelector('div')).toBeInTheDocument();
     });
 });

@@ -34,13 +34,17 @@ vi.mock('@utils/contants', () => ({
     SearchIconWrapper: ({ children }: { children?: ReactNode }) => (
         <div>{children}</div>
     ),
-    StyledInputBase: (props: any) => (
-        <input
-            data-testid="search-input"
-            onChange={props.onChange}
-            {...props}
-        />
-    ),
+    StyledInputBase: (props: any) => {
+        const { inputProps, onChange } = props;
+        const inputSpread = inputProps ?? {};
+        return (
+            <input
+                data-testid="search-input"
+                onChange={onChange}
+                {...inputSpread}
+            />
+        );
+    },
     EmbeddedChatListWidth: 300
 }));
 

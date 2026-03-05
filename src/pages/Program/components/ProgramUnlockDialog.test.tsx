@@ -5,11 +5,28 @@ import ProgramUnlockDialog from './ProgramUnlockDialog';
 vi.mock('react-router-dom', async (importOriginal) => {
     const actual =
         (await importOriginal()) as typeof import('react-router-dom');
+    const React = require('react');
     return {
         ...actual,
-        Link: ({ children, to }: { children: ReactNode; to: string }) => (
-            <a href={to}>{children}</a>
-        )
+        Link: React.forwardRef(function LinkMock(
+            props: { children?: ReactNode; to?: string; [key: string]: unknown },
+            ref: React.Ref<HTMLAnchorElement>
+        ) {
+            const {
+                children,
+                to,
+                focusRipple,
+                focusVisibleClassName,
+                centerRipple,
+                disableRipple,
+                ...rest
+            } = props;
+            return (
+                <a ref={ref} href={to ?? '#'} {...rest}>
+                    {children}
+                </a>
+            );
+        })
     };
 });
 

@@ -68,7 +68,11 @@ vi.mock('../../Audit/MiniAudit', () => ({
 }));
 
 vi.mock('../MainViewTab/AdminTasks/index', () => ({
-    default: () => <div data-testid="admin-tasks" />
+    default: () => (
+        <tr data-testid="admin-tasks">
+            <td colSpan={2} />
+        </tr>
+    )
 }));
 
 vi.mock('@/api/query', () => ({

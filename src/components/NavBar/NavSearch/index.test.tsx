@@ -28,9 +28,17 @@ vi.mock('@utils/contants', () => ({
     SearchIconWrapper: ({ children }: { children?: ReactNode }) => (
         <div>{children}</div>
     ),
-    StyledInputBase: (props: any) => (
-        <input data-testid="nav-search-input" onChange={props.onChange} {...props} />
-    )
+    StyledInputBase: (props: any) => {
+        const { inputProps, onChange } = props;
+        const inputSpread = inputProps ?? {};
+        return (
+            <input
+                data-testid="nav-search-input"
+                onChange={onChange}
+                {...inputSpread}
+            />
+        );
+    }
 }));
 
 vi.mock('@store/constant', () => ({
