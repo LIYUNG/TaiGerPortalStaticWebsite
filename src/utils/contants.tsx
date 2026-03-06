@@ -550,6 +550,26 @@ export const NoonNightLabel = (start: string | Date): string => {
           : '';
 };
 
+export const transformObjectToArray = (
+    inputObject: Record<string, Record<string, number>>
+): Array<{
+    date: string;
+    apiCallCount: number;
+    get: number;
+    post: number;
+    put: number;
+    delete: number;
+}> => {
+    return Object.entries(inputObject).map(([date, apiCallCount]) => ({
+        date,
+        apiCallCount: apiCallCount.TOTAL,
+        get: apiCallCount.GET,
+        post: apiCallCount.POST,
+        put: apiCallCount.PUT,
+        delete: apiCallCount.DELETE
+    }));
+};
+
 const convertISOToCustomFormat = (isoString: string): string => {
     const date = new Date(isoString);
     const year = date.getUTCFullYear();
