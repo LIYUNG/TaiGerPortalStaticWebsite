@@ -27,7 +27,8 @@ export default defineConfig({
     build: {
         outDir: 'dist',
         minify: 'esbuild',
-        sourcemap: true,
+        // Disable sourcemaps in CI to reduce memory usage and avoid OOM (exit 137)
+        sourcemap: process.env.CI !== 'true',
         chunkSizeWarningLimit: 800,
     }
 });
