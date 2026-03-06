@@ -33,7 +33,7 @@ vi.mock('@pages/Utils/util_functions', () => ({
     truncateText: vi.fn((text: string) => text)
 }));
 
-import Friend from './index';
+import EmbeddedFriend from './index';
 
 const mockData = {
     _id: { toString: () => 's1' },
@@ -53,11 +53,11 @@ const mockData = {
     }
 };
 
-describe('EmbeddedChatList Friend', () => {
+describe('EmbeddedFriend', () => {
     beforeEach(() => {
         render(
             <MemoryRouter>
-                <Friend activeId="u1" data={mockData} />
+                <EmbeddedFriend activeId="u1" data={mockData} />
             </MemoryRouter>
         );
     });
@@ -71,11 +71,11 @@ describe('EmbeddedChatList Friend', () => {
     });
 });
 
-describe('EmbeddedChatList Friend without latestCommunication', () => {
+describe('EmbeddedFriend without latestCommunication', () => {
     it('renders with minimal data', () => {
         render(
             <MemoryRouter>
-                <Friend
+                <EmbeddedFriend
                     activeId="u1"
                     data={{
                         _id: { toString: () => 's2' },

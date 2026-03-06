@@ -1,9 +1,10 @@
-import { Box, Button, Stack } from '@mui/material';
+import { Button } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import { useTranslation } from 'react-i18next';
-import { MRT_GlobalFilterTextField as MRTGlobalFilterTextField } from 'material-react-table';
+
+import { GenericTopToolbar } from '@components/table/GenericTopToolbar';
 
 interface UserRow {
     firstname: string;
@@ -47,18 +48,9 @@ export const TopToolbar = ({
     const selectedRow = selectedRows?.[0]?.original;
 
     return (
-        <Box sx={toolbarStyle}>
-            <Stack
-                alignItems="center"
-                direction="row"
-                justifyContent="space-between"
-                spacing={2}
-                sx={{ width: '100%' }}
-            >
-                <Box sx={{ minWidth: 200 }}>
-                    <MRTGlobalFilterTextField table={table} />
-                </Box>
-                <Stack direction="row" spacing={1}>
+        <GenericTopToolbar
+            actions={
+                <>
                     <Button
                         color="error"
                         disabled={!selectedRow || selectedRows?.length !== 1}
@@ -113,8 +105,11 @@ export const TopToolbar = ({
                     >
                         {t('Archive', { ns: 'common' })}
                     </Button>
-                </Stack>
-            </Stack>
-        </Box>
+                </>
+            }
+            layout="inline"
+            table={table}
+            toolbarStyle={toolbarStyle}
+        />
     );
 };

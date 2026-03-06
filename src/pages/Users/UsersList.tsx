@@ -23,7 +23,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import DEMO from '@store/constant';
 import { queryClient } from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
-import { useTableStyles } from '@components/table/users-table/styles';
+import { useTableStyles } from '@components/table';
 import { getTableConfig } from '@components/table/users-table/table-config';
 import { TopToolbar } from '@components/table/users-table/TopToolbar';
 import type { QueryString } from '@/api/types';

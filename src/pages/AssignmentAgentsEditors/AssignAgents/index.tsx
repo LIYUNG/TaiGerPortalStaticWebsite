@@ -1,50 +1,5 @@
-import { Navigate } from 'react-router-dom';
-import { Box } from '@mui/material';
-import { is_TaiGer_role } from '@taiger-common/core';
+import AssignmentWrapper from '../AssignmentWrapper';
 
-import AssignAgentsPage from './AssignAgentsPage';
-import ModalMain from '../../Utils/ModalHandler/ModalMain';
-import DEMO from '@store/constant';
-import { useAuth } from '@components/AuthProvider';
-import useStudents from '@hooks/useStudents';
-import { useStudentsV3 } from '@hooks/useStudentsV3';
-
-const AssignAgents = () => {
-    const { user } = useAuth();
-    const { data: fetchedAllStudents } = useStudentsV3({
-        agents: [],
-        archiv: false
-    });
-
-    const {
-        students,
-        res_modal_message,
-        res_modal_status,
-        submitUpdateAgentlist,
-        ConfirmError
-    } = useStudents({
-        students: fetchedAllStudents
-    });
-
-    if (!is_TaiGer_role(user)) {
-        return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
-    }
-
-    return (
-        <Box data-testid="assignment_agents">
-            {res_modal_status >= 400 ? (
-                <ModalMain
-                    ConfirmError={ConfirmError}
-                    res_modal_message={res_modal_message}
-                    res_modal_status={res_modal_status}
-                />
-            ) : null}
-            <AssignAgentsPage
-                students={students}
-                submitUpdateAgentlist={submitUpdateAgentlist}
-            />
-        </Box>
-    );
-};
+const AssignAgents = () => <AssignmentWrapper role="agent" />;
 
 export default AssignAgents;

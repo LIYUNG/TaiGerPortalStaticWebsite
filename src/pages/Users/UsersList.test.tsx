@@ -58,7 +58,8 @@ vi.mock('material-react-table', () => ({
     MRT_GlobalFilterTextField: () => null
 }));
 
-vi.mock('@components/table/users-table/styles', () => ({
+vi.mock('@components/table', async (orig) => ({
+    ...(await orig<typeof import('@components/table')>()),
     useTableStyles: () => ({ toolbarStyle: {} })
 }));
 
