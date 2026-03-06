@@ -451,5 +451,3 @@ const loadingContainerSx = {
     justifyContent: 'center',
     minHeight: 200
 };
-
-export default GeneralRLRequirementsTab;

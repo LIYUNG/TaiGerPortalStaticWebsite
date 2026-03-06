@@ -46,35 +46,6 @@ export async function getCourseLoader({ params }: { params: Params<string> }) {
 
 //
 
-export async function CommunicationThreadLoader({
-    params
-}: {
-    params: Params<string>;
-}) {
-    const student_id = params.student_id ?? '';
-    const response = await getCommunicationThread(student_id);
-    if (response.status >= 400) {
-        throw json(
-            { message: response.statusText },
-            { status: response.status }
-        );
-    } else {
-        return response.data;
-    }
-}
-
-export function getCommunicationThreadLoader({
-    params
-}: {
-    params: Params<string>;
-}) {
-    const studentId = params.studentId ?? '';
-    return queryClient.fetchQuery(getCommunicationQuery(studentId));
-    //  return defer({ data: CommunicationThreadLoader({ params }) });
-}
-
-//
-
 export async function ComplaintTicketLoader({
     params
 }: {

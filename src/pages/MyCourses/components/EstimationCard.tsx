@@ -321,5 +321,3 @@ export const EstimationCard = ({
         </Card>
     );
 };
-
-export default EstimationCard;

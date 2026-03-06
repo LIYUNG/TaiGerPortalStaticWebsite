@@ -1324,8 +1324,6 @@ export const updateOfficehours = (
 // Teams
 export const getTeamMembers = () =>
     request.get<GetTeamMembersResponse>('/api/teams');
-export const getStatisticsV2 = () =>
-    getData<GetStatisticsV2Response>('/api/teams/statistics');
 export const getStatisticsOverviewV2 = () =>
     getData<GetStatisticsOverviewResponse>('/api/teams/statistics/overview');
 export const getStatisticsAgentsV2 = () =>

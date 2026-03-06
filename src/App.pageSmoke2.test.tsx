@@ -201,7 +201,6 @@ vi.mock('@/api', async (importOriginal) => ({
     // Expense
     getExpense: vi.fn().mockResolvedValue({ data: { data: [] } }),
     // Statistics
-    getStatisticsV2: vi.fn().mockResolvedValue({ data: {} }),
     getStatisticsOverviewV2: vi.fn().mockResolvedValue({ data: {} }),
     getStatisticsAgentsV2: vi.fn().mockResolvedValue({ data: {} }),
     getStatisticsKPIV2: vi.fn().mockResolvedValue({ data: {} }),

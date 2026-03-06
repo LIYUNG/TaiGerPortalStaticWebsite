@@ -447,5 +447,3 @@ export const CourseAnalysisComponent = ({
         </>
     );
 };
-
-export default CourseAnalysisComponent;

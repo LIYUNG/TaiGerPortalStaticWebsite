@@ -294,5 +294,3 @@ export const GeneralCourseAnalysisComponent = ({
         </Box>
     );
 };
-
-export default GeneralCourseAnalysisComponent;
