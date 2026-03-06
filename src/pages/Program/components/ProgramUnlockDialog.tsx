@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Refresh as RefreshIcon } from '@mui/icons-material';
@@ -43,7 +42,10 @@ const ProgramUnlockDialog = ({
                 {t('Unlock Program Manually', { ns: 'common' })}
             </DialogTitle>
             <DialogContent>
-                <DialogContentText id="unlock-dialog-description">
+                <DialogContentText
+                    component="div"
+                    id="unlock-dialog-description"
+                >
                     <Alert severity="warning" sx={{ mb: 2 }}>
                         <Typography
                             sx={{ fontWeight: 'bold', mb: 1 }}

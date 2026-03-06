@@ -1,3 +1,4 @@
+import { ReactNode } from 'react';
 import { render, screen } from '@testing-library/react';
 import ProgramRequirementsOverview from './ProgramRequirementsOverview';
 
@@ -8,10 +9,23 @@ vi.mock('material-react-table', () => ({
     MRT_ToggleFiltersButton: () => <div data-testid="mrt-toggle-filters" />
 }));
 
-vi.mock('react-router-dom', () => ({
-    Link: ({ children }: { children: React.ReactNode }) => <a>{children}</a>,
-    useNavigate: () => vi.fn()
-}));
+vi.mock('react-router-dom', () => {
+    const React = require('react');
+    return {
+        Link: React.forwardRef(function LinkMock(
+            props: { children?: ReactNode; to?: string },
+            ref: React.Ref<HTMLAnchorElement>
+        ) {
+            const { children, to, ...rest } = props;
+            return (
+                <a ref={ref} href={to ?? '#'} {...rest}>
+                    {children}
+                </a>
+            );
+        }),
+        useNavigate: () => vi.fn()
+    };
+});
 
 vi.mock('@store/constant', () => ({
     default: {

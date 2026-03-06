@@ -200,7 +200,6 @@ import type {
     DeleteEventResponse,
     // Teams / Stats
     GetTeamMembersResponse,
-    GetStatisticsV2Response,
     GetStatisticsOverviewResponse,
     GetStatisticsAgentsResponse,
     GetStatisticsKPIResponse,
@@ -252,12 +251,6 @@ import type {
     UpdateCRMDealResponse,
     GetCRMSalesRepsResponse,
     InstantInviteResponse,
-    // Meetings
-    GetStudentMeetingsResponse,
-    GetStudentMeetingResponse,
-    CreateStudentMeetingResponse,
-    UpdateStudentMeetingResponse,
-    DeleteStudentMeetingResponse,
     // Permissions
     UpdateUserPermissionResponse,
     // Widgets / AI
@@ -992,7 +985,7 @@ export const updateProgram = (program: {
 export const updateProgramV2 = ({
     program
 }: {
-    program: { _id: string; [key: string]: unknown };
+    program: { _id: string;[key: string]: unknown };
 }) => putData(`/api/programs/${program._id}`, program);
 
 export const getProgramChangeRequests = (programId: string) =>
@@ -1009,24 +1002,6 @@ export const refreshProgram = (programId: ProgramId) =>
     postData<RefreshProgramResponse>(`/api/programs/${programId}/refresh`, {});
 
 // Docs APIs
-export const deleteDoc = (id: string) =>
-    request.delete<DeleteDocumentationResponse>(`/api/docs/${id}`);
-export const addDoc = (id: string) =>
-    request.post<CreateDocumentationResponse>(`/api/docs/${id}`);
-export const updateDoc = (id: string, doc_temp: ApiPayload) =>
-    request.post<UpdateDocumentationResponse>(`/api/docs/${id}`, doc_temp);
-
-export const createArticle = (article: ApiPayload) =>
-    request.post<CreateDocumentationResponse>('/api/docs', article);
-
-export const updateArticle = (id: string, article: ApiPayload) =>
-    request.post<UpdateDocumentationResponse>(`/api/docs/${id}`, article);
-
-const getArticle = (type: string) =>
-    request.get<GetCategorizedDocumentationResponse>(`/api/docs/${type}`);
-
-export const getApplicationArticle = () => getArticle('application');
-
 export const uploadDocumentThreadImage = (
     documentsthreadId: string,
     studentId: StudentId,
@@ -1119,13 +1094,6 @@ export const updateAMessageInCommunicationThreadV2 = ({
     putData<UpdateCommunicationMessageResponse>(
         `/api/communications/${communication_id}/${communication_messageId}`,
         { message }
-    );
-export const deleteAMessageInCommunicationThread = (
-    student_id: StudentId,
-    communication_messageId: string
-) =>
-    request.delete<DeleteCommunicationMessageResponse>(
-        `/api/communications/${student_id}/${communication_messageId}`
     );
 
 export const deleteAMessageInCommunicationThreadV2 = ({
@@ -1324,8 +1292,6 @@ export const updateOfficehours = (
 // Teams
 export const getTeamMembers = () =>
     request.get<GetTeamMembersResponse>('/api/teams');
-export const getStatisticsV2 = () =>
-    getData<GetStatisticsV2Response>('/api/teams/statistics');
 export const getStatisticsOverviewV2 = () =>
     getData<GetStatisticsOverviewResponse>('/api/teams/statistics/overview');
 export const getStatisticsAgentsV2 = () =>
@@ -1619,35 +1585,3 @@ export const instantInviteTA = (meetingSummary: string, meetingLink: string) =>
         meetingSummary,
         meetingLink
     });
-
-// Student Meetings APIs
-export const getStudentMeetings = (studentId: StudentId) =>
-    getData<GetStudentMeetingsResponse>(`/api/students/${studentId}/meetings`);
-export const getStudentMeeting = (studentId: StudentId, meetingId: MeetingId) =>
-    getData<GetStudentMeetingResponse>(
-        `/api/students/${studentId}/meetings/${meetingId}`
-    );
-export const createStudentMeeting = (
-    studentId: StudentId,
-    payload: ApiPayload
-) =>
-    postData<CreateStudentMeetingResponse>(
-        `/api/students/${studentId}/meetings`,
-        payload
-    );
-export const updateStudentMeeting = (
-    studentId: StudentId,
-    meetingId: MeetingId,
-    payload: ApiPayload
-) =>
-    putData<UpdateStudentMeetingResponse>(
-        `/api/students/${studentId}/meetings/${meetingId}`,
-        payload
-    );
-export const deleteStudentMeeting = (
-    studentId: StudentId,
-    meetingId: MeetingId
-) =>
-    deleteData<DeleteStudentMeetingResponse>(
-        `/api/students/${studentId}/meetings/${meetingId}`
-    );

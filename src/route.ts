@@ -1,22 +1,22 @@
-import React from 'react';
+import { lazy } from 'react';
 
-const SignIn = React.lazy(() => import('@pages/Authentication/SignIn/SignIn'));
-const GoogleOAuthCallback = React.lazy(
+const SignIn = lazy(() => import('@pages/Authentication/SignIn/SignIn'));
+const GoogleOAuthCallback = lazy(
     () => import('@pages/Authentication/GoogleOauthCallback/index')
 );
-const LandingPage = React.lazy(
+const LandingPage = lazy(
     () => import('@pages/Authentication/LandingPage/index')
 );
-const ResetPasswordRequest = React.lazy(
+const ResetPasswordRequest = lazy(
     () =>
         import(
             '@pages/Authentication/ResetPasswordRequest/ResetPasswordRequest'
         )
 );
-const ResetPassword = React.lazy(
+const ResetPassword = lazy(
     () => import('@pages/Authentication/ResetPassword/ResetPassword')
 );
-const AccountActivation = React.lazy(
+const AccountActivation = lazy(
     () => import('@pages/Authentication/Activation/Activation')
 );
 

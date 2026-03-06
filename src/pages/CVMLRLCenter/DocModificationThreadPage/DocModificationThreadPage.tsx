@@ -47,7 +47,7 @@ import Audit from '../../Audit';
 import { useTranslation } from 'react-i18next';
 import i18next from 'i18next';
 import { useSnackBar } from '@contexts/use-snack-bar';
-import GeneralRLRequirementsTab from './DocumentThreadsPage/GeneralRLRequirementsTab';
+import { GeneralRLRequirementsTab } from './DocumentThreadsPage/GeneralRLRequirementsTab';
 import InformationBlock from '@pages/CVMLRLCenter/DocModificationThreadPage/components/InformationBlock';
 import SimilarThreadsTab, {
     type SimilarThread

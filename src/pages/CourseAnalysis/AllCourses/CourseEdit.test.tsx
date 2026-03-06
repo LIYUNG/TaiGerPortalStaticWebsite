@@ -1,3 +1,4 @@
+import { ReactNode } from 'react';
 import { render, screen } from '@testing-library/react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import CourseEdit from './CourseEdit';
@@ -8,11 +9,24 @@ vi.mock('@tanstack/react-query', async (orig) => ({
     useMutation: vi.fn(() => ({ mutate: vi.fn(), isPending: false }))
 }));
 
-vi.mock('react-router-dom', () => ({
-    Link: ({ children }: { children: React.ReactNode }) => <a>{children}</a>,
-    useNavigate: () => vi.fn(),
-    useParams: () => ({ courseId: 'course-123' })
-}));
+vi.mock('react-router-dom', () => {
+    const React = require('react');
+    return {
+        Link: React.forwardRef(function LinkMock(
+            props: { children?: ReactNode; to?: string },
+            ref: React.Ref<HTMLAnchorElement>
+        ) {
+            const { children, to, ...rest } = props;
+            return (
+                <a ref={ref} href={to ?? '#'} {...rest}>
+                    {children}
+                </a>
+            );
+        }),
+        useNavigate: () => vi.fn(),
+        useParams: () => ({ courseId: 'course-123' })
+    };
+});
 
 vi.mock('@store/constant', () => ({
     default: {

@@ -17,15 +17,16 @@ const defaultProps = {
 };
 
 describe('UserDeleteWarning', () => {
-    beforeEach(() => vi.clearAllMocks());
+    beforeEach(() => {
+        vi.clearAllMocks();
+        render(<UserDeleteWarning {...defaultProps} />);
+    });
 
     it('renders the dialog when open', () => {
-        render(<UserDeleteWarning {...defaultProps} />);
         expect(screen.getByText('Warning')).toBeInTheDocument();
     });
 
     it('shows the user full name in the content', () => {
-        render(<UserDeleteWarning {...defaultProps} />);
         // The name is split across text nodes inside <b>; match the <b> element's full text
         expect(
             screen.getByText(
@@ -34,8 +35,11 @@ describe('UserDeleteWarning', () => {
             )
         ).toBeInTheDocument();
     });
+});
 
+describe('UserDeleteWarning — confirm delete', () => {
     it('calls handleDeleteUser when delete_field is "delete" and Yes is clicked', () => {
+        vi.clearAllMocks();
         const handleDeleteUser = vi.fn();
         render(
             <UserDeleteWarning

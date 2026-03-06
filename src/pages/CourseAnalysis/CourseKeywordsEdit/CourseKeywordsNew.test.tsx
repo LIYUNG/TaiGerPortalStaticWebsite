@@ -1,8 +1,18 @@
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import CourseKeywordsOverviewNew from './CourseKeywordsNew';
 
 vi.mock('react-router-dom', () => ({
-    Link: ({ children }: { children: React.ReactNode }) => <a>{children}</a>,
+    Link: React.forwardRef<
+        HTMLAnchorElement,
+        { children?: React.ReactNode; to?: string }
+    >(function LinkMock({ children, to }, ref) {
+        return (
+            <a ref={ref} href={to ?? '#'}>
+                {children}
+            </a>
+        );
+    }),
     useNavigate: () => vi.fn()
 }));
 

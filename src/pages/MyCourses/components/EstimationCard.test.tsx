@@ -51,48 +51,39 @@ const baseProps = {
 describe('EstimationCard', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        render(<EstimationCard {...baseProps} />);
     });
 
     it('renders card with stage title', () => {
-        render(<EstimationCard {...baseProps} />);
         expect(screen.getByText('Stage 1 Evaluation')).toBeInTheDocument();
     });
 
     it('renders subtitle', () => {
-        render(<EstimationCard {...baseProps} />);
         expect(screen.getByText('Basic check')).toBeInTheDocument();
     });
 
     it('renders direct admission and rejection labels', () => {
-        render(<EstimationCard {...baseProps} />);
         expect(screen.getByText(/Direct Admission/)).toBeInTheDocument();
         expect(screen.getByText(/Direct Rejection/)).toBeInTheDocument();
     });
 
     it('renders table headers', () => {
-        render(<EstimationCard {...baseProps} />);
         expect(screen.getByText('Evaluation')).toBeInTheDocument();
         expect(screen.getByText('Pessimistic (25%)')).toBeInTheDocument();
         expect(screen.getByText('Optimistic (100%)')).toBeInTheDocument();
     });
 
     it('renders Total row in footer', () => {
-        render(<EstimationCard {...baseProps} />);
         expect(screen.getByText('Total')).toBeInTheDocument();
     });
+});
 
+describe('EstimationCard — with course round', () => {
     it('expands course score row when expand button is clicked', () => {
-        const propsWithCourseRound = {
-            ...baseProps,
-            round: ['course']
-        };
-        render(<EstimationCard {...propsWithCourseRound} />);
-        const expandButton = screen.getByRole('button', {
-            name: 'expand row'
-        });
-        expect(expandButton).toBeInTheDocument();
+        vi.clearAllMocks();
+        render(<EstimationCard {...baseProps} round={['course']} />);
+        const expandButton = screen.getByRole('button', { name: 'expand row' });
         fireEvent.click(expandButton);
-        // After clicking, the description should appear
         expect(screen.getByText(/Your courses score/)).toBeInTheDocument();
     });
 });

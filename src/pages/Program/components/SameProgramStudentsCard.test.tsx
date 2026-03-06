@@ -1,15 +1,24 @@
-import React from 'react';
+import { ReactNode, forwardRef, Ref } from 'react';
 import { render, screen } from '@testing-library/react';
 import SameProgramStudentsCard from './SameProgramStudentsCard';
 
 vi.mock('react-router-dom', async (importOriginal) => {
     const actual =
         (await importOriginal()) as typeof import('react-router-dom');
+    const React = require('react');
     return {
         ...actual,
-        Link: ({ children, to }: { children: React.ReactNode; to: string }) => (
-            <a href={to}>{children}</a>
-        )
+        Link: forwardRef(function LinkMock(
+            props: { children?: ReactNode; to?: string },
+            ref: Ref<HTMLAnchorElement>
+        ) {
+            const { children, to, ...rest } = props;
+            return (
+                <a ref={ref} href={to ?? '#'} {...rest}>
+                    {children}
+                </a>
+            );
+        })
     };
 });
 
@@ -24,7 +33,7 @@ vi.mock('@components/Tabs', () => ({
         index,
         value
     }: {
-        children: React.ReactNode;
+        children: ReactNode;
         index: number;
         value: number;
     }) => (index === value ? <div>{children}</div> : null)

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import { Alert, Card, Grid, Link, ListItem } from '@mui/material';
 import dayjs from 'dayjs';

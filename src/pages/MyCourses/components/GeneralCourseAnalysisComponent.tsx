@@ -147,7 +147,7 @@ export const GeneralCourseAnalysisComponent = ({
                             <CardHeader
                                 subheader="Total number of programs being analyzed"
                                 title="Analyzed Programs"
-                                titleTypography={{
+                                titleTypographyProps={{
                                     variant: 'h6',
                                     fontWeight: 'medium'
                                 }}
@@ -186,7 +186,7 @@ export const GeneralCourseAnalysisComponent = ({
                     <Grid item md={3} xs={12}>
                         <GaugeCard
                             CardHeaderProps={{
-                                titleTypography: {
+                                titleTypographyProps: {
                                     variant: 'h6',
                                     fontWeight: 'medium'
                                 }
@@ -207,7 +207,7 @@ export const GeneralCourseAnalysisComponent = ({
                         <Card sx={{ height: 280, overflowY: 'auto' }}>
                             <CardHeader
                                 title="Top Missing Courses"
-                                titleTypography={{
+                                titleTypographyProps={{
                                     variant: 'h6',
                                     fontWeight: 'medium'
                                 }}
@@ -294,5 +294,3 @@ export const GeneralCourseAnalysisComponent = ({
         </Box>
     );
 };
-
-export default GeneralCourseAnalysisComponent;

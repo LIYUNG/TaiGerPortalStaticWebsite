@@ -21,23 +21,27 @@ const defaultProps = {
 };
 
 describe('AddUserModal', () => {
-    beforeEach(() => vi.clearAllMocks());
+    beforeEach(() => {
+        vi.clearAllMocks();
+        render(<AddUserModal {...defaultProps} />);
+    });
 
     it('renders the dialog when open', () => {
-        render(<AddUserModal {...defaultProps} />);
         expect(screen.getByText('Add New User')).toBeInTheDocument();
     });
 
     it('renders form fields for user information', () => {
-        render(<AddUserModal {...defaultProps} />);
         expect(screen.getByPlaceholderText('Shiao-Ming')).toBeInTheDocument();
         expect(screen.getByPlaceholderText('Chen')).toBeInTheDocument();
         expect(
             screen.getByPlaceholderText('chung.ming.wang@gmail.com')
         ).toBeInTheDocument();
     });
+});
 
+describe('AddUserModal — cancel', () => {
     it('calls cloaseAddUserModal when Cancel is clicked', () => {
+        vi.clearAllMocks();
         const cloaseAddUserModal = vi.fn();
         render(
             <AddUserModal

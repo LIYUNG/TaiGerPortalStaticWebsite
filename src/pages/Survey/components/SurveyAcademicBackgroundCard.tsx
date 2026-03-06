@@ -26,6 +26,15 @@ import {
 } from '@utils/contants';
 import type { SurveyAcademicBackgroundCardProps } from '../types';
 
+const yearOptionValues = APPLICATION_YEARS_FUTURE().map((o) => o.value);
+
+function validYearSelectValue(raw: unknown): number | '' {
+    const numVal = raw === null || raw === undefined ? NaN : Number(raw);
+    return !Number.isNaN(numVal) && yearOptionValues.includes(numVal)
+        ? numVal
+        : '';
+}
+
 const SurveyAcademicBackgroundCard = ({
     survey,
     user,
@@ -271,11 +280,12 @@ const SurveyAcademicBackgroundCard = ({
                                     name="expected_grad_date"
                                     onChange={(e) => handleChangeAcademic(e)}
                                     select
-                                    value={
+                                    value={validYearSelectValue(
                                         survey.academic_background?.university
-                                            ?.expected_grad_date || '-'
-                                    }
+                                            ?.expected_grad_date
+                                    )}
                                 >
+                                    <MenuItem value="">-</MenuItem>
                                     {APPLICATION_YEARS_FUTURE().map(
                                         (option) => (
                                             <MenuItem
@@ -688,13 +698,13 @@ const SurveyAcademicBackgroundCard = ({
                                                 handleChangeAcademic(e)
                                             }
                                             select
-                                            value={
+                                            value={validYearSelectValue(
                                                 survey.academic_background
                                                     ?.university
-                                                    ?.expectedSecondDegreeGradDate ||
-                                                '-'
-                                            }
+                                                    ?.expectedSecondDegreeGradDate
+                                            )}
                                         >
+                                            <MenuItem value="">-</MenuItem>
                                             {APPLICATION_YEARS_FUTURE().map(
                                                 (option) => (
                                                     <MenuItem

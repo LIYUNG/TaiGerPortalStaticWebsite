@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card, Button, Grid, useMediaQuery, useTheme } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 

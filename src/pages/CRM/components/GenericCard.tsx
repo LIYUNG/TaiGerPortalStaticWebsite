@@ -1,4 +1,4 @@
-import React from 'react';
+import { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
 import {
@@ -49,8 +49,8 @@ interface FieldConfig {
         | 'info'
         | 'success'
         | 'warning';
-    additionalContent?: (record: Record<string, unknown>) => React.ReactNode;
-    render?: (record: Record<string, unknown>) => React.ReactNode;
+    additionalContent?: (record: Record<string, unknown>) => ReactNode;
+    render?: (record: Record<string, unknown>) => ReactNode;
     editField?: FieldEditConfig;
     options?: SelectOption[];
 }
@@ -66,11 +66,11 @@ interface CardConfig {
     sections?: SectionConfig[];
     fields?: FieldConfig[];
     divider?: boolean;
-    additionalContent?: (record: Record<string, unknown>) => React.ReactNode;
+    additionalContent?: (record: Record<string, unknown>) => ReactNode;
     editAdditionalContent?: (
         formData: Record<string, string>,
         onFieldChange: (key: string, value: string) => void
-    ) => React.ReactNode;
+    ) => ReactNode;
 }
 
 interface ViewFieldProps {

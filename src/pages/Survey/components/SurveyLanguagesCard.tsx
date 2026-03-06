@@ -26,6 +26,13 @@ import {
 import Banner from '@components/Banner/Banner';
 import type { SurveyLanguagesCardProps } from '../types';
 
+function selectValueInOptions(
+    value: unknown,
+    options: ReadonlyArray<{ value: string }>
+): string {
+    return options.some((o) => o.value === value) ? (value as string) ?? '' : '';
+}
+
 const SurveyLanguagesCard = ({
     survey,
     user,
@@ -327,7 +334,7 @@ const SurveyLanguagesCard = ({
                         sx={{ mt: 1 }}
                         value={
                             survey.academic_background?.language
-                                ?.german_isPassed
+                                ?.german_isPassed ?? '-'
                         }
                     >
                         {IS_PASSED_OPTIONS.map((option) => (
@@ -445,7 +452,8 @@ const SurveyLanguagesCard = ({
                         select
                         sx={{ mt: 1 }}
                         value={
-                            survey.academic_background?.language?.gre_isPassed
+                            survey.academic_background?.language
+                                ?.gre_isPassed ?? '-'
                         }
                     >
                         {IS_PASSED_OPTIONS.map((option) => (
@@ -473,10 +481,11 @@ const SurveyLanguagesCard = ({
                                         typeof Select
                                     >['onChange']
                                 }
-                                value={
+                                value={selectValueInOptions(
                                     survey.academic_background?.language
-                                        ?.gre_certificate || ''
-                                }
+                                        ?.gre_certificate,
+                                    GRE_CERTIFICATE_ARRAY_OPTIONS
+                                )}
                             >
                                 {GRE_CERTIFICATE_ARRAY_OPTIONS.map((option) => (
                                     <MenuItem
@@ -563,7 +572,8 @@ const SurveyLanguagesCard = ({
                         select
                         sx={{ mt: 1 }}
                         value={
-                            survey.academic_background?.language?.gmat_isPassed
+                            survey.academic_background?.language
+                                ?.gmat_isPassed ?? '-'
                         }
                     >
                         {IS_PASSED_OPTIONS.map((option) => (
@@ -589,10 +599,11 @@ const SurveyLanguagesCard = ({
                                         typeof Select
                                     >['onChange']
                                 }
-                                value={
+                                value={selectValueInOptions(
                                     survey.academic_background?.language
-                                        ?.gmat_certificate || ''
-                                }
+                                        ?.gmat_certificate,
+                                    GMAT_CERTIFICATE_OPTIONS
+                                )}
                             >
                                 {GMAT_CERTIFICATE_OPTIONS.map((option) => (
                                     <MenuItem

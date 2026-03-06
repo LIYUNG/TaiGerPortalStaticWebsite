@@ -1,4 +1,4 @@
-import React from 'react';
+import { MouseEvent, SyntheticEvent } from 'react';
 import { Navigate, useNavigate, Link as LinkDom } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -184,7 +184,7 @@ const MeetingPage = () => {
     };
 
     const handleAssignClick = (
-        event: React.MouseEvent<HTMLElement>,
+        event: MouseEvent<HTMLElement>,
         meetingId: string
     ) => {
         event.stopPropagation();
@@ -275,7 +275,7 @@ const MeetingPage = () => {
     };
 
     const handleTabChange = (
-        _event: React.SyntheticEvent,
+        _event: SyntheticEvent,
         newValue: number
     ) => {
         setActiveTab(newValue);

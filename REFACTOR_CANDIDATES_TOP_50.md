@@ -12,6 +12,35 @@ Components and pages ranked by line count (excluding test files). Splitting thes
 |------|-----------------|-------------|-------------|
 | ✅ #1–#10 | 10 of 50 | 502 (82 files) | 519 (85 files) |
 
+## Unit Test Coverage Campaign (March 2026)
+
+Goal: every component has at least 1 happy-case render test.
+
+| Batch | Scope | Files | Tests | Status |
+|-------|-------|-------|-------|--------|
+| A | SurveyProvider steps (StepIndicators, StepNavigation) + ProgramDetailsCard, RequirementsBlock, SurveyMissingFieldsAlerts | 5 | 19 | ✅ |
+| B | DescriptionBlock, InstructionsSection, RequirementsSection, OriginAuthorStatementBar, ApplicationAccordionSummary | 5 | 16 | ✅ |
+| Tier 1 Users | UserArchivWarning, UserDeleteWarning, AddUserModal, UsersListSubpage, UsersList | 5 | 15 | ✅ |
+| Tier 1 StudentApplications | 6 files | 6 | 35 | ✅ |
+| Tier 1 Authentication | LandingPage, Activation, Reactivation, ResetPassword*, SignIn, GoogleOauthCallback | 7 | 17 | ✅ |
+| Tier 1 Communications | MessageList, CommunicationSinglePage, MessageContainer, etc. | 9 | 23 | ✅ |
+| Tier 1 CourseAnalysis | AllCourses, CourseKeywordsEdit, ProgramRequirements | 13 | 36 | ✅ |
+| Tier 1 BaseDocuments + ApplicantsOverview | 9 files | 9 | 18 | ✅ |
+| 7 | Utils error pages | 8 | 18 | ✅ |
+| 8 | SurveyProvider steps + Survey components | 7 | 23 | ✅ |
+| 9 | Table TopToolbar (5 variants) | 5 | 15 | ✅ |
+| 10 | CRM components (GenericCard, EditableCard, StatusMenu, DealItem, CardConfigurations, CreateUserFromLeadModal, SimilarStudents) | 7 | 38 | ✅ |
+| 11 | CVMLRLCenter remaining (ApplicationAccordionList, ManualFiles, ManualFilesList, ToggleableUploadFileForm, EditableFileThread) + Notes + DashboardBody + GuestMainView | 9 | 27 | ✅ |
+| 12 | MyCourses remaining (CourseAnalysisComponent, GeneralCourseAnalysisComponent, ProgramMatchingScores, CourseAnalysisConfirmDialog, CourseWidgetBody) | 5 | ~15 | ✅ |
+| 13 | Dashboard MainViewTab small components (AssignEditorRow, AssignEssayWriterRow, AssignInterviewTrainerRow, NoXxxCards, StudentBriefOverview) | 8 | 25 | ✅ |
+| 14 | Documentation pages (9 files) | 9 | 21 | ✅ |
+| 15 | StudentDatabase (5) + InterviewTraining (5) | 10 | 26 | ✅ |
+| 16 | Dashboard role views (AdminMainView, AgentMainView, EditorMainView, ManagerMainView, StudentDashboard) | 5 | 30 | ✅ |
+| 17 | Program/components (SummaryStatsGrid, DistributionAnalysisSection, TopPerformers, AdditionalInsights, ProgramInfoTabs, ProgramUnlockDialog, SameProgramStudentsCard) | 7 | ~21 | ✅ |
+| 18+ | Accounting, Admissions, AgentSupportDocuments, AssignmentAgentsEditors, Audit, Contact, CustomerSupport, CRM pages, CVMLRLCenter pages, DownloadCenter, etc. | ~160 remaining | — | 🔲 |
+
+**Speed improvement (March 2026):** `vitest.config.ts` updated — `pool: 'forks'`, `maxForks: 8`, `testTimeout: 10000`, caching enabled.
+
 ---
 
 ## Top 50 by line count (descending)

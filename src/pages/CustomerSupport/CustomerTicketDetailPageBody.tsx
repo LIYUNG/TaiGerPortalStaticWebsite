@@ -67,7 +67,8 @@ const CustomerTicketDetailPageBody = ({
             .map((_x: undefined, i: number) =>
                 i === complaintTicket.messages.length - 1 ? i : -1
             ), // to collapse all
-        isLoaded: true
+        isLoaded: true,
+        SetAsFinalFileModel: false
     });
     const [open, setOpen] = useState(false);
     const navigate = useNavigate();

@@ -56,12 +56,11 @@ import {
     getExpense,
     getApplicationConflicts,
     getMycourses,
-    getStudentMeetings,
     getEvents,
     getBookedEvents
 } from '.';
-import type { IStudentResponse, QueryString, StudentId, UserId } from './types';
-import type { IDocumentthreadPopulated } from '@taiger-common/model';
+import type { QueryString } from './types';
+import type { IDocumentthreadPopulated, IStudentResponse, StudentId, UserId } from '@taiger-common/model';
 
 export const getMessagThreadQuery = (threadId: string): UseQueryOptions => ({
     queryKey: ['MessageThread', threadId],
@@ -490,14 +489,6 @@ export const getMycoursesQuery = (studentId: StudentId): UseQueryOptions => ({
     queryKey: ['mycourses', studentId],
     queryFn: () => getMycourses(studentId),
     staleTime: 1000 * 60 * 5 // 5 minutes
-});
-
-export const getStudentMeetingsQuery = (
-    studentId: StudentId
-): UseQueryOptions => ({
-    queryKey: ['student-meetings', studentId],
-    queryFn: () => getStudentMeetings(studentId),
-    staleTime: 1000 * 60 * 2 // 2 minutes
 });
 
 export const getEventsQuery = (queryString: QueryString): UseQueryOptions => ({

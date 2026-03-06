@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import MeetingsList from './MeetingsList';
 
@@ -25,28 +24,30 @@ describe('MeetingsList', () => {
         expect(container.firstChild).toBeNull();
     });
 
-    it('renders meeting title', () => {
-        render(<MeetingsList meetings={[baseMeeting]} t={t} />);
-        expect(screen.getByText('Intro Call')).toBeInTheDocument();
-    });
+    describe('with a single baseMeeting', () => {
+        beforeEach(() => {
+            render(<MeetingsList meetings={[baseMeeting]} t={t} />);
+        });
 
-    it('renders meeting date', () => {
-        render(<MeetingsList meetings={[baseMeeting]} t={t} />);
-        const dateStr = new Date(baseMeeting.date).toLocaleDateString();
-        expect(screen.getByText(dateStr)).toBeInTheDocument();
-    });
+        it('renders meeting title', () => {
+            expect(screen.getByText('Intro Call')).toBeInTheDocument();
+        });
 
-    it('renders meeting summary gist', () => {
-        render(<MeetingsList meetings={[baseMeeting]} t={t} />);
-        expect(
-            screen.getByText('Discussed goals and next steps.')
-        ).toBeInTheDocument();
-    });
+        it('renders meeting date', () => {
+            const dateStr = new Date(baseMeeting.date).toLocaleDateString();
+            expect(screen.getByText(dateStr)).toBeInTheDocument();
+        });
 
-    it('renders a link to the meeting page', () => {
-        render(<MeetingsList meetings={[baseMeeting]} t={t} />);
-        const link = screen.getByRole('link', { name: 'Intro Call' });
-        expect(link).toHaveAttribute('href', '/crm/meetings/meeting-1');
+        it('renders meeting summary gist', () => {
+            expect(
+                screen.getByText('Discussed goals and next steps.')
+            ).toBeInTheDocument();
+        });
+
+        it('renders a link to the meeting page', () => {
+            const link = screen.getByRole('link', { name: 'Intro Call' });
+            expect(link).toHaveAttribute('href', '/crm/meetings/meeting-1');
+        });
     });
 
     it('renders no summary placeholder when gist is missing', () => {

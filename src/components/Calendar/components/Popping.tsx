@@ -1,4 +1,4 @@
-import React from 'react';
+import { ChangeEvent } from 'react';
 import {
     Badge,
     Button,
@@ -56,7 +56,7 @@ interface UserWithAgents {
 interface PoppingProps {
     open: unknown;
     handleClose: () => void;
-    handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    handleChange: (e: ChangeEvent<HTMLInputElement>) => void;
     handleChangeReceiver: (e: { target: { value: string } }) => void;
     newReceiver: string;
     BookButtonDisable: boolean;

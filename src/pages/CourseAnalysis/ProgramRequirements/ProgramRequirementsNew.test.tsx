@@ -1,11 +1,36 @@
+import { ReactNode, forwardRef, Ref } from 'react';
 import { render, screen } from '@testing-library/react';
 import ProgramRequirementsNew from './ProgramRequirementsNew';
 
-vi.mock('react-router-dom', () => ({
-    Link: ({ children }: { children: React.ReactNode }) => <a>{children}</a>,
-    useNavigate: () => vi.fn(),
-    useParams: () => ({})
-}));
+vi.mock('react-router-dom', () => {
+    return {
+        Link: forwardRef(function LinkMock(
+            props: {
+                children?: ReactNode;
+                to?: string;
+                [key: string]: unknown;
+            },
+            ref: Ref<HTMLAnchorElement>
+        ) {
+            const {
+                children,
+                to,
+                focusRipple,
+                focusVisibleClassName,
+                centerRipple,
+                disableRipple,
+                ...rest
+            } = props;
+            return (
+                <a ref={ref} href={to ?? '#'} {...rest}>
+                    {children}
+                </a>
+            );
+        }),
+        useNavigate: () => vi.fn(),
+        useParams: () => ({})
+    };
+});
 
 vi.mock('@store/constant', () => ({
     default: {

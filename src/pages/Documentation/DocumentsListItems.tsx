@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
 import { Link, Box } from '@mui/material';

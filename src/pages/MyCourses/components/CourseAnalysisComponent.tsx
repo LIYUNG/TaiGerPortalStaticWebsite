@@ -1,4 +1,3 @@
-import React from 'react';
 import {
     Box,
     Typography,
@@ -448,5 +447,3 @@ export const CourseAnalysisComponent = ({
         </>
     );
 };
-
-export default CourseAnalysisComponent;

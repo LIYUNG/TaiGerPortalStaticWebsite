@@ -15,15 +15,16 @@ const defaultProps = {
 };
 
 describe('UserArchivWarning', () => {
-    beforeEach(() => vi.clearAllMocks());
+    beforeEach(() => {
+        vi.clearAllMocks();
+        render(<UserArchivWarning {...defaultProps} />);
+    });
 
     it('renders the dialog when open', () => {
-        render(<UserArchivWarning {...defaultProps} />);
         expect(screen.getByText('Warning')).toBeInTheDocument();
     });
 
     it('shows the user full name in the content', () => {
-        render(<UserArchivWarning {...defaultProps} />);
         // The name is split across text nodes inside <b>; use a substring matcher on the container
         expect(
             screen.getByText(
@@ -32,8 +33,11 @@ describe('UserArchivWarning', () => {
             )
         ).toBeInTheDocument();
     });
+});
 
+describe('UserArchivWarning — confirm archiv', () => {
     it('calls updateUserArchivStatus with correct args when Yes is clicked', () => {
+        vi.clearAllMocks();
         const updateUserArchivStatus = vi.fn();
         render(
             <UserArchivWarning

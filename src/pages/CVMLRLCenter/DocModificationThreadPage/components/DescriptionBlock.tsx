@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import { Stack, Box, Typography, Button, useTheme } from '@mui/material';
 import ArticleIcon from '@mui/icons-material/Article';

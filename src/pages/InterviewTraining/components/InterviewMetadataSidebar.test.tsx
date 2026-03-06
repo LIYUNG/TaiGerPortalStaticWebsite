@@ -1,4 +1,4 @@
-import React from 'react';
+import { ReactNode } from 'react';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { createTheme } from '@mui/material/styles';
@@ -33,7 +33,7 @@ vi.mock('@mui/x-date-pickers/AdapterDayjs', () => ({
 }));
 
 vi.mock('@mui/x-date-pickers/LocalizationProvider', () => ({
-    LocalizationProvider: ({ children }: { children: React.ReactNode }) => (
+    LocalizationProvider: ({ children }: { children: ReactNode }) => (
         <>{children}</>
     )
 }));

@@ -1,4 +1,4 @@
-import React from 'react';
+import { SyntheticEvent } from 'react';
 import {
     Avatar,
     Badge,
@@ -174,10 +174,7 @@ const OfficeHours = () => {
     const tabParam = searchParams.get('tab');
     const value = tabParam ? getTabIndexFromName(tabParam) : 0;
 
-    const handleChangeValue = (
-        _event: React.SyntheticEvent,
-        newValue: number
-    ) => {
+    const handleChangeValue = (_event: SyntheticEvent, newValue: number) => {
         const newParams = new URLSearchParams(searchParams);
         if (newValue === 0) {
             newParams.delete('tab');

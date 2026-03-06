@@ -1,11 +1,10 @@
-import React from 'react';
+import { SyntheticEvent } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import {
     MaterialReactTable,
-    type MRT_ColumnDef,
-    type MRT_Row
+    type MRT_ColumnDef
 } from 'material-react-table';
 import { useState } from 'react';
 
@@ -242,7 +241,7 @@ const LeadDashboard = () => {
     ];
 
     const handleTabChange = (
-        _event: React.SyntheticEvent,
+        _event: SyntheticEvent,
         newValue: number
     ) => {
         setTabValue(newValue);

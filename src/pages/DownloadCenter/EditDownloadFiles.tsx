@@ -1,4 +1,4 @@
-import React from 'react';
+import { FormEvent, MouseEvent } from 'react';
 import {
     Table,
     Button,
@@ -23,18 +23,15 @@ interface EditDownloadFilesProps {
     user: IUserWithId | null;
     templates: { category_name: string }[];
     areLoaded: Record<string, boolean>;
-    submitFile: (e: React.FormEvent<HTMLFormElement>, prop: unknown) => void;
-    onDeleteTemplateFile: (
-        e: React.MouseEvent<HTMLElement>,
-        prop: string
-    ) => void;
+    submitFile: (e: FormEvent<HTMLFormElement>, prop: unknown) => void;
+    onDeleteTemplateFile: (e: MouseEvent<HTMLElement>, prop: string) => void;
     onFileChange: (
-        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+        e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => void;
 }
 
 const EditDownloadFiles = (props: EditDownloadFilesProps) => {
-    const submitFile = (e: React.FormEvent<HTMLFormElement>, prop: unknown) => {
+    const submitFile = (e: FormEvent<HTMLFormElement>, prop: unknown) => {
         e.preventDefault();
         props.submitFile(e, prop);
     };

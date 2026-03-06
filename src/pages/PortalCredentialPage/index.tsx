@@ -1,4 +1,3 @@
-import React from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import { is_TaiGer_Student } from '@taiger-common/core';
 

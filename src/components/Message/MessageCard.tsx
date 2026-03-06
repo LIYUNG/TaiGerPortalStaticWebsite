@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, MouseEvent } from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import {
     Accordion,
@@ -72,9 +72,9 @@ export interface MessageCardProps {
     isLoaded: boolean;
     documentsthreadId: string;
     apiPrefix: string;
-    onDeleteSingleMessage: (e: React.MouseEvent, messageId: string) => void;
+    onDeleteSingleMessage: (e: MouseEvent, messageId: string) => void;
     handleClickSave?: (
-        e: React.MouseEvent,
+        e: MouseEvent,
         editorState: { time?: number; blocks?: unknown[] }
     ) => void;
 }
@@ -122,7 +122,7 @@ const MessageCard = (props: MessageCardProps) => {
     }, [props.message.message, props.isLoaded]);
 
     const onOpendeleteMessageModalShow = (
-        e: React.MouseEvent,
+        e: MouseEvent,
         message_id: string,
         createdAt: string | Date
     ) => {
@@ -144,7 +144,7 @@ const MessageCard = (props: MessageCardProps) => {
         }));
     };
 
-    const onDeleteSingleMessage = (e: React.MouseEvent) => {
+    const onDeleteSingleMessage = (e: MouseEvent) => {
         e.preventDefault();
         setMessageState((prevState) => ({
             ...prevState,

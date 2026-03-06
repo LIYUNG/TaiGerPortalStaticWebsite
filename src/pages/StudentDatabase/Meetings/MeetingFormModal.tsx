@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
     Dialog,
     DialogTitle,
@@ -255,7 +255,7 @@ export const MeetingFormModal = ({
                             }
                             required
                             type="datetime-local"
-                            value={formData.dateTime}
+                            value={formData.dateTime ?? ''}
                         />
                     </Box>
                     <TextField

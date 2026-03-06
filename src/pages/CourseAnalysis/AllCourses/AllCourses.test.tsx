@@ -1,3 +1,4 @@
+import { ReactNode, forwardRef, Ref } from 'react';
 import { render, screen } from '@testing-library/react';
 import { useQuery } from '@tanstack/react-query';
 import AllCourses from './AllCourses';
@@ -7,10 +8,25 @@ vi.mock('@tanstack/react-query', async (orig) => ({
     useQuery: vi.fn(() => ({ data: undefined, isLoading: false }))
 }));
 
-vi.mock('react-router-dom', () => ({
-    Link: ({ children }: { children: React.ReactNode }) => <a>{children}</a>,
-    NavLink: ({ children }: { children: React.ReactNode }) => <a>{children}</a>
-}));
+vi.mock('react-router-dom', () => {
+    const linkForwardRef = (name: string) =>
+        forwardRef(function LinkMock(
+            props: { children?: ReactNode; to?: string },
+            ref: Ref<HTMLAnchorElement>
+        ) {
+            const { children, to, ...rest } = props;
+            return (
+                <a ref={ref} href={to ?? '#'} data-testid={name} {...rest}>
+                    {children}
+                </a>
+            );
+        });
+    return {
+        Link: linkForwardRef('link'),
+        NavLink: linkForwardRef('navlink'),
+        useNavigate: () => vi.fn()
+    };
+});
 
 vi.mock('@store/constant', () => ({
     default: {

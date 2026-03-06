@@ -54,8 +54,10 @@ const ProgramDiffModal = (props: ProgramDiffModalProps) => {
                     id="request-select"
                     label="Requests"
                     labelId="request-select-label"
-                    onChange={(e) => setChangeIndex(e.target.value)}
-                    value={changeIndex}
+                    onChange={(e) => setChangeIndex(Number(e.target.value))}
+                    value={
+                        incomingChanges.length > 0 ? changeIndex : ''
+                    }
                 >
                     {incomingChanges.length > 0
                         ? incomingChanges.map((change, index) => {
@@ -68,7 +70,7 @@ const ProgramDiffModal = (props: ProgramDiffModalProps) => {
                                   </MenuItem>
                               );
                           })
-                        : null}
+                        : <MenuItem value="">—</MenuItem>}
                 </Select>
             </FormControl>
             <ProgramCompare

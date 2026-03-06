@@ -79,12 +79,15 @@ vi.mock('@utils/contants', () => ({
 }));
 
 describe('ApplicationOverviewTabs', () => {
-    test('renders tabs', () => {
+    beforeEach(() => {
         render(
             <MemoryRouter>
                 <ApplicationOverviewTabs applications={[]} students={[]} />
             </MemoryRouter>
         );
+    });
+
+    test('renders tabs', () => {
         expect(
             screen.getByTestId(
                 'application_overview_component_active_student_list_tab'
@@ -93,11 +96,6 @@ describe('ApplicationOverviewTabs', () => {
     });
 
     test('renders bar chart', () => {
-        render(
-            <MemoryRouter>
-                <ApplicationOverviewTabs applications={[]} students={[]} />
-            </MemoryRouter>
-        );
         expect(
             screen.getByTestId('tasks-distribution-bar-chart')
         ).toBeInTheDocument();

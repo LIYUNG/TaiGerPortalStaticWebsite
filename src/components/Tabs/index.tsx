@@ -1,8 +1,8 @@
-import React from 'react';
+import { ReactNode } from 'react';
 import { Box, Typography } from '@mui/material';
 
 interface CustomTabPanelProps {
-    children?: React.ReactNode;
+    children?: ReactNode;
     value: number;
     index: number;
     [key: string]: unknown;

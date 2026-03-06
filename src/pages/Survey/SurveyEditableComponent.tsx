@@ -1,4 +1,4 @@
-import React, { type MouseEvent } from 'react';
+import { type MouseEvent } from 'react';
 import { Box } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import { ReactElement } from 'react';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
@@ -46,7 +46,7 @@ const mockHandlers = {
     onChangeURL: vi.fn()
 };
 
-const renderWithRouter = (ui: React.ReactElement) =>
+const renderWithRouter = (ui: ReactElement) =>
     render(<MemoryRouter>{ui}</MemoryRouter>);
 
 describe('SurveyEditableComponent', () => {

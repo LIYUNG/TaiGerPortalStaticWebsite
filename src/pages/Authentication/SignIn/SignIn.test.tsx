@@ -24,12 +24,29 @@ vi.mock('@store/constant', () => ({
     }
 }));
 
-vi.mock('react-router-dom', () => ({
-    NavLink: ({ children, to }: { children: React.ReactNode; to: string }) => (
-        <a href={to}>{children}</a>
-    ),
-    useNavigate: () => vi.fn()
-}));
+vi.mock('react-router-dom', async (importOriginal) => {
+    const actual =
+        (await importOriginal()) as typeof import('react-router-dom');
+    const React = require('react');
+    const NavLinkMock = React.forwardRef<
+        HTMLAnchorElement,
+        { children?: React.ReactNode; to: string; [key: string]: unknown }
+    >(function NavLinkMock(props, ref) {
+        const { children, to, focusRipple, focusVisibleClassName, ...rest } =
+            props;
+        return (
+            <a ref={ref} href={to} {...rest}>
+                {children}
+            </a>
+        );
+    });
+    NavLinkMock.displayName = 'NavLinkMock';
+    return {
+        ...actual,
+        NavLink: NavLinkMock,
+        useNavigate: () => vi.fn()
+    };
+});
 
 vi.mock('react-i18next', () => ({
     useTranslation: () => ({ t: (key: string) => key })

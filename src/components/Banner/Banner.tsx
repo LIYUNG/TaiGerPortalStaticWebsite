@@ -1,13 +1,13 @@
-import React from 'react';
+import { SyntheticEvent, ReactNode } from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import { Alert, Link, Typography } from '@mui/material';
 
 export interface BannerProps {
     link_name?: string;
-    removeBanner?: (e: React.SyntheticEvent, notification_key: string) => void;
+    removeBanner?: (e: SyntheticEvent, notification_key: string) => void;
     notification_key?: string;
     path?: string;
-    text?: string | React.ReactNode;
+    text?: string | ReactNode;
     title?: string;
 }
 

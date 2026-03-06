@@ -1,4 +1,4 @@
-import React from 'react';
+import { SyntheticEvent } from 'react';
 import { Autocomplete, TextField, Chip, Box } from '@mui/material';
 
 export interface SearchableMultiSelectOption {
@@ -30,7 +30,7 @@ const SearchableMultiSelect = ({
     ...props
 }: SearchableMultiSelectProps) => {
     const handleValueChange = (
-        _event: React.SyntheticEvent,
+        _event: SyntheticEvent,
         newValue: string[]
     ) => {
         setValue(newValue);

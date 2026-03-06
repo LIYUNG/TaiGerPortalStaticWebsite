@@ -53,41 +53,29 @@ const defaultProps = {
 };
 
 describe('TopPerformersSection', () => {
-    it('renders Top Performers heading', () => {
+    beforeEach(() => {
         render(
             <MemoryRouter>
                 <TopPerformersSection {...defaultProps} />
             </MemoryRouter>
         );
+    });
+
+    it('renders Top Performers heading', () => {
         expect(screen.getByText('Top Performers')).toBeInTheDocument();
     });
 
     it('renders Top Schools by Program Count card', () => {
-        render(
-            <MemoryRouter>
-                <TopPerformersSection {...defaultProps} />
-            </MemoryRouter>
-        );
         expect(
             screen.getByText('Top Schools by Program Count')
         ).toBeInTheDocument();
     });
 
     it('renders Most Popular Programs card', () => {
-        render(
-            <MemoryRouter>
-                <TopPerformersSection {...defaultProps} />
-            </MemoryRouter>
-        );
         expect(screen.getByText('Most Popular Programs')).toBeInTheDocument();
     });
 
     it('renders school rows in the table', () => {
-        render(
-            <MemoryRouter>
-                <TopPerformersSection {...defaultProps} />
-            </MemoryRouter>
-        );
         // TU Munich appears in both the schools table and the programs table (as school name)
         const tuMunichElements = screen.getAllByText('TU Munich');
         expect(tuMunichElements.length).toBeGreaterThan(0);
@@ -96,22 +84,12 @@ describe('TopPerformersSection', () => {
     });
 
     it('renders program rows with admission rate chips', () => {
-        render(
-            <MemoryRouter>
-                <TopPerformersSection {...defaultProps} />
-            </MemoryRouter>
-        );
         expect(screen.getByText('Computer Science MSc')).toBeInTheDocument();
         expect(screen.getByText('55.0%')).toBeInTheDocument();
         expect(screen.getByText('20.0%')).toBeInTheDocument();
     });
 
     it('renders program link pointing to correct path', () => {
-        render(
-            <MemoryRouter>
-                <TopPerformersSection {...defaultProps} />
-            </MemoryRouter>
-        );
         const link = screen.getByRole('link', { name: 'Computer Science MSc' });
         expect(link).toHaveAttribute('href', '/programs/prog-1');
     });

@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import SetProgramStatusDialog from './SetProgramStatusDialog';
 
@@ -16,50 +15,55 @@ const defaultProps = {
 };
 
 describe('SetProgramStatusDialog', () => {
-    beforeEach(() => vi.clearAllMocks());
+    beforeEach(() => {
+        vi.clearAllMocks();
+        render(<SetProgramStatusDialog {...defaultProps} />);
+    });
 
     it('renders when open', () => {
-        render(<SetProgramStatusDialog {...defaultProps} />);
         expect(screen.getByText('Attention')).toBeInTheDocument();
     });
 
     it('shows "close" when isApplicationSubmitted is false', () => {
-        render(
-            <SetProgramStatusDialog
-                {...defaultProps}
-                isApplicationSubmitted={false}
-            />
-        );
         expect(
             screen.getByText(/close this program for Alice/)
         ).toBeInTheDocument();
     });
 
-    it('shows "re-open" when isApplicationSubmitted is true', () => {
-        render(
-            <SetProgramStatusDialog
-                {...defaultProps}
-                isApplicationSubmitted={true}
-            />
-        );
-        expect(
-            screen.getByText(/re-open this program for Alice/)
-        ).toBeInTheDocument();
+    describe('when isApplicationSubmitted is true', () => {
+        it('shows "re-open"', () => {
+            render(
+                <SetProgramStatusDialog
+                    {...defaultProps}
+                    isApplicationSubmitted={true}
+                />
+            );
+            expect(
+                screen.getByText(/re-open this program for Alice/)
+            ).toBeInTheDocument();
+        });
     });
 
-    it('calls onConfirm when Yes is clicked', () => {
-        const onConfirm = vi.fn();
-        render(
-            <SetProgramStatusDialog {...defaultProps} onConfirm={onConfirm} />
-        );
-        fireEvent.click(screen.getByText('Yes'));
-        expect(onConfirm).toHaveBeenCalledTimes(1);
-    });
+    describe('button interactions', () => {
+        it('calls onConfirm when Yes is clicked', () => {
+            const onConfirm = vi.fn();
+            render(
+                <SetProgramStatusDialog
+                    {...defaultProps}
+                    onConfirm={onConfirm}
+                />
+            );
+            fireEvent.click(screen.getAllByText('Yes')[1]);
+            expect(onConfirm).toHaveBeenCalledTimes(1);
+        });
 
-    it('calls onClose when No is clicked', () => {
-        const onClose = vi.fn();
-        render(<SetProgramStatusDialog {...defaultProps} onClose={onClose} />);
-        fireEvent.click(screen.getByText('No'));
-        expect(onClose).toHaveBeenCalledTimes(1);
+        it('calls onClose when No is clicked', () => {
+            const onClose = vi.fn();
+            render(
+                <SetProgramStatusDialog {...defaultProps} onClose={onClose} />
+            );
+            fireEvent.click(screen.getAllByText('No')[1]);
+            expect(onClose).toHaveBeenCalledTimes(1);
+        });
     });
 });

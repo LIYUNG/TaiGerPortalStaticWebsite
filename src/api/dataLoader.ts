@@ -11,14 +11,12 @@ import {
     getProgramRequirement,
     getProgramRequirements,
     getProgramsAndCourseKeywordSets,
-    getCommunicationThread,
     getProgram,
     getAllOpenInterviews
 } from '.';
 import { queryClient } from './client';
 import {
     getAllCoursessQuery,
-    getCommunicationQuery,
     getCoursessQuery,
     getProgramRequirementsQuery
 } from './query';
@@ -42,35 +40,6 @@ export async function getAllCoursesLoader() {
 export async function getCourseLoader({ params }: { params: Params<string> }) {
     const courseId = params.courseId ?? '';
     return queryClient.fetchQuery(getCoursessQuery(courseId));
-}
-
-//
-
-export async function CommunicationThreadLoader({
-    params
-}: {
-    params: Params<string>;
-}) {
-    const student_id = params.student_id ?? '';
-    const response = await getCommunicationThread(student_id);
-    if (response.status >= 400) {
-        throw json(
-            { message: response.statusText },
-            { status: response.status }
-        );
-    } else {
-        return response.data;
-    }
-}
-
-export function getCommunicationThreadLoader({
-    params
-}: {
-    params: Params<string>;
-}) {
-    const studentId = params.studentId ?? '';
-    return queryClient.fetchQuery(getCommunicationQuery(studentId));
-    //  return defer({ data: CommunicationThreadLoader({ params }) });
 }
 
 //

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card, Typography } from '@mui/material';
 import { differenceInDays } from 'date-fns';
 

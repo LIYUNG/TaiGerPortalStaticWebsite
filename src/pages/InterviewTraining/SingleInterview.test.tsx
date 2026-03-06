@@ -1,4 +1,4 @@
-import React from 'react';
+import { ReactNode } from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -127,7 +127,7 @@ vi.mock('@components/Tabs', () => ({
         value,
         index
     }: {
-        children: React.ReactNode;
+        children: ReactNode;
         value: number;
         index: number;
     }) => (value === index ? <div>{children}</div> : null)
@@ -183,7 +183,7 @@ describe('SingleInterview', () => {
             }
         });
         // Use a deferred promise so the query stays pending during initial render
-        let resolveQuery: (v: any) => void;
+        let resolveQuery: (v: unknown) => void;
         const pendingPromise = new Promise((resolve) => {
             resolveQuery = resolve;
         });

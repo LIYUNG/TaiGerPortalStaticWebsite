@@ -1,4 +1,4 @@
-import React from 'react';
+import { CSSProperties } from 'react';
 import {
     Button,
     CircularProgress,
@@ -49,7 +49,7 @@ const SetAsFinalFileDialog = ({
                 {isLoaded ? (
                     i18next.t('Yes', { ns: 'common' })
                 ) : (
-                    <div style={spinner_style2 as React.CSSProperties}>
+                    <div style={spinner_style2 as CSSProperties}>
                         <CircularProgress />
                     </div>
                 )}
