@@ -17,9 +17,17 @@ vi.mock('@components/AuthProvider', () => ({
     })
 }));
 
-vi.mock('@components/EditorJs/EditorSimple', () => ({
-    default: () => <div data-testid="editor-simple" />
-}));
+vi.mock('@components/EditorJs/ComposeEditor', async (importOriginal) => {
+    const React = await import('react');
+    return {
+        default: React.forwardRef(function MockComposeEditor(
+            _props: unknown,
+            _ref: unknown
+        ) {
+            return <div data-testid="compose-editor" />;
+        })
+    };
+});
 
 vi.mock('@/api', () => ({
     TaiGerChatAssistant: vi.fn(),
@@ -45,28 +53,24 @@ vi.mock('@utils/contants', () => ({
 import CommunicationThreadEditor from './CommunicationThreadEditor';
 
 describe('CommunicationThreadEditor', () => {
-    test('renders editor simple component', () => {
+    test('renders compose editor component', () => {
         render(
             <CommunicationThreadEditor
-                buttonDisabled={false}
                 editorState={{ blocks: [] }}
                 files={[]}
                 handleClickSave={vi.fn()}
-                onFileChange={vi.fn()}
                 thread={[]}
             />
         );
-        expect(screen.getByTestId('editor-simple')).toBeInTheDocument();
+        expect(screen.getByTestId('compose-editor')).toBeInTheDocument();
     });
 
     test('renders Send button', () => {
         render(
             <CommunicationThreadEditor
-                buttonDisabled={false}
                 editorState={{ blocks: [] }}
                 files={[]}
                 handleClickSave={vi.fn()}
-                onFileChange={vi.fn()}
                 thread={[]}
             />
         );
@@ -76,11 +80,9 @@ describe('CommunicationThreadEditor', () => {
     test('shows user name in editor header', () => {
         render(
             <CommunicationThreadEditor
-                buttonDisabled={false}
                 editorState={{ blocks: [] }}
                 files={[]}
                 handleClickSave={vi.fn()}
-                onFileChange={vi.fn()}
                 thread={[]}
             />
         );

@@ -1,6 +1,4 @@
-import { useEffect, useState, type ChangeEvent, type MouseEvent } from 'react';
-import { Dispatch } from 'react';
-import { SetStateAction } from 'react';
+import { useRef, useState, useCallback, type ChangeEvent, type MouseEvent } from 'react';
 import SendIcon from '@mui/icons-material/Send';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -17,13 +15,15 @@ import {
     Stack,
     Alert,
     Chip,
+    CircularProgress,
     useTheme
 } from '@mui/material';
 import i18next from 'i18next';
 
 import { useAuth } from '../AuthProvider';
-import EditorSimple from '../EditorJs/EditorSimple';
-import { OutputData } from '@editorjs/editorjs';
+import ComposeEditor from '../EditorJs/ComposeEditor';
+import type { ComposeEditorRef } from '../EditorJs/ComposeEditor';
+import type { OutputData } from '@editorjs/editorjs';
 
 export interface EditorStateData {
     time?: number;
@@ -64,35 +64,27 @@ const DocThreadEditor = ({
     readOnlyTooltip
 }: DocThreadEditorProps) => {
     const { user } = useAuth();
-    const [statedata, setStatedata] = useState<{
-        editorState: EditorStateData;
-    }>({
-        editorState: editorState ?? { time: 0, blocks: [] }
-    });
-
-    useEffect(() => {
-        const nextEditorState = editorState ?? { time: 0, blocks: [] };
-        queueMicrotask(() => {
-            setStatedata((state) => ({
-                ...state,
-                editorState: nextEditorState
-            }));
-        });
-    }, [editorState]);
-
-    const handleEditorChange = (content: EditorStateData) => {
-        setStatedata((state) => ({
-            ...state,
-            editorState: content
-        }));
-    };
+    const composeRef = useRef<ComposeEditorRef>(null);
+    const [hasContent, setHasContent] = useState(false);
+    const [isSending, setIsSending] = useState(false);
 
     const theme = useTheme();
     const isDarkMode = theme.palette.mode === 'dark';
-    const hasContent =
-        statedata.editorState?.blocks != null &&
-        statedata.editorState.blocks.length > 0;
     const canSend = Boolean(hasContent && !buttonDisabled && !readOnly);
+
+    const handleSend = useCallback(
+        (e: MouseEvent<HTMLElement>) => {
+            if (isSending) return;
+            const content = composeRef.current?.getValue();
+            if (!content?.blocks?.length) return;
+            setIsSending(true);
+            handleClickSave(e, content as EditorStateData);
+            composeRef.current?.reset();
+            setHasContent(false);
+            setIsSending(false);
+        },
+        [isSending, handleClickSave]
+    );
 
     const getValidationIcon = (value: boolean | undefined) => {
         if (value === undefined) {
@@ -124,21 +116,25 @@ const DocThreadEditor = ({
                 }}
             >
                 <Box sx={{ p: 2 }}>
-                    <EditorSimple
+                    <ComposeEditor
+                        ref={composeRef}
                         defaultHeight={0}
-                        editorState={editorState}
-                        handleEditorChange={handleEditorChange}
-                        holder="editorjs"
+                        holder="doc-thread-editor"
                         imageEnable={true}
+                        initialValue={editorState ?? undefined}
                         readOnly={readOnly}
-                        setStatedata={
-                            setStatedata as Dispatch<
-                                SetStateAction<{
-                                    editorState: EditorStateData;
-                                }>
-                            >
+                        thread={
+                            thread as
+                                | { _id: string; student_id: { _id: string } }
+                                | undefined
                         }
-                        thread={thread}
+                        onContentChange={(value) =>
+                            setHasContent(
+                                Boolean(
+                                    value?.blocks && value.blocks.length > 0
+                                )
+                            )
+                        }
                     />
                 </Box>
             </Box>
@@ -343,11 +339,11 @@ const DocThreadEditor = ({
                     {fileLength > 0 &&
                         `${fileLength} file${fileLength > 1 ? 's' : ''} attached`}
                 </Typography>
-                {!canSend ? (
-                    <Tooltip
-                        placement="top"
-                        title={
-                            readOnly
+                <Tooltip
+                    placement="top"
+                    title={
+                        !canSend || isSending
+                            ? readOnly
                                 ? (readOnlyTooltip ??
                                   i18next.t(
                                       'Program is locked. Contact an agent to unlock this task.',
@@ -356,35 +352,29 @@ const DocThreadEditor = ({
                                 : i18next.t(
                                       'Please write some text to improve the communication and understanding.'
                                   )
-                        }
-                    >
-                        <span>
-                            <Button
-                                color="primary"
-                                disabled
-                                size="large"
-                                startIcon={<SendIcon />}
-                                sx={{ minWidth: 120 }}
-                                variant="contained"
-                            >
-                                {i18next.t('Send', { ns: 'common' })}
-                            </Button>
-                        </span>
-                    </Tooltip>
-                ) : (
-                    <Button
-                        color="primary"
-                        onClick={(e) =>
-                            handleClickSave(e, statedata.editorState)
-                        }
-                        size="large"
-                        startIcon={<SendIcon />}
-                        sx={{ minWidth: 120 }}
-                        variant="contained"
-                    >
-                        {i18next.t('Send', { ns: 'common' })}
-                    </Button>
-                )}
+                            : ''
+                    }
+                >
+                    <span>
+                        <Button
+                            color="primary"
+                            disabled={!canSend || isSending}
+                            onClick={canSend ? handleSend : undefined}
+                            size="large"
+                            startIcon={
+                                isSending ? (
+                                    <CircularProgress color="inherit" size={20} />
+                                ) : (
+                                    <SendIcon />
+                                )
+                            }
+                            sx={{ minWidth: 120 }}
+                            variant={canSend && !isSending ? 'contained' : 'outlined'}
+                        >
+                            {i18next.t('Send', { ns: 'common' })}
+                        </Button>
+                    </span>
+                </Tooltip>
             </Stack>
         </Stack>
     );

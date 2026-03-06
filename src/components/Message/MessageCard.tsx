@@ -1,4 +1,10 @@
-import { useEffect, useState, MouseEvent } from 'react';
+import {
+    useCallback,
+    useEffect,
+    useMemo,
+    useState,
+    type MouseEvent
+} from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import {
     Accordion,
@@ -7,34 +13,52 @@ import {
     Avatar,
     Box,
     Button,
-    IconButton,
-    Typography,
-    FormControlLabel,
-    Checkbox,
+    Chip,
+    Card,
     Dialog,
-    DialogTitle,
+    DialogActions,
     DialogContent,
     DialogContentText,
-    DialogActions,
-    Card,
+    DialogTitle,
+    FormControlLabel,
+    Checkbox,
+    IconButton,
     Stack,
-    Chip,
+    Typography,
     useTheme
 } from '@mui/material';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
-import { FileIcon, defaultStyles } from 'react-file-icon';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { FileIcon, defaultStyles } from 'react-file-icon';
 import { is_TaiGer_Student } from '@taiger-common/core';
 import i18next from 'i18next';
 
-import { BASE_URL } from '@/api';
+import { BASE_URL, IgnoreMessageThread } from '@/api';
 import EditorSimple from '../EditorJs/EditorSimple';
 import { stringAvatar, convertDate } from '@utils/contants';
 import { useAuth } from '../AuthProvider';
 import Loading from '../Loading/Loading';
-import { IgnoreMessageThread } from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
+import type { OutputData } from '@editorjs/editorjs';
+
+/** Parse message payload string into EditorJS OutputData, or empty state. */
+function parseMessageToEditorState(
+    messageStr: string | undefined
+): OutputData | null {
+    if (!messageStr || messageStr === '{}') {
+        return { time: Date.now(), blocks: [] };
+    }
+    try {
+        return JSON.parse(messageStr) as OutputData;
+    } catch {
+        return { time: Date.now(), blocks: [] };
+    }
+}
+
+function buildFileUrl(apiPrefix: string, keyPath: string): string {
+    return `${BASE_URL}${apiPrefix}/${keyPath.replace(/\\/g, '/')}`;
+}
 
 export interface MessageUser {
     _id: string;
@@ -58,11 +82,10 @@ export interface ThreadMessage {
 }
 
 export interface MessageCardState {
-    editorState: { time?: number; blocks?: unknown[] } | null;
-    ConvertedContent: unknown;
-    message_id: string;
+    editorState: OutputData | null;
+    messageId: string;
     isLoaded: boolean;
-    deleteMessageModalShow: boolean;
+    deleteModalOpen: boolean;
     ignore_message: boolean;
     createdAt?: string | Date;
 }
@@ -79,94 +102,75 @@ export interface MessageCardProps {
     ) => void;
 }
 
+const DEFAULT_IGNORE = false;
+
 const MessageCard = (props: MessageCardProps) => {
+    const { message, isLoaded, documentsthreadId, apiPrefix, onDeleteSingleMessage } =
+        props;
     const { user } = useAuth();
     const theme = useTheme();
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
-    const [messageState, setMessageState] = useState<MessageCardState>({
+    const [messageState, setMessageState] = useState<MessageCardState>(() => ({
         editorState: null,
-        ConvertedContent: '',
-        message_id: '',
+        messageId: '',
         isLoaded: false,
-        deleteMessageModalShow: false,
+        deleteModalOpen: false,
         ignore_message:
             props.message.ignore_message === false ||
             props.message.ignore_message === undefined
-                ? false
+                ? DEFAULT_IGNORE
                 : Boolean(props.message.ignore_message)
-    });
+    }));
 
     useEffect(() => {
-        let initialEditorState: { time: number; blocks: unknown[] } | null =
-            null;
-        if (props.message.message && props.message.message !== '{}') {
-            try {
-                initialEditorState = JSON.parse(props.message.message) as {
-                    time: number;
-                    blocks: unknown[];
-                };
-            } catch {
-                initialEditorState = { time: Date.now(), blocks: [] };
-            }
-        } else {
-            initialEditorState = { time: Date.now(), blocks: [] };
-        }
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- sync message payload into local state for editor
-        setMessageState((prevState) => ({
-            ...prevState,
-            editorState: initialEditorState,
-            ConvertedContent: initialEditorState,
-            isLoaded: props.isLoaded,
-            deleteMessageModalShow: false
+        const editorState = parseMessageToEditorState(message.message);
+        setMessageState((prev) => ({
+            ...prev,
+            editorState,
+            isLoaded,
+            deleteModalOpen: false
         }));
-    }, [props.message.message, props.isLoaded]);
+    }, [message.message, isLoaded]);
 
-    const onOpendeleteMessageModalShow = (
-        e: MouseEvent,
-        message_id: string,
-        createdAt: string | Date
-    ) => {
-        e.stopPropagation();
-        setMessageState((prevState) => ({
-            ...prevState,
-            message_id,
-            deleteMessageModalShow: true,
-            createdAt
-        }));
-    };
+    const onOpenDeleteModal = useCallback(
+        (e: MouseEvent, messageId: string, createdAt: string | Date) => {
+            e.stopPropagation();
+            setMessageState((prev) => ({
+                ...prev,
+                messageId,
+                deleteModalOpen: true,
+                createdAt
+            }));
+        },
+        []
+    );
 
-    const onHidedeleteMessageModalShow = () => {
-        setMessageState((prevState) => ({
-            ...prevState,
-            message_id: '',
+    const onCloseDeleteModal = useCallback(() => {
+        setMessageState((prev) => ({
+            ...prev,
+            messageId: '',
             createdAt: undefined,
-            deleteMessageModalShow: false
+            deleteModalOpen: false
         }));
-    };
+    }, []);
 
-    const onDeleteSingleMessage = (e: MouseEvent) => {
-        e.preventDefault();
-        setMessageState((prevState) => ({
-            ...prevState,
-            deleteMessageModalShow: false
-        }));
-        props.onDeleteSingleMessage(e, messageState.message_id);
-    };
+    const onConfirmDelete = useCallback(
+        (e: MouseEvent) => {
+            e.preventDefault();
+            setMessageState((prev) => ({ ...prev, deleteModalOpen: false }));
+            onDeleteSingleMessage(e, messageState.messageId);
+        },
+        [messageState.messageId, onDeleteSingleMessage]
+    );
 
-    const handleCheckboxChange = async () => {
-        const ignore_message = !messageState.ignore_message;
-        setMessageState((prevState) => ({
-            ...prevState,
-            ignore_message
-        }));
-        const documentThreadId = props.documentsthreadId;
-        const messageId = props.message._id;
-        const message = props.message;
+    const handleCheckboxChange = useCallback(async () => {
+        const nextIgnore = !messageState.ignore_message;
+        setMessageState((prev) => ({ ...prev, ignore_message: nextIgnore }));
         const resp = await IgnoreMessageThread(
-            documentThreadId,
-            messageId,
-            message.message ?? '',
-            ignore_message
+            documentsthreadId,
+            String(message._id),
+            { message: message.message ?? '' },
+            nextIgnore
         );
         if (resp.data?.success) {
             setSeverity('success');
@@ -177,67 +181,76 @@ const MessageCard = (props: MessageCardProps) => {
             setMessage('An error occurred. Please try again.');
             setOpenSnackbar(true);
         }
-    };
+    }, [
+        documentsthreadId,
+        message._id,
+        message.message,
+        messageState.ignore_message,
+        setMessage,
+        setOpenSnackbar,
+        setSeverity
+    ]);
+
+    const fullName = useMemo(() => {
+        const first = message.user_id?.firstname ?? 'Staff';
+        const last = message.user_id?.lastname ?? 'TaiGer';
+        return `${first} ${last}`;
+    }, [message.user_id?.firstname, message.user_id?.lastname]);
+
+    const isCurrentUser = useMemo(
+        () => message.user_id?._id?.toString() === user?._id?.toString(),
+        [message.user_id?._id, user?._id]
+    );
+
+    const editable = useMemo(
+        () => message.user_id?._id?.toString() === user?._id?.toString(),
+        [message.user_id?._id, user?._id]
+    );
+
+    const fileChips = useMemo(() => {
+        const files = message.file ?? [];
+        return files.map((file, i) => (
+            <Chip
+                key={`${file.name}-${i}`}
+                avatar={
+                    <Box
+                        sx={{
+                            width: 16,
+                            height: 16,
+                            display: 'flex',
+                            alignItems: 'center'
+                        }}
+                    >
+                        <FileIcon
+                            extension={file.name.split('.').pop() ?? ''}
+                            {...(defaultStyles as Record<string, object>)[
+                                file.name.split('.').pop() ?? ''
+                            ]}
+                        />
+                    </Box>
+                }
+                clickable
+                component={LinkDom}
+                icon={<AttachFileIcon />}
+                label={file.name}
+                size="small"
+                sx={{
+                    maxWidth: '100%',
+                    '& .MuiChip-label': {
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                    }
+                }}
+                target="_blank"
+                to={buildFileUrl(apiPrefix, file.path)}
+                variant="outlined"
+            />
+        ));
+    }, [message.file, apiPrefix]);
 
     if (!messageState.isLoaded && !messageState.editorState) {
         return <Loading />;
     }
-
-    const firstname = props.message.user_id
-        ? props.message.user_id.firstname
-        : 'Staff';
-    const lastname = props.message.user_id
-        ? props.message.user_id.lastname
-        : 'TaiGer';
-    const editable = props.message.user_id
-        ? props.message.user_id._id.toString() === user._id.toString()
-        : false;
-    const full_name = `${firstname} ${lastname}`;
-
-    const apiFilePath = (apiPrefix: string, key_path: string) => {
-        return `${BASE_URL}${apiPrefix}/${key_path}`;
-    };
-
-    const files_info = (props.message.file ?? []).map((file, i) => (
-        <Chip
-            avatar={
-                <Box
-                    sx={{
-                        width: 16,
-                        height: 16,
-                        display: 'flex',
-                        alignItems: 'center'
-                    }}
-                >
-                    <FileIcon
-                        extension={file.name.split('.').pop() ?? ''}
-                        {...(defaultStyles as Record<string, object>)[
-                            file.name.split('.').pop() ?? ''
-                        ]}
-                    />
-                </Box>
-            }
-            clickable
-            component={LinkDom}
-            icon={<AttachFileIcon />}
-            key={i}
-            label={file.name}
-            size="small"
-            sx={{
-                maxWidth: '100%',
-                '& .MuiChip-label': {
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis'
-                }
-            }}
-            target="_blank"
-            to={apiFilePath(props.apiPrefix, file.path.replace(/\\/g, '/'))}
-            variant="outlined"
-        />
-    ));
-
-    const isCurrentUser =
-        props.message.user_id?._id.toString() === user._id.toString();
 
     return (
         <>
@@ -285,8 +298,8 @@ const MessageCard = (props: MessageCardProps) => {
                             sx={{ flex: 1, minWidth: 0 }}
                         >
                             <Avatar
-                                {...stringAvatar(full_name)}
-                                src={props.message.user_id?.pictureUrl}
+                                {...stringAvatar(fullName)}
+                                src={message.user_id?.pictureUrl}
                                 sx={{
                                     width: 36,
                                     height: 36,
@@ -304,7 +317,7 @@ const MessageCard = (props: MessageCardProps) => {
                                         noWrap
                                         variant="body2"
                                     >
-                                        {full_name}
+                                        {fullName}
                                     </Typography>
                                     {isCurrentUser && (
                                         <Chip
@@ -323,17 +336,17 @@ const MessageCard = (props: MessageCardProps) => {
                                     color="text.secondary"
                                     variant="caption"
                                 >
-                                    {convertDate(props.message.createdAt)}
+                                    {convertDate(message.createdAt ?? '')}
                                 </Typography>
                             </Box>
                             {editable && (
                                 <IconButton
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        onOpendeleteMessageModalShow(
+                                        onOpenDeleteModal(
                                             e,
-                                            props.message._id.toString(),
-                                            props.message.createdAt ?? ''
+                                            message._id.toString(),
+                                            (message.createdAt ?? '') as string
                                         );
                                     }}
                                     size="small"
@@ -359,14 +372,13 @@ const MessageCard = (props: MessageCardProps) => {
                         >
                             <EditorSimple
                                 defaultHeight={0}
-                                editorState={messageState.editorState}
-                                handleClickSave={props.handleClickSave}
-                                holder={`${props.message._id.toString()}`}
+                                editorState={messageState.editorState ?? undefined}
+                                holder={`${message._id.toString()}`}
                                 imageEnable={true}
                                 readOnly={true}
                             />
 
-                            {files_info.length > 0 && (
+                            {fileChips.length > 0 && (
                                 <Box sx={{ mt: 2 }}>
                                     <Stack
                                         alignItems="center"
@@ -382,7 +394,7 @@ const MessageCard = (props: MessageCardProps) => {
                                             color="text.secondary"
                                             variant="caption"
                                         >
-                                            Attachments ({files_info.length})
+                                            Attachments ({fileChips.length})
                                         </Typography>
                                     </Stack>
                                     <Stack
@@ -390,13 +402,15 @@ const MessageCard = (props: MessageCardProps) => {
                                         flexWrap="wrap"
                                         gap={1}
                                     >
-                                        {files_info}
+                                        {fileChips}
                                     </Stack>
                                 </Box>
                             )}
 
-                            {!is_TaiGer_Student(user) &&
-                                is_TaiGer_Student(props.message.user_id) && (
+                            {user &&
+                                message.user_id &&
+                                !is_TaiGer_Student(user as Parameters<typeof is_TaiGer_Student>[0]) &&
+                                is_TaiGer_Student(message.user_id as Parameters<typeof is_TaiGer_Student>[0]) && (
                                     <Box
                                         sx={{
                                             mt: 2,
@@ -434,8 +448,8 @@ const MessageCard = (props: MessageCardProps) => {
             </Card>
             <Dialog
                 aria-labelledby="contained-modal-title-vcenter"
-                onClose={onHidedeleteMessageModalShow}
-                open={messageState.deleteMessageModalShow}
+                onClose={onCloseDeleteModal}
+                open={messageState.deleteModalOpen}
             >
                 <DialogTitle>
                     {i18next.t('Warning', { ns: 'common' })}
@@ -443,22 +457,22 @@ const MessageCard = (props: MessageCardProps) => {
                 <DialogContent>
                     <DialogContentText>
                         Do you wan to delete this message on{' '}
-                        <b>{convertDate(messageState.createdAt)}?</b>
+                        <b>{convertDate(messageState.createdAt ?? '')}?</b>
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
                     <Button
                         color="primary"
-                        disabled={!props.isLoaded}
-                        onClick={onDeleteSingleMessage}
+                        disabled={!isLoaded}
+                        onClick={onConfirmDelete}
                         variant="contained"
                     >
-                        {props.isLoaded
+                        {isLoaded
                             ? i18next.t('Delete', { ns: 'common' })
                             : i18next.t('Pending', { ns: 'common' })}
                     </Button>
                     <Button
-                        onClick={onHidedeleteMessageModalShow}
+                        onClick={onCloseDeleteModal}
                         variant="outlined"
                     >
                         {i18next.t('Cancel', { ns: 'common' })}
