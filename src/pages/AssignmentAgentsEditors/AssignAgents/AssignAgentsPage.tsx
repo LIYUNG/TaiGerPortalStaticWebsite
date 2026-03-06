@@ -15,7 +15,7 @@ import { appConfig } from '../../../config';
 import DEMO from '@store/constant';
 import NoAgentsStudentsCard from '@pages/Dashboard/MainViewTab/NoAgentsStudentsCard/NoAgentsStudentsCard';
 import { BreadcrumbsNavigation } from '@components/BreadcrumbsNavigation/BreadcrumbsNavigation';
-import { IStudentResponse } from '@/api';
+import { IStudentResponse } from '@taiger-common/model';
 import { FormEvent } from 'react';
 
 interface NoAgentsTableProps {

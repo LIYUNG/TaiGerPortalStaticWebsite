@@ -11,14 +11,12 @@ import {
     getProgramRequirement,
     getProgramRequirements,
     getProgramsAndCourseKeywordSets,
-    getCommunicationThread,
     getProgram,
     getAllOpenInterviews
 } from '.';
 import { queryClient } from './client';
 import {
     getAllCoursessQuery,
-    getCommunicationQuery,
     getCoursessQuery,
     getProgramRequirementsQuery
 } from './query';

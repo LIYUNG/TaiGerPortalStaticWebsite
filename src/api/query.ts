@@ -59,8 +59,8 @@ import {
     getEvents,
     getBookedEvents
 } from '.';
-import type { IStudentResponse, QueryString, StudentId, UserId } from './types';
-import type { IDocumentthreadPopulated } from '@taiger-common/model';
+import type { QueryString } from './types';
+import type { IDocumentthreadPopulated, IStudentResponse, StudentId, UserId } from '@taiger-common/model';
 
 export const getMessagThreadQuery = (threadId: string): UseQueryOptions => ({
     queryKey: ['MessageThread', threadId],
