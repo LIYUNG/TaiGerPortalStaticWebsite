@@ -291,12 +291,6 @@ vi.mock('@components/EditorJs/EditorSimple', () => ({
     default: () =>
         createElement('div', { 'data-testid': 'editor-simple' }, 'Editor')
 }));
-vi.mock('@components/EditorJs/EditorNote', () => ({
-    __esModule: true,
-    default: () =>
-        createElement('div', { 'data-testid': 'editor-note' }, 'Editor')
-}));
-
 // Calendar stub
 vi.mock('@components/Calendar/components/Calendar', () => ({
     __esModule: true,

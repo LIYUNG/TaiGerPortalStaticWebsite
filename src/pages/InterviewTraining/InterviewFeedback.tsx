@@ -18,7 +18,7 @@ import {
     getInterviewsByProgramIdQuery,
     getInterviewsByStudentIdQuery
 } from '@/api/query';
-import ChildLoading from '@components/Loading/ChildLoading';
+import Loading from '@components/Loading/Loading';
 
 interface InterviewFeedbackProps {
     interview: Record<string, any>;
@@ -40,7 +40,7 @@ export const InterviewFeedback = ({ interview }: InterviewFeedbackProps) => {
     ] = useState(true);
 
     if (isStudentInterviewsLoading || isProgramInterviewsLoading) {
-        return <ChildLoading />;
+        return <Loading variant="child" />;
     }
     return (
         <div>

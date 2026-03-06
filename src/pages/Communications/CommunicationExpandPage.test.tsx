@@ -46,7 +46,7 @@ vi.mock('@components/Loading/Loading', () => ({
     default: () => <div data-testid="loading" />
 }));
 
-vi.mock('@components/Loading/ChildLoading', () => ({
+vi.mock('@components/Loading/Loading', () => ({
     default: () => <div data-testid="child-loading" />
 }));
 

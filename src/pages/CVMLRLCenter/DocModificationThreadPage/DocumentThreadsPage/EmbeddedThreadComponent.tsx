@@ -23,7 +23,7 @@ import DocModificationThreadPage from '../DocModificationThreadPage';
 import { APP_BAR_HEIGHT, stringAvatar } from '@utils/contants';
 import DEMO from '@store/constant';
 import { useTranslation } from 'react-i18next';
-import ChildLoading from '@components/Loading/ChildLoading';
+import Loading from '@components/Loading/Loading';
 import { useRef } from 'react';
 import { useAuth } from '@components/AuthProvider';
 
@@ -44,7 +44,7 @@ export const EmbeddedThreadComponent = ({
     );
 
     if (isLoading) {
-        return <ChildLoading />;
+        return <Loading variant="child" />;
     }
     if (error) {
         return <ErrorPage />;
