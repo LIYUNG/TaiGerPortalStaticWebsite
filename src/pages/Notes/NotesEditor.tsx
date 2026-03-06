@@ -2,7 +2,7 @@ import { MouseEvent } from 'react';
 import { Button, Tooltip, Card } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
-import EditorNote from '@components/EditorJs/EditorNote';
+import EditorSimple from '@components/EditorJs/EditorSimple';
 import { OutputData } from '@editorjs/editorjs';
 
 interface NotesEditorProps {
@@ -27,7 +27,7 @@ const NotesEditor = ({
     return (
         <>
             <Card sx={{ padding: 4, mb: 2, minHeight: 200 }}>
-                <EditorNote
+                <EditorSimple
                     defaultHeight={0}
                     editorState={editorState}
                     handleEditorChange={handleEditorChange}

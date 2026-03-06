@@ -45,7 +45,6 @@ import { FetchStudentLayer } from '../StudentDatabase/FetchStudentLayer';
 import CommunicationExpandPageMessagesComponent from './CommunicationExpandPageMessagesComponent';
 import { truncateText } from '../Utils/util_functions';
 import { getCommunicationQuery } from '@/api/query';
-import ChildLoading from '@components/Loading/ChildLoading';
 
 interface StudentDetailModalProps {
     open: boolean;
@@ -510,7 +509,7 @@ const CommunicationExpandPage = () => {
                     ) : null}
                     {!ismobile && studentId ? (
                         isLoading ? (
-                            <ChildLoading />
+                            <Loading variant="child" />
                         ) : (
                             <Box>
                                 <TopBar

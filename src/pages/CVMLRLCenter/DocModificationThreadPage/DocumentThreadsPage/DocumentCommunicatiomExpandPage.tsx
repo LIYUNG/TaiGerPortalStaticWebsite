@@ -38,7 +38,7 @@ import {
 } from '@utils/contants';
 import { getMyStudentThreadMetrics, getThreadsByStudent } from '@/api';
 import { EmbeddedThreadComponent } from './EmbeddedThreadComponent';
-import ChildLoading from '@components/Loading/ChildLoading';
+import Loading from '@components/Loading/Loading';
 import { APPROVAL_COUNTRIES } from '../../../Utils/util_functions';
 import { useTranslation } from 'react-i18next';
 
@@ -308,7 +308,7 @@ const StudentsList = ({
     studentSearchTerm
 }: StudentsListProps) => {
     return studentMetricsIsLoading ? (
-        <ChildLoading />
+        <Loading variant="child" />
     ) : (
         <>
             <Stack alignItems="center" direction="row" spacing={1}>
@@ -375,7 +375,7 @@ const ThreadsList = ({
 }: ThreadsListProps) => {
     return (
         <Box>
-            {studentThreadIsLoading ? <ChildLoading /> : null}
+            {studentThreadIsLoading ? <Loading variant="child" /> : null}
             <Checkbox
                 checked={showAllThreads}
                 disabled={sortedThreads.every(

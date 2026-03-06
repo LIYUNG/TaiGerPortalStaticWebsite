@@ -23,7 +23,7 @@ vi.mock('@/api/query', () => ({
     getInterviewsByStudentIdQuery: vi.fn(() => ({ queryKey: ['studentInterviews'], queryFn: vi.fn() }))
 }));
 
-vi.mock('@components/Loading/ChildLoading', () => ({
+vi.mock('@components/Loading/Loading', () => ({
     default: () => <div data-testid="child-loading" />
 }));
 

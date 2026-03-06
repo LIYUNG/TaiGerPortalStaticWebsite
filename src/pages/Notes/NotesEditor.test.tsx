@@ -6,10 +6,10 @@ vi.mock('react-i18next', () => ({
     useTranslation: () => ({ t: (k: string) => k })
 }));
 
-vi.mock('@components/EditorJs/EditorNote', () => ({
+vi.mock('@components/EditorJs/EditorSimple', () => ({
     default: ({ holder }: { holder: string }) => (
         <div data-testid="editor-note" data-holder={holder}>
-            EditorNote
+            EditorSimple
         </div>
     )
 }));

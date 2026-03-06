@@ -79,7 +79,7 @@ vi.mock('../../../Utils/ErrorPage', () => ({
     default: () => <div data-testid="error-page" />
 }));
 
-vi.mock('@components/Loading/ChildLoading', () => ({
+vi.mock('@components/Loading/Loading', () => ({
     default: () => <div data-testid="child-loading" />
 }));
 
