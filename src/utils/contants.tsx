@@ -569,45 +569,6 @@ export const transformObjectToArray = (
         delete: apiCallCount.DELETE
     }));
 };
-export const getLast180DaysSet = () => {
-    const today = new Date();
-    const last180DaysSet = new Set();
-
-    for (let i = 179; i >= 0; i--) {
-        const currentDate = new Date(today);
-        currentDate.setDate(today.getDate() - i);
-
-        const formattedDate = currentDate.toISOString().split('T')[0]; // Get YYYY-MM-DD format
-
-        last180DaysSet.add({ date: formattedDate });
-    }
-
-    return last180DaysSet;
-};
-
-export const getLast180DaysObject = (): Record<
-    string,
-    Record<string, number>
-> => {
-    const today = new Date();
-    const last180DaysObject: Record<string, Record<string, number>> = {};
-
-    for (let i = 0; i < 180; i++) {
-        const currentDate = new Date(today);
-        currentDate.setDate(today.getDate() - i);
-
-        const formattedDate = currentDate.toISOString().split('T')[0];
-        last180DaysObject[formattedDate] = {
-            TOTAL: 0,
-            GET: 0,
-            PUT: 0,
-            POST: 0,
-            DELETE: 0
-        };
-    }
-
-    return last180DaysObject;
-};
 
 const convertISOToCustomFormat = (isoString: string): string => {
     const date = new Date(isoString);
@@ -880,21 +841,6 @@ export const valid_internal_categories = [
     { key: 'others', value: 'Others' }
 ];
 
-export const split_header = (header_name: string): ReactElement => {
-    const rest = header_name.substring(0, header_name.lastIndexOf(' ') + 1);
-    const last = header_name.substring(
-        header_name.lastIndexOf(' ') + 1,
-        header_name.length
-    );
-    return (
-        <>
-            {rest}
-            <br />
-            {last}
-        </>
-    );
-};
-
 export const stringToColor = (str: string): string => {
     let hash = 0;
     let i: number;
@@ -1159,23 +1105,6 @@ export const ATTRIBUTES = [
         value: 14,
         name: 'Not-Paid-Yet',
         definition: 'Not paid student.'
-    }
-];
-
-export const PROGRAM_ANALYSIS_ATTRIBUTES = [
-    {
-        value: 'ee',
-        name: 'Electrical Engineering'
-    },
-    { value: 'cs', name: 'Computer Science' },
-
-    {
-        value: 'mgm',
-        name: 'Management'
-    },
-    {
-        value: 'phy',
-        name: 'Physics'
     }
 ];
 
@@ -2432,7 +2361,6 @@ export const PROGRAM_SUBJECT_CATEGORIES = {
     }
 };
 
-export const PROGRAM_SUBJECT_KEYS = Object.keys(PROGRAM_SUBJECTS);
 export const PROGRAM_SUBJECTS_DETAILED = Object.fromEntries(
     Object.entries(PROGRAM_SUBJECTS).map(([key, value]) => [
         key,
@@ -2448,7 +2376,6 @@ export const PROGRAM_SUBJECTS_DETAILED = Object.fromEntries(
     ])
 );
 
-export const SCHOOL_TAG_KEYS = Object.keys(SCHOOL_TAGS);
 export const SCHOOL_TAGS_DETAILED = Object.fromEntries(
     Object.entries(SCHOOL_TAGS).map(([key, value]) => [
         key,
