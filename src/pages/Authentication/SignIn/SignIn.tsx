@@ -91,6 +91,10 @@ export default function SignIn() {
                     </Link>
                 </span>
             </Alert>
+            <Alert severity="info">
+                最近進行系統性更新，若有系統問題請反映給我們，我們將盡快處理:
+                taiger.leoc@gmail.com
+            </Alert>
             <Typography component="h1" sx={{ mt: 1 }} variant="h5">
                 {t('Sign in', { ns: 'auth' })}
             </Typography>
