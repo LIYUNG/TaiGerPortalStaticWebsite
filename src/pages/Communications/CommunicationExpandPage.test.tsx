@@ -60,10 +60,14 @@ vi.mock('@/api/query', () => ({
     getCommunicationQuery: vi.fn(() => ({
         queryKey: ['comm'],
         queryFn: vi.fn()
+    })),
+    getMyCommunicationQuery: vi.fn(() => ({
+        queryKey: ['communications', 'my'],
+        queryFn: vi.fn()
     }))
 }));
 
-vi.mock('@components/EmbeddedChatList', () => ({
+vi.mock('@components/ChatList', () => ({
     default: () => <div data-testid="embedded-chat-list" />
 }));
 

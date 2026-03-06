@@ -62,12 +62,8 @@ const AllCourses = lazy(
     async () => await import('@pages/CourseAnalysis/AllCourses/AllCourses')
 );
 
-const CourseNew = lazy(
-    async () => await import('@pages/CourseAnalysis/AllCourses/CourseNew')
-);
-
-const CourseEdit = lazy(
-    async () => await import('@pages/CourseAnalysis/AllCourses/CourseEdit')
+const CourseForm = lazy(
+    async () => await import('@pages/CourseAnalysis/AllCourses/CourseForm')
 );
 
 const ProgramRequirements = lazy(
@@ -356,12 +352,12 @@ const routes = [
     {
         path: '/courses',
         children: [
-            { path: 'analysis/courses/new', element: <CourseNew /> },
+            { path: 'analysis/courses/new', element: <CourseForm mode="create" /> },
             {
                 path: 'analysis/courses/edit/:courseId',
                 errorElement: <DefaultErrorPage />,
                 loader: getCourseLoader,
-                element: <CourseEdit />
+                element: <CourseForm mode="edit" />
             },
             {
                 path: 'analysis/courses/all',

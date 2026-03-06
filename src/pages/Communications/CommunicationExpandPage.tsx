@@ -40,7 +40,7 @@ import {
     convertDateUXFriendly,
     stringAvatar
 } from '@utils/contants';
-import EmbeddedChatList from '@components/EmbeddedChatList';
+import ChatList from '@components/ChatList';
 import { FetchStudentLayer } from '../StudentDatabase/FetchStudentLayer';
 import CommunicationExpandPageMessagesComponent from './CommunicationExpandPageMessagesComponent';
 import { truncateText } from '../Utils/util_functions';
@@ -443,7 +443,7 @@ const CommunicationExpandPage = () => {
                             maxWidth: '300px' // Responsive width
                         }}
                     >
-                        <EmbeddedChatList student_id={studentId} />
+                        <ChatList embedded student_id={studentId} />
                     </Box>
                 </Grid>
                 <Grid item md xs={12}>
@@ -567,7 +567,7 @@ const CommunicationExpandPage = () => {
                                 overflow: 'auto' // Prevent parent scroll
                             }}
                         >
-                            <EmbeddedChatList student_id={studentId} />
+                            <ChatList embedded student_id={studentId} />
                         </Box>
                     ) : null}
                 </Grid>

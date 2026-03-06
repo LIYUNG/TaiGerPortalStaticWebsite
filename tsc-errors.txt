@@ -1252,7 +1252,6 @@ src/pages/Communications/CommunicationThreadEditor.tsx(198,19): error TS18046: '
 src/pages/Communications/CommunicationThreadEditor.tsx(199,17): error TS18046: 'statedata.editorState' is of type 'unknown'.
 src/pages/Communications/CommunicationThreadEditor.tsx(200,23): error TS2339: Property 'buttonDisabled' does not exist on type 'CommunicationThreadEditorProps'.
 src/pages/Communications/CommunicationThreadEditor.tsx(219,29): error TS2722: Cannot invoke an object which is possibly 'undefined'.
-src/pages/Communications/CommunicationThreadEditor.tsx(227,24): error TS2339: Property 'showCancelButton' does not exist on type 'CommunicationThreadEditorProps'.
 src/pages/Communications/CommunicationThreadEditor.tsx(231,29): error TS2722: Cannot invoke an object which is possibly 'undefined'.
 src/pages/Communications/CommunicationThreadEditor.tsx(243,52): error TS2339: Property 'onFileChange' does not exist on type 'CommunicationThreadEditorProps'.
 src/pages/Communications/CommunicationThreadEditor.tsx(257,55): error TS2345: Argument of type 'IUserWithId | null' is not assignable to parameter of type 'IUser'.

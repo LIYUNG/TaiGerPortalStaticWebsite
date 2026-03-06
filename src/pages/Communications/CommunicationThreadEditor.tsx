@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import {
     Avatar,
     Box,
@@ -21,7 +21,9 @@ import {
 } from '@taiger-common/core';
 import { useParams } from 'react-router-dom';
 
-import EditorSimple from '@components/EditorJs/EditorSimple';
+import ComposeEditor from '@components/EditorJs/ComposeEditor';
+import type { ComposeEditorRef } from '@components/EditorJs/ComposeEditor';
+import type { OutputData } from '@editorjs/editorjs';
 import { useAuth } from '@components/AuthProvider';
 import { CVMLRL_DOC_PRECHECK_STATUS_E, stringAvatar } from '@utils/contants';
 import { TaiGerChatAssistant } from '@/api';
@@ -38,76 +40,51 @@ export interface CommunicationThreadEditorProps {
 const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
     const { t } = useTranslation();
     const { studentId } = useParams();
+    const { handleClickSave } = props;
 
     const { user } = useAuth();
-    const [statedata, setStatedata] = useState({
-        editorState: props.editorState,
-        data: ''
-    });
-    useEffect(() => {
-        const editorState = props.editorState;
-        queueMicrotask(() => {
-            setStatedata((state) => ({
-                ...state,
-                editorState
-            }));
-        });
-    }, [props.editorState]);
-    const handleEditorChange = (content: unknown) => {
-        setStatedata((state) => ({
-            ...state,
-            editorState: content
-        }));
-    };
+    const composeRef = useRef<ComposeEditorRef>(null);
+    const [hasContent, setHasContent] = useState(false);
+    const [streamingData, setStreamingData] = useState({ data: '', isGenerating: false });
+    const [isSending, setIsSending] = useState(false);
+
+    const handleSend = useCallback(
+        (e: React.MouseEvent) => {
+            if (isSending) return;
+            const content = composeRef.current?.getValue();
+            if (!content?.blocks?.length) return;
+            setIsSending(true);
+            handleClickSave?.(e, content);
+            composeRef.current?.reset();
+            setHasContent(false);
+            setIsSending(false);
+        },
+        [isSending, handleClickSave]
+    );
 
     const handleClick = () => {
-        document.getElementById('file-input').click();
+        document.getElementById('file-input')?.click();
     };
 
     const onSubmit = async () => {
-        setStatedata((prevState) => ({
-            ...prevState,
-            isGenerating: true
-        }));
+        setStreamingData((prev) => ({ ...prev, isGenerating: true }));
         const response = await TaiGerChatAssistant('abc', studentId);
-        // Handle the streaming data
         const reader = response.body
-            .pipeThrough(new TextDecoderStream())
+            ?.pipeThrough(new TextDecoderStream())
             .getReader();
-
+        if (!reader) {
+            setStreamingData((prev) => ({ ...prev, isGenerating: false }));
+            return;
+        }
+        let data = '';
         while (true) {
             const { value, done } = await reader.read();
-            if (done) {
-                break;
-            }
-            setStatedata((prevState) => ({
-                ...prevState,
-                data: prevState.data + value
-            }));
+            if (done) break;
+            data += value;
+            setStreamingData((prev) => ({ ...prev, data }));
         }
-        setStatedata((prevState) => ({
-            ...prevState,
-            isLoaded: true,
-            data: prevState.data,
-            isGenerating: false
-        }));
+        setStreamingData((prev) => ({ ...prev, data, isGenerating: false }));
     };
-
-    const EditorV2 = useCallback(() => {
-        return (
-            <EditorSimple
-                defaultHeight={0}
-                editorState={props.editorState}
-                handleClickSave={props.handleClickSave}
-                handleEditorChange={handleEditorChange}
-                holder={props.editorState?.toString()}
-                imageEnable={false}
-                readOnly={false}
-                setStatedata={setStatedata}
-                thread={props.thread}
-            />
-        );
-    }, [props.editorState, props.handleClickSave, props.thread]);
     return (
         <>
             <Box
@@ -134,7 +111,30 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
                     border: '1px solid #ccc'
                 }}
             >
-                {EditorV2()}
+                <ComposeEditor
+                    ref={composeRef}
+                    defaultHeight={0}
+                    holder="communication-thread-editor"
+                    imageEnable={false}
+                    initialValue={
+                        props.editorState &&
+                        typeof props.editorState === 'object' &&
+                        'blocks' in (props.editorState as object)
+                            ? (props.editorState as OutputData)
+                            : undefined
+                    }
+                    readOnly={false}
+                    thread={
+                        props.thread as
+                            | { _id: string; student_id: { _id: string } }
+                            | undefined
+                    }
+                    onContentChange={(value) =>
+                        setHasContent(
+                            Boolean(value?.blocks && value.blocks.length > 0)
+                        )
+                    }
+                />
             </Box>
             <Box>
                 {is_TaiGer_role(user)
@@ -195,46 +195,34 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
                     : null}
             </Box>
             <Box sx={{ mb: 2 }}>
-                {!statedata.editorState.blocks ||
-                statedata.editorState.blocks.length === 0 ||
-                props.buttonDisabled ? (
-                    <Tooltip
-                        placement="top"
-                        title={t(
-                            'Please write some text to improve the communication and understanding.'
-                        )}
-                    >
+                <Tooltip
+                    placement="top"
+                    title={
+                        !hasContent || props.buttonDisabled
+                            ? t(
+                                  'Please write some text to improve the communication and understanding.'
+                              )
+                            : ''
+                    }
+                >
+                    <span>
                         <Button
                             color="primary"
-                            startIcon={<SendIcon />}
-                            variant="outlined"
+                            disabled={!hasContent || props.buttonDisabled || isSending}
+                            onClick={hasContent && !props.buttonDisabled ? handleSend : undefined}
+                            startIcon={
+                                isSending ? (
+                                    <CircularProgress color="inherit" size={20} />
+                                ) : (
+                                    <SendIcon />
+                                )
+                            }
+                            variant={hasContent && !props.buttonDisabled ? 'contained' : 'outlined'}
                         >
                             {t('Send', { ns: 'common' })}
                         </Button>
-                    </Tooltip>
-                ) : (
-                    <Button
-                        color="primary"
-                        onClick={(e) =>
-                            props.handleClickSave(e, statedata.editorState)
-                        }
-                        startIcon={<SendIcon />}
-                        variant="contained"
-                    >
-                        {t('Send', { ns: 'common' })}
-                    </Button>
-                )}
-                {props.showCancelButton ? (
-                    <Button
-                        color="primary"
-                        onClick={(e) =>
-                            props.handleClickSave(e, statedata.editorState)
-                        }
-                        variant="outlined"
-                    >
-                        {t('Cancel', { ns: 'common' })}
-                    </Button>
-                ) : null}
+                    </span>
+                </Tooltip>
                 <Tooltip placement="top" title={t('Attach files')}>
                     <span>
                         <input
@@ -256,10 +244,10 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
                 </Tooltip>
                 {appConfig.AIEnable && is_TaiGer_role(user) ? (
                     <IconButton
-                        disabled={statedata.isGenerating}
+                        disabled={streamingData.isGenerating}
                         onClick={onSubmit}
                     >
-                        {statedata.isGenerating ? (
+                        {streamingData.isGenerating ? (
                             <CircularProgress size={24} />
                         ) : (
                             <AutoFixHighIcon />
@@ -269,7 +257,7 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
                 {is_TaiGer_Agent(user) ? (
                     <Typography variant="body1">
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                            {statedata.data}
+                            {streamingData.data}
                         </ReactMarkdown>
                     </Typography>
                 ) : null}

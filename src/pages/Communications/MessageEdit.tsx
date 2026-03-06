@@ -22,9 +22,10 @@ import EditorSimple from '@components/EditorJs/EditorSimple';
 import { stringAvatar, convertDate } from '@utils/contants';
 import Loading from '@components/Loading/Loading';
 import type { MouseEvent } from 'react';
+import { OutputData } from '@editorjs/editorjs';
 
 export interface MessageEditProps {
-    editorState: unknown;
+    editorState: OutputData;
     onDeleteSingleMessage: (
         e: MouseEvent<HTMLElement>,
         message_id: string

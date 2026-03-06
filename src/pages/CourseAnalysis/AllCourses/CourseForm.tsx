@@ -13,14 +13,21 @@ import DEMO from '@store/constant';
 import i18next from 'i18next';
 import { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { updateCourse } from '@/api';
+import { createCourse, updateCourse } from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import { queryClient } from '@/api';
 import { getCoursessQuery } from '@/api/query';
 
-const CourseEdit = () => {
-    const { courseId } = useParams();
-    const { data } = useQuery(getCoursessQuery(courseId));
+interface CourseFormProps {
+    mode: 'create' | 'edit';
+}
+
+const CourseForm = ({ mode }: CourseFormProps) => {
+    const { courseId } = useParams<{ courseId?: string }>();
+    const { data } = useQuery({
+        ...getCoursessQuery(courseId),
+        enabled: mode === 'edit' && !!courseId
+    });
     const [course, setCourse] = useState({
         all_course_chinese: data?.data?.all_course_chinese || '',
         all_course_english: data?.data?.all_course_english || ''
@@ -29,7 +36,7 @@ const CourseEdit = () => {
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
 
     const { mutate, isPending } = useMutation({
-        mutationFn: updateCourse,
+        mutationFn: mode === 'create' ? createCourse : updateCourse,
         onSuccess: () => {
             setSeverity('success');
             setMessage('Updated program successfully!');
@@ -54,8 +61,14 @@ const CourseEdit = () => {
 
     const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        mutate({ courseId, payload: course });
+        if (mode === 'create') {
+            mutate({ payload: course });
+        } else {
+            mutate({ courseId, payload: course });
+        }
     };
+
+    const isCreate = mode === 'create';
 
     return (
         <>
@@ -85,15 +98,21 @@ const CourseEdit = () => {
                     {i18next.t('All Courses DB', { ns: 'common' })}
                 </Link>
                 <Typography color="text.primary">
-                    {i18next.t('Edit Course', { ns: 'common' })}
+                    {isCreate
+                        ? i18next.t('New Course', { ns: 'common' })
+                        : i18next.t('Edit Course', { ns: 'common' })}
                 </Typography>
             </Breadcrumbs>
             <Box>
                 <Typography sx={{ mb: 2 }} variant="h5">
-                    {i18next.t('New Course', { ns: 'common' })}
+                    {isCreate
+                        ? i18next.t('New Course', { ns: 'common' })
+                        : i18next.t('Edit Course', { ns: 'common' })}
                 </Typography>
                 <Typography sx={{ mb: 2 }} variant="body1">
-                    {i18next.t('Create a new course', { ns: 'common' })}
+                    {isCreate
+                        ? i18next.t('Create a new course', { ns: 'common' })
+                        : i18next.t('Edit course details', { ns: 'common' })}
                 </Typography>
                 <form onSubmit={(e) => onSubmit(e)}>
                     <TextField
@@ -132,20 +151,24 @@ const CourseEdit = () => {
                         type="submit"
                         variant="contained"
                     >
-                        {i18next.t('Update', { ns: 'common' })}
+                        {isCreate
+                            ? i18next.t('Create', { ns: 'common' })
+                            : i18next.t('Update', { ns: 'common' })}
                     </Button>
-                    <Button
-                        color="primary"
-                        component={LinkDom}
-                        to={`${DEMO.COURSE_DATABASE}`}
-                        variant="outlined"
-                    >
-                        {i18next.t('Back', { ns: 'common' })}
-                    </Button>
+                    {!isCreate && (
+                        <Button
+                            color="primary"
+                            component={LinkDom}
+                            to={`${DEMO.COURSE_DATABASE}`}
+                            variant="outlined"
+                        >
+                            {i18next.t('Back', { ns: 'common' })}
+                        </Button>
+                    )}
                 </form>
             </Box>
         </>
     );
 };
 
-export default CourseEdit;
+export default CourseForm;

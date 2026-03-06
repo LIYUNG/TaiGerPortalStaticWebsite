@@ -304,8 +304,8 @@ vi.mock('@components/Calendar/components/Calendar', () => ({
         createElement('div', { 'data-testid': 'calendar' }, 'Calendar')
 }));
 
-// EmbeddedChatList stub
-vi.mock('@components/EmbeddedChatList', () => ({
+// ChatList stub (covers both dropdown and embedded modes)
+vi.mock('@components/ChatList', () => ({
     __esModule: true,
     default: () =>
         createElement(
@@ -801,18 +801,24 @@ describe('Tier 3 – Course Analysis pages smoke tests', () => {
         expect(document.body).toBeTruthy();
     });
 
-    test('CourseNew renders', async () => {
-        const C = lazy(
-            () => import('@pages/CourseAnalysis/AllCourses/CourseNew')
-        );
+    test('CourseForm (create) renders', async () => {
+        const C = lazy(async () => {
+            const { default: CourseForm } = await import(
+                '@pages/CourseAnalysis/AllCourses/CourseForm'
+            );
+            return { default: () => <CourseForm mode="create" /> };
+        });
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });
 
-    test('CourseEdit renders', async () => {
-        const C = lazy(
-            () => import('@pages/CourseAnalysis/AllCourses/CourseEdit')
-        );
+    test('CourseForm (edit) renders', async () => {
+        const C = lazy(async () => {
+            const { default: CourseForm } = await import(
+                '@pages/CourseAnalysis/AllCourses/CourseForm'
+            );
+            return { default: () => <CourseForm mode="edit" /> };
+        });
         await renderPageAsync(wrapWithSuspense(C));
         expect(document.body).toBeTruthy();
     });

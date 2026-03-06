@@ -1,11 +1,9 @@
-import { Box, Button, Stack } from '@mui/material';
-import {
-    MRT_GlobalFilterTextField as MRTGlobalFilterTextField,
-    MRT_ToggleFiltersButton as MRTToggleFiltersButton
-} from 'material-react-table';
+import { Button } from '@mui/material';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { useTranslation } from 'react-i18next';
 import { is_TaiGer_role } from '@taiger-common/core';
+
+import { GenericTopToolbar } from '@components/table/GenericTopToolbar';
 
 interface TopToolbarProps {
     table: {
@@ -25,13 +23,9 @@ export const TopToolbar = ({
     const { t } = useTranslation();
 
     return (
-        <Box sx={toolbarStyle}>
-            <Box sx={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                <MRTGlobalFilterTextField table={table} />
-                <MRTToggleFiltersButton sx={{ height: '40px' }} table={table} />
-            </Box>
-            <Stack direction="row" justifyContent="flex-end" spacing={1}>
-                {is_TaiGer_role(user) && (
+        <GenericTopToolbar
+            actions={
+                is_TaiGer_role(user) ? (
                     <Button
                         color="success"
                         disabled={
@@ -44,8 +38,10 @@ export const TopToolbar = ({
                     >
                         {t('Assign', { ns: 'common' })}
                     </Button>
-                )}
-            </Stack>
-        </Box>
+                ) : null
+            }
+            table={table}
+            toolbarStyle={toolbarStyle}
+        />
     );
 };

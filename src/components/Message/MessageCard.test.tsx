@@ -75,15 +75,20 @@ describe('MessageCard', () => {
     });
 
     it('renders without crashing', () => {
-        expect(screen.getByTestId('editor-simple')).toBeDefined();
+        expect(screen.getByTestId('editor-simple')).toBeInTheDocument();
     });
 
     it('renders user full name', () => {
-        expect(screen.getByText('Alice Smith')).toBeDefined();
+        expect(screen.getByText('Alice Smith')).toBeInTheDocument();
     });
 
     it('renders date', () => {
-        expect(screen.getByText('Jan 10, 2024')).toBeDefined();
+        expect(screen.getByText('Jan 10, 2024')).toBeInTheDocument();
+    });
+
+    it('renders message card with correct structure', () => {
+        expect(screen.getByText('Alice Smith')).toBeInTheDocument();
+        expect(screen.getByTestId('editor-simple')).toBeInTheDocument();
     });
 });
 
@@ -99,6 +104,20 @@ describe('MessageCard for different user', () => {
                 <MessageCard {...defaultProps} message={otherUserMessage} />
             </MemoryRouter>
         );
-        expect(screen.getByText('Bob Jones')).toBeDefined();
+        expect(screen.getByText('Bob Jones')).toBeInTheDocument();
+    });
+
+    it('renders Staff TaiGer when user_id is missing', () => {
+        const messageWithoutUser = {
+            ...mockMessage,
+            _id: 'msg3',
+            user_id: undefined
+        };
+        render(
+            <MemoryRouter>
+                <MessageCard {...defaultProps} message={messageWithoutUser} />
+            </MemoryRouter>
+        );
+        expect(screen.getByText('Staff TaiGer')).toBeInTheDocument();
     });
 });

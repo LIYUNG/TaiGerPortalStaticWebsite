@@ -15,6 +15,11 @@ import TextAlign from '@canburaks/text-align-editorjs';
 import { OutputData } from '@editorjs/editorjs';
 import { uploadImage, uploadDocumentThreadImage } from '@/api';
 
+/**
+ * Props for the low-level EditorJS wrapper.
+ * Use this for read-only display or edit-in-place (e.g. MessageEdit, MessageCard).
+ * For composing new messages with reset-on-submit, use ComposeEditor instead.
+ */
 export interface EditorSimpleProps {
     holder: string;
     editorState?: OutputData | undefined;

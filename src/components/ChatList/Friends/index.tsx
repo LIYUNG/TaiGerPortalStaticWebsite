@@ -1,17 +1,19 @@
 import { Box, Typography } from '@mui/material';
 
 import Friend from './Friend';
+import EmbeddedFriend from './EmbeddedFriend';
 import { useTranslation } from 'react-i18next';
 import { menuWidth } from '@utils/contants';
 import type { IStudentResponse } from '@taiger-common/model';
 
 interface FriendsProps {
-    students: IStudentResponse[];
+    students: IStudentResponse[] | unknown[];
     user: { _id?: { toString: () => string } };
+    embedded?: boolean;
     handleCloseChat?: () => void;
 }
 
-const Friends = ({ students, user, handleCloseChat }: FriendsProps) => {
+const Friends = ({ students, user, embedded, handleCloseChat }: FriendsProps) => {
     const { t } = useTranslation();
     const studentsArray = Array.isArray(students) ? students : [];
 
@@ -19,7 +21,7 @@ const Friends = ({ students, user, handleCloseChat }: FriendsProps) => {
         return (
             <Typography
                 sx={{
-                    width: menuWidth,
+                    ...(embedded ? {} : { width: menuWidth }),
                     marginLeft: '10px',
                     marginTop: '10px',
                     marginBottom: '10px',
@@ -30,17 +32,25 @@ const Friends = ({ students, user, handleCloseChat }: FriendsProps) => {
             </Typography>
         );
     }
-    const friendList = studentsArray.map((f: IStudentResponse) => (
-        <Friend
-            activeId={user._id?.toString() ?? ''}
-            data={f}
-            handleCloseChat={handleCloseChat}
-            key={
-                (f._id as { toString?: () => string })?.toString?.() ??
-                String(f._id)
-            }
-        />
-    ));
+
+    const friendList = studentsArray.map((f: Record<string, unknown>) => {
+        const key =
+            (f._id as { toString?: () => string })?.toString?.() ?? String(f._id);
+        return embedded ? (
+            <EmbeddedFriend
+                activeId={user._id?.toString() ?? ''}
+                data={f as Parameters<typeof EmbeddedFriend>[0]['data']}
+                key={key}
+            />
+        ) : (
+            <Friend
+                activeId={user._id?.toString() ?? ''}
+                data={f as Parameters<typeof Friend>[0]['data']}
+                handleCloseChat={handleCloseChat}
+                key={key}
+            />
+        );
+    });
 
     return <Box>{friendList}</Box>;
 };

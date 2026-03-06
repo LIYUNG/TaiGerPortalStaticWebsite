@@ -80,7 +80,7 @@ interface EmbeddedFriendProps {
     activeId: string;
 }
 
-const Friend = (props: EmbeddedFriendProps) => {
+const EmbeddedFriend = (props: EmbeddedFriendProps) => {
     const { student_id } = useParams<{ student_id?: string }>();
     const { user } = useAuth();
     const { t } = useTranslation();
@@ -201,4 +201,4 @@ const Friend = (props: EmbeddedFriendProps) => {
     );
 };
 
-export default Friend;
+export default EmbeddedFriend;

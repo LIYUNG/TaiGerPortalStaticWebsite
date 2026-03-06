@@ -2,15 +2,18 @@ import { useEffect, useState, type ChangeEvent } from 'react';
 import SearchIcon from '@mui/icons-material/Search';
 import { Box, ListItem, MenuItem, Skeleton, Typography } from '@mui/material';
 import i18next from 'i18next';
+import { useQuery } from '@tanstack/react-query';
 
 import Friends from './Friends';
-import { getMyCommunicationThread, getQueryStudentResults } from '@/api';
+import { getMyCommunicationThread, getQueryStudentResults, queryClient } from '@/api';
+import { getMyCommunicationQuery } from '@/api/query';
 import { useAuth } from '../AuthProvider';
 import {
     Search,
     SearchIconWrapper,
     StyledInputBase,
-    menuWidth
+    menuWidth,
+    EmbeddedChatListWidth
 } from '@utils/contants';
 import type { IStudentResponse } from '@taiger-common/model';
 
@@ -26,10 +29,15 @@ interface ChatListState {
 }
 
 interface ChatListProps {
+    /** Render as an embedded sidebar list (uses React Query, Link navigation, attribute chips) */
+    embedded?: boolean;
+    /** Called when a chat item is clicked — only used in non-embedded (dropdown) mode */
     handleCloseChat?: () => void;
+    /** Current open student id — only used in embedded mode to invalidate query */
+    student_id?: string;
 }
 
-const ChatList = (props: ChatListProps) => {
+const ChatList = ({ embedded, handleCloseChat, student_id }: ChatListProps) => {
     const { user } = useAuth();
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState<IStudentResponse[]>([]);
@@ -37,14 +45,26 @@ const ChatList = (props: ChatListProps) => {
         success: false,
         searchMode: false,
         students: [],
-        isLoaded: true
+        isLoaded: !embedded
     });
 
+    // Embedded mode: React Query data fetching
+    const { data: queryData, isLoading: isQueryLoading } = useQuery({
+        ...getMyCommunicationQuery(),
+        enabled: !!embedded
+    });
+
+    // Embedded mode: invalidate query when the active student changes
     useEffect(() => {
-        setChatListState((prevState) => ({
-            ...prevState,
-            isLoaded: false
-        }));
+        if (embedded) {
+            queryClient.invalidateQueries({ queryKey: ['communications', 'my'] });
+        }
+    }, [student_id, embedded]);
+
+    // Non-embedded mode: promise-based data fetching
+    useEffect(() => {
+        if (embedded) return;
+        setChatListState((prev) => ({ ...prev, isLoaded: false }));
         getMyCommunicationThread().then(
             (resp: {
                 data: { success?: boolean; data?: { students?: unknown[] } };
@@ -53,46 +73,43 @@ const ChatList = (props: ChatListProps) => {
                 const { success, data } = resp.data;
                 const { status } = resp;
                 if (success && data) {
-                    setChatListState((prevState) => ({
-                        ...prevState,
+                    setChatListState((prev) => ({
+                        ...prev,
                         success: success ?? false,
                         students: data.students ?? [],
                         isLoaded: true,
                         res_status: status
                     }));
                 } else {
-                    setChatListState((prevState) => ({
-                        ...prevState,
+                    setChatListState((prev) => ({
+                        ...prev,
                         isLoaded: true,
                         res_status: status
                     }));
                 }
             },
             (error: unknown) => {
-                setChatListState((prevState) => ({
-                    ...prevState,
+                setChatListState((prev) => ({
+                    ...prev,
                     isLoaded: true,
                     error,
                     res_status: 500
                 }));
             }
         );
-    }, []);
+    }, [embedded]);
 
     const fetchSearchResults = async () => {
         try {
             const response = await getQueryStudentResults(searchTerm);
             if (response.data.success && response.data.data) {
                 setSearchResults(response.data.data.students ?? []);
-                setChatListState((prevState) => ({
-                    ...prevState,
-                    isLoaded: true
-                }));
+                setChatListState((prev) => ({ ...prev, isLoaded: true }));
             } else {
                 setSearchTerm('');
                 setSearchResults([]);
-                setChatListState((prevState) => ({
-                    ...prevState,
+                setChatListState((prev) => ({
+                    ...prev,
                     res_modal_status: 401,
                     res_modal_message: 'Session expired. Please refresh.',
                     isLoaded: true
@@ -101,8 +118,8 @@ const ChatList = (props: ChatListProps) => {
         } catch (error) {
             setSearchTerm('');
             setSearchResults([]);
-            setChatListState((prevState) => ({
-                ...prevState,
+            setChatListState((prev) => ({
+                ...prev,
                 isLoaded: true,
                 res_modal_status: 403,
                 res_modal_message: error
@@ -112,45 +129,78 @@ const ChatList = (props: ChatListProps) => {
 
     useEffect(() => {
         if (chatListState.searchMode) {
-            setChatListState((prevState) => ({
-                ...prevState,
-                isLoaded: false
-            }));
+            setChatListState((prev) => ({ ...prev, isLoaded: false }));
             const delayDebounceFn = setTimeout(() => {
                 if (searchTerm) {
                     fetchSearchResults();
                 } else {
                     setSearchResults([]);
-                    setChatListState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true
-                    }));
+                    setChatListState((prev) => ({ ...prev, isLoaded: true }));
                 }
             }, 300);
-            return () => {
-                clearTimeout(delayDebounceFn);
-            };
+            return () => clearTimeout(delayDebounceFn);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchTerm]);
+    }, [searchTerm, chatListState.searchMode]);
 
     const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
         if (e.target.value !== '') {
             setSearchTerm(e.target.value);
-            setChatListState((prevState) => ({
-                ...prevState,
-                searchMode: true,
-                isLoaded: false
-            }));
+            setChatListState((prev) => ({ ...prev, searchMode: true, isLoaded: false }));
         } else {
             setSearchTerm('');
-            setChatListState((prevState) => ({
-                ...prevState,
-                searchMode: false,
-                isLoaded: true
-            }));
+            setChatListState((prev) => ({ ...prev, searchMode: false, isLoaded: true }));
         }
     };
+
+    const isLoading = embedded ? isQueryLoading : !chatListState.isLoaded;
+
+    const students: IStudentResponse[] = chatListState.searchMode
+        ? searchResults
+        : embedded
+          ? ((queryData as { data?: { students?: IStudentResponse[] } })?.data
+                ?.students ?? [])
+          : chatListState.students;
+
+    const searchBar = (
+        <Search>
+            <SearchIconWrapper>
+                <SearchIcon />
+            </SearchIconWrapper>
+            <StyledInputBase
+                id="search-friends"
+                inputProps={{ 'aria-label': 'search' }}
+                onChange={handleInputChange}
+                onClick={(e) => e.stopPropagation()}
+                placeholder="Search…"
+                value={searchTerm}
+            />
+        </Search>
+    );
+
+    if (embedded) {
+        return (
+            <Box>
+                {searchBar}
+                {isLoading
+                    ? [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
+                          <MenuItem key={i}>
+                              <Skeleton height={40} variant="circular" width={40} />
+                              <Skeleton
+                                  height={54}
+                                  style={{ marginLeft: '10px' }}
+                                  variant="rectangular"
+                                  width={EmbeddedChatListWidth - 50}
+                              />
+                          </MenuItem>
+                      ))
+                    : null}
+                {!isLoading ? (
+                    <Friends embedded students={students} user={user} />
+                ) : null}
+            </Box>
+        );
+    }
 
     return (
         <>
@@ -167,21 +217,9 @@ const ChatList = (props: ChatListProps) => {
                     </Box>
                 </Box>
             </ListItem>
-            <Search>
-                <SearchIconWrapper>
-                    <SearchIcon />
-                </SearchIconWrapper>
-                <StyledInputBase
-                    id="search-friends"
-                    inputProps={{ 'aria-label': 'search' }}
-                    onChange={handleInputChange}
-                    onClick={(e) => e.stopPropagation()}
-                    placeholder="Search…"
-                    value={searchTerm}
-                />
-            </Search>
+            {searchBar}
             {!chatListState.isLoaded
-                ? [0, 1, 2, 3].map((x, i) => (
+                ? [0, 1, 2, 3].map((_, i) => (
                       <MenuItem key={i}>
                           <Skeleton
                               height={40}
@@ -193,12 +231,8 @@ const ChatList = (props: ChatListProps) => {
                 : null}
             {chatListState.isLoaded ? (
                 <Friends
-                    handleCloseChat={props.handleCloseChat}
-                    students={
-                        chatListState.searchMode
-                            ? searchResults
-                            : chatListState.students
-                    }
+                    handleCloseChat={handleCloseChat}
+                    students={students}
                     user={user}
                 />
             ) : null}
