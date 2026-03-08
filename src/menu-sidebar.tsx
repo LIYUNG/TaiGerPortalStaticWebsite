@@ -293,17 +293,6 @@ let taiger_teams_items: MenuItem[] = [
     }
 ];
 
-if (appConfig.AIEnable) {
-    taiger_teams_items.push({
-        id: 'cvmlrl-generator',
-        title: 'CVMLRL Generator',
-        type: 'item',
-        url: '/cvmlrl/generator',
-        icon: <DrawIcon />,
-        target: false,
-        breadcrumbs: false
-    });
-}
 taiger_teams_items = [
     ...taiger_teams_items,
     {

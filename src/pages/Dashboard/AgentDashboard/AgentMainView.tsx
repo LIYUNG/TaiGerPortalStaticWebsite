@@ -311,18 +311,22 @@ const AgentMainView = () => {
                         <CVAssignTasksCard students={myStudents} user={user} />
                     </Grid>
                 ) : null}
-                <NoProgramStudentTable students={myStudents} />
+                {/* TODO: Add NoProgramStudentTable */}
+                {false && <NoProgramStudentTable students={myStudents} />}
                 <Grid item md={4} sm={6} xs={12}>
                     <ProgramSpecificDocumentCheckCard
                         refactored_threads={refactored_threads}
                     />
                 </Grid>
-                <Grid item md={4} sm={6} xs={12}>
-                    <NoEnoughDecidedProgramsTasksCard
-                        students={myStudents}
-                        user={user}
-                    />
-                </Grid>
+                {/* TODO: Add NoEnoughDecidedProgramsTasksCard */}
+                {false && (
+                    <Grid item md={4} sm={6} xs={12}>
+                        <NoEnoughDecidedProgramsTasksCard
+                            students={myStudents}
+                            user={user}
+                        />
+                    </Grid>
+                )}
             </Grid>
         </Box>
     );

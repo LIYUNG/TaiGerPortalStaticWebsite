@@ -1,76 +1,45 @@
-import React, { useEffect, useState } from 'react';
 import { Navigate, Link as LinkDom } from 'react-router-dom';
 import { Box, Breadcrumbs, Card, Link, Typography } from '@mui/material';
 import { is_TaiGer_role } from '@taiger-common/core';
 
 import ErrorPage from '../Utils/ErrorPage';
-import { getTeamMembers } from '@/api';
+import { useTeamMembers } from '@hooks/useTeamMembers';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { appConfig } from '../../config';
 import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';
 
+interface AdminUser {
+    firstname?: string;
+    lastname?: string;
+    role?: string;
+}
+
 const AdminPage = () => {
     const { user } = useAuth();
-    const [adminPageState, setAdminPageState] = useState({
-        error: '',
-        role: '',
-        isLoaded: false,
-        data: null,
-        success: false,
-        admin: [],
-        academic_background: {},
-        application_preference: {},
-        updateconfirmed: false,
-        res_status: 0
-    });
-
-    useEffect(() => {
-        getTeamMembers().then(
-            (resp) => {
-                const { data, success } = resp.data;
-                const { status } = resp;
-                if (success) {
-                    setAdminPageState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        admin: data,
-                        success: success,
-                        res_status: status
-                    }));
-                } else {
-                    setAdminPageState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        res_status: status
-                    }));
-                }
-            },
-            (error) => {
-                setAdminPageState((prevState) => ({
-                    ...prevState,
-                    isLoaded: true,
-                    error,
-                    res_status: 500
-                }));
-            }
-        );
-    }, []);
+    const { teams, isLoading, isError, error, success, status } =
+        useTeamMembers();
 
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
-    const { res_status, isLoaded } = adminPageState;
-
-    if (!isLoaded && !adminPageState.admin) {
+    if (isLoading) {
         return <Loading />;
     }
 
-    if (res_status >= 400) {
-        return <ErrorPage res_status={res_status} />;
+    if (isError || !success) {
+        const resStatus =
+            status ??
+            (error as { response?: { status?: number } })?.response?.status ??
+            500;
+        return <ErrorPage res_status={resStatus} />;
     }
+
+    const admin: AdminUser | null = Array.isArray(teams)
+        ? (teams as AdminUser[])[0] ?? null
+        : (teams as AdminUser);
 
     TabTitle(`${appConfig.companyName} Admin`);
 
@@ -92,8 +61,7 @@ const AdminPage = () => {
             <Card>
                 <Typography>Admin: </Typography>
                 <Typography fontWeight="bold">
-                    {adminPageState.admin.firstname}{' '}
-                    {adminPageState.admin.lastname}
+                    {admin?.firstname} {admin?.lastname}
                 </Typography>
             </Card>
         </Box>

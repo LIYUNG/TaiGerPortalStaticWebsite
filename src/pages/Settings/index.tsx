@@ -64,11 +64,11 @@ const Settings = () => {
         user: {},
         changed_personaldata: false,
         personaldata: {
-            firstname: user.firstname,
-            firstname_chinese: user.firstname_chinese,
-            lastname: user.lastname,
-            lastname_chinese: user.lastname_chinese,
-            birthday: user.birthday
+            firstname: user?.firstname ?? '',
+            firstname_chinese: user?.firstname_chinese ?? '',
+            lastname: user?.lastname ?? '',
+            lastname_chinese: user?.lastname_chinese ?? '',
+            birthday: user?.birthday ?? ''
         },
         credentials: {
             current_password: '',
@@ -274,7 +274,7 @@ const Settings = () => {
                         handleSubmit_Credentials(
                             e,
                             settingsState.credentials,
-                            (user.email as string) ?? ''
+                            (user?.email as string) ?? ''
                         )
                     }
                     variant="contained"
