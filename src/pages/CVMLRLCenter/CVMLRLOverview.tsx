@@ -571,7 +571,7 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
                 </Tabs>
             </Box>
             <CustomTabPanel index={0} value={tabTag}>
-                <Alert severity="warning"> Please reply: </Alert>
+                <Alert severity="warning" data-testid="banner"> Please reply: </Alert>
                 <MuiDataGrid
                     columnVisibilityModel={{
                         number_input_from_editors: false,
