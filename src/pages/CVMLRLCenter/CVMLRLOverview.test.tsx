@@ -35,10 +35,6 @@ vi.mock('../Utils/ModalHandler/ModalMain', () => ({
     default: () => <div data-testid="modal-main" />
 }));
 
-vi.mock('@components/Banner/Banner', () => ({
-    default: ({ text }: { text: string }) => <div data-testid="banner">{text}</div>
-}));
-
 vi.mock('@components/Tabs', () => ({
     CustomTabPanel: ({ children, index, value }: { children: React.ReactNode; index: number; value: number }) =>
         index === value ? <div data-testid={`tab-panel-${index}`}>{children}</div> : null,

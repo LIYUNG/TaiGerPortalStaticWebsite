@@ -10,14 +10,14 @@ import {
     Card,
     Link,
     Typography,
-    TextField
+    TextField,
+    Alert
 } from '@mui/material';
 import { isProgramDecided } from '@taiger-common/core';
 
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { getPortalCredentials, postPortalCredentials } from '@/api';
-import Banner from '@components/Banner/Banner';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { appConfig } from '../../config';
@@ -386,18 +386,11 @@ export default function PortalCredentialsCard(
                                                     application._id.toString()
                                                 ].password_portal_b)) ? (
                                             <div>
-                                                <Banner
-                                                    ReadOnlyMode={true}
-                                                    bg="danger"
-                                                    link_name=""
-                                                    notification_key={undefined}
-                                                    path="/"
-                                                    text={t(
+                                                <Alert severity="warning">
+                                                    {t(
                                                         'Please register and provide credentials'
                                                     )}
-                                                    title="warning"
-                                                    // removeBanner={this.removeBanner}
-                                                />
+                                                </Alert>
                                             </div>
                                         ) : null}
                                         <Grid

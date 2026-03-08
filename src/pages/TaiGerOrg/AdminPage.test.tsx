@@ -22,13 +22,15 @@ vi.mock('react-router-dom', async () => {
     };
 });
 
-vi.mock('@/api', () => ({
-    getTeamMembers: vi.fn(() =>
-        Promise.resolve({
-            data: { data: { firstname: 'Alice', lastname: 'Admin' }, success: true },
-            status: 200
-        })
-    )
+vi.mock('@hooks/useTeamMembers', () => ({
+    useTeamMembers: vi.fn(() => ({
+        teams: { firstname: 'Alice', lastname: 'Admin' },
+        isLoading: false,
+        isError: false,
+        error: null,
+        success: true,
+        status: 200
+    }))
 }));
 
 vi.mock('@components/Loading/Loading', () => ({

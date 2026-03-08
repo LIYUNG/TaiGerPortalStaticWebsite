@@ -16,10 +16,6 @@ vi.mock('@utils/contants', () => ({
     convertDate: (d: string) => d
 }));
 
-vi.mock('@components/Banner/Banner', () => ({
-    default: ({ text }: { text: string }) => <div data-testid="banner">{text}</div>
-}));
-
 vi.mock('@mui/x-date-pickers', () => ({
     DatePicker: () => <div>DatePicker</div>,
     LocalizationProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>

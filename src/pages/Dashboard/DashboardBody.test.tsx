@@ -45,10 +45,6 @@ vi.mock('./EditorDashboard/EditorMainView', () => ({
     default: () => <div data-testid="editor-view">EditorMainView</div>
 }));
 
-vi.mock('./ManagerDashboard/ManagerMainView', () => ({
-    default: () => <div data-testid="manager-view">ManagerMainView</div>
-}));
-
 vi.mock('./StudentDashboard/StudentDashboard', () => ({
     default: () => <div data-testid="student-view">StudentDashboard</div>
 }));

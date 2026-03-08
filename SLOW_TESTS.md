@@ -26,7 +26,6 @@ All 271 test cases listed with duration (ms), sorted slowest first. Optimize the
 | 170 | StarRating renders without crashing | src/components/SurveyProvider/StarRating.test.tsx |
 | 154 | Footer renders without crashing | src/components/Footer/Footer.test.tsx |
 | 153 | GoogleLoginButton (GoolgeSignInButton) renders without crashing | src/components/Buttons/GoolgeSignInButton.test.tsx |
-| 143 | Banner renders without crashing | src/components/Banner/Banner.test.tsx |
 | 139 | AuthWrapper renders children without crashing | src/components/AuthWrapper/index.test.tsx |
 | 135 | ModalNew renders without crashing when open | src/components/Modal/index.test.tsx |
 | 126 | Buttons DownloadIconButton renders and is clickable | src/components/Buttons/Button.test.tsx |
@@ -49,7 +48,6 @@ All 271 test cases listed with duration (ms), sorted slowest first. Optimize the
 | 71 | ApplicantsOverview renders ApplicationOverviewTabs when not loading | src/pages/ApplicantsOverview/index.test.tsx |
 | 70 | Loading renders without crashing | src/components/Loading/Loading.test.tsx |
 | 69 | TopBar renders without crashing | src/components/TopBar/TopBar.test.tsx |
-| 65 | Banner renders link when link_name and path provided | src/components/Banner/Banner.test.tsx |
 | 65 | Tabs CustomTabPanel renders without crashing | src/components/Tabs/index.test.tsx |
 | 63 | StarRating shows current rating when rating prop is provided | src/components/SurveyProvider/StarRating.test.tsx |
 | 52 | CustomThemeProvider renders children without crashing | src/components/ThemeProvider/index.test.tsx |
@@ -74,7 +72,6 @@ All 271 test cases listed with duration (ms), sorted slowest first. Optimize the
 | 22 | Buttons SetNeededIconButton renders | src/components/Buttons/Button.test.tsx |
 | 21 | Buttons DeleteIconButton renders and is disabled when isLoading | src/components/Buttons/Button.test.tsx |
 | 19 | ApplicationLockControl returns null when application is missing | src/components/ApplicationLockControl/ApplicationLockControl.test.tsx |
-| 18 | Banner renders title when provided | src/components/Banner/Banner.test.tsx |
 | 18 | Survey renders survey component when student | src/pages/Survey/index.test.tsx |
 | 17 | Tier 3 – Course Analysis pages smoke tests CourseNew renders | src/App.pageSmoke3.test.tsx |
 | 17 | SurveyHeader renders subtitle when provided | src/components/SurveyProvider/SurveyHeader.test.tsx |
@@ -174,7 +171,6 @@ All 271 test cases listed with duration (ms), sorted slowest first. Optimize the
 | 3 | Tier 3 – Documentation pages smoke tests DocCreatePage renders | src/App.pageSmoke3.test.tsx |
 | 3 | Tier 3 – Office Hours pages smoke tests OfficeHours renders | src/App.pageSmoke3.test.tsx |
 | 3 | Tier 3 – Course Analysis pages smoke tests CourseEdit renders | src/App.pageSmoke3.test.tsx |
-| 3 | Tier 3 – AI / Widget pages smoke tests CVMLRLGenerator renders | src/App.pageSmoke3.test.tsx |
 | 3 | Tier 3 – AI / Widget pages smoke tests MyCoursesAnalysisV2 renders | src/App.pageSmoke3.test.tsx |
 | 3 | ApplicationLockControl returns null when application has no programId | src/components/ApplicationLockControl/ApplicationLockControl.test.tsx |
 | 2 | Page smoke tests – all pages render without crashing Assignment Editors page renders | src/App.pageSmoke.test.tsx |

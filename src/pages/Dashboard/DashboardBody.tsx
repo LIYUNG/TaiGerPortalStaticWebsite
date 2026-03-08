@@ -7,14 +7,12 @@ import {
     is_TaiGer_Editor,
     is_TaiGer_External,
     is_TaiGer_Guest,
-    is_TaiGer_Manager,
     is_TaiGer_Student
 } from '@taiger-common/core';
 
 import AdminMainView from './AdminDashboard/AdminMainView';
 import AgentMainView from './AgentDashboard/AgentMainView';
 import EditorMainView from './EditorDashboard/EditorMainView';
-import ManagerMainView from './ManagerDashboard/ManagerMainView';
 import StudentDashboard from './StudentDashboard/StudentDashboard';
 import GuestDashboard from './GuestDashboard/GuestDashboard';
 import { TabTitle } from '../Utils/TabTitle';
@@ -61,7 +59,6 @@ const DashboardBody = () => {
                 </span>
             </Alert>
             {is_TaiGer_Admin(user) ? <AdminMainView /> : null}
-            {is_TaiGer_Manager(user) ? <ManagerMainView /> : null}
             {is_TaiGer_Agent(user) ? <AgentMainView /> : null}
             {is_TaiGer_Editor(user) ? <EditorMainView /> : null}
             {is_TaiGer_External(user) ? (

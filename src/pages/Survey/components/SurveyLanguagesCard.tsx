@@ -9,7 +9,8 @@ import {
     Typography,
     Grid,
     FormControl,
-    InputLabel
+    InputLabel,
+    Alert
 } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
@@ -23,14 +24,15 @@ import {
     IS_PASSED_OPTIONS,
     convertDate
 } from '@utils/contants';
-import Banner from '@components/Banner/Banner';
 import type { SurveyLanguagesCardProps } from '../types';
 
 function selectValueInOptions(
     value: unknown,
     options: ReadonlyArray<{ value: string }>
 ): string {
-    return options.some((o) => o.value === value) ? (value as string) ?? '' : '';
+    return options.some((o) => o.value === value)
+        ? ((value as string) ?? '')
+        : '';
 }
 
 const SurveyLanguagesCard = ({
@@ -48,12 +50,11 @@ const SurveyLanguagesCard = ({
                     <Typography variant="h6">
                         {t('Languages Test and Certificates')}
                     </Typography>
-                    <Banner
-                        link_name=""
-                        path="/"
-                        text="若還沒考過，請在 Passed 處選 No，並填上檢定以及預計考試時間。若不需要（如德語），請填 Not Needed。方便顧問了解你的進度。"
-                        title="warning"
-                    />
+                    <Alert severity="warning">
+                        若還沒考過，請在 Passed 處選
+                        No，並填上檢定以及預計考試時間。若不需要（如德語），請填
+                        Not Needed。方便顧問了解你的進度。
+                    </Alert>
                     {survey.academic_background?.language?.english_isPassed ===
                         'X' ||
                     survey.academic_background?.language?.german_isPassed ===
@@ -62,16 +63,9 @@ const SurveyLanguagesCard = ({
                         'X' ||
                     survey.academic_background?.language?.gmat_isPassed ===
                         'X' ? (
-                        <Banner
-                            link_name=""
-                            path="/"
-                            text={
-                                <>
-                                    報名考試時，請確認 <b>護照</b> 有無過期。
-                                </>
-                            }
-                            title="warning"
-                        />
+                        <Alert severity="warning">
+                            報名考試時，請確認 <b>護照</b> 有無過期。
+                        </Alert>
                     ) : null}
                 </Grid>
 

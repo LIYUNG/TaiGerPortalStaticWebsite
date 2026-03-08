@@ -110,9 +110,7 @@ const MyCoursesAnalysisV2 = lazy(
 const CoursesAnalysisWidget = lazy(
     async () => await import('@pages/MyCourses/CourseWidget')
 );
-const CVMLRLGenerator = lazy(
-    async () => await import('@pages/TaiGerAI/CVMLRLGenerator')
-);
+
 const AgentSupportDocuments = lazy(
     async () => await import('@pages/AgentSupportDocuments/index')
 );
@@ -908,12 +906,6 @@ if (appConfig.AIEnable) {
         exact: true,
         name: 'CVMLRL Modification Thread',
         Component: CVMLRL_Modification_ThreadInput
-    });
-    routes.push({
-        path: '/cvmlrl/generator',
-        exact: true,
-        name: 'CVMLRL Generator',
-        Component: CVMLRLGenerator
     });
 }
 

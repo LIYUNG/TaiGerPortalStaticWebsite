@@ -17,7 +17,6 @@ vi.mock('@components/AuthProvider', () => ({
         user: {
             role: 'Agent',
             _id: 'u1',
-            agent_notification: { isRead_new_base_docs_uploaded: [] }
         }
     })
 }));
@@ -103,10 +102,6 @@ vi.mock('../MainViewTab/AgentTasks/ProgramSpecificDocumentCheckCard', () => ({
     default: () => <div data-testid="program-specific-document-check-card" />
 }));
 
-vi.mock('@components/Banner/Banner', () => ({
-    default: () => <div data-testid="banner" />
-}));
-
 vi.mock(
     '@components/ApplicationProgressCard/ApplicationProgressCardBody',
     () => ({
@@ -135,31 +130,27 @@ vi.mock('../../../config', () => ({
 
 import AgentMainView from './AgentMainView';
 
-const defaultProps = {
-    notification: { isRead_new_base_docs_uploaded: [] }
-};
-
 const wrapper = ({ children }: { children: ReactNode }) => (
     <MemoryRouter>{children}</MemoryRouter>
 );
 
 describe('AgentMainView', () => {
     it('renders without crashing', () => {
-        render(<AgentMainView {...defaultProps} />, { wrapper });
+        render(<AgentMainView />, { wrapper });
         expect(screen.getByTestId('program-report-card')).toBeTruthy();
     });
 
     it('renders the ProgramSpecificDocumentCheckCard', () => {
-        render(<AgentMainView {...defaultProps} />, { wrapper });
+        render(<AgentMainView />, { wrapper });
         expect(
             screen.getByTestId('program-specific-document-check-card')
         ).toBeTruthy();
     });
 
-    it('renders the NoEnoughDecidedProgramsTasksCard', () => {
-        render(<AgentMainView {...defaultProps} />, { wrapper });
-        expect(
-            screen.getByTestId('no-enough-decided-programs-tasks-card')
-        ).toBeTruthy();
-    });
+    // it('renders the NoEnoughDecidedProgramsTasksCard', () => {
+    //     render(<AgentMainView />, { wrapper });
+    //     expect(
+    //         screen.getByTestId('no-enough-decided-programs-tasks-card')
+    //     ).toBeTruthy();
+    // });
 });

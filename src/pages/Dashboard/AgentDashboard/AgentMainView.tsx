@@ -1,6 +1,8 @@
 import { Fragment, useState, type MouseEvent } from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import LaunchIcon from '@mui/icons-material/Launch';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useTranslation } from 'react-i18next';
 import {
     Grid,
@@ -14,6 +16,7 @@ import {
     Typography,
     Box
 } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import { isProgramDecided } from '@taiger-common/core';
 import queryString from 'query-string';
 
@@ -40,7 +43,6 @@ import { useAuth } from '@components/AuthProvider';
 import NoProgramStudentTable from '../MainViewTab/AgentTasks/NoProgramStudentTable';
 import BaseDocumentCheckingTable from '../MainViewTab/AgentTasks/BaseDocumentCheckingTable';
 import ProgramSpecificDocumentCheckCard from '../MainViewTab/AgentTasks/ProgramSpecificDocumentCheckCard';
-import Banner from '@components/Banner/Banner';
 import { is_new_message_status, is_pending_status } from '@utils/contants';
 import { useQuery } from '@tanstack/react-query';
 import { getMyStudentsThreadsQuery } from '@/api/query';
@@ -48,21 +50,11 @@ import { useMyStudentsApplicationsV2 } from '@hooks/useMyStudentsApplicationsV2'
 import { useStudentsV3 } from '@hooks/useStudentsV3';
 import Loading from '@components/Loading/Loading';
 import {
-    IAgentNotificationItem,
     IApplication,
     IUserWithId
 } from '@taiger-common/model';
 
-interface AgentMainViewProps {
-    notification: {
-        isRead_new_base_docs_uploaded: {
-            student_id: string;
-            student_firstname: string;
-            student_lastname: string;
-        }[];
-    };
-}
-const AgentMainView = (props: AgentMainViewProps) => {
+const AgentMainView = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const { data: myStudentsApplications, isLoading: isLoadingApplications } =
@@ -82,55 +74,8 @@ const AgentMainView = (props: AgentMainViewProps) => {
 
     const [agentMainViewState, setAgentMainViewState] = useState({
         error: '',
-        notification: props.notification,
         collapsedRows: {}
     });
-
-    const removeAgentBanner = (
-        e: MouseEvent<HTMLElement>,
-        notification_key: string,
-        student_id: string
-    ) => {
-        e.preventDefault();
-        const temp_user = { ...user };
-        const idx = temp_user.agent_notification[
-            `${notification_key}`
-        ].findIndex(
-            (student_obj: IAgentNotificationItem) =>
-                student_obj.student_id === student_id
-        );
-        temp_user.agent_notification[`${notification_key}`].splice(idx, 1);
-        setAgentMainViewState({
-            ...agentMainViewState,
-            notification: temp_user.agent_notification,
-            user: temp_user
-        });
-        updateAgentBanner(notification_key, student_id).then(
-            (resp) => {
-                const { success } = resp.data;
-                const { status } = resp;
-                if (success) {
-                    setAgentMainViewState((prevState) => ({
-                        ...prevState,
-                        success: success,
-                        res_status: status
-                    }));
-                } else {
-                    setAgentMainViewState((prevState) => ({
-                        ...prevState,
-                        res_status: status
-                    }));
-                }
-            },
-            (error) => {
-                setAgentMainViewState({
-                    ...agentMainViewState,
-                    error,
-                    res_status: 500
-                });
-            }
-        );
-    };
 
     const handleCollapse = (index: number) => {
         setAgentMainViewState({
@@ -188,60 +133,93 @@ const AgentMainView = (props: AgentMainViewProps) => {
     return (
         <Box sx={{ mb: 2 }}>
             <Grid container spacing={1}>
-                <Grid item sm={12} xs={12}>
-                    {agentMainViewState.notification?.isRead_new_base_docs_uploaded?.map(
-                        (student, i) => (
-                            <Card key={i} sx={{ mb: 1 }}>
-                                <Banner
-                                    bg="danger"
-                                    link_name={<LaunchIcon fontSize="small" />}
-                                    notification_key="isRead_new_base_docs_uploaded"
-                                    path={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                                        student.student_id,
-                                        DEMO.PROFILE_HASH
-                                    )}`}
-                                    removeBanner={(
-                                        e: MouseEvent<HTMLElement>
-                                    ) =>
-                                        removeAgentBanner(
-                                            e,
-                                            'isRead_new_base_docs_uploaded',
-                                            student.student_id
-                                        )
-                                    }
-                                    student_id={student.student_id}
-                                    text={`${t(
-                                        'There are new base documents uploaded by',
-                                        {
-                                            ns: 'common'
-                                        }
-                                    )} ${student.student_firstname} ${student.student_lastname}`}
-                                    title="warning"
-                                />
-                            </Card>
-                        )
-                    )}
-                </Grid>
                 <Grid item sm={3} xs={6}>
-                    <Card sx={{ p: 2 }}>
-                        <Typography>
-                            {t('Action required', { ns: 'common' })}
-                        </Typography>
-                        <Typography variant="h6">
-                            <Link
-                                component={LinkDom}
-                                to={DEMO.AGENT_SUPPORT_DOCUMENTS('to-do')}
-                                underline="hover"
+                    <Link
+                        component={LinkDom}
+                        to={DEMO.AGENT_SUPPORT_DOCUMENTS('to-do')}
+                        underline="none"
+                        color="inherit"
+                        sx={{ display: 'block', height: '100%' }}
+                    >
+                        <Card
+                            sx={{
+                                p: 2,
+                                height: '100%',
+                                cursor: 'pointer',
+                                ...((new_message_tasks?.length ?? 0) > 0
+                                    ? {
+                                          bgcolor: 'error.light',
+                                          borderLeft: 4,
+                                          borderColor: 'error.main'
+                                      }
+                                    : {}),
+                                transition:
+                                    'box-shadow 0.2s, background-color 0.2s',
+                                '&:hover': {
+                                    boxShadow: 2,
+                                    backgroundColor: (theme) =>
+                                        (new_message_tasks?.length ?? 0) > 0
+                                            ? alpha(
+                                                  theme.palette.error.main,
+                                                  0.2
+                                              )
+                                            : theme.palette.action.hover
+                                }
+                            }}
+                        >
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 1,
+                                    mb: 1
+                                }}
                             >
-                                <b>
-                                    {t('Task', {
-                                        ns: 'common',
-                                        count: new_message_tasks?.length || 0
-                                    })}
-                                </b>
-                            </Link>
-                        </Typography>
-                    </Card>
+                                {(new_message_tasks?.length ?? 0) > 0 ? (
+                                    <AssignmentIcon
+                                        fontSize="small"
+                                        sx={{ color: 'white' }}
+                                    />
+                                ) : (
+                                    <CheckCircleIcon
+                                        fontSize="small"
+                                        color="success"
+                                    />
+                                )}
+                                <Typography
+                                    variant="body2"
+                                    color={
+                                        (new_message_tasks?.length ?? 0) > 0
+                                            ? 'white'
+                                            : 'text.secondary'
+                                    }
+                                >
+                                    {(new_message_tasks?.length ?? 0) > 0
+                                        ? t('Action required', { ns: 'common' })
+                                        : t('No Action', { ns: 'common' })}
+                                </Typography>
+                            </Box>
+                            <Typography
+                                variant="h6"
+                                component="p"
+                                fontWeight={
+                                    (new_message_tasks?.length ?? 0) > 0
+                                        ? 'bold'
+                                        : 'normal'
+                                }
+                                color={
+                                    (new_message_tasks?.length ?? 0) > 0
+                                        ? 'white'
+                                        : 'primary.main'
+                                }
+                            >
+                                {t('Task', {
+                                    ns: 'common',
+                                    count: new_message_tasks?.length || 0
+                                })}
+                            </Typography>
+                        </Card>
+                    </Link>
                 </Grid>
                 <Grid item sm={3} xs={6}>
                     <Card sx={{ p: 2 }}>
@@ -403,18 +381,22 @@ const AgentMainView = (props: AgentMainViewProps) => {
                         <CVAssignTasksCard students={myStudents} user={user} />
                     </Grid>
                 ) : null}
-                <NoProgramStudentTable students={myStudents} />
+                {/* TODO: Add NoProgramStudentTable */}
+                {false && <NoProgramStudentTable students={myStudents} />}
                 <Grid item md={4} sm={6} xs={12}>
                     <ProgramSpecificDocumentCheckCard
                         refactored_threads={refactored_threads}
                     />
                 </Grid>
-                <Grid item md={4} sm={6} xs={12}>
-                    <NoEnoughDecidedProgramsTasksCard
-                        students={myStudents}
-                        user={user}
-                    />
-                </Grid>
+                {/* TODO: Add NoEnoughDecidedProgramsTasksCard */}
+                {false && (
+                    <Grid item md={4} sm={6} xs={12}>
+                        <NoEnoughDecidedProgramsTasksCard
+                            students={myStudents}
+                            user={user}
+                        />
+                    </Grid>
+                )}
             </Grid>
         </Box>
     );

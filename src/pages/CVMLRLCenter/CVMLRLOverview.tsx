@@ -1,6 +1,15 @@
 import { useState } from 'react';
 import { Link as LinkDom, useLocation } from 'react-router-dom';
-import { Tabs, Tab, Box, Typography, Link, Tooltip, Chip } from '@mui/material';
+import {
+    Tabs,
+    Tab,
+    Box,
+    Typography,
+    Link,
+    Tooltip,
+    Chip,
+    Alert
+} from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import StarBorderRoundedIcon from '@mui/icons-material/StarBorderRounded';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
@@ -16,7 +25,6 @@ import {
     THREADS_TABLE_TABS
 } from '@utils/contants';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
-import Banner from '@components/Banner/Banner';
 import { useAuth } from '@components/AuthProvider';
 import { CustomTabPanel, a11yProps } from '@components/Tabs';
 import { useTranslation } from 'react-i18next';
@@ -563,16 +571,7 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
                 </Tabs>
             </Box>
             <CustomTabPanel index={0} value={tabTag}>
-                <Banner
-                    ReadOnlyMode={true}
-                    bg="danger"
-                    link_name=""
-                    notification_key={undefined}
-                    path="/"
-                    removeBanner={null}
-                    text="Please reply:"
-                    title="warning"
-                />
+                <Alert severity="warning" data-testid="banner"> Please reply: </Alert>
                 <MuiDataGrid
                     columnVisibilityModel={{
                         number_input_from_editors: false,
@@ -593,16 +592,7 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
                 />
             </CustomTabPanel>
             <CustomTabPanel index={2} value={tabTag}>
-                <Banner
-                    ReadOnlyMode={true}
-                    bg="primary"
-                    link_name=""
-                    notification_key={undefined}
-                    path="/"
-                    removeBanner={null}
-                    text="Follow up"
-                    title="info"
-                />
+                <Alert severity="info"> Follow up </Alert>
                 <MuiDataGrid
                     columnVisibilityModel={{
                         number_input_from_editors: false,
@@ -613,20 +603,11 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
                 />
             </CustomTabPanel>
             <CustomTabPanel index={3} value={tabTag}>
-                <Banner
-                    ReadOnlyMode={true}
-                    bg="info"
-                    link_name=""
-                    notification_key={undefined}
-                    path="/"
-                    removeBanner={null}
-                    text={
-                        is_TaiGer_role(user)
-                            ? 'Waiting inputs. No action needed'
-                            : 'Please provide input as soon as possible'
-                    }
-                    title={is_TaiGer_role(user) ? 'info' : 'warning'}
-                />
+                <Alert severity="info">
+                    {is_TaiGer_role(user)
+                        ? 'Waiting inputs. No action needed'
+                        : 'Please provide input as soon as possible'}
+                </Alert>
                 <MuiDataGrid
                     columnVisibilityModel={{
                         number_input_from_editors: false,
@@ -637,16 +618,7 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
                 />
             </CustomTabPanel>
             <CustomTabPanel index={4} value={tabTag}>
-                <Banner
-                    ReadOnlyMode={true}
-                    bg="success"
-                    link_name=""
-                    notification_key={undefined}
-                    path="/"
-                    removeBanner={null}
-                    text="These tasks are closed."
-                    title="success"
-                />
+                <Alert severity="success"> These tasks are closed. </Alert>
                 <MuiDataGrid
                     columnVisibilityModel={{
                         number_input_from_editors: false,

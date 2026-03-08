@@ -835,12 +835,6 @@ describe('Tier 3 – Course Analysis pages smoke tests', () => {
 });
 
 describe('Tier 3 – AI / Widget pages smoke tests', () => {
-    test('CVMLRLGenerator renders', async () => {
-        const C = lazy(() => import('@pages/TaiGerAI/CVMLRLGenerator'));
-        await renderPageAsync(wrapWithSuspense(C));
-        expect(document.body).toBeTruthy();
-    });
-
     test('CVMLRL_Modification_Thread renders', async () => {
         const C = lazy(
             () =>

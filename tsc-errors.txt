@@ -2604,8 +2604,6 @@ src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(76,21): error TS18047: 'use
 src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(96,31): error TS2551: Property 'agent_notification' does not exist on type '{ _id?: string | undefined; courses?: ICourse | undefined; role?: string | undefined; needEditor?: boolean | undefined; applying_program_count?: number | undefined; attributes?: IUserAttribute[] | undefined; ... 18 more ...; lastLoginAt?: Date | undefined; }'. Did you mean 'notification'?
 src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(102,19): error TS2551: Property 'agent_notification' does not exist on type '{ _id?: string | undefined; courses?: ICourse | undefined; role?: string | undefined; needEditor?: boolean | undefined; applying_program_count?: number | undefined; attributes?: IUserAttribute[] | undefined; ... 18 more ...; lastLoginAt?: Date | undefined; }'. Did you mean 'notification'?
 src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(105,37): error TS2551: Property 'agent_notification' does not exist on type '{ _id?: string | undefined; courses?: ICourse | undefined; role?: string | undefined; needEditor?: boolean | undefined; applying_program_count?: number | undefined; attributes?: IUserAttribute[] | undefined; ... 18 more ...; lastLoginAt?: Date | undefined; }'. Did you mean 'notification'?
-src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(106,13): error TS2353: Object literal may only specify known properties, and 'user' does not exist in type 'SetStateAction<{ error: string; notification: { isRead_new_base_docs_uploaded: { student_id: string; student_firstname: string; student_lastname: string; }[]; }; collapsedRows: {}; }>'.
-src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(129,21): error TS2353: Object literal may only specify known properties, and 'res_status' does not exist in type 'SetStateAction<{ error: string; notification: { isRead_new_base_docs_uploaded: { student_id: string; student_firstname: string; student_lastname: string; }[]; }; collapsedRows: {}; }>'.
 src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(140,27): error TS7053: Element implicitly has an 'any' type because expression of type 'number' can't be used to index type '{}'.
   No index signature with a parameter of type 'number' was found on type '{}'.
 src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(155,29): error TS2339: Property 'program_name' does not exist on type 'IApplication'.
@@ -2652,7 +2650,6 @@ src/pages/Dashboard/DashboardBody.tsx(63,30): error TS2345: Argument of type 'IU
   Type 'null' is not assignable to type 'IUser'.
 src/pages/Dashboard/DashboardBody.tsx(64,32): error TS2345: Argument of type 'IUserWithId | null' is not assignable to parameter of type 'IUser'.
   Type 'null' is not assignable to type 'IUser'.
-src/pages/Dashboard/DashboardBody.tsx(64,41): error TS2740: Type '{}' is missing the following properties from type 'ManagerMainViewProps': notification, students, documentslist, isDashboard, and 2 more.
 src/pages/Dashboard/DashboardBody.tsx(65,30): error TS2345: Argument of type 'IUserWithId | null' is not assignable to parameter of type 'IUser'.
   Type 'null' is not assignable to type 'IUser'.
 src/pages/Dashboard/DashboardBody.tsx(65,39): error TS2741: Property 'notification' is missing in type '{}' but required in type 'AgentMainViewProps'.
@@ -2972,84 +2969,6 @@ src/pages/Dashboard/MainViewTab/StudentsAgentEditor/StudentsAgentEditor.tsx(439,
       Types of property 'currentTarget' are incompatible.
         Type 'EventTarget & HTMLElement' is not assignable to type 'EventTarget & HTMLFormElement'.
           Type 'EventTarget & HTMLElement' is missing the following properties from type 'HTMLFormElement': acceptCharset, action, autocomplete, elements, and 15 more.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(83,31): error TS2551: Property 'agent_notification' does not exist on type '{ _id?: string | undefined; courses?: ICourse | undefined; role?: string | undefined; needEditor?: boolean | undefined; applying_program_count?: number | undefined; attributes?: IUserAttribute[] | undefined; ... 18 more ...; lastLoginAt?: Date | undefined; }'. Did you mean 'notification'?
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(89,19): error TS2551: Property 'agent_notification' does not exist on type '{ _id?: string | undefined; courses?: ICourse | undefined; role?: string | undefined; needEditor?: boolean | undefined; applying_program_count?: number | undefined; attributes?: IUserAttribute[] | undefined; ... 18 more ...; lastLoginAt?: Date | undefined; }'. Did you mean 'notification'?
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(91,33): error TS2345: Argument of type '(prevState: { error: string; user: IUserWithId | null; notification: Notification[]; collapsedRows: {}; }) => { user: { _id?: string | undefined; courses?: ICourse | undefined; ... 22 more ...; lastLoginAt?: Date | undefined; }; error: string; notification: Notification[]; collapsedRows: {}; }' is not assignable to parameter of type 'SetStateAction<{ error: string; user: IUserWithId | null; notification: Notification[]; collapsedRows: {}; }>'.
-  Type '(prevState: { error: string; user: IUserWithId | null; notification: Notification[]; collapsedRows: {}; }) => { user: { _id?: string | undefined; courses?: ICourse | undefined; ... 22 more ...; lastLoginAt?: Date | undefined; }; error: string; notification: Notification[]; collapsedRows: {}; }' is not assignable to type '(prevState: { error: string; user: IUserWithId | null; notification: Notification[]; collapsedRows: {}; }) => { error: string; user: IUserWithId | null; notification: Notification[]; collapsedRows: {}; }'.
-    Call signature return types '{ user: { _id?: string | undefined; courses?: ICourse | undefined; role?: string | undefined; needEditor?: boolean | undefined; applying_program_count?: number | undefined; ... 19 more ...; lastLoginAt?: Date | undefined; }; error: string; notification: Notification[]; collapsedRows: {}; }' and '{ error: string; user: IUserWithId | null; notification: Notification[]; collapsedRows: {}; }' are incompatible.
-      The types of 'user._id' are incompatible between these types.
-        Type 'string | undefined' is not assignable to type 'string'.
-          Type 'undefined' is not assignable to type 'string'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(128,27): error TS7053: Element implicitly has an 'any' type because expression of type 'number' can't be used to index type '{}'.
-  No index signature with a parameter of type 'number' was found on type '{}'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(134,13): error TS2322: Type '{ documentslist: IDocumentthread[]; isDashboard: boolean; key: number; student: IStudentResponse; submitUpdateAgentlist: () => void; updateAgentList: (agentList: IUserWithId[]) => void; updateStudentArchivStatus: any; user: IUserWithId | null; }' is not assignable to type 'IntrinsicAttributes & StudentsAgentEditorProps'.
-  Property 'documentslist' does not exist on type 'IntrinsicAttributes & StudentsAgentEditorProps'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(140,40): error TS2304: Cannot find name 'updateStudentArchivStatus'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(147,13): error TS18048: 'student.agents' is possibly 'undefined'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(147,58): error TS18047: 'user' is possibly 'null'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(155,13): error TS18048: 'student.agents' is possibly 'undefined'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(155,58): error TS18047: 'user' is possibly 'null'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(169,13): error TS18046: 'a.application_deadline' is of type 'unknown'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(169,38): error TS18046: 'b.application_deadline' is of type 'unknown'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(176,49): error TS2339: Property 'isRead_new_base_docs_uploaded' does not exist on type 'Notification[]'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(182,33): error TS2322: Type 'Element' is not assignable to type 'string'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(185,37): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
-  Type 'undefined' is not assignable to type 'string'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(190,41): error TS2345: Argument of type 'SyntheticEvent<Element, Event>' is not assignable to parameter of type 'MouseEvent<HTMLElement, MouseEvent>'.
-  Type 'SyntheticEvent<Element, Event>' is missing the following properties from type 'MouseEvent<HTMLElement, MouseEvent>': altKey, button, buttons, clientX, and 14 more.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(227,61): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(231,57): error TS2322: Type 'unknown' is not assignable to type 'ReactI18NextChildren | Iterable<ReactI18NextChildren>'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(238,49): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(243,49): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(247,53): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'IUserWithId'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(253,49): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(256,42): error TS7053: Element implicitly has an 'any' type because expression of type 'number' can't be used to index type '{}'.
-  No index signature with a parameter of type 'number' was found on type '{}'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(260,53): error TS2322: Type 'string' is not assignable to type 'number'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(262,57): error TS2322: Type 'unknown' is not assignable to type 'Application'.
-  Type 'unknown' is not assignable to type 'IApplicationPopulated'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(265,57): error TS2322: Type 'unknown' is not assignable to type 'IStudentResponse'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(284,25): error TS18048: 'student.agents' is possibly 'undefined'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(285,54): error TS18047: 'user' is possibly 'null'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(289,65): error TS2322: Type '{ students: IStudentResponse[]; user: IUserWithId | null; }' is not assignable to type 'IntrinsicAttributes & { applications: IApplicationPopulated[]; students: IStudentResponse[]; }'.
-  Property 'user' does not exist on type 'IntrinsicAttributes & { applications: IApplicationPopulated[]; students: IStudentResponse[]; }'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(293,25): error TS18048: 'student.agents' is possibly 'undefined'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(294,54): error TS18047: 'user' is possibly 'null'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(298,43): error TS2322: Type '{ students: IStudentResponse[]; user: IUserWithId | null; }' is not assignable to type 'IntrinsicAttributes & { applications: IApplicationPopulated[]; }'.
-  Property 'students' does not exist on type 'IntrinsicAttributes & { applications: IApplicationPopulated[]; }'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(302,25): error TS18048: 'student.agents' is possibly 'undefined'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(303,54): error TS18047: 'user' is possibly 'null'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(308,26): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(props: { component: ElementType<any, keyof IntrinsicElements>; } & SvgIconOwnProps & CommonProps & Omit<any, "children" | ... 10 more ... | "viewBox">): Element | null', gave the following error.
-    Property 'component' is missing in type '{ size: number; }' but required in type '{ component: ElementType<any, keyof IntrinsicElements>; }'.
-  Overload 2 of 2, '(props: DefaultComponentProps<SvgIconTypeMap<{}, "svg">>): Element | null', gave the following error.
-    Type '{ size: number; }' is not assignable to type 'IntrinsicAttributes & SvgIconOwnProps & CommonProps & Omit<Omit<SVGProps<SVGSVGElement>, "ref"> & { ...; }, "children" | ... 10 more ... | "viewBox">'.
-      Property 'size' does not exist on type 'IntrinsicAttributes & SvgIconOwnProps & CommonProps & Omit<Omit<SVGProps<SVGSVGElement>, "ref"> & { ...; }, "children" | ... 10 more ... | "viewBox">'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(315,33): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(props: { component: ElementType<any, keyof IntrinsicElements>; } & TableOwnProps & CommonProps & Omit<any, "children" | ... 6 more ... | "stickyHeader">): Element | null', gave the following error.
-    Type '"sm"' is not assignable to type 'OverridableStringUnion<"small" | "medium", TablePropsSizeOverrides> | undefined'.
-  Overload 2 of 2, '(props: DefaultComponentProps<TableTypeMap<{}, "table">>): Element | null', gave the following error.
-    Type '"sm"' is not assignable to type 'OverridableStringUnion<"small" | "medium", TablePropsSizeOverrides> | undefined'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(343,25): error TS18048: 'student.agents' is possibly 'undefined'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(344,54): error TS18047: 'user' is possibly 'null'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(348,60): error TS2322: Type '{ students: IStudentResponse[]; user: IUserWithId | null; }' is not assignable to type 'IntrinsicAttributes & { students: IStudentResponse[]; }'.
-  Property 'user' does not exist on type 'IntrinsicAttributes & { students: IStudentResponse[]; }'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(352,25): error TS18048: 'student.agents' is possibly 'undefined'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(353,54): error TS18047: 'user' is possibly 'null'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(358,26): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(props: { component: ElementType<any, keyof IntrinsicElements>; } & CardOwnProps & CommonProps & Omit<any, "children" | ... 7 more ... | "raised">): Element | null', gave the following error.
-    Property 'component' is missing in type '{ children: Element[]; bg: string; className: string; text: string; }' but required in type '{ component: ElementType<any, keyof IntrinsicElements>; }'.
-  Overload 2 of 2, '(props: DefaultComponentProps<CardTypeMap<{}, "div">>): Element | null', gave the following error.
-    Type '{ children: Element[]; bg: string; className: string; text: string; }' is not assignable to type 'IntrinsicAttributes & CardOwnProps & CommonProps & Omit<Omit<DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>, "ref"> & { ...; }, "children" | ... 7 more ... | "raised">'.
-      Property 'bg' does not exist on type 'IntrinsicAttributes & CardOwnProps & CommonProps & Omit<Omit<DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>, "ref"> & { ...; }, "children" | ... 7 more ... | "raised">'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(360,34): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(props: { component: ElementType<any, keyof IntrinsicElements>; } & SvgIconOwnProps & CommonProps & Omit<any, "children" | ... 10 more ... | "viewBox">): Element | null', gave the following error.
-    Property 'component' is missing in type '{ size: number; }' but required in type '{ component: ElementType<any, keyof IntrinsicElements>; }'.
-  Overload 2 of 2, '(props: DefaultComponentProps<SvgIconTypeMap<{}, "svg">>): Element | null', gave the following error.
-    Type '{ size: number; }' is not assignable to type 'IntrinsicAttributes & SvgIconOwnProps & CommonProps & Omit<Omit<SVGProps<SVGSVGElement>, "ref"> & { ...; }, "children" | ... 10 more ... | "viewBox">'.
-      Property 'size' does not exist on type 'IntrinsicAttributes & SvgIconOwnProps & CommonProps & Omit<Omit<SVGProps<SVGSVGElement>, "ref"> & { ...; }, "children" | ... 10 more ... | "viewBox">'.
-src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx(379,21): error TS2322: Type '{ students: IStudentResponse[]; user: IUserWithId | null; }' is not assignable to type 'IntrinsicAttributes & { students: IStudentResponse[]; }'.
-  Property 'user' does not exist on type 'IntrinsicAttributes & { students: IStudentResponse[]; }'.
 src/pages/Dashboard/StudentDashboard/StudentDashboard.tsx(67,41): error TS2345: Argument of type 'IUserWithId | null' is not assignable to parameter of type 'IUser'.
   Type 'null' is not assignable to type 'IUser'.
 src/pages/Dashboard/StudentDashboard/StudentDashboard.tsx(67,49): error TS18047: 'user' is possibly 'null'.
@@ -5327,9 +5246,6 @@ src/pages/Survey/SurveyEditableComponent.tsx(1650,33): error TS2322: Type '{ Rea
   Property 'ReadOnlyMode' does not exist on type 'IntrinsicAttributes & BannerProps'.
 src/pages/Survey/SurveyEditableComponent.tsx(1667,37): error TS2322: Type '{ ReadOnlyMode: boolean; bg: string; link_name: string; notification_key: undefined; path: string; text: Element; title: string; }' is not assignable to type 'IntrinsicAttributes & BannerProps'.
   Property 'ReadOnlyMode' does not exist on type 'IntrinsicAttributes & BannerProps'.
-src/pages/TaiGerAI/CVMLRLGenerator.tsx(53,24): error TS18047: 'response.body' is possibly 'null'.
-src/pages/TaiGerAI/CVMLRLGenerator.tsx(82,25): error TS2345: Argument of type 'IUserWithId | null' is not assignable to parameter of type 'IUser'.
-  Type 'null' is not assignable to type 'IUser'.
 src/pages/TaiGerOrg/AdminPage.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
 src/pages/TaiGerOrg/AdminPage.tsx(35,39): error TS2345: Argument of type '(prevState: { error: string; role: string; isLoaded: boolean; data: null; success: boolean; admin: never[]; academic_background: {}; application_preference: {}; updateconfirmed: boolean; res_status: number; }) => { ...; }' is not assignable to parameter of type 'SetStateAction<{ error: string; role: string; isLoaded: boolean; data: null; success: boolean; admin: never[]; academic_background: {}; application_preference: {}; updateconfirmed: boolean; res_status: number; }>'.
   Type '(prevState: { error: string; role: string; isLoaded: boolean; data: null; success: boolean; admin: never[]; academic_background: {}; application_preference: {}; updateconfirmed: boolean; res_status: number; }) => { ...; }' is not assignable to type '(prevState: { error: string; role: string; isLoaded: boolean; data: null; success: boolean; admin: never[]; academic_background: {}; application_preference: {}; updateconfirmed: boolean; res_status: number; }) => { ...; }'. Two different types with this name exist, but they are unrelated.

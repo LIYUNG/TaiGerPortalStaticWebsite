@@ -1,10 +1,9 @@
 import React, { useMemo, useState } from 'react';
-import { Tabs, Tab, Box, Typography } from '@mui/material';
+import { Tabs, Tab, Box, Typography, Alert } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
 import { c1_mrt } from '@utils/contants';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
-import Banner from '@components/Banner/Banner';
 import { CustomTabPanel, a11yProps } from '@components/Tabs';
 import ExampleWithLocalizationProvider from '@components/MaterialReactTable';
 import type { OpenTaskRow } from '@/api/types';
@@ -111,48 +110,26 @@ const CVMLRLDashboard = (props: CVMLRLDashboardProps) => {
                 </Tabs>
             </Box>
             <CustomTabPanel index={0} value={value}>
-                <Banner
-                    ReadOnlyMode={true}
-                    bg="primary"
-                    link_name=""
-                    notification_key={undefined}
-                    path="/"
-                    removeBanner={null}
-                    text="Received students inputs and Active Tasks. Be aware of the deadline!"
-                    title="warning"
-                />
+                <Alert severity="warning" data-testid="banner">
+                    Received students inputs and Active Tasks. Be aware of the
+                    deadline!
+                </Alert>
                 <ExampleWithLocalizationProvider
                     col={memoizedColumnsMrt}
                     data={cvmlrl_active_tasks}
                 />
             </CustomTabPanel>
             <CustomTabPanel index={1} value={value}>
-                <Banner
-                    ReadOnlyMode={true}
-                    bg="info"
-                    link_name=""
-                    notification_key={undefined}
-                    path="/"
-                    removeBanner={null}
-                    text="No student inputs tasks. Agents should push students"
-                    title="info"
-                />
+                <Alert severity="info">
+                    No student inputs tasks. Agents should push students
+                </Alert>
                 <ExampleWithLocalizationProvider
                     col={memoizedColumnsMrt}
                     data={cvmlrl_idle_tasks}
                 />
             </CustomTabPanel>
             <CustomTabPanel index={2} value={value}>
-                <Banner
-                    ReadOnlyMode={true}
-                    bg="success"
-                    link_name=""
-                    notification_key={undefined}
-                    path="/"
-                    removeBanner={null}
-                    text="These tasks are closed"
-                    title="success"
-                />
+                <Alert severity="success">These tasks are closed</Alert>
                 <Typography sx={{ p: 2 }}>
                     {t(
                         'Note: if the documents are not closed but locate here, it is because the applications are already submitted. The documents can safely closed eventually.',
@@ -165,16 +142,7 @@ const CVMLRLDashboard = (props: CVMLRLDashboardProps) => {
                 />
             </CustomTabPanel>
             <CustomTabPanel index={3} value={value}>
-                <Banner
-                    ReadOnlyMode={true}
-                    bg="success"
-                    link_name=""
-                    notification_key={undefined}
-                    path="/"
-                    removeBanner={null}
-                    text="All tasks"
-                    title="info"
-                />
+                <Alert severity="info">All tasks</Alert>
                 <ExampleWithLocalizationProvider
                     col={memoizedColumnsMrt}
                     data={cvmlrl_all_v2}
