@@ -1,6 +1,8 @@
 import { Fragment, useState, type MouseEvent } from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import LaunchIcon from '@mui/icons-material/Launch';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useTranslation } from 'react-i18next';
 import {
     Grid,
@@ -14,6 +16,7 @@ import {
     Typography,
     Box
 } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import { isProgramDecided } from '@taiger-common/core';
 import queryString from 'query-string';
 
@@ -131,25 +134,92 @@ const AgentMainView = () => {
         <Box sx={{ mb: 2 }}>
             <Grid container spacing={1}>
                 <Grid item sm={3} xs={6}>
-                    <Card sx={{ p: 2 }}>
-                        <Typography>
-                            {t('Action required', { ns: 'common' })}
-                        </Typography>
-                        <Typography variant="h6">
-                            <Link
-                                component={LinkDom}
-                                to={DEMO.AGENT_SUPPORT_DOCUMENTS('to-do')}
-                                underline="hover"
+                    <Link
+                        component={LinkDom}
+                        to={DEMO.AGENT_SUPPORT_DOCUMENTS('to-do')}
+                        underline="none"
+                        color="inherit"
+                        sx={{ display: 'block', height: '100%' }}
+                    >
+                        <Card
+                            sx={{
+                                p: 2,
+                                height: '100%',
+                                cursor: 'pointer',
+                                ...((new_message_tasks?.length ?? 0) > 0
+                                    ? {
+                                          bgcolor: 'error.light',
+                                          borderLeft: 4,
+                                          borderColor: 'error.main'
+                                      }
+                                    : {}),
+                                transition:
+                                    'box-shadow 0.2s, background-color 0.2s',
+                                '&:hover': {
+                                    boxShadow: 2,
+                                    backgroundColor: (theme) =>
+                                        (new_message_tasks?.length ?? 0) > 0
+                                            ? alpha(
+                                                  theme.palette.error.main,
+                                                  0.2
+                                              )
+                                            : theme.palette.action.hover
+                                }
+                            }}
+                        >
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 1,
+                                    mb: 1
+                                }}
                             >
-                                <b>
-                                    {t('Task', {
-                                        ns: 'common',
-                                        count: new_message_tasks?.length || 0
-                                    })}
-                                </b>
-                            </Link>
-                        </Typography>
-                    </Card>
+                                {(new_message_tasks?.length ?? 0) > 0 ? (
+                                    <AssignmentIcon
+                                        fontSize="small"
+                                        sx={{ color: 'white' }}
+                                    />
+                                ) : (
+                                    <CheckCircleIcon
+                                        fontSize="small"
+                                        color="success"
+                                    />
+                                )}
+                                <Typography
+                                    variant="body2"
+                                    color={
+                                        (new_message_tasks?.length ?? 0) > 0
+                                            ? 'white'
+                                            : 'text.secondary'
+                                    }
+                                >
+                                    {(new_message_tasks?.length ?? 0) > 0
+                                        ? t('Action required', { ns: 'common' })
+                                        : t('No Action', { ns: 'common' })}
+                                </Typography>
+                            </Box>
+                            <Typography
+                                variant="h6"
+                                component="p"
+                                fontWeight={
+                                    (new_message_tasks?.length ?? 0) > 0
+                                        ? 'bold'
+                                        : 'normal'
+                                }
+                                color={
+                                    (new_message_tasks?.length ?? 0) > 0
+                                        ? 'white'
+                                        : 'primary.main'
+                                }
+                            >
+                                {t('Task', {
+                                    ns: 'common',
+                                    count: new_message_tasks?.length || 0
+                                })}
+                            </Typography>
+                        </Card>
+                    </Link>
                 </Grid>
                 <Grid item sm={3} xs={6}>
                     <Card sx={{ p: 2 }}>
