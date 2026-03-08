@@ -1533,6 +1533,7 @@ const prepTaskV2 = (
         flag_by_user_id: thread?.flag_by_user_id as string[] | undefined,
         isFinalVersion: thread.isFinalVersion,
         outsourced_user_id: thread?.outsourced_user_id,
+        outsourced_user_name_joined: thread?.outsourced_user_id?.map((user) => user.firstname).join(', '),
         file_type: thread?.file_type,
         aged_days: differenceInDays(
             new Date(),
@@ -1653,6 +1654,7 @@ const prepApplicationTaskV2 = (
         school: program?.school,
         program_name: program?.program_name,
         degree: program?.degree,
+        semester: program?.semester,
         essay_difficulty: program?.essay_difficulty,
         lang: `${program?.lang}`,
         country: program?.country,
