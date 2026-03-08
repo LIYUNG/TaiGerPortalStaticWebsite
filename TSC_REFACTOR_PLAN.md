@@ -90,7 +90,7 @@ applications?: IApplicationPopulated[];  // instead of IApplicationWithId[]
 /** Document thread as returned by API — refs are populated */
 export interface IDocumentthreadPopulated extends Omit<
   IDocumentthread,
-  'student_id' | 'program_id' | 'application_id' | 'outsourced_user_id' | 'pin_by_user_id' | 'flag_by_user_id' | 'essayConsultantIds'
+  'student_id' | 'program_id' | 'application_id' | 'outsourced_user_id' | 'pin_by_user_id' | 'flag_by_user_id' | 'essayReviewerIds'
 > {
   _id: string;
   student_id: IStudentResponse | string;
@@ -99,7 +99,7 @@ export interface IDocumentthreadPopulated extends Omit<
   outsourced_user_id?: IUserWithId[];
   pin_by_user_id?: IUserWithId[];
   flag_by_user_id?: IUserWithId[];
-  essayConsultantIds?: IUserWithId[];
+  essayReviewerIds?: IUserWithId[];
 }
 ```
 

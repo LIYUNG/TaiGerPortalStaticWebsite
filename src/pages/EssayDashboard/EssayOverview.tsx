@@ -141,12 +141,13 @@ const EssayOverview = (props: EssayOverviewProps) => {
                                 key={`${outsourcer._id.toString()}`}
                                 target="_blank"
                                 title={outsourcer.firstname}
+                                sx={{ mr: 0.5 }}
                                 to={DEMO.TEAM_EDITOR_LINK(
                                     outsourcer._id.toString()
                                 )}
                                 underline="hover"
                             >
-                                {`${outsourcer.firstname} `}
+                                {`${outsourcer.firstname}`}
                             </Link>
                         )) || []
                     );
@@ -209,6 +210,11 @@ const EssayOverview = (props: EssayOverviewProps) => {
             {
                 field: 'deadline',
                 headerName: t('Deadline', { ns: 'common' }),
+                minWidth: 100
+            },
+            {
+                field: 'semester',
+                headerName: t('Semester', { ns: 'common' }),
                 minWidth: 100
             },
             {
@@ -316,6 +322,13 @@ const EssayOverview = (props: EssayOverviewProps) => {
                                             />
                                         </Tooltip>
                                     )
+                            )}
+                            {params.row?.isFinalVersion && (
+                                <Chip
+                                    color="primary"
+                                    label={'Closed'}
+                                    size="small"
+                                />
                             )}
                             {isNonApprovalCountry && (
                                 <Tooltip
