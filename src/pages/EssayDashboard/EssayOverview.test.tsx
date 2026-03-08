@@ -23,7 +23,6 @@ vi.mock('@store/constant', () => ({
 }));
 
 vi.mock('../Utils/ModalHandler/ModalMain', () => ({ default: () => <div>Modal</div> }));
-vi.mock('@components/Banner/Banner', () => ({ default: () => <div>Banner</div> }));
 vi.mock('@components/MuiDataGrid', () => ({
     MuiDataGrid: () => <div data-testid="data-grid">DataGrid</div>
 }));

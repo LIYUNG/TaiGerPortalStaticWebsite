@@ -30,7 +30,6 @@ import {
     is_TaiGer_Student
 } from '@taiger-common/core';
 import { calculateProgramLockStatus } from '../Utils/util_functions';
-import Banner from '@components/Banner/Banner';
 import DEMO from '@store/constant';
 import ProgramReport from './ProgramReport';
 import { appConfig } from '../../config';
@@ -162,16 +161,9 @@ const SingleProgramView = (props: SingleProgramViewProps) => {
                 </Typography>
             </Breadcrumbs>
             <Box sx={{ my: 1 }}>
-                <Banner
-                    ReadOnlyMode={true}
-                    bg="primary"
-                    link_name=""
-                    notification_key={undefined}
-                    removeBanner={() => {}}
-                    text={`${appConfig.companyName} Portal 網站上的學程資訊主要為管理申請進度為主，學校學程詳細資訊仍以學校網站為主。`}
-                    title="info"
-                    to={`${DEMO.BASE_DOCUMENTS_LINK}`}
-                />
+                <Alert severity="info">
+                    {`${appConfig.companyName} Portal 網站上的學程資訊主要為管理申請進度為主，學校學程詳細資訊仍以學校網站為主。`}
+                </Alert>
             </Box>
 
             {isProgramLocked ? (

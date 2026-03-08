@@ -8,7 +8,6 @@ vi.mock('@components/AuthProvider', () => ({
         user: {
             role: 'Manager',
             _id: 'u1',
-            agent_notification: { isRead_new_base_docs_uploaded: [] }
         }
     })
 }));
@@ -72,10 +71,6 @@ vi.mock('../MainViewTab/StudentsAgentEditor/StudentsAgentEditor', () => ({
     default: () => <tr data-testid="students-agent-editor"><td /></tr>
 }));
 
-vi.mock('@components/Banner/Banner', () => ({
-    default: () => <div data-testid="banner" />
-}));
-
 vi.mock('@components/ApplicationProgressCard/ApplicationProgressCardBody', () => ({
     default: () => <div data-testid="app-progress-body" />
 }));
@@ -89,32 +84,23 @@ vi.mock('@store/constant', () => ({
 
 import ManagerMainView from './ManagerMainView';
 
-const defaultProps = {
-    notification: { isRead_new_base_docs_uploaded: [] } as unknown as Notification[],
-    students: [],
-    documentslist: [],
-    isDashboard: true,
-    submitUpdateAgentlist: vi.fn(),
-    updateAgentList: vi.fn()
-};
-
 const wrapper = ({ children }: { children: ReactNode }) => (
     <MemoryRouter>{children}</MemoryRouter>
 );
 
 describe('ManagerMainView', () => {
     it('renders without crashing', () => {
-        render(<ManagerMainView {...defaultProps} />, { wrapper });
+        render(<ManagerMainView />, { wrapper });
         expect(screen.getByTestId('no-enough-decided-programs-tasks-card')).toBeTruthy();
     });
 
     it('renders the ProgramReportCard', () => {
-        render(<ManagerMainView {...defaultProps} />, { wrapper });
+        render(<ManagerMainView />, { wrapper });
         expect(screen.getByTestId('program-report-card')).toBeTruthy();
     });
 
     it('renders the upcoming applications section', () => {
-        render(<ManagerMainView {...defaultProps} />, { wrapper });
+        render(<ManagerMainView />, { wrapper });
         // The text is split across elements: "Upcoming Applications" + " (Decided):"
         const matches = screen.getAllByText((content) =>
             content.includes('Upcoming Applications')

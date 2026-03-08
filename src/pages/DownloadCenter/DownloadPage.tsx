@@ -5,7 +5,8 @@ import {
     Card,
     CircularProgress,
     Link,
-    Typography
+    Typography,
+    Alert
 } from '@mui/material';
 import { Link as LinkDom, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -23,7 +24,6 @@ import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { deleteTemplateFile, getTemplates, uploadtemplate } from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
-import Banner from '@components/Banner/Banner';
 import { appConfig } from '../../config';
 import { useAuth } from '@components/AuthProvider';
 
@@ -238,16 +238,17 @@ const DownloadPage = () => {
             </Breadcrumbs>
             <Box>
                 <Card>
-                    <Banner
-                        ReadOnlyMode={true}
-                        bg="primary"
-                        link_name="Read More"
-                        notification_key={undefined}
-                        path={`${DEMO.CV_ML_RL_DOCS_LINK}`}
-                        removeBanner={null}
-                        text={`This is ${appConfig.companyName} templates helping you finish your CV ML RL tasks. Please download, fill and upload them to the corresponding task.`}
-                        title="info"
-                    />
+                    <Alert severity="info">
+                        {`This is ${appConfig.companyName} templates helping you finish your CV ML RL tasks. Please download, fill and upload them to the corresponding task.`}
+                        <Link
+                            color="inherit"
+                            component={LinkDom}
+                            to={`${DEMO.CV_ML_RL_DOCS_LINK}`}
+                            underline="hover"
+                        >
+                            {t('Read More', { ns: 'common' })}
+                        </Link>
+                    </Alert>
 
                     <EditDownloadFiles
                         areLoaded={downloadPageState.areLoaded}

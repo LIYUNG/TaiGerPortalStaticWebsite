@@ -12,7 +12,6 @@ import {
     Typography
 } from '@mui/material';
 import { Link } from 'react-router-dom';
-import LaunchIcon from '@mui/icons-material/Launch';
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import { isProgramDecided } from '@taiger-common/core';
 
@@ -39,7 +38,6 @@ import NoEnoughDecidedProgramsTasksCard from '../MainViewTab/AgentTasks/NoEnough
 import VPDToSubmitTasksCard from '../MainViewTab/AgentTasks/VPDToSubmitTasksCard';
 import { useAuth } from '@components/AuthProvider';
 import { useTranslation } from 'react-i18next';
-import Banner from '@components/Banner/Banner';
 import type {
     IAgentNotificationItem,
     IStudentResponse,
@@ -173,38 +171,6 @@ const ManagerMainView = ({
 
     return (
         <>
-            {managerMainViewState.notification?.isRead_new_base_docs_uploaded.map(
-                (student: IAgentNotificationItem, i: number) => (
-                    <Box key={i}>
-                        <Card>
-                            <Banner
-                                bg="danger"
-                                link_name={<LaunchIcon fontSize="small" />}
-                                notification_key="isRead_new_base_docs_uploaded"
-                                path={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                                    student.student_id,
-                                    DEMO.PROFILE_HASH
-                                )}`}
-                                removeBanner={(e) =>
-                                    removeAgentBanner(
-                                        e,
-                                        'isRead_new_base_docs_uploaded',
-                                        student.student_id
-                                    )
-                                }
-                                student_id={student.student_id}
-                                text={`${t(
-                                    'There are new base documents uploaded by',
-                                    {
-                                        ns: 'common'
-                                    }
-                                )} ${student.student_firstname} ${student.student_lastname}`}
-                                title="warning"
-                            />
-                        </Card>
-                    </Box>
-                )
-            )}
             <Box>
                 <div className="card-with-scroll">
                     <Alert severity="error">

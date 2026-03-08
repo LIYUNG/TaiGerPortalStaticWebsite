@@ -25,7 +25,6 @@ vi.mock('../../config', () => ({
 vi.mock('../Utils/TabTitle', () => ({ TabTitle: vi.fn() }));
 vi.mock('../Utils/ErrorPage', () => ({ default: () => <div>ErrorPage</div> }));
 vi.mock('../Utils/ModalHandler/ModalMain', () => ({ default: () => <div>Modal</div> }));
-vi.mock('@components/Banner/Banner', () => ({ default: () => <div>Banner</div> }));
 vi.mock('./EditDownloadFiles', () => ({
     default: () => <div data-testid="edit-download-files">EditDownloadFiles</div>
 }));

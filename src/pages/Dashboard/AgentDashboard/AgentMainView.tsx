@@ -40,7 +40,6 @@ import { useAuth } from '@components/AuthProvider';
 import NoProgramStudentTable from '../MainViewTab/AgentTasks/NoProgramStudentTable';
 import BaseDocumentCheckingTable from '../MainViewTab/AgentTasks/BaseDocumentCheckingTable';
 import ProgramSpecificDocumentCheckCard from '../MainViewTab/AgentTasks/ProgramSpecificDocumentCheckCard';
-import Banner from '@components/Banner/Banner';
 import { is_new_message_status, is_pending_status } from '@utils/contants';
 import { useQuery } from '@tanstack/react-query';
 import { getMyStudentsThreadsQuery } from '@/api/query';
@@ -48,21 +47,11 @@ import { useMyStudentsApplicationsV2 } from '@hooks/useMyStudentsApplicationsV2'
 import { useStudentsV3 } from '@hooks/useStudentsV3';
 import Loading from '@components/Loading/Loading';
 import {
-    IAgentNotificationItem,
     IApplication,
     IUserWithId
 } from '@taiger-common/model';
 
-interface AgentMainViewProps {
-    notification: {
-        isRead_new_base_docs_uploaded: {
-            student_id: string;
-            student_firstname: string;
-            student_lastname: string;
-        }[];
-    };
-}
-const AgentMainView = (props: AgentMainViewProps) => {
+const AgentMainView = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const { data: myStudentsApplications, isLoading: isLoadingApplications } =
@@ -82,55 +71,8 @@ const AgentMainView = (props: AgentMainViewProps) => {
 
     const [agentMainViewState, setAgentMainViewState] = useState({
         error: '',
-        notification: props.notification,
         collapsedRows: {}
     });
-
-    const removeAgentBanner = (
-        e: MouseEvent<HTMLElement>,
-        notification_key: string,
-        student_id: string
-    ) => {
-        e.preventDefault();
-        const temp_user = { ...user };
-        const idx = temp_user.agent_notification[
-            `${notification_key}`
-        ].findIndex(
-            (student_obj: IAgentNotificationItem) =>
-                student_obj.student_id === student_id
-        );
-        temp_user.agent_notification[`${notification_key}`].splice(idx, 1);
-        setAgentMainViewState({
-            ...agentMainViewState,
-            notification: temp_user.agent_notification,
-            user: temp_user
-        });
-        updateAgentBanner(notification_key, student_id).then(
-            (resp) => {
-                const { success } = resp.data;
-                const { status } = resp;
-                if (success) {
-                    setAgentMainViewState((prevState) => ({
-                        ...prevState,
-                        success: success,
-                        res_status: status
-                    }));
-                } else {
-                    setAgentMainViewState((prevState) => ({
-                        ...prevState,
-                        res_status: status
-                    }));
-                }
-            },
-            (error) => {
-                setAgentMainViewState({
-                    ...agentMainViewState,
-                    error,
-                    res_status: 500
-                });
-            }
-        );
-    };
 
     const handleCollapse = (index: number) => {
         setAgentMainViewState({
@@ -188,40 +130,6 @@ const AgentMainView = (props: AgentMainViewProps) => {
     return (
         <Box sx={{ mb: 2 }}>
             <Grid container spacing={1}>
-                <Grid item sm={12} xs={12}>
-                    {agentMainViewState.notification?.isRead_new_base_docs_uploaded?.map(
-                        (student, i) => (
-                            <Card key={i} sx={{ mb: 1 }}>
-                                <Banner
-                                    bg="danger"
-                                    link_name={<LaunchIcon fontSize="small" />}
-                                    notification_key="isRead_new_base_docs_uploaded"
-                                    path={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                                        student.student_id,
-                                        DEMO.PROFILE_HASH
-                                    )}`}
-                                    removeBanner={(
-                                        e: MouseEvent<HTMLElement>
-                                    ) =>
-                                        removeAgentBanner(
-                                            e,
-                                            'isRead_new_base_docs_uploaded',
-                                            student.student_id
-                                        )
-                                    }
-                                    student_id={student.student_id}
-                                    text={`${t(
-                                        'There are new base documents uploaded by',
-                                        {
-                                            ns: 'common'
-                                        }
-                                    )} ${student.student_firstname} ${student.student_lastname}`}
-                                    title="warning"
-                                />
-                            </Card>
-                        )
-                    )}
-                </Grid>
                 <Grid item sm={3} xs={6}>
                     <Card sx={{ p: 2 }}>
                         <Typography>

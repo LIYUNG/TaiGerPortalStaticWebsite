@@ -61,10 +61,6 @@ vi.mock('../Utils/util_functions', () => ({
     calculateProgramLockStatus: vi.fn(() => ({ isLocked: false, reason: null }))
 }));
 
-vi.mock('@components/Banner/Banner', () => ({
-    default: () => <div data-testid="banner" />
-}));
-
 vi.mock('./ProgramReport', () => ({
     default: () => <div data-testid="program-report" />
 }));

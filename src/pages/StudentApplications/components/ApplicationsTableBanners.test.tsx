@@ -1,12 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import ApplicationsTableBanners from './ApplicationsTableBanners';
 
-vi.mock('@components/Banner/Banner', () => ({
-    default: ({ text, bg }: { text: string; bg: string }) => (
-        <div data-testid={`banner-${bg}`}>{text}</div>
-    )
-}));
-
 vi.mock('@store/constant', () => ({
     default: { BASE_DOCUMENTS_LINK: '/docs' }
 }));

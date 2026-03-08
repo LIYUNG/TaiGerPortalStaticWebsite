@@ -7,7 +7,8 @@ import {
     Link,
     Tooltip,
     Chip,
-    IconButton
+    IconButton,
+    Alert
 } from '@mui/material';
 import { Link as LinkDom } from 'react-router-dom';
 import StarBorderRoundedIcon from '@mui/icons-material/StarBorderRounded';
@@ -18,7 +19,6 @@ import { is_TaiGer_role } from '@taiger-common/core';
 import type { Row } from '@tanstack/react-table';
 
 import ModalMain from '../Utils/ModalHandler/ModalMain';
-import Banner from '@components/Banner/Banner';
 import { useAuth } from '@components/AuthProvider';
 import { CustomTabPanel, a11yProps } from '@components/Tabs';
 import { useTranslation } from 'react-i18next';
@@ -469,16 +469,9 @@ const EssayOverview = (props: EssayOverviewProps) => {
                 </Tabs>
             </Box>
             <CustomTabPanel index={0} value={value}>
-                <Banner
-                    ReadOnlyMode={true}
-                    bg="danger"
-                    link_name=""
-                    notification_key={undefined}
-                    path="/"
-                    removeBanner={null}
-                    text="Please assign essay writer to the following essays:"
-                    title="warning"
-                />
+                <Alert severity="warning">
+                    Please assign essay writer to the following essays:
+                </Alert>
                 <MuiDataGrid
                     autoHeight={true}
                     columnVisibilityModel={{
@@ -491,16 +484,9 @@ const EssayOverview = (props: EssayOverviewProps) => {
                 />
             </CustomTabPanel>
             <CustomTabPanel index={1} value={value}>
-                <Banner
-                    ReadOnlyMode={true}
-                    bg="danger"
-                    link_name=""
-                    notification_key={undefined}
-                    path="/"
-                    removeBanner={null}
-                    text="Follow up"
-                    title="warning"
-                />
+                <Alert severity="warning">
+                    Follow up
+                </Alert>
                 <MuiDataGrid
                     autoHeight={true}
                     columnVisibilityModel={{
@@ -513,16 +499,9 @@ const EssayOverview = (props: EssayOverviewProps) => {
                 />
             </CustomTabPanel>
             <CustomTabPanel index={2} value={value}>
-                <Banner
-                    ReadOnlyMode={true}
-                    bg="primary"
-                    link_name=""
-                    notification_key={undefined}
-                    path="/"
-                    removeBanner={null}
-                    text="My Favorite"
-                    title="info"
-                />
+                <Alert severity="info">
+                    My Favorite
+                </Alert>
                 <MuiDataGrid
                     autoHeight={true}
                     columnVisibilityModel={{
@@ -535,16 +514,9 @@ const EssayOverview = (props: EssayOverviewProps) => {
                 />
             </CustomTabPanel>
             <CustomTabPanel index={3} value={value}>
-                <Banner
-                    ReadOnlyMode={true}
-                    bg="primary"
-                    link_name=""
-                    notification_key={undefined}
-                    path="/"
-                    removeBanner={null}
-                    text="Follow up"
-                    title="info"
-                />
+                <Alert severity="info">
+                    Follow up
+                </Alert>
                 <MuiDataGrid
                     autoHeight={true}
                     columnVisibilityModel={{
@@ -557,20 +529,13 @@ const EssayOverview = (props: EssayOverviewProps) => {
                 />
             </CustomTabPanel>
             <CustomTabPanel index={4} value={value}>
-                <Banner
-                    ReadOnlyMode={true}
-                    bg="info"
-                    link_name=""
-                    notification_key={undefined}
-                    path="/"
-                    removeBanner={null}
-                    text={
-                        is_TaiGer_role(user)
-                            ? 'Waiting inputs. No action needed'
-                            : 'Please provide input as soon as possible'
-                    }
-                    title={is_TaiGer_role(user) ? 'info' : 'warning'}
-                />
+                <Alert
+                    severity={is_TaiGer_role(user) ? 'info' : 'warning'}
+                >
+                    {is_TaiGer_role(user)
+                        ? 'Waiting inputs. No action needed'
+                        : 'Please provide input as soon as possible'}
+                </Alert>
                 <MuiDataGrid
                     autoHeight={true}
                     columnVisibilityModel={{
@@ -583,16 +548,9 @@ const EssayOverview = (props: EssayOverviewProps) => {
                 />
             </CustomTabPanel>
             <CustomTabPanel index={5} value={value}>
-                <Banner
-                    ReadOnlyMode={true}
-                    bg="success"
-                    link_name=""
-                    notification_key={undefined}
-                    path="/"
-                    removeBanner={null}
-                    text="These tasks are closed."
-                    title="success"
-                />
+                <Alert severity="success">
+                    These tasks are closed.
+                </Alert>
                 <MuiDataGrid
                     autoHeight={true}
                     columnVisibilityModel={{
@@ -611,16 +569,9 @@ const EssayOverview = (props: EssayOverviewProps) => {
                 </Typography>
             </CustomTabPanel>
             <CustomTabPanel index={6} value={value}>
-                <Banner
-                    ReadOnlyMode={true}
-                    bg="info"
-                    link_name=""
-                    notification_key={undefined}
-                    path="/"
-                    removeBanner={null}
-                    text="All Essays"
-                    title="info"
-                />
+                <Alert severity="info">
+                    All Essays
+                </Alert>
                 <MuiDataGrid
                     autoHeight={true}
                     columnVisibilityModel={{

@@ -1,5 +1,6 @@
 import { SyntheticEvent } from 'react';
 import {
+    Alert,
     Avatar,
     Badge,
     Box,
@@ -49,7 +50,6 @@ import {
 } from '@utils/contants';
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
-import Banner from '@components/Banner/Banner';
 import { TabTitle } from '../Utils/TabTitle';
 import MyCalendar from '@components/Calendar/components/Calendar';
 
@@ -367,37 +367,15 @@ const OfficeHours = () => {
                         (event: OfficeHoursEvent) =>
                             differenceInDays(event.start, new Date()) >= -1
                     ).length !== 0 ? (
-                        <Banner
-                            ReadOnlyMode={true}
-                            bg="primary"
-                            link_name=""
-                            notification_key={undefined}
-                            path="/"
-                            removeBanner={null}
-                            text={
-                                <>
-                                    在您目前預訂的時段過後，您將可以再次預約時段。
-                                </>
-                            }
-                            title="info"
-                        />
+                        <Alert severity="info">
+                            在您目前預訂的時段過後，您將可以再次預約時段。
+                        </Alert>
                     ) : null}
                     {!has_officehours ? (
-                        <Banner
-                            ReadOnlyMode={true}
-                            bg="primary"
-                            link_name=""
-                            notification_key={undefined}
-                            path="/"
-                            removeBanner={null}
-                            text={
-                                <>
-                                    目前 Agent 無空出 Office hours
-                                    時段，請聯繫您的 Agent。
-                                </>
-                            }
-                            title="info"
-                        />
+                        <Alert severity="info">
+                            目前 Agent 無空出 Office hours 時段，請聯繫您的
+                            Agent。
+                        </Alert>
                     ) : null}
                     <MyCalendar
                         BookButtonDisable={BookButtonDisable}
