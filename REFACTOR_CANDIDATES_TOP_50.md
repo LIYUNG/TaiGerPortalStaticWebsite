@@ -35,7 +35,6 @@ Goal: every component has at least 1 happy-case render test.
 | 13 | Dashboard MainViewTab small components (AssignEditorRow, AssignEssayWriterRow, AssignInterviewTrainerRow, NoXxxCards, StudentBriefOverview) | 8 | 25 | ✅ |
 | 14 | Documentation pages (9 files) | 9 | 21 | ✅ |
 | 15 | StudentDatabase (5) + InterviewTraining (5) | 10 | 26 | ✅ |
-| 16 | Dashboard role views (AdminMainView, AgentMainView, EditorMainView, ManagerMainView, StudentDashboard) | 5 | 30 | ✅ |
 | 17 | Program/components (SummaryStatsGrid, DistributionAnalysisSection, TopPerformers, AdditionalInsights, ProgramInfoTabs, ProgramUnlockDialog, SameProgramStudentsCard) | 7 | ~21 | ✅ |
 | 18+ | Accounting, Admissions, AgentSupportDocuments, AssignmentAgentsEditors, Audit, Contact, CustomerSupport, CRM pages, CVMLRLCenter pages, DownloadCenter, etc. | ~160 remaining | — | 🔲 |
 

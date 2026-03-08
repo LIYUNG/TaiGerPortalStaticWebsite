@@ -110,7 +110,7 @@ const CVMLRLDashboard = (props: CVMLRLDashboardProps) => {
                 </Tabs>
             </Box>
             <CustomTabPanel index={0} value={value}>
-                <Alert severity="warning">
+                <Alert severity="warning" data-testid="banner">
                     Received students inputs and Active Tasks. Be aware of the
                     deadline!
                 </Alert>

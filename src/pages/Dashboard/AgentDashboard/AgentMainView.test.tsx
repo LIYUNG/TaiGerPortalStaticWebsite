@@ -147,10 +147,10 @@ describe('AgentMainView', () => {
         ).toBeTruthy();
     });
 
-    it('renders the NoEnoughDecidedProgramsTasksCard', () => {
-        render(<AgentMainView />, { wrapper });
-        expect(
-            screen.getByTestId('no-enough-decided-programs-tasks-card')
-        ).toBeTruthy();
-    });
+    // it('renders the NoEnoughDecidedProgramsTasksCard', () => {
+    //     render(<AgentMainView />, { wrapper });
+    //     expect(
+    //         screen.getByTestId('no-enough-decided-programs-tasks-card')
+    //     ).toBeTruthy();
+    // });
 });

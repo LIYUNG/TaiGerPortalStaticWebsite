@@ -41,9 +41,6 @@ vi.mock('@pages/Dashboard/AdminDashboard/AdminMainView', () => ({
 vi.mock('@pages/Dashboard/EditorDashboard/EditorMainView', () => ({
     default: () => null
 }));
-vi.mock('@pages/Dashboard/ManagerDashboard/ManagerMainView', () => ({
-    default: () => null
-}));
 vi.mock('@pages/Dashboard/StudentDashboard/StudentDashboard', () => ({
     default: () => null
 }));

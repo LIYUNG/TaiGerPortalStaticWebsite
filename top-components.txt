@@ -6,8 +6,6 @@
 66	C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\components\AuthProvider\index.tsx
 26	C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\components\AuthWrapper\index.test.tsx
 34	C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\components\AuthWrapper\index.tsx
-25	C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\components\Banner\Banner.test.tsx
-63	C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\components\Banner\Banner.tsx
 15	C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\components\Banner\EnglishCertificateExpiredBeforeDeadlineBanner.test.tsx
 84	C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\components\Banner\EnglishCertificateExpiredBeforeDeadlineBanner.tsx
 14	C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\components\Banner\ProgramLanguageNotMatchedBanner.test.tsx
@@ -235,7 +233,6 @@
 443	C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\pages\Dashboard\MainViewTab\StudentBriefOverview\StudentBriefOverview.tsx
 488	C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\pages\Dashboard\MainViewTab\StudentsAgentEditor\StudentsAgentEditor.tsx
 458	C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\pages\Dashboard\MainViewTab\StudentTasks\StudentTasksResponsive.tsx
-386	C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\pages\Dashboard\ManagerDashboard\ManagerMainView.tsx
 626	C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\pages\Dashboard\StudentDashboard\StudentDashboard.tsx
 89	C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\pages\Dashboard\Dashboard.test.tsx
 70	C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\pages\Dashboard\DashboardBody.tsx
@@ -326,7 +323,6 @@
 71	C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\pages\Survey\index.tsx
 10	C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\pages\Survey\SurveyComponent.tsx
 2385	C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\pages\Survey\SurveyEditableComponent.tsx
-134	C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\pages\TaiGerAI\CVMLRLGenerator.tsx
 67	C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\pages\TaiGerOrg\InternalDashboard\AgentDashboard.tsx
 314	C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\pages\TaiGerOrg\InternalDashboard\index.tsx
 48	C:\Users\steve\workspace\TaiGerPortalStaticWebsite\src\pages\TaiGerOrg\InternalDashboard\KPIDashboardTab.tsx

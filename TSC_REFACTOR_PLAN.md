@@ -296,7 +296,6 @@ These are "possibly null" / "possibly undefined" errors. Most resolve naturally 
 | src/pages/Utils/util_functions.test.ts | 51 |
 | src/pages/CVMLRLCenter/ManualFiles.tsx | 50 |
 | src/pages/Program/ProgramsOverviewPage.tsx | 46 |
-| src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx | 44 |
 | src/pages/CRM/LeadPage.tsx | 44 |
 | src/pages/InterviewTraining/AddInterview.tsx | 44 |
 | src/pages/InterviewTraining/index.tsx | 43 |

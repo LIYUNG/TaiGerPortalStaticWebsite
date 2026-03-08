@@ -171,7 +171,6 @@ All 271 test cases listed with duration (ms), sorted slowest first. Optimize the
 | 3 | Tier 3 – Documentation pages smoke tests DocCreatePage renders | src/App.pageSmoke3.test.tsx |
 | 3 | Tier 3 – Office Hours pages smoke tests OfficeHours renders | src/App.pageSmoke3.test.tsx |
 | 3 | Tier 3 – Course Analysis pages smoke tests CourseEdit renders | src/App.pageSmoke3.test.tsx |
-| 3 | Tier 3 – AI / Widget pages smoke tests CVMLRLGenerator renders | src/App.pageSmoke3.test.tsx |
 | 3 | Tier 3 – AI / Widget pages smoke tests MyCoursesAnalysisV2 renders | src/App.pageSmoke3.test.tsx |
 | 3 | ApplicationLockControl returns null when application has no programId | src/components/ApplicationLockControl/ApplicationLockControl.test.tsx |
 | 2 | Page smoke tests – all pages render without crashing Assignment Editors page renders | src/App.pageSmoke.test.tsx |
