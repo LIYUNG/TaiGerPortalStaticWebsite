@@ -10,6 +10,47 @@ import i18n from './i18n';
 import { CustomThemeProvider } from '@components/ThemeProvider';
 import { queryClient } from '@/api';
 import { SnackBarProvider } from '@contexts/use-snack-bar';
+import { isChunkLoadError } from '@utils/chunkLoadError';
+
+const RELOAD_KEY = 'chunk-load-reload';
+
+function reloadOnChunkError(): void {
+    if (!sessionStorage.getItem(RELOAD_KEY)) {
+        sessionStorage.setItem(RELOAD_KEY, '1');
+        window.location.reload();
+    }
+}
+
+/**
+ * Vite emits this when a dynamic import fails (e.g. after deploy, old chunk deleted).
+ * preventDefault() stops the error from being thrown.
+ * Ensure the server sends Cache-Control: no-cache on the HTML so users get fresh HTML after deploy.
+ * See: https://vite.dev/guide/troubleshooting#_failed-to-fetch-dynamically-imported-module
+ */
+window.addEventListener('vite:preloadError', (event) => {
+    (event as Event & { preventDefault: () => void }).preventDefault();
+    reloadOnChunkError();
+});
+
+/**
+ * Fallback for production builds where vite:preloadError is not emitted.
+ */
+window.addEventListener('unhandledrejection', (event) => {
+    if (isChunkLoadError(event.reason)) {
+        event.preventDefault();
+        reloadOnChunkError();
+    }
+});
+
+function prefetchDynamicChunks(): void {
+    const idle =
+        typeof requestIdleCallback !== 'undefined'
+            ? requestIdleCallback
+            : (cb: () => void) => setTimeout(cb, 2000);
+    idle(() => {
+        void import('@pages/Dashboard');
+    });
+}
 
 const storedLanguage = localStorage.getItem('locale') || 'en';
 i18n.changeLanguage(storedLanguage);
@@ -35,3 +76,5 @@ const app = (
 
 const root = createRoot(rootElement);
 root.render(app);
+
+prefetchDynamicChunks();
