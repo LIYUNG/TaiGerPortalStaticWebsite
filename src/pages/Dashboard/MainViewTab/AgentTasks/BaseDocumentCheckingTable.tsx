@@ -2,13 +2,9 @@ import { useTranslation } from 'react-i18next';
 import {
     Box,
     Card,
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableRow,
+    List,
+    ListSubheader,
     Alert,
-    TableContainer,
     Typography
 } from '@mui/material';
 
@@ -40,24 +36,36 @@ const BaseDocumentCheckingTable = ({
                         {t('Check uploaded base documents')}:
                     </Typography>
                 </Alert>
-                <TableContainer style={{ overflowX: 'auto' }}>
-                    <Table size="small">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>
-                                    {t('Student', { ns: 'common' })}
-                                </TableCell>
-                                <TableCell>
-                                    {t('Document Type', { ns: 'common' })}
-                                </TableCell>
-                                <TableCell>
-                                    {t('Upload Time', { ns: 'common' })}
-                                </TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>{base_documents_checking_tasks}</TableBody>
-                    </Table>
-                </TableContainer>
+                <List
+                    subheader={
+                        <ListSubheader
+                            component="div"
+                            sx={{
+                                display: 'flex',
+                                gap: 2,
+                                py: 1,
+                                bgcolor: 'action.hover'
+                            }}
+                        >
+                            <Typography
+                                component="span"
+                                variant="subtitle2"
+                                sx={{ minWidth: 120 }}
+                            >
+                                {t('Student', { ns: 'common' })}
+                            </Typography>
+                            <Typography
+                                component="span"
+                                variant="subtitle2"
+                                sx={{ minWidth: 140 }}
+                            >
+                                {t('Document Type', { ns: 'common' })}
+                            </Typography>
+                        </ListSubheader>
+                    }
+                >
+                    {base_documents_checking_tasks}
+                </List>
             </Card>
         </Box>
     );
