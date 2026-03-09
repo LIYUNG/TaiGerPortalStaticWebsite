@@ -17,6 +17,7 @@ import { CssBaseline } from '@mui/material';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';
+import { ChunkLoadErrorBoundary } from '@utils/chunkLoadError';
 
 const Layout = (): JSX.Element => {
     const navigation = useNavigation();
@@ -28,9 +29,11 @@ const Layout = (): JSX.Element => {
                     {navigation.state === 'loading' ? (
                         <Loading />
                     ) : (
-                        <Suspense fallback={<Loading />}>
-                            <Outlet />
-                        </Suspense>
+                        <ChunkLoadErrorBoundary>
+                            <Suspense fallback={<Loading />}>
+                                <Outlet />
+                            </Suspense>
+                        </ChunkLoadErrorBoundary>
                     )}
                 </main>
             </NavBar>
@@ -49,9 +52,11 @@ const WrapperPublic = (): JSX.Element => {
             <Navigate to={DEMO.DASHBOARD_LINK} />
         )
     ) : (
-        <Suspense fallback={<Loading />}>
-            <Outlet />
-        </Suspense>
+        <ChunkLoadErrorBoundary>
+            <Suspense fallback={<Loading />}>
+                <Outlet />
+            </Suspense>
+        </ChunkLoadErrorBoundary>
     );
 };
 
