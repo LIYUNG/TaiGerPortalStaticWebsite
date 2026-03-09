@@ -9,7 +9,7 @@ vi.mock('@components/AuthProvider', () => ({
 }));
 
 vi.mock('../../MainViewTab/AgentTasks/BaseDocumentCheckingTasks', () => ({
-    default: () => <tr data-testid="base-doc-checking-task" />
+    default: () => <li data-testid="base-doc-checking-task" />
 }));
 
 const makeStudent = (agentId = 'u1') => ({
@@ -33,7 +33,7 @@ describe('BaseDocumentCheckingTable', () => {
         ).toBeInTheDocument();
     });
 
-    it('renders table headers', () => {
+    it('renders list headers', () => {
         render(
             <MemoryRouter>
                 <BaseDocumentCheckingTable students={[]} />
@@ -41,7 +41,6 @@ describe('BaseDocumentCheckingTable', () => {
         );
         expect(screen.getByText('Student')).toBeInTheDocument();
         expect(screen.getByText('Document Type')).toBeInTheDocument();
-        expect(screen.getByText('Upload Time')).toBeInTheDocument();
     });
 
     it('filters students by agent id', () => {

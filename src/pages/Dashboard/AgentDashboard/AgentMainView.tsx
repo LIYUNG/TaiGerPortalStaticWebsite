@@ -289,11 +289,33 @@ const AgentMainView = () => {
                                                     }
                                                 >
                                                     <TableCell>
-                                                        {progressBarCounter(
-                                                            application.student,
-                                                            application.application
-                                                        )}
-                                                        %
+                                                        <Box
+                                                            sx={{
+                                                                display: 'flex',
+                                                                flexDirection: 'column',
+                                                                gap: 0.25
+                                                            }}
+                                                        >
+                                                            <Typography
+                                                                component="span"
+                                                                variant="body2"
+                                                            >
+                                                                {progressBarCounter(
+                                                                    application.student,
+                                                                    application.application
+                                                                )}
+                                                                %
+                                                            </Typography>
+                                                            <Typography
+                                                                component="span"
+                                                                variant="body2"
+                                                                color="text.secondary"
+                                                            >
+                                                                {
+                                                                    application.application_deadline
+                                                                }
+                                                            </Typography>
+                                                        </Box>
                                                     </TableCell>
                                                     <TableCell>
                                                         <Link
@@ -314,17 +336,29 @@ const AgentMainView = () => {
                                                         </Link>
                                                     </TableCell>
                                                     <TableCell>
-                                                        {
-                                                            application.application_deadline
-                                                        }
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        {application.school}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        {
-                                                            application.program_name
-                                                        }
+                                                        <Box
+                                                            sx={{
+                                                                display: 'flex',
+                                                                flexDirection: 'column',
+                                                                gap: 0.25
+                                                            }}
+                                                        >
+                                                            <Typography
+                                                                component="span"
+                                                                variant="body2"
+                                                            >
+                                                                {application.school}
+                                                            </Typography>
+                                                            <Typography
+                                                                component="span"
+                                                                variant="body2"
+                                                                color="text.secondary"
+                                                            >
+                                                                {
+                                                                    application.program_name
+                                                                }
+                                                            </Typography>
+                                                        </Box>
                                                     </TableCell>
                                                 </TableRow>
                                                 {agentMainViewState
