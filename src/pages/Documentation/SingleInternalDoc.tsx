@@ -94,7 +94,6 @@ const SingleDoc = () => {
         const msg = {
             title: doc_title,
             category,
-            prop: props.item,
             text: message
         };
         updateInternalDocumentation(documentation_id, msg).then(
