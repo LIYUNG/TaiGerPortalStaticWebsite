@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import { is_TaiGer_role } from '@taiger-common/core';
+import { useMutation } from '@tanstack/react-query';
 
 import SingleDocEdit from './SingleDocEdit';
 import ErrorPage from '../Utils/ErrorPage';
@@ -21,6 +22,7 @@ const SingleDoc = () => {
         error: '',
         isLoaded: false,
         success: false,
+        document_title: '',
         editorState: null,
         isEdit: false,
         internal: false,
@@ -83,6 +85,49 @@ const SingleDoc = () => {
             isEdit: !singleInternalDocState.isEdit
         }));
     };
+
+    type UpdateInternalDocPayload = {
+        msg: {
+            title: string;
+            category: string;
+            text: string;
+        };
+        editorState: unknown;
+    };
+
+    const { mutate: updateInternalDocMutation } = useMutation({
+        mutationFn: (payload: UpdateInternalDocPayload) =>
+            updateInternalDocumentation(documentation_id, payload.msg),
+        onSuccess: (resp, payload) => {
+            const { success, data } = resp.data;
+            const { status } = resp;
+            if (success) {
+                setSingleInternalDocState((prevState) => ({
+                    ...prevState,
+                    success,
+                    document_title: data.title,
+                    editorState: payload.editorState,
+                    isEdit: !singleInternalDocState.isEdit,
+                    author: data.author,
+                    isLoaded: true,
+                    res_status: status
+                }));
+            } else {
+                setSingleInternalDocState((prevState) => ({
+                    ...prevState,
+                    isLoaded: true,
+                    res_status: status
+                }));
+            }
+        },
+        onError: (error: unknown) => {
+            setSingleInternalDocState((prevState) => ({
+                ...prevState,
+                error
+            }));
+        }
+    });
+
     const handleClickSave = (
         e: React.MouseEvent<HTMLElement>,
         category: string,
@@ -94,39 +139,11 @@ const SingleDoc = () => {
         const msg = {
             title: doc_title,
             category,
-            prop: props.item,
             text: message
         };
-        updateInternalDocumentation(documentation_id, msg).then(
-            (resp) => {
-                const { success, data } = resp.data;
-                const { status } = resp;
-                if (success) {
-                    setSingleInternalDocState((prevState) => ({
-                        ...prevState,
-                        success,
-                        document_title: data.title,
-                        editorState,
-                        isEdit: !singleInternalDocState.isEdit,
-                        author: data.author,
-                        isLoaded: true,
-                        res_status: status
-                    }));
-                } else {
-                    setSingleInternalDocState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        res_status: status
-                    }));
-                }
-            },
-            (error) => {
-                setSingleInternalDocState((prevState) => ({
-                    ...prevState,
-                    error
-                }));
-            }
-        );
+
+        updateInternalDocMutation({ msg, editorState });
+
         setSingleInternalDocState((prevState) => ({
             ...prevState,
             in_edit_mode: false
