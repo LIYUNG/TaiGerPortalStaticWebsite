@@ -2,6 +2,11 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 
+vi.mock('@tanstack/react-query', async (orig) => ({
+    ...(await orig()),
+    useMutation: vi.fn(() => ({ mutate: vi.fn(), isPending: false }))
+}));
+
 vi.mock('react-router-dom', async (orig) => ({
     ...(await orig<typeof import('react-router-dom')>()),
     useParams: vi.fn(() => ({ documentation_id: 'idoc1' }))
