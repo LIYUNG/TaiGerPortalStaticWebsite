@@ -1,6 +1,6 @@
 import { Navigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useForm } from '@tanstack/react-form';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -17,6 +17,7 @@ import {
     Select,
     MenuItem,
     IconButton,
+    InputAdornment,
     Button,
     CircularProgress,
     Accordion,
@@ -30,9 +31,7 @@ import {
     PersonAdd as PersonAddIcon,
     Event as EventIcon,
     Close as CloseIcon,
-    Female as FemaleIcon,
-    Male as MaleIcon,
-    Transgender as OtherGenderIcon,
+    Add as AddIcon,
     ExpandMore as ExpandMoreIcon
 } from '@mui/icons-material';
 
@@ -106,12 +105,14 @@ const LeadPage = () => {
     const [editingDeal, setEditingDeal] = useState(null);
     const [showDealModal, setShowDealModal] = useState(false);
     const [statusMenu, setStatusMenu] = useState({ anchorEl: null, row: null });
-    const [showTagsEditor, setShowTagsEditor] = useState(false);
     const [tagDraft, setTagDraft] = useState('');
+    const [showTagsEditor, setShowTagsEditor] = useState(false);
     const [editingNoteId, setEditingNoteId] = useState(null);
     const [editingNoteDraft, setEditingNoteDraft] = useState('');
+    const [showNotesEditor, setShowNotesEditor] = useState(false);
     const [showAddNote, setShowAddNote] = useState(false);
     const [newNoteDraft, setNewNoteDraft] = useState('');
+    const tagInputRef = useRef(null);
 
     const leadCardConfigurations = getLeadCardConfigurations(t);
     const studentCardConfigurations = getStudentCardConfigurations(t);
@@ -439,6 +440,9 @@ const LeadPage = () => {
         return [];
     };
 
+    const tagItems = normalizeTagObjects(lead?.tags || []);
+    const noteItems = normalizeNoteObjects(lead?.notes || []);
+
     const hasUnsavedChanges = (cardId) => {
         const changed = getChangedFields(lead, formData);
         const cfg = leadCardConfigurations.find((c) => c.id === cardId);
@@ -611,131 +615,66 @@ const LeadPage = () => {
                                     {lead.fullName ||
                                         t('common.na', { ns: 'crm' })}
                                 </Typography>
-                                <Typography
+                                <Box
                                     sx={{
-                                        color: 'text.secondary',
-                                        mt: 0.25,
                                         display: 'flex',
+                                        alignItems: 'center',
                                         gap: 1,
-                                        alignItems: 'center'
+                                        mt: 0.5,
+                                        flexWrap: 'wrap'
                                     }}
-                                    variant="body2"
                                 >
-                                    {lead.applicantRole || ''}
-                                </Typography>
-                            </Box>
-                            <Box
-                                sx={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 1
-                                }}
-                            >
-                                {lead.gender && (
-                                    <Box
-                                        title={`${t('leads.gender', { ns: 'crm' })}: ${String(lead.gender).charAt(0).toUpperCase() + String(lead.gender).slice(1)}`}
-                                    >
-                                        {(() => {
-                                            const genderText = String(
-                                                lead.gender || ''
-                                            )
-                                                .toLowerCase()
-                                                .trim();
-                                            const femaleKeywords = [
-                                                '女',
-                                                'female',
-                                                'woman'
-                                            ];
-                                            const maleKeywords = [
-                                                '男',
-                                                'male',
-                                                'man'
-                                            ];
-                                            if (
-                                                femaleKeywords.some((k) =>
-                                                    genderText.includes(k)
-                                                )
-                                            )
-                                                return (
-                                                    <FemaleIcon
-                                                        sx={{
-                                                            color: 'secondary.main',
-                                                            fontSize: '1.6rem'
-                                                        }}
-                                                    />
-                                                );
-                                            if (
-                                                maleKeywords.some((k) =>
-                                                    genderText.includes(k)
-                                                )
-                                            )
-                                                return (
-                                                    <MaleIcon
-                                                        sx={{
-                                                            color: 'info.main',
-                                                            fontSize: '1.6rem'
-                                                        }}
-                                                    />
-                                                );
-                                            return (
-                                                <OtherGenderIcon
-                                                    sx={{
-                                                        color: 'text.secondary',
-                                                        fontSize: '1.6rem'
-                                                    }}
-                                                />
-                                            );
-                                        })()}
-                                    </Box>
-                                )}
-                                {lead.closeLikelihood && (
+                                    {lead.closeLikelihood && (
+                                        <Chip
+                                            label={
+                                                lead.closeLikelihood
+                                                    .charAt(0)
+                                                    .toUpperCase() +
+                                                lead.closeLikelihood.slice(1)
+                                            }
+                                            size="small"
+                                            sx={{
+                                                bgcolor:
+                                                    lead.closeLikelihood ===
+                                                    'high'
+                                                        ? 'success.main'
+                                                        : lead.closeLikelihood ===
+                                                            'medium'
+                                                          ? 'warning.main'
+                                                          : 'error.main',
+                                                color: '#fff',
+                                                fontWeight: 600
+                                            }}
+                                            title={`${t('leads.closeLikelihood', { ns: 'crm' })}: ${lead.closeLikelihood.charAt(0).toUpperCase() + lead.closeLikelihood.slice(1)}`}
+                                        />
+                                    )}
                                     <Chip
                                         label={
-                                            lead.closeLikelihood === 'high'
-                                                ? 'H'
-                                                : lead.closeLikelihood ===
-                                                    'medium'
-                                                  ? 'M'
-                                                  : 'L'
+                                            lead.status
+                                                ? lead.status
+                                                      .charAt(0)
+                                                      .toUpperCase() +
+                                                  lead.status.slice(1)
+                                                : t('common.na', {
+                                                      ns: 'crm'
+                                                  })
                                         }
                                         size="small"
                                         sx={{
                                             bgcolor:
-                                                lead.closeLikelihood === 'high'
+                                                lead.status === 'converted'
                                                     ? 'success.main'
-                                                    : lead.closeLikelihood ===
-                                                        'medium'
-                                                      ? 'warning.main'
-                                                      : 'error.main',
+                                                    : lead.status ===
+                                                        'qualified'
+                                                      ? 'info.main'
+                                                      : lead.status === 'closed'
+                                                        ? 'error.main'
+                                                        : 'grey.500',
                                             color: '#fff',
-                                            fontWeight: '600'
+                                            fontWeight: 600
                                         }}
-                                        title={`${t('leads.closeLikelihood', { ns: 'crm' })}: ${lead.closeLikelihood.charAt(0).toUpperCase() + lead.closeLikelihood.slice(1)}`}
                                     />
-                                )}
-                                <Chip
-                                    label={
-                                        lead.status
-                                            ? lead.status
-                                                  .charAt(0)
-                                                  .toUpperCase() +
-                                              lead.status.slice(1)
-                                            : t('common.na', { ns: 'crm' })
-                                    }
-                                    size="small"
-                                    sx={{
-                                        bgcolor:
-                                            lead.status === 'converted'
-                                                ? 'success.main'
-                                                : lead.status === 'qualified'
-                                                  ? 'info.main'
-                                                  : lead.status === 'closed'
-                                                    ? 'error.main'
-                                                    : 'primary.main',
-                                        color: '#fff',
-                                        fontWeight: 600
-                                    }}
-                                />
+                                </Box>
                             </Box>
                             {!isMigratedLead && (
                                 <Box
@@ -880,80 +819,84 @@ const LeadPage = () => {
                                 }}
                             >
                                 <Box sx={{ width: '100%' }}>
-                                    <Box
-                                        sx={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'flex-end'
-                                        }}
-                                    >
-                                        <Button
-                                            onClick={() =>
-                                                setShowTagsEditor(
-                                                    (prev) => !prev
-                                                )
-                                            }
-                                            size="small"
-                                            variant="text"
+                                    {/* tags caption removed per UX request */}
+                                    {tagItems.length === 0 ? (
+                                        <Typography
+                                            color="text.secondary"
+                                            variant="body2"
                                         >
-                                            {showTagsEditor
-                                                ? t('common.done', {
-                                                      ns: 'crm'
-                                                  })
-                                                : normalizeTagList(
-                                                        lead?.tags || []
-                                                    ).length === 0
-                                                  ? t('common.add', {
-                                                        ns: 'crm'
-                                                    })
-                                                  : t('common.edit', {
-                                                        ns: 'crm'
-                                                    })}
-                                        </Button>
-                                    </Box>
-                                    <Box
-                                        sx={{
-                                            display: 'flex',
-                                            flexWrap: 'wrap',
-                                            gap: 1
-                                        }}
-                                    >
-                                        {normalizeTagObjects(
-                                            lead?.tags || []
-                                        ).map((tagItem) => (
-                                            <Chip
-                                                key={tagItem.id || tagItem.tag}
-                                                label={`#${tagItem.tag}`}
-                                                onDelete={
-                                                    showTagsEditor
-                                                        ? () =>
-                                                              deleteTagById(
-                                                                  tagItem.id
-                                                              )
-                                                        : undefined
-                                                }
-                                                size="small"
-                                                sx={{
-                                                    bgcolor: 'grey.100',
-                                                    color: 'text.secondary'
-                                                }}
-                                                variant="outlined"
-                                            />
-                                        ))}
-                                    </Box>
-                                    {showTagsEditor && (
+                                            No tags yet.
+                                        </Typography>
+                                    ) : (
                                         <Box
                                             sx={{
-                                                mt: 1,
                                                 display: 'flex',
+                                                flexWrap: 'wrap',
                                                 gap: 1
                                             }}
                                         >
+                                            {tagItems.map((tagItem) => (
+                                                <Chip
+                                                    key={
+                                                        tagItem.id ||
+                                                        tagItem.tag
+                                                    }
+                                                    label={tagItem.tag}
+                                                    onDelete={
+                                                        showTagsEditor
+                                                            ? () =>
+                                                                  deleteTagById(
+                                                                      tagItem.id
+                                                                  )
+                                                            : undefined
+                                                    }
+                                                    size="small"
+                                                    sx={{
+                                                        bgcolor: 'grey.100',
+                                                        color: 'text.secondary',
+                                                        borderRadius: 999
+                                                    }}
+                                                    variant="outlined"
+                                                />
+                                            ))}
+                                        </Box>
+                                    )}
+
+                                    {showTagsEditor && (
+                                        <Box sx={{ mt: 1 }}>
                                             <TextField
-                                                fullWidth
-                                                label={t('common.tags', {
-                                                    ns: 'crm'
-                                                })}
+                                                InputProps={{
+                                                    endAdornment: (
+                                                        <InputAdornment position="end">
+                                                            <IconButton
+                                                                aria-label="add tag"
+                                                                onClick={() => {
+                                                                    const nextTags =
+                                                                        normalizeTagList(
+                                                                            [
+                                                                                ...(lead?.tags ||
+                                                                                    []),
+                                                                                tagDraft
+                                                                            ]
+                                                                        );
+                                                                    applyTagsUpdate(
+                                                                        nextTags
+                                                                    );
+                                                                    setTagDraft(
+                                                                        ''
+                                                                    );
+                                                                }}
+                                                                size="small"
+                                                                sx={{
+                                                                    color: 'text.primary'
+                                                                }}
+                                                            >
+                                                                <AddIcon fontSize="small" />
+                                                            </IconButton>
+                                                        </InputAdornment>
+                                                    )
+                                                }}
+                                                inputRef={tagInputRef}
                                                 onChange={(e) =>
                                                     setTagDraft(e.target.value)
                                                 }
@@ -972,30 +915,62 @@ const LeadPage = () => {
                                                         setTagDraft('');
                                                     }
                                                 }}
+                                                placeholder={t('common.add', {
+                                                    ns: 'crm'
+                                                })}
                                                 size="small"
+                                                sx={{
+                                                    maxWidth: 360,
+                                                    mb: 1,
+                                                    '& .MuiOutlinedInput-root':
+                                                        {
+                                                            borderRadius: 999,
+                                                            bgcolor: 'grey.50',
+                                                            pr: 0.5
+                                                        }
+                                                }}
                                                 value={tagDraft}
                                             />
-                                            <Button
-                                                onClick={() => {
-                                                    const nextTags =
-                                                        normalizeTagList([
-                                                            ...(lead?.tags ||
-                                                                []),
-                                                            tagDraft
-                                                        ]);
-                                                    applyTagsUpdate(nextTags);
-                                                    setTagDraft('');
-                                                }}
-                                                variant="contained"
-                                            >
-                                                {t('common.add', { ns: 'crm' })}
-                                            </Button>
                                         </Box>
                                     )}
+
+                                    <Box sx={{ mt: 1 }}>
+                                        <Button
+                                            onClick={() => {
+                                                setShowTagsEditor((prev) => {
+                                                    const next = !prev;
+                                                    if (!next) setTagDraft('');
+                                                    if (next) {
+                                                        setTimeout(() => {
+                                                            tagInputRef.current?.focus();
+                                                        }, 0);
+                                                    }
+                                                    return next;
+                                                });
+                                            }}
+                                            size="small"
+                                            sx={{ textTransform: 'none' }}
+                                            variant="text"
+                                        >
+                                            {showTagsEditor
+                                                ? t('common.done', {
+                                                      ns: 'crm'
+                                                  })
+                                                : t('common.edit', {
+                                                      ns: 'crm'
+                                                  })}
+                                        </Button>
+                                    </Box>
                                 </Box>
                                 <Box sx={{ width: '100%' }}>
-                                    {normalizeNoteObjects(lead?.notes || [])
-                                        .length > 0 && (
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'space-between',
+                                            mb: 0.5
+                                        }}
+                                    >
                                         <Typography
                                             sx={{
                                                 color: 'text.secondary',
@@ -1006,244 +981,297 @@ const LeadPage = () => {
                                         >
                                             {t('common.notes', { ns: 'crm' })}
                                         </Typography>
-                                    )}
-                                    <Box
-                                        sx={{
-                                            mt: 0.5,
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            gap: 0.5
-                                        }}
-                                    >
-                                        {normalizeNoteObjects(
-                                            lead?.notes || []
-                                        ).map((note, idx) => (
-                                            <Box
-                                                key={note.id || `note-${idx}`}
-                                                sx={{
-                                                    display: 'flex',
-                                                    alignItems: 'flex-start',
-                                                    gap: 1,
-                                                    p: 1.25,
-                                                    border: '1px solid',
-                                                    borderColor: 'divider',
-                                                    borderRadius: 1,
-                                                    bgcolor: 'background.paper'
-                                                }}
-                                            >
+                                        <Button
+                                            onClick={() => {
+                                                setShowNotesEditor((prev) => {
+                                                    const next = !prev;
+                                                    if (!next) {
+                                                        setShowAddNote(false);
+                                                        setEditingNoteId(null);
+                                                        setEditingNoteDraft('');
+                                                        setNewNoteDraft('');
+                                                    }
+                                                    return next;
+                                                });
+                                            }}
+                                            size="small"
+                                            sx={{ textTransform: 'none' }}
+                                            variant="text"
+                                        >
+                                            {showNotesEditor
+                                                ? t('common.done', {
+                                                      ns: 'crm'
+                                                  })
+                                                : t('common.edit', {
+                                                      ns: 'crm'
+                                                  })}
+                                        </Button>
+                                    </Box>
+                                    {noteItems.length === 0 && !showAddNote ? (
+                                        <Typography
+                                            color="text.secondary"
+                                            variant="body2"
+                                        >
+                                            No notes yet.
+                                        </Typography>
+                                    ) : (
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: 0.5
+                                            }}
+                                        >
+                                            {noteItems.map((note, idx) => (
                                                 <Box
+                                                    key={
+                                                        note.id || `note-${idx}`
+                                                    }
                                                     sx={{
                                                         display: 'flex',
-                                                        flexDirection: 'column',
-                                                        gap: 0.5,
-                                                        flex: 1
+                                                        alignItems:
+                                                            'flex-start',
+                                                        gap: 1,
+                                                        p: 1.25,
+                                                        border: '1px solid',
+                                                        borderColor: 'divider',
+                                                        borderRadius: 1,
+                                                        bgcolor:
+                                                            'background.paper'
                                                     }}
                                                 >
-                                                    {editingNoteId ===
-                                                    note.id ? (
-                                                        <TextField
-                                                            fullWidth
-                                                            minRows={2}
-                                                            multiline
-                                                            onChange={(e) =>
-                                                                setEditingNoteDraft(
-                                                                    e.target
-                                                                        .value
-                                                                )
-                                                            }
-                                                            value={
-                                                                editingNoteDraft
-                                                            }
-                                                        />
-                                                    ) : (
-                                                        <Typography
-                                                            sx={{
-                                                                whiteSpace:
-                                                                    'pre-wrap',
-                                                                lineHeight: 1.6
-                                                            }}
-                                                            variant="body2"
-                                                        >
-                                                            {note.note}
-                                                        </Typography>
-                                                    )}
-                                                    {note.createdAt && (
-                                                        <Typography
-                                                            color="text.secondary"
-                                                            variant="caption"
-                                                        >
-                                                            {t(
-                                                                'common.noteCreatedAt',
-                                                                {
-                                                                    ns: 'crm'
-                                                                }
-                                                            )}{' '}
-                                                            {new Date(
-                                                                note.createdAt
-                                                            ).toLocaleString()}
-                                                        </Typography>
-                                                    )}
-                                                </Box>
-                                                {note.id && (
                                                     <Box
                                                         sx={{
                                                             display: 'flex',
-                                                            gap: 0.5
+                                                            flexDirection:
+                                                                'column',
+                                                            gap: 0.5,
+                                                            flex: 1
                                                         }}
                                                     >
                                                         {editingNoteId ===
                                                         note.id ? (
-                                                            <>
-                                                                <IconButton
-                                                                    aria-label="save"
-                                                                    onClick={() => {
-                                                                        const nextNotes =
-                                                                            normalizeNoteObjects(
-                                                                                lead?.notes ||
-                                                                                    []
-                                                                            ).map(
-                                                                                (
-                                                                                    n
-                                                                                ) =>
-                                                                                    n.id ===
-                                                                                    note.id
-                                                                                        ? {
-                                                                                              ...n,
-                                                                                              note: editingNoteDraft
-                                                                                          }
-                                                                                        : n
-                                                                            );
-                                                                        applyNotesUpdate(
-                                                                            nextNotes
-                                                                        );
-                                                                        setEditingNoteId(
-                                                                            null
-                                                                        );
-                                                                        setEditingNoteDraft(
-                                                                            ''
-                                                                        );
-                                                                    }}
-                                                                    size="small"
-                                                                    sx={{
-                                                                        color: 'success.main',
-                                                                        bgcolor:
-                                                                            'success.50',
-                                                                        border: '1px solid',
-                                                                        borderColor:
-                                                                            'success.100',
-                                                                        '&:hover':
-                                                                            {
-                                                                                bgcolor:
-                                                                                    'success.100'
-                                                                            }
-                                                                    }}
-                                                                >
-                                                                    <SaveIcon />
-                                                                </IconButton>
-                                                                <IconButton
-                                                                    aria-label="cancel"
-                                                                    onClick={() => {
-                                                                        setEditingNoteId(
-                                                                            null
-                                                                        );
-                                                                        setEditingNoteDraft(
-                                                                            ''
-                                                                        );
-                                                                    }}
-                                                                    size="small"
-                                                                    sx={{
-                                                                        color: 'text.secondary',
-                                                                        bgcolor:
-                                                                            'grey.50',
-                                                                        border: '1px solid',
-                                                                        borderColor:
-                                                                            'divider',
-                                                                        '&:hover':
-                                                                            {
-                                                                                bgcolor:
-                                                                                    'grey.100'
-                                                                            }
-                                                                    }}
-                                                                >
-                                                                    <CancelIcon />
-                                                                </IconButton>
-                                                            </>
+                                                            <TextField
+                                                                fullWidth
+                                                                minRows={2}
+                                                                multiline
+                                                                onChange={(e) =>
+                                                                    setEditingNoteDraft(
+                                                                        e.target
+                                                                            .value
+                                                                    )
+                                                                }
+                                                                value={
+                                                                    editingNoteDraft
+                                                                }
+                                                            />
                                                         ) : (
-                                                            <>
-                                                                <IconButton
-                                                                    aria-label="edit"
-                                                                    onClick={() => {
-                                                                        setEditingNoteId(
-                                                                            note.id
-                                                                        );
-                                                                        setEditingNoteDraft(
-                                                                            note.note ||
-                                                                                ''
-                                                                        );
-                                                                    }}
-                                                                    size="small"
-                                                                    sx={{
-                                                                        color: 'text.secondary',
-                                                                        bgcolor:
-                                                                            'transparent',
-                                                                        border: '1px solid',
-                                                                        borderColor:
-                                                                            'transparent',
-                                                                        '&:hover':
-                                                                            {
-                                                                                bgcolor:
-                                                                                    'action.hover',
-                                                                                borderColor:
-                                                                                    'divider'
-                                                                            }
-                                                                    }}
-                                                                >
-                                                                    <EditIcon />
-                                                                </IconButton>
-                                                                <IconButton
-                                                                    aria-label="delete"
-                                                                    onClick={() => {
-                                                                        const nextNotes =
-                                                                            normalizeNoteObjects(
-                                                                                lead?.notes ||
-                                                                                    []
-                                                                            ).filter(
-                                                                                (
-                                                                                    n
-                                                                                ) =>
-                                                                                    n.id !==
-                                                                                    note.id
-                                                                            );
-                                                                        applyNotesUpdate(
-                                                                            nextNotes
-                                                                        );
-                                                                    }}
-                                                                    size="small"
-                                                                    sx={{
-                                                                        color: 'text.secondary',
-                                                                        bgcolor:
-                                                                            'transparent',
-                                                                        border: '1px solid',
-                                                                        borderColor:
-                                                                            'transparent',
-                                                                        '&:hover':
-                                                                            {
-                                                                                bgcolor:
-                                                                                    'action.hover',
-                                                                                borderColor:
-                                                                                    'divider',
-                                                                                color: 'error.main'
-                                                                            }
-                                                                    }}
-                                                                >
-                                                                    <CloseIcon />
-                                                                </IconButton>
-                                                            </>
+                                                            <Typography
+                                                                sx={{
+                                                                    whiteSpace:
+                                                                        'pre-wrap',
+                                                                    lineHeight: 1.6
+                                                                }}
+                                                                variant="body2"
+                                                            >
+                                                                {note.note}
+                                                            </Typography>
+                                                        )}
+                                                        {note.createdAt && (
+                                                            <Typography
+                                                                color="text.secondary"
+                                                                variant="caption"
+                                                            >
+                                                                {t(
+                                                                    'common.noteCreatedAt',
+                                                                    {
+                                                                        ns: 'crm'
+                                                                    }
+                                                                )}{' '}
+                                                                {new Date(
+                                                                    note.createdAt
+                                                                ).toLocaleString()}
+                                                            </Typography>
                                                         )}
                                                     </Box>
-                                                )}
-                                            </Box>
-                                        ))}
+                                                    {note.id &&
+                                                        showNotesEditor && (
+                                                            <Box
+                                                                sx={{
+                                                                    display:
+                                                                        'flex',
+                                                                    gap: 0.5
+                                                                }}
+                                                            >
+                                                                {editingNoteId ===
+                                                                note.id ? (
+                                                                    <>
+                                                                        <IconButton
+                                                                            aria-label="save"
+                                                                            onClick={() => {
+                                                                                const nextNotes =
+                                                                                    normalizeNoteObjects(
+                                                                                        lead?.notes ||
+                                                                                            []
+                                                                                    ).map(
+                                                                                        (
+                                                                                            n
+                                                                                        ) =>
+                                                                                            n.id ===
+                                                                                            note.id
+                                                                                                ? {
+                                                                                                      ...n,
+                                                                                                      note: editingNoteDraft
+                                                                                                  }
+                                                                                                : n
+                                                                                    );
+                                                                                applyNotesUpdate(
+                                                                                    nextNotes
+                                                                                );
+                                                                                setEditingNoteId(
+                                                                                    null
+                                                                                );
+                                                                                setEditingNoteDraft(
+                                                                                    ''
+                                                                                );
+                                                                            }}
+                                                                            size="small"
+                                                                            sx={{
+                                                                                color: 'success.main',
+                                                                                bgcolor:
+                                                                                    'success.50',
+                                                                                border: '1px solid',
+                                                                                borderColor:
+                                                                                    'success.100',
+                                                                                '&:hover':
+                                                                                    {
+                                                                                        bgcolor:
+                                                                                            'success.100'
+                                                                                    }
+                                                                            }}
+                                                                        >
+                                                                            <SaveIcon />
+                                                                        </IconButton>
+                                                                        <IconButton
+                                                                            aria-label="cancel"
+                                                                            onClick={() => {
+                                                                                setEditingNoteId(
+                                                                                    null
+                                                                                );
+                                                                                setEditingNoteDraft(
+                                                                                    ''
+                                                                                );
+                                                                            }}
+                                                                            size="small"
+                                                                            sx={{
+                                                                                color: 'text.secondary',
+                                                                                bgcolor:
+                                                                                    'grey.50',
+                                                                                border: '1px solid',
+                                                                                borderColor:
+                                                                                    'divider',
+                                                                                '&:hover':
+                                                                                    {
+                                                                                        bgcolor:
+                                                                                            'grey.100'
+                                                                                    }
+                                                                            }}
+                                                                        >
+                                                                            <CancelIcon />
+                                                                        </IconButton>
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        <IconButton
+                                                                            aria-label="edit"
+                                                                            onClick={() => {
+                                                                                setEditingNoteId(
+                                                                                    note.id
+                                                                                );
+                                                                                setEditingNoteDraft(
+                                                                                    note.note ||
+                                                                                        ''
+                                                                                );
+                                                                            }}
+                                                                            size="small"
+                                                                            sx={{
+                                                                                color: 'text.secondary',
+                                                                                bgcolor:
+                                                                                    'transparent',
+                                                                                border: '1px solid',
+                                                                                borderColor:
+                                                                                    'transparent',
+                                                                                '&:hover':
+                                                                                    {
+                                                                                        bgcolor:
+                                                                                            'action.hover',
+                                                                                        borderColor:
+                                                                                            'divider'
+                                                                                    }
+                                                                            }}
+                                                                        >
+                                                                            <EditIcon />
+                                                                        </IconButton>
+                                                                        <IconButton
+                                                                            aria-label="delete"
+                                                                            onClick={() => {
+                                                                                const nextNotes =
+                                                                                    normalizeNoteObjects(
+                                                                                        lead?.notes ||
+                                                                                            []
+                                                                                    ).filter(
+                                                                                        (
+                                                                                            n
+                                                                                        ) =>
+                                                                                            n.id !==
+                                                                                            note.id
+                                                                                    );
+                                                                                applyNotesUpdate(
+                                                                                    nextNotes
+                                                                                );
+                                                                            }}
+                                                                            size="small"
+                                                                            sx={{
+                                                                                color: 'text.secondary',
+                                                                                bgcolor:
+                                                                                    'transparent',
+                                                                                border: '1px solid',
+                                                                                borderColor:
+                                                                                    'transparent',
+                                                                                '&:hover':
+                                                                                    {
+                                                                                        bgcolor:
+                                                                                            'action.hover',
+                                                                                        borderColor:
+                                                                                            'divider',
+                                                                                        color: 'error.main'
+                                                                                    }
+                                                                            }}
+                                                                        >
+                                                                            <CloseIcon />
+                                                                        </IconButton>
+                                                                    </>
+                                                                )}
+                                                            </Box>
+                                                        )}
+                                                </Box>
+                                            ))}
+                                        </Box>
+                                    )}
+                                    {showNotesEditor && !showAddNote && (
+                                        <Button
+                                            onClick={() => setShowAddNote(true)}
+                                            size="small"
+                                            variant="text"
+                                        >
+                                            {`${t('common.add', {
+                                                ns: 'crm'
+                                            })} ${t('common.notes', {
+                                                ns: 'crm'
+                                            })}`}
+                                        </Button>
+                                    )}
+                                    {showNotesEditor && showAddNote && (
                                         <Box
                                             sx={{
                                                 mt: 0.5,
@@ -1251,78 +1279,51 @@ const LeadPage = () => {
                                                 gap: 1
                                             }}
                                         >
-                                            {showAddNote ? (
-                                                <>
-                                                    <TextField
-                                                        fullWidth
-                                                        minRows={2}
-                                                        multiline
-                                                        onChange={(e) =>
-                                                            setNewNoteDraft(
-                                                                e.target.value
-                                                            )
-                                                        }
-                                                        value={newNoteDraft}
-                                                    />
-                                                    <Button
-                                                        onClick={() => {
-                                                            const trimmed =
-                                                                `${newNoteDraft}`.trim();
-                                                            if (!trimmed)
-                                                                return;
-                                                            const nextNotes =
-                                                                normalizeNoteObjects(
-                                                                    [
-                                                                        ...(lead?.notes ||
-                                                                            []),
-                                                                        {
-                                                                            note: trimmed
-                                                                        }
-                                                                    ]
-                                                                );
-                                                            applyNotesUpdate(
-                                                                nextNotes
-                                                            );
-                                                            setNewNoteDraft('');
-                                                            setShowAddNote(
-                                                                false
-                                                            );
-                                                        }}
-                                                        variant="contained"
-                                                    >
-                                                        {t('common.add', {
-                                                            ns: 'crm'
-                                                        })}
-                                                    </Button>
-                                                    <Button
-                                                        onClick={() => {
-                                                            setNewNoteDraft('');
-                                                            setShowAddNote(
-                                                                false
-                                                            );
-                                                        }}
-                                                        variant="text"
-                                                    >
-                                                        {t('common.cancel', {
-                                                            ns: 'crm'
-                                                        })}
-                                                    </Button>
-                                                </>
-                                            ) : (
-                                                <Button
-                                                    onClick={() =>
-                                                        setShowAddNote(true)
-                                                    }
-                                                    size="small"
-                                                    variant="text"
-                                                >
-                                                    {t('common.add', {
-                                                        ns: 'crm'
-                                                    })}
-                                                </Button>
-                                            )}
+                                            <TextField
+                                                fullWidth
+                                                minRows={2}
+                                                multiline
+                                                onChange={(e) =>
+                                                    setNewNoteDraft(
+                                                        e.target.value
+                                                    )
+                                                }
+                                                value={newNoteDraft}
+                                            />
+                                            <Button
+                                                onClick={() => {
+                                                    const trimmed =
+                                                        `${newNoteDraft}`.trim();
+                                                    if (!trimmed) return;
+                                                    const nextNotes =
+                                                        normalizeNoteObjects([
+                                                            ...(lead?.notes ||
+                                                                []),
+                                                            {
+                                                                note: trimmed
+                                                            }
+                                                        ]);
+                                                    applyNotesUpdate(nextNotes);
+                                                    setNewNoteDraft('');
+                                                    setShowAddNote(false);
+                                                }}
+                                                variant="contained"
+                                            >
+                                                {t('common.add', { ns: 'crm' })}
+                                            </Button>
+                                            <Button
+                                                onClick={() => {
+                                                    setNewNoteDraft('');
+                                                    setShowAddNote(false);
+                                                }}
+                                                variant="text"
+                                            >
+                                                {t('common.cancel', {
+                                                    ns: 'crm'
+                                                })}
+                                            </Button>
                                         </Box>
-                                    </Box>
+                                    )}
                                 </Box>
                             </Box>
                         )}
