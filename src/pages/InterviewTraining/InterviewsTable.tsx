@@ -7,7 +7,11 @@ import { getTableConfig, useTableStyles } from '@components/table';
 
 import { TopToolbar } from '@components/table/interviews-table/TopToolbar';
 import { AssignTrainerDialog } from './AssignTrainerDialog';
-import { getEssayWriters, updateInterview } from '@/api';
+import {
+    getUsers,
+    updateInterview,
+    ESSAY_WRITERS_QUERY_STRING
+} from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import { useAuth } from '@components/AuthProvider';
 import type { MRT_ColumnDef } from 'material-react-table';
@@ -59,8 +63,8 @@ export const InterviewsTable = ({
     };
 
     const getTrainer = async () => {
-        const { data } = await getEssayWriters();
-        const { data: editors_a } = data;
+        const res = await getUsers(ESSAY_WRITERS_QUERY_STRING);
+        const editors_a = res.data?.data ?? [];
         setTrainers(editors_a);
         setTrainerId(
             new Set(

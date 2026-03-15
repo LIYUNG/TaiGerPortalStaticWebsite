@@ -4,10 +4,20 @@ import { MemoryRouter } from 'react-router-dom';
 
 import EditEssayWritersSubpage from './EditEssayWritersSubpage';
 
-vi.mock('@/api', () => ({
-    getEssayWriters: vi.fn().mockResolvedValue({
-        data: { data: [], success: true }
-    })
+vi.mock('@/api/query', () => ({
+    getEssayWritersQuery: vi.fn(() => ({
+        queryKey: ['essay-writers'],
+        queryFn: vi.fn().mockResolvedValue([])
+    })),
+    getUsersQuery: vi.fn(() => ({
+        queryKey: ['users'],
+        queryFn: vi.fn().mockResolvedValue([])
+    }))
+}));
+
+vi.mock('@tanstack/react-query', async (orig) => ({
+    ...(await orig()),
+    useQuery: vi.fn(() => ({ data: [], isLoading: false }))
 }));
 
 vi.mock('../../../Utils/util_functions', async (importOriginal) => {
@@ -40,11 +50,13 @@ describe('EditEssayWritersSubpage', () => {
                     essayDocumentThread={makeThread('ml') as never}
                     onHide={vi.fn()}
                     show={true}
+                    submitUpdateEssayWriterlist={vi.fn()}
                 />
             </MemoryRouter>
         );
-        // Dialog is open, loading spinner shown initially
-        expect(screen.getByRole('progressbar')).toBeInTheDocument();
+        expect(
+            screen.getByText(/Essay Writer for ml-/i)
+        ).toBeInTheDocument();
     });
 
     it('does not render dialog content when show=false', () => {
@@ -55,6 +67,7 @@ describe('EditEssayWritersSubpage', () => {
                     essayDocumentThread={makeThread('ml') as never}
                     onHide={vi.fn()}
                     show={false}
+                    submitUpdateEssayWriterlist={vi.fn()}
                 />
             </MemoryRouter>
         );
@@ -71,9 +84,12 @@ describe('EditEssayWritersSubpage', () => {
                     essayDocumentThread={makeThread('essay_required') as never}
                     onHide={vi.fn()}
                     show={true}
+                    submitUpdateEssayWriterlist={vi.fn()}
                 />
             </MemoryRouter>
         );
-        expect(screen.getByRole('progressbar')).toBeInTheDocument();
+        expect(
+            screen.getByText(/Essay Writer for essay_required-/i)
+        ).toBeInTheDocument();
     });
 });

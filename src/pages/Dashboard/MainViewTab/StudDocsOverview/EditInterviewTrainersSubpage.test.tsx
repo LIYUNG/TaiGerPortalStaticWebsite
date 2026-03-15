@@ -4,10 +4,20 @@ import { MemoryRouter } from 'react-router-dom';
 
 import EditInterviewTrainersSubpage from './EditInterviewTrainersSubpage';
 
-vi.mock('@/api', () => ({
-    getEssayWriters: vi.fn().mockResolvedValue({
-        data: { data: [], success: true }
-    })
+vi.mock('@/api/query', () => ({
+    getEssayWritersQuery: vi.fn(() => ({
+        queryKey: ['essay-writers'],
+        queryFn: vi.fn().mockResolvedValue([])
+    })),
+    getUsersQuery: vi.fn(() => ({
+        queryKey: ['users'],
+        queryFn: vi.fn().mockResolvedValue([])
+    }))
+}));
+
+vi.mock('@tanstack/react-query', async (orig) => ({
+    ...(await orig()),
+    useQuery: vi.fn(() => ({ data: [], isLoading: false }))
 }));
 
 const makeInterview = () => ({
@@ -35,8 +45,9 @@ describe('EditInterviewTrainersSubpage', () => {
                 />
             </MemoryRouter>
         );
-        // Initially loading spinner is shown
-        expect(screen.getByRole('progressbar')).toBeInTheDocument();
+        expect(
+            screen.getByText(/Interview Trainer for LMU-/i)
+        ).toBeInTheDocument();
     });
 
     it('does not render dialog when show=false', () => {
@@ -68,6 +79,6 @@ describe('EditInterviewTrainersSubpage', () => {
                 />
             </MemoryRouter>
         );
-        expect(screen.getByRole('progressbar')).toBeInTheDocument();
+        expect(screen.getByText(/Trainer for LMU-/i)).toBeInTheDocument();
     });
 });

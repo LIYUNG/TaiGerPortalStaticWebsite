@@ -4,10 +4,16 @@ import { MemoryRouter } from 'react-router-dom';
 
 import EditAgentsSubpage from './EditAgentsSubpage';
 
-vi.mock('@/api', () => ({
-    getUsers: vi.fn().mockResolvedValue({
-        data: { data: [], success: true }
-    })
+vi.mock('@/api/query', () => ({
+    getUsersQuery: vi.fn(() => ({
+        queryKey: ['users', 'role=Agent&archiv=false'],
+        queryFn: vi.fn().mockResolvedValue({ data: { data: [] } })
+    }))
+}));
+
+vi.mock('@tanstack/react-query', async (orig) => ({
+    ...(await orig()),
+    useQuery: vi.fn(() => ({ data: [], isLoading: false }))
 }));
 
 const mockStudent = {
@@ -50,7 +56,12 @@ describe('EditAgentsSubpage', () => {
         ).not.toBeInTheDocument();
     });
 
-    it('shows loading spinner before data is loaded', () => {
+    it('shows loading spinner before data is loaded', async () => {
+        const { useQuery } = await import('@tanstack/react-query');
+        vi.mocked(useQuery).mockReturnValueOnce({
+            data: undefined,
+            isLoading: true
+        } as ReturnType<typeof useQuery>);
         render(
             <MemoryRouter>
                 <EditAgentsSubpage
@@ -61,9 +72,6 @@ describe('EditAgentsSubpage', () => {
                 />
             </MemoryRouter>
         );
-        // Initially isLoaded=false so spinner should show
-        expect(
-            screen.getByRole('progressbar')
-        ).toBeInTheDocument();
+        expect(screen.getByRole('progressbar')).toBeInTheDocument();
     });
 });

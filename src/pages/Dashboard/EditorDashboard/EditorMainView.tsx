@@ -28,7 +28,8 @@ import { useTranslation } from 'react-i18next';
 import AssignEssayWriterRow from '../MainViewTab/Common/AssignEssayWriterRow';
 import AssignEditorRow from '../MainViewTab/Common/AssignEditorRow';
 import AssignInterviewTrainerRow from '../MainViewTab/Common/AssignInterviewTrainerRow';
-import { getMyStudentsThreadsQuery, getIsManagerQuery } from '@/api/query';
+import { getIsManagerQuery } from '@/api/query';
+import { useMyStudentsThreads } from '@hooks/useMyStudentsThreads';
 import { useTasksOverview } from '@hooks/useTasksOverview';
 import { useStudentsV3 } from '@hooks/useStudentsV3';
 import Loading from '@components/Loading/Loading';
@@ -39,14 +40,17 @@ const EditorMainView = () => {
 
     const { data: fetchedMyStudents, isLoading: isLoadingMyStudents } =
         useStudentsV3({ editors: user._id, archiv: false });
-    const { data: myStudentsThreads, isLoading: isLoadingThreads } = useQuery(
-        getMyStudentsThreadsQuery({
-            userId: user._id,
-            queryString: queryString.stringify({
-                isFinalVersion: 'false'
-            })
-        })
-    );
+    const { data: myStudentsThreads, isLoading: isLoadingThreads } =
+        useMyStudentsThreads(
+            user?._id
+                ? {
+                      userId: user._id,
+                      queryString: queryString.stringify({
+                          isFinalVersion: 'false'
+                      })
+                  }
+                : null
+        );
 
     const { data: tasksOverview } = useTasksOverview();
 

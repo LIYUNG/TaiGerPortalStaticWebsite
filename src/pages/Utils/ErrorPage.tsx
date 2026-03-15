@@ -9,9 +9,10 @@ import ResourceLockedError from './ResourceLockedError';
 
 interface ErrorPageProps {
     res_status?: number;
+    error?: unknown;
 }
 
-const ErrorPage = ({ res_status }: ErrorPageProps) => {
+const ErrorPage = ({ error, res_status }: ErrorPageProps) => {
     if (res_status === 400) {
         return (
             <Box>

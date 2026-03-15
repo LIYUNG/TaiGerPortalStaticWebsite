@@ -35,16 +35,28 @@ vi.mock('@tanstack/react-query', async () => {
         ...actual,
         useQuery: vi.fn(() => ({
             data: {
-                user: { _id: { toString: () => 'editor1' }, firstname: 'Bob', lastname: 'Editor', pictureUrl: '' },
-                threads: []
+                user: { _id: { toString: () => 'editor1' }, firstname: 'Bob', lastname: 'Editor', pictureUrl: '' }
             },
             isLoading: false
         }))
     };
 });
 
-vi.mock('@/api/query', () => ({
-    getMyStudentsThreadsQuery: vi.fn(() => ({ queryKey: ['threads'], queryFn: vi.fn() }))
+vi.mock('@hooks/useMyStudentsThreads', () => ({
+    useMyStudentsThreads: vi.fn(() => ({
+        data: {
+            threads: [],
+            success: false,
+            status: 0,
+            user: {
+                _id: { toString: () => 'editor1' },
+                firstname: 'Bob',
+                lastname: 'Editor',
+                pictureUrl: ''
+            }
+        },
+        isLoading: false
+    }))
 }));
 
 vi.mock('@components/Loading/Loading', () => ({

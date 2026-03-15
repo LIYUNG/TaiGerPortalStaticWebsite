@@ -51,7 +51,7 @@ vi.mock('@/api', () => ({
     addInterviewTrainingDateTime: vi
         .fn()
         .mockResolvedValue({ data: { success: true } }),
-    getEssayWriters: vi.fn().mockResolvedValue({ data: { data: [] } })
+    getUsers: vi.fn().mockResolvedValue({ data: { data: [], success: true } })
 }));
 
 vi.mock('@/api/query', () => ({

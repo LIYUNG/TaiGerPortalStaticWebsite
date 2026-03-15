@@ -53,7 +53,8 @@ import ModalMain from '../../Utils/ModalHandler/ModalMain';
 import {
     updateInterview,
     addInterviewTrainingDateTime,
-    getEssayWriters
+    getUsers,
+    ESSAY_WRITERS_QUERY_STRING
 } from '@/api';
 import DEMO from '@store/constant';
 import {
@@ -250,8 +251,8 @@ const InterviewMetadataSidebar = ({
     // Handlers
     const openTrainerModal = async () => {
         setShowTrainerModal(true);
-        const { data } = await getEssayWriters();
-        const { data: editors_a } = data;
+        const res = await getUsers(ESSAY_WRITERS_QUERY_STRING);
+        const editors_a = res.data?.data ?? [];
         setEditors(editors_a);
     };
 
