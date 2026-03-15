@@ -24,7 +24,10 @@ import { is_TaiGer_Admin, is_TaiGer_Agent } from '@taiger-common/core';
 import { useAuth } from '../AuthProvider';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import DEMO from '@store/constant';
-import { type IApplication } from '@taiger-common/model';
+import {
+    type IApplication,
+    type IApplicationPopulated
+} from '@taiger-common/model';
 import type {
     ApplicationId,
     ProgramId,
@@ -32,7 +35,8 @@ import type {
 } from '@taiger-common/model';
 
 interface ApplicationLockControlProps {
-    application: IApplication;
+    /** Application (may be populated when used with lock controls) */
+    application: IApplication | IApplicationPopulated;
 }
 
 const ApplicationLockControl = ({
@@ -56,7 +60,9 @@ const ApplicationLockControl = ({
         ? APPROVAL_COUNTRIES.includes(countryCode)
         : false;
 
-    const lockStatus = calculateApplicationLockStatus(application);
+    const lockStatus = calculateApplicationLockStatus(
+        application as IApplicationPopulated
+    );
     const isLocked = lockStatus.isLocked;
 
     const getLockReasonText = (): string => {
@@ -78,9 +84,8 @@ const ApplicationLockControl = ({
     const handleUnlock = async (): Promise<void> => {
         setIsLoading(true);
         try {
-            const response = await refreshApplication(
-                application._id as ApplicationId
-            );
+            const appId = (application as IApplicationPopulated)._id;
+            const response = await refreshApplication(appId as ApplicationId);
             if (response?.success) {
                 setOpenDialog(false);
                 window.location.reload();

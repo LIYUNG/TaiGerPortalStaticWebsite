@@ -1054,7 +1054,7 @@ const TaiGerOfficeHours = () => {
                             onChange={(e) => handleUpdateTimeSlot(e)}
                             value={
                                 event_temp?.start
-                                    ? new Date(event_temp.start).toString()
+                                    ? new Date(event_temp.start).toISOString()
                                     : ''
                             }
                         >

@@ -292,44 +292,38 @@ export default function ApplicationProgressCardBody(
                     </Typography>
                 </ListItem>
             ) : null}
-            {application?.doc_modification_thread?.map((thread) => (
-                <ListItem
-                    key={(
-                        thread.doc_thread_id as unknown as IDocumentthread
-                    )?._id?.toString()}
-                >
-                    <Typography>
-                        <Link
-                            color="inherit"
-                            component={LinkDom}
-                            to={DEMO.DOCUMENT_MODIFICATION_LINK(
-                                (
-                                    thread.doc_thread_id as unknown as IDocumentthread
-                                )?._id?.toString() ?? ''
-                            )}
-                            underline="hover"
-                        >
-                            {thread.isFinalVersion ? (
-                                <IconButton>
-                                    <DocumentOkIcon />
-                                </IconButton>
-                            ) : (
-                                <IconButton>
-                                    <DocumentMissingIcon />
-                                </IconButton>
-                            )}{' '}
-                            {thread.doc_thread_id?.file_type?.replace(
-                                /_/g,
-                                ' '
-                            )}
-                        </Link>
-                        {' - '}
-                        {convertDateUXFriendly(
-                            (thread.doc_thread_id as IDocumentthread)?.updatedAt
-                        )}
-                    </Typography>
-                </ListItem>
-            ))}
+            {application?.doc_modification_thread?.map((thread) => {
+                const docThread = thread.doc_thread_id as unknown as
+                    | IDocumentthreadWithId
+                    | undefined;
+                return (
+                    <ListItem key={docThread?._id?.toString() ?? ''}>
+                        <Typography>
+                            <Link
+                                color="inherit"
+                                component={LinkDom}
+                                to={DEMO.DOCUMENT_MODIFICATION_LINK(
+                                    docThread?._id?.toString() ?? ''
+                                )}
+                                underline="hover"
+                            >
+                                {thread.isFinalVersion ? (
+                                    <IconButton>
+                                        <DocumentOkIcon />
+                                    </IconButton>
+                                ) : (
+                                    <IconButton>
+                                        <DocumentMissingIcon />
+                                    </IconButton>
+                                )}{' '}
+                                {docThread?.file_type?.replace(/_/g, ' ')}
+                            </Link>
+                            {' - '}
+                            {convertDateUXFriendly(docThread?.updatedAt)}
+                        </Typography>
+                    </ListItem>
+                );
+            })}
 
             {(
                 application?.programId?.uni_assist as string[] | undefined

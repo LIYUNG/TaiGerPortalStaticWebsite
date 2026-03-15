@@ -6,7 +6,10 @@ import type { AuthContextValue } from '@/api/types';
 import type { Theme } from '@mui/material/styles';
 
 vi.mock('react-router-dom', () => ({
-    Link: forwardRef((props, ref) =>
+    Link: forwardRef<
+        HTMLAnchorElement,
+        { to?: string; children?: React.ReactNode; [key: string]: unknown }
+    >((props, ref) =>
         createElement(
             'a',
             {
@@ -14,7 +17,7 @@ vi.mock('react-router-dom', () => ({
                 ref,
                 ...props
             },
-            props.children
+            props.children as React.ReactNode
         )
     )
 }));

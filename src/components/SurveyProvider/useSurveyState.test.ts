@@ -59,7 +59,7 @@ describe('useSurveyState', () => {
             result.current.onChangeURL({
                 preventDefault: vi.fn(),
                 target: { value: 'https://new-link.com' }
-            } as React.ChangeEvent<HTMLInputElement>);
+            } as unknown as React.ChangeEvent<HTMLInputElement>);
         });
 
         expect(result.current.survey.survey_link).toBe('https://new-link.com');
@@ -77,7 +77,7 @@ describe('useSurveyState', () => {
                     name: 'attended_high_school',
                     value: 'Test High School'
                 }
-            } as React.ChangeEvent<HTMLInputElement>);
+            } as unknown as React.ChangeEvent<HTMLInputElement>);
         });
 
         expect(result.current.survey.changed_academic).toBe(true);
@@ -96,7 +96,7 @@ describe('useSurveyState', () => {
             result.current.handleChangeApplicationPreference({
                 preventDefault: vi.fn(),
                 target: { name: 'target_degree', value: 'Master' }
-            } as React.ChangeEvent<HTMLInputElement>);
+            } as unknown as React.ChangeEvent<HTMLInputElement>);
         });
 
         expect(result.current.survey.changed_application_preference).toBe(true);
@@ -143,7 +143,7 @@ describe('useSurveyState', () => {
 
         await act(async () => {
             result.current.handleAcademicBackgroundSubmit(
-                { preventDefault: vi.fn() } as React.FormEvent,
+                { preventDefault: vi.fn() } as unknown as React.FormEvent,
                 result.current.survey.academic_background?.university ?? {}
             );
         });

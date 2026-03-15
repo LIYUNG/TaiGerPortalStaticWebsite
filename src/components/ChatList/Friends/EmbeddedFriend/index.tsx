@@ -102,7 +102,7 @@ const EmbeddedFriend = (props: EmbeddedFriendProps) => {
     const isMessageRead =
         props.data?.latestCommunication?.readBy?.includes(props.activeId) ||
         props.data?.latestCommunication?.user_id?.toString() ===
-            user._id?.toString();
+            user?._id?.toString();
 
     const backgroundColor = isMessageRead
         ? theme.palette.background.default
@@ -173,7 +173,7 @@ const EmbeddedFriend = (props: EmbeddedFriendProps) => {
                             </Typography>
                         }
                         secondary={`${
-                            user._id?.toString() === lastReply?.toString()
+                            user?._id?.toString() === lastReply?.toString()
                                 ? `${t('You', { ns: 'common' })}: `
                                 : ''
                         }${truncateText(firstText, 14)} • ${convertDateUXFriendly(

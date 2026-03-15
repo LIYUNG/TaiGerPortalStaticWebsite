@@ -78,7 +78,7 @@ const Friend = (props: FriendProps) => {
                         props.activeId
                     ) ||
                     props.data?.latestCommunication?.user_id?.toString() ===
-                        user._id?.toString()
+                        user?._id?.toString()
                         ? theme.palette.background.default
                         : theme.palette.action.disabled
             }}
@@ -126,7 +126,7 @@ const Friend = (props: FriendProps) => {
                         </Typography>
                         <Typography variant="caption">
                             {`${
-                                user._id?.toString() === lastReply?.toString()
+                                user?._id?.toString() === lastReply?.toString()
                                     ? `${t('You', { ns: 'common' })}: `
                                     : ''
                             }${truncateText(firstText, 26)} ${

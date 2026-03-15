@@ -146,7 +146,7 @@ export function useSurveyState({
     };
 
     const handleAcademicBackgroundSubmit = (
-        e: FormEvent,
+        _e: FormEvent,
         university: Record<string, unknown>
     ) => {
         updateAcademicBackground(

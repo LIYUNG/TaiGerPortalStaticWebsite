@@ -44,26 +44,42 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
             startTime: props.startTime,
             endTime: props.endTime
         }),
-        enabled: !props.isAll && is_TaiGer_Student(user)
+        enabled: !props.isAll && user != null && is_TaiGer_Student(user)
     });
-    const studentsParams = is_TaiGer_Agent(user)
-        ? { agents: user?._id, archiv: false }
-        : { editors: user?._id, archiv: false };
+    const studentsParams =
+        user != null && is_TaiGer_Agent(user)
+            ? { agents: user._id, archiv: false }
+            : user != null && is_TaiGer_Editor(user)
+                ? { editors: user._id, archiv: false }
+                : { agents: undefined, archiv: false };
     const studentsQuery = useStudentsV3(studentsParams, {
         enabled:
             !props.isAll &&
+            user != null &&
             (is_TaiGer_Agent(user) || is_TaiGer_Editor(user)) &&
-            !!user?._id
+            !!user._id
     });
 
-    const eventsResponse = eventsQuery.data?.data || {};
-    const events = eventsResponse.data || [];
+    interface EventsResponse {
+        data?: unknown[];
+        agents?: Record<string, unknown>;
+        editors?: unknown[];
+        hasEvents?: boolean;
+        success?: boolean;
+    }
+    const queryData = eventsQuery.data as { data?: EventsResponse } | undefined;
+    const rawEvents = queryData?.data;
+    const eventsResponse: EventsResponse = (rawEvents ?? {}) as EventsResponse;
+    const events = eventsResponse.data ?? [];
     const agents = eventsResponse.agents || {};
     const editors = eventsResponse.editors || [];
     const students = studentsQuery.data || [];
     const hasEvents = eventsResponse.hasEvents || false;
-    const booked_events = bookedEventsQuery.data?.data?.data || [];
-    const res_status = eventsQuery.data?.status || 0;
+    const booked_events =
+        (bookedEventsQuery.data as { data?: { data?: unknown[] } } | undefined)
+            ?.data?.data ?? [];
+    const res_status =
+        (eventsQuery.data as { status?: number } | undefined)?.status ?? 0;
     const success = eventsResponse.success || false;
 
     const [calendarEventsState, setCalendarEventsState] = useState<{
@@ -160,7 +176,7 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
         newEvent: Record<string, unknown>
     ): void => {
         const eventWrapper = { ...newEvent };
-        if (is_TaiGer_Agent(user) || is_TaiGer_Editor(user)) {
+        if (user != null && (is_TaiGer_Agent(user) || is_TaiGer_Editor(user))) {
             const temp_std = students.find(
                 (std: { _id: { toString: () => string } }) =>
                     std._id.toString() === calendarEventsState.student_id
@@ -188,8 +204,8 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
                 calendarEventsState.newEventEnd instanceof Date
                     ? calendarEventsState.newEventEnd
                     : calendarEventsState.newEventEnd
-                      ? new Date(calendarEventsState.newEventEnd as string)
-                      : (() => {
+                        ? new Date(calendarEventsState.newEventEnd as string)
+                        : (() => {
                             const end = new Date(startDate);
                             end.setMinutes(end.getMinutes() + 30);
                             return end;
@@ -203,7 +219,7 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
             eventWrapper = { ...calendarEventsState.selectedEvent };
         }
 
-        if (is_TaiGer_Student(user)) {
+        if (user != null && is_TaiGer_Student(user)) {
             eventWrapper.requester_id = user._id?.toString();
             eventWrapper.description = calendarEventsState.newDescription;
             eventWrapper.receiver_id = calendarEventsState.newReceiver;
@@ -389,7 +405,7 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
 
     const handleConfirmAppointmentModalOpen = (
         e: MouseEvent,
-        event: { _id: { toString: () => string }; [key: string]: unknown }
+        event: { _id: { toString: () => string };[key: string]: unknown }
     ): void => {
         e.preventDefault();
         e.stopPropagation();
@@ -403,7 +419,7 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
 
     const handleEditAppointmentModalOpen = (
         e: MouseEvent,
-        event: { _id: { toString: () => string }; [key: string]: unknown }
+        event: { _id: { toString: () => string };[key: string]: unknown }
     ): void => {
         e.preventDefault();
         e.stopPropagation();
@@ -654,6 +670,7 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
         });
     }
     if (
+        user != null &&
         (is_TaiGer_Agent(user) || is_TaiGer_Editor(user)) &&
         calendarEventsState.selected_year
     ) {
