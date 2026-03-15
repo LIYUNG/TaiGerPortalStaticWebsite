@@ -5,10 +5,6 @@ import { MemoryRouter } from 'react-router-dom';
 import EditInterviewTrainersSubpage from './EditInterviewTrainersSubpage';
 
 vi.mock('@/api/query', () => ({
-    getEssayWritersQuery: vi.fn(() => ({
-        queryKey: ['essay-writers'],
-        queryFn: vi.fn().mockResolvedValue([])
-    })),
     getUsersQuery: vi.fn(() => ({
         queryKey: ['users'],
         queryFn: vi.fn().mockResolvedValue([])

@@ -953,11 +953,9 @@ const DocModificationThreadPage = ({
                             ? 'Essay Writer'
                             : 'Editor'
                     }
-                    editors={docModificationThreadPageState.editors}
                     essayDocumentThread={thread}
                     isSubmitting={docModificationThreadPageState.isSubmitting}
                     onHide={setEditorModalhide}
-                    setmodalhide={setEditorModalhide}
                     show={docModificationThreadPageState.showEditorPage}
                     submitUpdateEssayWriterlist={submitUpdateEssayWriterlist}
                 />
