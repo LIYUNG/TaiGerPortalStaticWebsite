@@ -45,8 +45,7 @@ import {
     is_new_message_status,
     is_pending_status
 } from '@utils/contants';
-import { useQuery } from '@tanstack/react-query';
-import { getMyStudentsThreadsQuery } from '@/api/query';
+import { useMyStudentsThreads } from '@hooks/useMyStudentsThreads';
 import { useTranslation } from 'react-i18next';
 
 const EditorPage = () => {
@@ -54,12 +53,15 @@ const EditorPage = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
 
-    const { data: myStudentsThreads, isLoading: isLoadingThreads } = useQuery(
-        getMyStudentsThreadsQuery({
-            userId: user_id ?? '',
-            queryString: queryString.stringify({})
-        })
-    );
+    const { data: myStudentsThreads, isLoading: isLoadingThreads } =
+        useMyStudentsThreads(
+            user_id
+                ? {
+                      userId: user_id,
+                      queryString: queryString.stringify({})
+                  }
+                : null
+        );
 
     const {
         sorted_date_freq_pair,

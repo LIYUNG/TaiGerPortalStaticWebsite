@@ -1,19 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link as LinkDom, Navigate } from 'react-router-dom';
 import { Box, Card, Link, Typography } from '@mui/material';
 import { is_TaiGer_role } from '@taiger-common/core';
 import { useTranslation } from 'react-i18next';
 import queryString from 'query-string';
+import { useMutation } from '@tanstack/react-query';
 
 import CVMLRLOverview from '../CVMLRLCenter/CVMLRLOverview';
 import ErrorPage from '../Utils/ErrorPage';
-import { getMyStudentsThreads, putThreadFavorite } from '@/api';
+import { putThreadFavorite } from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
 import {
     AGENT_SUPPORT_DOCUMENTS_A,
     FILE_TYPE_E,
-    open_tasks_v2,
-    toogleItemInArray
+    open_tasks_v2
 } from '../Utils/util_functions';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
@@ -25,144 +25,112 @@ import {
     is_pending_status
 } from '@utils/contants';
 import { BreadcrumbsNavigation } from '@components/BreadcrumbsNavigation/BreadcrumbsNavigation';
-import type { OpenTaskRow } from '@/api/types';
-
-interface AgentSupportDocumentsState {
-    error: string | unknown;
-    isLoaded: boolean;
-    data: unknown;
-    success: boolean;
-    students: unknown;
-    doc_thread_id: string;
-    student_id: string;
-    program_id: string;
-    SetAsFinalFileModel: boolean;
-    isFinalVersion: boolean;
-    status: string;
-    res_status: number;
-    res_modal_message: string;
-    res_modal_status: number;
-    open_tasks_arr?: OpenTaskRow[];
-}
+import { useMyStudentsThreads } from '@hooks/useMyStudentsThreads';
 
 const AgentSupportDocuments = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
-    const [indexState, setIndexState] = useState<AgentSupportDocumentsState>({
-        error: '',
-        isLoaded: false,
-        data: null,
-        success: false,
-        students: null,
-        doc_thread_id: '',
-        student_id: '',
-        program_id: '',
-        SetAsFinalFileModel: false,
-        isFinalVersion: false,
-        status: '', //reject, accept... etc
-        res_status: 0,
-        res_modal_message: '',
-        res_modal_status: 0
+
+    const {
+        data: threadsData,
+        isLoading: isLoadedThreads,
+        isError: isThreadsError,
+        error: threadsError
+    } = useMyStudentsThreads(
+        user?._id
+            ? {
+                  userId: user._id,
+                  queryString: queryString.stringify({
+                      fileType: [
+                          FILE_TYPE_E.essay_required,
+                          ...AGENT_SUPPORT_DOCUMENTS_A
+                      ]
+                  })
+              }
+            : null
+    );
+
+    const [optimisticFavToggles, setOptimisticFavToggles] = useState<
+        Record<string, boolean>
+    >({});
+    const [mutationError, setMutationError] = useState<{
+        error: unknown;
+        res_status: number;
+    } | null>(null);
+
+    const putThreadFavoriteMutation = useMutation({
+        mutationFn: (threadId: string) => putThreadFavorite(threadId),
+        onError: (err: unknown, threadId: string) => {
+            setMutationError({ error: err, res_status: 500 });
+            setOptimisticFavToggles((prev) => {
+                const next = { ...prev };
+                delete next[threadId];
+                return next;
+            });
+        },
+        onSuccess: (resp: { data?: { success: boolean }; status?: number }) => {
+            if (resp?.data?.success === false && resp?.status) {
+                setMutationError({ error: resp, res_status: resp.status });
+            } else {
+                setMutationError(null);
+            }
+        }
     });
 
-    useEffect(() => {
-        getMyStudentsThreads({
-            userId: user._id,
-            queryString: queryString.stringify({
-                fileType: [
-                    FILE_TYPE_E.essay_required,
-                    ...AGENT_SUPPORT_DOCUMENTS_A
-                ]
-            })
-        }).then(
-            (resp: {
-                data: { threads?: unknown[] } | null;
-                success: boolean;
-                status: number;
-            }) => {
-                const { data, success } = resp;
-                const { status } = resp;
-                if (success) {
-                    const tasksData = open_tasks_v2(data?.threads ?? []);
-                    setIndexState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        students: data,
-                        open_tasks_arr: tasksData,
+    const baseOpenTasksArr = useMemo(
+        () => open_tasks_v2(threadsData.threads),
+        [threadsData.threads]
+    );
 
-                        success: success,
-                        res_status: status
-                    }));
-                } else {
-                    setIndexState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        res_status: status
-                    }));
-                }
-            },
-            (error: unknown) => {
-                setIndexState((prevState) => ({
-                    ...prevState,
-                    isLoaded: true,
-                    error,
-                    res_status: 500
-                }));
-            }
-        );
-    }, [user._id]);
+    const open_tasks_arr_safe = useMemo(() => {
+        const userIdStr = user?._id?.toString();
+        if (!userIdStr) return baseOpenTasksArr;
+        return baseOpenTasksArr.map((row) => {
+            const toggled = optimisticFavToggles[row.id];
+            if (toggled === undefined) return row;
+            const currentIncludes = (row.flag_by_user_id ?? []).includes(
+                userIdStr
+            );
+            const newIncludes = toggled;
+            if (currentIncludes === newIncludes) return row;
+            return {
+                ...row,
+                flag_by_user_id: newIncludes
+                    ? [...(row.flag_by_user_id ?? []), userIdStr]
+                    : (row.flag_by_user_id ?? []).filter(
+                          (uid) => uid !== userIdStr
+                      )
+            };
+        });
+    }, [baseOpenTasksArr, optimisticFavToggles, user?._id]);
 
     const handleFavoriteToggle = (id: string) => {
-        const updatedOpenTasksArr = indexState.open_tasks_arr?.map((row) =>
-            row.id === id
-                ? {
-                      ...row,
-                      flag_by_user_id: toogleItemInArray(
-                          row.flag_by_user_id,
-                          user._id.toString()
-                      )
-                  }
-                : row
+        const row = open_tasks_arr_safe.find((r) => r.id === id);
+        const currentIsFav = (row?.flag_by_user_id ?? []).includes(
+            user?._id?.toString()
         );
-        setIndexState((prevState) => ({
-            ...prevState,
-            open_tasks_arr: updatedOpenTasksArr
-        }));
-        putThreadFavorite(id).then(
-            (resp: { data: { success: boolean }; status: number }) => {
-                const { success } = resp.data;
-                const { status } = resp;
-                if (!success) {
-                    setIndexState((prevState) => ({
-                        ...prevState,
-                        res_status: status
-                    }));
-                }
-            },
-            (error: unknown) => {
-                setIndexState((prevState) => ({
-                    ...prevState,
-                    error,
-                    res_status: 500
-                }));
-            }
-        );
+        setOptimisticFavToggles((prev) => ({ ...prev, [id]: !currentIsFav }));
+        setMutationError(null);
+        putThreadFavoriteMutation.mutate(id);
     };
+
+    const res_status = isThreadsError
+        ? 500
+        : (mutationError?.res_status ?? threadsData.status);
 
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
-    const { res_status, isLoaded, open_tasks_arr } = indexState;
     TabTitle(t('Agent Support Documents', { ns: 'common' }), { ns: 'common' });
-    if (!isLoaded && !indexState.students) {
+    if (isLoadedThreads) {
         return <Loading />;
     }
 
-    if (res_status >= 400) {
-        return <ErrorPage res_status={res_status} />;
+    if (isThreadsError) {
+        return <ErrorPage error={threadsError} res_status={res_status} />;
     }
 
-    const tasks_withMyEssay_arr = open_tasks_arr.filter(
+    const tasks_withMyEssay_arr = open_tasks_arr_safe.filter(
         (open_task) =>
             [...AGENT_SUPPORT_DOCUMENTS_A].includes(open_task.file_type) ||
             (
@@ -238,11 +206,11 @@ const AgentSupportDocuments = () => {
                 fav_message_tasks={fav_message_tasks}
                 followup_tasks={followup_tasks}
                 handleFavoriteToggle={handleFavoriteToggle}
-                isLoaded={indexState.isLoaded}
+                isLoaded={!isLoadedThreads}
                 new_message_tasks={new_message_tasks}
                 pending_progress_tasks={pending_progress_tasks}
-                students={indexState.students}
-                success={indexState.success}
+                students={threadsData}
+                success={threadsData.success}
             />
         </Box>
     );

@@ -33,11 +33,14 @@ vi.mock('@hooks/useTasksOverview', () => ({
     useTasksOverview: vi.fn(() => ({ data: undefined }))
 }));
 
+vi.mock('@hooks/useMyStudentsThreads', () => ({
+    useMyStudentsThreads: vi.fn(() => ({
+        data: { threads: [], success: false, status: 0 },
+        isLoading: false
+    }))
+}));
+
 vi.mock('@/api/query', () => ({
-    getMyStudentsThreadsQuery: vi.fn(() => ({
-        queryKey: ['threads'],
-        queryFn: vi.fn()
-    })),
     getIsManagerQuery: vi.fn(() => ({
         queryKey: ['isManager'],
         queryFn: vi.fn()

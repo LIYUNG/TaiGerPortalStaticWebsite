@@ -32,10 +32,16 @@ vi.mock('../../config', () => ({
     appConfig: { companyName: 'TaiGer' }
 }));
 
+vi.mock('@tanstack/react-query', async (orig) => ({
+    ...(await orig()),
+    useMutation: vi.fn(() => ({ mutate: vi.fn(), isPending: false }))
+}));
+
+vi.mock('@hooks/useMyStudentsThreads', () => ({
+    useMyStudentsThreads: vi.fn()
+}));
+
 vi.mock('@/api', () => ({
-    getMyStudentsThreads: vi.fn(() =>
-        Promise.resolve({ data: { threads: [] }, success: true, status: 200 })
-    ),
     putThreadFavorite: vi.fn()
 }));
 
@@ -82,16 +88,37 @@ vi.mock('query-string', () => ({
     default: { stringify: vi.fn(() => '') }
 }));
 
+import { useMyStudentsThreads } from '@hooks/useMyStudentsThreads';
 import AgentSupportDocuments from './index';
 
 describe('AgentSupportDocuments', () => {
     it('renders loading state initially', () => {
+        vi.mocked(useMyStudentsThreads).mockReturnValue({
+            data: { threads: [], success: false, status: 0 },
+            isLoading: true,
+            isError: false,
+            error: null
+        } as ReturnType<typeof useMyStudentsThreads>);
         render(
             <MemoryRouter>
                 <AgentSupportDocuments />
             </MemoryRouter>
         );
-        // When not yet loaded, shows Loading component
         expect(screen.getByTestId('loading')).toBeTruthy();
+    });
+
+    it('renders overview when loaded', () => {
+        vi.mocked(useMyStudentsThreads).mockReturnValue({
+            data: { threads: [], success: true, status: 200 },
+            isLoading: false,
+            isError: false,
+            error: null
+        } as ReturnType<typeof useMyStudentsThreads>);
+        render(
+            <MemoryRouter>
+                <AgentSupportDocuments />
+            </MemoryRouter>
+        );
+        expect(screen.getByTestId('cvmlrl-overview')).toBeInTheDocument();
     });
 });

@@ -5,10 +5,7 @@ import { MemoryRouter } from 'react-router-dom';
 
 vi.mock('@tanstack/react-query', async (orig) => ({
     ...(await orig()),
-    useQuery: vi.fn(() => ({
-        data: { threads: [] },
-        isLoading: false
-    })),
+    useQuery: vi.fn(() => ({ data: undefined, isLoading: false })),
     useMutation: vi.fn(() => ({ mutate: vi.fn(), isPending: false }))
 }));
 
@@ -41,10 +38,10 @@ vi.mock('@hooks/useStudentsV3', () => ({
     useStudentsV3: vi.fn(() => ({ data: [], isLoading: false }))
 }));
 
-vi.mock('@/api/query', () => ({
-    getMyStudentsThreadsQuery: vi.fn(() => ({
-        queryKey: ['threads'],
-        queryFn: vi.fn()
+vi.mock('@hooks/useMyStudentsThreads', () => ({
+    useMyStudentsThreads: vi.fn(() => ({
+        data: { threads: [], success: false, status: 0 },
+        isLoading: false
     }))
 }));
 

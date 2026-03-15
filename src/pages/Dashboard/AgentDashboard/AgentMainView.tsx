@@ -44,9 +44,8 @@ import NoProgramStudentTable from '../MainViewTab/AgentTasks/NoProgramStudentTab
 import BaseDocumentCheckingTable from '../MainViewTab/AgentTasks/BaseDocumentCheckingTable';
 import ProgramSpecificDocumentCheckCard from '../MainViewTab/AgentTasks/ProgramSpecificDocumentCheckCard';
 import { is_new_message_status, is_pending_status } from '@utils/contants';
-import { useQuery } from '@tanstack/react-query';
-import { getMyStudentsThreadsQuery } from '@/api/query';
 import { useMyStudentsApplicationsV2 } from '@hooks/useMyStudentsApplicationsV2';
+import { useMyStudentsThreads } from '@hooks/useMyStudentsThreads';
 import { useStudentsV3 } from '@hooks/useStudentsV3';
 import Loading from '@components/Loading/Loading';
 import {
@@ -63,14 +62,17 @@ const AgentMainView = () => {
     const { data: fetchedMyStudents, isLoading: isLoadingMyStudents } =
         useStudentsV3({ agents: user._id, archiv: false });
 
-    const { data: myStudentsThreads, isLoading: isLoadingThreads } = useQuery(
-        getMyStudentsThreadsQuery({
-            userId: user._id,
-            queryString: queryString.stringify({
-                isFinalVersion: 'false'
-            })
-        })
-    );
+    const { data: myStudentsThreads, isLoading: isLoadingThreads } =
+        useMyStudentsThreads(
+            user?._id
+                ? {
+                      userId: user._id,
+                      queryString: queryString.stringify({
+                          isFinalVersion: 'false'
+                      })
+                  }
+                : null
+        );
 
     const [agentMainViewState, setAgentMainViewState] = useState({
         error: '',
