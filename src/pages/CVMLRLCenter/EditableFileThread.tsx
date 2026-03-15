@@ -184,22 +184,7 @@ const EditableFileThread = (props: EditableFileThreadProps) => {
         </Stack>
     );
 
-    const documentLink = isLocked ? (
-        <Tooltip title={lockTooltip}>
-            <Box
-                component="span"
-                sx={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 0.5,
-                    color: 'text.disabled'
-                }}
-            >
-                <LockOutlinedIcon color="disabled" fontSize="small" />
-                {documentLabel}
-            </Box>
-        </Tooltip>
-    ) : (
+    const documentLink = (
         <Link
             component={LinkDom}
             target="_blank"
