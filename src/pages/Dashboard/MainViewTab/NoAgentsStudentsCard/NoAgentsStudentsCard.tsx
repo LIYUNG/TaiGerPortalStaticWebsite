@@ -12,10 +12,10 @@ import {
 import { useTranslation } from 'react-i18next';
 import { is_TaiGer_Admin } from '@taiger-common/core';
 
-import EditAgentsSubpage from '../StudDocsOverview/EditAgentsSubpage';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import type { IStudentResponse } from '@taiger-common/model';
+import EditUserListSubpage from '../StudDocsOverview/EditUserListSubpage';
 
 interface NoAgentsStudentsCardProps {
     student: IStudentResponse;
@@ -123,12 +123,13 @@ const NoAgentsStudentsCard = ({
                 </TableRow>
                 {is_TaiGer_Admin(user) &&
                 noAgentsStudentsCardState.showAgentPage ? (
-                    <EditAgentsSubpage
+                    <EditUserListSubpage
                         onHide={setAgentModalhide}
                         setmodalhide={setAgentModalhide}
                         show={noAgentsStudentsCardState.showAgentPage}
                         student={student}
-                        submitUpdateAgentlist={submitUpdateAgentlistHandler}
+                        submitUpdateList={submitUpdateAgentlistHandler}
+                        variant="agent"
                     />
                 ) : null}
             </>

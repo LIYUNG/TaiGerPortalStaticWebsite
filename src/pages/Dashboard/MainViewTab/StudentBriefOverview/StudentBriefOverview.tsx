@@ -25,8 +25,6 @@ import { is_TaiGer_Editor, is_TaiGer_role } from '@taiger-common/core';
 
 import InventoryIcon from '@mui/icons-material/Inventory';
 import ReplayIcon from '@mui/icons-material/Replay';
-import EditAgentsSubpage from '../StudDocsOverview/EditAgentsSubpage';
-import EditEditorsSubpage from '../StudDocsOverview/EditEditorsSubpage';
 import { is_User_Archived } from '../../../Utils/util_functions';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
@@ -35,6 +33,7 @@ import { COLORS, stringAvatar } from '@utils/contants';
 import { useDialog } from '@hooks/useDialog';
 import { updateAgents, updateAttributes, updateEditors } from '@/api';
 import type { IUserWithId } from '@taiger-common/model';
+import EditUserListSubpage from '../StudDocsOverview/EditUserListSubpage';
 
 interface TaiGerUsersAvartarProps {
     users:
@@ -361,19 +360,21 @@ const StudentBriefOverview = (props: StudentBriefOverviewProps) => {
             {is_TaiGer_role(user) ? (
                 <>
                     {openAgentsDialog ? (
-                        <EditAgentsSubpage
+                        <EditUserListSubpage
                             onHide={() => setOpenAgentsDialog(false)}
                             show={openAgentsDialog}
                             student={student}
-                            submitUpdateAgentlist={submitUpdateAgentlist}
+                            submitUpdateList={submitUpdateAgentlist}
+                            variant="agent"
                         />
                     ) : null}
                     {openEditorsDialog ? (
-                        <EditEditorsSubpage
+                        <EditUserListSubpage
                             onHide={() => setOpenEditorsDialog(false)}
                             show={openEditorsDialog}
                             student={student}
-                            submitUpdateEditorlist={submitUpdateEditorlist}
+                            submitUpdateList={submitUpdateEditorlist}
+                            variant="editor"
                         />
                     ) : null}
                     {openAttributesDialog ? (

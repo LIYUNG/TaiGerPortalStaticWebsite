@@ -1,6 +1,6 @@
 /**
  * Shared dialog for editing a user list (agents, editors, essay writers, or interview trainers).
- * Used by: EditAgentsSubpage, EditEditorsSubpage, EditEssayWritersSubpage, EditInterviewTrainersSubpage.
+ * Used by: NoAgentsStudentsCard, NoEditorsStudentsCard, StudentBriefOverview, StudentsAgentEditor, StudentsTable.
  * - agent / editor: student entity, getUsersQuery(role), student.agents | student.editors
  * - essay_writer: essayDocumentThread, getUsersQuery(ESSAY_WRITERS_QUERY_STRING) or static editors, outsourced_user_id
  * - interview_trainer: interview entity, getUsersQuery(ESSAY_WRITERS_QUERY_STRING), trainer_id

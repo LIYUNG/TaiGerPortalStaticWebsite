@@ -198,8 +198,6 @@
 - **PortalCredentialsCard.tsx**: Added `PortalCredentialsCardProps`. Typed credential handler.
 - **MyCourses/index.tsx**: Typed Tabs onChange, DataSheetGrid onChange callbacks.
 - **EditInterviewTrainersSubpage.tsx**: Added Props, typed reduce/findIndex/map callbacks.
-- **EditEditorsSubpage.tsx**: Added Props, typed reduce/findIndex/map callbacks.
-- **EditAgentsSubpage.tsx**: Added Props, typed reduce/findIndex/map callbacks.
 - **EditAttributesSubpage.tsx**: Added `AttributeInputSelectionProps`, typed IUserAttribute.
 - **NoWritersEssaysCard.tsx**: Typed IUser map callbacks for editors/agents.
 - **Message.tsx**: Extended MessageProps with student_id/readBy. Typed handleClick.
