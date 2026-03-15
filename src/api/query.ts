@@ -60,6 +60,7 @@ import {
 } from '.';
 import type { QueryString } from './types';
 import type { IDocumentthreadPopulated, IStudentResponse, StudentId, UserId } from '@taiger-common/model';
+import { ESSAY_WRITERS_QUERY_STRING } from './queryStrings';
 
 export const getMessagThreadQuery = (threadId: string): UseQueryOptions => ({
     queryKey: ['MessageThread', threadId],
@@ -167,6 +168,10 @@ export const getUsersQuery = (queryString: QueryString): UseQueryOptions => ({
     staleTime: 1000 * 60 * 5, // 5 minutes
     select: (data: { data?: { data?: unknown[] } }) => data.data?.data || []
 });
+
+/** Essay writers = users with Agent or Editor role (non-archived). Reuses getUsersQuery. */
+export const getEssayWritersQuery = (): UseQueryOptions =>
+    getUsersQuery(ESSAY_WRITERS_QUERY_STRING);
 
 export const getUsersCountQuery = (): UseQueryOptions => ({
     queryKey: ['users/count'],

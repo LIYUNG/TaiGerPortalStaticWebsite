@@ -44,17 +44,15 @@ vi.mock('@mui/x-date-pickers/DesktopDateTimePicker', () => ({
     )
 }));
 
-vi.mock('@/api', () => ({
-    getEssayWriters: vi.fn().mockResolvedValue({
-        data: { data: [] }
-    }),
-    addInterviewTrainingDateTime: vi.fn().mockResolvedValue({
-        data: { success: true }
-    }),
-    updateInterview: vi.fn().mockResolvedValue({
-        data: { success: true }
-    })
-}));
+vi.mock('@/api', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('@/api')>();
+    return {
+        ...actual,
+        getUsers: vi.fn().mockResolvedValue({
+            data: { data: [], success: true }
+        })
+    };
+});
 
 vi.mock('@components/TopBar/TopBar', () => ({
     TopBar: () => <div data-testid="top-bar">TopBar</div>

@@ -54,7 +54,6 @@ import type {
     UpdateUserResponse,
     DeleteUserResponse,
     UpdateArchivUserResponse,
-    GetEssayWritersResponse,
     // Students
     GetStudentsResponse,
     GetStudentResponse,
@@ -341,9 +340,6 @@ export const updateUser = (user: IUserWithId) =>
 
 export const changeUserRole = ({ id, role }: { id: string; role: string }) =>
     updateUser({ _id: id, role } as IUserWithId);
-
-export const getEssayWriters = () =>
-    request.get<GetEssayWritersResponse>('/api/essay-writers');
 
 export const getStudents = () =>
     request.get<GetStudentsResponse>(`/api/students`);

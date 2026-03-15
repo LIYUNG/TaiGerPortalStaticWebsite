@@ -24,10 +24,15 @@ vi.mock('material-react-table', () => ({
     }))
 }));
 
-vi.mock('@/api', () => ({
-    getEssayWriters: vi.fn(() => Promise.resolve({ data: { data: [] } })),
-    updateInterview: vi.fn(() => Promise.resolve({ data: { success: true } }))
-}));
+vi.mock('@/api', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('@/api')>();
+    return {
+        ...actual,
+        getUsers: vi.fn().mockResolvedValue({
+            data: { data: [], success: true }
+        })
+    };
+});
 
 vi.mock('@contexts/use-snack-bar', () => ({
     useSnackBar: vi.fn(() => ({
