@@ -111,22 +111,22 @@ export const CreateNewEventModal = (props: CreateNewEventModalProps) => {
                 </span>
                 <Typography sx={{ mt: 2 }} variant="body1">
                     Time zone: {user?.timezone}
-                    {available_termins[0]
+                    {available_termins[0] && user?.timezone
                         ? ` ( UTC +${
                               getUTCTimezoneOffset(
-                                  available_termins[0].start,
-                                  user?.timezone
+                                  new Date(available_termins[0].start),
+                                  user.timezone
                               ) / 60
                           } ) `
                         : null}
                 </Typography>
                 <Typography variant="body1">
                     Date:{' '}
-                    {available_termins[0]
+                    {available_termins[0] && user != null
                         ? getDate(
                               getLocalTime(
-                                  available_termins[0]?.start,
-                                  user.timezone
+                                  new Date(available_termins[0].start),
+                                  user.timezone ?? ''
                               )
                           )
                         : null}
@@ -150,17 +150,19 @@ export const CreateNewEventModal = (props: CreateNewEventModalProps) => {
                                     key={`${time_slot.start}`}
                                     value={`${time_slot.start}`}
                                 >
-                                    {`${getHour(
-                                        getLocalTime(
-                                            time_slot.start,
-                                            user.timezone
-                                        )
-                                    )}:${getMinute(
-                                        getLocalTime(
-                                            time_slot.start,
-                                            user.timezone
-                                        )
-                                    )}`}
+                                    {user != null
+                                        ? `${getHour(
+                                              getLocalTime(
+                                                  new Date(time_slot.start),
+                                                  user.timezone ?? ''
+                                              )
+                                          )}:${getMinute(
+                                              getLocalTime(
+                                                  new Date(time_slot.start),
+                                                  user.timezone ?? ''
+                                              )
+                                          )}`
+                                        : ''}
                                 </MenuItem>
                             ))}
                     </Select>

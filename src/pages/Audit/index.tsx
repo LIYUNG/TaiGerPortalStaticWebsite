@@ -14,10 +14,16 @@ import { useTranslation } from 'react-i18next';
 
 import { convertDate } from '@utils/contants';
 import DEMO from '@store/constant';
-import type { IAudit } from '@taiger-common/model';
+import type {
+    IAuditWithId,
+    IDocumentthreadWithId,
+    IInterviewWithId,
+    IProgram,
+    IUser
+} from '@taiger-common/model';
 
 export interface AuditProps {
-    audit: IAudit[];
+    audit: IAuditWithId[];
 }
 const Audit = ({ audit }: AuditProps) => {
     const { t } = useTranslation();
@@ -52,11 +58,25 @@ const Audit = ({ audit }: AuditProps) => {
                         </TableHead>
                         <TableBody>
                             {audit?.map((record) => {
-                                const isNewUser = record?.changes?.after
-                                    ?.newUser
-                                    ? true
-                                    : false;
-                                const newUser = `${record?.changes?.after?.newUser?.firstname}${record?.changes?.after?.newUser?.lastname}`;
+                                type AuditAfter = {
+                                    newUser?: {
+                                        firstname?: string;
+                                        lastname?: string;
+                                    };
+                                    added?: {
+                                        firstname?: string;
+                                        lastname?: string;
+                                    }[];
+                                    removed?: {
+                                        firstname?: string;
+                                        lastname?: string;
+                                    }[];
+                                };
+                                const after = record?.changes?.after as
+                                    | AuditAfter
+                                    | undefined;
+                                const isNewUser = after?.newUser ? true : false;
+                                const newUser = `${after?.newUser?.firstname}${after?.newUser?.lastname}`;
                                 const isStatusChanged =
                                     record?.field === 'status';
                                 const isAssign = [
@@ -64,51 +84,67 @@ const Audit = ({ audit }: AuditProps) => {
                                     'editors',
                                     'interview trainer',
                                     'essay writer'
-                                ].includes(record?.field);
-                                const addedUsers = record?.changes?.after?.added
+                                ].includes(record?.field ?? '');
+                                const addedUsers = after?.added
                                     ?.map(
                                         (user: {
-                                            firstname: string;
-                                            lastname: string;
+                                            firstname?: string;
+                                            lastname?: string;
                                         }) =>
                                             `${user.firstname} ${user.lastname}`
                                     )
                                     .join(', ');
-                                const removedUsers =
-                                    record?.changes?.after?.removed
-                                        ?.map(
-                                            (user: {
-                                                firstname: string;
-                                                lastname: string;
-                                            }) =>
-                                                `${user.firstname} ${user.lastname}`
-                                        )
-                                        .join(', ');
-                                const program_name = record
-                                    ?.targetDocumentThreadId?.program_id
-                                    ? ` - ${record?.targetDocumentThreadId?.program_id?.school}
-                          ${record?.targetDocumentThreadId?.program_id?.program_name}
-                          ${record?.targetDocumentThreadId?.program_id?.degree}
-                          ${record?.targetDocumentThreadId?.program_id?.semester}
+                                const removedUsers = after?.removed
+                                    ?.map(
+                                        (user: {
+                                            firstname?: string;
+                                            lastname?: string;
+                                        }) =>
+                                            `${user.firstname} ${user.lastname}`
+                                    )
+                                    .join(', ');
+                                const docThread =
+                                    record?.targetDocumentThreadId as
+                                        | IDocumentthreadWithId
+                                        | undefined;
+                                const docProgram = docThread?.program_id as
+                                    | IProgram
+                                    | undefined;
+                                const interviewThread =
+                                    record?.interviewThreadId as
+                                        | IInterviewWithId
+                                        | undefined;
+                                const interviewProgram =
+                                    interviewThread?.program_id as
+                                        | IProgram
+                                        | undefined;
+                                const performedBy = record?.performedBy as
+                                    | IUser
+                                    | undefined;
+                                const program_name = docThread?.program_id
+                                    ? ` - ${docProgram?.school}
+                          ${docProgram?.program_name}
+                          ${docProgram?.degree}
+                          ${docProgram?.semester}
                           `
-                                    : record?.interviewThreadId?.program_id
-                                      ? ` - ${record?.interviewThreadId?.program_id?.school}
-                          ${record?.interviewThreadId?.program_id?.program_name}
-                          ${record?.interviewThreadId?.program_id?.degree}
-                          ${record?.interviewThreadId?.program_id?.semester}
+                                    : interviewThread?.program_id
+                                      ? ` - ${interviewProgram?.school}
+                          ${interviewProgram?.program_name}
+                          ${interviewProgram?.degree}
+                          ${interviewProgram?.semester}
                           `
                                       : '';
                                 const fileName =
-                                    record?.targetDocumentThreadId &&
-                                    `${record?.targetDocumentThreadId?.file_type}${program_name}
+                                    docThread &&
+                                    `${docThread?.file_type}${program_name}
                           `;
                                 const interview_name =
-                                    record?.interviewThreadId &&
+                                    interviewThread &&
                                     `Interview${program_name}
                           `;
                                 return (
                                     <TableRow key={record._id}>
-                                        <TableCell>{`${record?.performedBy?.firstname} ${record?.performedBy?.lastname}`}</TableCell>
+                                        <TableCell>{`${performedBy?.firstname} ${performedBy?.lastname}`}</TableCell>
                                         <TableCell>{record.action}</TableCell>
                                         <TableCell>{record.field}</TableCell>
                                         <TableCell>
@@ -126,23 +162,23 @@ const Audit = ({ audit }: AuditProps) => {
                                                 : ''}
                                         </TableCell>
                                         <TableCell>
-                                            {record?.targetDocumentThreadId ? (
+                                            {docThread ? (
                                                 <Link
                                                     component={LinkDom}
                                                     target="_blank"
                                                     to={DEMO.DOCUMENT_MODIFICATION_LINK(
-                                                        record?.targetDocumentThreadId._id?.toString()
+                                                        docThread._id?.toString()
                                                     )}
                                                 >
                                                     {fileName}
                                                 </Link>
                                             ) : null}
-                                            {record?.interviewThreadId ? (
+                                            {interviewThread ? (
                                                 <Link
                                                     component={LinkDom}
                                                     target="_blank"
                                                     to={DEMO.INTERVIEW_SINGLE_LINK(
-                                                        record?.interviewThreadId._id?.toString()
+                                                        interviewThread._id?.toString()
                                                     )}
                                                 >
                                                     {interview_name}
@@ -150,7 +186,9 @@ const Audit = ({ audit }: AuditProps) => {
                                             ) : null}
                                         </TableCell>
                                         <TableCell>
-                                            {convertDate(record.createdAt)}
+                                            {convertDate(
+                                                record.createdAt as Date
+                                            )}
                                         </TableCell>
                                     </TableRow>
                                 );

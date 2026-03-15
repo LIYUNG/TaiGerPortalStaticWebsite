@@ -118,6 +118,7 @@ describe('EditorMainView', () => {
 
     it('renders action required card', () => {
         render(<EditorMainView />, { wrapper });
-        expect(screen.getByText('Action required')).toBeTruthy();
+        // With no pending tasks (mocked open_tasks_v2 returns []), card shows "No Action"
+        expect(screen.getByText('No Action')).toBeTruthy();
     });
 });

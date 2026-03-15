@@ -8,7 +8,14 @@ import {
     isProgramDecided,
     isProgramRejected
 } from '@taiger-common/core';
-import type { IInterviewWithId, IUserWithId } from '@taiger-common/model';
+import type {
+    IEvent,
+    IInterviewWithId,
+    IUserWithId,
+    IStudentResponse,
+    IProgram,
+    IProgramWithId
+} from '@taiger-common/model';
 
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
@@ -99,7 +106,9 @@ const InterviewTraining = () => {
                                         !isProgramRejected(application) &&
                                         !(data || []).find(
                                             (interview: IInterviewWithId) =>
-                                                interview.program_id?._id?.toString() ===
+                                                (
+                                                    interview.program_id as IProgramWithId
+                                                )?._id?.toString() ===
                                                 application.programId?._id?.toString()
                                         )
                                 )
@@ -271,18 +280,20 @@ const InterviewTraining = () => {
         // Count occurrences of each student_id
         const studentIdCounts = {};
         for (const interview of interviews) {
-            const studentId = interview.student_id._id;
+            const studentId = (interview.student_id as IStudentResponse)._id;
             studentIdCounts[studentId] = (studentIdCounts[studentId] || 0) + 1;
         }
 
         for (const interview of interviews) {
-            const studentId = interview.student_id._id;
+            const studentId = (interview.student_id as IStudentResponse)._id;
             result.push({
                 ...interview,
                 id: `${interview._id}`,
                 start:
-                    (interview.event_id?.start &&
-                        convertDate(interview.event_id?.start)) ||
+                    ((interview.event_id as IEvent | undefined)?.start &&
+                        convertDate(
+                            (interview.event_id as IEvent | undefined)?.start
+                        )) ||
                     '',
                 interview_date:
                     (interview.interview_date &&
@@ -294,8 +305,8 @@ const InterviewTraining = () => {
                     interview.trainer_id
                         ?.map((trainer: IUserWithId) => trainer.firstname)
                         ?.join(', ') || [],
-                program_name: `${interview.program_id.school} ${interview.program_id.program_name} ${interview.program_id.degree} ${interview.program_id.semester}`,
-                firstname_lastname: `${interview.student_id.firstname} ${interview.student_id.lastname}`
+                program_name: `${(interview.program_id as IProgram).school} ${(interview.program_id as IProgram).program_name} ${(interview.program_id as IProgram).degree} ${(interview.program_id as IProgram).semester}`,
+                firstname_lastname: `${(interview.student_id as IStudentResponse).firstname} ${(interview.student_id as IStudentResponse).lastname}`
             });
         }
         return result;

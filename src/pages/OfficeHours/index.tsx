@@ -206,85 +206,105 @@ const OfficeHours = () => {
                     ? getReorderWeekday(
                           getTodayAsWeekday(agent.timezone)
                       ).flatMap((weekday: string, i: number) => {
+                          const slots =
+                              agent.officehours?.[weekday]?.time_slots;
                           const timeSlots =
                               agent.officehours &&
                               agent.officehours[weekday]?.active &&
-                              agent.officehours[weekday].time_slots.flatMap(
-                                  (time_slot: { value: string }, j: number) => {
-                                      const { year, month, day } =
-                                          getNextDayDate(
-                                              getReorderWeekday(
-                                                  getTodayAsWeekday(
-                                                      agent.timezone
-                                                  )
-                                              ),
-                                              weekday,
-                                              agent.timezone,
-                                              iter
-                                          );
-                                      const test_date = getUTCWithDST(
-                                          year,
-                                          month,
-                                          day,
-                                          agent.timezone,
-                                          time_slot.value
-                                      );
-                                      const hour = parseInt(
-                                          time_slot.value.split(':')[0],
-                                          10
-                                      );
-                                      const minutes = parseInt(
-                                          time_slot.value.split(':')[1],
-                                          10
-                                      );
-                                      const time_difference =
-                                          getTimezoneOffset(
-                                              Intl.DateTimeFormat().resolvedOptions()
-                                                  .timeZone
-                                          ) - getTimezoneOffset(agent.timezone);
-                                      const condition = booked_events.some(
-                                          (booked_event: BookedEvent) =>
-                                              new Date(
-                                                  booked_event.start
-                                              ).toISOString() ===
-                                                  shiftDateByOffset(
-                                                      new Date(
-                                                          year,
-                                                          month - 1,
-                                                          day,
-                                                          hour,
-                                                          minutes
-                                                      ),
-                                                      time_difference
-                                                  ).toISOString() &&
-                                              booked_event.receiver_id?.some(
-                                                  (receiver: {
-                                                      _id?: string;
-                                                  }) =>
-                                                      receiver._id === agent._id
-                                              )
-                                      );
-                                      const end_date = new Date(test_date);
-                                      end_date.setMinutes(
-                                          end_date.getMinutes() + 30
-                                      );
-                                      const available_time_slot = {
-                                          id: j * 10 + i * 100 + x * 1000 + 1,
-                                          title: `${user.firstname} ${user.lastname} ${
-                                              user.firstname_chinese || ''
-                                          } ${user.lastname_chinese || ''}`,
-                                          start: new Date(test_date),
-                                          end: end_date,
-                                          provider: agent
-                                      };
-                                      if (condition) {
-                                          return [];
-                                      } else {
-                                          return available_time_slot;
-                                      }
-                                  }
-                              );
-                          return timeSlots || [];
+                              Array.isArray(slots)
+                                  ? slots.flatMap(
+                                        (
+                                            time_slot: { value: string },
+                                            j: number
+                                        ) => {
+                                            const { year, month, day } =
+                                                getNextDayDate(
+                                                    getReorderWeekday(
+                                                        getTodayAsWeekday(
+                                                            agent.timezone
+                                                        )
+                                                    ),
+                                                    weekday,
+                                                    agent.timezone,
+                                                    iter
+                                                );
+                                            const test_date = getUTCWithDST(
+                                                year,
+                                                month,
+                                                day,
+                                                agent.timezone,
+                                                time_slot.value
+                                            );
+                                            const hour = parseInt(
+                                                time_slot.value.split(':')[0],
+                                                10
+                                            );
+                                            const minutes = parseInt(
+                                                time_slot.value.split(':')[1],
+                                                10
+                                            );
+                                            const time_difference =
+                                                getTimezoneOffset(
+                                                    Intl.DateTimeFormat().resolvedOptions()
+                                                        .timeZone
+                                                ) -
+                                                getTimezoneOffset(
+                                                    agent.timezone
+                                                );
+                                            const condition =
+                                                booked_events.some(
+                                                    (
+                                                        booked_event: BookedEvent
+                                                    ) =>
+                                                        new Date(
+                                                            booked_event.start
+                                                        ).toISOString() ===
+                                                            shiftDateByOffset(
+                                                                new Date(
+                                                                    year,
+                                                                    month - 1,
+                                                                    day,
+                                                                    hour,
+                                                                    minutes
+                                                                ),
+                                                                time_difference
+                                                            ).toISOString() &&
+                                                        booked_event.receiver_id?.some(
+                                                            (receiver: {
+                                                                _id?: string;
+                                                            }) =>
+                                                                receiver._id ===
+                                                                agent._id
+                                                        )
+                                                );
+                                            const end_date = new Date(
+                                                test_date
+                                            );
+                                            end_date.setMinutes(
+                                                end_date.getMinutes() + 30
+                                            );
+                                            const available_time_slot = {
+                                                id:
+                                                    j * 10 +
+                                                    i * 100 +
+                                                    x * 1000 +
+                                                    1,
+                                                title: `${user.firstname} ${user.lastname} ${
+                                                    user.firstname_chinese || ''
+                                                } ${user.lastname_chinese || ''}`,
+                                                start: new Date(test_date),
+                                                end: end_date,
+                                                provider: agent
+                                            };
+                                            if (condition) {
+                                                return [];
+                                            } else {
+                                                return available_time_slot;
+                                            }
+                                        }
+                                    )
+                                  : [];
+                          return timeSlots;
                       })
                     : []
             )
@@ -938,7 +958,11 @@ const OfficeHours = () => {
                                     size="small"
                                     value={
                                         newEventStart
-                                            ? newEventStart.toISOString()
+                                            ? typeof newEventStart ===
+                                                  'object' &&
+                                              newEventStart instanceof Date
+                                                ? newEventStart.toISOString()
+                                                : String(newEventStart)
                                             : ''
                                     }
                                 >

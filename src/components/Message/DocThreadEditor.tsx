@@ -1,4 +1,10 @@
-import { useRef, useState, useCallback, type ChangeEvent, type MouseEvent } from 'react';
+import {
+    useRef,
+    useState,
+    useCallback,
+    type ChangeEvent,
+    type MouseEvent
+} from 'react';
 import SendIcon from '@mui/icons-material/Send';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -139,36 +145,40 @@ const DocThreadEditor = ({
                 </Box>
             </Box>
 
-            {is_TaiGer_role(user) && fileLength > 0 && !readOnly && (
-                <Box>
-                    <Typography
-                        color="text.secondary"
-                        gutterBottom
-                        sx={{
-                            fontSize: '0.75rem',
-                            textTransform: 'uppercase',
-                            letterSpacing: 0.5
-                        }}
-                        variant="overline"
-                    >
-                        File Validation Results
-                    </Typography>
-                    <Stack spacing={1.5}>
-                        {fileList.map((fl, i) => (
-                            <Box key={`${fl.name}${i}`}>
-                                <Chip
-                                    icon={<AttachFileIcon />}
-                                    label={fl.name}
-                                    size="small"
-                                    sx={{ mb: 1 }}
-                                    variant="outlined"
-                                />
-                                {checkResult != null &&
-                                    checkResult.length > 0 &&
-                                    checkResult[i] != null && (
-                                        <Stack spacing={0.5} sx={{ ml: 1 }}>
-                                            {Object.keys(checkResult[i]).map(
-                                                (ky) => (
+            {user != null &&
+                is_TaiGer_role(user) &&
+                fileLength > 0 &&
+                !readOnly && (
+                    <Box>
+                        <Typography
+                            color="text.secondary"
+                            gutterBottom
+                            sx={{
+                                fontSize: '0.75rem',
+                                textTransform: 'uppercase',
+                                letterSpacing: 0.5
+                            }}
+                            variant="overline"
+                        >
+                            File Validation Results
+                        </Typography>
+                        <Stack spacing={1.5}>
+                            {fileList.map((fl, i) => (
+                                <Box key={`${fl.name}${i}`}>
+                                    <Chip
+                                        icon={<AttachFileIcon />}
+                                        label={fl.name}
+                                        size="small"
+                                        sx={{ mb: 1 }}
+                                        variant="outlined"
+                                    />
+                                    {checkResult != null &&
+                                        checkResult.length > 0 &&
+                                        checkResult[i] != null && (
+                                            <Stack spacing={0.5} sx={{ ml: 1 }}>
+                                                {Object.keys(
+                                                    checkResult[i]
+                                                ).map((ky) => (
                                                     <Stack
                                                         alignItems="center"
                                                         direction="row"
@@ -237,15 +247,14 @@ const DocThreadEditor = ({
                                                             )}
                                                         </Typography>
                                                     </Stack>
-                                                )
-                                            )}
-                                        </Stack>
-                                    )}
-                            </Box>
-                        ))}
-                    </Stack>
-                </Box>
-            )}
+                                                ))}
+                                            </Stack>
+                                        )}
+                                </Box>
+                            ))}
+                        </Stack>
+                    </Box>
+                )}
 
             <Box>
                 <Box
@@ -363,13 +372,18 @@ const DocThreadEditor = ({
                             size="large"
                             startIcon={
                                 isSending ? (
-                                    <CircularProgress color="inherit" size={20} />
+                                    <CircularProgress
+                                        color="inherit"
+                                        size={20}
+                                    />
                                 ) : (
                                     <SendIcon />
                                 )
                             }
                             sx={{ minWidth: 120 }}
-                            variant={canSend && !isSending ? 'contained' : 'outlined'}
+                            variant={
+                                canSend && !isSending ? 'contained' : 'outlined'
+                            }
                         >
                             {i18next.t('Send', { ns: 'common' })}
                         </Button>

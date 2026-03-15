@@ -13,12 +13,8 @@ vi.mock('@taiger-common/core', () => ({
     is_TaiGer_Agent: vi.fn(() => true)
 }));
 
-vi.mock('../StudDocsOverview/EditAgentsSubpage', () => ({
-    default: () => <div data-testid="edit-agents-subpage" />
-}));
-
-vi.mock('../StudDocsOverview/EditEditorsSubpage', () => ({
-    default: () => <div data-testid="edit-editors-subpage" />
+vi.mock('../StudDocsOverview/EditUserListSubpage', () => ({
+    default: () => <div data-testid="edit-user-list-subpage" />
 }));
 
 vi.mock('../StudDocsOverview/EditAttributesSubpage', () => ({

@@ -24,12 +24,8 @@ vi.mock('@components/table/students-table/TopToolbar', () => ({
     TopToolbar: () => <div data-testid="top-toolbar" />
 }));
 
-vi.mock('@pages/Dashboard/MainViewTab/StudDocsOverview/EditAgentsSubpage', () => ({
-    default: () => <div data-testid="edit-agents-subpage" />
-}));
-
-vi.mock('@pages/Dashboard/MainViewTab/StudDocsOverview/EditEditorsSubpage', () => ({
-    default: () => <div data-testid="edit-editors-subpage" />
+vi.mock('@pages/Dashboard/MainViewTab/StudDocsOverview/EditUserListSubpage', () => ({
+    default: () => <div data-testid="edit-user-list-subpage" />
 }));
 
 vi.mock('@pages/Dashboard/MainViewTab/StudDocsOverview/EditAttributesSubpage', () => ({

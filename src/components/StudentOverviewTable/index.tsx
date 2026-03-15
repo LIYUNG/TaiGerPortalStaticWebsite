@@ -44,18 +44,22 @@ import {
 import DEMO from '@store/constant';
 import { green, grey } from '@mui/material/colors';
 import { useTranslation } from 'react-i18next';
-import type { IStudentResponse } from '@taiger-common/model';
+import type {
+    IApplicationPopulated,
+    IStudentResponse,
+    IUserAcademicBackground
+} from '@taiger-common/model';
 
 export interface TransformedStudentRow {
     id: string;
     firstname_lastname: string;
     applying_program_count?: number;
     year_semester: string;
-    student?: Record<string, unknown>;
+    student?: IStudentResponse;
     attributesJoined?: string;
     target_degree: string;
     isGraduated: string;
-    academic_background?: Record<string, unknown>;
+    academic_background?: IUserAcademicBackground;
     isMissingBaseDocs: boolean;
     CV: string;
     ML: string;
@@ -167,7 +171,7 @@ const transform = (
         if (riskOnly) {
             const isStudentAtRisk =
                 num_apps_closed > 0 &&
-                num_apps_closed >= student.applying_program_count &&
+                num_apps_closed >= (student.applying_program_count ?? 0) &&
                 !has_admissions(student);
             if (!isStudentAtRisk) {
                 continue;
@@ -176,7 +180,7 @@ const transform = (
 
         transformedStudents.push({
             ...prepTaskStudent(student),
-            applying_program_count: student.applying_program_count,
+            applying_program_count: student.applying_program_count ?? 0,
             year_semester: `${expected_application_year || 'TBD'}/ ${
                 expected_application_semster || 'TBD'
             }`,
@@ -202,8 +206,8 @@ const transform = (
                     : 'Not Created'
                 : 'Done',
             ML: `${
-                student.applications?.filter(
-                    (application: Record<string, unknown>) =>
+                (student.applications ?? []).filter(
+                    (application: IApplicationPopulated) =>
                         application.doc_modification_thread?.some(
                             (thread: {
                                 doc_thread_id?: {
@@ -217,8 +221,8 @@ const transform = (
                         )
                 ).length
             }/${
-                student.applications.filter(
-                    (application: Record<string, unknown>) =>
+                (student.applications ?? []).filter(
+                    (application: IApplicationPopulated) =>
                         application.doc_modification_thread?.some(
                             (thread: {
                                 doc_thread_id?: { file_type?: string };
@@ -229,8 +233,8 @@ const transform = (
                 ).length
             }`,
             RL: `${
-                student.applications.filter(
-                    (application: Record<string, unknown>) =>
+                (student.applications ?? []).filter(
+                    (application: IApplicationPopulated) =>
                         application.doc_modification_thread?.some(
                             (thread: {
                                 doc_thread_id?: {
@@ -249,8 +253,8 @@ const transform = (
                         )
                 ).length
             }/${
-                student.applications.filter(
-                    (application: Record<string, unknown>) =>
+                (student.applications ?? []).filter(
+                    (application: IApplicationPopulated) =>
                         application.doc_modification_thread?.some(
                             (thread: {
                                 doc_thread_id?: { file_type?: string };
@@ -266,8 +270,8 @@ const transform = (
                 ).length
             }`,
             Essay: `${
-                student.applications.filter(
-                    (application: Record<string, unknown>) =>
+                (student.applications ?? []).filter(
+                    (application: IApplicationPopulated) =>
                         application.doc_modification_thread?.some(
                             (thread: {
                                 doc_thread_id?: {
@@ -283,8 +287,8 @@ const transform = (
                         )
                 ).length
             }/${
-                student.applications.filter(
-                    (application: Record<string, unknown>) =>
+                (student.applications ?? []).filter(
+                    (application: IApplicationPopulated) =>
                         application.doc_modification_thread?.some(
                             (thread: {
                                 doc_thread_id?: { file_type?: string };
@@ -313,13 +317,13 @@ const transform = (
             total_base_docs_needed,
             isEnglishPassed,
             isGermanPassed,
-            program_selection: `${areProgramsAllDecided ? 'O' : '-'}${num_apps_decided}/${student.applying_program_count}`,
+            program_selection: `${areProgramsAllDecided ? 'O' : '-'}${num_apps_decided}/${student.applying_program_count ?? 0}`,
             application: `${
                 is_All_Applications_Submitted &&
-                num_apps_closed >= student.applying_program_count
+                num_apps_closed >= (student.applying_program_count ?? 0)
                     ? 'O'
                     : '-'
-            }${num_apps_closed}/${student.applying_program_count}`,
+            }${num_apps_closed}/${student.applying_program_count ?? 0}`,
             nextProgram: getNextProgramName(student),
             nextProgramDeadline: getNextProgramDeadline(student),
             nextProgramDayleft: getNextProgramDayleft(student),
@@ -341,22 +345,22 @@ const transform = (
             expected_application_year,
             expected_application_semster,
             openofferreject: `${
-                student.applications.filter(
-                    (application: Record<string, unknown>) =>
+                (student.applications ?? []).filter(
+                    (application: IApplicationPopulated) =>
                         isProgramSubmitted(application) &&
                         isProgramDecided(application) &&
                         application.admission === '-'
                 ).length
             } | ${
-                student.applications.filter(
-                    (application: Record<string, unknown>) =>
+                (student.applications ?? []).filter(
+                    (application: IApplicationPopulated) =>
                         isProgramSubmitted(application) &&
                         isProgramDecided(application) &&
                         application.admission === 'O'
                 ).length
             } | ${
-                student.applications.filter(
-                    (application: Record<string, unknown>) =>
+                (student.applications ?? []).filter(
+                    (application: IApplicationPopulated) =>
                         isProgramSubmitted(application) &&
                         isProgramDecided(application) &&
                         application.admission === 'X'

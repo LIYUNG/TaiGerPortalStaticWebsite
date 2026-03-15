@@ -1,9 +1,9 @@
 /**
  * Shared dialog for editing a user list (agents, editors, essay writers, or interview trainers).
- * Used by: EditAgentsSubpage, EditEditorsSubpage, EditEssayWritersSubpage, EditInterviewTrainersSubpage.
+ * Used by: NoAgentsStudentsCard, NoEditorsStudentsCard, StudentBriefOverview, StudentsAgentEditor, StudentsTable.
  * - agent / editor: student entity, getUsersQuery(role), student.agents | student.editors
- * - essay_writer: essayDocumentThread, getEssayWritersQuery() or static editors, outsourced_user_id
- * - interview_trainer: interview entity, getEssayWritersQuery(), trainer_id
+ * - essay_writer: essayDocumentThread, getUsersQuery(ESSAY_WRITERS_QUERY_STRING) or static editors, outsourced_user_id
+ * - interview_trainer: interview entity, getUsersQuery(ESSAY_WRITERS_QUERY_STRING), trainer_id
  */
 import React, { useEffect, useMemo, useState } from 'react';
 import {
@@ -28,8 +28,8 @@ import SaveIcon from '@mui/icons-material/Save';
 import { Role } from '@taiger-common/core';
 import type { IStudentResponse, IUserWithId } from '@taiger-common/model';
 
-import { getUsersQuery, getEssayWritersQuery } from '@/api/query';
-import { FILE_TYPE_E } from '../../../Utils/util_functions';
+import { getUsersQuery } from '@/api/query';
+import { ESSAY_WRITERS_QUERY_STRING } from '@/api/queryStrings';
 
 export type EditUserListVariant =
     | 'agent'
@@ -68,25 +68,25 @@ export interface InterviewForTrainers {
     [key: string]: unknown;
 }
 
-const VARIANT_CONFIG: Record<
-    'agent' | 'editor',
-    {
-        role: string;
-        titleKey: string;
-        listLabelKey: string;
-        emptyLabelKey: string;
-        studentField: 'agents' | 'editors';
-        dialogMaxWidth?: 'sm' | 'md' | 'lg';
-        titleSuffix?: string;
-    }
-> = {
+/** Program/student snippet for entity-style titles */
+interface EntityTitleParts {
+    programId?: {
+        school?: string;
+        program_name?: string;
+        degree?: string;
+        semester?: string;
+    };
+    studentId?: { firstname?: string; lastname?: string };
+}
+
+/** Single source of truth for variant-specific labels and data */
+const VARIANT_CONFIG = {
     agent: {
         role: Role.Agent,
         titleKey: 'Agent for',
         listLabelKey: 'Agent',
         emptyLabelKey: 'No Agent',
-        studentField: 'agents',
-        dialogMaxWidth: 'sm',
+        studentField: 'agents' as const,
         titleSuffix: ' to'
     },
     editor: {
@@ -94,10 +94,109 @@ const VARIANT_CONFIG: Record<
         titleKey: 'Editor for',
         listLabelKey: 'Editor',
         emptyLabelKey: 'No Editor',
-        studentField: 'editors',
-        dialogMaxWidth: undefined
+        studentField: 'editors' as const,
+        titleSuffix: undefined
+    },
+    essay_writer: {
+        listLabelKey: null as string | null,
+        emptyLabelKey: 'No Essay Writer'
+    },
+    interview_trainer: {
+        listLabelKey: 'Interview Trainer',
+        emptyLabelKey: 'No Interview Trainer Students'
     }
-};
+} as const;
+
+function getEntityTitleParts(entity: {
+    program_id?: EntityTitleParts['programId'];
+    student_id?: EntityTitleParts['studentId'];
+}): EntityTitleParts {
+    return {
+        programId: entity.program_id,
+        studentId: entity.student_id
+    };
+}
+
+function formatEntityTitleLine(
+    parts: EntityTitleParts,
+    fileType?: string
+): React.ReactNode {
+    const { programId, studentId } = parts;
+    const school = programId?.school;
+    const programName = programId?.program_name;
+    const degree = programId?.degree;
+    const semester = programId?.semester;
+    const first = studentId?.firstname;
+    const last = studentId?.lastname;
+    const prefix = fileType != null ? `${fileType}-` : '';
+    return (
+        <>
+            {prefix}
+            {school}-{programName} {degree} {semester} {first} {last}
+        </>
+    );
+}
+
+/** Presentational table for the user checklist (or empty state) */
+function UserListTable({
+    users,
+    updateList,
+    onCheckboxChange,
+    listLabelKey,
+    emptyLabelKey,
+    t
+}: {
+    users: IUserWithId[];
+    updateList: Record<string, boolean>;
+    onCheckboxChange: (e: React.SyntheticEvent) => void;
+    listLabelKey: string | null;
+    emptyLabelKey: string;
+    t: (key: string, opts?: { ns?: string }) => string;
+}) {
+    return (
+        <>
+            {listLabelKey != null && (
+                <Typography variant="h6">
+                    {t(listLabelKey, { ns: 'common' })}:{' '}
+                </Typography>
+            )}
+            <Table size="small">
+                <TableBody>
+                    {users.length > 0 ? (
+                        users.map((user, i) => (
+                            <TableRow key={user._id ?? i}>
+                                <TableCell>
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                checked={
+                                                    updateList[user._id] ??
+                                                    false
+                                                }
+                                                onChange={onCheckboxChange}
+                                                value={user._id}
+                                            />
+                                        }
+                                        label={`${user.lastname} ${user.firstname}`}
+                                    />
+                                </TableCell>
+                                <TableCell />
+                            </TableRow>
+                        ))
+                    ) : (
+                        <TableRow>
+                            <TableCell>
+                                <Typography variant="h6">
+                                    {t(emptyLabelKey)}
+                                </Typography>
+                            </TableCell>
+                        </TableRow>
+                    )}
+                </TableBody>
+            </Table>
+        </>
+    );
+}
 
 export type EditUserListSubpageProps =
     | {
@@ -117,7 +216,6 @@ export type EditUserListSubpageProps =
           show: boolean;
           actor: string;
           essayDocumentThread: EssayDocumentThreadForWriters;
-          editors?: IUserWithId[];
           isSubmitting?: boolean;
           submitUpdateList: (
               e: React.SyntheticEvent,
@@ -139,59 +237,33 @@ export type EditUserListSubpageProps =
           ) => void;
       };
 
-const EditUserListSubpage = (props: EditUserListSubpageProps) => {
-    const { t } = useTranslation();
-    const { variant, submitUpdateList, onHide, show } = props;
-
+/** Encapsulates query, derived lists, and checkbox state for the dialog */
+function useEditUserListState(props: EditUserListSubpageProps) {
+    const { variant } = props;
     const isEssayWriter = variant === 'essay_writer';
     const isInterviewTrainer = variant === 'interview_trainer';
     const isStudentVariant = variant === 'agent' || variant === 'editor';
-    const config = isStudentVariant ? VARIANT_CONFIG[variant] : undefined;
-
-    const useEssayWritersFetch = isEssayWriter && [
-        FILE_TYPE_E.essay_required
-    ].includes(props.essayDocumentThread.file_type);
+    const studentConfig = isStudentVariant
+        ? VARIANT_CONFIG[variant]
+        : undefined;
 
     const queryOptions = useMemo(() => {
-        if (variant === 'essay_writer') {
-            if (useEssayWritersFetch) return getEssayWritersQuery();
-            return {
-                queryKey: ['essay-writers-static'],
-                queryFn: async () => [] as IUserWithId[],
-                enabled: false
-            };
-        }
-        if (variant === 'interview_trainer') return getEssayWritersQuery();
-        return getUsersQuery(
-            queryString.stringify({
-                role: VARIANT_CONFIG[variant].role,
-                archiv: false
-            })
-        );
-    }, [variant, useEssayWritersFetch]);
+        const queryStringForVariant =
+            variant === 'agent' || variant === 'editor'
+                ? queryString.stringify({
+                      role: VARIANT_CONFIG[variant].role,
+                      archiv: false
+                  })
+                : ESSAY_WRITERS_QUERY_STRING;
+        return getUsersQuery(queryStringForVariant);
+    }, [variant]);
 
     const { data: usersDataFromQuery, isLoading } = useQuery(queryOptions);
 
-    const editorsForEssay =
-        isEssayWriter && 'editors' in props ? props.editors : undefined;
-    const staticEssayWriters = useMemo(
-        () => (isEssayWriter ? (editorsForEssay ?? []) : []),
-        [isEssayWriter, editorsForEssay]
+    const users = useMemo(
+        () => (usersDataFromQuery ?? []) as IUserWithId[],
+        [usersDataFromQuery]
     );
-
-    const users = useMemo(() => {
-        if (isEssayWriter) {
-            return useEssayWritersFetch
-                ? ((usersDataFromQuery ?? []) as IUserWithId[])
-                : (staticEssayWriters as IUserWithId[]);
-        }
-        return (usersDataFromQuery ?? []) as IUserWithId[];
-    }, [
-        isEssayWriter,
-        useEssayWritersFetch,
-        usersDataFromQuery,
-        staticEssayWriters
-    ]);
 
     const entityId = useMemo(() => {
         if (isEssayWriter) return props.essayDocumentThread._id;
@@ -205,24 +277,26 @@ const EditUserListSubpage = (props: EditUserListSubpageProps) => {
     const currentList = useMemo(() => {
         if (isEssayWriter) return props.essayDocumentThread.outsourced_user_id;
         if (isInterviewTrainer) return props.interview.trainer_id;
-        return (props.student[config!.studentField] ?? undefined) as
+        return (props.student[studentConfig!.studentField] ?? undefined) as
             | { _id: string }[]
             | undefined;
-    }, [isEssayWriter, isInterviewTrainer, props, config]);
+    }, [isEssayWriter, isInterviewTrainer, props, studentConfig]);
 
-    const initialUpdateList = useMemo(() => {
-        return users.reduce<Record<string, boolean>>(
-            (prev, { _id }) => ({
-                ...prev,
-                [_id]: currentList
-                    ? currentList.findIndex(
-                          (u: { _id: string }) => u._id === _id
-                      ) > -1
-                    : false
-            }),
-            {}
-        );
-    }, [users, currentList]);
+    const initialUpdateList = useMemo(
+        () =>
+            users.reduce<Record<string, boolean>>(
+                (prev, { _id }) => ({
+                    ...prev,
+                    [_id]: currentList
+                        ? currentList.findIndex(
+                              (u: { _id: string }) => u._id === _id
+                          ) > -1
+                        : false
+                }),
+                {}
+            ),
+        [users, currentList]
+    );
 
     const [updateList, setUpdateList] =
         useState<Record<string, boolean>>(initialUpdateList);
@@ -233,65 +307,83 @@ const EditUserListSubpage = (props: EditUserListSubpageProps) => {
 
     const handleChange = (e: React.SyntheticEvent) => {
         const { value } = e.target as HTMLInputElement & { value: string };
-        setUpdateList((prev) => ({
-            ...prev,
-            [value]: !prev[value]
-        }));
+        setUpdateList((prev) => ({ ...prev, [value]: !prev[value] }));
     };
 
-    const isLoadingState =
-        isEssayWriter && !useEssayWritersFetch ? false : isLoading;
-    const title = isEssayWriter ? (
-        <>
-            {props.actor} for {props.essayDocumentThread.file_type}-
-            {props.essayDocumentThread.program_id?.school}-
-            {props.essayDocumentThread.program_id?.program_name}{' '}
-            {props.essayDocumentThread.program_id?.degree}{' '}
-            {props.essayDocumentThread.program_id?.semester}{' '}
-            {props.essayDocumentThread.student_id?.firstname}{' '}
-            {props.essayDocumentThread.student_id?.lastname}
-        </>
-    ) : isInterviewTrainer ? (
-        <>
-            {props.actor} for {props.interview.program_id?.school}-
-            {props.interview.program_id?.program_name}{' '}
-            {props.interview.program_id?.degree}{' '}
-            {props.interview.program_id?.semester}{' '}
-            {props.interview.student_id?.firstname}{' '}
-            {props.interview.student_id?.lastname}
-        </>
-    ) : (
-        <>
-            {t(config!.titleKey, { ns: 'common' })} {props.student.firstname}{' '}
-            - {props.student.lastname}
-            {config!.titleSuffix ?? ''}
-        </>
-    );
-
-    const listLabelKey = isEssayWriter
-        ? null
-        : isInterviewTrainer
-          ? 'Interview Trainer'
-          : config!.listLabelKey;
-    const emptyLabelKey = isEssayWriter
-        ? 'No Essay Writer'
-        : isInterviewTrainer
-          ? 'No Interview Trainer Students'
-          : config!.emptyLabelKey;
     const isSubmitting =
         (isEssayWriter || isInterviewTrainer) && 'isSubmitting' in props
             ? props.isSubmitting
             : false;
-    const showSaveIcon = isEssayWriter || isInterviewTrainer;
-    const showExtraTableCell =
-        variant === 'editor' ||
-        variant === 'essay_writer' ||
-        variant === 'interview_trainer';
+
+    return {
+        users,
+        entityId,
+        updateList,
+        handleChange,
+        isLoadingState: isLoading,
+        isSubmitting
+    };
+}
+
+/** Build dialog title from props and variant config */
+function buildTitle(
+    props: EditUserListSubpageProps,
+    t: (key: string, opts?: { ns?: string }) => string
+): React.ReactNode {
+    const { variant } = props;
+    if (variant === 'agent' || variant === 'editor') {
+        const config = VARIANT_CONFIG[variant];
+        return (
+            <>
+                {t(config.titleKey, { ns: 'common' })} {props.student.firstname}{' '}
+                - {props.student.lastname}
+                {config.titleSuffix ?? ''}
+            </>
+        );
+    }
+    if (variant === 'essay_writer') {
+        const { actor, essayDocumentThread } = props;
+        const parts = getEntityTitleParts(essayDocumentThread);
+        return (
+            <>
+                {actor} for{' '}
+                {formatEntityTitleLine(parts, essayDocumentThread.file_type)}
+            </>
+        );
+    }
+    if (variant === 'interview_trainer') {
+        const { actor, interview } = props;
+        const parts = getEntityTitleParts(interview);
+        return (
+            <>
+                {actor} for {formatEntityTitleLine(parts)}
+            </>
+        );
+    }
+    return null;
+}
+
+const EditUserListSubpage = (props: EditUserListSubpageProps) => {
+    const { t } = useTranslation();
+    const { variant, submitUpdateList, onHide, show } = props;
+
+    const state = useEditUserListState(props);
+    const {
+        users,
+        entityId,
+        updateList,
+        handleChange,
+        isLoadingState,
+        isSubmitting
+    } = state;
+
+    const display = VARIANT_CONFIG[variant];
+    const title = buildTitle(props, t);
 
     return (
         <Dialog
             aria-labelledby="contained-modal-title-vcenter"
-            maxWidth={config?.dialogMaxWidth}
+            maxWidth="sm"
             onClose={onHide}
             open={show}
         >
@@ -299,60 +391,15 @@ const EditUserListSubpage = (props: EditUserListSubpageProps) => {
             <DialogContent>
                 {!isLoadingState ? (
                     <>
-                        {listLabelKey != null && (
-                            <Typography
-                                variant={
-                                    variant === 'editor' ||
-                                    variant === 'interview_trainer'
-                                        ? 'h6'
-                                        : 'body1'
-                                }
-                            >
-                                {t(listLabelKey, { ns: 'common' })}:{' '}
-                            </Typography>
-                        )}
-                        <Table size="small">
-                            <TableBody>
-                                {users.length > 0 ? (
-                                    users.map(
-                                        (user: IUserWithId, i: number) => (
-                                            <TableRow key={i + 1}>
-                                                <TableCell>
-                                                    <FormControlLabel
-                                                        control={
-                                                            <Checkbox
-                                                                checked={
-                                                                    updateList[
-                                                                        user._id
-                                                                    ] ?? false
-                                                                }
-                                                                onChange={
-                                                                    handleChange
-                                                                }
-                                                                value={user._id}
-                                                            />
-                                                        }
-                                                        label={`${user.lastname} ${user.firstname}`}
-                                                    />
-                                                </TableCell>
-                                                {showExtraTableCell ? (
-                                                    <TableCell />
-                                                ) : null}
-                                            </TableRow>
-                                        )
-                                    )
-                                ) : (
-                                    <TableRow>
-                                        <TableCell>
-                                            <Typography variant="h6">
-                                                {t(emptyLabelKey)}
-                                            </Typography>
-                                        </TableCell>
-                                    </TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
-                        <Box sx={{ mt: variant === 'agent' ? 2 : 0 }}>
+                        <UserListTable
+                            users={users}
+                            updateList={updateList}
+                            onCheckboxChange={handleChange}
+                            listLabelKey={display.listLabelKey}
+                            emptyLabelKey={display.emptyLabelKey}
+                            t={t}
+                        />
+                        <Box sx={{ mt: 2 }}>
                             <Button
                                 color="primary"
                                 disabled={isSubmitting}
@@ -362,21 +409,17 @@ const EditUserListSubpage = (props: EditUserListSubpageProps) => {
                                 startIcon={
                                     isSubmitting ? (
                                         <CircularProgress size={24} />
-                                    ) : showSaveIcon ? (
+                                    ) : (
                                         <SaveIcon />
-                                    ) : undefined
+                                    )
                                 }
-                                sx={variant === 'agent' ? { mr: 2 } : undefined}
+                                sx={{ mr: 2 }}
                                 variant="contained"
                             >
                                 {t('Update', { ns: 'common' })}
                             </Button>
                             <Button
-                                color={
-                                    variant === 'agent'
-                                        ? 'secondary'
-                                        : undefined
-                                }
+                                color="secondary"
                                 onClick={onHide}
                                 variant="outlined"
                             >

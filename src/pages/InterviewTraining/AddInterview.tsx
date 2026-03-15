@@ -31,7 +31,8 @@ import type {
     CreateInterviewResponse,
     IStudentResponse,
     IApplicationPopulated,
-    IInterviewWithId
+    IInterviewWithId,
+    IProgramWithId
 } from '@taiger-common/model';
 import type { AxiosResponse } from 'axios';
 
@@ -213,10 +214,13 @@ const AddInterview = () => {
                 !isProgramRejected(application) &&
                 !interviewslist.find(
                     (interview: IInterviewWithId) =>
-                        interview.program_id._id.toString() ===
+                        (
+                            interview.program_id as IProgramWithId
+                        )._id.toString() ===
                             application.programId._id.toString() &&
-                        interview.student_id._id.toString() ===
-                            student._id.toString()
+                        (
+                            interview.student_id as IStudentResponse
+                        )._id.toString() === student._id.toString()
                 )
         )
         .map((application: IApplicationPopulated) => {

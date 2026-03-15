@@ -178,7 +178,8 @@ export default function EventConfirmationCard(
                             {showTimezoneOffset()}
                         </Typography>
                     </Box>
-                    {is_TaiGer_role(user) &&
+                    {user != null &&
+                        is_TaiGer_role(user) &&
                         props.event.requester_id?.length !== undefined &&
                         props.event.requester_id?.length > 0 && (
                             <Box
@@ -320,7 +321,7 @@ export default function EventConfirmationCard(
                                         {t('Meeting Link', { ns: 'common' })}
                                     </Typography>
                                 </Box>
-                                {is_TaiGer_Student(user) ? (
+                                {user != null && is_TaiGer_Student(user) ? (
                                     props.event.isConfirmedRequester ? (
                                         props.event.isConfirmedReceiver ? (
                                             props.disabled ? (
@@ -398,7 +399,7 @@ export default function EventConfirmationCard(
                                         </Box>
                                     )
                                 ) : null}
-                                {is_TaiGer_role(user) ? (
+                                {user != null && is_TaiGer_role(user) ? (
                                     props.event.isConfirmedReceiver ? (
                                         props.event.isConfirmedRequester ? (
                                             props.disabled ? (
@@ -607,7 +608,8 @@ export default function EventConfirmationCard(
                                                 )}
                                             </Avatar>
                                             <Box sx={{ flex: 1 }}>
-                                                {is_TaiGer_role(user) ? (
+                                                {user != null &&
+                                                is_TaiGer_role(user) ? (
                                                     <Link
                                                         component={LinkDom}
                                                         sx={{
@@ -751,7 +753,8 @@ export default function EventConfirmationCard(
                                     }}
                                 >
                                     <Box>
-                                        {is_TaiGer_Student(user) &&
+                                        {user != null &&
+                                            is_TaiGer_Student(user) &&
                                             (!props.event
                                                 .isConfirmedRequester ||
                                                 !props.event
@@ -789,7 +792,8 @@ export default function EventConfirmationCard(
                                                     }}
                                                 />
                                             )}
-                                        {is_TaiGer_Agent(user) &&
+                                        {user != null &&
+                                            is_TaiGer_Agent(user) &&
                                             (!props.event.isConfirmedReceiver ||
                                                 !props.event
                                                     .isConfirmedRequester) && (
@@ -832,7 +836,8 @@ export default function EventConfirmationCard(
                                         spacing={1}
                                         sx={{ flexWrap: 'wrap' }}
                                     >
-                                        {is_TaiGer_Student(user) &&
+                                        {user != null &&
+                                            is_TaiGer_Student(user) &&
                                             !props.event
                                                 .isConfirmedRequester && (
                                                 <Button
@@ -852,7 +857,8 @@ export default function EventConfirmationCard(
                                                     })}
                                                 </Button>
                                             )}
-                                        {is_TaiGer_Agent(user) &&
+                                        {user != null &&
+                                            is_TaiGer_Agent(user) &&
                                             !props.event
                                                 .isConfirmedReceiver && (
                                                 <Button

@@ -33,6 +33,7 @@ import { useMyStudentsThreads } from '@hooks/useMyStudentsThreads';
 import { useTasksOverview } from '@hooks/useTasksOverview';
 import { useStudentsV3 } from '@hooks/useStudentsV3';
 import Loading from '@components/Loading/Loading';
+import ActionRequiredTaskCard from '../ActionRequiredTaskCard';
 
 const EditorMainView = () => {
     const { user } = useAuth();
@@ -112,25 +113,11 @@ const EditorMainView = () => {
     return (
         <Grid container spacing={2}>
             <Grid item md={3} xs={6}>
-                <Card sx={{ p: 2 }}>
-                    <Typography>
-                        {t('Action required', { ns: 'common' })}
-                    </Typography>
-                    <Typography variant="h6">
-                        <Link
-                            component={LinkDom}
-                            to={DEMO.CV_ML_RL_CENTER_LINK_TAB('to-do')}
-                            underline="hover"
-                        >
-                            <b>
-                                {t('Task', {
-                                    ns: 'common',
-                                    count: unreplied_task?.length || 0
-                                })}
-                            </b>
-                        </Link>
-                    </Typography>
-                </Card>
+                <ActionRequiredTaskCard
+                    count={unreplied_task?.length ?? 0}
+                    highlightWhenPending
+                    to={DEMO.CV_ML_RL_CENTER_LINK_TAB('to-do')}
+                />
             </Grid>
             <Grid item md={3} xs={6}>
                 <Card sx={{ p: 2 }}>

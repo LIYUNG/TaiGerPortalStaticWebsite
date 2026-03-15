@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import DEMO from '@store/constant';
 import { convertDate } from '@utils/contants';
 import { calculateApplicationLockStatus } from '../../../Utils/util_functions';
-import type { IStudentResponse } from '@taiger-common/model';
+import type { IStudentResponse, IDocumentthreadWithId } from '@taiger-common/model';
 
 export interface RespondedThreadsProps {
     student: IStudentResponse;
@@ -72,12 +72,12 @@ const RespondedThreads = ({ student }: RespondedThreadsProps) => {
                                 <Link
                                     component={LinkDom}
                                     to={DEMO.DOCUMENT_MODIFICATION_LINK(
-                                        generaldocs_threads.doc_thread_id._id
+                                        (generaldocs_threads.doc_thread_id as IDocumentthreadWithId)._id
                                     )}
                                     underline="hover"
                                 >
                                     {
-                                        generaldocs_threads.doc_thread_id
+                                        (generaldocs_threads.doc_thread_id as IDocumentthreadWithId)
                                             .file_type
                                     }
                                 </Link>

@@ -13,7 +13,9 @@ vi.mock('@store/constant', () => ({
 }));
 
 vi.mock('@utils/contants', () => ({
-    getLocalTime: vi.fn((t: string) => t),
+    getLocalTime: vi.fn((t: Date | string) =>
+        typeof t === 'object' && t instanceof Date ? t.toISOString() : String(t)
+    ),
     getUTCTimezoneOffset: vi.fn(() => 0)
 }));
 

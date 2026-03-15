@@ -26,7 +26,7 @@ import {
     useTheme
 } from '@mui/material';
 import { is_TaiGer_role } from '@taiger-common/core';
-import type { IComplaintWithId } from '@taiger-common/model';
+import type { IComplaintWithId, IUser, IUserWithId } from '@taiger-common/model';
 
 import { appConfig } from '../../config';
 import DEMO from '@store/constant';
@@ -111,7 +111,7 @@ const CustomerTicketDetailPageBody = ({
             const checkPromises = Array.from(e.target.files).map((file) => {
                 const extension = file.name.split('.').pop().toLowerCase();
                 const studentName =
-                    customerTicketDetailPageBodyState.thread.requester_id
+                    (customerTicketDetailPageBodyState.thread.requester_id as IUser)
                         .firstname;
 
                 if (extension === 'pdf') {
@@ -170,7 +170,7 @@ const CustomerTicketDetailPageBody = ({
 
         submitMessageInTicketWithAttachment(
             customerTicketDetailPageBodyState.thread._id,
-            customerTicketDetailPageBodyState.thread.requester_id._id,
+            (customerTicketDetailPageBodyState.thread.requester_id as IUserWithId)._id,
             formData
         ).then(
             (resp) => {
@@ -480,7 +480,7 @@ const CustomerTicketDetailPageBody = ({
                                                 gutterBottom
                                                 variant="body1"
                                             >
-                                                {`${complaintTicket.requester_id?.firstname} ${complaintTicket.requester_id?.lastname}`}
+                                                {`${(complaintTicket.requester_id as IUser)?.firstname} ${(complaintTicket.requester_id as IUser)?.lastname}`}
                                             </Typography>
                                         </Box>
                                     </Box>

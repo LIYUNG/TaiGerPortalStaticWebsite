@@ -24,16 +24,14 @@ import {
     is_TaiGer_Editor,
     is_TaiGer_role
 } from '@taiger-common/core';
-
-import EditAgentsSubpage from '../StudDocsOverview/EditAgentsSubpage';
-import EditEditorsSubpage from '../StudDocsOverview/EditEditorsSubpage';
-import { is_User_Archived } from '../../../Utils/util_functions';
-
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
-import EditAttributesSubpage from '../StudDocsOverview/EditAttributesSubpage';
 import { COLORS } from '@utils/contants';
 import type { IStudentResponse } from '@taiger-common/model';
+
+import EditUserListSubpage from '../StudDocsOverview/EditUserListSubpage';
+import EditAttributesSubpage from '../StudDocsOverview/EditAttributesSubpage';
+import { is_User_Archived } from '../../../Utils/util_functions';
 
 export interface StudentsAgentEditorProps {
     student: IStudentResponse;
@@ -164,7 +162,7 @@ const StudentsAgentEditor = ({
     };
 
     const submitUpdateAgentlistHandler = (
-        e: React.FormEvent<HTMLFormElement>,
+        e: React.SyntheticEvent,
         updateAgentList: unknown,
         student_id: string
     ) => {
@@ -173,7 +171,7 @@ const StudentsAgentEditor = ({
     };
 
     const submitUpdateEditorlistHandler = (
-        e: React.FormEvent<HTMLFormElement>,
+        e: React.SyntheticEvent,
         updateEditorList: unknown,
         student_id: string
     ) => {
@@ -414,21 +412,21 @@ const StudentsAgentEditor = ({
             {is_TaiGer_role(user) ? (
                 <>
                     {studentsAgentEditor.showAgentPage ? (
-                        <EditAgentsSubpage
+                        <EditUserListSubpage
                             onHide={setAgentModalhide}
                             show={studentsAgentEditor.showAgentPage}
                             student={student}
-                            submitUpdateAgentlist={submitUpdateAgentlistHandler}
+                            submitUpdateList={submitUpdateAgentlistHandler}
+                            variant="agent"
                         />
                     ) : null}
                     {studentsAgentEditor.showEditorPage ? (
-                        <EditEditorsSubpage
+                        <EditUserListSubpage
                             onHide={setEditorModalhide}
                             show={studentsAgentEditor.showEditorPage}
                             student={student}
-                            submitUpdateEditorlist={
-                                submitUpdateEditorlistHandler
-                            }
+                            submitUpdateList={submitUpdateEditorlistHandler}
+                            variant="editor"
                         />
                     ) : null}
                     {studentsAgentEditor.showAttributesPage ? (

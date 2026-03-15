@@ -1,4 +1,3 @@
-import { ReactElement } from 'react';
 import { DateTime, IANAZone } from 'luxon';
 import moment from 'moment-timezone';
 import { styled, alpha } from '@mui/material/styles';
@@ -15,6 +14,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import {
     IDocumentthread,
+    IProgram,
     PROGRAM_SUBJECTS,
     SCHOOL_TAGS
 } from '@taiger-common/model';
@@ -420,15 +420,16 @@ export const MLQuestions = (
             {
                 questionId: 'q6',
                 question: `6. Why do you want to study in ${
-                    COUNTRIES_MAPPING[thread?.program_id?.country] ||
-                    'this country'
+                    COUNTRIES_MAPPING[
+                        (thread?.program_id as IProgram)?.country
+                    ] || 'this country'
                 } and not in your home country or any other country?`,
                 type: questionType.paragraph,
                 answer: ''
             },
             {
                 questionId: 'q7',
-                question: `7. Why should the ${thread?.program_id?.school} select you as their student? What can you contribute to the universities?`,
+                question: `7. Why should the ${(thread?.program_id as IProgram)?.school} select you as their student? What can you contribute to the universities?`,
                 type: questionType.paragraph,
                 answer: ''
             },
@@ -436,7 +437,7 @@ export const MLQuestions = (
                 questionId: 'q8',
                 question: `8. Why do you want to study exactly at the ${
                     thread?.program_id
-                        ? `${thread.program_id?.school} - ${thread.program_id?.program_name}`
+                        ? `${(thread.program_id as IProgram)?.school} - ${(thread.program_id as IProgram)?.program_name}`
                         : ``
                 } ? What is special about them?`,
                 type: questionType.paragraph,
@@ -1131,7 +1132,12 @@ export const sortProgramFields = (a: string, b: string): number => {
     return indexA - indexB;
 };
 
-export const convertDateUXFriendly = (date: string | Date): string => {
+export const convertDateUXFriendly = (
+    date: string | Date | undefined
+): string => {
+    if (!date) {
+        return '-';
+    }
     const currentDate = new Date();
     const input_date_point = new Date(date);
     // Calculate the time difference in milliseconds
@@ -1147,9 +1153,6 @@ export const convertDateUXFriendly = (date: string | Date): string => {
     const month = Math.floor(days / 31);
 
     let timeDisplay;
-    if (!date) {
-        return '-';
-    }
     if (minutes < 60) {
         timeDisplay = i18next.t('timeMinutes', { ns: 'common', minutes });
     } else if (hours < 24) {
@@ -1849,43 +1852,7 @@ export const c1_mrt: MRT_ColumnDef<Record<string, unknown>>[] = [
                             />
                         </Tooltip>
                     )}
-                    {isLocked ? (
-                        <Tooltip
-                            title={i18next.t(
-                                'Program is locked. Contact an agent to unlock this task.',
-                                { ns: 'common' }
-                            )}
-                        >
-                            <Box>
-                                <Link
-                                    component={LinkDom}
-                                    sx={{
-                                        color: 'text.disabled',
-                                        pointerEvents: 'none'
-                                    }}
-                                    target="_blank"
-                                    title={params.value}
-                                    to={linkUrl}
-                                    underline="hover"
-                                >
-                                    {row.original.file_type}{' '}
-                                    {row.original.program_id
-                                        ? ' - ' +
-                                          row.original.program_name +
-                                          ' - ' +
-                                          row.original.degree
-                                        : ''}
-                                </Link>
-                                <Typography
-                                    color="text.secondary"
-                                    sx={{ display: 'block', mt: 0.25 }}
-                                    variant="caption"
-                                >
-                                    {row.original.school}
-                                </Typography>
-                            </Box>
-                        </Tooltip>
-                    ) : (
+                    {
                         <>
                             <Link
                                 component={LinkDom}
@@ -1910,7 +1877,7 @@ export const c1_mrt: MRT_ColumnDef<Record<string, unknown>>[] = [
                                 {row.original.school}
                             </Typography>
                         </>
-                    )}
+                    }
                 </Box>
             );
         }

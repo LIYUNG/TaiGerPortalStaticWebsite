@@ -14,10 +14,16 @@ import { useTranslation } from 'react-i18next';
 
 import { convertDate, convertDateUXFriendly } from '@utils/contants';
 import DEMO from '@store/constant';
-import type { IAudit } from '@taiger-common/model';
+import type {
+    IAuditWithId,
+    IDocumentthreadWithId,
+    IInterviewWithId,
+    IProgram,
+    IUser
+} from '@taiger-common/model';
 
 interface MiniAuditProps {
-    audit: IAudit[];
+    audit: IAuditWithId[];
 }
 
 const MiniAudit = ({ audit }: MiniAuditProps) => {
@@ -43,45 +49,70 @@ const MiniAudit = ({ audit }: MiniAuditProps) => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {audit?.map((record: IAudit) => {
-                            const isNewUser = record?.changes?.after?.newUser
-                                ? true
-                                : false;
+                        {audit?.map((record) => {
+                            type AuditAfter = {
+                                newUser?: {
+                                    firstname?: string;
+                                    lastname?: string;
+                                };
+                                added?: { firstname?: string }[];
+                                removed?: { firstname?: string }[];
+                            };
+                            const after = record?.changes?.after as
+                                | AuditAfter
+                                | undefined;
+                            const isNewUser = after?.newUser ? true : false;
                             const isStatusChanged = record?.field === 'status';
                             const isAssign = ['agents', 'editors'].includes(
-                                record?.field
+                                record?.field ?? ''
                             );
                             const isAssignTrainerWriter = [
                                 'interview trainer',
                                 'essay writer'
-                            ].includes(record?.field);
-                            const addedUsers = record?.changes?.after?.added
+                            ].includes(record?.field ?? '');
+                            const addedUsers = after?.added
                                 ?.map(
-                                    (user: { firstname: string }) =>
+                                    (user: { firstname?: string }) =>
                                         `${user.firstname}`
                                 )
                                 .join(', ');
-                            const removedUsers = record?.changes?.after?.removed
+                            const removedUsers = after?.removed
                                 ?.map(
-                                    (user: { firstname: string }) =>
+                                    (user: { firstname?: string }) =>
                                         `${user.firstname}`
                                 )
                                 .join(', ');
-                            const program_name = record?.targetDocumentThreadId
-                                ?.program_id
-                                ? `- ${record?.targetDocumentThreadId?.program_id?.school}${record?.targetDocumentThreadId?.program_id?.program_name}${record?.targetDocumentThreadId?.program_id?.degree}${record?.targetDocumentThreadId?.program_id?.semester}`
-                                : record?.interviewThreadId?.program_id
-                                  ? ` - ${record?.interviewThreadId?.program_id?.school}
-                          ${record?.interviewThreadId?.program_id?.program_name}
-                          ${record?.interviewThreadId?.program_id?.degree}
-                          ${record?.interviewThreadId?.program_id?.semester}
+                            const docThread = record?.targetDocumentThreadId as
+                                | IDocumentthreadWithId
+                                | undefined;
+                            const docProgram = docThread?.program_id as
+                                | IProgram
+                                | undefined;
+                            const interviewThread =
+                                record?.interviewThreadId as
+                                    | IInterviewWithId
+                                    | undefined;
+                            const interviewProgram =
+                                interviewThread?.program_id as
+                                    | IProgram
+                                    | undefined;
+                            const targetUser = record?.targetUserId as
+                                | IUser
+                                | undefined;
+                            const program_name = docThread?.program_id
+                                ? `- ${docProgram?.school}${docProgram?.program_name}${docProgram?.degree}${docProgram?.semester}`
+                                : interviewThread?.program_id
+                                  ? ` - ${interviewProgram?.school}
+                          ${interviewProgram?.program_name}
+                          ${interviewProgram?.degree}
+                          ${interviewProgram?.semester}
                           `
                                   : '';
                             const fileName =
-                                record?.targetDocumentThreadId &&
-                                `${record?.targetDocumentThreadId?.file_type}${program_name}`;
+                                docThread &&
+                                `${docThread?.file_type}${program_name}`;
                             const interview_name =
-                                record?.interviewThreadId &&
+                                interviewThread &&
                                 `Interview${program_name}
                           `;
                             return (
@@ -108,49 +139,45 @@ const MiniAudit = ({ audit }: MiniAuditProps) => {
                                             : ''}
                                     </TableCell>
                                     <TableCell>
-                                        {record?.targetDocumentThreadId ? (
+                                        {docThread ? (
                                             <Link
                                                 component={LinkDom}
                                                 target="_blank"
                                                 title={program_name}
                                                 to={DEMO.DOCUMENT_MODIFICATION_LINK(
-                                                    record?.targetDocumentThreadId._id?.toString()
+                                                    docThread._id?.toString()
                                                 )}
                                             >
                                                 {fileName}{' '}
-                                                {
-                                                    record?.targetUserId
-                                                        ?.firstname
-                                                }
-                                                {record?.targetUserId?.lastname}
+                                                {targetUser?.firstname}
+                                                {targetUser?.lastname}
                                             </Link>
                                         ) : null}
-                                        {record?.interviewThreadId ? (
+                                        {interviewThread ? (
                                             <Link
                                                 component={LinkDom}
                                                 target="_blank"
                                                 title={program_name}
                                                 to={DEMO.INTERVIEW_SINGLE_LINK(
-                                                    record?.interviewThreadId._id?.toString()
+                                                    interviewThread._id?.toString()
                                                 )}
                                             >
                                                 {interview_name}{' '}
-                                                {
-                                                    record?.targetUserId
-                                                        ?.firstname
-                                                }
-                                                {record?.targetUserId?.lastname}
+                                                {targetUser?.firstname}
+                                                {targetUser?.lastname}
                                             </Link>
                                         ) : null}
                                         {isNewUser || isAssign
-                                            ? `${record?.targetUserId?.firstname} ${record?.targetUserId?.lastname}`
+                                            ? `${targetUser?.firstname} ${targetUser?.lastname}`
                                             : ''}
                                     </TableCell>
                                     <TableCell
-                                        title={convertDate(record.createdAt)}
+                                        title={convertDate(
+                                            record.createdAt as Date
+                                        )}
                                     >
                                         {convertDateUXFriendly(
-                                            record.createdAt
+                                            record.createdAt as Date
                                         )}
                                     </TableCell>
                                 </TableRow>

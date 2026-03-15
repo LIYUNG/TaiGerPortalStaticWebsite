@@ -29,6 +29,7 @@ import {
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import LaunchIcon from '@mui/icons-material/Launch';
 import i18next from 'i18next';
+import type { IUserWithId, IStudentResponse } from '@taiger-common/model';
 import {
     isProgramAdmitted,
     isProgramRejected,
@@ -55,14 +56,14 @@ import { ConfirmationModal } from '../Modal/ConfirmationModal';
 import { useSnackBar } from '@contexts/use-snack-bar';
 
 interface ProgramLinkProps {
-    program: {
+    program?: {
         _id?: { toString: () => string };
         country?: string;
         school?: string;
         degree?: string;
         program_name?: string;
         semester?: string;
-    };
+    } | null;
 }
 
 interface AdmissionLetterLinkProps {
@@ -87,29 +88,36 @@ const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
     }
 }));
 
-const ProgramLink = ({ program }: ProgramLinkProps) => (
-    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <img
-            alt="Logo"
-            src={`/assets/logo/country_logo/svg/${program.country}.svg`}
-            style={{ maxWidth: 24, maxHeight: 24 }}
-        />
-        &nbsp;
-        <Link
-            component={LinkDom}
-            onClick={(e) => e.stopPropagation()}
-            sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}
-            target="_blank"
-            to={DEMO.SINGLE_PROGRAM_LINK(program._id?.toString() ?? '')}
-            underline="hover"
-        >
-            {program.school}
-            <IconButton>
-                <LaunchIcon fontSize="small" />
-            </IconButton>
-        </Link>
-    </Box>
-);
+const ProgramLink = ({ program }: ProgramLinkProps) => {
+    if (!program) return null;
+    return (
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <img
+                alt="Logo"
+                src={`/assets/logo/country_logo/svg/${program.country}.svg`}
+                style={{ maxWidth: 24, maxHeight: 24 }}
+            />
+            &nbsp;
+            <Link
+                component={LinkDom}
+                onClick={(e) => e.stopPropagation()}
+                sx={{
+                    fontWeight: 'bold',
+                    display: 'flex',
+                    alignItems: 'center'
+                }}
+                target="_blank"
+                to={DEMO.SINGLE_PROGRAM_LINK(program._id?.toString() ?? '')}
+                underline="hover"
+            >
+                {program.school}
+                <IconButton>
+                    <LaunchIcon fontSize="small" />
+                </IconButton>
+            </Link>
+        </Box>
+    );
+};
 
 const AdmissionLetterLink = ({ application }: AdmissionLetterLinkProps) => {
     return (
@@ -140,7 +148,7 @@ export default function ApplicationProgressCard(
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
     const navigate = useNavigate();
 
-    const applicationFromProps = props.application as Application;
+    const applicationFromProps = props.application as unknown as Application;
 
     const [application, setApplication] =
         useState<Application>(applicationFromProps);
@@ -312,13 +320,7 @@ export default function ApplicationProgressCard(
                         )}
                     </Typography>
                     <Box sx={{ my: 1 }}>
-                        <ApplicationLockControl
-                            application={application}
-                            onLockChange={() => {
-                                // Refresh application data if needed
-                                setApplication({ ...application });
-                            }}
-                        />
+                        <ApplicationLockControl application={application} />
                     </Box>
                     <ProgramLink program={application.programId} />
                     <Typography fontWeight="bold" variant="body2">
@@ -455,11 +457,15 @@ export default function ApplicationProgressCard(
                                             )}`}
                                             underline="hover"
                                         >
-                                            {convertDate(
-                                                application
-                                                    ?.interview_training_event
-                                                    ?.start
-                                            )}
+                                            {application
+                                                ?.interview_training_event
+                                                ?.start != null
+                                                ? convertDate(
+                                                      application
+                                                          .interview_training_event
+                                                          .start
+                                                  )
+                                                : ''}
                                         </Link>
                                     </Typography>
                                 </>
@@ -521,8 +527,8 @@ export default function ApplicationProgressCard(
                                 isProgramSubmitted(application)
                                     ? 100
                                     : progressBarCounter(
-                                          props.student,
-                                          application
+                                          props.student as unknown as IUserWithId,
+                                          application as unknown as Application
                                       )
                             }
                             variant="determinate"
@@ -532,8 +538,8 @@ export default function ApplicationProgressCard(
                                 isProgramSubmitted(application)
                                     ? 100
                                     : progressBarCounter(
-                                          props.student,
-                                          application
+                                          props.student as unknown as IUserWithId,
+                                          application as unknown as Application
                                       )
                             }%`}
                         </span>
@@ -542,7 +548,7 @@ export default function ApplicationProgressCard(
                 <Collapse in={isCollapse}>
                     <ApplicationProgressCardBody
                         application={application}
-                        student={props.student}
+                        student={props.student as unknown as IStudentResponse}
                     />
                 </Collapse>
             </Card>
@@ -554,9 +560,7 @@ export default function ApplicationProgressCard(
                 )} ${application.programId?.school} - ${application.programId?.degree} - ${application.programId?.program_name}?`}
                 isLoading={isLoading}
                 onClose={closeUndoModal}
-                onConfirm={(e: MouseEvent<HTMLButtonElement>) =>
-                    handleUpdateResult(e, '-')
-                }
+                onConfirm={() => handleUpdateResult(undefined, '-')}
                 open={showUndoModal}
                 title={i18next.t('Attention')}
             />

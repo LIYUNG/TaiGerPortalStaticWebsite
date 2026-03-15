@@ -32,12 +32,6 @@ export interface UsersListProps {
     queryString: QueryString;
     openAddUserModal: () => void;
     readOnly?: boolean;
-    /** @deprecated Legacy - not passed by UsersTable */
-    users?: unknown;
-    /** @deprecated Legacy - not passed by UsersTable */
-    success?: boolean;
-    /** @deprecated Legacy - not passed by UsersTable */
-    isLoaded?: boolean;
 }
 
 const UsersList = (props: UsersListProps) => {
@@ -49,7 +43,6 @@ const UsersList = (props: UsersListProps) => {
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
 
     const [usersListState, setUsersListState] = useState({
-        error: '',
         modalShow: false,
         delete_field: '',
         firstname: '',
@@ -57,15 +50,9 @@ const UsersList = (props: UsersListProps) => {
         selected_user_role: '',
         selected_user_id: '',
         archiv: false,
-        data: props.users,
         modalShowNewProgram: false,
         deleteUserWarning: false,
-        archivUserWarning: false,
-        success: props.success,
-        isLoaded: props.isLoaded,
-        res_status: 0,
-        res_modal_message: '',
-        res_modal_status: 0
+        archivUserWarning: false
     });
 
     // Format date for display (e.g., "Mar 4, 2024")

@@ -18,7 +18,8 @@ import { is_TaiGer_Student } from '@taiger-common/core';
 import type {
     IUserWithId,
     IDocumentthreadPopulated,
-    ITemplateWithId
+    ITemplateWithId,
+    IStudentResponse
 } from '@taiger-common/model';
 import { useTranslation } from 'react-i18next';
 
@@ -296,7 +297,7 @@ const InformationBlock = ({
                                         >
                                             <img
                                                 alt="Profile"
-                                                src={`${BASE_URL}/api/students/${thread.student_id._id}/files/Passport_Photo`}
+                                                src={`${BASE_URL}/api/students/${(thread.student_id as IStudentResponse)._id}/files/Passport_Photo`}
                                                 style={{
                                                     position: 'absolute',
                                                     top: 0,

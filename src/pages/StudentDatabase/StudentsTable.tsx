@@ -23,10 +23,9 @@ import { mkConfig, generateCsv, download } from 'export-to-csv';
 
 import DEMO from '@store/constant';
 import { TopToolbar } from '@components/table/students-table/TopToolbar';
-import EditAgentsSubpage from '@pages/Dashboard/MainViewTab/StudDocsOverview/EditAgentsSubpage';
-import EditEditorsSubpage from '@pages/Dashboard/MainViewTab/StudDocsOverview/EditEditorsSubpage';
 import EditAttributesSubpage from '@pages/Dashboard/MainViewTab/StudDocsOverview/EditAttributesSubpage';
 import { is_User_Archived } from '../Utils/util_functions';
+import EditUserListSubpage from '../Dashboard/MainViewTab/StudDocsOverview/EditUserListSubpage';
 
 const columnHelper = createMRTColumnHelper();
 
@@ -167,7 +166,7 @@ export const StudentsTable = ({
     };
 
     const submitUpdateAttributeslistLocal = (
-        e: React.FormEvent<HTMLFormElement>,
+        e: React.SyntheticEvent,
         updateAttributesList: unknown,
         student_id: string
     ) => {
@@ -357,19 +356,21 @@ export const StudentsTable = ({
         <>
             <MaterialReactTable table={table} />
             {studentsAgentEditor.showAgentPage ? (
-                <EditAgentsSubpage
+                <EditUserListSubpage
                     onHide={setAgentModalhide}
                     show={studentsAgentEditor.showAgentPage}
                     student={student}
-                    submitUpdateAgentlist={submitUpdateAgentlistLocal}
+                    submitUpdateList={submitUpdateAgentlistLocal}
+                    variant="agent"
                 />
             ) : null}
             {studentsAgentEditor.showEditorPage ? (
-                <EditEditorsSubpage
+                <EditUserListSubpage
                     onHide={setEditorModalhide}
                     show={studentsAgentEditor.showEditorPage}
                     student={student}
-                    submitUpdateEditorlist={submitUpdateEditorlistLocal}
+                    submitUpdateList={submitUpdateEditorlistLocal}
+                    variant="editor"
                 />
             ) : null}
             {studentsAgentEditor.showAttributesPage ? (

@@ -28,7 +28,12 @@ import {
 
 import { useAuth } from '@components/AuthProvider';
 import { is_TaiGer_role } from '@taiger-common/core';
-import type { IDocumentthreadPopulated } from '@taiger-common/model';
+import type {
+    IDocumentthreadPopulated,
+    IProgramWithId,
+    IStudentResponse,
+    IUserWithId
+} from '@taiger-common/model';
 import DEMO from '@store/constant';
 import {
     FILE_OK_SYMBOL,
@@ -204,14 +209,15 @@ const ThreadItem = ({ thread, onClick }: ThreadItemProps) => {
     const { t } = useTranslation();
     const isFinal = thread?.isFinalVersion;
     const programName = thread?.program_id
-        ? `${thread?.program_id?.school} - ${thread?.program_id?.program_name}`
+        ? `${(thread?.program_id as IProgramWithId)?.school} - ${(thread?.program_id as IProgramWithId)?.program_name}`
         : '';
     const notRepliedByUser =
-        thread.messages?.[0]?.user_id?._id === thread?.student_id;
+        (thread.messages?.[0]?.user_id as IUserWithId)?._id ===
+        thread?.student_id;
     const highlightItem = !isFinal && notRepliedByUser;
 
     // Check if program is from non-approval country
-    const programCountry = thread?.program_id?.country;
+    const programCountry = (thread?.program_id as IProgramWithId)?.country;
     const isNonApprovalCountry = programCountry
         ? !APPROVAL_COUNTRIES.includes(String(programCountry).toLowerCase())
         : false;
@@ -495,7 +501,8 @@ const DocumentCommunicationExpandPage = () => {
     const sortedThreads = studentThreads
         ?.filter(
             (thread: IDocumentthreadPopulated) =>
-                thread?.student_id?._id?.toString() === studentId
+                (thread?.student_id as IStudentResponse)?._id?.toString() ===
+                studentId
         )
         ?.sort((a: IDocumentthreadPopulated, b: IDocumentthreadPopulated) => {
             const categoryA = getCategory(a.file_type);

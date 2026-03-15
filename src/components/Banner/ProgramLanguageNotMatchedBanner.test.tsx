@@ -9,7 +9,7 @@ vi.mock('@pages/Utils/util_functions', () => ({
 describe('ProgramLanguageNotMatchedBanner', () => {
     test('renders without crashing when condition is false', () => {
         const { container } = render(
-            <ProgramLanguageNotMatchedBanner student={{}} />
+            <ProgramLanguageNotMatchedBanner student={{ _id: '' }} />
         );
         expect(container.firstChild).toBeFalsy();
     });
