@@ -6,9 +6,14 @@ import { is_TaiGer_role } from '@taiger-common/core';
 
 import InterviewMetadataSidebar from './InterviewMetadataSidebar';
 
-vi.mock('@taiger-common/core', () => ({
-    is_TaiGer_role: vi.fn(() => false)
-}));
+vi.mock('@taiger-common/core', async (importOriginal) => {
+    const actual =
+        await importOriginal<typeof import('@taiger-common/core')>();
+    return {
+        ...actual,
+        is_TaiGer_role: vi.fn(() => false)
+    };
+});
 
 vi.mock('@components/AuthProvider', () => ({
     useAuth: () => ({
