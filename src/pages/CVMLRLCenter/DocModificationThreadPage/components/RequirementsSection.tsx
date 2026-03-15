@@ -19,7 +19,8 @@ import { is_TaiGer_AdminAgent } from '@taiger-common/core';
 import type {
     IUserWithId,
     IDocumentthreadPopulated,
-    ITemplateWithId
+    ITemplateWithId,
+    IProgramWithId
 } from '@taiger-common/model';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@mui/material';
@@ -86,7 +87,7 @@ const RequirementsSection = ({
                                             }}
                                             target="_blank"
                                             to={`${DEMO.SINGLE_PROGRAM_LINK(
-                                                thread.program_id._id.toString()
+                                                (thread.program_id as IProgramWithId)._id.toString()
                                             )}`}
                                         >
                                             <EditIcon sx={{ fontSize: 16 }} />

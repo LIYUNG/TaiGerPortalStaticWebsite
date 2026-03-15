@@ -201,7 +201,10 @@ const NavBar = (props: NavBarProps): JSX.Element => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (is_TaiGer_AdminAgent(user) || is_TaiGer_Student(user)) {
+        if (
+            user != null &&
+            (is_TaiGer_AdminAgent(user) || is_TaiGer_Student(user))
+        ) {
             getMyCommunicationUnreadNumber()
                 .then((resp: { data: { data?: number } }) => {
                     const { data } = resp;
@@ -223,9 +226,10 @@ const NavBar = (props: NavBarProps): JSX.Element => {
 
     useEffect(() => {
         if (
-            is_TaiGer_Editor(user) ||
-            is_TaiGer_AdminAgent(user) ||
-            is_TaiGer_Student(user)
+            user != null &&
+            (is_TaiGer_Editor(user) ||
+                is_TaiGer_AdminAgent(user) ||
+                is_TaiGer_Student(user))
         ) {
             getActiveEventsNumber()
                 .then((resp: { data: { data?: number } }) => {
@@ -251,19 +255,22 @@ const NavBar = (props: NavBarProps): JSX.Element => {
             ...prevState,
             activeEventCount: 0
         }));
-        if (is_TaiGer_Student(user)) {
+        if (user != null && is_TaiGer_Student(user)) {
             setMobileMoreAnchorEl(null);
             navigate(
                 DEMO.EVENT_STUDENT_STUDENTID_LINK(user._id?.toString() ?? '')
             );
-        } else if (is_TaiGer_Agent(user) || is_TaiGer_Editor(user)) {
+        } else if (
+            user != null &&
+            (is_TaiGer_Agent(user) || is_TaiGer_Editor(user))
+        ) {
             setMobileMoreAnchorEl(null);
             navigate(DEMO.EVENT_TAIGER_LINK(user._id?.toString() ?? ''));
         }
     };
 
     const handleOpenChat = (e: MouseEvent<HTMLElement>): void => {
-        if (is_TaiGer_Student(user)) {
+        if (user != null && is_TaiGer_Student(user)) {
             setNavState((prevState) => ({
                 ...prevState,
                 unreadCount: 0
@@ -364,9 +371,10 @@ const NavBar = (props: NavBarProps): JSX.Element => {
                 horizontal: 'right'
             }}
         >
-            {is_TaiGer_Agent(user) ||
-            is_TaiGer_Editor(user) ||
-            is_TaiGer_Student(user) ? (
+            {user != null &&
+            (is_TaiGer_Agent(user) ||
+                is_TaiGer_Editor(user) ||
+                is_TaiGer_Student(user)) ? (
                 <MenuItem onClick={handleNavigateCalendar}>
                     <IconButton
                         aria-label="show upcoming meeting event"
@@ -385,7 +393,8 @@ const NavBar = (props: NavBarProps): JSX.Element => {
                     </Typography>
                 </MenuItem>
             ) : null}
-            {is_TaiGer_AdminAgent(user) || is_TaiGer_Student(user) ? (
+            {user != null &&
+            (is_TaiGer_AdminAgent(user) || is_TaiGer_Student(user)) ? (
                 <MenuItem onClick={handleOpenChat}>
                     <IconButton
                         aria-controls={menuId}
@@ -472,16 +481,18 @@ const NavBar = (props: NavBarProps): JSX.Element => {
                             style={{ maxHeight: '48px', marginRight: '2px' }}
                         />
                     </Link>
-                    {is_TaiGer_Agent(user) ||
-                    is_TaiGer_Editor(user) ||
-                    is_TaiGer_Admin(user) ? (
+                    {user != null &&
+                    (is_TaiGer_Agent(user) ||
+                        is_TaiGer_Editor(user) ||
+                        is_TaiGer_Admin(user)) ? (
                         <NavSearch />
                     ) : null}
                     <Box sx={{ flexGrow: 1 }} />
                     <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-                        {is_TaiGer_Agent(user) ||
-                        is_TaiGer_Editor(user) ||
-                        is_TaiGer_Student(user) ? (
+                        {user != null &&
+                        (is_TaiGer_Agent(user) ||
+                            is_TaiGer_Editor(user) ||
+                            is_TaiGer_Student(user)) ? (
                             <IconButton
                                 aria-label="show active event"
                                 color="inherit"
@@ -496,8 +507,9 @@ const NavBar = (props: NavBarProps): JSX.Element => {
                                 </Badge>
                             </IconButton>
                         ) : null}
-                        {is_TaiGer_AdminAgent(user) ||
-                        is_TaiGer_Student(user) ? (
+                        {user != null &&
+                        (is_TaiGer_AdminAgent(user) ||
+                            is_TaiGer_Student(user)) ? (
                             <IconButton
                                 aria-controls={chatId}
                                 aria-haspopup="true"
@@ -539,9 +551,10 @@ const NavBar = (props: NavBarProps): JSX.Element => {
                         </Tooltip>
                     </Box>
                     <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
-                        {is_TaiGer_Agent(user) ||
-                        is_TaiGer_Editor(user) ||
-                        is_TaiGer_Student(user) ? (
+                        {user != null &&
+                        (is_TaiGer_Agent(user) ||
+                            is_TaiGer_Editor(user) ||
+                            is_TaiGer_Student(user)) ? (
                             <IconButton
                                 aria-label="show active event"
                                 color="inherit"
@@ -556,8 +569,9 @@ const NavBar = (props: NavBarProps): JSX.Element => {
                                 </Badge>
                             </IconButton>
                         ) : null}
-                        {is_TaiGer_AdminAgent(user) ||
-                        is_TaiGer_Student(user) ? (
+                        {user != null &&
+                        (is_TaiGer_AdminAgent(user) ||
+                            is_TaiGer_Student(user)) ? (
                             <IconButton
                                 aria-controls={chatId}
                                 aria-haspopup="true"

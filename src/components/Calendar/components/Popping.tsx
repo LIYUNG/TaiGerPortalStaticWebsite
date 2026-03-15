@@ -128,37 +128,49 @@ const Popping = ({
                                         : ''
                                 }
                             >
-                                {is_TaiGer_Student(user) ? (
-                                    <MenuItem value="">
-                                        {t('Please Select', { ns: 'common' })}
-                                    </MenuItem>
+                                {user != null ? (
+                                    <>
+                                        {is_TaiGer_Student(user) ? (
+                                            <MenuItem value="">
+                                                {t('Please Select', {
+                                                    ns: 'common'
+                                                })}
+                                            </MenuItem>
+                                        ) : null}
+                                        {is_TaiGer_Student(user) &&
+                                        event.provider ? (
+                                            <MenuItem
+                                                value={
+                                                    event.provider._id?.toString() ??
+                                                    ''
+                                                }
+                                            >
+                                                {event.provider.firstname}{' '}
+                                                {event.provider.lastname}
+                                            </MenuItem>
+                                        ) : is_TaiGer_Agent(user) ||
+                                          is_TaiGer_Editor(user) ? (
+                                            <MenuItem
+                                                value={
+                                                    user._id?.toString() ?? ''
+                                                }
+                                            >
+                                                {user.firstname}
+                                                {user.lastname}
+                                            </MenuItem>
+                                        ) : (
+                                            (user.agents?.map((agent, i) => (
+                                                <MenuItem
+                                                    key={i}
+                                                    value={agent._id.toString()}
+                                                >
+                                                    {agent.firstname}
+                                                    {agent.lastname}
+                                                </MenuItem>
+                                            )) ?? null)
+                                        )}
+                                    </>
                                 ) : null}
-                                {is_TaiGer_Student(user) && event.provider ? (
-                                    <MenuItem
-                                        value={
-                                            event.provider._id?.toString() ?? ''
-                                        }
-                                    >
-                                        {event.provider.firstname}{' '}
-                                        {event.provider.lastname}
-                                    </MenuItem>
-                                ) : is_TaiGer_Agent(user) ||
-                                  is_TaiGer_Editor(user) ? (
-                                    <MenuItem value={user._id.toString()}>
-                                        {user.firstname}
-                                        {user.lastname}
-                                    </MenuItem>
-                                ) : (
-                                    (user?.agents?.map((agent, i) => (
-                                        <MenuItem
-                                            key={i}
-                                            value={agent._id.toString()}
-                                        >
-                                            {agent.firstname}
-                                            {agent.lastname}
-                                        </MenuItem>
-                                    )) ?? null)
-                                )}
                             </Select>
                         </FormControl>
                         <br />

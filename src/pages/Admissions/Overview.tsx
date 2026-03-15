@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { MuiDataGrid } from '@components/MuiDataGrid';
 import Loading from '@components/Loading/Loading';
 import { useApplications } from '@hooks/useApplications';
+import type { IProgramWithId } from '@taiger-common/model';
 import cityCoord from './cityCoord.json';
 
 const toUpperSafe = (value: string | number | undefined): string =>
@@ -190,12 +191,12 @@ const Overview = () => {
             return {
                 id: a?._id,
                 programId: prog?._id || a?.programId,
-                school: a?.school || prog?.school || '',
-                program_name: a?.program_name || prog?.program_name || '',
-                degree: a?.degree || prog?.degree || '',
-                country: toUpperSafe(a?.country || prog?.country),
-                city: a?.city || prog?.city || '',
-                zipCode: a?.zipCode || prog?.zipCode || '',
+                school: prog?.school || '',
+                program_name: prog?.program_name || '',
+                degree: prog?.degree || '',
+                country: toUpperSafe(prog?.country),
+                city: prog?.city || '',
+                zipCode: prog?.zipCode || '',
                 finalEnrolment: true
             };
         });
@@ -213,10 +214,10 @@ const Overview = () => {
             finalEnrolment: Boolean(a?.finalEnrolment),
             programId: a?.programId,
             // Program metadata may not be present on this endpoint; default gracefully
-            school: a?.school || '',
-            program_name: a?.program_name || '',
-            degree: a?.degree || '',
-            country: toUpperSafe(a?.country)
+            // school: (a?.programId as IProgramWithId)?.school || '',
+            // program_name: (a?.programId as IProgramWithId)?.program_name || '',
+            // degree: (a?.programId as IProgramWithId)?.degree || '',
+            country: toUpperSafe((a?.programId as IProgramWithId)?.country)
         }));
     }, [applicationsRaw]);
 

@@ -56,9 +56,10 @@ const NavSearch = () => {
         const fetchSearchResults = async () => {
             try {
                 setLoading(true);
-                const response = is_TaiGer_role(user)
-                    ? await getQueryResults(searchTerm)
-                    : await getQueryPublicResults(searchTerm);
+                const response =
+                    user != null && is_TaiGer_role(user)
+                        ? await getQueryResults(searchTerm)
+                        : await getQueryPublicResults(searchTerm);
                 if (response.data.success) {
                     setSearchResults(response.data.data ?? []);
                     setIsResultsVisible(true);

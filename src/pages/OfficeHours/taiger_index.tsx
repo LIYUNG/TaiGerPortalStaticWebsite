@@ -427,17 +427,20 @@ const TaiGerOfficeHours = () => {
             agent.timezone && moment.tz.zone(agent.timezone)
                 ? getReorderWeekday(getTodayAsWeekday(agent.timezone)).flatMap(
                       (weekday: string, i: number) => {
+                          const slots =
+                              agent.officehours?.[weekday]?.time_slots;
                           const timeSlots =
                               agent.officehours &&
                               agent.officehours[weekday]?.active &&
-                              agent.officehours[weekday].time_slots.flatMap(
-                                  (
-                                      time_slot: {
-                                          value: string;
-                                          label: string;
-                                      },
-                                      j: number
-                                  ) => {
+                              Array.isArray(slots)
+                                  ? slots.flatMap(
+                                        (
+                                            time_slot: {
+                                                value: string;
+                                                label: string;
+                                            },
+                                            j: number
+                                        ) => {
                                       const { year, month, day } =
                                           getNextDayDate(
                                               getReorderWeekday(
@@ -467,10 +470,11 @@ const TaiGerOfficeHours = () => {
                                           start: new Date(test_date),
                                           end: end_date,
                                           provider: agent
-                                      };
-                                  }
-                              );
-                          return timeSlots || [];
+                                        };
+                                    }
+                                    )
+                                  : [];
+                          return timeSlots;
                       }
                   )
                 : []

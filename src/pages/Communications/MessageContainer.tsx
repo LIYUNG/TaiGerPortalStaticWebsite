@@ -12,6 +12,13 @@ import type { ThreadMessage } from '@components/Message/MessageCard';
 export interface MessageContainerProps {
     message: ThreadMessage;
     student_id: string;
+    accordionKeys: number[];
+    isDeleting: boolean;
+    isTaiGerView: boolean;
+    lastupdate: string;
+    onDeleteSingleMessage: () => void;
+    onTrashClick: () => void;
+    idx: number;
 }
 
 const MessageContainer = (props: MessageContainerProps) => {

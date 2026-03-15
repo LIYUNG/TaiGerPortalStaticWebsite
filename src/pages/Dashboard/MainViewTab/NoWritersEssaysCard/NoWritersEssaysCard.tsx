@@ -15,14 +15,19 @@ import { is_TaiGer_role } from '@taiger-common/core';
 import EditEssayWritersSubpage from '../StudDocsOverview/EditEssayWritersSubpage';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
-import type { IDocumentthread, IProgram, IUser } from '@taiger-common/model';
+import type {
+    IDocumentthreadWithId,
+    IProgram,
+    IUser,
+    IStudentResponse
+} from '@taiger-common/model';
 
 interface NoWritersEssaysCardProps {
-    essayDocumentThread: IDocumentthread;
+    essayDocumentThread: IDocumentthreadWithId;
     isArchivPage: boolean;
     submitUpdateEssayWriterlist: (
         e: FormEvent<HTMLFormElement>,
-        updateEssayWriterList: unknown,
+        updateEssayWriterList: Record<string, boolean>,
         essayDocumentThread_id: string
     ) => void;
 }
@@ -65,7 +70,7 @@ const NoWritersEssaysCard = ({
 
     const submitUpdateEssayWriterlistHandler = (
         e: React.FormEvent<HTMLFormElement>,
-        updateEssayWriterList: unknown,
+        updateEssayWriterList: Record<string, boolean>,
         essayDocumentThread_id: string
     ) => {
         e.preventDefault();
@@ -84,7 +89,7 @@ const NoWritersEssaysCard = ({
         return (
             <>
                 <TableRow>
-                    {is_TaiGer_role(user) && !isArchivPage ? (
+                    {is_TaiGer_role(user as IUser) && !isArchivPage ? (
                         <TableCell>
                             <Button
                                 aria-controls={open ? 'basic-menu' : undefined}
@@ -144,16 +149,30 @@ const NoWritersEssaysCard = ({
                         <Link
                             component={LinkDom}
                             to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                                essayDocumentThread.student_id?._id.toString(),
+                                (
+                                    essayDocumentThread.student_id as IStudentResponse
+                                )?._id.toString(),
                                 DEMO.PROFILE_HASH
                             )}`}
                         >
-                            {essayDocumentThread.student_id?.firstname},{' '}
-                            {essayDocumentThread.student_id?.lastname}
+                            {
+                                (
+                                    essayDocumentThread.student_id as IStudentResponse
+                                )?.firstname
+                            }
+                            ,{' '}
+                            {
+                                (
+                                    essayDocumentThread.student_id as IStudentResponse
+                                )?.lastname
+                            }
                         </Link>
                     </TableCell>
                     <TableCell>
-                        {essayDocumentThread.student_id?.email}
+                        {
+                            (essayDocumentThread.student_id as IStudentResponse)
+                                ?.email
+                        }
                     </TableCell>
                     <TableCell>
                         {/* TODO: adjust condition and backend returned data: message !== 0 && no outsourcer */}
@@ -161,7 +180,7 @@ const NoWritersEssaysCard = ({
                             undefined ||
                             essayDocumentThread.outsourced_user_id?.length ===
                                 0) &&
-                        essayDocumentThread.messages?.length > 0 ? (
+                        (essayDocumentThread.messages?.length ?? 0) > 0 ? (
                             <Typography fontWeight="bold">
                                 Ready to Assign
                             </Typography>
@@ -170,43 +189,48 @@ const NoWritersEssaysCard = ({
                         )}
                     </TableCell>
                     <TableCell>
-                        {essayDocumentThread.student_id?.application_preference
-                            .expected_application_date || (
+                        {(essayDocumentThread.student_id as IStudentResponse)
+                            ?.application_preference
+                            ?.expected_application_date || (
                             <Typography>TBD</Typography>
                         )}
                     </TableCell>
                     <TableCell>
-                        {!essayDocumentThread.student_id?.editors ||
-                        essayDocumentThread.student_id?.editors.length === 0 ? (
+                        {!(essayDocumentThread.student_id as IStudentResponse)
+                            ?.editors ||
+                        ((essayDocumentThread.student_id as IStudentResponse)
+                            ?.editors?.length ?? 0) === 0 ? (
                             <Typography fontWeight="bold">
                                 {t('No Editor', { ns: 'common' })}
                             </Typography>
                         ) : (
-                            essayDocumentThread.student_id?.editors.map(
-                                (editor: IUser, i: number) => (
-                                    <Typography
-                                        key={i}
-                                    >{`${editor.firstname}`}</Typography>
-                                )
-                            )
+                            (
+                                essayDocumentThread.student_id as IStudentResponse
+                            )?.editors?.map((editor: IUser, i: number) => (
+                                <Typography
+                                    key={i}
+                                >{`${editor.firstname}`}</Typography>
+                            ))
                         )}
                     </TableCell>
                     <TableCell>
-                        {!essayDocumentThread.student_id?.agents ||
-                        essayDocumentThread.student_id?.agents.length === 0 ? (
+                        {!(essayDocumentThread.student_id as IStudentResponse)
+                            ?.agents ||
+                        ((essayDocumentThread.student_id as IStudentResponse)
+                            ?.agents?.length ?? 0) === 0 ? (
                             <Typography fontWeight="bold">No Agent</Typography>
                         ) : (
-                            essayDocumentThread.student_id?.agents.map(
-                                (agent: IUser, i: number) => (
-                                    <Typography
-                                        key={i}
-                                    >{`${agent.firstname}`}</Typography>
-                                )
-                            )
+                            (
+                                essayDocumentThread.student_id as IStudentResponse
+                            )?.agents?.map((agent: IUser, i: number) => (
+                                <Typography
+                                    key={i}
+                                >{`${agent.firstname}`}</Typography>
+                            ))
                         )}
                     </TableCell>
                 </TableRow>
-                {is_TaiGer_role(user) &&
+                {is_TaiGer_role(user as IUser) &&
                 noEditorsStudentsCardState.showEditorPage ? (
                     <EditEssayWritersSubpage
                         actor="Essay Writer"

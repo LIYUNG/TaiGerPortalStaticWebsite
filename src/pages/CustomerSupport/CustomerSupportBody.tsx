@@ -22,7 +22,7 @@ import { appConfig } from '../../config';
 import DEMO from '@store/constant';
 
 import { convertDateUXFriendly } from '@utils/contants';
-import type { IComplaintWithId } from '@taiger-common/model';
+import type { IComplaintWithId, IUser } from '@taiger-common/model';
 
 interface CustomerSupportBodyProps {
     complaintTickets: IComplaintWithId[];
@@ -127,7 +127,7 @@ const CustomerSupportBody = ({
                                         )}`}
                                     >
                                         <ListItemText
-                                            primary={`${ticket.title} - ${ticket.requester_id?.firstname}`}
+                                            primary={`${ticket.title} - ${(ticket.requester_id as IUser)?.firstname}`}
                                             secondary={`${
                                                 ticket.description
                                             } - ${convertDateUXFriendly(ticket.updatedAt)}`}

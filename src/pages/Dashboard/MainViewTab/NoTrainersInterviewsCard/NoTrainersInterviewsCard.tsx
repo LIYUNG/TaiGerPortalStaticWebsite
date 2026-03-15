@@ -16,7 +16,11 @@ import EditInterviewTrainersSubpage from '../StudDocsOverview/EditInterviewTrain
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { convertDate } from '@utils/contants';
-import type { IInterviewWithId } from '@taiger-common/model';
+import type {
+    IInterviewWithId,
+    IStudentResponse,
+    IProgram
+} from '@taiger-common/model';
 
 interface NoTrainersInterviewsCardProps {
     interview: IInterviewWithId;
@@ -113,12 +117,22 @@ const NoTrainersInterviewsCard = (props: NoTrainersInterviewsCardProps) => {
                         <Link
                             component={LinkDom}
                             to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                                props.interview.student_id?._id?.toString(),
+                                (
+                                    props.interview
+                                        .student_id as IStudentResponse
+                                )?._id?.toString(),
                                 DEMO.PROFILE_HASH
                             )}`}
                         >
-                            {props.interview.student_id?.firstname},{' '}
-                            {props.interview.student_id?.lastname}
+                            {
+                                (props.interview.student_id as IStudentResponse)
+                                    ?.firstname
+                            }
+                            ,{' '}
+                            {
+                                (props.interview.student_id as IStudentResponse)
+                                    ?.lastname
+                            }
                         </Link>
                     </TableCell>
                     <TableCell>
@@ -128,10 +142,16 @@ const NoTrainersInterviewsCard = (props: NoTrainersInterviewsCardProps) => {
                                 props.interview?._id?.toString()
                             )}`}
                         >
-                            {props.interview?.program_id?.school}
-                            {props.interview?.program_id?.program_name}
-                            {props.interview?.program_id?.degree}
-                            {props.interview?.program_id?.semester}
+                            {(props.interview?.program_id as IProgram)?.school}
+                            {
+                                (props.interview?.program_id as IProgram)
+                                    ?.program_name
+                            }
+                            {(props.interview?.program_id as IProgram)?.degree}
+                            {
+                                (props.interview?.program_id as IProgram)
+                                    ?.semester
+                            }
                         </Link>
                     </TableCell>
                     <TableCell>

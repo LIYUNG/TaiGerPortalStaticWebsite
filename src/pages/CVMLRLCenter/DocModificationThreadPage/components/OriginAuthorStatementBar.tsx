@@ -18,6 +18,7 @@ import { green, grey } from '@mui/material/colors';
 import { useTranslation } from 'react-i18next';
 import { is_TaiGer_Student } from '@taiger-common/core';
 import type { Theme } from '@mui/material/styles';
+import type { IStudentResponse } from '@taiger-common/model';
 import type {
     IDocumentthreadPopulated,
     IUserWithId
@@ -51,7 +52,7 @@ const OriginAuthorStatementBar = ({
         setIsLoading(true);
         putOriginAuthorConfirmedByStudent(
             thread._id,
-            thread.student_id._id,
+            (thread.student_id as IStudentResponse)._id,
             originAuthorCheckboxConfirmed
         ).then(
             (resp) => {
@@ -63,8 +64,8 @@ const OriginAuthorStatementBar = ({
             () => {}
         );
     };
-    const student_name = `${thread.student_id.lastname}${thread.student_id.firstname}`;
-    const student_name_zh = `${thread.student_id.lastname_chinese}${thread.student_id.firstname_chinese}`;
+    const student_name = `${(thread.student_id as IStudentResponse).lastname}${(thread.student_id as IStudentResponse).firstname}`;
+    const student_name_zh = `${(thread.student_id as IStudentResponse).lastname_chinese}${(thread.student_id as IStudentResponse).firstname_chinese}`;
 
     return (
         <Box>

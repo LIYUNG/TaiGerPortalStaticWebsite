@@ -3,7 +3,7 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import LanguageIcon from '@mui/icons-material/Language';
 import SchoolIcon from '@mui/icons-material/School';
 
-import type { IDocumentthreadPopulated } from '@taiger-common/model';
+import type { IDocumentthreadPopulated, IProgramWithId } from '@taiger-common/model';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@mui/material';
 
@@ -66,7 +66,7 @@ const ProgramDetailsCard = ({
                             </Typography>
                         </Stack>
                         <Typography fontWeight="600" variant="body2">
-                            {thread.program_id.semester}
+                            {(thread.program_id as IProgramWithId).semester}
                         </Typography>
                     </Stack>
                     <Divider />
@@ -89,7 +89,7 @@ const ProgramDetailsCard = ({
                             </Typography>
                         </Stack>
                         <Typography fontWeight="600" variant="body2">
-                            {thread.program_id.lang}
+                            {(thread.program_id as IProgramWithId).lang}
                         </Typography>
                     </Stack>
                 </Stack>

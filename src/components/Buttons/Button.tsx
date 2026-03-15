@@ -1,4 +1,4 @@
-import { MouseEvent } from 'react';
+import { type ChangeEvent, type MouseEvent } from 'react';
 import { CircularProgress, IconButton, Tooltip } from '@mui/material';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import DeleteIcon from '@mui/icons-material/Delete';

@@ -11,7 +11,7 @@ import {
     ComponentType
 } from 'react';
 import { ReactNode } from 'react';
-import { act, render, waitFor } from '@testing-library/react';
+import { act, render } from '@testing-library/react';
 import { SnackBarProvider } from '@contexts/use-snack-bar';
 import { CustomThemeProvider } from '@components/ThemeProvider';
 
@@ -91,17 +91,15 @@ vi.mock('@/api', async (importOriginal) => ({
         .mockResolvedValue({ data: { result: [] }, success: true }),
     getArchivStudents: vi.fn().mockResolvedValue({ data: [], status: 200 }),
     getStudents: vi.fn().mockResolvedValue({ data: [], status: 200 }),
-    getUsersCount: vi
-        .fn()
-        .mockResolvedValue({
-            data: {
-                studentCount: 0,
-                agentCount: 0,
-                editorCount: 0,
-                externalCount: 0,
-                adminCount: 0
-            }
-        }),
+    getUsersCount: vi.fn().mockResolvedValue({
+        data: {
+            studentCount: 0,
+            agentCount: 0,
+            editorCount: 0,
+            externalCount: 0,
+            adminCount: 0
+        }
+    }),
     getUsers: vi.fn().mockResolvedValue({ data: { data: [] } }),
     getUsersOverview: vi.fn().mockResolvedValue({ data: [] }),
     getStudentsAndDocLinks2: vi
@@ -116,20 +114,16 @@ vi.mock('@/api', async (importOriginal) => ({
     getMyAcademicBackground: vi.fn().mockResolvedValue({ data: {} }),
     getProgram: vi.fn().mockResolvedValue({ data: {} }),
     getAllOpenInterviews: vi.fn().mockResolvedValue({ data: [] }),
-    getMyStudentsThreads: vi
-        .fn()
-        .mockResolvedValue({
-            data: { threads: [] },
-            success: true,
-            status: 200
-        }),
-    getThreadsByStudent: vi
-        .fn()
-        .mockResolvedValue({
-            data: { threads: [] },
-            success: true,
-            status: 200
-        }),
+    getMyStudentsThreads: vi.fn().mockResolvedValue({
+        data: { threads: [] },
+        success: true,
+        status: 200
+    }),
+    getThreadsByStudent: vi.fn().mockResolvedValue({
+        data: { threads: [] },
+        success: true,
+        status: 200
+    }),
     updateCredentials: vi
         .fn()
         .mockResolvedValue({ data: { success: true }, status: 200 }),

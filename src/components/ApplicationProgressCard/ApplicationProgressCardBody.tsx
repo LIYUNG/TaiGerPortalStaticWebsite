@@ -12,7 +12,11 @@ import {
 } from '@utils/contants';
 import { red } from '@mui/material/colors';
 import type { Application } from '@/api/types';
-import type { IStudentResponse } from '@taiger-common/model';
+import type {
+    IStudentResponse,
+    IDocumentthread,
+    IDocumentthreadWithId
+} from '@taiger-common/model';
 
 interface ApplicationProgressCardBodyProps {
     application: Application;
@@ -31,13 +35,19 @@ export default function ApplicationProgressCardBody(
     return (
         <List>
             {student?.generaldocs_threads?.map((thread) => (
-                <ListItem key={thread.doc_thread_id._id.toString()}>
+                <ListItem
+                    key={(
+                        thread.doc_thread_id as IDocumentthreadWithId
+                    )._id.toString()}
+                >
                     <Typography>
                         <Link
                             color="inherit"
                             component={LinkDom}
                             to={DEMO.DOCUMENT_MODIFICATION_LINK(
-                                thread.doc_thread_id._id.toString()
+                                (
+                                    thread.doc_thread_id as IDocumentthreadWithId
+                                )._id.toString()
                             )}
                             underline="hover"
                         >
@@ -50,10 +60,15 @@ export default function ApplicationProgressCardBody(
                                     <DocumentMissingIcon />
                                 </IconButton>
                             )}{' '}
-                            {thread.doc_thread_id?.file_type}
+                            {
+                                (thread.doc_thread_id as IDocumentthread)
+                                    ?.file_type
+                            }
                         </Link>
                         {' - '}{' '}
-                        {convertDateUXFriendly(thread.doc_thread_id?.updatedAt)}
+                        {convertDateUXFriendly(
+                            (thread.doc_thread_id as IDocumentthread)?.updatedAt
+                        )}
                     </Typography>
                 </ListItem>
             ))}
@@ -278,13 +293,19 @@ export default function ApplicationProgressCardBody(
                 </ListItem>
             ) : null}
             {application?.doc_modification_thread?.map((thread) => (
-                <ListItem key={thread.doc_thread_id?._id?.toString()}>
+                <ListItem
+                    key={(
+                        thread.doc_thread_id as unknown as IDocumentthread
+                    )?._id?.toString()}
+                >
                     <Typography>
                         <Link
                             color="inherit"
                             component={LinkDom}
                             to={DEMO.DOCUMENT_MODIFICATION_LINK(
-                                thread.doc_thread_id?._id?.toString() ?? ''
+                                (
+                                    thread.doc_thread_id as unknown as IDocumentthread
+                                )?._id?.toString() ?? ''
                             )}
                             underline="hover"
                         >
@@ -303,7 +324,9 @@ export default function ApplicationProgressCardBody(
                             )}
                         </Link>
                         {' - '}
-                        {convertDateUXFriendly(thread.doc_thread_id?.updatedAt)}
+                        {convertDateUXFriendly(
+                            (thread.doc_thread_id as IDocumentthread)?.updatedAt
+                        )}
                     </Typography>
                 </ListItem>
             ))}
