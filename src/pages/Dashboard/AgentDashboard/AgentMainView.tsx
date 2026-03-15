@@ -1,8 +1,5 @@
 import { Fragment, useState, type MouseEvent } from 'react';
 import { Link as LinkDom } from 'react-router-dom';
-import LaunchIcon from '@mui/icons-material/Launch';
-import AssignmentIcon from '@mui/icons-material/Assignment';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useTranslation } from 'react-i18next';
 import {
     Grid,
@@ -16,11 +13,9 @@ import {
     Typography,
     Box
 } from '@mui/material';
-import { alpha } from '@mui/material/styles';
 import { isProgramDecided } from '@taiger-common/core';
 import queryString from 'query-string';
 
-import { updateAgentBanner } from '@/api';
 import { appConfig } from '../../../config';
 import {
     AGENT_SUPPORT_DOCUMENTS_A,
@@ -43,15 +38,13 @@ import { useAuth } from '@components/AuthProvider';
 import NoProgramStudentTable from '../MainViewTab/AgentTasks/NoProgramStudentTable';
 import BaseDocumentCheckingTable from '../MainViewTab/AgentTasks/BaseDocumentCheckingTable';
 import ProgramSpecificDocumentCheckCard from '../MainViewTab/AgentTasks/ProgramSpecificDocumentCheckCard';
+import ActionRequiredTaskCard from '../ActionRequiredTaskCard';
 import { is_new_message_status, is_pending_status } from '@utils/contants';
 import { useMyStudentsApplicationsV2 } from '@hooks/useMyStudentsApplicationsV2';
 import { useMyStudentsThreads } from '@hooks/useMyStudentsThreads';
 import { useStudentsV3 } from '@hooks/useStudentsV3';
 import Loading from '@components/Loading/Loading';
-import {
-    IApplication,
-    IUserWithId
-} from '@taiger-common/model';
+import { IApplication, IUserWithId } from '@taiger-common/model';
 
 const AgentMainView = () => {
     const { user } = useAuth();
@@ -136,92 +129,11 @@ const AgentMainView = () => {
         <Box sx={{ mb: 2 }}>
             <Grid container spacing={1}>
                 <Grid item sm={3} xs={6}>
-                    <Link
-                        component={LinkDom}
+                    <ActionRequiredTaskCard
+                        count={new_message_tasks?.length ?? 0}
+                        highlightWhenPending
                         to={DEMO.AGENT_SUPPORT_DOCUMENTS('to-do')}
-                        underline="none"
-                        color="inherit"
-                        sx={{ display: 'block', height: '100%' }}
-                    >
-                        <Card
-                            sx={{
-                                p: 2,
-                                height: '100%',
-                                cursor: 'pointer',
-                                ...((new_message_tasks?.length ?? 0) > 0
-                                    ? {
-                                          bgcolor: 'error.light',
-                                          borderLeft: 4,
-                                          borderColor: 'error.main'
-                                      }
-                                    : {}),
-                                transition:
-                                    'box-shadow 0.2s, background-color 0.2s',
-                                '&:hover': {
-                                    boxShadow: 2,
-                                    backgroundColor: (theme) =>
-                                        (new_message_tasks?.length ?? 0) > 0
-                                            ? alpha(
-                                                  theme.palette.error.main,
-                                                  0.2
-                                              )
-                                            : theme.palette.action.hover
-                                }
-                            }}
-                        >
-                            <Box
-                                sx={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 1,
-                                    mb: 1
-                                }}
-                            >
-                                {(new_message_tasks?.length ?? 0) > 0 ? (
-                                    <AssignmentIcon
-                                        fontSize="small"
-                                        sx={{ color: 'white' }}
-                                    />
-                                ) : (
-                                    <CheckCircleIcon
-                                        fontSize="small"
-                                        color="success"
-                                    />
-                                )}
-                                <Typography
-                                    variant="body2"
-                                    color={
-                                        (new_message_tasks?.length ?? 0) > 0
-                                            ? 'white'
-                                            : 'text.secondary'
-                                    }
-                                >
-                                    {(new_message_tasks?.length ?? 0) > 0
-                                        ? t('Action required', { ns: 'common' })
-                                        : t('No Action', { ns: 'common' })}
-                                </Typography>
-                            </Box>
-                            <Typography
-                                variant="h6"
-                                component="p"
-                                fontWeight={
-                                    (new_message_tasks?.length ?? 0) > 0
-                                        ? 'bold'
-                                        : 'normal'
-                                }
-                                color={
-                                    (new_message_tasks?.length ?? 0) > 0
-                                        ? 'white'
-                                        : 'primary.main'
-                                }
-                            >
-                                {t('Task', {
-                                    ns: 'common',
-                                    count: new_message_tasks?.length || 0
-                                })}
-                            </Typography>
-                        </Card>
-                    </Link>
+                    />
                 </Grid>
                 <Grid item sm={3} xs={6}>
                     <Card sx={{ p: 2 }}>
@@ -294,7 +206,8 @@ const AgentMainView = () => {
                                                         <Box
                                                             sx={{
                                                                 display: 'flex',
-                                                                flexDirection: 'column',
+                                                                flexDirection:
+                                                                    'column',
                                                                 gap: 0.25
                                                             }}
                                                         >
@@ -341,7 +254,8 @@ const AgentMainView = () => {
                                                         <Box
                                                             sx={{
                                                                 display: 'flex',
-                                                                flexDirection: 'column',
+                                                                flexDirection:
+                                                                    'column',
                                                                 gap: 0.25
                                                             }}
                                                         >
@@ -349,7 +263,9 @@ const AgentMainView = () => {
                                                                 component="span"
                                                                 variant="body2"
                                                             >
-                                                                {application.school}
+                                                                {
+                                                                    application.school
+                                                                }
                                                             </Typography>
                                                             <Typography
                                                                 component="span"
