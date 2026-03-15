@@ -233,9 +233,6 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
                 const linkUrl = `${DEMO.DOCUMENT_MODIFICATION_LINK(
                     params.row.thread_id
                 )}`;
-                const isLocked =
-                    params.row?.isApplicationLocked ||
-                    params.row?.isProgramLocked;
                 // Check if program is from non-approval country
                 const programCountry =
                     params.row?.program_id?.country || params.row?.country;
@@ -283,43 +280,7 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
                                 />
                             </Tooltip>
                         )}
-                        {isLocked ? (
-                            <Tooltip
-                                title={t(
-                                    'Program is locked. Contact your agent to unlock this task.',
-                                    { ns: 'common' }
-                                )}
-                            >
-                                <Box>
-                                    <Link
-                                        component={LinkDom}
-                                        sx={{
-                                            color: 'text.disabled',
-                                            pointerEvents: 'none'
-                                        }}
-                                        target="_blank"
-                                        title={params.value}
-                                        to={linkUrl}
-                                        underline="hover"
-                                    >
-                                        {params.row.file_type}{' '}
-                                        {params.row.program_id
-                                            ? ' - ' +
-                                              params.row.program_name +
-                                              ' - ' +
-                                              params.row.degree
-                                            : ''}
-                                    </Link>
-                                    <Typography
-                                        color="text.secondary"
-                                        sx={{ display: 'block', mt: 0.25 }}
-                                        variant="caption"
-                                    >
-                                        {params.row.school}
-                                    </Typography>
-                                </Box>
-                            </Tooltip>
-                        ) : (
+                        {
                             <>
                                 <Link
                                     component={LinkDom}
@@ -344,7 +305,7 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
                                     {params.row.school}
                                 </Typography>
                             </>
-                        )}
+                        }
                     </Box>
                 );
             }
@@ -571,7 +532,10 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
                 </Tabs>
             </Box>
             <CustomTabPanel index={0} value={tabTag}>
-                <Alert severity="warning" data-testid="banner"> Please reply: </Alert>
+                <Alert severity="warning" data-testid="banner">
+                    {' '}
+                    Please reply:{' '}
+                </Alert>
                 <MuiDataGrid
                     columnVisibilityModel={{
                         number_input_from_editors: false,

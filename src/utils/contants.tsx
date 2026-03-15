@@ -1,4 +1,3 @@
-import { ReactElement } from 'react';
 import { DateTime, IANAZone } from 'luxon';
 import moment from 'moment-timezone';
 import { styled, alpha } from '@mui/material/styles';
@@ -1133,7 +1132,9 @@ export const sortProgramFields = (a: string, b: string): number => {
     return indexA - indexB;
 };
 
-export const convertDateUXFriendly = (date: string | Date | undefined): string => {
+export const convertDateUXFriendly = (
+    date: string | Date | undefined
+): string => {
     if (!date) {
         return '-';
     }
@@ -1851,43 +1852,7 @@ export const c1_mrt: MRT_ColumnDef<Record<string, unknown>>[] = [
                             />
                         </Tooltip>
                     )}
-                    {isLocked ? (
-                        <Tooltip
-                            title={i18next.t(
-                                'Program is locked. Contact an agent to unlock this task.',
-                                { ns: 'common' }
-                            )}
-                        >
-                            <Box>
-                                <Link
-                                    component={LinkDom}
-                                    sx={{
-                                        color: 'text.disabled',
-                                        pointerEvents: 'none'
-                                    }}
-                                    target="_blank"
-                                    title={params.value}
-                                    to={linkUrl}
-                                    underline="hover"
-                                >
-                                    {row.original.file_type}{' '}
-                                    {row.original.program_id
-                                        ? ' - ' +
-                                          row.original.program_name +
-                                          ' - ' +
-                                          row.original.degree
-                                        : ''}
-                                </Link>
-                                <Typography
-                                    color="text.secondary"
-                                    sx={{ display: 'block', mt: 0.25 }}
-                                    variant="caption"
-                                >
-                                    {row.original.school}
-                                </Typography>
-                            </Box>
-                        </Tooltip>
-                    ) : (
+                    {
                         <>
                             <Link
                                 component={LinkDom}
@@ -1912,7 +1877,7 @@ export const c1_mrt: MRT_ColumnDef<Record<string, unknown>>[] = [
                                 {row.original.school}
                             </Typography>
                         </>
-                    )}
+                    }
                 </Box>
             );
         }
