@@ -24,8 +24,7 @@ const VerticalSingleBarChart = ({ data, xLabel }: VerticalSingleChartProps) => {
                 {
                     data: labels,
                     scaleType: 'band',
-                    id: 'axis2',
-                    interval: 0
+                    id: 'axis2'
                 }
             ]}
         />

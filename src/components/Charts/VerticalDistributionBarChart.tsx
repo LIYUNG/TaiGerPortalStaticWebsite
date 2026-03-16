@@ -29,8 +29,20 @@ const VerticalDistributionBarCharts = ({
             height={300}
             layout="horizontal"
             series={[
-                { data: active_a, stack: 'A', label: dataALabel },
-                { data: potential_a, stack: 'A', label: dataBLabel }
+                {
+                    data: active_a.map((v) =>
+                        typeof v === 'number' ? v : null
+                    ),
+                    stack: 'A',
+                    label: dataALabel
+                },
+                {
+                    data: potential_a.map((v) =>
+                        typeof v === 'number' ? v : null
+                    ),
+                    stack: 'A',
+                    label: dataBLabel
+                }
             ]}
             xAxis={[
                 {
@@ -41,8 +53,7 @@ const VerticalDistributionBarCharts = ({
                 {
                     data: labels,
                     scaleType: 'band',
-                    id: 'axis1',
-                    interval: 0
+                    id: 'axis1'
                 }
             ]}
         />

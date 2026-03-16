@@ -45,12 +45,23 @@ import DEMO from '@store/constant';
 import { green, grey } from '@mui/material/colors';
 import { useTranslation } from 'react-i18next';
 import type {
+    IApplicationDocModificationThreadItem,
     IApplicationPopulated,
     IStudentResponse,
-    IUserAcademicBackground
+    IUserAcademicBackground,
+    IUserWithId
 } from '@taiger-common/model';
 
-export interface TransformedStudentRow {
+/** Narrow doc_thread_id for thread row (may be populated or ObjectId) */
+function getDocThread(
+    thread: IApplicationDocModificationThreadItem
+): { isFinalVersion?: boolean; file_type?: string } | undefined {
+    return thread.doc_thread_id as unknown as
+        | { isFinalVersion?: boolean; file_type?: string }
+        | undefined;
+}
+
+export interface TransformedStudentRow extends Record<string, unknown> {
     id: string;
     firstname_lastname: string;
     applying_program_count?: number;
@@ -93,7 +104,11 @@ export interface TransformedStudentRow {
     expected_application_year?: string;
     expected_application_semster?: string;
     openofferreject: string;
-    attributes?: Array<{ _id?: string; name?: string; value?: string }>;
+    attributes?: Array<{
+        _id?: string;
+        name?: string;
+        value?: string | number;
+    }>;
     agents?: Array<{ _id?: string; firstname?: string }>;
     editors?: Array<{ _id?: string; firstname?: string }>;
 }
@@ -181,6 +196,11 @@ const transform = (
         transformedStudents.push({
             ...prepTaskStudent(student),
             applying_program_count: student.applying_program_count ?? 0,
+            attributes: student.attributes?.map((a) => ({
+                _id: (a as { _id?: string })._id,
+                name: a.name,
+                value: a.value != null ? String(a.value) : undefined
+            })),
             year_semester: `${expected_application_year || 'TBD'}/ ${
                 expected_application_semster || 'TBD'
             }`,
@@ -209,26 +229,27 @@ const transform = (
                 (student.applications ?? []).filter(
                     (application: IApplicationPopulated) =>
                         application.doc_modification_thread?.some(
-                            (thread: {
-                                doc_thread_id?: {
-                                    isFinalVersion?: boolean;
-                                    file_type?: string;
-                                };
-                            }) =>
-                                isProgramDecided(application) &&
-                                thread.doc_thread_id?.isFinalVersion &&
-                                thread.doc_thread_id?.file_type === 'ML'
+                            (thread: IApplicationDocModificationThreadItem) => {
+                                const doc = getDocThread(thread);
+                                return (
+                                    isProgramDecided(application) &&
+                                    doc?.isFinalVersion &&
+                                    doc?.file_type === 'ML'
+                                );
+                            }
                         )
                 ).length
             }/${
                 (student.applications ?? []).filter(
                     (application: IApplicationPopulated) =>
                         application.doc_modification_thread?.some(
-                            (thread: {
-                                doc_thread_id?: { file_type?: string };
-                            }) =>
-                                isProgramDecided(application) &&
-                                thread.doc_thread_id?.file_type === 'ML'
+                            (thread: IApplicationDocModificationThreadItem) => {
+                                const doc = getDocThread(thread);
+                                return (
+                                    isProgramDecided(application) &&
+                                    doc?.file_type === 'ML'
+                                );
+                            }
                         )
                 ).length
             }`,
@@ -236,36 +257,33 @@ const transform = (
                 (student.applications ?? []).filter(
                     (application: IApplicationPopulated) =>
                         application.doc_modification_thread?.some(
-                            (thread: {
-                                doc_thread_id?: {
-                                    isFinalVersion?: boolean;
-                                    file_type?: string;
-                                };
-                            }) =>
-                                isProgramDecided(application) &&
-                                thread.doc_thread_id?.isFinalVersion &&
-                                (thread.doc_thread_id?.file_type?.includes(
-                                    'RL'
-                                ) ||
-                                    thread.doc_thread_id?.file_type?.includes(
-                                        'Recommendation'
-                                    ))
+                            (thread: IApplicationDocModificationThreadItem) => {
+                                const doc = getDocThread(thread);
+                                return (
+                                    isProgramDecided(application) &&
+                                    doc?.isFinalVersion &&
+                                    (doc?.file_type?.includes('RL') ||
+                                        doc?.file_type?.includes(
+                                            'Recommendation'
+                                        ))
+                                );
+                            }
                         )
                 ).length
             }/${
                 (student.applications ?? []).filter(
                     (application: IApplicationPopulated) =>
                         application.doc_modification_thread?.some(
-                            (thread: {
-                                doc_thread_id?: { file_type?: string };
-                            }) =>
-                                isProgramDecided(application) &&
-                                (thread.doc_thread_id?.file_type?.includes(
-                                    'RL'
-                                ) ||
-                                    thread.doc_thread_id?.file_type?.includes(
-                                        'Recommendation'
-                                    ))
+                            (thread: IApplicationDocModificationThreadItem) => {
+                                const doc = getDocThread(thread);
+                                return (
+                                    isProgramDecided(application) &&
+                                    (doc?.file_type?.includes('RL') ||
+                                        doc?.file_type?.includes(
+                                            'Recommendation'
+                                        ))
+                                );
+                            }
                         )
                 ).length
             }`,
@@ -273,30 +291,27 @@ const transform = (
                 (student.applications ?? []).filter(
                     (application: IApplicationPopulated) =>
                         application.doc_modification_thread?.some(
-                            (thread: {
-                                doc_thread_id?: {
-                                    isFinalVersion?: boolean;
-                                    file_type?: string;
-                                };
-                            }) =>
-                                isProgramDecided(application) &&
-                                thread.doc_thread_id?.isFinalVersion &&
-                                thread.doc_thread_id?.file_type?.includes(
-                                    'Essay'
-                                )
+                            (thread: IApplicationDocModificationThreadItem) => {
+                                const doc = getDocThread(thread);
+                                return (
+                                    isProgramDecided(application) &&
+                                    doc?.isFinalVersion &&
+                                    doc?.file_type?.includes('Essay')
+                                );
+                            }
                         )
                 ).length
             }/${
                 (student.applications ?? []).filter(
                     (application: IApplicationPopulated) =>
                         application.doc_modification_thread?.some(
-                            (thread: {
-                                doc_thread_id?: { file_type?: string };
-                            }) =>
-                                isProgramDecided(application) &&
-                                thread.doc_thread_id?.file_type?.includes(
-                                    'Essay'
-                                )
+                            (thread: IApplicationDocModificationThreadItem) => {
+                                const doc = getDocThread(thread);
+                                return (
+                                    isProgramDecided(application) &&
+                                    doc?.file_type?.includes('Essay')
+                                );
+                            }
                         )
                 ).length
             }`,
@@ -324,9 +339,14 @@ const transform = (
                     ? 'O'
                     : '-'
             }${num_apps_closed}/${student.applying_program_count ?? 0}`,
-            nextProgram: getNextProgramName(student),
-            nextProgramDeadline: getNextProgramDeadline(student),
-            nextProgramDayleft: getNextProgramDayleft(student),
+            nextProgram: getNextProgramName(student) as string | undefined,
+            nextProgramDeadline: getNextProgramDeadline(student) as
+                | string
+                | undefined,
+            nextProgramDayleft: getNextProgramDayleft(student) as
+                | string
+                | number
+                | undefined,
             nextProgramStatus: getNextProgramStatus(student),
             survey: isSurveyCompleted ? 'Yes' : 'No',
             basedocument: `${total_accepted_base_docs_needed}/${total_base_docs_needed}`,
@@ -366,7 +386,7 @@ const transform = (
                         application.admission === 'X'
                 ).length
             }`
-        });
+        } as TransformedStudentRow);
     }
 
     return transformedStudents;
@@ -374,8 +394,10 @@ const transform = (
 
 export interface StudentOverviewTableProps {
     isLoading?: boolean;
-    students?: unknown[] | null;
+    students?: IStudentResponse[] | unknown[] | null;
     riskOnly?: boolean;
+    title?: string;
+    user?: IUserWithId | null;
 }
 
 const StudentOverviewTable = ({
@@ -634,7 +656,7 @@ const StudentOverviewTable = ({
                     width: 100,
                     renderCell: (params) => {
                         const bg = params.row.academic_background;
-                        return !isLanguageInfoComplete(bg) ? (
+                        return !bg || !isLanguageInfoComplete(bg) ? (
                             <Link
                                 component={LinkDom}
                                 to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
@@ -646,7 +668,7 @@ const StudentOverviewTable = ({
                             </Link>
                         ) : (
                             <>
-                                {isEnglishLanguageInfoComplete(bg) ? (
+                                {bg && isEnglishLanguageInfoComplete(bg) ? (
                                     <Link
                                         component={LinkDom}
                                         to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
@@ -662,10 +684,11 @@ const StudentOverviewTable = ({
                                                     style={{
                                                         color: green[500]
                                                     }}
-                                                    title={`complete ${(bg as { language?: { english_certificate?: string; english_score?: string } })?.language?.english_certificate} ${(bg as { language?: { english_certificate?: string; english_score?: string } })?.language?.english_score}`}
+                                                    aria-label={`complete ${(bg as { language?: { english_certificate?: string; english_score?: string } })?.language?.english_certificate} ${(bg as { language?: { english_certificate?: string; english_score?: string } })?.language?.english_score}`}
                                                 />
                                             </IconButton>
                                         ) : (
+                                            bg &&
                                             !check_english_language_Notneeded(
                                                 bg
                                             ) && (
@@ -676,14 +699,15 @@ const StudentOverviewTable = ({
                                                         style={{
                                                             color: grey[400]
                                                         }}
-                                                        title={`Expected Test Date ${(bg as { language?: { english_certificate?: string; english_test_date?: string } })?.language?.english_certificate} ${(bg as { language?: { english_test_date?: string } })?.language?.english_test_date}`}
+                                                        aria-label={`Expected Test Date ${(bg as { language?: { english_certificate?: string; english_test_date?: string } })?.language?.english_certificate} ${(bg as { language?: { english_test_date?: string } })?.language?.english_test_date}`}
                                                     />
                                                 </>
                                             )
                                         )}
                                     </Link>
                                 ) : null}
-                                {check_if_there_is_german_language_info(bg) ? (
+                                {bg &&
+                                check_if_there_is_german_language_info(bg) ? (
                                     <Link
                                         component={LinkDom}
                                         to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
@@ -699,17 +723,18 @@ const StudentOverviewTable = ({
                                                     style={{
                                                         color: green[500]
                                                     }}
-                                                    title={`complete ${(bg as { language?: { german_certificate?: string; german_score?: string } })?.language?.german_certificate} ${(bg as { language?: { german_score?: string } })?.language?.german_score}`}
+                                                    aria-label={`complete ${(bg as { language?: { german_certificate?: string; german_score?: string } })?.language?.german_certificate} ${(bg as { language?: { german_score?: string } })?.language?.german_score}`}
                                                 />
                                             </IconButton>
                                         ) : (
+                                            bg &&
                                             !check_german_language_Notneeded(
                                                 bg
                                             ) && (
                                                 <HelpIcon
                                                     fontSize="small"
                                                     style={{ color: grey[400] }}
-                                                    title={`Expected Test Date${(bg as { language?: { german_certificate?: string; german_test_date?: string } })?.language?.german_certificate} ${(bg as { language?: { german_test_date?: string } })?.language?.german_test_date}`}
+                                                    aria-label={`Expected Test Date${(bg as { language?: { german_certificate?: string; german_test_date?: string } })?.language?.german_certificate} ${(bg as { language?: { german_test_date?: string } })?.language?.german_test_date}`}
                                                 />
                                             )
                                         )}
@@ -851,15 +876,22 @@ const StudentOverviewTable = ({
             ];
         }, [t]);
 
-    const rows = transform(students, riskOnly);
+    const rows = transform(
+        students as IStudentResponse[] | null | undefined,
+        riskOnly
+    );
 
     return (
         <Card>
             <MuiDataGrid
                 autoHeight={true}
-                columns={memoizedColumns}
+                columns={
+                    memoizedColumns as MuiDataGridColumn<
+                        Record<string, unknown>
+                    >[]
+                }
                 isLoading={isLoading}
-                rows={rows}
+                rows={rows as Record<string, unknown>[]}
             />
         </Card>
     );

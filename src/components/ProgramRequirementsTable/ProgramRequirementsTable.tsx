@@ -22,6 +22,7 @@ import {
 import { PROGRAM_SUBJECTS } from '@taiger-common/model';
 import i18next from 'i18next';
 import {
+    type MRT_TableInstance,
     MaterialReactTable,
     MRT_GlobalFilterTextField as MRTGlobalFilterTextField,
     MRT_ToggleFiltersButton as MRTToggleFiltersButton,
@@ -146,13 +147,13 @@ export const ProgramRequirementsTable = ({
             },
             {
                 accessorKey: 'lang',
-                filterVariant: 'autocomplete',
+                filterVariant: 'autocomplete' as const,
                 header: i18next.t('Language', { ns: 'common' }),
                 size: isMobile ? 100 : 120
             },
             {
                 accessorKey: 'country',
-                filterVariant: 'autocomplete',
+                filterVariant: 'autocomplete' as const,
                 header: i18next.t('Country', { ns: 'common' }),
                 size: isMobile ? 100 : 120
             },
@@ -246,10 +247,9 @@ export const ProgramRequirementsTable = ({
                         renderTags={(value, getTagProps) =>
                             value.map((option, index) => (
                                 <Chip
-                                    key={option.code}
+                                    {...getTagProps({ index })}
                                     label={option.code}
                                     size="small"
-                                    {...getTagProps({ index })}
                                 />
                             ))
                         }
@@ -381,7 +381,9 @@ export const ProgramRequirementsTable = ({
             shape: 'rounded',
             variant: 'outlined'
         },
-        renderTopToolbar
+        renderTopToolbar: renderTopToolbar as unknown as (props: {
+            table: MRT_TableInstance<ProgramRequirementRow>;
+        }) => React.ReactNode
     });
 
     const isButtonDisable =

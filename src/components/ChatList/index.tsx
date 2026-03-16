@@ -66,11 +66,12 @@ const ChatList = ({ embedded, handleCloseChat, student_id }: ChatListProps) => {
         if (embedded) return;
         setChatListState((prev) => ({ ...prev, isLoaded: false }));
         getMyCommunicationThread().then(
-            (resp: {
-                data: { success?: boolean; data?: { students?: unknown[] } };
-                status?: number;
-            }) => {
-                const { success, data } = resp.data;
+            (resp) => {
+                const payload = resp.data as {
+                    success?: boolean;
+                    data?: { students?: IStudentResponse[] };
+                };
+                const { success, data } = payload;
                 const { status } = resp;
                 if (success && data) {
                     setChatListState((prev) => ({
@@ -102,8 +103,12 @@ const ChatList = ({ embedded, handleCloseChat, student_id }: ChatListProps) => {
     const fetchSearchResults = async () => {
         try {
             const response = await getQueryStudentResults(searchTerm);
-            if (response.data.success && response.data.data) {
-                setSearchResults(response.data.data.students ?? []);
+            const resData = response.data as {
+                success?: boolean;
+                data?: { students?: IStudentResponse[] };
+            };
+            if (resData.success && resData.data) {
+                setSearchResults(resData.data.students ?? []);
                 setChatListState((prev) => ({ ...prev, isLoaded: true }));
             } else {
                 setSearchTerm('');
@@ -195,7 +200,7 @@ const ChatList = ({ embedded, handleCloseChat, student_id }: ChatListProps) => {
                           </MenuItem>
                       ))
                     : null}
-                {!isLoading ? (
+                {!isLoading && user != null ? (
                     <Friends embedded students={students} user={user} />
                 ) : null}
             </Box>
@@ -229,7 +234,7 @@ const ChatList = ({ embedded, handleCloseChat, student_id }: ChatListProps) => {
                       </MenuItem>
                   ))
                 : null}
-            {chatListState.isLoaded ? (
+            {chatListState.isLoaded && user != null ? (
                 <Friends
                     handleCloseChat={handleCloseChat}
                     students={students}

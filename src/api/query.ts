@@ -165,14 +165,16 @@ export const getUsersQuery = (queryString: QueryString): UseQueryOptions => ({
     queryKey: ['users', queryString],
     queryFn: () => getUsers(queryString),
     staleTime: 1000 * 60 * 5, // 5 minutes
-    select: (data: { data?: { data?: unknown[] } }) => data.data?.data || []
+    select: (data: unknown) =>
+        (data as { data?: { data?: unknown[] } })?.data?.data ?? []
 });
 
 export const getUsersCountQuery = (): UseQueryOptions => ({
     queryKey: ['users/count'],
     queryFn: () => getUsersCount(),
     staleTime: 1000 * 60 * 5, // 5 minutes
-    select: (data: { data?: unknown[] }) => data.data || []
+    select: (data: unknown) =>
+        (data as { data?: unknown[] })?.data ?? []
 });
 
 export const getUsersOverviewQuery = (): UseQueryOptions => ({
@@ -269,7 +271,8 @@ export const getSameProgramStudentsQuery = ({
     queryKey: ['same-program-students', programId],
     queryFn: () => getSameProgramStudents({ programId }),
     staleTime: 1000 * 60 * 5, // 5 minutes
-    select: (data: { data?: unknown[] } | undefined) => data?.data || [],
+    select: (data: unknown) =>
+        (data as { data?: unknown[] } | undefined)?.data ?? [],
     enabled: enabled ?? false
 });
 
@@ -313,7 +316,8 @@ export const getApplicationStudentV2Query = ({
     queryKey: ['applications/student', studentId],
     queryFn: () => getApplicationStudentV2(studentId),
     staleTime: 1000 * 60 * 5, // 5 minutes
-    select: (data: unknown) => data?.data || null
+    select: (data: unknown) =>
+        (data as { data?: unknown })?.data ?? null
 });
 
 export const getQueryStudentsResultsQuery = (
@@ -363,7 +367,8 @@ export const getMyStudentsThreadsQuery = ({
     queryKey: ['document-threads/overview/taiger-user', userId, queryString],
     queryFn: () => getMyStudentsThreads({ userId, queryString }),
     staleTime: 1000 * 60 * 5, // 5 minutes
-    select: (response: { data?: unknown } | null) => response?.data || null
+    select: (response: unknown) =>
+        (response as { data?: unknown } | null)?.data ?? null
 });
 
 export const getStudentsAndDocLinks2Query = (

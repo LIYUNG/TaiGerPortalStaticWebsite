@@ -543,9 +543,8 @@ const NavBar = (props: NavBarProps): JSX.Element => {
                                     {...stringAvatar(
                                         `${user?.firstname ?? ''} ${user?.lastname ?? ''}`
                                     )}
-                                    size="small"
                                     src={user?.pictureUrl as string | undefined}
-                                    title={`${user?.firstname ?? ''} ${user?.lastname ?? ''}`}
+                                    sx={{ width: 32, height: 32 }}
                                 />
                             </IconButton>
                         </Tooltip>
@@ -613,9 +612,8 @@ const NavBar = (props: NavBarProps): JSX.Element => {
                                     {...stringAvatar(
                                         `${user?.firstname ?? ''} ${user?.lastname ?? ''}`
                                     )}
-                                    size="small"
                                     src={user?.pictureUrl as string | undefined}
-                                    title={`${user?.firstname ?? ''} ${user?.lastname ?? ''}`}
+                                    sx={{ width: 32, height: 32 }}
                                 />
                             </IconButton>
                         </Tooltip>

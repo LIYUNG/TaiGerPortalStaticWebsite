@@ -155,7 +155,7 @@ const Friend = (props: FriendProps) => {
                                 <FiberManualRecordIcon
                                     fontSize="small"
                                     style={{ marginLeft: '4px' }}
-                                    title="Not Reply Yet"
+                                    aria-label="Not Reply Yet"
                                 />
                             ) : null}
                         </Typography>

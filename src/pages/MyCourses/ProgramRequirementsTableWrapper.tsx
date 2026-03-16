@@ -21,8 +21,10 @@ interface Props {
 export const ProgramRequirementsTableWrapper = ({ onAnalyseV2 }: Props) => {
     const { data, isLoading } = useQuery(getProgramRequirementsQuery());
     if (isLoading) return <div>Loading...</div>;
+    const rawData = (data as { data?: ProgramRequirementPopulated[] } | undefined)
+        ?.data;
     const transformedData =
-        data?.data?.map((row: ProgramRequirementPopulated) => {
+        rawData?.map((row: ProgramRequirementPopulated) => {
             return {
                 ...row, // Spread the original row object
                 program_name: `${row.programId[0].school} ${row.programId[0].program_name} ${row.programId[0].degree}`,
@@ -34,7 +36,7 @@ export const ProgramRequirementsTableWrapper = ({ onAnalyseV2 }: Props) => {
                 id: row._id // Map MongoDB _id to id property
                 // other properties...
             };
-        }) || [];
+        }) ?? [];
     return (
         <ProgramRequirementsTable
             data={transformedData}

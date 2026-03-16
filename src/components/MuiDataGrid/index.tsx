@@ -100,7 +100,9 @@ export function MuiDataGrid<T extends Record<string, unknown>>(
             return exportRow;
         });
 
-        const csv = generateCsv(csvConfig)(rowData);
+        const csv = generateCsv(csvConfig)(
+            rowData as { [k: string]: string | number }[]
+        );
         download(csvConfig)(csv);
     };
 
