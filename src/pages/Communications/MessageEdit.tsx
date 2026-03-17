@@ -26,10 +26,7 @@ import { OutputData } from '@editorjs/editorjs';
 
 export interface MessageEditProps {
     editorState: OutputData;
-    onDeleteSingleMessage: (
-        e: MouseEvent<HTMLElement>,
-        message_id: string
-    ) => void;
+    onDeleteSingleMessage: (message_id: string) => void;
     isTaiGerView?: boolean;
     idx: string | number;
     full_name: string;
@@ -84,13 +81,12 @@ const MessageEdit = (props: MessageEditProps) => {
         }));
     };
 
-    const onDeleteSingleMessage = (ev: React.MouseEvent<HTMLElement>) => {
-        ev.preventDefault();
+    const onDeleteSingleMessage = () => {
         setMessageEditState((prevState) => ({
             ...prevState,
             deleteMessageModalShow: false
         }));
-        props.onDeleteSingleMessage(ev, messageEditState.message_id);
+        props.onDeleteSingleMessage(messageEditState.message_id);
     };
 
     const handleEditorChange = (content: unknown) => {

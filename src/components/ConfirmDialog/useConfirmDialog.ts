@@ -11,6 +11,7 @@ export interface ConfirmDialogConfig {
     variant?: ConfirmDialogVariant;
     confirmLabel?: ReactNode;
     cancelLabel?: ReactNode;
+    /** No event passed; preventDefault is not applicable. */
     onConfirm?: () => void;
     confirmDisabled?: boolean;
     requireTypedConfirm?: RequireTypedConfirmOptions;

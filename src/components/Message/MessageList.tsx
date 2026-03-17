@@ -14,7 +14,7 @@ export interface MessageListProps {
     isLoaded: boolean;
     documentsthreadId: string;
     apiPrefix: string;
-    onDeleteSingleMessage: (e: React.MouseEvent, messageId: string) => void;
+    onDeleteSingleMessage: (messageId: string) => void;
     handleClickSave?: (
         e: React.MouseEvent,
         editorState: { time?: number; blocks?: unknown[] }

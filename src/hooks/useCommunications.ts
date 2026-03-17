@@ -220,10 +220,8 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
     };
 
     const onDeleteSingleMessage = (
-        e: React.MouseEvent,
         message_id: string
     ): void => {
-        e.preventDefault();
         mutateDelete({
             student_id: student._id?.toString() ?? '',
             communication_messageId: message_id

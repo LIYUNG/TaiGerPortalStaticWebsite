@@ -11,12 +11,9 @@ import {
     FormLabel,
     RadioGroup,
     FormControlLabel,
-    Radio,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions
+    Radio
 } from '@mui/material';
+import { ConfirmDialog } from '@components/ConfirmDialog';
 import { useTranslation } from 'react-i18next';
 import { Link as LinkDom } from 'react-router-dom';
 
@@ -282,28 +279,17 @@ const Settings = () => {
                     {t('Reset Password')}
                 </Button>
             </Box>
-            <Dialog
-                onClose={setmodalhideUpdateCredentials}
+            <ConfirmDialog
                 open={settingsState.updatecredentialconfirmed}
-            >
-                <DialogTitle>
-                    {t('Update Credentials Successfully')}
-                </DialogTitle>
-                <DialogContent>
-                    {t(
-                        'Credentials are updated successfully! Please login again.'
-                    )}
-                </DialogContent>
-                <DialogActions>
-                    <Button
-                        color="primary"
-                        onClick={() => setmodalhideUpdateCredentials()}
-                        variant="contained"
-                    >
-                        {t('Ok')}
-                    </Button>
-                </DialogActions>
-            </Dialog>
+                onClose={setmodalhideUpdateCredentials}
+                title={t('Update Credentials Successfully')}
+                content={t(
+                    'Credentials are updated successfully! Please login again.'
+                )}
+                variant="alert"
+                confirmLabel={t('Ok')}
+                onConfirm={setmodalhideUpdateCredentials}
+            />
         </Box>
     );
 };

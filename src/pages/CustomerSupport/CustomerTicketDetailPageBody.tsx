@@ -14,11 +14,6 @@ import {
     AccordionSummary,
     AccordionDetails,
     Button,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogContentText,
-    DialogActions,
     Avatar,
     Card,
     CircularProgress,
@@ -27,7 +22,11 @@ import {
 } from '@mui/material';
 import { ConfirmDialog } from '@components/ConfirmDialog';
 import { is_TaiGer_role } from '@taiger-common/core';
-import type { IComplaintWithId, IUser, IUserWithId } from '@taiger-common/model';
+import type {
+    IComplaintWithId,
+    IUser,
+    IUserWithId
+} from '@taiger-common/model';
 
 import { appConfig } from '../../config';
 import DEMO from '@store/constant';
@@ -111,9 +110,10 @@ const CustomerTicketDetailPageBody = ({
             // Ensure a file is selected
             const checkPromises = Array.from(e.target.files).map((file) => {
                 const extension = file.name.split('.').pop().toLowerCase();
-                const studentName =
-                    (customerTicketDetailPageBodyState.thread.requester_id as IUser)
-                        .firstname;
+                const studentName = (
+                    customerTicketDetailPageBodyState.thread
+                        .requester_id as IUser
+                ).firstname;
 
                 if (extension === 'pdf') {
                     return readPDF(file, studentName);
@@ -171,7 +171,10 @@ const CustomerTicketDetailPageBody = ({
 
         submitMessageInTicketWithAttachment(
             customerTicketDetailPageBodyState.thread._id,
-            (customerTicketDetailPageBodyState.thread.requester_id as IUserWithId)._id,
+            (
+                customerTicketDetailPageBodyState.thread
+                    .requester_id as IUserWithId
+            )._id,
             formData
         ).then(
             (resp) => {
@@ -224,11 +227,7 @@ const CustomerTicketDetailPageBody = ({
         }));
     };
 
-    const onDeleteSingleMessage = (
-        e: MouseEvent<HTMLElement>,
-        message_id: string
-    ) => {
-        e.preventDefault();
+    const onDeleteSingleMessage = (message_id: string) => {
         setCustomerTicketDetailPageBodyState((prevState) => ({
             ...prevState,
             isLoaded: false
@@ -675,13 +674,12 @@ const CustomerTicketDetailPageBody = ({
                     </Box>
                 </Box>
             )}
-            <Dialog
-                onClose={closeSetAsFinalFileModelWindow}
+            <ConfirmDialog
                 open={customerTicketDetailPageBodyState.SetAsFinalFileModel}
-            >
-                <DialogTitle>{t('Warning', { ns: 'common' })}</DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
+                onClose={closeSetAsFinalFileModelWindow}
+                title={t('Warning', { ns: 'common' })}
+                content={
+                    <>
                         Do you want to set the ticket as{' '}
                         <b>
                             {customerTicketDetailPageBodyState.thread
@@ -690,30 +688,22 @@ const CustomerTicketDetailPageBody = ({
                                 : 'resolved'}
                         </b>
                         ?
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button
-                        color="primary"
-                        disabled={!isLoaded || !isSubmissionLoaded}
-                        onClick={(e) => ConfirmSetAsFinalFileHandler(e)}
-                        variant="contained"
-                    >
-                        {isSubmissionLoaded ? (
-                            t('Yes', { ns: 'common' })
-                        ) : (
-                            <CircularProgress />
-                        )}
-                    </Button>
-                    <Button
-                        color="secondary"
-                        onClick={closeSetAsFinalFileModelWindow}
-                        variant="outlined"
-                    >
-                        {t('No', { ns: 'common' })}
-                    </Button>
-                </DialogActions>
-            </Dialog>
+                    </>
+                }
+                variant="confirm"
+                confirmLabel={
+                    isSubmissionLoaded
+                        ? t('Yes', { ns: 'common' })
+                        : t('Loading')
+                }
+                cancelLabel={t('No', { ns: 'common' })}
+                onConfirm={() =>
+                    ConfirmSetAsFinalFileHandler({
+                        preventDefault: () => {}
+                    } as React.MouseEvent<HTMLElement>)
+                }
+                confirmDisabled={!isLoaded || !isSubmissionLoaded}
+            />
             <ConfirmDialog
                 open={open}
                 onClose={() => setOpen(false)}
