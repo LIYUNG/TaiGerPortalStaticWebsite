@@ -31,8 +31,7 @@ import { useTranslation } from 'react-i18next';
 import {
     is_TaiGer_role,
     is_TaiGer_Student,
-    is_TaiGer_Admin,
-    isProgramDecided
+    is_TaiGer_Admin
 } from '@taiger-common/core';
 import type { Application } from '@/api/types';
 
@@ -42,12 +41,8 @@ import {
 } from '../Utils/util_functions';
 import ApplicationTableRow from './components/ApplicationTableRow';
 import ApplicationsTableBanners from './components/ApplicationsTableBanners';
-import ProgramCorrectnessReminderDialog from './components/ProgramCorrectnessReminderDialog';
-import {
-    IS_SUBMITTED_STATE_OPTIONS,
-    APPLICATION_YEARS_FUTURE,
-    programstatuslist
-} from '@utils/contants';
+import { ConfirmDialog } from '@components/ConfirmDialog';
+import { APPLICATION_YEARS_FUTURE, programstatuslist } from '@utils/contants';
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { useSnackBar } from '@contexts/use-snack-bar';
@@ -440,9 +435,14 @@ const StudentApplicationsTableTemplate = (
                 />
             ) : null}
             {is_TaiGer_Student(user) ? (
-                <ProgramCorrectnessReminderDialog
-                    onClose={closeProgramCorrectnessModal}
+                <ConfirmDialog
                     open={showProgramCorrectnessReminderModal}
+                    onClose={closeProgramCorrectnessModal}
+                    title={t('Warning', { ns: 'common' })}
+                    content={`${appConfig.companyName} Portal 網站上的學程資訊主要為管理申請進度為主，學校學程詳細資訊仍以學校網站為主。若發現 ${appConfig.companyName} Portal 資訊和學校官方網站資料有不同之處，請和顧問討論。`}
+                    variant="alert"
+                    confirmLabel={t('Accept', { ns: 'common' })}
+                    onConfirm={closeProgramCorrectnessModal}
                 />
             ) : null}
             <Breadcrumbs aria-label="breadcrumb">

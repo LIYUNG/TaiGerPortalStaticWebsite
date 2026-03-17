@@ -20,7 +20,7 @@ Goal: every component has at least 1 happy-case render test.
 |-------|-------|-------|-------|--------|
 | A | SurveyProvider steps (StepIndicators, StepNavigation) + ProgramDetailsCard, RequirementsBlock, SurveyMissingFieldsAlerts | 5 | 19 | ✅ |
 | B | DescriptionBlock, InstructionsSection, RequirementsSection, OriginAuthorStatementBar, ApplicationAccordionSummary | 5 | 16 | ✅ |
-| Tier 1 Users | UserArchivWarning, UserDeleteWarning, AddUserModal, UsersListSubpage, UsersList | 5 | 15 | ✅ |
+| Tier 1 Users | UserDeleteWarning, AddUserModal, UsersListSubpage, UsersList | 5 | 15 | ✅ |
 | Tier 1 StudentApplications | 6 files | 6 | 35 | ✅ |
 | Tier 1 Authentication | LandingPage, Activation, Reactivation, ResetPassword*, SignIn, GoogleOauthCallback | 7 | 17 | ✅ |
 | Tier 1 Communications | MessageList, CommunicationSinglePage, MessageContainer, etc. | 9 | 23 | ✅ |

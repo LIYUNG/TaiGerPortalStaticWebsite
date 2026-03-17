@@ -13,6 +13,7 @@ import {
     SelectChangeEvent,
     Stack,
     Tooltip,
+    Typography,
     useMediaQuery,
     useTheme,
     Chip,
@@ -34,7 +35,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import InfoIcon from '@mui/icons-material/Info';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 
-import CourseAnalysisConfirmDialog from '@pages/MyCourses/CourseAnalysisConfirmDialog';
+import { ConfirmDialog } from '@components/ConfirmDialog';
 
 export interface ProgramRequirementRow {
     _id: string;
@@ -412,14 +413,35 @@ export const ProgramRequirementsTable = ({
                         </Box>
                     </Box>
                 )}
-                <CourseAnalysisConfirmDialog
-                    data={table
-                        .getSelectedRowModel()
-                        .rows.map((row) => row.original)}
-                    isButtonDisable={isButtonDisable}
-                    onAnalyse={onAnalyse}
-                    setModalHide={setModalHide}
-                    show={statedata.modalShowAssignWindow}
+                <ConfirmDialog
+                    open={statedata.modalShowAssignWindow}
+                    onClose={setModalHide}
+                    title={
+                        <>
+                            Analyse{' '}
+                            {table
+                                .getSelectedRowModel()
+                                .rows.map((row, i) => (
+                                    <Typography key={i}>
+                                        {row.original.program_name}
+                                    </Typography>
+                                ))}
+                        </>
+                    }
+                    content=""
+                    variant="confirm"
+                    confirmLabel={
+                        isButtonDisable
+                            ? i18next.t('Loading')
+                            : i18next.t('Analyze', { ns: 'common' })
+                    }
+                    cancelLabel={i18next.t('Cancel', { ns: 'common' })}
+                    onConfirm={() =>
+                        onAnalyse({
+                            preventDefault: () => {}
+                        } as React.MouseEvent<HTMLButtonElement>)
+                    }
+                    confirmDisabled={isButtonDisable}
                 />
             </Box>
         </LocalizationProvider>

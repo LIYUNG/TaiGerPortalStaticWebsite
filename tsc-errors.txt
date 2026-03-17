@@ -1,7 +1,9 @@
-﻿node_modules/@editorjs/editorjs/types/tools/adapters/tool-type.ts(4,13): error TS1294: This syntax is not allowed when 'erasableSyntaxOnly' is enabled.
+# tsc --noEmit -p tsconfig.app.json | Updated 2025-03-17 | ~2376 errors (track progress by re-running and comparing)
+# ---
+node_modules/@editorjs/editorjs/types/tools/adapters/tool-type.ts(4,13): error TS1294: This syntax is not allowed when 'erasableSyntaxOnly' is enabled.
 node_modules/@editorjs/editorjs/types/utils/popover/popover-event.ts(5,13): error TS1294: This syntax is not allowed when 'erasableSyntaxOnly' is enabled.
 node_modules/@editorjs/editorjs/types/utils/popover/popover-item-type.ts(4,13): error TS1294: This syntax is not allowed when 'erasableSyntaxOnly' is enabled.
-src/App.pageSmoke3.test.tsx(720,17): error TS2322: Type 'Promise<typeof import("C:/Users/steve/workspace/TaiGerPortalStaticWebsite/src/pages/CVMLRLCenter/DocModificationThreadPage/DocumentThreadsPage/DocumentCommunicatiomExpandPage")>' is not assignable to type 'Promise<{ default: ComponentType<any>; }>'.
+src/App.pageSmoke3.test.tsx(682,17): error TS2322: Type 'Promise<typeof import("C:/Users/steve/workspace/TaiGerPortalStaticWebsite/src/pages/CVMLRLCenter/DocModificationThreadPage/DocumentThreadsPage/DocumentCommunicatiomExpandPage")>' is not assignable to type 'Promise<{ default: ComponentType<any>; }>'.
   Type 'typeof import("C:/Users/steve/workspace/TaiGerPortalStaticWebsite/src/pages/CVMLRLCenter/DocModificationThreadPage/DocumentThreadsPage/DocumentCommunicatiomExpandPage")' is not assignable to type '{ default: ComponentType<any>; }'.
     Types of property 'default' are incompatible.
       Type '() => JSX.Element | Error' is not assignable to type 'ComponentType<any>'.
@@ -21,6 +23,23 @@ src/App.tsx(72,9): error TS2322: Type '({ path: string; errorElement: Element; e
                     Type 'LazyExoticComponent<(props: { item: string; }) => Element>' is not assignable to type 'FunctionComponent<{}>'.
                       Types of parameters 'props' and 'props' are incompatible.
                         Property 'item' is missing in type '{}' but required in type '{ item: string; }'.
+src/components/EditorJs/EditorNew.tsx(43,13): error TS2322: Type '"ERROR"' is not assignable to type 'LogLevels | undefined'.
+src/components/EditorJs/EditorSimple.tsx(158,13): error TS2322: Type '"ERROR"' is not assignable to type 'LogLevels | undefined'.
+src/hooks/useProgramsOverview.ts(18,9): error TS2769: No overload matches this call.
+  Overload 1 of 3, '(options: DefinedInitialDataOptions<GetProgramsOverviewResponse, Error, Record<string, unknown>, readonly unknown[]>, queryClient?: QueryClient | undefined): DefinedUseQueryResult<...>', gave the following error.
+    Type '(response: GetProgramsOverviewResponse) => ProgramsOverviewData' is not assignable to type '(data: GetProgramsOverviewResponse) => Record<string, unknown>'.
+      Type 'ProgramsOverviewData' is not assignable to type 'Record<string, unknown>'.
+        Index signature for type 'string' is missing in type 'ProgramsOverviewData'.
+  Overload 2 of 3, '(options: UndefinedInitialDataOptions<GetProgramsOverviewResponse, Error, Record<string, unknown>, readonly unknown[]>, queryClient?: QueryClient | undefined): UseQueryResult<...>', gave the following error.
+    Type '(response: GetProgramsOverviewResponse) => ProgramsOverviewData' is not assignable to type '(data: GetProgramsOverviewResponse) => Record<string, unknown>'.
+      Type 'ProgramsOverviewData' is not assignable to type 'Record<string, unknown>'.
+        Index signature for type 'string' is missing in type 'ProgramsOverviewData'.
+  Overload 3 of 3, '(options: UseQueryOptions<GetProgramsOverviewResponse, Error, Record<string, unknown>, readonly unknown[]>, queryClient?: QueryClient | undefined): UseQueryResult<...>', gave the following error.
+    Type '(response: GetProgramsOverviewResponse) => ProgramsOverviewData' is not assignable to type '(data: GetProgramsOverviewResponse) => Record<string, unknown>'.
+      Type 'ProgramsOverviewData' is not assignable to type 'Record<string, unknown>'.
+        Index signature for type 'string' is missing in type 'ProgramsOverviewData'.
+src/pages/ApplicantsOverview/index.tsx(74,17): error TS2322: Type 'IStudentResponse[] | undefined' is not assignable to type 'IStudentResponse[]'.
+  Type 'undefined' is not assignable to type 'IStudentResponse[]'.
 src/pages/AssignmentAgentsEditors/AssignAgents/AssignAgentsPage.tsx(57,30): error TS2741: Property 'isArchivPage' is missing in type '{ key: number; student: IStudentResponse; submitUpdateAgentlist: (e: FormEvent<HTMLFormElement>, updateAgentList: unknown, student_id: string) => void; }' but required in type 'NoAgentsStudentsCardProps'.
 src/pages/AssignmentAgentsEditors/AssignEditors/AssignEditorsPage.tsx(39,15): error TS2304: Cannot find name 'IStudentResponse'.
 src/pages/AssignmentAgentsEditors/AssignEssayWriters/AssignEssayWritersPage.tsx(87,26): error TS2345: Argument of type '(prevState: { error: string; isLoaded: boolean; success: boolean; res_modal_message: string; res_modal_status: number; essayDocumentThreads: IDocumentthreadPopulated[]; }) => { ...; } | { ...; }' is not assignable to parameter of type 'SetStateAction<{ error: string; isLoaded: boolean; success: boolean; res_modal_message: string; res_modal_status: number; essayDocumentThreads: IDocumentthreadPopulated[]; }>'.
@@ -65,6 +84,8 @@ src/pages/AssignmentAgentsEditors/AssignInterviewTrainers/AssignInterviewTrainer
 src/pages/AssignmentAgentsEditors/AssignInterviewTrainers/index.tsx(14,9): error TS2339: Property 'data' does not exist on type 'unknown'.
 src/pages/AssignmentAgentsEditors/AssignInterviewTrainers/index.tsx(16,25): error TS2345: Argument of type 'IUserWithId | null' is not assignable to parameter of type 'IUser'.
   Type 'null' is not assignable to type 'IUser'.
+src/pages/AssignmentAgentsEditors/AssignmentWrapper.tsx(31,9): error TS2322: Type 'IStudentResponse[] | undefined' is not assignable to type 'IStudentResponse[]'.
+  Type 'undefined' is not assignable to type 'IStudentResponse[]'.
 src/pages/AssignmentAgentsEditors/AssignmentWrapper.tsx(34,25): error TS2345: Argument of type 'IUserWithId | null' is not assignable to parameter of type 'IUser'.
   Type 'null' is not assignable to type 'IUser'.
 src/pages/Authentication/ResetPassword/ResetPassword.test.tsx(27,25): error TS2347: Untyped function calls may not accept type arguments.
@@ -107,11 +128,11 @@ src/pages/BaseDocuments/AllBaseDocuments.tsx(23,25): error TS2345: Argument of t
   Type 'null' is not assignable to type 'IUser'.
 src/pages/BaseDocuments/AllBaseDocuments.tsx(47,32): error TS2345: Argument of type 'IUserWithId | null' is not assignable to parameter of type 'IUser'.
   Type 'null' is not assignable to type 'IUser'.
-src/pages/BaseDocuments/AllBaseDocuments.tsx(48,41): error TS2322: Type 'unknown' is not assignable to type 'BaseDocumentStudentRow[]'.
+src/pages/BaseDocuments/AllBaseDocuments.tsx(48,41): error TS2322: Type 'IStudentResponse[] | undefined' is not assignable to type 'BaseDocumentStudentRow[]'.
+  Type 'undefined' is not assignable to type 'BaseDocumentStudentRow[]'.
 src/pages/BaseDocuments/BaseDocuments.tsx(19,35): error TS2345: Argument of type 'IUserWithId | null' is not assignable to parameter of type 'IUser'.
   Type 'null' is not assignable to type 'IUser'.
 src/pages/BaseDocuments/BaseDocuments.tsx(21,42): error TS18047: 'user' is possibly 'null'.
-src/pages/BaseDocuments/BaseDocuments.tsx(26,19): error TS2339: Property 'map' does not exist on type '{}'.
 src/pages/BaseDocuments/BaseDocuments.tsx(29,21): error TS2322: Type 'unknown' is not assignable to type 'string'.
 src/pages/BaseDocuments/BaseDocuments.tsx(30,21): error TS2322: Type 'IStudentResponse' is not assignable to type 'Record<string, unknown>'.
   Index signature for type 'string' is missing in type 'IStudentResponse'.
@@ -128,7 +149,8 @@ src/pages/BaseDocuments/BaseDocuments.tsx(62,13): error TS2769: No overload matc
       Type 'Error' is not assignable to type 'ReactNode'.
 src/pages/BaseDocuments/BaseDocuments.tsx(64,32): error TS2345: Argument of type 'IUserWithId | null' is not assignable to parameter of type 'IUser'.
   Type 'null' is not assignable to type 'IUser'.
-src/pages/BaseDocuments/BaseDocuments.tsx(65,41): error TS2322: Type 'unknown' is not assignable to type 'BaseDocumentStudentRow[]'.
+src/pages/BaseDocuments/BaseDocuments.tsx(65,41): error TS2322: Type 'IStudentResponse[] | undefined' is not assignable to type 'BaseDocumentStudentRow[]'.
+  Type 'undefined' is not assignable to type 'BaseDocumentStudentRow[]'.
 src/pages/BaseDocuments/BaseDocumentsTable.tsx(164,25): error TS2352: Conversion of type 'IStudentResponse | undefined' to type 'BaseDocumentProfileItem' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
   Property 'name' is missing in type 'IStudentResponse' but required in type 'BaseDocumentProfileItem'.
 src/pages/BaseDocuments/BaseDocumentsTable.tsx(835,17): error TS2322: Type 'boolean | Record<string, boolean>' is not assignable to type 'boolean'.
@@ -896,15 +918,12 @@ src/pages/CRM/LeadDashboard.tsx(236,35): error TS2769: No overload matches this 
     Argument of type 'unknown' is not assignable to parameter of type 'string | number'.
 src/pages/CRM/LeadDashboard.tsx(391,25): error TS2322: Type '{ columns: MRT_ColumnDef<CRMLeadItem, unknown>[]; data: CRMLeadItem[]; initialState: { density: "compact"; pagination: { pageSize: number; pageIndex: number; }; }; ... 5 more ...; state: { ...; }; }' is not assignable to type 'IntrinsicAttributes & MaterialReactTableProps<CRMLeadItem>'.
   Property 'muiTablePaginationProps' does not exist on type 'IntrinsicAttributes & { columnFilterDisplayMode?: "custom" | "popover" | "subheader" | undefined; columnFilterModeOptions?: LiteralUnion<string & MRT_FilterOption, string>[] | null | undefined; ... 216 more ...; table?: undefined; }'. Did you mean 'muiPaginationProps'?
-src/pages/CRM/LeadPage.tsx(57,59): error TS2339: Property 'fullName' does not exist on type '{}'.
-src/pages/CRM/LeadPage.tsx(59,35): error TS2339: Property 'userId' does not exist on type '{}'.
-src/pages/CRM/LeadPage.tsx(60,34): error TS2339: Property 'status' does not exist on type '{}'.
-src/pages/CRM/LeadPage.tsx(64,32): error TS2339: Property 'userId' does not exist on type '{}'.
-src/pages/CRM/LeadPage.tsx(66,43): error TS2339: Property 'userId' does not exist on type '{}'.
+src/pages/CRM/LeadPage.tsx(55,49): error TS6133: 'leadData' is declared but its value is never read.
+src/pages/CRM/LeadPage.tsx(64,27): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
 src/pages/CRM/LeadPage.tsx(72,34): error TS2339: Property 'data' does not exist on type '{}'.
 src/pages/CRM/LeadPage.tsx(100,36): error TS2339: Property 'personal' does not exist on type '{}'.
-src/pages/CRM/LeadPage.tsx(119,46): error TS2345: Argument of type '{}' is not assignable to parameter of type 'Record<string, unknown>'.
-  Index signature for type 'string' is missing in type '{}'.
+src/pages/CRM/LeadPage.tsx(119,46): error TS2345: Argument of type 'CRMLeadWithMeetings | undefined' is not assignable to parameter of type 'Record<string, unknown>'.
+  Type 'undefined' is not assignable to type 'Record<string, unknown>'.
 src/pages/CRM/LeadPage.tsx(121,50): error TS2345: Argument of type '{}' is not assignable to parameter of type 'void'.
 src/pages/CRM/LeadPage.tsx(138,64): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{}'.
   No index signature with a parameter of type 'string' was found on type '{}'.
@@ -913,11 +932,13 @@ src/pages/CRM/LeadPage.tsx(139,51): error TS7053: Element implicitly has an 'any
 src/pages/CRM/LeadPage.tsx(162,32): error TS2339: Property 'data' does not exist on type '{}'.
 src/pages/CRM/LeadPage.tsx(163,40): error TS2339: Property 'data' does not exist on type '{}'.
 src/pages/CRM/LeadPage.tsx(167,43): error TS2559: Type '(string | undefined)[]' has no properties in common with type 'InvalidateQueryFilters<readonly unknown[]>'.
-src/pages/CRM/LeadPage.tsx(184,42): error TS2345: Argument of type '{}' is not assignable to parameter of type 'Record<string, unknown>'.
-  Index signature for type 'string' is missing in type '{}'.
+src/pages/CRM/LeadPage.tsx(180,21): error TS2345: Argument of type 'CRMLeadWithMeetings | undefined' is not assignable to parameter of type 'SetStateAction<{}>'.
+  Type 'undefined' is not assignable to type 'SetStateAction<{}>'.
+src/pages/CRM/LeadPage.tsx(184,42): error TS2345: Argument of type 'CRMLeadWithMeetings | undefined' is not assignable to parameter of type 'Record<string, unknown>'.
+  Type 'undefined' is not assignable to type 'Record<string, unknown>'.
 src/pages/CRM/LeadPage.tsx(189,46): error TS2345: Argument of type '{}' is not assignable to parameter of type 'void'.
-src/pages/CRM/LeadPage.tsx(197,42): error TS2345: Argument of type '{}' is not assignable to parameter of type 'Record<string, unknown>'.
-  Index signature for type 'string' is missing in type '{}'.
+src/pages/CRM/LeadPage.tsx(197,42): error TS2345: Argument of type 'CRMLeadWithMeetings | undefined' is not assignable to parameter of type 'Record<string, unknown>'.
+  Type 'undefined' is not assignable to type 'Record<string, unknown>'.
 src/pages/CRM/LeadPage.tsx(212,25): error TS2345: Argument of type 'Record<string, unknown>' is not assignable to parameter of type 'SetStateAction<null>'.
   Type 'Record<string, unknown>' provides no match for the signature '(prevState: null): null'.
 src/pages/CRM/LeadPage.tsx(223,54): error TS2345: Argument of type '{ userId: string; status: string; }' is not assignable to parameter of type 'void'.
@@ -933,37 +954,29 @@ src/pages/CRM/LeadPage.tsx(254,42): error TS2339: Property 'closedAt' does not e
 src/pages/CRM/LeadPage.tsx(261,56): error TS2559: Type '(string | undefined)[]' has no properties in common with type 'InvalidateQueryFilters<readonly unknown[]>'.
 src/pages/CRM/LeadPage.tsx(265,25): error TS2345: Argument of type 'IUserWithId | null' is not assignable to parameter of type 'IUser'.
   Type 'null' is not assignable to type 'IUser'.
-src/pages/CRM/LeadPage.tsx(270,35): error TS2339: Property 'status' does not exist on type '{}'.
-src/pages/CRM/LeadPage.tsx(302,31): error TS2339: Property 'fullName' does not exist on type '{}'.
-src/pages/CRM/LeadPage.tsx(307,17): error TS2322: Type '{}' is not assignable to type 'Record<string, unknown>'.
-  Index signature for type 'string' is missing in type '{}'.
-src/pages/CRM/LeadPage.tsx(310,43): error TS2339: Property 'personal' does not exist on type '{}'.
-src/pages/CRM/LeadPage.tsx(325,17): error TS2322: Type 'UseMutationResult<{ ok: boolean; }, Error, void, unknown>' is not assignable to type '{ isPending: boolean; variables?: { id: string; } | undefined; mutate: (args: unknown, opts?: unknown) => void; }'.
+src/pages/CRM/LeadPage.tsx(313,51): error TS2339: Property 'personal' does not exist on type '{}'.
+src/pages/CRM/LeadPage.tsx(328,25): error TS2322: Type 'UseMutationResult<{ ok: boolean; }, Error, void, unknown>' is not assignable to type '{ isPending: boolean; variables?: { id: string; } | undefined; mutate: (args: unknown, opts?: unknown) => void; }'.
   Type 'Override<MutationObserverIdleResult<{ ok: boolean; }, Error, void, unknown>, { mutate: UseMutateFunction<{ ok: boolean; }, Error, void, unknown>; }> & { ...; }' is not assignable to type '{ isPending: boolean; variables?: { id: string; } | undefined; mutate: (args: unknown, opts?: unknown) => void; }'.
     Types of property 'mutate' are incompatible.
       Type 'UseMutateFunction<{ ok: boolean; }, Error, void, unknown>' is not assignable to type '(args: unknown, opts?: unknown) => void'.
         Types of parameters 'variables' and 'args' are incompatible.
           Type 'unknown' is not assignable to type 'void'.
-src/pages/CRM/LeadPage.tsx(329,43): error TS2339: Property 'meetings' does not exist on type '{}'.
-src/pages/CRM/LeadPage.tsx(332,37): error TS2339: Property 'leadSimilarUsers' does not exist on type '{}'.
-src/pages/CRM/LeadPage.tsx(365,61): error TS2339: Property 'userId' does not exist on type '{}'.
-src/pages/CRM/LeadPage.tsx(376,38): error TS2739: Type '{ disableEdit: true; title: string; viewContent: Element; }' is missing the following properties from type 'EditableCardProps': isEditing, onEdit, onSave, onCancel, editContent
-src/pages/CRM/LeadPage.tsx(380,46): error TS2741: Property 'formData' is missing in type '{ config: { id: string; title: string; gridSize: { xs: number; md: number; }; layout: string; sections: { title: string; gridSize: number; fields: { key: string; label: string; type: string; }[]; }[]; fields?: undefined; } | { ...; } | { ...; }; isEditing: false; lead: Record<...>; onFieldChange: (field: string, val...' but required in type 'GenericCardContentProps'.
-src/pages/CRM/LeadPage.tsx(435,53): error TS2322: Type '{}' is not assignable to type 'Record<string, unknown>'.
-  Index signature for type 'string' is missing in type '{}'.
-src/pages/CRM/LeadPage.tsx(445,49): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{}'.
+src/pages/CRM/LeadPage.tsx(332,35): error TS2322: Type 'CRMMeetingItem[]' is not assignable to type 'Meeting[]'.
+  Type 'CRMMeetingItem' is missing the following properties from type 'Meeting': title, date
+src/pages/CRM/LeadPage.tsx(335,25): error TS2322: Type 'unknown' is not assignable to type 'SimilarUserMatchItem[] | undefined'.
+src/pages/CRM/LeadPage.tsx(383,46): error TS2739: Type '{ disableEdit: true; title: string; viewContent: Element; }' is missing the following properties from type 'EditableCardProps': isEditing, onEdit, onSave, onCancel, editContent
+src/pages/CRM/LeadPage.tsx(387,54): error TS2741: Property 'formData' is missing in type '{ config: { id: string; title: string; gridSize: { xs: number; md: number; }; layout: string; sections: { title: string; gridSize: number; fields: { key: string; label: string; type: string; }[]; }[]; fields?: undefined; } | { ...; } | { ...; }; isEditing: false; lead: Record<...>; onFieldChange: (field: string, val...' but required in type 'GenericCardContentProps'.
+src/pages/CRM/LeadPage.tsx(459,61): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{}'.
   No index signature with a parameter of type 'string' was found on type '{}'.
-src/pages/CRM/LeadPage.tsx(461,53): error TS2322: Type '{}' is not assignable to type 'Record<string, unknown>'.
-  Index signature for type 'string' is missing in type '{}'.
-src/pages/CRM/LeadPage.tsx(482,17): error TS2322: Type 'null' is not assignable to type 'CreateUserFromLeadLead'.
-src/pages/CRM/LeadPage.tsx(484,17): error TS2322: Type '(userData: Record<string, string>) => Promise<void>' is not assignable to type '() => void'.
+src/pages/CRM/LeadPage.tsx(518,25): error TS2322: Type 'null' is not assignable to type 'CreateUserFromLeadLead'.
+src/pages/CRM/LeadPage.tsx(520,25): error TS2322: Type '(userData: Record<string, string>) => Promise<void>' is not assignable to type '() => void'.
   Target signature provides too few arguments. Expected 1 or more, but got 0.
-src/pages/CRM/LeadPage.tsx(490,44): error TS2339: Property 'salesRep' does not exist on type '{}'.
-src/pages/CRM/LeadPage.tsx(493,51): error TS2559: Type '(string | undefined)[]' has no properties in common with type 'InvalidateQueryFilters<readonly unknown[]>'.
-src/pages/CRM/LeadPage.tsx(496,51): error TS2559: Type '(string | undefined)[]' has no properties in common with type 'InvalidateQueryFilters<readonly unknown[]>'.
-src/pages/CRM/LeadPage.tsx(500,47): error TS2339: Property 'salesRep' does not exist on type '{}'.
-src/pages/CRM/LeadPage.tsx(504,48): error TS2339: Property 'status' does not exist on type 'never'.
-src/pages/CRM/LeadPage.tsx(508,25): error TS2345: Argument of type '{ id: unknown; status: string; }' is not assignable to parameter of type 'void'.
+src/pages/CRM/LeadPage.tsx(526,62): error TS2339: Property 'userId' does not exist on type 'string'.
+src/pages/CRM/LeadPage.tsx(529,59): error TS2559: Type '(string | undefined)[]' has no properties in common with type 'InvalidateQueryFilters<readonly unknown[]>'.
+src/pages/CRM/LeadPage.tsx(532,59): error TS2559: Type '(string | undefined)[]' has no properties in common with type 'InvalidateQueryFilters<readonly unknown[]>'.
+src/pages/CRM/LeadPage.tsx(536,65): error TS2339: Property 'userId' does not exist on type 'string'.
+src/pages/CRM/LeadPage.tsx(540,56): error TS2339: Property 'status' does not exist on type 'never'.
+src/pages/CRM/LeadPage.tsx(544,33): error TS2345: Argument of type '{ id: unknown; status: string; }' is not assignable to parameter of type 'void'.
 src/pages/CRM/MeetingDashboard.tsx(130,25): error TS2345: Argument of type 'IUserWithId | null' is not assignable to parameter of type 'IUser'.
   Type 'null' is not assignable to type 'IUser'.
 src/pages/CRM/MeetingDashboard.tsx(200,29): error TS2345: Argument of type '{ getBoundingClientRect: () => DOMRect; nodeType: number; }' is not assignable to parameter of type 'SetStateAction<null>'.
@@ -1001,65 +1014,65 @@ src/pages/CustomerSupport/CreateTicket.tsx(92,51): error TS2345: Argument of typ
 src/pages/CustomerSupport/CustomerSupportBody.tsx(133,80): error TS2339: Property 'updatedAt' does not exist on type 'IComplaintWithId'.
 src/pages/CustomerSupport/CustomerTicketDetailPage.test.tsx(27,19): error TS6133: 'resolve' is declared but its value is never read.
 src/pages/CustomerSupport/CustomerTicketDetailPage.tsx(52,13): error TS2339: Property 'complaintTicket' does not exist on type 'unknown'.
-src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(65,34): error TS18048: 'complaintTicket.messages' is possibly 'undefined'.
-src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(66,14): error TS2554: Expected 1-3 arguments, but got 0.
-src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(68,23): error TS18048: 'complaintTicket.messages' is possibly 'undefined'.
-src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(98,26): error TS18047: 'e.target.files' is possibly 'null'.
-src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(103,33): error TS2345: Argument of type 'IUserWithId | null' is not assignable to parameter of type 'IUser'.
+src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(66,34): error TS18048: 'complaintTicket.messages' is possibly 'undefined'.
+src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(67,14): error TS2554: Expected 1-3 arguments, but got 0.
+src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(69,23): error TS18048: 'complaintTicket.messages' is possibly 'undefined'.
+src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(99,26): error TS18047: 'e.target.files' is possibly 'null'.
+src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(104,33): error TS2345: Argument of type 'IUserWithId | null' is not assignable to parameter of type 'IUser'.
   Type 'null' is not assignable to type 'IUser'.
-src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(106,38): error TS2769: No overload matches this call.
+src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(107,38): error TS2769: No overload matches this call.
   Overload 1 of 4, '(iterable: Iterable<File> | ArrayLike<File>): File[]', gave the following error.
     Argument of type 'FileList | null' is not assignable to parameter of type 'Iterable<File> | ArrayLike<File>'.
       Type 'null' is not assignable to type 'Iterable<File> | ArrayLike<File>'.
   Overload 2 of 4, '(arrayLike: ArrayLike<File>): File[]', gave the following error.
     Argument of type 'FileList | null' is not assignable to parameter of type 'ArrayLike<File>'.
       Type 'null' is not assignable to type 'ArrayLike<File>'.
-src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(112,35): error TS2532: Object is possibly 'undefined'.
-src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(118,42): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(113,35): error TS2532: Object is possibly 'undefined'.
+src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(119,42): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
   Type 'undefined' is not assignable to type 'string'.
-src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(120,43): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(121,43): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
   Type 'undefined' is not assignable to type 'string'.
-src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(122,43): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(123,43): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
   Type 'undefined' is not assignable to type 'string'.
-src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(129,36): error TS2345: Argument of type 'unknown[]' is not assignable to parameter of type 'SetStateAction<never[]>'.
+src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(130,36): error TS2345: Argument of type 'unknown[]' is not assignable to parameter of type 'SetStateAction<never[]>'.
   Type 'unknown[]' is not assignable to type 'never[]'.
     Type 'unknown' is not assignable to type 'never'.
-src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(132,42): error TS2769: No overload matches this call.
+src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(133,42): error TS2769: No overload matches this call.
   Overload 1 of 4, '(iterable: Iterable<File> | ArrayLike<File>): File[]', gave the following error.
     Argument of type 'FileList | null' is not assignable to parameter of type 'Iterable<File> | ArrayLike<File>'.
       Type 'null' is not assignable to type 'Iterable<File> | ArrayLike<File>'.
   Overload 2 of 4, '(arrayLike: ArrayLike<File>): File[]', gave the following error.
     Argument of type 'FileList | null' is not assignable to parameter of type 'ArrayLike<File>'.
       Type 'null' is not assignable to type 'ArrayLike<File>'.
-src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(163,47): error TS2339: Property 'file' does not exist on type '{ thread: IComplaintWithId; editorState: {}; isSubmissionLoaded: boolean; accordionKeys: number[]; isLoaded: boolean; SetAsFinalFileModel: boolean; }'.
 src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(164,47): error TS2339: Property 'file' does not exist on type '{ thread: IComplaintWithId; editorState: {}; isSubmissionLoaded: boolean; accordionKeys: number[]; isLoaded: boolean; SetAsFinalFileModel: boolean; }'.
-src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(193,29): error TS18048: 'data' is possibly 'undefined'.
-src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(193,29): error TS18048: 'data.messages' is possibly 'undefined'.
-src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(245,28): error TS2488: Type 'IComplaintMessage[] | undefined' must have a '[Symbol.iterator]()' method that returns an iterator.
-src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(248,25): error TS18048: 'customerTicketDetailPageBodyState.thread.messages' is possibly 'undefined'.
-src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(249,50): error TS2339: Property '_id' does not exist on type 'IComplaintMessage'.
-src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(318,57): error TS2339: Property 'newStatus' does not exist on type '{ thread: IComplaintWithId; editorState: {}; isSubmissionLoaded: boolean; accordionKeys: number[]; isLoaded: boolean; SetAsFinalFileModel: boolean; }'.
-src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(329,37): error TS18048: 'data' is possibly 'undefined'.
-src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(522,29): error TS2322: Type '(e: MouseEvent<HTMLElement>, message_id: string) => void' is not assignable to type '(e: MouseEvent<Element, MouseEvent>, messageId: string) => void'.
+src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(165,47): error TS2339: Property 'file' does not exist on type '{ thread: IComplaintWithId; editorState: {}; isSubmissionLoaded: boolean; accordionKeys: number[]; isLoaded: boolean; SetAsFinalFileModel: boolean; }'.
+src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(194,29): error TS18048: 'data' is possibly 'undefined'.
+src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(194,29): error TS18048: 'data.messages' is possibly 'undefined'.
+src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(246,28): error TS2488: Type 'IComplaintMessage[] | undefined' must have a '[Symbol.iterator]()' method that returns an iterator.
+src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(249,25): error TS18048: 'customerTicketDetailPageBodyState.thread.messages' is possibly 'undefined'.
+src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(250,50): error TS2339: Property '_id' does not exist on type 'IComplaintMessage'.
+src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(319,57): error TS2339: Property 'newStatus' does not exist on type '{ thread: IComplaintWithId; editorState: {}; isSubmissionLoaded: boolean; accordionKeys: number[]; isLoaded: boolean; SetAsFinalFileModel: boolean; }'.
+src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(330,37): error TS18048: 'data' is possibly 'undefined'.
+src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(523,29): error TS2322: Type '(e: MouseEvent<HTMLElement>, message_id: string) => void' is not assignable to type '(e: MouseEvent<Element, MouseEvent>, messageId: string) => void'.
   Types of parameters 'e' and 'e' are incompatible.
     Type 'MouseEvent<Element, MouseEvent>' is not assignable to type 'MouseEvent<HTMLElement, MouseEvent>'.
       Type 'Element' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, autocorrect, and 129 more.
-src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(524,29): error TS2322: Type 'IComplaintWithId' is not assignable to type 'MessageThread'.
+src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(525,29): error TS2322: Type 'IComplaintWithId' is not assignable to type 'MessageThread'.
   Types of property 'messages' are incompatible.
     Type 'IComplaintMessage[] | undefined' is not assignable to type 'ThreadMessage[] | undefined'.
       Type 'IComplaintMessage[]' is not assignable to type 'ThreadMessage[]'.
         Property '_id' is missing in type 'IComplaintMessage' but required in type 'ThreadMessage'.
-src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(526,26): error TS18047: 'user' is possibly 'null'.
-src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(563,60): error TS18047: 'user' is possibly 'null'.
-src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(563,78): error TS18047: 'user' is possibly 'null'.
-src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(577,58): error TS18047: 'user' is possibly 'null'.
+src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(527,26): error TS18047: 'user' is possibly 'null'.
+src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(564,60): error TS18047: 'user' is possibly 'null'.
+src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(564,78): error TS18047: 'user' is possibly 'null'.
 src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(578,58): error TS18047: 'user' is possibly 'null'.
-src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(600,87): error TS2339: Property 'buttonDisabled' does not exist on type '{ thread: IComplaintWithId; editorState: {}; isSubmissionLoaded: boolean; accordionKeys: number[]; isLoaded: boolean; SetAsFinalFileModel: boolean; }'.
-src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(604,49): error TS2741: Property 'blocks' is missing in type '{}' but required in type 'OutputData'.
-src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(608,87): error TS2339: Property 'file' does not exist on type '{ thread: IComplaintWithId; editorState: {}; isSubmissionLoaded: boolean; accordionKeys: number[]; isLoaded: boolean; SetAsFinalFileModel: boolean; }'.
-src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(630,41): error TS2345: Argument of type 'IUserWithId | null' is not assignable to parameter of type 'IUser'.
+src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(579,58): error TS18047: 'user' is possibly 'null'.
+src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(601,87): error TS2339: Property 'buttonDisabled' does not exist on type '{ thread: IComplaintWithId; editorState: {}; isSubmissionLoaded: boolean; accordionKeys: number[]; isLoaded: boolean; SetAsFinalFileModel: boolean; }'.
+src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(605,49): error TS2741: Property 'blocks' is missing in type '{}' but required in type 'OutputData'.
+src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(609,87): error TS2339: Property 'file' does not exist on type '{ thread: IComplaintWithId; editorState: {}; isSubmissionLoaded: boolean; accordionKeys: number[]; isLoaded: boolean; SetAsFinalFileModel: boolean; }'.
+src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(631,41): error TS2345: Argument of type 'IUserWithId | null' is not assignable to parameter of type 'IUser'.
   Type 'null' is not assignable to type 'IUser'.
-src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(687,34): error TS2339: Property 'isFinalVersion' does not exist on type 'IComplaintWithId'.
+src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx(688,34): error TS2339: Property 'isFinalVersion' does not exist on type 'IComplaintWithId'.
 src/pages/CustomerSupport/index.test.tsx(17,19): error TS6133: 'resolve' is declared but its value is never read.
 src/pages/CustomerSupport/index.tsx(13,13): error TS2339: Property 'complaintTickets' does not exist on type 'unknown'.
 src/pages/CVMLRLCenter/components/ApplicationAccordionSummary.tsx(45,42): error TS2345: Argument of type '{}' is not assignable to parameter of type 'IProgramWithId'.
@@ -1704,6 +1717,8 @@ src/pages/Dashboard/AdminDashboard/AdminMainView.tsx(61,38): error TS18048: 'a.a
 src/pages/Dashboard/AdminDashboard/AdminMainView.tsx(61,56): error TS18048: 'b.agents' is possibly 'undefined'.
 src/pages/Dashboard/AdminDashboard/AdminMainView.tsx(63,19): error TS18048: 'a.editors' is possibly 'undefined'.
 src/pages/Dashboard/AdminDashboard/AdminMainView.tsx(63,38): error TS18048: 'b.editors' is possibly 'undefined'.
+src/pages/Dashboard/AdminDashboard/AdminMainView.tsx(68,41): error TS2322: Type 'TasksOverviewData' is not assignable to type 'TasksOverview'.
+  Index signature for type 'string' is missing in type 'TasksOverviewData'.
 src/pages/Dashboard/AdminDashboard/AdminMainView.tsx(104,49): error TS2339: Property 'data' does not exist on type '{}'.
 src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(1,35): error TS6133: 'MouseEvent' is declared but its value is never read.
 src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(53,47): error TS18047: 'user' is possibly 'null'.
@@ -1746,17 +1761,29 @@ src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(285,68): error TS2322: Type
 src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(287,65): error TS2322: Type 'unknown' is not assignable to type 'Application'.
   Type 'unknown' is not assignable to type 'IApplicationPopulated'.
 src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(290,65): error TS2322: Type 'unknown' is not assignable to type 'IStudentResponse'.
+src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(305,50): error TS2345: Argument of type 'IStudentResponse[] | undefined' is not assignable to parameter of type 'IStudentResponse[]'.
+  Type 'undefined' is not assignable to type 'IStudentResponse[]'.
 src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(308,29): error TS2322: Type 'Record<string, unknown>[]' is not assignable to type 'IApplicationPopulated[]'.
   Property '_id' is missing in type 'Record<string, unknown>' but required in type 'IApplicationPopulated'.
+src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(309,29): error TS2322: Type 'IStudentResponse[] | undefined' is not assignable to type 'IStudentResponse[]'.
+  Type 'undefined' is not assignable to type 'IStudentResponse[]'.
 src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(314,39): error TS2345: Argument of type 'Record<string, unknown>[]' is not assignable to parameter of type 'Application[]'.
   Type 'Record<string, unknown>' is not assignable to type 'Application'.
     Property '_id' is missing in type 'Record<string, unknown>' but required in type 'IApplicationPopulated'.
 src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(317,29): error TS2322: Type 'Record<string, unknown>[]' is not assignable to type 'IApplicationPopulated[]'.
   Property '_id' is missing in type 'Record<string, unknown>' but required in type 'IApplicationPopulated'.
-src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(333,66): error TS2322: Type '{ students: IStudentResponse[]; user: IUserWithId | null; }' is not assignable to type 'IntrinsicAttributes & { students: IStudentResponse[]; }'.
-  Property 'user' does not exist on type 'IntrinsicAttributes & { students: IStudentResponse[]; }'.
-src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(348,29): error TS2322: Type '{ students: IStudentResponse[]; user: IUserWithId | null; }' is not assignable to type 'IntrinsicAttributes & { students: IStudentResponse[]; }'.
-  Property 'user' does not exist on type 'IntrinsicAttributes & { students: IStudentResponse[]; }'.
+src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(326,49): error TS2345: Argument of type 'IStudentResponse[] | undefined' is not assignable to parameter of type 'IStudentResponse[]'.
+  Type 'undefined' is not assignable to type 'IStudentResponse[]'.
+src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(328,52): error TS2322: Type 'IStudentResponse[] | undefined' is not assignable to type 'IStudentResponse[]'.
+  Type 'undefined' is not assignable to type 'IStudentResponse[]'.
+src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(331,37): error TS2345: Argument of type 'IStudentResponse[] | undefined' is not assignable to parameter of type 'IStudentResponse[]'.
+  Type 'undefined' is not assignable to type 'IStudentResponse[]'.
+src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(333,44): error TS2322: Type 'IStudentResponse[] | undefined' is not assignable to type 'IStudentResponse[]'.
+  Type 'undefined' is not assignable to type 'IStudentResponse[]'.
+src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(337,50): error TS2322: Type 'IStudentResponse[] | undefined' is not assignable to type 'IStudentResponse[]'.
+  Type 'undefined' is not assignable to type 'IStudentResponse[]'.
+src/pages/Dashboard/AgentDashboard/AgentMainView.tsx(347,29): error TS2322: Type 'IStudentResponse[] | undefined' is not assignable to type 'IStudentResponse[]'.
+  Type 'undefined' is not assignable to type 'IStudentResponse[]'.
 src/pages/Dashboard/Dashboard.test.tsx(107,56): error TS2345: Argument of type '{ data: { success: true; data: never[]; }; }' is not assignable to parameter of type 'AxiosResponse<GetProgramTicketsResponse>'.
   Type '{ data: { success: true; data: never[]; }; }' is missing the following properties from type 'AxiosResponse<GetProgramTicketsResponse>': status, statusText, headers, config
 src/pages/Dashboard/DashboardBody.tsx(61,30): error TS2345: Argument of type 'IUserWithId | null' is not assignable to parameter of type 'IUser'.
@@ -1790,6 +1817,12 @@ src/pages/Dashboard/EditorDashboard/EditorMainView.tsx(104,31): error TS2345: Ar
 src/pages/Dashboard/EditorDashboard/EditorMainView.tsx(109,31): error TS2345: Argument of type 'IUserWithId | null' is not assignable to parameter of type 'IUserWithId'.
   Type 'null' is not assignable to type 'IUserWithId'.
 src/pages/Dashboard/EditorDashboard/EditorMainView.tsx(167,29): error TS2339: Property 'data' does not exist on type '{}'.
+src/pages/Dashboard/EditorDashboard/EditorMainView.tsx(186,37): error TS2322: Type 'TasksOverviewData' is not assignable to type 'TasksOverview'.
+  Index signature for type 'string' is missing in type 'TasksOverviewData'.
+src/pages/Dashboard/EditorDashboard/EditorMainView.tsx(189,37): error TS2322: Type 'TasksOverviewData' is not assignable to type 'TasksOverview'.
+  Index signature for type 'string' is missing in type 'TasksOverviewData'.
+src/pages/Dashboard/EditorDashboard/EditorMainView.tsx(192,37): error TS2322: Type 'TasksOverviewData' is not assignable to type 'TasksOverview'.
+  Index signature for type 'string' is missing in type 'TasksOverviewData'.
 src/pages/Dashboard/EditorDashboard/EditorMainView.tsx(222,35): error TS7005: Variable 'sorted_date_freq_pair' implicitly has an 'any[]' type.
 src/pages/Dashboard/GuestDashboard/GuestDashboard.test.tsx(2,32): error TS6133: 'vi' is declared but its value is never read.
 src/pages/Dashboard/MainViewTab/AgentTasks/BaseDocumentCheckingTasks.tsx(51,50): error TS2345: Argument of type 'Date | undefined' is not assignable to parameter of type 'string | number | Date'.
@@ -4119,32 +4152,30 @@ src/pages/StudentApplications/StudentApplicationsAssignProgramlistPage.tsx(171,2
   Property 'isStudentApplicationPage' does not exist on type 'IntrinsicAttributes & ProgramListProps'.
 src/pages/StudentApplications/StudentApplicationsIndividual.test.tsx(15,35): error TS2556: A spread argument must either have a tuple type or be passed to a rest parameter.
 src/pages/StudentApplications/StudentApplicationsIndividual.test.tsx(54,13): error TS2322: Type '{ _id: string; firstname: string; lastname: string; applications: never[]; }' is not assignable to type 'null'.
-src/pages/StudentApplications/StudentApplicationsTableTemplate.tsx(35,5): error TS6133: 'isProgramDecided' is declared but its value is never read.
-src/pages/StudentApplications/StudentApplicationsTableTemplate.tsx(47,5): error TS6133: 'IS_SUBMITTED_STATE_OPTIONS' is declared but its value is never read.
-src/pages/StudentApplications/StudentApplicationsTableTemplate.tsx(223,13): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
-src/pages/StudentApplications/StudentApplicationsTableTemplate.tsx(244,58): error TS2345: Argument of type '(prevState: { error: string; isLoaded: boolean; program_ids: never[]; student_id: string | null; application_id: string | null; application_year: number | null; success: boolean; modalDeleteApplication: boolean; ... 4 more ...; res_modal_message: string; }) => { ...; }' is not assignable to parameter of type 'SetStateAction<{ error: string; isLoaded: boolean; program_ids: never[]; student_id: string | null; application_id: string | null; application_year: number | null; success: boolean; modalDeleteApplication: boolean; ... 4 more ...; res_modal_message: string; }>'.
+src/pages/StudentApplications/StudentApplicationsTableTemplate.tsx(218,13): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
+src/pages/StudentApplications/StudentApplicationsTableTemplate.tsx(239,58): error TS2345: Argument of type '(prevState: { error: string; isLoaded: boolean; program_ids: never[]; student_id: string | null; application_id: string | null; application_year: number | null; success: boolean; modalDeleteApplication: boolean; ... 4 more ...; res_modal_message: string; }) => { ...; }' is not assignable to parameter of type 'SetStateAction<{ error: string; isLoaded: boolean; program_ids: never[]; student_id: string | null; application_id: string | null; application_year: number | null; success: boolean; modalDeleteApplication: boolean; ... 4 more ...; res_modal_message: string; }>'.
   Type '(prevState: { error: string; isLoaded: boolean; program_ids: never[]; student_id: string | null; application_id: string | null; application_year: number | null; success: boolean; modalDeleteApplication: boolean; ... 4 more ...; res_modal_message: string; }) => { ...; }' is not assignable to type '(prevState: { error: string; isLoaded: boolean; program_ids: never[]; student_id: string | null; application_id: string | null; application_year: number | null; success: boolean; modalDeleteApplication: boolean; ... 4 more ...; res_modal_message: string; }) => { ...; }'. Two different types with this name exist, but they are unrelated.
     Call signature return types '{ isLoaded: true; error: string | undefined; res_modal_status: number; res_modal_message: string | undefined; program_ids: never[]; student_id: string | null; application_id: string | null; ... 5 more ...; res_status: number; }' and '{ error: string; isLoaded: boolean; program_ids: never[]; student_id: string | null; application_id: string | null; application_year: number | null; success: boolean; modalDeleteApplication: boolean; ... 4 more ...; res_modal_message: string; }' are incompatible.
       The types of 'error' are incompatible between these types.
         Type 'string | undefined' is not assignable to type 'string'.
           Type 'undefined' is not assignable to type 'string'.
-src/pages/StudentApplications/StudentApplicationsTableTemplate.tsx(298,62): error TS2345: Argument of type '(prevState: { error: string; isLoaded: boolean; program_ids: never[]; student_id: string | null; application_id: string | null; application_year: number | null; success: boolean; modalDeleteApplication: boolean; ... 4 more ...; res_modal_message: string; }) => { ...; }' is not assignable to parameter of type 'SetStateAction<{ error: string; isLoaded: boolean; program_ids: never[]; student_id: string | null; application_id: string | null; application_year: number | null; success: boolean; modalDeleteApplication: boolean; ... 4 more ...; res_modal_message: string; }>'.
+src/pages/StudentApplications/StudentApplicationsTableTemplate.tsx(293,62): error TS2345: Argument of type '(prevState: { error: string; isLoaded: boolean; program_ids: never[]; student_id: string | null; application_id: string | null; application_year: number | null; success: boolean; modalDeleteApplication: boolean; ... 4 more ...; res_modal_message: string; }) => { ...; }' is not assignable to parameter of type 'SetStateAction<{ error: string; isLoaded: boolean; program_ids: never[]; student_id: string | null; application_id: string | null; application_year: number | null; success: boolean; modalDeleteApplication: boolean; ... 4 more ...; res_modal_message: string; }>'.
   Type '(prevState: { error: string; isLoaded: boolean; program_ids: never[]; student_id: string | null; application_id: string | null; application_year: number | null; success: boolean; modalDeleteApplication: boolean; ... 4 more ...; res_modal_message: string; }) => { ...; }' is not assignable to type '(prevState: { error: string; isLoaded: boolean; program_ids: never[]; student_id: string | null; application_id: string | null; application_year: number | null; success: boolean; modalDeleteApplication: boolean; ... 4 more ...; res_modal_message: string; }) => { ...; }'. Two different types with this name exist, but they are unrelated.
     Call signature return types '{ isLoaded: true; res_modal_status: number; res_modal_message: string | undefined; error: string; program_ids: never[]; student_id: string | null; application_id: string | null; application_year: number | null; ... 4 more ...; res_status: number; }' and '{ error: string; isLoaded: boolean; program_ids: never[]; student_id: string | null; application_id: string | null; application_year: number | null; success: boolean; modalDeleteApplication: boolean; ... 4 more ...; res_modal_message: string; }' are incompatible.
       The types of 'res_modal_message' are incompatible between these types.
         Type 'string | undefined' is not assignable to type 'string'.
           Type 'undefined' is not assignable to type 'string'.
-src/pages/StudentApplications/StudentApplicationsTableTemplate.tsx(331,28): error TS18048: 'application.programId' is possibly 'undefined'.
-src/pages/StudentApplications/StudentApplicationsTableTemplate.tsx(345,13): error TS2345: Argument of type '{ _id: string; programId: string; decided: string | undefined; closed: string | undefined; admission: string | undefined; finalEnrolment: boolean | undefined; }[] | undefined' is not assignable to parameter of type 'ApiPayload'.
+src/pages/StudentApplications/StudentApplicationsTableTemplate.tsx(326,28): error TS18048: 'application.programId' is possibly 'undefined'.
+src/pages/StudentApplications/StudentApplicationsTableTemplate.tsx(340,13): error TS2345: Argument of type '{ _id: string; programId: string; decided: string | undefined; closed: string | undefined; admission: string | undefined; finalEnrolment: boolean | undefined; }[] | undefined' is not assignable to parameter of type 'ApiPayload'.
   Type 'undefined' is not assignable to type 'ApiPayload'.
-src/pages/StudentApplications/StudentApplicationsTableTemplate.tsx(371,62): error TS2345: Argument of type '(prevState: { error: string; isLoaded: boolean; program_ids: never[]; student_id: string | null; application_id: string | null; application_year: number | null; success: boolean; modalDeleteApplication: boolean; ... 4 more ...; res_modal_message: string; }) => { ...; }' is not assignable to parameter of type 'SetStateAction<{ error: string; isLoaded: boolean; program_ids: never[]; student_id: string | null; application_id: string | null; application_year: number | null; success: boolean; modalDeleteApplication: boolean; ... 4 more ...; res_modal_message: string; }>'.
+src/pages/StudentApplications/StudentApplicationsTableTemplate.tsx(366,62): error TS2345: Argument of type '(prevState: { error: string; isLoaded: boolean; program_ids: never[]; student_id: string | null; application_id: string | null; application_year: number | null; success: boolean; modalDeleteApplication: boolean; ... 4 more ...; res_modal_message: string; }) => { ...; }' is not assignable to parameter of type 'SetStateAction<{ error: string; isLoaded: boolean; program_ids: never[]; student_id: string | null; application_id: string | null; application_year: number | null; success: boolean; modalDeleteApplication: boolean; ... 4 more ...; res_modal_message: string; }>'.
   Type '(prevState: { error: string; isLoaded: boolean; program_ids: never[]; student_id: string | null; application_id: string | null; application_year: number | null; success: boolean; modalDeleteApplication: boolean; ... 4 more ...; res_modal_message: string; }) => { ...; }' is not assignable to type '(prevState: { error: string; isLoaded: boolean; program_ids: never[]; student_id: string | null; application_id: string | null; application_year: number | null; success: boolean; modalDeleteApplication: boolean; ... 4 more ...; res_modal_message: string; }) => { ...; }'. Two different types with this name exist, but they are unrelated.
     Call signature return types '{ isLoaded: true; res_modal_status: number; res_modal_message: string | undefined; error: string; program_ids: never[]; student_id: string | null; application_id: string | null; application_year: number | null; ... 4 more ...; res_status: number; }' and '{ error: string; isLoaded: boolean; program_ids: never[]; student_id: string | null; application_id: string | null; application_year: number | null; success: boolean; modalDeleteApplication: boolean; ... 4 more ...; res_modal_message: string; }' are incompatible.
       The types of 'res_modal_message' are incompatible between these types.
         Type 'string | undefined' is not assignable to type 'string'.
           Type 'undefined' is not assignable to type 'string'.
-src/pages/StudentApplications/StudentApplicationsTableTemplate.tsx(397,48): error TS18046: 'studentToShow._id' is of type 'unknown'.
-src/pages/StudentApplications/StudentApplicationsTableTemplate.tsx(442,32): error TS2345: Argument of type 'IUserWithId | null' is not assignable to parameter of type 'IUser'.
+src/pages/StudentApplications/StudentApplicationsTableTemplate.tsx(392,48): error TS18046: 'studentToShow._id' is of type 'unknown'.
+src/pages/StudentApplications/StudentApplicationsTableTemplate.tsx(437,32): error TS2345: Argument of type 'IUserWithId | null' is not assignable to parameter of type 'IUser'.
   Type 'null' is not assignable to type 'IUser'.
 src/pages/StudentApplications/StudentApplicationsTableTemplate.tsx(457,33): error TS2345: Argument of type 'IUserWithId | null' is not assignable to parameter of type 'IUser'.
   Type 'null' is not assignable to type 'IUser'.
@@ -4199,6 +4230,8 @@ src/pages/StudentDatabase/FetchStudentLayer.tsx(12,38): error TS2322: Type 'stri
 src/pages/StudentDatabase/FetchStudentLayer.tsx(15,33): error TS2339: Property 'data' does not exist on type '{}'.
 src/pages/StudentDatabase/FetchStudentLayer.tsx(30,67): error TS2339: Property 'data' does not exist on type '{}'.
 src/pages/StudentDatabase/FetchStudentLayer.tsx(33,14): error TS2741: Property 'refetch' is missing in type '{ audit: any; base_docs_link: any; data: any; survey_link: any; }' but required in type 'SingleStudentPageMainContentProps'.
+src/pages/StudentDatabase/index.tsx(31,9): error TS2322: Type 'IStudentResponse[] | undefined' is not assignable to type 'IStudentResponse[]'.
+  Type 'undefined' is not assignable to type 'IStudentResponse[]'.
 src/pages/StudentDatabase/index.tsx(34,25): error TS2345: Argument of type 'IUserWithId | null' is not assignable to parameter of type 'IUser'.
   Type 'null' is not assignable to type 'IUser'.
 src/pages/StudentDatabase/Meetings/MeetingCard.tsx(148,49): error TS2345: Argument of type 'string | Date' is not assignable to parameter of type 'string | null | undefined'.
@@ -4456,6 +4489,8 @@ src/pages/TaiGerOrg/AdminPage.tsx(24,25): error TS2345: Argument of type 'IUserW
   Type 'null' is not assignable to type 'IUser'.
 src/pages/TaiGerOrg/AgentPage.tsx(324,49): error TS2345: Argument of type 'Date | undefined' is not assignable to parameter of type 'string | Date'.
   Type 'undefined' is not assignable to type 'string | Date'.
+src/pages/TaiGerOrg/AgentPage.tsx(645,17): error TS2322: Type 'IStudentResponse[] | undefined' is not assignable to type 'IStudentResponse[]'.
+  Type 'undefined' is not assignable to type 'IStudentResponse[]'.
 src/pages/TaiGerOrg/EditorPage.tsx(107,46): error TS2345: Argument of type 'unknown[]' is not assignable to parameter of type 'IDocumentthreadPopulated[]'.
   Type 'unknown' is not assignable to type 'IDocumentthreadPopulated'.
 src/pages/TaiGerOrg/EditorPage.tsx(111,17): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
@@ -4657,62 +4692,58 @@ src/pages/Users/AddUserModal.tsx(203,39): error TS2345: Argument of type 'MouseE
   Types of property 'currentTarget' are incompatible.
     Type 'EventTarget & HTMLButtonElement' is not assignable to type 'EventTarget & HTMLFormElement'.
       Type 'EventTarget & HTMLButtonElement' is missing the following properties from type 'HTMLFormElement': acceptCharset, action, autocomplete, elements, and 12 more.
-src/pages/Users/UsersList.tsx(71,60): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
-src/pages/Users/UsersList.tsx(73,44): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
-src/pages/Users/UsersList.tsx(75,45): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
-src/pages/Users/UsersList.tsx(109,33): error TS2769: No overload matches this call.
+src/pages/Users/UsersList.tsx(68,60): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
+src/pages/Users/UsersList.tsx(70,44): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
+src/pages/Users/UsersList.tsx(72,45): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
+src/pages/Users/UsersList.tsx(106,33): error TS2769: No overload matches this call.
   Overload 1 of 2, '(props: { component: ElementType<any, keyof IntrinsicElements>; } & AvatarOwnProps & AvatarSlotsAndSlotProps & CommonProps & Omit<...>): Element | null', gave the following error.
     Type 'unknown' is not assignable to type 'string | undefined'.
   Overload 2 of 2, '(props: DefaultComponentProps<AvatarTypeMap<{}, "div">>): Element | null', gave the following error.
     Type 'unknown' is not assignable to type 'string | undefined'.
-src/pages/Users/UsersList.tsx(138,37): error TS2769: No overload matches this call.
+src/pages/Users/UsersList.tsx(135,37): error TS2769: No overload matches this call.
   Overload 1 of 2, '(props: { component: ElementType<any, keyof IntrinsicElements>; } & TypographyOwnProps & CommonProps & Omit<any, "children" | ... 112 more ... | "variantMapping">): Element | null', gave the following error.
     Type '{}' is not assignable to type 'ReactNode'.
   Overload 2 of 2, '(props: DefaultComponentProps<TypographyTypeMap<{}, "span">>): Element | null', gave the following error.
     Type '{}' is not assignable to type 'ReactNode'.
-src/pages/Users/UsersList.tsx(164,26): error TS2769: No overload matches this call.
+src/pages/Users/UsersList.tsx(161,26): error TS2769: No overload matches this call.
   Overload 2 of 2, '(props: DefaultComponentProps<ChipTypeMap<{}, "div">>): Element | null', gave the following error.
     Type 'unknown' is not assignable to type 'Key | null | undefined'.
   Overload 2 of 2, '(props: DefaultComponentProps<ChipTypeMap<{}, "div">>): Element | null', gave the following error.
     Type 'unknown' is not assignable to type 'ReactNode'.
-src/pages/Users/UsersList.tsx(189,39): error TS2345: Argument of type '{}' is not assignable to parameter of type 'string | number | Date'.
-src/pages/Users/UsersList.tsx(195,46): error TS2345: Argument of type '{}' is not assignable to parameter of type 'string | number | Date'.
+src/pages/Users/UsersList.tsx(186,39): error TS2345: Argument of type '{}' is not assignable to parameter of type 'string | number | Date'.
+src/pages/Users/UsersList.tsx(192,46): error TS2345: Argument of type '{}' is not assignable to parameter of type 'string | number | Date'.
+src/pages/Users/UsersList.tsx(200,36): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type '{}' is not assignable to parameter of type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type '{}' is not assignable to parameter of type 'string | number'.
 src/pages/Users/UsersList.tsx(203,36): error TS2769: No overload matches this call.
   Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
     Argument of type '{}' is not assignable to parameter of type 'string | number | Date'.
   Overload 2 of 4, '(value: string | number): Date', gave the following error.
     Argument of type '{}' is not assignable to parameter of type 'string | number'.
-src/pages/Users/UsersList.tsx(206,36): error TS2769: No overload matches this call.
+src/pages/Users/UsersList.tsx(215,39): error TS2345: Argument of type '{}' is not assignable to parameter of type 'string | number | Date'.
+src/pages/Users/UsersList.tsx(221,46): error TS2345: Argument of type '{}' is not assignable to parameter of type 'string | number | Date'.
+src/pages/Users/UsersList.tsx(229,36): error TS2769: No overload matches this call.
   Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
     Argument of type '{}' is not assignable to parameter of type 'string | number | Date'.
   Overload 2 of 4, '(value: string | number): Date', gave the following error.
     Argument of type '{}' is not assignable to parameter of type 'string | number'.
-src/pages/Users/UsersList.tsx(218,39): error TS2345: Argument of type '{}' is not assignable to parameter of type 'string | number | Date'.
-src/pages/Users/UsersList.tsx(224,46): error TS2345: Argument of type '{}' is not assignable to parameter of type 'string | number | Date'.
 src/pages/Users/UsersList.tsx(232,36): error TS2769: No overload matches this call.
   Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
     Argument of type '{}' is not assignable to parameter of type 'string | number | Date'.
   Overload 2 of 4, '(value: string | number): Date', gave the following error.
     Argument of type '{}' is not assignable to parameter of type 'string | number'.
-src/pages/Users/UsersList.tsx(235,36): error TS2769: No overload matches this call.
-  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
-    Argument of type '{}' is not assignable to parameter of type 'string | number | Date'.
-  Overload 2 of 4, '(value: string | number): Date', gave the following error.
-    Argument of type '{}' is not assignable to parameter of type 'string | number'.
-src/pages/Users/UsersList.tsx(468,27): error TS2315: Type 'MouseEvent' is not generic.
-src/pages/Users/UsersList.tsx(475,40): error TS2559: Type '{ tableHeadCellStyle: { padding: string; '& .MuiInputAdornment-root': { height: string; }; '& .MuiSvgIcon-root': { fontSize: string; }; }; toolbarStyle: { display: string; justifyContent: string; alignItems: string; height: string; padding: string; flexWrap: string; backgroundColor: string; }; }' has no properties in common with type '{ tableHeadStyle?: object | undefined; tableBodyRowStyle?: object | undefined; tableContainerStyle?: object | undefined; tablePaperStyle?: object | undefined; tableBottomToolbarStyle?: object | undefined; searchTextFieldStyle?: object | undefined; searchFieldInputStyle?: object | undefined; tableFilterTextFieldStyle...'.
-src/pages/Users/UsersList.tsx(482,9): error TS2740: Type '{}' is missing the following properties from type 'Record<string, unknown>[]': length, pop, push, concat, and 29 more.
-src/pages/Users/UsersList.tsx(512,17): error TS2322: Type '(user_firstname: string, user_lastname: string, user_id: string, archiv: boolean) => void' is not assignable to type '(firstname: string, lastname: string, id: string, archiv?: boolean | undefined) => void'.
-  Types of parameters 'archiv' and 'archiv' are incompatible.
-    Type 'boolean | undefined' is not assignable to type 'boolean'.
-      Type 'undefined' is not assignable to type 'boolean'.
-src/pages/Users/UsersList.tsx(515,17): error TS2322: Type 'MRT_TableInstance<Record<string, unknown>>' is not assignable to type '{ getSelectedRowModel: () => { rows: { original: UserRow; }[]; }; }'.
+src/pages/Users/UsersList.tsx(450,27): error TS2315: Type 'MouseEvent' is not generic.
+src/pages/Users/UsersList.tsx(457,40): error TS2559: Type '{ tableHeadCellStyle: { padding: string; '& .MuiInputAdornment-root': { height: string; }; '& .MuiSvgIcon-root': { fontSize: string; }; }; toolbarStyle: { display: string; justifyContent: string; alignItems: string; height: string; padding: string; flexWrap: string; backgroundColor: string; }; }' has no properties in common with type '{ tableHeadStyle?: object | undefined; tableBodyRowStyle?: object | undefined; tableContainerStyle?: object | undefined; tablePaperStyle?: object | undefined; tableBottomToolbarStyle?: object | undefined; searchTextFieldStyle?: object | undefined; searchFieldInputStyle?: object | undefined; tableFilterTextFieldStyle...'.
+src/pages/Users/UsersList.tsx(464,9): error TS2740: Type '{}' is missing the following properties from type 'Record<string, unknown>[]': length, pop, push, concat, and 29 more.
+src/pages/Users/UsersList.tsx(497,17): error TS2322: Type 'MRT_TableInstance<Record<string, unknown>>' is not assignable to type '{ getSelectedRowModel: () => { rows: { original: UserRow; }[]; }; }'.
   The types of 'getSelectedRowModel().rows' are incompatible between these types.
     Type 'MRT_Row<Record<string, unknown>>[]' is not assignable to type '{ original: UserRow; }[]'.
       Type 'MRT_Row<Record<string, unknown>>' is not assignable to type '{ original: UserRow; }'.
         Types of property 'original' are incompatible.
           Type 'Record<string, unknown>' is missing the following properties from type 'UserRow': firstname, lastname, _id
-src/pages/Users/UsersList.tsx(528,17): error TS2322: Type '(e: React.ChangeEvent<HTMLInputElement>) => void' is not assignable to type '(e: unknown) => void'.
+src/pages/Users/UsersList.tsx(510,17): error TS2322: Type '(e: React.ChangeEvent<HTMLInputElement>) => void' is not assignable to type '(e: unknown) => void'.
   Types of parameters 'e' and 'e' are incompatible.
     Type 'unknown' is not assignable to type 'ChangeEvent<HTMLInputElement>'.
 src/pages/Users/UsersTable.tsx(83,9): error TS6133: 'e' is declared but its value is never read.

@@ -25,6 +25,7 @@ import {
     Stack,
     useTheme
 } from '@mui/material';
+import { ConfirmDialog } from '@components/ConfirmDialog';
 import { is_TaiGer_role } from '@taiger-common/core';
 import type { IComplaintWithId, IUser, IUserWithId } from '@taiger-common/model';
 
@@ -713,28 +714,18 @@ const CustomerTicketDetailPageBody = ({
                     </Button>
                 </DialogActions>
             </Dialog>
-            <Dialog onClose={() => setOpen(false)} open={open}>
-                <DialogTitle>{t('Warning', { ns: 'common' })}</DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
-                        {t('Do you want to delete this ticket?', {
-                            ns: 'tickets'
-                        })}
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button
-                        color="error"
-                        onClick={handleDeleteTicketClick}
-                        variant="contained"
-                    >
-                        {t('Yes', { ns: 'common' })}
-                    </Button>
-                    <Button onClick={() => setOpen(false)} variant="outlined">
-                        {t('No', { ns: 'common' })}
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            <ConfirmDialog
+                open={open}
+                onClose={() => setOpen(false)}
+                title={t('Warning', { ns: 'common' })}
+                content={t('Do you want to delete this ticket?', {
+                    ns: 'tickets'
+                })}
+                variant="confirm"
+                confirmLabel={t('Yes', { ns: 'common' })}
+                cancelLabel={t('No', { ns: 'common' })}
+                onConfirm={handleDeleteTicketClick}
+            />
         </Box>
     );
 };
