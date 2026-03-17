@@ -1,11 +1,12 @@
 import { type ReactNode } from 'react';
 import { Box, Stack } from '@mui/material';
+import type { MRT_TableInstance } from 'material-react-table';
 import {
     MRT_GlobalFilterTextField as MRTGlobalFilterTextField,
     MRT_ToggleFiltersButton as MRTToggleFiltersButton
 } from 'material-react-table';
 
-interface GenericTopToolbarTable {
+export interface GenericTopToolbarTable {
     getSelectedRowModel: () => { rows: unknown[] };
     getRowModel?: () => { rows: unknown[] };
     getPrePaginationRowModel?: () => { rows: unknown[] };
@@ -45,7 +46,13 @@ export const GenericTopToolbar = ({
                     sx={{ width: '100%' }}
                 >
                     <Box sx={{ minWidth: 200 }}>
-                        <MRTGlobalFilterTextField table={table} />
+                        <MRTGlobalFilterTextField
+                            table={
+                                table as MRT_TableInstance<
+                                    Record<string, unknown>
+                                >
+                            }
+                        />
                     </Box>
                     <Stack direction="row" spacing={1}>
                         {actions}
@@ -58,8 +65,13 @@ export const GenericTopToolbar = ({
     return (
         <Box sx={toolbarStyle}>
             <Box sx={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                <MRTGlobalFilterTextField table={table} />
-                <MRTToggleFiltersButton sx={{ height: '40px' }} table={table} />
+                <MRTGlobalFilterTextField
+                    table={table as MRT_TableInstance<Record<string, unknown>>}
+                />
+                <MRTToggleFiltersButton
+                    sx={{ height: '40px' }}
+                    table={table as MRT_TableInstance<Record<string, unknown>>}
+                />
                 {filterExtras}
             </Box>
             <Stack direction="row" justifyContent="flex-end" spacing={1}>

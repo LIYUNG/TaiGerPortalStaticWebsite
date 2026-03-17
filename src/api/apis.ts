@@ -1552,7 +1552,7 @@ export const getCRMStats = () =>
 export const getCRMLeads = () =>
     request.get<GetCRMLeadsResponse>(`/api/crm/leads`);
 export const getCRMLead = (leadId: LeadId) =>
-    request.get<GetCRMLeadResponse>(`/api/crm/leads/${leadId}`);
+    getData<GetCRMLeadResponse>(`/api/crm/leads/${leadId}`);
 export const getLeadIdByUserId = (userId: UserId) =>
     request.get<GetLeadIdByUserIdResponse>(`/api/crm/students/${userId}/lead`);
 export const createLeadFromStudent = (userId: UserId) =>

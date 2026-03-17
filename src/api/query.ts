@@ -3,7 +3,6 @@ import {
     getAdmissions,
     getAdmissionsOverview,
     verifyV2,
-    getProgramsV2,
     getProgramsOverview,
     getSchoolsDistribution,
     getProgramTicketsV2,
@@ -21,11 +20,9 @@ import {
     getPdfV2,
     getMyCommunicationThreadV2,
     getMessagThread,
-    getStudentsV3,
     getStudent,
     getMyStudentsApplications,
     getMyStudentsThreads,
-    getApplications,
     getApplicationStudentV2,
     getQueryStudentsResults,
     getStudentAndDocLinks,
@@ -38,7 +35,6 @@ import {
     getIsManager,
     getCRMStats,
     getCRMLeads,
-    getCRMLead,
     getCRMMeetings,
     getCRMMeeting,
     getCRMDeals,
@@ -193,14 +189,6 @@ export const getActiveStudentsQuery = (
         (data as { data?: IStudentResponse[] })?.data || []
 });
 
-export const getStudentsV3Query = (
-    queryString: QueryString
-): UseQueryOptions => ({
-    queryKey: ['students/v3', queryString],
-    queryFn: () => getStudentsV3(queryString),
-    staleTime: 1000 * 60 * 5 // 5 minutes
-});
-
 export const getStudentQuery = (studentId: StudentId): UseQueryOptions => ({
     queryKey: ['student', studentId],
     queryFn: () => getStudent(studentId),
@@ -276,12 +264,6 @@ export const getSameProgramStudentsQuery = ({
     enabled: enabled ?? false
 });
 
-export const getProgramsQuery = (): UseQueryOptions => ({
-    queryKey: ['programs'],
-    queryFn: getProgramsV2,
-    staleTime: 1000 * 60 // 1 minutes
-});
-
 export const getProgramsOverviewQuery = (): UseQueryOptions => ({
     queryKey: ['programs', 'overview'],
     queryFn: getProgramsOverview,
@@ -298,14 +280,6 @@ export const getVerifyQuery = (): UseQueryOptions => ({
     queryKey: ['verify'],
     queryFn: verifyV2,
     staleTime: 1000 * 60 * 10 // 10 minutes
-});
-
-export const getApplicationsQuery = (
-    queryString: QueryString
-): UseQueryOptions => ({
-    queryKey: ['applications', queryString],
-    queryFn: () => getApplications(queryString),
-    staleTime: 1000 * 60 * 5 // 5 minutes
 });
 
 export const getApplicationStudentV2Query = ({
@@ -419,12 +393,6 @@ export const getCRMLeadsQuery = (): UseQueryOptions => ({
     queryKey: ['crm/leads'],
     queryFn: getCRMLeads,
     gcTime: 1000 * 60 * 15 // 15 minutes
-});
-
-export const getCRMLeadQuery = (leadId: string): UseQueryOptions => ({
-    queryKey: ['crm/lead', leadId],
-    queryFn: () => getCRMLead(leadId),
-    gcTime: 1000 * 60 * 5 // 5 minutes
 });
 
 export const getCRMMeetingsQuery = (): UseQueryOptions => ({

@@ -61,7 +61,7 @@ const NavSearch = () => {
                         ? await getQueryResults(searchTerm)
                         : await getQueryPublicResults(searchTerm);
                 if (response.data.success) {
-                    setSearchResults(response.data.data ?? []);
+                    setSearchResults((response.data.data ?? []) as SearchResultItem[]);
                     setIsResultsVisible(true);
                     setLoading(false);
                 } else {

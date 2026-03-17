@@ -9,7 +9,10 @@ import { mockSingleData } from '../../test/testingStudentData';
 
 vi.mock('react-router-dom', () => ({
     Navigate: () => null,
-    Link: forwardRef((props, ref) =>
+    Link: forwardRef<
+        HTMLAnchorElement,
+        { to?: string; children?: React.ReactNode }
+    >((props, ref) =>
         createElement(
             'a',
             {

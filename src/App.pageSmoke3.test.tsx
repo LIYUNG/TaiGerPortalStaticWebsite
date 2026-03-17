@@ -437,7 +437,6 @@ vi.mock('@/api/query', async (importOriginal) => {
             factory(['applications/taiger-user', 'test', ''], {
                 data: { data: [] }
             }),
-        getStudentsV3Query: () => factory(['students/v3', ''], { data: [] }),
         getProgramsAndCourseKeywordSetsLoader: vi.fn().mockResolvedValue({})
     };
 });

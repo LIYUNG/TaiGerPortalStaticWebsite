@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import queryString from 'query-string';
 
-import { getStudentsV3Query } from '@/api/query';
-import type { IStudentResponse } from '@taiger-common/model';
+import { getStudentsV3 } from '@/api';
+import type { GetStudentsResponse, IStudentResponse } from '@taiger-common/model';
 
 export type StudentsV3Params = Record<
     string,
@@ -15,29 +15,27 @@ export type UseStudentsV3Options = {
 
 /**
  * Fetches students v3 with optional filter params.
- * Unifies getStudentsV3Query usage across dashboards, assignment pages, and dialogs.
  */
 export function useStudentsV3(
     params: StudentsV3Params = {},
     options?: UseStudentsV3Options
 ) {
     const queryStringValue = queryString.stringify(params);
-    const query = getStudentsV3Query(queryStringValue);
 
-    const result = useQuery({
-        ...query,
-        queryFn: async () => {
-            const res = await query.queryFn();
-            return res as { data?: IStudentResponse[] };
-        },
-        select: (data: { data?: IStudentResponse[] } | undefined) =>
-            data?.data ?? [],
+    const result = useQuery<
+        GetStudentsResponse,
+        Error,
+        IStudentResponse[]
+    >({
+        queryKey: ['students/v3', queryStringValue],
+        queryFn: () => getStudentsV3(queryStringValue),
+        staleTime: 1000 * 60 * 5, // 5 minutes
+        select: (response) => response.data ?? [],
         enabled: options?.enabled ?? true
     });
 
     return {
         ...result,
-        data: result.data ?? [],
-        queryKey: query.queryKey
+        queryKey: ['students/v3', queryStringValue]
     };
 }

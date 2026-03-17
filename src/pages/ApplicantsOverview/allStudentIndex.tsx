@@ -5,6 +5,7 @@ import ApplicationOverviewTabs from './ApplicationOverviewTabs';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { appConfig } from '../../config';
+import type { IApplicationPopulated, IStudentResponse } from '@taiger-common/model';
 import { useActiveStudentsApplicationsV2 } from '@hooks/useActiveStudentsApplicationsV2';
 import { useStudentsV3 } from '@hooks/useStudentsV3';
 import { BreadcrumbsNavigation } from '@components/BreadcrumbsNavigation/BreadcrumbsNavigation';
@@ -38,8 +39,8 @@ const AllApplicantsOverview = () => {
                 ]}
             />
             <ApplicationOverviewTabs
-                applications={activeStudentsApplications}
-                students={activeStudents}
+                applications={activeStudentsApplications as IApplicationPopulated[]}
+                students={(activeStudents ?? []) as IStudentResponse[]}
             />
         </Box>
     );

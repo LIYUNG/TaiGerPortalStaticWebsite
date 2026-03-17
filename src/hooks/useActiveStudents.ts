@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import queryString from 'query-string';
+import type { IStudentResponse } from '@taiger-common/model';
 
 import { getActiveStudentsQuery } from '@/api/query';
 
@@ -20,7 +21,7 @@ export function useActiveStudents(params: ActiveStudentsParams = {}) {
 
     return {
         ...result,
-        data: result.data ?? [],
+        data: (result.data ?? []) as IStudentResponse[],
         queryKey: query.queryKey
     };
 }

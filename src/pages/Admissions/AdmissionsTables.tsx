@@ -47,7 +47,8 @@ const AdmissionsTables = () => {
         pending?: number;
         notYetSubmitted?: number;
     };
-    const result: OverviewCounts = (data?.data as OverviewCounts) ?? {};
+    const result: OverviewCounts =
+        (data as { data?: OverviewCounts } | undefined)?.data ?? {};
 
     return (
         <>

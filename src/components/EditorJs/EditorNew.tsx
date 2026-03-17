@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Box, Button } from '@mui/material';
-import EditorJS, { OutputData } from '@editorjs/editorjs';
+import EditorJS, { type BlockToolConstructable, type OutputData } from '@editorjs/editorjs';
 import Header from '@editorjs/header';
 import List from '@editorjs/list';
 import Embed from '@editorjs/embed';
@@ -41,7 +41,7 @@ const EditorNew = (props: EditorNewProps) => {
         editor = new EditorJS({
             holder: 'editorjs',
             logLevel: 'ERROR',
-            data: props.editorState,
+            data: props.editorState ?? undefined,
             onReady: () => {
                 ejInstance.current = editor ?? null;
             },
@@ -60,7 +60,7 @@ const EditorNew = (props: EditorNewProps) => {
             minHeight: 30,
             tools: {
                 header: {
-                    class: Header,
+                    class: Header as unknown as BlockToolConstructable,
                     config: {
                         placeholder: 'Enter a header',
                         levels: [2, 3, 4, 5, 6],
@@ -145,7 +145,7 @@ const EditorNew = (props: EditorNewProps) => {
                 },
                 quote: Quote,
                 table: {
-                    class: Table,
+                    class: Table as unknown as BlockToolConstructable,
                     inlineToolbar: true,
                     config: {
                         rows: 2,

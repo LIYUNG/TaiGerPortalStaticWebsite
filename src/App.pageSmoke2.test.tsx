@@ -359,11 +359,6 @@ vi.mock('@/api/query', async (importOriginal) => {
             queryFn: () => Promise.resolve({ data: { data: {} } }),
             staleTime: 60000
         }),
-        getProgramsQuery: () => ({
-            queryKey: ['programs'],
-            queryFn: () => Promise.resolve({ data: { data: [] } }),
-            staleTime: 60000
-        }),
         getProgramsOverviewQuery: () => ({
             queryKey: ['programs', 'overview'],
             queryFn: () => Promise.resolve({ data: { data: {} } }),
@@ -415,11 +410,6 @@ vi.mock('@/api/query', async (importOriginal) => {
         getMyStudentsApplicationsV2Query: () => ({
             queryKey: ['applications/taiger-user', 'test-user', ''],
             queryFn: () => Promise.resolve({ data: { data: [] } }),
-            staleTime: 300000
-        }),
-        getStudentsV3Query: () => ({
-            queryKey: ['students/v3', ''],
-            queryFn: () => Promise.resolve({ data: [] }),
             staleTime: 300000
         }),
         getApplicationStudentV2Query: () => ({

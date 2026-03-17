@@ -17,3 +17,9 @@ interface ImportMeta {
 }
 
 declare module 'react-big-calendar';
+declare module '@editorjs/embed';
+declare module '@editorjs/attaches';
+declare module 'editorjs-text-color-plugin';
+declare module '@canburaks/text-align-editorjs';
+declare module 'react-file-icon';
+declare module '@fontsource/roboto';

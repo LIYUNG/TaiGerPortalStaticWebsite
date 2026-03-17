@@ -7,6 +7,8 @@ import {
     isProgramSubmitted
 } from '@taiger-common/core';
 
+type ApplicationDecisionLike = Parameters<typeof isProgramDecided>[0];
+
 import {
     frequencyDistribution,
     programs_refactor_v2,
@@ -17,13 +19,16 @@ import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { CustomTabPanel, a11yProps } from '@components/Tabs';
 import { useTranslation } from 'react-i18next';
-import ProgramUpdateStatusTable from './ProgramUpdateStatusTable';
+import ProgramUpdateStatusTable, {
+    type ProgramUpdateStatusRow
+} from './ProgramUpdateStatusTable';
 import { MuiDataGrid } from '@components/MuiDataGrid';
 import TasksDistributionBarChart from '@components/Charts/TasksDistributionBarChart';
 import useStudents from '@hooks/useStudents';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { DECISION_STATUS_E, SUBMISSION_STATUS_E } from '@utils/contants';
 import { StudentsTable } from '../StudentDatabase/StudentsTable';
+import type { Application } from '@/api/types';
 import type {
     IStudentResponse,
     IApplicationPopulated
@@ -207,7 +212,7 @@ const ApplicationOverviewTabs = ({
             }) => {
                 return params.row.decided === '-'
                     ? DECISION_STATUS_E.UNKNOWN_SYMBOL
-                    : isProgramDecided(params.row as unknown)
+                    : isProgramDecided(params.row as ApplicationDecisionLike)
                       ? DECISION_STATUS_E.OK_SYMBOL
                       : DECISION_STATUS_E.NOT_OK_SYMBOL;
             }
@@ -223,7 +228,7 @@ const ApplicationOverviewTabs = ({
             }) => {
                 return params.row.closed === '-'
                     ? SUBMISSION_STATUS_E.UNKNOWN_SYMBOL
-                    : isProgramSubmitted(params.row as unknown)
+                    : isProgramSubmitted(params.row as ApplicationDecisionLike)
                       ? SUBMISSION_STATUS_E.OK_SYMBOL
                       : SUBMISSION_STATUS_E.NOT_OK_SYMBOL;
             }
@@ -358,20 +363,14 @@ const ApplicationOverviewTabs = ({
                             >
                                 {String(selectedRowData?.program ?? '')}
                             </Typography>
-                            {selectedRowData?.application &&
+                            {                            selectedRowData?.application &&
                             selectedRowData?.student ? (
                                 <ApplicationProgressCardBody
                                     application={
-                                        selectedRowData.application as Record<
-                                            string,
-                                            unknown
-                                        >
+                                        selectedRowData.application as Application
                                     }
                                     student={
-                                        selectedRowData.student as Record<
-                                            string,
-                                            unknown
-                                        >
+                                        selectedRowData.student as IStudentResponse
                                     }
                                 />
                             ) : null}
@@ -379,13 +378,21 @@ const ApplicationOverviewTabs = ({
                     </Popover>
                 </CustomTabPanel>
                 <CustomTabPanel index={2} value={value}>
-                    <ProgramUpdateStatusTable data={open_applications_arr} />
+                    <ProgramUpdateStatusTable
+                        data={
+                            open_applications_arr as ProgramUpdateStatusRow[]
+                        }
+                    />
                 </CustomTabPanel>
                 <CustomTabPanel index={3} value={value}>
                     <ProgramUpdateStatusTable
-                        data={open_applications_arr.filter((application) =>
-                            isProgramDecided(application as unknown)
-                        )}
+                        data={
+                            open_applications_arr.filter((application) =>
+                                isProgramDecided(
+                                    application as ApplicationDecisionLike
+                                )
+                            ) as ProgramUpdateStatusRow[]
+                        }
                     />
                 </CustomTabPanel>
             </Box>

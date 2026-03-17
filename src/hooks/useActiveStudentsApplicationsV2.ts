@@ -20,7 +20,7 @@ export function useActiveStudentsApplicationsV2(
         enabled: options?.enabled ?? true
     });
 
-    const applications = result.data?.data ?? [];
+    const applications = (result.data as { data?: unknown[] } | undefined)?.data ?? [];
 
     return {
         ...result,

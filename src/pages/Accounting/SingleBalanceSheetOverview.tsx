@@ -59,17 +59,34 @@ const SingleBalanceSheetOverview = () => {
         return <Loading />;
     }
 
-    if (isError || !response?.data?.success) {
+    const res = response as
+        | {
+              data?: {
+                  success?: boolean;
+                  data?: {
+                      students?: ExtendableTableStudent[];
+                      the_user?: {
+                          _id?: unknown;
+                          firstname?: string;
+                          lastname?: string;
+                          role?: string;
+                          pictureUrl?: string;
+                      };
+                  };
+              };
+              status?: number;
+          }
+        | undefined;
+    if (isError || !res?.data?.success) {
         const axiosError = error as
             | { response?: { status?: number } }
             | undefined;
-        const res_status =
-            (response?.status || axiosError?.response?.status) ?? 500;
+        const res_status = res?.status ?? axiosError?.response?.status ?? 500;
         return <ErrorPage res_status={res_status} />;
     }
 
-    const students: ExtendableTableStudent[] = response.data.data.students;
-    const the_user = response.data.data.the_user;
+    const students: ExtendableTableStudent[] = res.data!.data!.students ?? [];
+    const the_user = res.data!.data!.the_user!;
     const fullName =
         `${the_user.firstname ?? ''} ${the_user.lastname ?? ''}`.trim();
 
@@ -233,7 +250,7 @@ const SingleBalanceSheetOverview = () => {
             <Box sx={{ mt: 3 }}>
                 <Button
                     component={LinkDom}
-                    to={`${DEMO.TEAM_AGENT_ARCHIV_LINK(the_user._id.toString())}`}
+                    to={`${DEMO.TEAM_AGENT_ARCHIV_LINK(String(the_user._id))}`}
                     variant="contained"
                     color="primary"
                     startIcon={<FolderOpenIcon />}

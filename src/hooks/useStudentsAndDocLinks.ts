@@ -28,8 +28,9 @@ export function useStudentsAndDocLinks(
         enabled: options?.enabled ?? true
     });
 
-    const students = result.data?.data;
-    const base_docs_link = result.data?.base_docs_link;
+    const raw = result.data as { data?: unknown; base_docs_link?: unknown } | undefined;
+    const students = raw?.data;
+    const base_docs_link = raw?.base_docs_link;
 
     return {
         ...result,

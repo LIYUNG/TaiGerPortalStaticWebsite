@@ -1,28 +1,22 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { getProgramsQuery } from '@/api/query';
+import { getProgramsV2 } from '@/api';
+import type { GetProgramsResponse } from '@taiger-common/model';
 import type { ProgramResponse } from '@/api/types';
 
 /**
  * Fetches all programs.
- * Unifies getProgramsQuery usage across ProgramList and other consumers.
  */
 export function usePrograms() {
-    const query = getProgramsQuery();
-
-    const result = useQuery({
-        ...query,
-        queryFn: async () => {
-            const res = await query.queryFn();
-            return res as { data?: ProgramResponse[] };
-        },
-        select: (data: { data?: ProgramResponse[] } | undefined) =>
-            data?.data ?? []
+    const result = useQuery<GetProgramsResponse, Error, ProgramResponse[]>({
+        queryKey: ['programs'],
+        queryFn: getProgramsV2,
+        staleTime: 1000 * 60, // 1 minute
+        select: (response) => response.data ?? []
     });
 
     return {
         ...result,
-        data: result.data ?? [],
-        queryKey: query.queryKey
+        queryKey: ['programs'] as const
     };
 }

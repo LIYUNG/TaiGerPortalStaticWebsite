@@ -8,6 +8,7 @@ vi.mock('./statusUtils', () => ({
     )
 }));
 
+import type { CRMDealItem } from '@taiger-common/model';
 import DealItem from './DealItem';
 import type { TFunction } from 'i18next';
 
@@ -22,7 +23,7 @@ const mockDeal = {
 };
 
 const defaultProps = {
-    deal: mockDeal as unknown as import('@taiger-common/model').CRMDealItem,
+    deal: mockDeal as unknown as CRMDealItem,
     t: mockT,
     onOpenStatusMenu: vi.fn(),
     onEditDeal: vi.fn(),

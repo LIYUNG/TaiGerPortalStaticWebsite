@@ -1,0 +1,20 @@
+---
+description: When fixing TSC errors, avoid unknown types; use proper types instead
+globs: "**/*.ts,**/*.tsx"
+alwaysApply: true
+---
+
+# TypeScript / TSC Refactor: Prefer Concrete Types Over Unknown
+
+When fixing TypeScript (TSC) errors in this codebase:
+
+- **Do not use `unknown` as a long-term fix.** Avoid patterns like `as unknown as SomeType` or typing variables/parameters as `unknown` just to satisfy the compiler.
+- **Use proper, concrete types instead:**
+  - Import or define the correct interface/type from the source (e.g. `@taiger-common/model`, `@/api/types`) and use it.
+  - For API/query responses, type the response shape (e.g. `{ data?: T }`) or use the hook’s generic/return type.
+  - For component props or callbacks, use the actual prop types or `Parameters<typeof fn>[0]` etc., not `unknown`.
+- **Reserve `unknown` only for:**
+  - Truly dynamic data that cannot be typed (e.g. JSON.parse before validation), or
+  - A minimal escape hatch when a type is not yet available, with a short TODO to replace it with a proper type.
+
+This keeps the codebase type-safe and easier to refactor, and avoids hiding real type mismatches behind `unknown`.

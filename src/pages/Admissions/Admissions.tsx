@@ -16,6 +16,7 @@ import { appConfig } from '../../config';
 import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';
 import { a11yProps, CustomTabPanel } from '@components/Tabs';
+import type { AdmissionsStatRow } from '@/api/types';
 import { getAdmissionsQuery } from '@/api/query';
 import { BreadcrumbsNavigation } from '@components/BreadcrumbsNavigation/BreadcrumbsNavigation';
 import { useEffect, useMemo, useState, type SyntheticEvent } from 'react';
@@ -65,7 +66,7 @@ const Admissions = () => {
         });
     };
 
-    const result = data?.result;
+    const result = (data as { result?: unknown } | undefined)?.result;
 
     if (!is_TaiGer_role(user!)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
@@ -137,7 +138,7 @@ const Admissions = () => {
                         <StudentAdmissionsTables />
                     </CustomTabPanel>
                     <CustomTabPanel index={3} value={value}>
-                        <AdmissionsStat result={result} />
+                        <AdmissionsStat result={result as AdmissionsStatRow[]} />
                     </CustomTabPanel>
                 </>
             ) : null}

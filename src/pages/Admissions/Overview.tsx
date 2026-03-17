@@ -416,7 +416,9 @@ const Overview = () => {
 
         for (const loc of counts.values()) {
             const city = loc.city;
-            const coords = city ? cityCoord[city] : null;
+            const coords = city
+                ? (cityCoord as Record<string, number[] | null>)[city]
+                : null;
             if (!coords || !Array.isArray(coords)) continue; // skip if city not in mapping or null
             const [lat, lng] = coords;
             if (!isValidCoordinate(lat) || !isValidCoordinate(lng)) continue;
