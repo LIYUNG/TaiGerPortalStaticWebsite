@@ -1,21 +1,25 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { getTasksOverviewQuery } from '@/api/query';
+import { getTasksOverview } from '@/api';
+import type {
+    GetTasksOverviewResponse,
+    TasksOverviewData
+} from '@taiger-common/model';
 
 /**
  * Fetches tasks overview (admin/editor to-do counts).
- * Unifies getTasksOverviewQuery usage across AdminMainView and EditorMainView.
  */
 export function useTasksOverview() {
-    const query = getTasksOverviewQuery();
-
-    const result = useQuery(query);
+    const result = useQuery<GetTasksOverviewResponse, Error, TasksOverviewData>({
+        queryKey: ['tasks-overview'],
+        queryFn: getTasksOverview,
+        staleTime: 1000 * 60 * 5, // 5 minutes
+        select: (response) => response.data ?? ({} as TasksOverviewData)
+    });
 
     return {
         ...result,
-        data:
-            (result.data as { data?: Record<string, unknown> } | undefined)
-                ?.data ?? {},
-        queryKey: query.queryKey
+        data: result.data ?? ({} as TasksOverviewData),
+        queryKey: ['tasks-overview'] as const
     };
 }

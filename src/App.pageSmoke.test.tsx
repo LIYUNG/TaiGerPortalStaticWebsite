@@ -193,11 +193,6 @@ vi.mock('@/api/query', async (importOriginal) => {
     const actual = await importOriginal<typeof import('@/api/query')>();
     return {
         ...actual,
-        getStudentsAndDocLinks2Query: (queryString: string) => ({
-            queryKey: ['students/doc-links', queryString],
-            queryFn: () => Promise.resolve({ data: [], base_docs_link: [] }),
-            staleTime: 1000 * 60 * 1
-        }),
         getUsersCountQuery: () => ({
             queryKey: ['users/count'],
             queryFn: () =>

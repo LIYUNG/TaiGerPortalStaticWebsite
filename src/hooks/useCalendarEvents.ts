@@ -2,8 +2,14 @@ import { ChangeEvent, FormEvent, useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import queryString from 'query-string';
 
-import { confirmEvent, deleteEvent, postEvent, updateEvent } from '@/api';
-import { getEventsQuery, getBookedEventsQuery } from '@/api/query';
+import {
+    confirmEvent,
+    deleteEvent,
+    getBookedEvents,
+    getEvents,
+    postEvent,
+    updateEvent
+} from '@/api';
 import { useStudentsV3 } from '@hooks/useStudentsV3';
 import {
     is_TaiGer_Agent,
@@ -28,22 +34,26 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
     const { user } = useAuth();
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
 
-    const eventsQuery = useQuery(
-        getEventsQuery(
-            queryString.stringify({
-                startTime: props.startTime,
-                endTime: props.endTime,
-                requester_id: props.requester_id,
-                receiver_id: props.receiver_id
-            })
-        )
-    );
+    const eventsQueryString = queryString.stringify({
+        startTime: props.startTime,
+        endTime: props.endTime,
+        requester_id: props.requester_id,
+        receiver_id: props.receiver_id
+    });
+
+    const eventsQuery = useQuery({
+        queryKey: ['events', eventsQueryString],
+        queryFn: () => getEvents(eventsQueryString),
+        staleTime: 1000 * 60 * 2 // 2 minutes
+    });
 
     const bookedEventsQuery = useQuery({
-        ...getBookedEventsQuery({
+        queryKey: ['events', 'booked', { startTime: props.startTime, endTime: props.endTime }],
+        queryFn: () => getBookedEvents({
             startTime: props.startTime,
             endTime: props.endTime
         }),
+        staleTime: 1000 * 60 * 2, // 2 minutes
         enabled: !props.isAll && user != null && is_TaiGer_Student(user)
     });
     const studentsParams =

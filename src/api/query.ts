@@ -3,11 +3,8 @@ import {
     getAdmissions,
     getAdmissionsOverview,
     verifyV2,
-    getProgramsOverview,
-    getSchoolsDistribution,
     getProgramTicketsV2,
     getProgramV2,
-    getStudentsAndDocLinks2,
     getStatisticsOverviewV2,
     getStatisticsAgentsV2,
     getStatisticsKPIV2,
@@ -21,15 +18,12 @@ import {
     getMyCommunicationThreadV2,
     getMessagThread,
     getStudent,
-    getMyStudentsThreads,
     getApplicationStudentV2,
     getQueryStudentsResults,
     getStudentAndDocLinks,
-    getActiveStudents,
     getInterviews,
     getInterview,
     getAuditLog,
-    getTasksOverview,
     getIsManager,
     getCRMStats,
     getCRMLeads,
@@ -42,18 +36,14 @@ import {
     getUsers,
     getUsersCount,
     getUsersOverview,
-    getActiveThreads,
     getSameProgramStudents,
     getArchivStudents,
-    getTeamMembers,
     getExpense,
     getApplicationConflicts,
-    getMycourses,
-    getEvents,
-    getBookedEvents
+    getMycourses
 } from '.';
 import type { QueryString } from './types';
-import type { IDocumentthreadPopulated, IStudentResponse, StudentId, UserId } from '@taiger-common/model';
+import type { StudentId, UserId } from '@taiger-common/model';
 
 export const getMessagThreadQuery = (threadId: string): UseQueryOptions => ({
     queryKey: ['MessageThread', threadId],
@@ -67,16 +57,6 @@ export const getMessagThreadQuery = (threadId: string): UseQueryOptions => ({
         }
     },
     staleTime: 1000 * 60 // 1 minutes
-});
-
-export const getActiveThreadsQuery = (
-    queryString: QueryString
-): UseQueryOptions => ({
-    queryKey: ['active-threads', queryString],
-    queryFn: () => getActiveThreads(queryString),
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    select: (data: unknown) =>
-        (data as { data?: IDocumentthreadPopulated[] })?.data || []
 });
 
 export const getProgramQuery = ({
@@ -139,12 +119,6 @@ export const getStatisticsResponseTimeQuery = (): UseQueryOptions => ({
     enabled: false // will be enabled only when the tab is active
 });
 
-export const getTasksOverviewQuery = (): UseQueryOptions => ({
-    queryKey: ['tasks-overview'],
-    queryFn: getTasksOverview,
-    staleTime: 1000 * 60 * 5 // 5 minutes
-});
-
 export const getIsManagerQuery = ({
     userId
 }: {
@@ -175,16 +149,6 @@ export const getUsersOverviewQuery = (): UseQueryOptions => ({
     queryKey: ['users', 'overview'],
     queryFn: getUsersOverview,
     staleTime: 1000 * 60 * 5 // 5 minutes
-});
-
-export const getActiveStudentsQuery = (
-    queryString: QueryString
-): UseQueryOptions => ({
-    queryKey: ['students/active', queryString],
-    queryFn: () => getActiveStudents(queryString),
-    staleTime: 1000 * 60 * 1, // 1 minutes
-    select: (data: unknown) =>
-        (data as { data?: IStudentResponse[] })?.data || []
 });
 
 export const getStudentQuery = (studentId: StudentId): UseQueryOptions => ({
@@ -262,18 +226,6 @@ export const getSameProgramStudentsQuery = ({
     enabled: enabled ?? false
 });
 
-export const getProgramsOverviewQuery = (): UseQueryOptions => ({
-    queryKey: ['programs', 'overview'],
-    queryFn: getProgramsOverview,
-    staleTime: 1000 * 60 * 5 // 5 minutes
-});
-
-export const getSchoolsDistributionQuery = (): UseQueryOptions => ({
-    queryKey: ['programs', 'schools-distribution'],
-    queryFn: getSchoolsDistribution,
-    staleTime: 1000 * 60 * 5 // 5 minutes
-});
-
 export const getVerifyQuery = (): UseQueryOptions => ({
     queryKey: ['verify'],
     queryFn: verifyV2,
@@ -309,28 +261,6 @@ export const getStudentAndDocLinksQuery = ({
     queryKey: ['students/doc-links', studentId],
     queryFn: () => getStudentAndDocLinks(studentId),
     staleTime: 1000 * 60 * 5 // 5 minutes
-});
-
-export const getMyStudentsThreadsQuery = ({
-    userId,
-    queryString
-}: {
-    userId: UserId;
-    queryString: QueryString;
-}): UseQueryOptions => ({
-    queryKey: ['document-threads/overview/taiger-user', userId, queryString],
-    queryFn: () => getMyStudentsThreads({ userId, queryString }),
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    select: (response: unknown) =>
-        (response as { data?: unknown } | null)?.data ?? null
-});
-
-export const getStudentsAndDocLinks2Query = (
-    queryString: QueryString
-): UseQueryOptions => ({
-    queryKey: ['students/doc-links', queryString],
-    queryFn: () => getStudentsAndDocLinks2(queryString),
-    staleTime: 1000 * 60 * 1 // 1 minutes
 });
 
 export const getAdmissionsQuery = (
@@ -413,12 +343,6 @@ export const getArchivStudentsQuery = (
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
 
-export const getTeamMembersQuery = (): UseQueryOptions => ({
-    queryKey: ['team-members'],
-    queryFn: getTeamMembers,
-    staleTime: 1000 * 60 * 5 // 5 minutes
-});
-
 export const getExpenseQuery = (taigerUserId: UserId): UseQueryOptions => ({
     queryKey: ['expenses', 'user', taigerUserId],
     queryFn: () => getExpense(taigerUserId),
@@ -437,20 +361,3 @@ export const getMycoursesQuery = (studentId: StudentId): UseQueryOptions => ({
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
 
-export const getEventsQuery = (queryString: QueryString): UseQueryOptions => ({
-    queryKey: ['events', queryString],
-    queryFn: () => getEvents(queryString),
-    staleTime: 1000 * 60 * 2 // 2 minutes
-});
-
-export const getBookedEventsQuery = ({
-    startTime,
-    endTime
-}: {
-    startTime: string;
-    endTime: string;
-}): UseQueryOptions => ({
-    queryKey: ['events', 'booked', { startTime, endTime }],
-    queryFn: () => getBookedEvents({ startTime, endTime }),
-    staleTime: 1000 * 60 * 2 // 2 minutes
-});

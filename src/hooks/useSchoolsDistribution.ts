@@ -1,19 +1,26 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { getSchoolsDistributionQuery } from '@/api/query';
+import { getSchoolsDistribution } from '@/api';
+import type { GetSchoolsDistributionResponse } from '@taiger-common/model';
 
 /**
  * Fetches schools distribution (list of schools with program counts).
- * Unifies getSchoolsDistributionQuery usage across SchoolDistributionPage.
  */
 export function useSchoolsDistribution() {
-    const query = getSchoolsDistributionQuery();
-
-    const result = useQuery(query);
+    const result = useQuery<
+        GetSchoolsDistributionResponse,
+        Error,
+        unknown[]
+    >({
+        queryKey: ['programs', 'schools-distribution'],
+        queryFn: getSchoolsDistribution,
+        staleTime: 1000 * 60 * 5, // 5 minutes
+        select: (response) => response.data ?? []
+    });
 
     return {
         ...result,
-        data: (result.data as { data?: unknown[] } | undefined)?.data ?? [],
-        queryKey: query.queryKey
+        data: result.data ?? [],
+        queryKey: ['programs', 'schools-distribution'] as const
     };
 }

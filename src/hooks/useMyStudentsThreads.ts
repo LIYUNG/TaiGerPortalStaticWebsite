@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { getMyStudentsThreadsQuery } from '@/api/query';
+import { getMyStudentsThreads } from '@/api';
 import type { QueryString } from '@/api/types';
-import type { UserId } from '@taiger-common/model';
+import type { GetMyStudentThreadsResponse, UserId } from '@taiger-common/model';
 
 export type UseMyStudentsThreadsParams = {
     userId: UserId;
@@ -19,28 +19,36 @@ export type MyStudentsThreadsData = {
 
 /**
  * Fetches my students threads (document-threads overview) for the given user and query.
- * Unifies getMyStudentsThreadsQuery usage across AgentSupportDocuments, AgentMainView, EditorMainView.
  */
 export function useMyStudentsThreads(params: UseMyStudentsThreadsParams | null) {
-    const query =
+    const queryKey =
         params != null
-            ? getMyStudentsThreadsQuery({
-                  userId: params.userId,
-                  queryString: params.queryString
-              })
-            : null;
+            ? (['document-threads/overview/taiger-user', params.userId, params.queryString] as const)
+            : (['document-threads/overview/taiger-user', 'disabled'] as const);
 
-    const result = useQuery({
-        ...(query ?? {
-            queryKey: ['document-threads/overview/taiger-user', 'disabled'],
-            queryFn: () => Promise.resolve(null)
-        }),
+    const result = useQuery<
+        GetMyStudentThreadsResponse | null,
+        Error,
+        MyStudentsThreadsData
+    >({
+        queryKey,
+        queryFn: () =>
+            params != null
+                ? getMyStudentsThreads({
+                      userId: params.userId,
+                      queryString: params.queryString
+                  })
+                : Promise.resolve(null),
         enabled: params != null,
-        select: (response: unknown): MyStudentsThreadsData => {
+        staleTime: 1000 * 60 * 5, // 5 minutes
+        select: (response): MyStudentsThreadsData => {
+            if (response == null) {
+                return { threads: [], success: false, status: 0, user: undefined };
+            }
             const res = response as {
                 data?: { threads?: unknown[]; success?: boolean; user?: unknown };
                 status?: number;
-            } | null;
+            };
             return {
                 threads: res?.data?.threads ?? [],
                 success: res?.data?.success ?? false,
@@ -53,6 +61,6 @@ export function useMyStudentsThreads(params: UseMyStudentsThreadsParams | null) 
     return {
         ...result,
         data: result.data ?? { threads: [], success: false, status: 0, user: undefined },
-        queryKey: query?.queryKey
+        queryKey
     };
 }

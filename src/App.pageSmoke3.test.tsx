@@ -375,35 +375,14 @@ vi.mock('@/api/query', async (importOriginal) => {
             factory(['communications', 'my'], { data: { data: [] } }),
         getMessagThreadQuery: () =>
             factory(['MessageThread', 'test'], { data: { data: {} } }),
-        getActiveThreadsQuery: (qs: string) =>
-            factory(['active-threads', qs], { data: [] }),
-        getActiveStudentsQuery: (qs: string) =>
-            factory(['students/active', qs], { data: [] }),
         getAllCoursessQuery: () =>
             factory(['all-courses/all'], { data: { data: [] } }),
         getCoursessQuery: () =>
             factory(['all-courses/all', 'test'], { data: { data: {} } }),
         getProgramRequirementsQuery: () =>
             factory(['program-requirements/all'], { data: { data: [] } }),
-        getEventsQuery: () =>
-            factory(['events', ''], {
-                data: {
-                    data: [],
-                    success: true,
-                    agents: {},
-                    editors: [],
-                    hasEvents: false
-                }
-            }),
-        getBookedEventsQuery: () =>
-            factory(['events', 'booked'], { data: { data: [] } }),
         getMycoursesQuery: () =>
             factory(['mycourses', 'test'], { data: { data: [] } }),
-        getStudentsAndDocLinks2Query: (qs: string) =>
-            factory(['students/doc-links', qs], {
-                data: [],
-                base_docs_link: []
-            }),
         getUsersCountQuery: () =>
             factory(['users/count'], {
                 data: {
@@ -415,24 +394,12 @@ vi.mock('@/api/query', async (importOriginal) => {
                 }
             }),
         getUsersQuery: () => factory(['users'], { data: { data: [] } }),
-        getTeamMembersQuery: () =>
-            factory(['team-members'], { data: { data: [], success: true } }),
         getApplicationStudentV2Query: () =>
             factory(['applications/student', 'test'], { data: null }),
-        getProgramsOverviewQuery: () =>
-            factory(['programs', 'overview'], { data: { data: {} } }),
-        getSchoolsDistributionQuery: () =>
-            factory(['programs', 'schools-distribution'], {
-                data: { data: [] }
-            }),
         getInterviewsByStudentIdQuery: () =>
             factory(['interviews/student', 'test'], { data: { data: [] } }),
         getInterviewsByProgramIdQuery: () =>
             factory(['interviews/program', 'test'], { data: { data: [] } }),
-        getMyStudentsThreadsQuery: () =>
-            factory(['document-threads/overview/taiger-user', 'test', ''], {
-                data: null
-            }),
         getProgramsAndCourseKeywordSetsLoader: vi.fn().mockResolvedValue({})
     };
 });

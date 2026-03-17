@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import queryString from 'query-string';
-import type { IStudentResponse } from '@taiger-common/model';
 
-import { getActiveStudentsQuery } from '@/api/query';
+import { getActiveStudents } from '@/api';
+import type { GetActiveStudentsResponse, IStudentResponse } from '@taiger-common/model';
 
 export type ActiveStudentsParams = Record<
     string,
@@ -11,17 +11,20 @@ export type ActiveStudentsParams = Record<
 
 /**
  * Fetches active students with optional filter params.
- * Unifies getActiveStudentsQuery usage across StudentOverview, MyStudentsOverview, StudentAdmissionTables.
  */
 export function useActiveStudents(params: ActiveStudentsParams = {}) {
     const queryStringValue = queryString.stringify(params);
-    const query = getActiveStudentsQuery(queryStringValue);
 
-    const result = useQuery(query);
+    const result = useQuery<GetActiveStudentsResponse, Error, IStudentResponse[]>({
+        queryKey: ['students/active', queryStringValue],
+        queryFn: () => getActiveStudents(queryStringValue),
+        staleTime: 1000 * 60 * 1, // 1 minute
+        select: (response) => response.data ?? []
+    });
 
     return {
         ...result,
-        data: (result.data ?? []) as IStudentResponse[],
-        queryKey: query.queryKey
+        data: result.data ?? [],
+        queryKey: ['students/active', queryStringValue] as const
     };
 }

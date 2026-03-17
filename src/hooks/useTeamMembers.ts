@@ -1,27 +1,31 @@
 import { useQuery } from '@tanstack/react-query';
+import type { AxiosResponse } from 'axios';
 
-import { getTeamMembersQuery } from '@/api/query';
+import { getTeamMembers } from '@/api';
+import type { GetTeamMembersResponse } from '@taiger-common/model';
 
 /**
  * Fetches team members (admins, agents, editors).
- * Unifies getTeamMembersQuery usage across TaiGerMember, Accounting, and TaiGerOrg.
  */
 export function useTeamMembers() {
-    const query = getTeamMembersQuery();
-    const result = useQuery(query);
+    const result = useQuery({
+        queryKey: ['team-members'],
+        queryFn: () => getTeamMembers(),
+        staleTime: 1000 * 60 * 5, // 5 minutes
+        gcTime: 1000 * 60 * 5
+    });
 
-    const response = result.data as
-        | { data?: { data?: unknown[]; success?: boolean }; status?: number }
-        | undefined;
-    const teams = response?.data?.data ?? [];
-    const success = response?.data?.success;
-    const status = response?.status;
+    const axiosResponse = result.data as AxiosResponse<GetTeamMembersResponse> | undefined;
+    const body = axiosResponse?.data;
+    const teams = body?.data ?? [];
+    const success = body?.success;
+    const status = axiosResponse?.status;
 
     return {
         ...result,
         teams,
         success,
         status,
-        queryKey: query.queryKey
+        queryKey: ['team-members'] as const
     };
 }

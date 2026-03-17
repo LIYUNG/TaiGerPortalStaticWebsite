@@ -1,8 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import queryString from 'query-string';
 
-import { getActiveThreadsQuery } from '@/api/query';
-import { IDocumentthreadPopulated } from '@taiger-common/model';
+import { getActiveThreads } from '@/api';
+import type {
+    GetActiveThreadsResponse,
+    IDocumentthreadPopulated
+} from '@taiger-common/model';
 
 export type ActiveThreadsParams = Record<
     string,
@@ -11,17 +14,24 @@ export type ActiveThreadsParams = Record<
 
 /**
  * Fetches active document threads with optional filter params.
- * Unifies getActiveThreadsQuery usage across CVMLRLCenter, AssignEssayWriters, EssayDashboard.
  */
 export function useActiveThreads(params: ActiveThreadsParams = {}) {
     const queryStringValue = queryString.stringify(params);
-    const query = getActiveThreadsQuery(queryStringValue);
 
-    const result = useQuery(query);
+    const result = useQuery<
+        GetActiveThreadsResponse,
+        Error,
+        IDocumentthreadPopulated[]
+    >({
+        queryKey: ['active-threads', queryStringValue],
+        queryFn: () => getActiveThreads(queryStringValue),
+        staleTime: 1000 * 60 * 5, // 5 minutes
+        select: (response) => response.data ?? []
+    });
 
     return {
         ...result,
-        data: (result.data as IDocumentthreadPopulated[]) ?? [],
-        queryKey: query.queryKey
+        data: result.data ?? [],
+        queryKey: ['active-threads', queryStringValue] as const
     };
 }

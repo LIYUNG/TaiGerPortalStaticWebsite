@@ -308,11 +308,6 @@ vi.mock('@/api/query', async (importOriginal) => {
     const actual = await importOriginal<typeof import('@/api/query')>();
     return {
         ...actual,
-        getStudentsAndDocLinks2Query: (qs: string) => ({
-            queryKey: ['students/doc-links', qs],
-            queryFn: () => Promise.resolve({ data: [], base_docs_link: [] }),
-            staleTime: 60000
-        }),
         getUsersCountQuery: () => ({
             queryKey: ['users/count'],
             queryFn: () =>
@@ -332,42 +327,16 @@ vi.mock('@/api/query', async (importOriginal) => {
             queryFn: () => Promise.resolve({ data: { data: [] } }),
             staleTime: 300000
         }),
-        getTeamMembersQuery: () => ({
-            queryKey: ['team-members'],
-            queryFn: () =>
-                Promise.resolve({ data: { data: [], success: true } }),
-            staleTime: 300000
-        }),
         getApplicationConflictsQuery: () => ({
             queryKey: ['application-conflicts'],
             queryFn: () =>
                 Promise.resolve({ data: { data: [], success: true } }),
             staleTime: 300000
         }),
-        getActiveStudentsQuery: (qs: string) => ({
-            queryKey: ['students/active', qs],
-            queryFn: () => Promise.resolve({ data: [] }),
-            staleTime: 60000
-        }),
-        getActiveThreadsQuery: (qs: string) => ({
-            queryKey: ['active-threads', qs],
-            queryFn: () => Promise.resolve({ data: [] }),
-            staleTime: 300000
-        }),
         getProgramQuery: () => ({
             queryKey: ['programs', 'test-program'],
             queryFn: () => Promise.resolve({ data: { data: {} } }),
             staleTime: 60000
-        }),
-        getProgramsOverviewQuery: () => ({
-            queryKey: ['programs', 'overview'],
-            queryFn: () => Promise.resolve({ data: { data: {} } }),
-            staleTime: 300000
-        }),
-        getSchoolsDistributionQuery: () => ({
-            queryKey: ['programs', 'schools-distribution'],
-            queryFn: () => Promise.resolve({ data: { data: [] } }),
-            staleTime: 300000
         }),
         getExpenseQuery: () => ({
             queryKey: ['expenses', 'user', 'test-user'],
@@ -397,15 +366,6 @@ vi.mock('@/api/query', async (importOriginal) => {
             queryFn: () => Promise.resolve({ data: {} }),
             staleTime: 300000,
             enabled: false
-        }),
-        getMyStudentsThreadsQuery: () => ({
-            queryKey: [
-                'document-threads/overview/taiger-user',
-                'test-user',
-                ''
-            ],
-            queryFn: () => Promise.resolve({ data: null }),
-            staleTime: 300000
         }),
         getApplicationStudentV2Query: () => ({
             queryKey: ['applications/student', 'test-student'],
