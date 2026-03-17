@@ -1,6 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { getActiveStudentsApplicationsV2Query } from '@/api/query';
+import { getActiveStudentsApplications } from '@/api';
+import type {
+    GetActiveStudentsApplicationsResponse,
+    IApplicationPopulated
+} from '@taiger-common/model';
 
 export type UseActiveStudentsApplicationsV2Options = {
     enabled?: boolean;
@@ -8,23 +12,24 @@ export type UseActiveStudentsApplicationsV2Options = {
 
 /**
  * Fetches active students' applications (all applicants overview).
- * Unifies getActiveStudentsApplicationsV2Query usage.
  */
 export function useActiveStudentsApplicationsV2(
     options?: UseActiveStudentsApplicationsV2Options
 ) {
-    const query = getActiveStudentsApplicationsV2Query();
-
-    const result = useQuery({
-        ...query,
+    const result = useQuery<
+        GetActiveStudentsApplicationsResponse,
+        Error,
+        IApplicationPopulated[]
+    >({
+        queryKey: ['applications/all/active/applications'],
+        queryFn: getActiveStudentsApplications,
+        staleTime: 1000 * 60 * 5, // 5 minutes
+        select: (response) => response.data ?? [],
         enabled: options?.enabled ?? true
     });
 
-    const applications = (result.data as { data?: unknown[] } | undefined)?.data ?? [];
-
     return {
         ...result,
-        applications,
-        queryKey: query.queryKey
+        queryKey: ['applications/all/active/applications'] as const
     };
 }

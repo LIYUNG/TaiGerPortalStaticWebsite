@@ -1,8 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import queryString from 'query-string';
 
-import { getMyStudentsApplicationsV2Query } from '@/api/query';
-import type { IApplicationPopulated, IUserWithId } from '@taiger-common/model';
+import { getMyStudentsApplications } from '@/api';
+import type {
+    GetMyStudentsApplicationsResponse,
+    IApplicationPopulated,
+    IUserWithId
+} from '@taiger-common/model';
 
 export type MyStudentsApplicationsV2Params = {
     userId: string;
@@ -19,7 +23,6 @@ export type MyStudentsApplicationsV2Data = {
 
 /**
  * Fetches my students applications (v2) for a user with optional query params.
- * Unifies getMyStudentsApplicationsV2Query usage across ApplicantsOverview, AgentMainView, AgentPage.
  */
 export function useMyStudentsApplicationsV2(
     params: MyStudentsApplicationsV2Params,
@@ -27,23 +30,23 @@ export function useMyStudentsApplicationsV2(
 ) {
     const { userId, ...rest } = params;
     const queryStringValue = queryString.stringify(rest);
-    const query = getMyStudentsApplicationsV2Query({
-        userId,
-        queryString: queryStringValue
-    });
+    const queryKey = ['applications/taiger-user', userId, queryStringValue] as const;
 
-    const result = useQuery({
-        ...query,
+    const result = useQuery<
+        GetMyStudentsApplicationsResponse,
+        Error,
+        MyStudentsApplicationsV2Data
+    >({
+        queryKey,
+        queryFn: () => getMyStudentsApplications({ userId, queryString: queryStringValue }),
+        staleTime: 1000 * 60 * 5, // 5 minutes
+        select: (response) => response.data ?? { applications: [] },
         enabled: options?.enabled ?? true
     });
 
-    const data: MyStudentsApplicationsV2Data = (
-        result.data as { data?: MyStudentsApplicationsV2Data } | undefined
-    )?.data ?? { applications: [] };
-
     return {
         ...result,
-        data,
-        queryKey: query.queryKey
+        data: result.data ?? { applications: [] },
+        queryKey
     };
 }

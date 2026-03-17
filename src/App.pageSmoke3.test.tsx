@@ -433,10 +433,6 @@ vi.mock('@/api/query', async (importOriginal) => {
             factory(['document-threads/overview/taiger-user', 'test', ''], {
                 data: null
             }),
-        getMyStudentsApplicationsV2Query: () =>
-            factory(['applications/taiger-user', 'test', ''], {
-                data: { data: [] }
-            }),
         getProgramsAndCourseKeywordSetsLoader: vi.fn().mockResolvedValue({})
     };
 });

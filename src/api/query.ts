@@ -21,13 +21,11 @@ import {
     getMyCommunicationThreadV2,
     getMessagThread,
     getStudent,
-    getMyStudentsApplications,
     getMyStudentsThreads,
     getApplicationStudentV2,
     getQueryStudentsResults,
     getStudentAndDocLinks,
     getActiveStudents,
-    getActiveStudentsApplications,
     getInterviews,
     getInterview,
     getAuditLog,
@@ -310,24 +308,6 @@ export const getStudentAndDocLinksQuery = ({
 }): UseQueryOptions => ({
     queryKey: ['students/doc-links', studentId],
     queryFn: () => getStudentAndDocLinks(studentId),
-    staleTime: 1000 * 60 * 5 // 5 minutes
-});
-
-export const getActiveStudentsApplicationsV2Query = (): UseQueryOptions => ({
-    queryKey: ['applications/all/active/applications'],
-    queryFn: () => getActiveStudentsApplications(),
-    staleTime: 1000 * 60 * 5 // 5 minutes
-});
-
-export const getMyStudentsApplicationsV2Query = ({
-    userId,
-    queryString
-}: {
-    userId: UserId;
-    queryString: QueryString;
-}): UseQueryOptions => ({
-    queryKey: ['applications/taiger-user', userId, queryString],
-    queryFn: () => getMyStudentsApplications({ userId, queryString }),
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
 

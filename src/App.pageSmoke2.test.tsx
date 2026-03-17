@@ -407,11 +407,6 @@ vi.mock('@/api/query', async (importOriginal) => {
             queryFn: () => Promise.resolve({ data: null }),
             staleTime: 300000
         }),
-        getMyStudentsApplicationsV2Query: () => ({
-            queryKey: ['applications/taiger-user', 'test-user', ''],
-            queryFn: () => Promise.resolve({ data: { data: [] } }),
-            staleTime: 300000
-        }),
         getApplicationStudentV2Query: () => ({
             queryKey: ['applications/student', 'test-student'],
             queryFn: () => Promise.resolve({ data: null }),
