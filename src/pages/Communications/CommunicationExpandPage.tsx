@@ -500,7 +500,6 @@ const CommunicationExpandPage = () => {
                                         <CommunicationExpandPageMessagesComponent
                                             data={thread}
                                             student={student}
-                                            student_id={studentId}
                                         />
                                     </Box>
                                 )
@@ -550,7 +549,6 @@ const CommunicationExpandPage = () => {
                                     <CommunicationExpandPageMessagesComponent
                                         data={thread}
                                         student={student}
-                                        student_id={studentId}
                                     />
                                 </Box>
                             </Box>

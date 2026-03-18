@@ -12,6 +12,7 @@ import {
 import { useSnackBar } from '@contexts/use-snack-bar';
 import { queryClient } from '@/api';
 import { useMutation } from '@tanstack/react-query';
+import { OutputData } from '@editorjs/editorjs';
 
 interface UseCommunicationsProps {
     data: unknown[];
@@ -285,7 +286,7 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
 
     const handleClickSave = (
         e: React.MouseEvent,
-        editorState: Record<string, unknown>
+        editorState: OutputData
     ): void => {
         e.preventDefault();
         const message = JSON.stringify(editorState);
