@@ -23,9 +23,13 @@ vi.mock('../../config', () => ({
 }));
 
 vi.mock('../Utils/TabTitle', () => ({ TabTitle: vi.fn() }));
-vi.mock('@components/Loading/Loading', () => ({ default: () => <div>Loading</div> }));
+vi.mock('@components/Loading/Loading', () => ({
+    default: () => <div>Loading</div>
+}));
 vi.mock('@components/StudentOverviewTable', () => ({
-    default: () => <div data-testid="student-overview-table">StudentOverviewTable</div>
+    default: () => (
+        <div data-testid="student-overview-table">StudentOverviewTable</div>
+    )
 }));
 
 vi.mock('@hooks/useActiveStudents', () => ({
@@ -61,10 +65,14 @@ describe('MyStudentsOverview', () => {
     });
 
     it('renders student overview label', () => {
-        expect(screen.getByText(/my active student overview/i)).toBeInTheDocument();
+        expect(
+            screen.getByText(/my active student overview/i)
+        ).toBeInTheDocument();
     });
 
     it('renders StudentOverviewTable', () => {
-        expect(screen.getByTestId('student-overview-table')).toBeInTheDocument();
+        expect(
+            screen.getByTestId('student-overview-table')
+        ).toBeInTheDocument();
     });
 });

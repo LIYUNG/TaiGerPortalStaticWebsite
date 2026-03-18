@@ -10,12 +10,14 @@ import type {
  * Fetches tasks overview (admin/editor to-do counts).
  */
 export function useTasksOverview() {
-    const result = useQuery<GetTasksOverviewResponse, Error, TasksOverviewData>({
-        queryKey: ['tasks-overview'],
-        queryFn: getTasksOverview,
-        staleTime: 1000 * 60 * 5, // 5 minutes
-        select: (response) => response.data ?? ({} as TasksOverviewData)
-    });
+    const result = useQuery<GetTasksOverviewResponse, Error, TasksOverviewData>(
+        {
+            queryKey: ['tasks-overview'],
+            queryFn: getTasksOverview,
+            staleTime: 1000 * 60 * 5, // 5 minutes
+            select: (response) => response.data ?? ({} as TasksOverviewData)
+        }
+    );
 
     return {
         ...result,

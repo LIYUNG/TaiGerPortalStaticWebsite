@@ -54,7 +54,11 @@ describe('MuiDataGrid with empty rows', () => {
     it('renders in simple mode', () => {
         render(
             <MemoryRouter>
-                <MuiDataGrid columns={mockColumns} rows={mockRows} simple={true} />
+                <MuiDataGrid
+                    columns={mockColumns}
+                    rows={mockRows}
+                    simple={true}
+                />
             </MemoryRouter>
         );
         expect(screen.getByTestId('material-react-table')).toBeDefined();

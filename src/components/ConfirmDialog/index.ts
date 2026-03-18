@@ -5,4 +5,7 @@ export type {
     ConfirmDialogVariant,
     RequireTypedConfirmOptions
 } from './ConfirmDialog';
-export type { ConfirmDialogConfig, UseConfirmDialogReturn } from './useConfirmDialog';
+export type {
+    ConfirmDialogConfig,
+    UseConfirmDialogReturn
+} from './useConfirmDialog';

@@ -20,7 +20,9 @@ vi.mock('../../config', () => ({
 }));
 
 vi.mock('../Utils/TabTitle', () => ({ TabTitle: vi.fn() }));
-vi.mock('@components/Loading/Loading', () => ({ default: () => <div>Loading</div> }));
+vi.mock('@components/Loading/Loading', () => ({
+    default: () => <div>Loading</div>
+}));
 vi.mock('./CourseWidgetBody', () => ({
     default: () => <div data-testid="course-widget-body">CourseWidgetBody</div>
 }));

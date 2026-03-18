@@ -44,9 +44,15 @@ vi.mock('react-router-dom', async () => {
 
 vi.mock('../Utils/TabTitle', () => ({ TabTitle: vi.fn() }));
 vi.mock('../Utils/ErrorPage', () => ({ default: () => <div>ErrorPage</div> }));
-vi.mock('../Utils/ModalHandler/ModalMain', () => ({ default: () => <div>Modal</div> }));
-vi.mock('../Utils/util_functions', () => ({ is_personal_data_filled: vi.fn(() => true) }));
-vi.mock('@components/Loading/Loading', () => ({ default: () => <div>Loading</div> }));
+vi.mock('../Utils/ModalHandler/ModalMain', () => ({
+    default: () => <div>Modal</div>
+}));
+vi.mock('../Utils/util_functions', () => ({
+    is_personal_data_filled: vi.fn(() => true)
+}));
+vi.mock('@components/Loading/Loading', () => ({
+    default: () => <div>Loading</div>
+}));
 vi.mock('@/api', () => ({
     updatePersonalData: vi.fn(),
     getUser: vi.fn()
@@ -74,10 +80,14 @@ describe('Profile', () => {
     });
 
     it('renders first name field', () => {
-        expect(screen.getAllByLabelText(/first name/i).length).toBeGreaterThan(0);
+        expect(screen.getAllByLabelText(/first name/i).length).toBeGreaterThan(
+            0
+        );
     });
 
     it('renders update button', () => {
-        expect(screen.getByRole('button', { name: /update/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('button', { name: /update/i })
+        ).toBeInTheDocument();
     });
 });

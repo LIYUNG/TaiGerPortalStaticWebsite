@@ -67,10 +67,7 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
                 ...prevState,
                 editorState: {},
                 count: prevState.count + 1,
-                thread: [
-                    ...communicationsState.thread,
-                    ...data
-                ],
+                thread: [...communicationsState.thread, ...data],
                 files: [],
                 accordionKeys: [
                     ...communicationsState.accordionKeys,
@@ -81,8 +78,10 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
     });
 
     const { mutate: mutateDelete, isPending: isDeleting } = useMutation({
-        mutationFn: (vars: { student_id: string; communication_messageId: string }) =>
-            deleteAMessageInCommunicationThreadV2(vars),
+        mutationFn: (vars: {
+            student_id: string;
+            communication_messageId: string;
+        }) => deleteAMessageInCommunicationThreadV2(vars),
         onError: (error: Error) => {
             setSeverity('error');
             setMessage(error.message || 'An error occurred. Please try again.');
@@ -105,7 +104,9 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
             const new_messages = [...communicationsState.thread];
             const idx = new_messages.findIndex(
                 (message: unknown) =>
-                    (message as { _id?: { toString: () => string } })._id?.toString() === message_id
+                    (
+                        message as { _id?: { toString: () => string } }
+                    )._id?.toString() === message_id
             );
             if (idx !== -1) {
                 new_messages.splice(idx, 1);
@@ -113,7 +114,9 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
             const new_upper_messages = [...communicationsState.upperThread];
             const idx2 = new_upper_messages.findIndex(
                 (message: unknown) =>
-                    (message as { _id?: { toString: () => string } })._id?.toString() === message_id
+                    (
+                        message as { _id?: { toString: () => string } }
+                    )._id?.toString() === message_id
             );
             if (idx2 !== -1) {
                 new_upper_messages.splice(idx2, 1);
@@ -183,7 +186,8 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
                             ...respData,
                             ...communicationsState.upperThread
                         ],
-                        student: (respStudent ?? student) as typeof prevState.student,
+                        student: (respStudent ??
+                            student) as typeof prevState.student,
                         pageNumber: communicationsState.pageNumber + 1,
                         uppderaccordionKeys: [
                             ...new Array(
@@ -196,10 +200,10 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
                                 .fill(0)
                                 .map((_x: number, i: number) =>
                                     communicationsState.uppderaccordionKeys !==
-                                        undefined
+                                    undefined
                                         ? i +
-                                        (communicationsState
-                                            .uppderaccordionKeys?.length ?? 0)
+                                          (communicationsState
+                                              .uppderaccordionKeys?.length ?? 0)
                                         : -1
                                 )
                         ],
@@ -220,9 +224,7 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
         );
     };
 
-    const onDeleteSingleMessage = (
-        message_id: string
-    ): void => {
+    const onDeleteSingleMessage = (message_id: string): void => {
         mutateDelete({
             student_id: student._id?.toString() ?? '',
             communication_messageId: message_id

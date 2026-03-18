@@ -88,8 +88,6 @@ describe('Popping with event', () => {
     });
 
     it('renders description input', () => {
-        expect(
-            screen.getByPlaceholderText(/Example/)
-        ).toBeDefined();
+        expect(screen.getByPlaceholderText(/Example/)).toBeDefined();
     });
 });

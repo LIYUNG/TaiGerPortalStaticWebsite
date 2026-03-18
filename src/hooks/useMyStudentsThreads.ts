@@ -20,10 +20,16 @@ export type MyStudentsThreadsData = {
 /**
  * Fetches my students threads (document-threads overview) for the given user and query.
  */
-export function useMyStudentsThreads(params: UseMyStudentsThreadsParams | null) {
+export function useMyStudentsThreads(
+    params: UseMyStudentsThreadsParams | null
+) {
     const queryKey =
         params != null
-            ? (['document-threads/overview/taiger-user', params.userId, params.queryString] as const)
+            ? ([
+                  'document-threads/overview/taiger-user',
+                  params.userId,
+                  params.queryString
+              ] as const)
             : (['document-threads/overview/taiger-user', 'disabled'] as const);
 
     const result = useQuery<
@@ -43,10 +49,19 @@ export function useMyStudentsThreads(params: UseMyStudentsThreadsParams | null) 
         staleTime: 1000 * 60 * 5, // 5 minutes
         select: (response): MyStudentsThreadsData => {
             if (response == null) {
-                return { threads: [], success: false, status: 0, user: undefined };
+                return {
+                    threads: [],
+                    success: false,
+                    status: 0,
+                    user: undefined
+                };
             }
             const res = response as {
-                data?: { threads?: unknown[]; success?: boolean; user?: unknown };
+                data?: {
+                    threads?: unknown[];
+                    success?: boolean;
+                    user?: unknown;
+                };
                 status?: number;
             };
             return {
@@ -60,7 +75,12 @@ export function useMyStudentsThreads(params: UseMyStudentsThreadsParams | null) 
 
     return {
         ...result,
-        data: result.data ?? { threads: [], success: false, status: 0, user: undefined },
+        data: result.data ?? {
+            threads: [],
+            success: false,
+            status: 0,
+            user: undefined
+        },
         queryKey
     };
 }

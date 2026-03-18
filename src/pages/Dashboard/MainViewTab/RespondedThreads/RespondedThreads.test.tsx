@@ -6,8 +6,10 @@ import RespondedThreads from './RespondedThreads';
 
 vi.mock('@store/constant', () => ({
     default: {
-        DOCUMENT_MODIFICATION_LINK: (id: string) => `/document-modification/${id}`,
-        STUDENT_DATABASE_STUDENTID_LINK: (id: string, hash: string) => `/student/${id}${hash}`
+        DOCUMENT_MODIFICATION_LINK: (id: string) =>
+            `/document-modification/${id}`,
+        STUDENT_DATABASE_STUDENTID_LINK: (id: string, hash: string) =>
+            `/student/${id}${hash}`
     }
 }));
 

@@ -38,9 +38,13 @@ vi.mock('react-router-dom', async () => {
 
 vi.mock('../Utils/TabTitle', () => ({ TabTitle: vi.fn() }));
 vi.mock('../Utils/ErrorPage', () => ({ default: () => <div>ErrorPage</div> }));
-vi.mock('../Utils/ModalHandler/ModalMain', () => ({ default: () => <div>Modal</div> }));
+vi.mock('../Utils/ModalHandler/ModalMain', () => ({
+    default: () => <div>Modal</div>
+}));
 vi.mock('./InterviewsTable', () => ({
-    InterviewsTable: () => <div data-testid="interviews-table">InterviewsTable</div>
+    InterviewsTable: () => (
+        <div data-testid="interviews-table">InterviewsTable</div>
+    )
 }));
 
 vi.mock('@/api', () => ({
@@ -84,6 +88,8 @@ describe('InterviewTraining', () => {
     });
 
     it('renders Add button for TaiGer role', () => {
-        expect(screen.getByRole('button', { name: /add/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('button', { name: /add/i })
+        ).toBeInTheDocument();
     });
 });

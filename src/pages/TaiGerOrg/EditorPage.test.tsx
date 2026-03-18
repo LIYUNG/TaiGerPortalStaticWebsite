@@ -35,7 +35,12 @@ vi.mock('@tanstack/react-query', async () => {
         ...actual,
         useQuery: vi.fn(() => ({
             data: {
-                user: { _id: { toString: () => 'editor1' }, firstname: 'Bob', lastname: 'Editor', pictureUrl: '' }
+                user: {
+                    _id: { toString: () => 'editor1' },
+                    firstname: 'Bob',
+                    lastname: 'Editor',
+                    pictureUrl: ''
+                }
             },
             isLoading: false
         }))
@@ -124,7 +129,9 @@ describe('EditorPage', () => {
     });
 
     it('renders breadcrumbs', () => {
-        expect(document.querySelector('[aria-label="breadcrumb"]')).toBeTruthy();
+        expect(
+            document.querySelector('[aria-label="breadcrumb"]')
+        ).toBeTruthy();
     });
 
     it('renders editor stats cards', () => {

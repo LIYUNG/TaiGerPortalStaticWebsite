@@ -27,8 +27,14 @@ vi.mock('@taiger-common/core', () => ({
 }));
 
 vi.mock('@/api/query', () => ({
-    getCRMMeetingQuery: vi.fn(() => ({ queryKey: ['crm/meeting', 'test-id'], queryFn: vi.fn() })),
-    getCRMLeadsQuery: vi.fn(() => ({ queryKey: ['crm/leads'], queryFn: vi.fn() }))
+    getCRMMeetingQuery: vi.fn(() => ({
+        queryKey: ['crm/meeting', 'test-id'],
+        queryFn: vi.fn()
+    })),
+    getCRMLeadsQuery: vi.fn(() => ({
+        queryKey: ['crm/leads'],
+        queryFn: vi.fn()
+    }))
 }));
 
 vi.mock('@/api', () => ({
@@ -42,7 +48,10 @@ describe('MeetingPage', () => {
         render(
             <MemoryRouter initialEntries={['/crm/meetings/test-id']}>
                 <Routes>
-                    <Route path="/crm/meetings/:meetingId" element={<MeetingPage />} />
+                    <Route
+                        path="/crm/meetings/:meetingId"
+                        element={<MeetingPage />}
+                    />
                 </Routes>
             </MemoryRouter>
         );

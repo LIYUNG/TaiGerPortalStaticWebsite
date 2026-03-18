@@ -20,13 +20,19 @@ vi.mock('../../config', () => ({
 }));
 
 vi.mock('../Utils/TabTitle', () => ({ TabTitle: vi.fn() }));
-vi.mock('@components/Loading/Loading', () => ({ default: () => <div>Loading</div> }));
+vi.mock('@components/Loading/Loading', () => ({
+    default: () => <div>Loading</div>
+}));
 vi.mock('./EssayOverview', () => ({
     default: () => <div data-testid="essay-overview">EssayOverview</div>
 }));
 
 vi.mock('@hooks/useActiveThreads', () => ({
-    useActiveThreads: () => ({ data: [], isLoading: false, queryKey: ['threads'] })
+    useActiveThreads: () => ({
+        data: [],
+        isLoading: false,
+        queryKey: ['threads']
+    })
 }));
 
 vi.mock('@tanstack/react-query', () => ({

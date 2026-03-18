@@ -393,7 +393,10 @@ const UsersList = (props: UsersListProps) => {
             content: (
                 <>
                     {t('Do you want to delete')}{' '}
-                    <b>{user_firstname} - {user_lastname}</b>?
+                    <b>
+                        {user_firstname} - {user_lastname}
+                    </b>
+                    ?
                 </>
             ),
             variant: 'confirm',
@@ -403,7 +406,10 @@ const UsersList = (props: UsersListProps) => {
                 keyword: 'delete',
                 label: (
                     <>
-                        Please enter <i><b>delete</b></i>
+                        Please enter{' '}
+                        <i>
+                            <b>delete</b>
+                        </i>
                     </>
                 )
             },
@@ -421,7 +427,11 @@ const UsersList = (props: UsersListProps) => {
             title: t('Warning', { ns: 'common' }),
             content: (
                 <>
-                    Do you want to archiv <b>{user_firstname} - {user_lastname}</b>?
+                    Do you want to archiv{' '}
+                    <b>
+                        {user_firstname} - {user_lastname}
+                    </b>
+                    ?
                 </>
             ),
             variant: 'confirm',

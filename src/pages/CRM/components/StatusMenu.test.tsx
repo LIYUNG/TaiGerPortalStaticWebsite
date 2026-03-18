@@ -3,11 +3,16 @@ import { render, screen } from '@testing-library/react';
 
 vi.mock('./statusUtils', () => ({
     STATUS_FLOW: ['initiated', 'sent', 'signed', 'closed'],
-    isTerminalStatus: vi.fn((status: string) => status === 'closed' || status === 'canceled')
+    isTerminalStatus: vi.fn(
+        (status: string) => status === 'closed' || status === 'canceled'
+    )
 }));
 
 vi.mock('react-i18next', () => ({
-    useTranslation: () => ({ t: (key: string, opts?: { defaultValue?: string; ns?: string }) => opts?.defaultValue || key })
+    useTranslation: () => ({
+        t: (key: string, opts?: { defaultValue?: string; ns?: string }) =>
+            opts?.defaultValue || key
+    })
 }));
 
 import StatusMenu from './StatusMenu';

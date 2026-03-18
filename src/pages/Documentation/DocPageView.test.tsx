@@ -43,7 +43,9 @@ describe('DocPageView', () => {
                 author="Jane"
             />
         );
-        expect(screen.getByRole('button', { name: /Edit/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('button', { name: /Edit/i })
+        ).toBeInTheDocument();
     });
 
     it('renders author info', () => {

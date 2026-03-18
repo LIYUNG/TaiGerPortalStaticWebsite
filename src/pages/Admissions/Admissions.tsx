@@ -138,7 +138,9 @@ const Admissions = () => {
                         <StudentAdmissionsTables />
                     </CustomTabPanel>
                     <CustomTabPanel index={3} value={value}>
-                        <AdmissionsStat result={result as AdmissionsStatRow[]} />
+                        <AdmissionsStat
+                            result={result as AdmissionsStatRow[]}
+                        />
                     </CustomTabPanel>
                 </>
             ) : null}

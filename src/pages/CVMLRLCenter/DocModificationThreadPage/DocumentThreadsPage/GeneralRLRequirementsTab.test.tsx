@@ -11,7 +11,8 @@ vi.mock('@store/constant', () => ({
 
 vi.mock('react-i18next', () => ({
     useTranslation: () => ({
-        t: (key: string, opts?: { defaultValue?: string }) => opts?.defaultValue ?? key
+        t: (key: string, opts?: { defaultValue?: string }) =>
+            opts?.defaultValue ?? key
     })
 }));
 
@@ -72,7 +73,9 @@ describe('GeneralRLRequirementsTab', () => {
     });
 
     it('renders table head with column headers', () => {
-        expect(screen.getByRole('columnheader', { name: /count/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('columnheader', { name: /count/i })
+        ).toBeInTheDocument();
     });
 
     it('renders school name in the table', () => {

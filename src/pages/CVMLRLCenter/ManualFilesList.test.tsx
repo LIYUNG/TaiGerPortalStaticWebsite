@@ -35,7 +35,9 @@ vi.mock('@store/constant', () => ({
 
 vi.mock('./EditableFileThread', () => ({
     default: ({ thread }: { thread: { _id: string } }) => (
-        <div data-testid={`editable-thread-${thread._id}`}>EditableFileThread</div>
+        <div data-testid={`editable-thread-${thread._id}`}>
+            EditableFileThread
+        </div>
     )
 }));
 
@@ -45,7 +47,11 @@ const mockStudent = {
         {
             _id: 'thread1',
             isFinalVersion: false,
-            doc_thread_id: { _id: 'dt1', file_type: 'CV', updatedAt: '2025-01-01' }
+            doc_thread_id: {
+                _id: 'dt1',
+                file_type: 'CV',
+                updatedAt: '2025-01-01'
+            }
         }
     ]
 } as any;
@@ -63,7 +69,9 @@ describe('ManualFilesList', () => {
                 />
             </MemoryRouter>
         );
-        expect(screen.getByTestId('editable-thread-thread1')).toBeInTheDocument();
+        expect(
+            screen.getByTestId('editable-thread-thread1')
+        ).toBeInTheDocument();
     });
 
     it('renders program-specific threads when application is provided', () => {
@@ -74,10 +82,18 @@ describe('ManualFilesList', () => {
                 {
                     _id: 'thread2',
                     isFinalVersion: false,
-                    doc_thread_id: { _id: 'dt2', file_type: 'ML', updatedAt: '2025-01-01' }
+                    doc_thread_id: {
+                        _id: 'dt2',
+                        file_type: 'ML',
+                        updatedAt: '2025-01-01'
+                    }
                 }
             ],
-            programId: { _id: 'prog1', is_rl_specific: false, country: 'germany' }
+            programId: {
+                _id: 'prog1',
+                is_rl_specific: false,
+                country: 'germany'
+            }
         } as any;
 
         render(
@@ -91,7 +107,9 @@ describe('ManualFilesList', () => {
                 />
             </MemoryRouter>
         );
-        expect(screen.getByTestId('editable-thread-thread2')).toBeInTheDocument();
+        expect(
+            screen.getByTestId('editable-thread-thread2')
+        ).toBeInTheDocument();
     });
 
     it('renders nothing when application has no doc_modification_thread', () => {

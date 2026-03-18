@@ -136,8 +136,6 @@ describe('CourseForm (edit mode)', () => {
 
     it('renders Back link in edit mode', () => {
         render(<CourseForm mode="edit" />);
-        expect(
-            screen.getByRole('link', { name: /Back/i })
-        ).toBeInTheDocument();
+        expect(screen.getByRole('link', { name: /Back/i })).toBeInTheDocument();
     });
 });

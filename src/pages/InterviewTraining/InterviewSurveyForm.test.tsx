@@ -14,15 +14,40 @@ vi.mock('@taiger-common/core', () => ({
 }));
 
 vi.mock('@/api', () => ({
-    getInterview: vi.fn(() => Promise.resolve({
-        data: { success: true, data: { student_id: { firstname: 'Jane', lastname: 'Doe' }, program_id: { school: 'MIT', program_name: 'CS', degree: 'MS', semester: 'WS2025' } } },
-        status: 200
-    })),
-    getInterviewSurvey: vi.fn(() => Promise.resolve({
-        data: { success: true, data: { responses: [], interviewQuestions: '', interviewFeedback: '', isFinal: false } },
-        status: 200
-    })),
-    updateInterviewSurvey: vi.fn(() => Promise.resolve({ data: { success: true } }))
+    getInterview: vi.fn(() =>
+        Promise.resolve({
+            data: {
+                success: true,
+                data: {
+                    student_id: { firstname: 'Jane', lastname: 'Doe' },
+                    program_id: {
+                        school: 'MIT',
+                        program_name: 'CS',
+                        degree: 'MS',
+                        semester: 'WS2025'
+                    }
+                }
+            },
+            status: 200
+        })
+    ),
+    getInterviewSurvey: vi.fn(() =>
+        Promise.resolve({
+            data: {
+                success: true,
+                data: {
+                    responses: [],
+                    interviewQuestions: '',
+                    interviewFeedback: '',
+                    isFinal: false
+                }
+            },
+            status: 200
+        })
+    ),
+    updateInterviewSurvey: vi.fn(() =>
+        Promise.resolve({ data: { success: true } })
+    )
 }));
 
 vi.mock('@components/Loading/Loading', () => ({
@@ -30,7 +55,9 @@ vi.mock('@components/Loading/Loading', () => ({
 }));
 
 vi.mock('../Utils/ErrorPage', () => ({
-    default: ({ res_status }: { res_status: number }) => <div data-testid="error-page">{res_status}</div>
+    default: ({ res_status }: { res_status: number }) => (
+        <div data-testid="error-page">{res_status}</div>
+    )
 }));
 
 vi.mock('@components/TopBar/TopBar', () => ({
@@ -42,7 +69,9 @@ vi.mock('@components/Modal/ConfirmationModal', () => ({
 }));
 
 vi.mock('@components/SurveyProvider/SurveyHeader', () => ({
-    default: ({ title }: { title: string }) => <div data-testid="survey-header">{title}</div>
+    default: ({ title }: { title: string }) => (
+        <div data-testid="survey-header">{title}</div>
+    )
 }));
 
 vi.mock('@components/SurveyProvider/StepIndicators', () => ({
@@ -85,7 +114,10 @@ describe('InterviewSurveyForm', () => {
         render(
             <MemoryRouter initialEntries={['/interviews/iv1/survey']}>
                 <Routes>
-                    <Route path="/interviews/:interview_id/survey" element={<InterviewSurveyForm />} />
+                    <Route
+                        path="/interviews/:interview_id/survey"
+                        element={<InterviewSurveyForm />}
+                    />
                 </Routes>
             </MemoryRouter>
         );

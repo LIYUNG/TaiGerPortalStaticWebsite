@@ -53,7 +53,11 @@ describe('DocumentCheckingResultModal', () => {
     it('renders the modal when open=true', () => {
         render(
             <MemoryRouter>
-                <DocumentCheckingResultModal {...defaultProps} open={true} file_type="ML" />
+                <DocumentCheckingResultModal
+                    {...defaultProps}
+                    open={true}
+                    file_type="ML"
+                />
             </MemoryRouter>
         );
         expect(screen.getByRole('dialog')).toBeInTheDocument();

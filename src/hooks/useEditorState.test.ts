@@ -16,7 +16,9 @@ describe('useEditorState', () => {
     });
 
     it('uses initialValue when provided', () => {
-        const initial = { blocks: [{ type: 'paragraph', data: { text: 'Hello' } }] };
+        const initial = {
+            blocks: [{ type: 'paragraph', data: { text: 'Hello' } }]
+        };
         const { result } = renderHook(() =>
             useEditorState({ initialValue: initial })
         );
@@ -28,7 +30,9 @@ describe('useEditorState', () => {
     it('onChange updates value', () => {
         const { result } = renderHook(() => useEditorState({}));
 
-        const newData = { blocks: [{ type: 'paragraph', data: { text: 'New' } }] };
+        const newData = {
+            blocks: [{ type: 'paragraph', data: { text: 'New' } }]
+        };
         act(() => {
             result.current.onChange(newData);
         });
@@ -38,7 +42,9 @@ describe('useEditorState', () => {
     });
 
     it('reset sets value to empty and increments editorKey', () => {
-        const initial = { blocks: [{ type: 'paragraph', data: { text: 'Hi' } }] };
+        const initial = {
+            blocks: [{ type: 'paragraph', data: { text: 'Hi' } }]
+        };
         const { result } = renderHook(() =>
             useEditorState({ initialValue: initial })
         );

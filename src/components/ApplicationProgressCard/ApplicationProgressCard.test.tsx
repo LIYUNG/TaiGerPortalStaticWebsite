@@ -23,7 +23,9 @@ vi.mock('@store/constant', () => ({
 }));
 
 vi.mock('@/api', () => ({
-    updateStudentApplicationResult: vi.fn(() => Promise.resolve({ data: { success: true, data: {} } })),
+    updateStudentApplicationResult: vi.fn(() =>
+        Promise.resolve({ data: { success: true, data: {} } })
+    ),
     BASE_URL: 'http://localhost:5000'
 }));
 

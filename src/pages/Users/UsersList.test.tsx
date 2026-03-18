@@ -76,7 +76,8 @@ vi.mock('./UsersListSubpage', () => ({
 }));
 
 vi.mock('@components/ConfirmDialog', () => ({
-    ConfirmDialog: () => createElement('div', { 'data-testid': 'confirm-dialog' }),
+    ConfirmDialog: () =>
+        createElement('div', { 'data-testid': 'confirm-dialog' }),
     useConfirmDialog: () => ({
         open: false,
         openDialog: vi.fn(),

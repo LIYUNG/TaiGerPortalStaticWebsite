@@ -1,6 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Box, Button } from '@mui/material';
-import EditorJS, { type BlockToolConstructable, type OutputData } from '@editorjs/editorjs';
+import EditorJS, {
+    type BlockToolConstructable,
+    type OutputData
+} from '@editorjs/editorjs';
 import Header from '@editorjs/header';
 import List from '@editorjs/list';
 import Embed from '@editorjs/embed';

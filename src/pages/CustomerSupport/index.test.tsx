@@ -14,7 +14,13 @@ vi.mock('react-router-dom', async (orig) => {
         useLoaderData: vi.fn(() => ({
             complaintTickets: Promise.resolve([])
         })),
-        Await: ({ resolve, children }: { resolve: unknown; children: (data: unknown) => ReactNode }) => {
+        Await: ({
+            resolve,
+            children
+        }: {
+            resolve: unknown;
+            children: (data: unknown) => ReactNode;
+        }) => {
             return <>{children([])}</>;
         }
     };

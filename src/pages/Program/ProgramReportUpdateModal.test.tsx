@@ -41,7 +41,12 @@ describe('ProgramReportUpdateModal', () => {
     });
 
     it('does not render dialog when closed', () => {
-        render(<ProgramReportUpdateModal {...defaultProps} isUpdateReport={false} />);
+        render(
+            <ProgramReportUpdateModal
+                {...defaultProps}
+                isUpdateReport={false}
+            />
+        );
         expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
 });

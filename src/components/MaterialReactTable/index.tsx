@@ -34,7 +34,9 @@ function MRTable<T extends Record<string, unknown>>({
     const table = useMaterialReactTable({
         columns,
         data,
-        onRowSelectionChange: onRowSelectionChange as undefined | ((value: unknown) => void),
+        onRowSelectionChange: onRowSelectionChange as
+            | undefined
+            | ((value: unknown) => void),
         state: rowSelection ? { rowSelection } : undefined,
         enableColumnFilterModes: true,
         enableColumnOrdering: true,

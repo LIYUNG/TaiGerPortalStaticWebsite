@@ -27,7 +27,12 @@ vi.mock('react-router-dom', async () => {
 });
 
 vi.mock('@taiger-common/core', () => ({
-    Role: { Admin: 'Admin', Editor: 'Editor', Agent: 'Agent', Student: 'Student' }
+    Role: {
+        Admin: 'Admin',
+        Editor: 'Editor',
+        Agent: 'Agent',
+        Student: 'Student'
+    }
 }));
 
 vi.mock('./DocPageView', () => ({

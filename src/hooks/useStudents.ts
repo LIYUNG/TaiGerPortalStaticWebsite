@@ -70,8 +70,16 @@ function useStudents(props: UseStudentsProps) {
         updateAgentList: unknown,
         student_id: string
     ): void => {
-        updateAgents(updateAgentList as string[], student_id).then((resp: unknown) => {
-                const r = resp as { data: { data?: StudentRecord; success?: boolean; message?: string }; status?: number };
+        updateAgents(updateAgentList as string[], student_id)
+            .then((resp: unknown) => {
+                const r = resp as {
+                    data: {
+                        data?: StudentRecord;
+                        success?: boolean;
+                        message?: string;
+                    };
+                    status?: number;
+                };
                 const { data, success } = r.data;
                 const { status } = r;
                 if (success && data) {
@@ -95,15 +103,15 @@ function useStudents(props: UseStudentsProps) {
                         res_modal_status: status ?? 0
                     }));
                 }
-            }
-        ).catch((error: unknown) => {
-            setStudentsState((prevState) => ({
-                ...prevState,
-                error,
-                res_modal_status: 500,
-                res_modal_message: ''
-            }));
-        });
+            })
+            .catch((error: unknown) => {
+                setStudentsState((prevState) => ({
+                    ...prevState,
+                    error,
+                    res_modal_status: 500,
+                    res_modal_message: ''
+                }));
+            });
     };
 
     const UpdateEditorlist = (
@@ -111,8 +119,16 @@ function useStudents(props: UseStudentsProps) {
         updateEditorList: unknown,
         student_id: string
     ): void => {
-        updateEditors(updateEditorList as string[], student_id).then((resp: unknown) => {
-                const r = resp as { data: { data?: StudentRecord; success?: boolean; message?: string }; status?: number };
+        updateEditors(updateEditorList as string[], student_id)
+            .then((resp: unknown) => {
+                const r = resp as {
+                    data: {
+                        data?: StudentRecord;
+                        success?: boolean;
+                        message?: string;
+                    };
+                    status?: number;
+                };
                 const { data, success } = r.data;
                 const { status } = r;
                 if (success && data) {
@@ -136,15 +152,15 @@ function useStudents(props: UseStudentsProps) {
                         res_modal_status: status ?? 0
                     }));
                 }
-            }
-        ).catch((error: unknown) => {
-            setStudentsState((prevState) => ({
-                ...prevState,
-                error,
-                res_modal_status: 500,
-                res_modal_message: ''
-            }));
-        });
+            })
+            .catch((error: unknown) => {
+                setStudentsState((prevState) => ({
+                    ...prevState,
+                    error,
+                    res_modal_status: 500,
+                    res_modal_message: ''
+                }));
+            });
     };
 
     const UpdateAttributeslist = (
@@ -152,8 +168,16 @@ function useStudents(props: UseStudentsProps) {
         updateAttributesList: unknown,
         student_id: string
     ): void => {
-        updateAttributes(updateAttributesList as string[], student_id).then((resp: unknown) => {
-                const r = resp as { data: { data?: StudentRecord; success?: boolean; message?: string }; status?: number };
+        updateAttributes(updateAttributesList as string[], student_id)
+            .then((resp: unknown) => {
+                const r = resp as {
+                    data: {
+                        data?: StudentRecord;
+                        success?: boolean;
+                        message?: string;
+                    };
+                    status?: number;
+                };
                 const { data, success } = r.data;
                 const { status } = r;
                 if (success && data) {
@@ -177,15 +201,15 @@ function useStudents(props: UseStudentsProps) {
                         res_modal_status: status ?? 0
                     }));
                 }
-            }
-        ).catch((error: unknown) => {
-            setStudentsState((prevState) => ({
-                ...prevState,
-                error,
-                res_modal_status: 500,
-                res_modal_message: ''
-            }));
-        });
+            })
+            .catch((error: unknown) => {
+                setStudentsState((prevState) => ({
+                    ...prevState,
+                    error,
+                    res_modal_status: 500,
+                    res_modal_message: ''
+                }));
+            });
     };
 
     const updateStudentArchivStatus = (
@@ -248,13 +272,16 @@ function useStudents(props: UseStudentsProps) {
             (student) => student._id === student_id
         );
         const students = [...studentsState.students];
-        updateProfileDocumentStatus(
-            category,
-            student_id,
-            status,
-            feedback
-        ).then((res: unknown) => {
-                const r = res as { data: { success?: boolean; data?: StudentRecord; message?: string }; status?: number };
+        updateProfileDocumentStatus(category, student_id, status, feedback)
+            .then((res: unknown) => {
+                const r = res as {
+                    data: {
+                        success?: boolean;
+                        data?: StudentRecord;
+                        message?: string;
+                    };
+                    status?: number;
+                };
                 const { success, data } = r.data;
                 const resStatus = r.status;
                 if (success && data && student_arrayidx !== -1) {
@@ -273,15 +300,15 @@ function useStudents(props: UseStudentsProps) {
                         res_modal_status: resStatus ?? 0
                     }));
                 }
-            }
-        ).catch((error: unknown) => {
-            setStudentsState((prevState) => ({
-                ...prevState,
-                error,
-                res_modal_status: 500,
-                res_modal_message: ''
-            }));
-        });
+            })
+            .catch((error: unknown) => {
+                setStudentsState((prevState) => ({
+                    ...prevState,
+                    error,
+                    res_modal_status: 500,
+                    res_modal_message: ''
+                }));
+            });
     };
 
     const ConfirmError = (): void => {

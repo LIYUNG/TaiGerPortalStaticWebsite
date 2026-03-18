@@ -441,37 +441,43 @@ const TaiGerOfficeHours = () => {
                                             },
                                             j: number
                                         ) => {
-                                      const { year, month, day } =
-                                          getNextDayDate(
-                                              getReorderWeekday(
-                                                  getTodayAsWeekday(
-                                                      agent.timezone
-                                                  )
-                                              ),
-                                              weekday,
-                                              agent.timezone,
-                                              iter
-                                          );
-                                      const test_date = getUTCWithDST(
-                                          year,
-                                          month,
-                                          day,
-                                          agent.timezone,
-                                          time_slot.value
-                                      );
+                                            const { year, month, day } =
+                                                getNextDayDate(
+                                                    getReorderWeekday(
+                                                        getTodayAsWeekday(
+                                                            agent.timezone
+                                                        )
+                                                    ),
+                                                    weekday,
+                                                    agent.timezone,
+                                                    iter
+                                                );
+                                            const test_date = getUTCWithDST(
+                                                year,
+                                                month,
+                                                day,
+                                                agent.timezone,
+                                                time_slot.value
+                                            );
 
-                                      const end_date = new Date(test_date);
-                                      end_date.setMinutes(
-                                          end_date.getMinutes() + 30
-                                      );
-                                      return {
-                                          id: j * 10 + i * 100 + x * 1000 + 1,
-                                          title: `${new Date(test_date)}`,
-                                          start: new Date(test_date),
-                                          end: end_date,
-                                          provider: agent
-                                        };
-                                    }
+                                            const end_date = new Date(
+                                                test_date
+                                            );
+                                            end_date.setMinutes(
+                                                end_date.getMinutes() + 30
+                                            );
+                                            return {
+                                                id:
+                                                    j * 10 +
+                                                    i * 100 +
+                                                    x * 1000 +
+                                                    1,
+                                                title: `${new Date(test_date)}`,
+                                                start: new Date(test_date),
+                                                end: end_date,
+                                                provider: agent
+                                            };
+                                        }
                                     )
                                   : [];
                           return timeSlots;

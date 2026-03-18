@@ -19,9 +19,16 @@ vi.mock('../../Utils/ModalHandler/ModalMain', () => ({
     default: () => <div data-testid="modal-main" />
 }));
 
-vi.mock('@pages/Dashboard/MainViewTab/NoWritersEssaysCard/NoWritersEssaysCard', () => ({
-    default: () => <tr data-testid="no-writers-card"><td /></tr>
-}));
+vi.mock(
+    '@pages/Dashboard/MainViewTab/NoWritersEssaysCard/NoWritersEssaysCard',
+    () => ({
+        default: () => (
+            <tr data-testid="no-writers-card">
+                <td />
+            </tr>
+        )
+    })
+);
 
 import AssignEssayWritersPage from './AssignEssayWritersPage';
 

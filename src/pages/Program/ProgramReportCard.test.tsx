@@ -24,7 +24,8 @@ vi.mock('@tanstack/react-query', async () => {
                 data: [
                     {
                         _id: 't1',
-                        description: 'Wrong deadline information for this program',
+                        description:
+                            'Wrong deadline information for this program',
                         program_id: {
                             _id: 'prog1',
                             school: 'TU Berlin',
@@ -58,7 +59,9 @@ describe('ProgramReportCard', () => {
     });
 
     it('renders ticket rows', () => {
-        expect(screen.getByText(/TU Berlin - Computer Science/i)).toBeInTheDocument();
+        expect(
+            screen.getByText(/TU Berlin - Computer Science/i)
+        ).toBeInTheDocument();
     });
 
     it('renders alert with error severity', () => {

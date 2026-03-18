@@ -5,12 +5,20 @@ import PageNotFoundError from './PageNotFoundError';
 
 describe('PageNotFoundError', () => {
     it('renders without crashing', () => {
-        render(<MemoryRouter><PageNotFoundError /></MemoryRouter>);
+        render(
+            <MemoryRouter>
+                <PageNotFoundError />
+            </MemoryRouter>
+        );
         expect(screen.getByText(/page not found/i)).toBeInTheDocument();
     });
 
     it('renders heading text', () => {
-        render(<MemoryRouter><PageNotFoundError /></MemoryRouter>);
+        render(
+            <MemoryRouter>
+                <PageNotFoundError />
+            </MemoryRouter>
+        );
         expect(screen.getByRole('heading')).toBeInTheDocument();
     });
 });

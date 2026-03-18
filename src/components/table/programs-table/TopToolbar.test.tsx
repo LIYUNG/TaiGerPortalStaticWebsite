@@ -35,10 +35,7 @@ describe('TopToolbar (programs-table)', () => {
     beforeEach(() => {
         render(
             <MemoryRouter>
-                <TopToolbar
-                    onAssignClick={vi.fn()}
-                    table={mockTable}
-                />
+                <TopToolbar onAssignClick={vi.fn()} table={mockTable} />
             </MemoryRouter>
         );
     });
@@ -64,10 +61,7 @@ describe('TopToolbar (programs-table) school config', () => {
     it('renders School Configuration button', () => {
         render(
             <MemoryRouter>
-                <TopToolbar
-                    onAssignClick={vi.fn()}
-                    table={mockTable}
-                />
+                <TopToolbar onAssignClick={vi.fn()} table={mockTable} />
             </MemoryRouter>
         );
         expect(screen.getByText(/School Configuration/)).toBeDefined();

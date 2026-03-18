@@ -25,8 +25,12 @@ import OverviewDashboardTab from './OverviewDashboardTab';
 
 const defaultProps = {
     studentsCreationDates: [{ createdAt: '2024-01-15T00:00:00Z' }],
-    agentData: [{ key: 'Alice', student_num_no_offer: 2, student_num_with_offer: 3 }],
-    editorData: [{ firstname: 'Bob', task_counts: { active: 5, potentials: 2 } }],
+    agentData: [
+        { key: 'Alice', student_num_no_offer: 2, student_num_with_offer: 3 }
+    ],
+    editorData: [
+        { firstname: 'Bob', task_counts: { active: 5, potentials: 2 } }
+    ],
     studentsYearsPair: [{ name: '2024', uv: 10 }],
     documents: { CV: { count: 5 }, ML: { count: 3 } }
 };

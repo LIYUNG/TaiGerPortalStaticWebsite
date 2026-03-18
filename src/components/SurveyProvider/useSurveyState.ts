@@ -152,47 +152,48 @@ export function useSurveyState({
         updateAcademicBackground(
             university as unknown as string,
             surveyState.student_id as unknown as string
-        ).then((resp: unknown) => {
-            const r = resp as {
-                data: {
-                    data?: Record<string, unknown>;
-                    success?: boolean;
-                    message?: string;
+        )
+            .then((resp: unknown) => {
+                const r = resp as {
+                    data: {
+                        data?: Record<string, unknown>;
+                        success?: boolean;
+                        message?: string;
+                    };
+                    status?: number;
                 };
-                status?: number;
-            };
-            const { data, success } = r.data;
-            const { status } = r;
-            if (success && data) {
+                const { data, success } = r.data;
+                const { status } = r;
+                if (success && data) {
+                    setSurveyState((prevState) => ({
+                        ...prevState,
+                        changed_academic: false,
+                        academic_background: {
+                            ...prevState.academic_background,
+                            university: data
+                        },
+                        success: success,
+                        updateconfirmed: true,
+                        res_modal_status: status
+                    }));
+                    onSuccess?.();
+                } else {
+                    const { message } = r.data;
+                    setSurveyState((prevState) => ({
+                        ...prevState,
+                        res_modal_message: message,
+                        res_modal_status: status
+                    }));
+                }
+            })
+            .catch((error: unknown) => {
                 setSurveyState((prevState) => ({
                     ...prevState,
-                    changed_academic: false,
-                    academic_background: {
-                        ...prevState.academic_background,
-                        university: data
-                    },
-                    success: success,
-                    updateconfirmed: true,
-                    res_modal_status: status
+                    error,
+                    res_modal_status: 500,
+                    res_modal_message: JSON.stringify(error)
                 }));
-                onSuccess?.();
-            } else {
-                const { message } = r.data;
-                setSurveyState((prevState) => ({
-                    ...prevState,
-                    res_modal_message: message,
-                    res_modal_status: status
-                }));
-            }
-        }
-        ).catch((error: unknown) => {
-            setSurveyState((prevState) => ({
-                ...prevState,
-                error,
-                res_modal_status: 500,
-                res_modal_message: JSON.stringify(error)
-            }));
-        });
+            });
     };
 
     const handleSurveyLanguageSubmit = (
@@ -203,47 +204,48 @@ export function useSurveyState({
         updateLanguageSkill(
             language as unknown as string,
             surveyState.student_id as unknown as string
-        ).then((resp: unknown) => {
-            const r = resp as {
-                data: {
-                    data?: Record<string, unknown>;
-                    success?: boolean;
-                    message?: string;
+        )
+            .then((resp: unknown) => {
+                const r = resp as {
+                    data: {
+                        data?: Record<string, unknown>;
+                        success?: boolean;
+                        message?: string;
+                    };
+                    status?: number;
                 };
-                status?: number;
-            };
-            const { data, success } = r.data;
-            const { status } = r;
-            if (success && data) {
+                const { data, success } = r.data;
+                const { status } = r;
+                if (success && data) {
+                    setSurveyState((prevState) => ({
+                        ...prevState,
+                        changed_language: false,
+                        academic_background: {
+                            ...prevState.academic_background,
+                            language: data
+                        },
+                        success: success,
+                        updateconfirmed: true,
+                        res_modal_status: status
+                    }));
+                    onSuccess?.();
+                } else {
+                    const { message } = r.data;
+                    setSurveyState((prevState) => ({
+                        ...prevState,
+                        res_modal_message: message,
+                        res_modal_status: status
+                    }));
+                }
+            })
+            .catch((error: unknown) => {
                 setSurveyState((prevState) => ({
                     ...prevState,
-                    changed_language: false,
-                    academic_background: {
-                        ...prevState.academic_background,
-                        language: data
-                    },
-                    success: success,
-                    updateconfirmed: true,
-                    res_modal_status: status
+                    error,
+                    res_modal_status: 500,
+                    res_modal_message: ''
                 }));
-                onSuccess?.();
-            } else {
-                const { message } = r.data;
-                setSurveyState((prevState) => ({
-                    ...prevState,
-                    res_modal_message: message,
-                    res_modal_status: status
-                }));
-            }
-        }
-        ).catch((error: unknown) => {
-            setSurveyState((prevState) => ({
-                ...prevState,
-                error,
-                res_modal_status: 500,
-                res_modal_message: ''
-            }));
-        });
+            });
     };
 
     const handleApplicationPreferenceSubmit = (
@@ -254,44 +256,45 @@ export function useSurveyState({
         updateApplicationPreference(
             application_preference,
             surveyState.student_id as unknown as string
-        ).then((resp: unknown) => {
-            const r = resp as {
-                data: {
-                    data?: Record<string, unknown>;
-                    success?: boolean;
-                    message?: string;
+        )
+            .then((resp: unknown) => {
+                const r = resp as {
+                    data: {
+                        data?: Record<string, unknown>;
+                        success?: boolean;
+                        message?: string;
+                    };
+                    status?: number;
                 };
-                status?: number;
-            };
-            const { data, success } = r.data;
-            const { status } = r;
-            if (success && data) {
+                const { data, success } = r.data;
+                const { status } = r;
+                if (success && data) {
+                    setSurveyState((prevState) => ({
+                        ...prevState,
+                        changed_application_preference: false,
+                        application_preference: data,
+                        success: success,
+                        updateconfirmed: true,
+                        res_modal_status: status
+                    }));
+                    onSuccess?.();
+                } else {
+                    const { message } = r.data;
+                    setSurveyState((prevState) => ({
+                        ...prevState,
+                        res_modal_message: message,
+                        res_modal_status: status
+                    }));
+                }
+            })
+            .catch((error: unknown) => {
                 setSurveyState((prevState) => ({
                     ...prevState,
-                    changed_application_preference: false,
-                    application_preference: data,
-                    success: success,
-                    updateconfirmed: true,
-                    res_modal_status: status
+                    error,
+                    res_modal_status: 500,
+                    res_modal_message: ''
                 }));
-                onSuccess?.();
-            } else {
-                const { message } = r.data;
-                setSurveyState((prevState) => ({
-                    ...prevState,
-                    res_modal_message: message,
-                    res_modal_status: status
-                }));
-            }
-        }
-        ).catch((error: unknown) => {
-            setSurveyState((prevState) => ({
-                ...prevState,
-                error,
-                res_modal_status: 500,
-                res_modal_message: ''
-            }));
-        });
+            });
     };
 
     const updateDocLink = (link: string, key: string) => {

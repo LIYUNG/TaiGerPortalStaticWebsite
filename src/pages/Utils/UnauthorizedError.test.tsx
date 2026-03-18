@@ -9,12 +9,20 @@ vi.mock('../../config', () => ({
 
 describe('UnauthorizedError', () => {
     it('renders without crashing', () => {
-        render(<MemoryRouter><UnauthorizedError /></MemoryRouter>);
+        render(
+            <MemoryRouter>
+                <UnauthorizedError />
+            </MemoryRouter>
+        );
         expect(screen.getByText(/permission denied/i)).toBeInTheDocument();
     });
 
     it('shows company name', () => {
-        render(<MemoryRouter><UnauthorizedError /></MemoryRouter>);
+        render(
+            <MemoryRouter>
+                <UnauthorizedError />
+            </MemoryRouter>
+        );
         expect(screen.getByText(/TaiGer/)).toBeInTheDocument();
     });
 });

@@ -15,7 +15,9 @@ export function useTeamMembers() {
         gcTime: 1000 * 60 * 5
     });
 
-    const axiosResponse = result.data as AxiosResponse<GetTeamMembersResponse> | undefined;
+    const axiosResponse = result.data as
+        | AxiosResponse<GetTeamMembersResponse>
+        | undefined;
     const body = axiosResponse?.data;
     const teams = body?.data ?? [];
     const success = body?.success;

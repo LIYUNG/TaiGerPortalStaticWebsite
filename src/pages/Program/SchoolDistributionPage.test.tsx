@@ -45,8 +45,18 @@ vi.mock('@hooks/useProgramsOverview', () => ({
 vi.mock('@hooks/useSchoolsDistribution', () => ({
     useSchoolsDistribution: () => ({
         data: [
-            { school: 'TU Berlin', country: 'Germany', city: 'Berlin', programCount: 20 },
-            { school: 'LMU Munich', country: 'Germany', city: 'Munich', programCount: 15 }
+            {
+                school: 'TU Berlin',
+                country: 'Germany',
+                city: 'Berlin',
+                programCount: 20
+            },
+            {
+                school: 'LMU Munich',
+                country: 'Germany',
+                city: 'Munich',
+                programCount: 15
+            }
         ],
         isLoading: false,
         isError: false,
@@ -76,11 +86,15 @@ describe('SchoolDistributionPage', () => {
     });
 
     it('renders without crashing', () => {
-        expect(screen.getAllByText('Schools Distribution')[0]).toBeInTheDocument();
+        expect(
+            screen.getAllByText('Schools Distribution')[0]
+        ).toBeInTheDocument();
     });
 
     it('renders breadcrumb navigation', () => {
-        expect(screen.getByRole('navigation', { name: 'breadcrumb' })).toBeInTheDocument();
+        expect(
+            screen.getByRole('navigation', { name: 'breadcrumb' })
+        ).toBeInTheDocument();
     });
 
     it('renders school data in table', () => {
@@ -89,6 +103,8 @@ describe('SchoolDistributionPage', () => {
     });
 
     it('renders Back to Overview button', () => {
-        expect(screen.getByRole('button', { name: /Back to Overview/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('button', { name: /Back to Overview/i })
+        ).toBeInTheDocument();
     });
 });

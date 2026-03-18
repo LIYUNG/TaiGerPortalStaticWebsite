@@ -70,7 +70,9 @@ const defaultProps = {
 describe('NewProgramEdit', () => {
     it('renders without crashing', () => {
         render(<NewProgramEdit {...defaultProps} />);
-        expect(screen.getByRole('button', { name: /Back/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('button', { name: /Back/i })
+        ).toBeInTheDocument();
     });
 
     it('renders school name from program prop', () => {
@@ -82,13 +84,11 @@ describe('NewProgramEdit', () => {
 
     it('renders for create type without program', () => {
         render(
-            <NewProgramEdit
-                {...defaultProps}
-                program={undefined}
-                type="new"
-            />
+            <NewProgramEdit {...defaultProps} program={undefined} type="new" />
         );
-        expect(screen.getByRole('button', { name: /Back/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('button', { name: /Back/i })
+        ).toBeInTheDocument();
     });
 
     it('renders submit button', () => {

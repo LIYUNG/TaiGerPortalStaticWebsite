@@ -41,7 +41,8 @@ vi.mock('@store/constant', () => ({
     default: {
         SINGLE_PROGRAM_LINK: (id: string) => `/programs/${id}`,
         DOCUMENT_MODIFICATION_LINK: (id: string) => `/docs/${id}`,
-        STUDENT_APPLICATIONS_ID_LINK: (id: string) => `/students/${id}/applications`,
+        STUDENT_APPLICATIONS_ID_LINK: (id: string) =>
+            `/students/${id}/applications`,
         DASHBOARD_LINK: '/'
     }
 }));
@@ -51,8 +52,14 @@ vi.mock('../ManualFiles', () => ({
 }));
 
 vi.mock('./ApplicationAccordionSummary', () => ({
-    default: ({ application }: { application: { programId?: { school?: string } } }) => (
-        <div data-testid="accordion-summary">{application?.programId?.school}</div>
+    default: ({
+        application
+    }: {
+        application: { programId?: { school?: string } };
+    }) => (
+        <div data-testid="accordion-summary">
+            {application?.programId?.school}
+        </div>
     )
 }));
 
@@ -113,6 +120,8 @@ describe('ApplicationAccordionList', () => {
                 <ApplicationAccordionList {...defaultProps} applications={[]} />
             </MemoryRouter>
         );
-        expect(screen.queryByTestId('accordion-summary')).not.toBeInTheDocument();
+        expect(
+            screen.queryByTestId('accordion-summary')
+        ).not.toBeInTheDocument();
     });
 });

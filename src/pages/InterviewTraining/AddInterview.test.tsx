@@ -20,11 +20,18 @@ vi.mock('@taiger-common/core', () => ({
 vi.mock('@/api', () => ({
     getMyInterviews: vi.fn(() =>
         Promise.resolve({
-            data: { success: true, data: [], student: { _id: 's1', applications: [] }, students: [] },
+            data: {
+                success: true,
+                data: [],
+                student: { _id: 's1', applications: [] },
+                students: []
+            },
             status: 200
         })
     ),
-    createInterview: vi.fn(() => Promise.resolve({ data: { success: true }, status: 200 }))
+    createInterview: vi.fn(() =>
+        Promise.resolve({ data: { success: true }, status: 200 })
+    )
 }));
 
 vi.mock('../Notes/NotesEditor', () => ({
@@ -36,7 +43,9 @@ vi.mock('@components/Loading/Loading', () => ({
 }));
 
 vi.mock('../Utils/ErrorPage', () => ({
-    default: ({ res_status }: { res_status: number }) => <div data-testid="error-page">{res_status}</div>
+    default: ({ res_status }: { res_status: number }) => (
+        <div data-testid="error-page">{res_status}</div>
+    )
 }));
 
 vi.mock('../Utils/ModalHandler/ModalMain', () => ({

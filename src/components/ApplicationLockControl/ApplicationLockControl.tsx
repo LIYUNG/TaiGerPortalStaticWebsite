@@ -1,11 +1,5 @@
 import { useState } from 'react';
-import {
-    IconButton,
-    Tooltip,
-    Chip,
-    Typography,
-    Box
-} from '@mui/material';
+import { IconButton, Tooltip, Chip, Typography, Box } from '@mui/material';
 import { ConfirmDialog } from '@components/ConfirmDialog';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
@@ -211,7 +205,8 @@ const ApplicationLockControl = ({
                             sx={{ display: 'block', mt: 1 }}
                             variant="caption"
                         >
-                            {t('Reason', { ns: 'common' })}: {getLockReasonText()}
+                            {t('Reason', { ns: 'common' })}:{' '}
+                            {getLockReasonText()}
                         </Typography>
                     </>
                 }

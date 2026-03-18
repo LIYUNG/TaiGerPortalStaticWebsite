@@ -1,7 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { getCRMLead } from '@/api';
-import type { CRMLeadWithMeetings, GetCRMLeadResponse } from '@taiger-common/model';
+import type {
+    CRMLeadWithMeetings,
+    GetCRMLeadResponse
+} from '@taiger-common/model';
 
 export type UseLeadOptions = {
     enabled?: boolean;

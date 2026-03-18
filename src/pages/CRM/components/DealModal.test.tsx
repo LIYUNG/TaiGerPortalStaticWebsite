@@ -14,7 +14,10 @@ vi.mock('@tanstack/react-query', async (orig) => ({
 }));
 
 vi.mock('@/api/query', () => ({
-    getCRMLeadsQuery: vi.fn(() => ({ queryKey: ['crm/leads'], queryFn: vi.fn() }))
+    getCRMLeadsQuery: vi.fn(() => ({
+        queryKey: ['crm/leads'],
+        queryFn: vi.fn()
+    }))
 }));
 
 vi.mock('@/api', () => ({
@@ -28,7 +31,13 @@ vi.mock('@tanstack/react-form', () => ({
         handleSubmit: vi.fn(),
         reset: vi.fn(),
         setFieldValue: vi.fn(),
-        Field: ({ children, name }: { children: (field: unknown) => ReactNode; name: string }) =>
+        Field: ({
+            children,
+            name
+        }: {
+            children: (field: unknown) => ReactNode;
+            name: string;
+        }) =>
             children({
                 state: { value: '' },
                 handleChange: vi.fn(),

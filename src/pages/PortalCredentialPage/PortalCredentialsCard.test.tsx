@@ -13,8 +13,12 @@ vi.mock('../../config', () => ({
 
 vi.mock('../Utils/TabTitle', () => ({ TabTitle: vi.fn() }));
 vi.mock('../Utils/ErrorPage', () => ({ default: () => <div>ErrorPage</div> }));
-vi.mock('../Utils/ModalHandler/ModalMain', () => ({ default: () => <div>Modal</div> }));
-vi.mock('@components/Loading/Loading', () => ({ default: () => <div>Loading</div> }));
+vi.mock('../Utils/ModalHandler/ModalMain', () => ({
+    default: () => <div>Modal</div>
+}));
+vi.mock('@components/Loading/Loading', () => ({
+    default: () => <div>Loading</div>
+}));
 vi.mock('../Utils/checking-functions', () => ({
     LinkableNewlineText: ({ text }: { text: string }) => <span>{text}</span>
 }));
@@ -31,7 +35,10 @@ vi.mock('@/api', () => ({
         Promise.resolve({
             data: {
                 success: true,
-                data: { applications: [], student: { firstname: 'Alice', lastname: 'Wang' } }
+                data: {
+                    applications: [],
+                    student: { firstname: 'Alice', lastname: 'Wang' }
+                }
             },
             status: 200
         })
@@ -51,7 +58,10 @@ describe('PortalCredentialsCard', () => {
     beforeEach(() => {
         render(
             <MemoryRouter>
-                <PortalCredentialsCard student_id="student1" showTitle={false} />
+                <PortalCredentialsCard
+                    student_id="student1"
+                    showTitle={false}
+                />
             </MemoryRouter>
         );
     });
@@ -65,7 +75,10 @@ describe('PortalCredentialsCard - loaded state', () => {
     it('renders card content after loading', async () => {
         render(
             <MemoryRouter>
-                <PortalCredentialsCard student_id="student1" showTitle={false} />
+                <PortalCredentialsCard
+                    student_id="student1"
+                    showTitle={false}
+                />
             </MemoryRouter>
         );
         const updateBtn = await screen.findByText(/update/i);

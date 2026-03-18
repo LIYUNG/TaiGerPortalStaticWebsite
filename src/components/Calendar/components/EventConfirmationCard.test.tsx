@@ -56,7 +56,11 @@ describe('EventConfirmationCard', () => {
         render(
             <MemoryRouter>
                 <EventConfirmationCard
-                    event={mockEvent as Parameters<typeof EventConfirmationCard>[0]['event']}
+                    event={
+                        mockEvent as Parameters<
+                            typeof EventConfirmationCard
+                        >[0]['event']
+                    }
                     handleConfirmAppointmentModalOpen={vi.fn()}
                     handleEditAppointmentModalOpen={vi.fn()}
                     handleDeleteAppointmentModalOpen={vi.fn()}
@@ -70,7 +74,11 @@ describe('EventConfirmationCard', () => {
         render(
             <MemoryRouter>
                 <EventConfirmationCard
-                    event={mockEvent as Parameters<typeof EventConfirmationCard>[0]['event']}
+                    event={
+                        mockEvent as Parameters<
+                            typeof EventConfirmationCard
+                        >[0]['event']
+                    }
                     handleConfirmAppointmentModalOpen={vi.fn()}
                     handleEditAppointmentModalOpen={vi.fn()}
                     handleDeleteAppointmentModalOpen={vi.fn()}

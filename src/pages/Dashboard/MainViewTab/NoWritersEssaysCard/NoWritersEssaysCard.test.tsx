@@ -21,7 +21,8 @@ vi.mock('../StudDocsOverview/EditEssayWritersSubpage', () => ({
 vi.mock('@store/constant', () => ({
     default: {
         DOCUMENT_MODIFICATION_LINK: (id: string) => `/documents/${id}`,
-        STUDENT_DATABASE_STUDENTID_LINK: (id: string, hash: string) => `/students/${id}#${hash}`,
+        STUDENT_DATABASE_STUDENTID_LINK: (id: string, hash: string) =>
+            `/students/${id}#${hash}`,
         PROFILE_HASH: 'profile'
     }
 }));
@@ -32,7 +33,13 @@ const essayThreadWithoutWriters = {
     _id: 'dt1',
     outsourced_user_id: [],
     file_type: 'MotivationLetter',
-    program_id: { _id: 'p1', school: 'MIT', program_name: 'CS', degree: 'MS', semester: 'WS2025' },
+    program_id: {
+        _id: 'p1',
+        school: 'MIT',
+        program_name: 'CS',
+        degree: 'MS',
+        semester: 'WS2025'
+    },
     student_id: {
         _id: 's1',
         firstname: 'Jane',
@@ -49,7 +56,13 @@ const essayThreadWithWriters = {
     _id: 'dt2',
     outsourced_user_id: [{ _id: 'w1', firstname: 'Writer', lastname: 'One' }],
     file_type: 'MotivationLetter',
-    program_id: { _id: 'p2', school: 'Stanford', program_name: 'EE', degree: 'PhD', semester: 'SS2025' },
+    program_id: {
+        _id: 'p2',
+        school: 'Stanford',
+        program_name: 'EE',
+        degree: 'PhD',
+        semester: 'SS2025'
+    },
     student_id: {
         _id: 's2',
         firstname: 'John',

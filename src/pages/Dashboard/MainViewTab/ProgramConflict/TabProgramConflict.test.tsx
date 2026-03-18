@@ -4,7 +4,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import TabProgramConflict from './TabProgramConflict';
 
 vi.mock('./ProgramConflict', () => ({
-    default: ({ program, students }: { program: { school: string }; students: unknown[] }) => (
+    default: ({
+        program,
+        students
+    }: {
+        program: { school: string };
+        students: unknown[];
+    }) => (
         <tbody data-testid="program-conflict">
             <tr>
                 <td>{program.school}</td>
@@ -17,7 +23,8 @@ vi.mock('./ProgramConflict', () => ({
 vi.mock('@store/constant', () => ({
     default: {
         SINGLE_PROGRAM_LINK: (id: string) => `/programs/${id}`,
-        STUDENT_DATABASE_STUDENTID_LINK: (id: string, hash: string) => `/student/${id}${hash}`,
+        STUDENT_DATABASE_STUDENTID_LINK: (id: string, hash: string) =>
+            `/student/${id}${hash}`,
         PROFILE_HASH: '#profile'
     }
 }));
@@ -32,7 +39,12 @@ const mockStudents = [
             degree: 'Master'
         },
         students: [
-            { studentId: 's1', firstname: 'John', lastname: 'Doe', application_preference: {} }
+            {
+                studentId: 's1',
+                firstname: 'John',
+                lastname: 'Doe',
+                application_preference: {}
+            }
         ]
     },
     {
@@ -44,7 +56,12 @@ const mockStudents = [
             degree: 'Master'
         },
         students: [
-            { studentId: 's2', firstname: 'Jane', lastname: 'Smith', application_preference: {} }
+            {
+                studentId: 's2',
+                firstname: 'Jane',
+                lastname: 'Smith',
+                application_preference: {}
+            }
         ]
     }
 ];
@@ -53,7 +70,10 @@ describe('TabProgramConflict', () => {
     beforeEach(() => {
         render(
             <MemoryRouter>
-                <TabProgramConflict program={mockStudents[0].program} students={mockStudents} />
+                <TabProgramConflict
+                    program={mockStudents[0].program}
+                    students={mockStudents}
+                />
             </MemoryRouter>
         );
     });
@@ -63,9 +83,15 @@ describe('TabProgramConflict', () => {
     });
 
     it('renders table header columns', () => {
-        expect(screen.getByRole('columnheader', { name: /University/i })).toBeInTheDocument();
-        expect(screen.getByRole('columnheader', { name: /Student Name/i })).toBeInTheDocument();
-        expect(screen.getByRole('columnheader', { name: /Deadline/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('columnheader', { name: /University/i })
+        ).toBeInTheDocument();
+        expect(
+            screen.getByRole('columnheader', { name: /Student Name/i })
+        ).toBeInTheDocument();
+        expect(
+            screen.getByRole('columnheader', { name: /Deadline/i })
+        ).toBeInTheDocument();
     });
 
     it('renders ProgramConflict components for each entry', () => {

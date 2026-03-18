@@ -32,7 +32,8 @@ export function useStudentsAndDocLinks(
 
     const raw = result.data as GetStudentsAndDocLinksResponse | undefined;
     const students = raw?.data;
-    const base_docs_link = (raw as { base_docs_link?: unknown })?.base_docs_link;
+    const base_docs_link = (raw as { base_docs_link?: unknown })
+        ?.base_docs_link;
 
     return {
         ...result,

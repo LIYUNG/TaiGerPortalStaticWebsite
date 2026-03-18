@@ -20,8 +20,7 @@ import { useStudentsV3 } from '@hooks/useStudentsV3';
 const ApplicantsOverview = () => {
     const { user } = useAuth();
 
-    const role =
-        user != null && is_TaiGer_Editor(user) ? 'editors' : 'agents';
+    const role = user != null && is_TaiGer_Editor(user) ? 'editors' : 'agents';
     const userIdStr = user?._id?.toString() ?? '';
     const { data: fetchedMyStudents, isLoading: isLoadingMyStudents } =
         useStudentsV3({ [role]: userIdStr, archiv: false });

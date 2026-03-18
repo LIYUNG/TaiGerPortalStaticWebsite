@@ -21,8 +21,9 @@ interface Props {
 export const ProgramRequirementsTableWrapper = ({ onAnalyseV2 }: Props) => {
     const { data, isLoading } = useQuery(getProgramRequirementsQuery());
     if (isLoading) return <div>Loading...</div>;
-    const rawData = (data as { data?: ProgramRequirementPopulated[] } | undefined)
-        ?.data;
+    const rawData = (
+        data as { data?: ProgramRequirementPopulated[] } | undefined
+    )?.data;
     const transformedData =
         rawData?.map((row: ProgramRequirementPopulated) => {
             return {

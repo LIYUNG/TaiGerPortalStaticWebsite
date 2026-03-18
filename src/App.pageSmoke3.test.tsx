@@ -124,13 +124,11 @@ vi.mock('@/api', async (importOriginal) => ({
         .fn()
         .mockResolvedValue({ data: { data: [] } }),
     getActiveThreads: vi.fn().mockResolvedValue({ data: [] }),
-    getMyStudentsThreads: vi
-        .fn()
-        .mockResolvedValue({
-            data: { threads: [] },
-            success: true,
-            status: 200
-        }),
+    getMyStudentsThreads: vi.fn().mockResolvedValue({
+        data: { threads: [] },
+        success: true,
+        status: 200
+    }),
     putThreadFavorite: vi.fn().mockResolvedValue({ data: { success: true } }),
     getApplicationStudentV2: vi.fn().mockResolvedValue({ data: null }),
     // CRM
@@ -164,45 +162,39 @@ vi.mock('@/api', async (importOriginal) => ({
     getMyCommunicationThreadV2: vi
         .fn()
         .mockResolvedValue({ data: { data: [] } }),
-    getMessagThread: vi
-        .fn()
-        .mockResolvedValue({
+    getMessagThread: vi.fn().mockResolvedValue({
+        data: {
             data: {
-                data: {
-                    student_id: { firstname: 'Test', lastname: 'Student' }
-                },
-                success: true,
-                agents: [],
-                editors: [],
-                conflict_list: [],
-                deadline: null,
-                threadAuditLog: [],
-                similarThreads: []
-            }
-        }),
+                student_id: { firstname: 'Test', lastname: 'Student' }
+            },
+            success: true,
+            agents: [],
+            editors: [],
+            conflict_list: [],
+            deadline: null,
+            threadAuditLog: [],
+            similarThreads: []
+        }
+    }),
     // Documentation
-    getCategorizedDocumentationPage: vi
-        .fn()
-        .mockResolvedValue({
-            data: { data: { text: null, author: '' }, success: true },
-            status: 200
-        }),
+    getCategorizedDocumentationPage: vi.fn().mockResolvedValue({
+        data: { data: { text: null, author: '' }, success: true },
+        status: 200
+    }),
     updateDocumentationPage: vi
         .fn()
         .mockResolvedValue({ data: { success: true } }),
     // Calendar
-    getEvents: vi
-        .fn()
-        .mockResolvedValue({
-            data: {
-                data: [],
-                success: true,
-                agents: {},
-                editors: [],
-                hasEvents: false
-            },
-            status: 200
-        }),
+    getEvents: vi.fn().mockResolvedValue({
+        data: {
+            data: [],
+            success: true,
+            agents: {},
+            editors: [],
+            hasEvents: false
+        },
+        status: 200
+    }),
     getBookedEvents: vi.fn().mockResolvedValue({ data: { data: [] } }),
     postEvent: vi.fn().mockResolvedValue({ data: { success: true } }),
     updateEvent: vi.fn().mockResolvedValue({ data: { success: true } }),

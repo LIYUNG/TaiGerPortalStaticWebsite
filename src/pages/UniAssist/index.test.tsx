@@ -25,9 +25,13 @@ vi.mock('../../config', () => ({
 }));
 
 vi.mock('../Utils/TabTitle', () => ({ TabTitle: vi.fn() }));
-vi.mock('@components/Loading/Loading', () => ({ default: () => <div>Loading</div> }));
+vi.mock('@components/Loading/Loading', () => ({
+    default: () => <div>Loading</div>
+}));
 vi.mock('./UniAssistListCard', () => ({
-    default: () => <div data-testid="uni-assist-list-card">UniAssistListCard</div>
+    default: () => (
+        <div data-testid="uni-assist-list-card">UniAssistListCard</div>
+    )
 }));
 
 vi.mock('@tanstack/react-query', () => ({
@@ -64,6 +68,8 @@ describe('UniAssistList', () => {
     });
 
     it('renders not needed message when no uni-assist required', () => {
-        expect(screen.getByText(/uni-assist is not needed/i)).toBeInTheDocument();
+        expect(
+            screen.getByText(/uni-assist is not needed/i)
+        ).toBeInTheDocument();
     });
 });

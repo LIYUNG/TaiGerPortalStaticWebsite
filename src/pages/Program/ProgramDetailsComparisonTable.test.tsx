@@ -38,7 +38,11 @@ const mockApplications = [
 
 describe('ProgramDetailsComparisonTable', () => {
     beforeEach(() => {
-        render(<ProgramDetailsComparisonTable applications={mockApplications as any} />);
+        render(
+            <ProgramDetailsComparisonTable
+                applications={mockApplications as any}
+            />
+        );
     });
 
     it('renders without crashing', () => {

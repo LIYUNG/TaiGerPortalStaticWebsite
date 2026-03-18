@@ -350,7 +350,10 @@ const routes = [
     {
         path: '/courses',
         children: [
-            { path: 'analysis/courses/new', element: <CourseForm mode="create" /> },
+            {
+                path: 'analysis/courses/new',
+                element: <CourseForm mode="create" />
+            },
             {
                 path: 'analysis/courses/edit/:courseId',
                 errorElement: <DefaultErrorPage />,

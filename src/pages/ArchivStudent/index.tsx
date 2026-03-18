@@ -62,8 +62,7 @@ const ArchivStudents = () => {
         res_modal_message: ''
     });
 
-    const TaiGerStaffId =
-        user_id ?? user?._id?.toString() ?? '';
+    const TaiGerStaffId = user_id ?? user?._id?.toString() ?? '';
 
     // Fetch archived students using React Query (only when we have a valid staff id)
     const {
@@ -136,8 +135,7 @@ const ArchivStudents = () => {
     const axiosError = error as { response?: { status?: number } } | null;
 
     if (isError || !res?.data?.success) {
-        const res_status =
-            res?.status ?? axiosError?.response?.status ?? 500;
+        const res_status = res?.status ?? axiosError?.response?.status ?? 500;
         return <ErrorPage res_status={res_status} />;
     }
 

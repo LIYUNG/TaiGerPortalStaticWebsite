@@ -7,7 +7,9 @@ vi.mock('react-router-dom', async () => {
     return {
         ...actual,
         useLoaderData: () => ({
-            distinctSchools: Promise.resolve([{ school: 'TU Berlin', count: 10 }])
+            distinctSchools: Promise.resolve([
+                { school: 'TU Berlin', count: 10 }
+            ])
         }),
         useNavigate: () => vi.fn(),
         useParams: () => ({ programId: 'prog1' })
@@ -42,7 +44,10 @@ vi.mock('@/api', () => ({
 }));
 
 vi.mock('@/api/query', () => ({
-    getProgramQuery: vi.fn(() => ({ queryKey: ['programs', 'prog1'], queryFn: vi.fn() }))
+    getProgramQuery: vi.fn(() => ({
+        queryKey: ['programs', 'prog1'],
+        queryFn: vi.fn()
+    }))
 }));
 
 vi.mock('@contexts/use-snack-bar', () => ({
@@ -77,7 +82,9 @@ describe('ProgramEditPage', () => {
     });
 
     it('renders without crashing', async () => {
-        expect(await screen.findByTestId('new-program-edit')).toBeInTheDocument();
+        expect(
+            await screen.findByTestId('new-program-edit')
+        ).toBeInTheDocument();
     });
 
     it('renders NewProgramEdit after data loads', async () => {

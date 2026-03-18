@@ -40,9 +40,15 @@ vi.mock('react-router-dom', async () => {
 
 vi.mock('../Utils/TabTitle', () => ({ TabTitle: vi.fn() }));
 vi.mock('../Utils/ErrorPage', () => ({ default: () => <div>ErrorPage</div> }));
-vi.mock('../Utils/ModalHandler/ModalMain', () => ({ default: () => <div>Modal</div> }));
-vi.mock('@components/Loading/Loading', () => ({ default: () => <div>Loading</div> }));
-vi.mock('@components/TopBar/TopBar', () => ({ TopBar: () => <div>TopBar</div> }));
+vi.mock('../Utils/ModalHandler/ModalMain', () => ({
+    default: () => <div>Modal</div>
+}));
+vi.mock('@components/Loading/Loading', () => ({
+    default: () => <div>Loading</div>
+}));
+vi.mock('@components/TopBar/TopBar', () => ({
+    TopBar: () => <div>TopBar</div>
+}));
 
 vi.mock('@contexts/use-snack-bar', () => ({
     useSnackBar: () => ({
@@ -53,7 +59,9 @@ vi.mock('@contexts/use-snack-bar', () => ({
 }));
 
 vi.mock('./ProgramRequirementsTableWrapper', () => ({
-    ProgramRequirementsTableWrapper: () => <div>ProgramRequirementsTableWrapper</div>
+    ProgramRequirementsTableWrapper: () => (
+        <div>ProgramRequirementsTableWrapper</div>
+    )
 }));
 
 vi.mock('@/api', () => ({
@@ -92,8 +100,15 @@ vi.mock('@tanstack/react-query', () => ({
 }));
 
 vi.mock('@components/Tabs', () => ({
-    CustomTabPanel: ({ children, index, value }: { children: React.ReactNode; index: number; value: number }) =>
-        index === value ? <div>{children}</div> : null,
+    CustomTabPanel: ({
+        children,
+        index,
+        value
+    }: {
+        children: React.ReactNode;
+        index: number;
+        value: number;
+    }) => (index === value ? <div>{children}</div> : null),
     a11yProps: () => ({})
 }));
 

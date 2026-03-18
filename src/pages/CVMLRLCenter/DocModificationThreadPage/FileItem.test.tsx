@@ -50,8 +50,13 @@ describe('FileItem', () => {
     });
 
     it('renders a download link', () => {
-        const link = screen.getByRole('link', { name: /Download document.pdf/i });
+        const link = screen.getByRole('link', {
+            name: /Download document.pdf/i
+        });
         expect(link).toBeInTheDocument();
-        expect(link).toHaveAttribute('href', expect.stringContaining('document.pdf'));
+        expect(link).toHaveAttribute(
+            'href',
+            expect.stringContaining('document.pdf')
+        );
     });
 });

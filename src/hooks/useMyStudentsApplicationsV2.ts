@@ -30,7 +30,11 @@ export function useMyStudentsApplicationsV2(
 ) {
     const { userId, ...rest } = params;
     const queryStringValue = queryString.stringify(rest);
-    const queryKey = ['applications/taiger-user', userId, queryStringValue] as const;
+    const queryKey = [
+        'applications/taiger-user',
+        userId,
+        queryStringValue
+    ] as const;
 
     const result = useQuery<
         GetMyStudentsApplicationsResponse,
@@ -38,7 +42,11 @@ export function useMyStudentsApplicationsV2(
         MyStudentsApplicationsV2Data
     >({
         queryKey,
-        queryFn: () => getMyStudentsApplications({ userId, queryString: queryStringValue }),
+        queryFn: () =>
+            getMyStudentsApplications({
+                userId,
+                queryString: queryStringValue
+            }),
         staleTime: 1000 * 60 * 5, // 5 minutes
         select: (response) => response.data ?? { applications: [] },
         enabled: options?.enabled ?? true

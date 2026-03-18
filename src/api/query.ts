@@ -141,8 +141,7 @@ export const getUsersCountQuery = (): UseQueryOptions => ({
     queryKey: ['users/count'],
     queryFn: () => getUsersCount(),
     staleTime: 1000 * 60 * 5, // 5 minutes
-    select: (data: unknown) =>
-        (data as { data?: unknown[] })?.data ?? []
+    select: (data: unknown) => (data as { data?: unknown[] })?.data ?? []
 });
 
 export const getUsersOverviewQuery = (): UseQueryOptions => ({
@@ -240,8 +239,7 @@ export const getApplicationStudentV2Query = ({
     queryKey: ['applications/student', studentId],
     queryFn: () => getApplicationStudentV2(studentId),
     staleTime: 1000 * 60 * 5, // 5 minutes
-    select: (data: unknown) =>
-        (data as { data?: unknown })?.data ?? null
+    select: (data: unknown) => (data as { data?: unknown })?.data ?? null
 });
 
 export const getQueryStudentsResultsQuery = (
@@ -360,4 +358,3 @@ export const getMycoursesQuery = (studentId: StudentId): UseQueryOptions => ({
     queryFn: () => getMycourses(studentId),
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
-

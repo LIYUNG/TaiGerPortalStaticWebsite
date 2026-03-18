@@ -37,7 +37,8 @@ export interface UseConfirmDialogReturn {
  */
 export function useConfirmDialog(): UseConfirmDialogReturn {
     const [open, setOpen] = useState(false);
-    const [dialogConfig, setDialogConfig] = useState<ConfirmDialogConfig>(defaultConfig);
+    const [dialogConfig, setDialogConfig] =
+        useState<ConfirmDialogConfig>(defaultConfig);
 
     const openDialog = useCallback((config: ConfirmDialogConfig) => {
         setDialogConfig(config);

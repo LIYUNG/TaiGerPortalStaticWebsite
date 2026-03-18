@@ -4,7 +4,9 @@ import { MemoryRouter } from 'react-router-dom';
 import { UniAssistProgramBlock } from './UniAssistProgramBlock';
 
 vi.mock('@components/AuthProvider', () => ({
-    useAuth: () => ({ user: { role: 'Student', _id: { toString: () => 's1' } } })
+    useAuth: () => ({
+        user: { role: 'Student', _id: { toString: () => 's1' } }
+    })
 }));
 
 vi.mock('@taiger-common/core', () => ({
@@ -88,7 +90,12 @@ describe('UniAssistProgramBlock - with VPD', () => {
         const vpd_application = {
             ...mockApplication,
             programId: { ...mockApplication.programId, uni_assist: 'Yes-VPD' },
-            uni_assist: { status: 'missing', isPaid: false, vpd_file_path: '', vpd_paid_confirmation_file_path: '' }
+            uni_assist: {
+                status: 'missing',
+                isPaid: false,
+                vpd_file_path: '',
+                vpd_paid_confirmation_file_path: ''
+            }
         };
         render(
             <MemoryRouter>

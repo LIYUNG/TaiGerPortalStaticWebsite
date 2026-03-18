@@ -5,12 +5,20 @@ import ResourceLockedError from './ResourceLockedError';
 
 describe('ResourceLockedError', () => {
     it('renders without crashing', () => {
-        render(<MemoryRouter><ResourceLockedError /></MemoryRouter>);
+        render(
+            <MemoryRouter>
+                <ResourceLockedError />
+            </MemoryRouter>
+        );
         expect(screen.getByText(/locked/i)).toBeInTheDocument();
     });
 
     it('shows resource locked message', () => {
-        render(<MemoryRouter><ResourceLockedError /></MemoryRouter>);
+        render(
+            <MemoryRouter>
+                <ResourceLockedError />
+            </MemoryRouter>
+        );
         expect(screen.getByText(/resource is locked/i)).toBeInTheDocument();
     });
 });

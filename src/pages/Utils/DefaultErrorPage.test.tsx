@@ -35,11 +35,15 @@ describe('DefaultErrorPage', () => {
 
     it('renders Go to Home button', () => {
         renderComponent();
-        expect(screen.getByRole('button', { name: /go to home/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('button', { name: /go to home/i })
+        ).toBeInTheDocument();
     });
 
     it('renders Retry button', () => {
         renderComponent();
-        expect(screen.getByRole('button', { name: /retry/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('button', { name: /retry/i })
+        ).toBeInTheDocument();
     });
 });

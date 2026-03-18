@@ -3,7 +3,9 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
 vi.mock('@/api', () => ({
-    getResponseIntervalByStudent: vi.fn(() => Promise.resolve({ status: 200, data: { data: {} } }))
+    getResponseIntervalByStudent: vi.fn(() =>
+        Promise.resolve({ status: 200, data: { data: {} } })
+    )
 }));
 
 vi.mock('@mui/x-charts', () => ({

@@ -69,18 +69,26 @@ describe('ProgramReport', () => {
     });
 
     it('renders without crashing and shows Report button', async () => {
-        expect(await screen.findByRole('button', { name: /Report/i })).toBeInTheDocument();
+        expect(
+            await screen.findByRole('button', { name: /Report/i })
+        ).toBeInTheDocument();
     });
 
     it('renders ProgramReportModal', async () => {
-        expect(await screen.findByTestId('program-report-modal')).toBeInTheDocument();
+        expect(
+            await screen.findByTestId('program-report-modal')
+        ).toBeInTheDocument();
     });
 
     it('renders ProgramReportDeleteModal', async () => {
-        expect(await screen.findByTestId('program-report-delete-modal')).toBeInTheDocument();
+        expect(
+            await screen.findByTestId('program-report-delete-modal')
+        ).toBeInTheDocument();
     });
 
     it('renders ProgramReportUpdateModal', async () => {
-        expect(await screen.findByTestId('program-report-update-modal')).toBeInTheDocument();
+        expect(
+            await screen.findByTestId('program-report-update-modal')
+        ).toBeInTheDocument();
     });
 });

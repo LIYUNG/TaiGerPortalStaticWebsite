@@ -94,9 +94,9 @@ export const isLanguageInfoComplete = (
     const language = academic_background?.language;
     return language
         ? !(
-            language.english_isPassed === '-' &&
-            language.german_isPassed === '-'
-        )
+              language.english_isPassed === '-' &&
+              language.german_isPassed === '-'
+          )
         : false;
 };
 
@@ -337,9 +337,9 @@ export const are_base_documents_missing = (
         for (let i = 0; i < documentlist2_keys.length; i++) {
             if (
                 object_init[documentlist2_keys[i]] !==
-                DocumentStatusType.Accepted &&
+                    DocumentStatusType.Accepted &&
                 object_init[documentlist2_keys[i]] !==
-                DocumentStatusType.NotNeeded
+                    DocumentStatusType.NotNeeded
             ) {
                 return true;
             }
@@ -887,7 +887,7 @@ export const is_any_vpd_missing = (students: IStudentResponse[]): boolean => {
                         }
                         if (
                             applications[j].uni_assist?.status !==
-                            DocumentStatusType.Uploaded ||
+                                DocumentStatusType.Uploaded ||
                             applications[j].uni_assist?.vpd_file_path === ''
                         ) {
                             return true;
@@ -951,7 +951,7 @@ export const is_personal_data_filled = (student: IStudentResponse) => {
     return requiredFields.every(
         (field) =>
             (student as unknown as Record<string, unknown>)[field] !==
-            undefined &&
+                undefined &&
             (student as unknown as Record<string, unknown>)[field] !== ''
     );
 };
@@ -1273,30 +1273,30 @@ export const progressBarCounter = (
         ).length,
 
         (programId?.ielts || programId?.toefl) &&
-            student?.academic_background?.language?.english_isPassed === 'O' &&
-            isEnglishOK(programId, student)
+        student?.academic_background?.language?.english_isPassed === 'O' &&
+        isEnglishOK(programId, student)
             ? 1
             : 0,
         programId?.testdaf &&
-            programId?.testdaf !== '-' &&
-            student?.academic_background?.language?.german_isPassed === 'O'
+        programId?.testdaf !== '-' &&
+        student?.academic_background?.language?.german_isPassed === 'O'
             ? 1
             : 0,
         programId?.gre &&
-            programId?.gre !== '-' &&
-            student?.academic_background?.language?.gre_isPassed === 'O'
+        programId?.gre !== '-' &&
+        student?.academic_background?.language?.gre_isPassed === 'O'
             ? 1
             : 0,
         programId?.gmat &&
-            programId?.gmat !== '-' &&
-            student?.academic_background?.language?.gmat_isPassed === 'O'
+        programId?.gmat !== '-' &&
+        student?.academic_background?.language?.gmat_isPassed === 'O'
             ? 1
             : 0,
         (programId?.application_portal_a || programId?.application_portal_b) &&
-            ((programId?.application_portal_a &&
-                !application.credential_a_filled) ||
-                (programId?.application_portal_b &&
-                    !application.credential_b_filled))
+        ((programId?.application_portal_a &&
+            !application.credential_a_filled) ||
+            (programId?.application_portal_b &&
+                !application.credential_b_filled))
             ? 0
             : 1,
         application?.doc_modification_thread?.filter(
@@ -1348,15 +1348,15 @@ export const isEnglishOK = (
     if (english_certificate === 'TOEFL') {
         if (
             parseFloat(program.toefl ?? '0') >
-            parseFloat(english_score ?? '') ||
+                parseFloat(english_score ?? '') ||
             (program.toefl_reading ?? 0) >
-            parseFloat(english_score_reading ?? '') ||
+                parseFloat(english_score_reading ?? '') ||
             (program.toefl_listening ?? 0) >
-            parseFloat(english_score_listening ?? '') ||
+                parseFloat(english_score_listening ?? '') ||
             (program.toefl_writing ?? 0) >
-            parseFloat(english_score_writing ?? '') ||
+                parseFloat(english_score_writing ?? '') ||
             (program.toefl_speaking ?? 0) >
-            parseFloat(english_score_speaking ?? '')
+                parseFloat(english_score_speaking ?? '')
         ) {
             return false;
         }
@@ -1364,15 +1364,15 @@ export const isEnglishOK = (
     if (english_certificate === 'IELTS') {
         if (
             parseFloat(program.ielts ?? '0') >
-            parseFloat(english_score ?? '') ||
+                parseFloat(english_score ?? '') ||
             (program.ielts_reading ?? 0) >
-            parseFloat(english_score_reading ?? '') ||
+                parseFloat(english_score_reading ?? '') ||
             (program.ielts_listening ?? 0) >
-            parseFloat(english_score_listening ?? '') ||
+                parseFloat(english_score_listening ?? '') ||
             (program.ielts_writing ?? 0) >
-            parseFloat(english_score_writing ?? '') ||
+                parseFloat(english_score_writing ?? '') ||
             (program.ielts_speaking ?? 0) >
-            parseFloat(english_score_speaking ?? '')
+                parseFloat(english_score_speaking ?? '')
         ) {
             return false;
         }
@@ -1533,7 +1533,9 @@ const prepTaskV2 = (
         flag_by_user_id: thread?.flag_by_user_id as string[] | undefined,
         isFinalVersion: thread.isFinalVersion,
         outsourced_user_id: thread?.outsourced_user_id,
-        outsourced_user_name_joined: thread?.outsourced_user_id?.map((user) => user.firstname).join(', '),
+        outsourced_user_name_joined: thread?.outsourced_user_id
+            ?.map((user) => user.firstname)
+            .join(', '),
         file_type: thread?.file_type,
         aged_days: differenceInDays(
             new Date(),
@@ -1808,24 +1810,24 @@ export const programs_refactor_v2 = (applications: IApplicationPopulated[]) => {
             const base_docs = isProgramSubmitted(application)
                 ? '-'
                 : isMissingBaseDocs
-                    ? 'X'
-                    : 'O';
+                  ? 'X'
+                  : 'O';
             const uniassist = is_program_submitted
                 ? '-'
                 : check_program_uni_assist_needed(application)
-                    ? application.uni_assist &&
-                        application.uni_assist.status ===
+                  ? application.uni_assist &&
+                    application.uni_assist.status ===
                         DocumentStatusType.Uploaded
-                        ? 'O'
-                        : 'X'
-                    : 'Not Needed';
+                      ? 'O'
+                      : 'X'
+                  : 'Not Needed';
             const cv = is_program_submitted ? '-' : is_cv_done ? 'O' : 'X';
             const ml_rl = is_program_decided
                 ? is_program_submitted
                     ? '-'
                     : is_program_ml_rl_essay_finished(application)
-                        ? 'O'
-                        : 'X'
+                      ? 'O'
+                      : 'X'
                 : 'X';
             const ready = is_program_decided
                 ? is_program_submitted
@@ -1835,11 +1837,11 @@ export const programs_refactor_v2 = (applications: IApplicationPopulated[]) => {
                             (check_program_uni_assist_needed(application) &&
                                 application.uni_assist &&
                                 application.uni_assist.status ===
-                                DocumentStatusType.Uploaded)) &&
+                                    DocumentStatusType.Uploaded)) &&
                         is_cv_done &&
                         is_program_ml_rl_essay_finished(application)
-                        ? 'Ready!'
-                        : 'No'
+                      ? 'Ready!'
+                      : 'No'
                 : 'Undecided';
 
             // Calculate lock status for the application
@@ -1932,11 +1934,13 @@ export const programs_refactor = (students: IStudentResponse[]) => {
             if (!student.applications || student.applications.length === 0) {
                 acc.push({
                     id: `${student._id.toString()}-`,
-                    target_year: `${student.application_preference
-                        ?.expected_application_date || '-'
-                        } ${student.application_preference
+                    target_year: `${
+                        student.application_preference
+                            ?.expected_application_date || '-'
+                    } ${
+                        student.application_preference
                             ?.expected_application_semester || '-'
-                        }`,
+                    }`,
                     school: 'No University',
                     application: {},
                     student: student,
@@ -1983,28 +1987,28 @@ export const programs_refactor = (students: IStudentResponse[]) => {
                     const base_docs = isProgramSubmitted(application)
                         ? '-'
                         : isMissingBaseDocs
-                            ? 'X'
-                            : 'O';
+                          ? 'X'
+                          : 'O';
                     const uniassist = is_program_submitted
                         ? '-'
                         : check_program_uni_assist_needed(application)
-                            ? application.uni_assist &&
-                                application.uni_assist.status ===
+                          ? application.uni_assist &&
+                            application.uni_assist.status ===
                                 DocumentStatusType.Uploaded
-                                ? 'O'
-                                : 'X'
-                            : 'Not Needed';
+                              ? 'O'
+                              : 'X'
+                          : 'Not Needed';
                     const cv = is_program_submitted
                         ? '-'
                         : is_cv_done
-                            ? 'O'
-                            : 'X';
+                          ? 'O'
+                          : 'X';
                     const ml_rl = is_program_decided
                         ? is_program_submitted
                             ? '-'
                             : is_program_ml_rl_essay_finished(application)
-                                ? 'O'
-                                : 'X'
+                              ? 'O'
+                              : 'X'
                         : 'X';
                     const ready = is_program_decided
                         ? is_program_submitted
@@ -2018,11 +2022,11 @@ export const programs_refactor = (students: IStudentResponse[]) => {
                                     ) &&
                                         application.uni_assist &&
                                         application.uni_assist.status ===
-                                        DocumentStatusType.Uploaded)) &&
+                                            DocumentStatusType.Uploaded)) &&
                                 is_cv_done &&
                                 is_program_ml_rl_essay_finished(application)
-                                ? 'Ready!'
-                                : 'No'
+                              ? 'Ready!'
+                              : 'No'
                         : 'Undecided';
 
                     const prog = application.programId as
@@ -2030,11 +2034,13 @@ export const programs_refactor = (students: IStudentResponse[]) => {
                         | undefined;
                     acc.push({
                         id: `${student._id.toString()}-${prog?._id?.toString()}`,
-                        target_year: `${student.application_preference
-                            ?.expected_application_date || '-'
-                            } ${student.application_preference
+                        target_year: `${
+                            student.application_preference
+                                ?.expected_application_date || '-'
+                        } ${
+                            student.application_preference
                                 ?.expected_application_semester || '-'
-                            }`,
+                        }`,
                         school: prog?.school,
                         application,
                         student: student,
@@ -2089,8 +2095,8 @@ export const toogleItemInArray = (arr: string[], item: string) => {
     return arr?.includes(item)
         ? arr?.filter((userId: string) => userId !== item)
         : arr?.length > 0
-            ? [...arr, item]
-            : [item];
+          ? [...arr, item]
+          : [item];
 };
 
 const getNextProgram = (student: IStudentResponse) => {
@@ -2102,7 +2108,7 @@ const getNextProgram = (student: IStudentResponse) => {
         )
         .sort((a, b) =>
             (a.application_deadline as string) >
-                (b.application_deadline as string)
+            (b.application_deadline as string)
                 ? 1
                 : -1
         );
@@ -2155,23 +2161,23 @@ export const frequencyDistribution = (
         map[deadline] = map[deadline]
             ? tasks[i].show
                 ? {
-                    show: map[deadline].show + 1,
-                    potentials: map[deadline].potentials
-                }
+                      show: map[deadline].show + 1,
+                      potentials: map[deadline].potentials
+                  }
                 : tasks[i].isPotentials
-                    ? {
+                  ? {
                         show: map[deadline].show,
                         potentials: map[deadline].potentials + 1
                     }
-                    : {
+                  : {
                         show: map[deadline].show,
                         potentials: map[deadline].potentials
                     }
             : tasks[i].show
-                ? { show: 1, potentials: 0 }
-                : tasks[i].isPotentials
-                    ? { show: 0, potentials: 1 }
-                    : { show: 0, potentials: 0 };
+              ? { show: 1, potentials: 0 }
+              : tasks[i].isPotentials
+                ? { show: 0, potentials: 1 }
+                : { show: 0, potentials: 0 };
     }
     const filteredMap = Object.fromEntries(
         Object.entries(map).filter(
@@ -2477,9 +2483,9 @@ export const GetCVDeadlineV2 = (applications: Application[]) => {
     return daysLeftMin === 3000
         ? hasRolling
             ? {
-                daysLeftMin: daysLeftRollingMin,
-                CVDeadline: CVDeadlineRolling
-            }
+                  daysLeftMin: daysLeftRollingMin,
+                  CVDeadline: CVDeadlineRolling
+              }
             : { daysLeftMin: '-', CVDeadline: '-' }
         : { daysLeftMin, CVDeadline };
 };
@@ -2512,9 +2518,9 @@ export const GetCVDeadline = (
     return daysLeftMin === 3000
         ? hasRolling
             ? {
-                daysLeftMin: daysLeftRollingMin,
-                CVDeadline: CVDeadlineRolling
-            }
+                  daysLeftMin: daysLeftRollingMin,
+                  CVDeadline: CVDeadlineRolling
+              }
             : { daysLeftMin: '-', CVDeadline: '-' }
         : { daysLeftMin, CVDeadline };
 };
@@ -2537,11 +2543,11 @@ export const check_application_preference_filled = (
 
     return Boolean(
         expected_application_date &&
-        expected_application_semester &&
-        target_program_language &&
-        target_degree &&
-        considered_privat_universities !== '-' &&
-        application_outside_germany !== '-' &&
-        targetApplicationSubjects?.length !== 0
+            expected_application_semester &&
+            target_program_language &&
+            target_degree &&
+            considered_privat_universities !== '-' &&
+            application_outside_germany !== '-' &&
+            targetApplicationSubjects?.length !== 0
     );
 };

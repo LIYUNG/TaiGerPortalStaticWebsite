@@ -4,7 +4,9 @@ import { MemoryRouter } from 'react-router-dom';
 import ProgramMatchingScores from './ProgramMatchingScores';
 
 vi.mock('@components/GaugeCard', () => ({
-    default: ({ title }: { title: string }) => <div data-testid="gauge-card">{title}</div>
+    default: ({ title }: { title: string }) => (
+        <div data-testid="gauge-card">{title}</div>
+    )
 }));
 
 vi.mock('@mui/x-data-grid', () => ({
@@ -42,7 +44,9 @@ describe('ProgramMatchingScores', () => {
     });
 
     it('renders Program-wise Matching Scores header', () => {
-        expect(screen.getByText('Program-wise Matching Scores')).toBeInTheDocument();
+        expect(
+            screen.getByText('Program-wise Matching Scores')
+        ).toBeInTheDocument();
     });
 
     it('renders gauge card for each program', () => {

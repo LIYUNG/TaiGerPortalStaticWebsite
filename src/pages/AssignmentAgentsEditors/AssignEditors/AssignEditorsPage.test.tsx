@@ -26,9 +26,16 @@ vi.mock('@components/BreadcrumbsNavigation/BreadcrumbsNavigation', () => ({
     )
 }));
 
-vi.mock('@pages/Dashboard/MainViewTab/NoEditorsStudentsCard/NoEditorsStudentsCard', () => ({
-    default: () => <tr data-testid="no-editors-card"><td /></tr>
-}));
+vi.mock(
+    '@pages/Dashboard/MainViewTab/NoEditorsStudentsCard/NoEditorsStudentsCard',
+    () => ({
+        default: () => (
+            <tr data-testid="no-editors-card">
+                <td />
+            </tr>
+        )
+    })
+);
 
 import AssignEditorsPage from './AssignEditorsPage';
 
@@ -48,7 +55,10 @@ describe('AssignEditorsPage', () => {
     it('renders without crashing', () => {
         render(
             <MemoryRouter>
-                <AssignEditorsPage students={[]} submitUpdateEditorlist={vi.fn()} />
+                <AssignEditorsPage
+                    students={[]}
+                    submitUpdateEditorlist={vi.fn()}
+                />
             </MemoryRouter>
         );
         expect(screen.getByTestId('breadcrumbs')).toBeTruthy();
@@ -57,7 +67,10 @@ describe('AssignEditorsPage', () => {
     it('renders No Editors Students heading', () => {
         render(
             <MemoryRouter>
-                <AssignEditorsPage students={mockStudents} submitUpdateEditorlist={vi.fn()} />
+                <AssignEditorsPage
+                    students={mockStudents}
+                    submitUpdateEditorlist={vi.fn()}
+                />
             </MemoryRouter>
         );
         expect(screen.getByText(/No Editors Students/i)).toBeTruthy();
@@ -66,7 +79,10 @@ describe('AssignEditorsPage', () => {
     it('renders editor card rows', () => {
         render(
             <MemoryRouter>
-                <AssignEditorsPage students={mockStudents} submitUpdateEditorlist={vi.fn()} />
+                <AssignEditorsPage
+                    students={mockStudents}
+                    submitUpdateEditorlist={vi.fn()}
+                />
             </MemoryRouter>
         );
         expect(screen.getByTestId('no-editors-card')).toBeTruthy();

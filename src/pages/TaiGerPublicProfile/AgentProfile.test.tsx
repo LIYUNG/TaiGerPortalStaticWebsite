@@ -31,8 +31,12 @@ vi.mock('react-router-dom', async () => {
 
 vi.mock('../Utils/TabTitle', () => ({ TabTitle: vi.fn() }));
 vi.mock('../Utils/ErrorPage', () => ({ default: () => <div>ErrorPage</div> }));
-vi.mock('../Utils/ModalHandler/ModalMain', () => ({ default: () => <div>Modal</div> }));
-vi.mock('@components/Loading/Loading', () => ({ default: () => <div>Loading</div> }));
+vi.mock('../Utils/ModalHandler/ModalMain', () => ({
+    default: () => <div>Modal</div>
+}));
+vi.mock('@components/Loading/Loading', () => ({
+    default: () => <div>Loading</div>
+}));
 
 vi.mock('react-timezone-select', () => ({
     default: () => <div data-testid="timezone-select">TimezoneSelect</div>
@@ -85,7 +89,9 @@ describe('AgentProfile', () => {
                 <AgentProfile />
             </MemoryRouter>
         );
-        expect(await screen.findByText(/jane smith profile/i)).toBeInTheDocument();
+        expect(
+            await screen.findByText(/jane smith profile/i)
+        ).toBeInTheDocument();
     });
 
     it('renders agent email after loading', async () => {

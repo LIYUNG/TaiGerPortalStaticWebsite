@@ -34,9 +34,14 @@ describe('ProgramReportDeleteModal', () => {
     });
 });
 
-describe('ProgramReportDeleteModal — closed', () => {
+describe('ProgramReportDeleteModal ï¿½ closed', () => {
     it('does not render dialog when closed', () => {
-        render(<ProgramReportDeleteModal {...defaultProps} isReportDelete={false} />);
+        render(
+            <ProgramReportDeleteModal
+                {...defaultProps}
+                isReportDelete={false}
+            />
+        );
         expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
 });

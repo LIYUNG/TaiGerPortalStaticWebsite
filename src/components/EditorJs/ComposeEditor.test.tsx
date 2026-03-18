@@ -29,9 +29,7 @@ describe('ComposeEditor', () => {
         const initial = {
             blocks: [{ type: 'paragraph', data: { text: 'Hi' } }]
         };
-        render(
-            <ComposeEditor holder="test-editor" initialValue={initial} />
-        );
+        render(<ComposeEditor holder="test-editor" initialValue={initial} />);
         expect(screen.getByText('has-content')).toBeInTheDocument();
     });
 

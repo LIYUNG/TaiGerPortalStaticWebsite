@@ -5,7 +5,11 @@ import i18next from 'i18next';
 import { useQuery } from '@tanstack/react-query';
 
 import Friends from './Friends';
-import { getMyCommunicationThread, getQueryStudentResults, queryClient } from '@/api';
+import {
+    getMyCommunicationThread,
+    getQueryStudentResults,
+    queryClient
+} from '@/api';
 import { getMyCommunicationQuery } from '@/api/query';
 import { useAuth } from '../AuthProvider';
 import {
@@ -57,7 +61,9 @@ const ChatList = ({ embedded, handleCloseChat, student_id }: ChatListProps) => {
     // Embedded mode: invalidate query when the active student changes
     useEffect(() => {
         if (embedded) {
-            queryClient.invalidateQueries({ queryKey: ['communications', 'my'] });
+            queryClient.invalidateQueries({
+                queryKey: ['communications', 'my']
+            });
         }
     }, [student_id, embedded]);
 
@@ -151,10 +157,18 @@ const ChatList = ({ embedded, handleCloseChat, student_id }: ChatListProps) => {
     const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
         if (e.target.value !== '') {
             setSearchTerm(e.target.value);
-            setChatListState((prev) => ({ ...prev, searchMode: true, isLoaded: false }));
+            setChatListState((prev) => ({
+                ...prev,
+                searchMode: true,
+                isLoaded: false
+            }));
         } else {
             setSearchTerm('');
-            setChatListState((prev) => ({ ...prev, searchMode: false, isLoaded: true }));
+            setChatListState((prev) => ({
+                ...prev,
+                searchMode: false,
+                isLoaded: true
+            }));
         }
     };
 
@@ -190,7 +204,11 @@ const ChatList = ({ embedded, handleCloseChat, student_id }: ChatListProps) => {
                 {isLoading
                     ? [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
                           <MenuItem key={i}>
-                              <Skeleton height={40} variant="circular" width={40} />
+                              <Skeleton
+                                  height={40}
+                                  variant="circular"
+                                  width={40}
+                              />
                               <Skeleton
                                   height={54}
                                   style={{ marginLeft: '10px' }}

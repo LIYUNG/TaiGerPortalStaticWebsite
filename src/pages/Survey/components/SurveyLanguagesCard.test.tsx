@@ -5,9 +5,15 @@ import SurveyLanguagesCard from './SurveyLanguagesCard';
 
 vi.mock('@utils/contants', () => ({
     ENGLISH_CERTIFICATE_ARRAY_OPTIONS: [{ value: 'IELTS', label: 'IELTS' }],
-    GERMAN_CERTIFICATE_ARRAY_OPTIONS: [{ value: 'TestDaF', label: 'TestDaF', disabled: false }],
-    GMAT_CERTIFICATE_OPTIONS: [{ value: 'GMAT', label: 'GMAT', disabled: false }],
-    GRE_CERTIFICATE_ARRAY_OPTIONS: [{ value: 'GRE', label: 'GRE', disabled: false }],
+    GERMAN_CERTIFICATE_ARRAY_OPTIONS: [
+        { value: 'TestDaF', label: 'TestDaF', disabled: false }
+    ],
+    GMAT_CERTIFICATE_OPTIONS: [
+        { value: 'GMAT', label: 'GMAT', disabled: false }
+    ],
+    GRE_CERTIFICATE_ARRAY_OPTIONS: [
+        { value: 'GRE', label: 'GRE', disabled: false }
+    ],
     IS_PASSED_OPTIONS: [
         { value: '-', label: '-' },
         { value: 'O', label: 'Yes' },
@@ -18,7 +24,9 @@ vi.mock('@utils/contants', () => ({
 
 vi.mock('@mui/x-date-pickers', () => ({
     DatePicker: () => <div>DatePicker</div>,
-    LocalizationProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>
+    LocalizationProvider: ({ children }: { children: React.ReactNode }) => (
+        <>{children}</>
+    )
 }));
 
 vi.mock('@mui/x-date-pickers/AdapterDayjs', () => ({
@@ -62,7 +70,9 @@ describe('SurveyLanguagesCard', () => {
     });
 
     it('renders Languages Test and Certificates heading', () => {
-        expect(screen.getByText(/languages test and certificates/i)).toBeInTheDocument();
+        expect(
+            screen.getByText(/languages test and certificates/i)
+        ).toBeInTheDocument();
     });
 
     it('renders English passed field', () => {
@@ -74,6 +84,8 @@ describe('SurveyLanguagesCard', () => {
     });
 
     it('renders Update button', () => {
-        expect(screen.getByRole('button', { name: /update/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('button', { name: /update/i })
+        ).toBeInTheDocument();
     });
 });

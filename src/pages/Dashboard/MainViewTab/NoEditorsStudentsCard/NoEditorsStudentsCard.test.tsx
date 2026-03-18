@@ -20,7 +20,8 @@ vi.mock('../StudDocsOverview/EditUserListSubpage', () => ({
 
 vi.mock('@store/constant', () => ({
     default: {
-        STUDENT_DATABASE_STUDENTID_LINK: (id: string, hash: string) => `/students/${id}#${hash}`,
+        STUDENT_DATABASE_STUDENTID_LINK: (id: string, hash: string) =>
+            `/students/${id}#${hash}`,
         PROFILE_HASH: 'profile'
     }
 }));

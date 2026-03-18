@@ -363,7 +363,7 @@ const ApplicationOverviewTabs = ({
                             >
                                 {String(selectedRowData?.program ?? '')}
                             </Typography>
-                            {                            selectedRowData?.application &&
+                            {selectedRowData?.application &&
                             selectedRowData?.student ? (
                                 <ApplicationProgressCardBody
                                     application={
@@ -379,9 +379,7 @@ const ApplicationOverviewTabs = ({
                 </CustomTabPanel>
                 <CustomTabPanel index={2} value={value}>
                     <ProgramUpdateStatusTable
-                        data={
-                            open_applications_arr as ProgramUpdateStatusRow[]
-                        }
+                        data={open_applications_arr as ProgramUpdateStatusRow[]}
                     />
                 </CustomTabPanel>
                 <CustomTabPanel index={3} value={value}>

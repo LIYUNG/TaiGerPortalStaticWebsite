@@ -26,10 +26,7 @@ const BaseDocumentCheckingTasks = ({
                                 borderColor: 'divider'
                             }}
                         >
-                            <Typography
-                                component="span"
-                                sx={{ minWidth: 120 }}
-                            >
+                            <Typography component="span" sx={{ minWidth: 120 }}>
                                 <Link
                                     component={LinkDom}
                                     to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
@@ -38,16 +35,25 @@ const BaseDocumentCheckingTasks = ({
                                     )}`}
                                 >
                                     <b>
-                                        {student.firstname}{' '}
-                                        {student.lastname}
+                                        {student.firstname} {student.lastname}
                                     </b>
                                 </Link>
                             </Typography>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: 0.25
+                                }}
+                            >
                                 <Typography component="span">
                                     {file.name}
                                 </Typography>
-                                <Typography component="span" variant="subtitle2" color="text.secondary">
+                                <Typography
+                                    component="span"
+                                    variant="subtitle2"
+                                    color="text.secondary"
+                                >
                                     {convertDate(file.updatedAt)}
                                 </Typography>
                             </Box>

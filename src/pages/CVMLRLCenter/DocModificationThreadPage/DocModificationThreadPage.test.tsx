@@ -34,8 +34,18 @@ vi.mock('../../Utils/ModalHandler/ModalMain', () => ({
 }));
 
 vi.mock('@components/Tabs', () => ({
-    CustomTabPanel: ({ children, index, value }: { children: React.ReactNode; index: number; value: number }) =>
-        index === value ? <div data-testid={`tab-panel-${index}`}>{children}</div> : null,
+    CustomTabPanel: ({
+        children,
+        index,
+        value
+    }: {
+        children: React.ReactNode;
+        index: number;
+        value: number;
+    }) =>
+        index === value ? (
+            <div data-testid={`tab-panel-${index}`}>{children}</div>
+        ) : null,
     a11yProps: () => ({})
 }));
 
@@ -55,19 +65,25 @@ vi.mock('./DocumentThreadsPage/GeneralRLRequirementsTab', () => ({
     default: () => <div data-testid="general-rl-requirements-tab" />
 }));
 
-vi.mock('@pages/Dashboard/MainViewTab/StudDocsOverview/EditEssayWritersSubpage', () => ({
-    default: () => <div data-testid="edit-essay-writers-subpage" />
-}));
+vi.mock(
+    '@pages/Dashboard/MainViewTab/StudDocsOverview/EditEssayWritersSubpage',
+    () => ({
+        default: () => <div data-testid="edit-essay-writers-subpage" />
+    })
+);
 
 vi.mock('@components/Message/MessageList', () => ({
     default: () => <div data-testid="message-list" />
 }));
 
-vi.mock('@pages/CVMLRLCenter/DocModificationThreadPage/components/InformationBlock', () => ({
-    default: ({ children }: { children: React.ReactNode }) => (
-        <div data-testid="information-block">{children}</div>
-    )
-}));
+vi.mock(
+    '@pages/CVMLRLCenter/DocModificationThreadPage/components/InformationBlock',
+    () => ({
+        default: ({ children }: { children: React.ReactNode }) => (
+            <div data-testid="information-block">{children}</div>
+        )
+    })
+);
 
 vi.mock('./components/SimilarThreadsTab', () => ({
     default: () => <div data-testid="similar-threads-tab" />
@@ -155,6 +171,8 @@ describe('DocModificationThreadPage', () => {
     });
 
     it('renders the document checking result modal', () => {
-        expect(screen.getByTestId('document-checking-result-modal')).toBeInTheDocument();
+        expect(
+            screen.getByTestId('document-checking-result-modal')
+        ).toBeInTheDocument();
     });
 });

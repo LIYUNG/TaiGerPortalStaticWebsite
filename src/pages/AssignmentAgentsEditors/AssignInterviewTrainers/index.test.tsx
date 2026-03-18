@@ -37,7 +37,9 @@ vi.mock('../../../config', () => ({
 vi.mock('@components/BreadcrumbsNavigation/BreadcrumbsNavigation', () => ({
     BreadcrumbsNavigation: ({ items }: { items: { label: string }[] }) => (
         <nav data-testid="breadcrumbs">
-            {items.map((item, i) => <span key={i}>{item.label}</span>)}
+            {items.map((item, i) => (
+                <span key={i}>{item.label}</span>
+            ))}
         </nav>
     )
 }));
@@ -78,7 +80,9 @@ describe('AssignInterviewTrainers', () => {
     });
 
     it('renders the assign interview trainers page with data', () => {
-        expect(screen.getByTestId('assign-interview-trainers-page')).toBeTruthy();
+        expect(
+            screen.getByTestId('assign-interview-trainers-page')
+        ).toBeTruthy();
         expect(screen.getByText('2 interviews')).toBeTruthy();
     });
 });

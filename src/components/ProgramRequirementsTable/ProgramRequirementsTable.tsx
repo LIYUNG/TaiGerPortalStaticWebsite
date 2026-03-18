@@ -419,13 +419,11 @@ export const ProgramRequirementsTable = ({
                     title={
                         <>
                             Analyse{' '}
-                            {table
-                                .getSelectedRowModel()
-                                .rows.map((row, i) => (
-                                    <Typography key={i}>
-                                        {row.original.program_name}
-                                    </Typography>
-                                ))}
+                            {table.getSelectedRowModel().rows.map((row, i) => (
+                                <Typography key={i}>
+                                    {row.original.program_name}
+                                </Typography>
+                            ))}
                         </>
                     }
                     content=""

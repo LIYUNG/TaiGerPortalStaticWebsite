@@ -83,10 +83,7 @@ describe('MyCalendar with selected event', () => {
     it('renders with a selected event', () => {
         render(
             <MemoryRouter>
-                <MyCalendar
-                    {...defaultProps}
-                    selectedEvent={mockEvents[0]}
-                />
+                <MyCalendar {...defaultProps} selectedEvent={mockEvents[0]} />
             </MemoryRouter>
         );
         expect(screen.getByTestId('big-calendar')).toBeDefined();
@@ -95,10 +92,7 @@ describe('MyCalendar with selected event', () => {
     it('renders with BookButtonDisable true', () => {
         render(
             <MemoryRouter>
-                <MyCalendar
-                    {...defaultProps}
-                    BookButtonDisable={true}
-                />
+                <MyCalendar {...defaultProps} BookButtonDisable={true} />
             </MemoryRouter>
         );
         expect(screen.getByTestId('big-calendar')).toBeDefined();

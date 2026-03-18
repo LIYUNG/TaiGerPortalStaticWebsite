@@ -1799,10 +1799,7 @@ export const c1_mrt: MRT_ColumnDef<Record<string, unknown>>[] = [
             const linkUrl = `${DEMO.DOCUMENT_MODIFICATION_LINK(
                 row.original.thread_id
             )}`;
-            // Primary use isApplicationLocked, fallback to isProgramLocked for backward compatibility
-            const isLocked =
-                row.original?.isApplicationLocked === true ||
-                row.original?.isProgramLocked === true;
+
             // Check country from multiple possible locations
             const programCountry =
                 row.original?.country ||

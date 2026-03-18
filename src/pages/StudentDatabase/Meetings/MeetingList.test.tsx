@@ -21,7 +21,12 @@ describe('MeetingList - empty state', () => {
     beforeEach(() => {
         render(
             <MemoryRouter>
-                <MeetingList meetings={[]} onEdit={onEdit} onDelete={onDelete} onConfirm={onConfirm} />
+                <MeetingList
+                    meetings={[]}
+                    onEdit={onEdit}
+                    onDelete={onDelete}
+                    onConfirm={onConfirm}
+                />
             </MemoryRouter>
         );
     });

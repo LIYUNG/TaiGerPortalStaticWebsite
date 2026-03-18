@@ -11,10 +11,16 @@ vi.mock('@utils/contants', () => ({
     convertDate: (d: string) => d,
     DEGREE_ARRAY_OPTIONS: [{ value: 'M.Sc.', label: 'Master of Science' }],
     EXPECTATION_APPLICATION_YEARS: () => [{ value: '2025', label: '2025' }],
-    LANGUAGES_PREFERENCE_ARRAY_OPTIONS: [{ value: 'English', label: 'English' }],
+    LANGUAGES_PREFERENCE_ARRAY_OPTIONS: [
+        { value: 'English', label: 'English' }
+    ],
     PROGRAM_SUBJECTS_DETAILED: [],
     SEMESTER_ARRAY_OPTIONS: [{ value: 'WS', label: 'Winter Semester' }],
-    TRI_STATE_OPTIONS: [{ value: 'Yes', label: 'Yes' }, { value: 'No', label: 'No' }, { value: '-', label: '-' }]
+    TRI_STATE_OPTIONS: [
+        { value: 'Yes', label: 'Yes' },
+        { value: 'No', label: 'No' },
+        { value: '-', label: '-' }
+    ]
 }));
 
 vi.mock('@components/Input/searchableMuliselect', () => ({
@@ -62,14 +68,20 @@ describe('SurveyApplicationPreferenceCard', () => {
     });
 
     it('renders expected application year field', () => {
-        expect(screen.getAllByText(/expected application year/i)[0]).toBeInTheDocument();
+        expect(
+            screen.getAllByText(/expected application year/i)[0]
+        ).toBeInTheDocument();
     });
 
     it('renders target degree field', () => {
-        expect(screen.getAllByText(/target degree programs/i)[0]).toBeInTheDocument();
+        expect(
+            screen.getAllByText(/target degree programs/i)[0]
+        ).toBeInTheDocument();
     });
 
     it('renders update button', () => {
-        expect(screen.getByRole('button', { name: /update/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('button', { name: /update/i })
+        ).toBeInTheDocument();
     });
 });

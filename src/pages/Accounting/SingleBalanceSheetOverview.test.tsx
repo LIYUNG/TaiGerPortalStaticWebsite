@@ -4,7 +4,12 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
 vi.mock('@tanstack/react-query', async (orig) => ({
     ...(await orig()),
-    useQuery: vi.fn(() => ({ data: undefined, isLoading: true, isError: false, error: null }))
+    useQuery: vi.fn(() => ({
+        data: undefined,
+        isLoading: true,
+        isError: false,
+        error: null
+    }))
 }));
 
 vi.mock('@components/AuthProvider', () => ({

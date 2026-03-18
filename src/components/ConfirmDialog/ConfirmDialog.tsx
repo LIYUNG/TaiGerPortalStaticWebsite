@@ -46,7 +46,8 @@ const ConfirmDialog = (props: ConfirmDialogProps) => {
 
     const [typedValue, setTypedValue] = useState('');
     const keyword = requireTypedConfirm?.keyword ?? '';
-    const typedMatch = !keyword || typedValue.trim().toLowerCase() === keyword.toLowerCase();
+    const typedMatch =
+        !keyword || typedValue.trim().toLowerCase() === keyword.toLowerCase();
 
     useEffect(() => {
         if (!open) {
@@ -59,7 +60,8 @@ const ConfirmDialog = (props: ConfirmDialogProps) => {
     };
 
     const showCancel = variant === 'confirm';
-    const isConfirmDisabled = confirmDisabled || (requireTypedConfirm && !typedMatch);
+    const isConfirmDisabled =
+        confirmDisabled || (requireTypedConfirm && !typedMatch);
 
     return (
         <Dialog
@@ -80,10 +82,15 @@ const ConfirmDialog = (props: ConfirmDialogProps) => {
                         autoFocus
                         fullWidth
                         margin="normal"
-                        label={requireTypedConfirm.label ?? `Type "${keyword}" to confirm`}
+                        label={
+                            requireTypedConfirm.label ??
+                            `Type "${keyword}" to confirm`
+                        }
                         value={typedValue}
                         onChange={(e) => setTypedValue(e.target.value)}
-                        inputProps={{ 'data-testid': 'confirm-dialog-typed-input' }}
+                        inputProps={{
+                            'data-testid': 'confirm-dialog-typed-input'
+                        }}
                     />
                 )}
             </DialogContent>

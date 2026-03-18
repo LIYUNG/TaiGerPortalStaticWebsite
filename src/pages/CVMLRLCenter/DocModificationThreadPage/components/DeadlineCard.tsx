@@ -108,7 +108,9 @@ const DeadlineCard = ({
                                     sx={{ color: 'white', p: 0.5 }}
                                     target="_blank"
                                     to={`${DEMO.SINGLE_PROGRAM_LINK(
-                                        (thread.program_id as IProgramWithId)._id.toString()
+                                        (
+                                            thread.program_id as IProgramWithId
+                                        )._id.toString()
                                     )}`}
                                 >
                                     <LaunchIcon fontSize="small" />

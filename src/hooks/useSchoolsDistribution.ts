@@ -7,11 +7,7 @@ import type { GetSchoolsDistributionResponse } from '@taiger-common/model';
  * Fetches schools distribution (list of schools with program counts).
  */
 export function useSchoolsDistribution() {
-    const result = useQuery<
-        GetSchoolsDistributionResponse,
-        Error,
-        unknown[]
-    >({
+    const result = useQuery<GetSchoolsDistributionResponse, Error, unknown[]>({
         queryKey: ['programs', 'schools-distribution'],
         queryFn: getSchoolsDistribution,
         staleTime: 1000 * 60 * 5, // 5 minutes

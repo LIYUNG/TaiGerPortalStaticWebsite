@@ -82,16 +82,24 @@ describe('EditorDocsProgress', () => {
     });
 
     it('renders ApplicationAccordionList components', async () => {
-        const lists = await screen.findAllByTestId('application-accordion-list');
+        const lists = await screen.findAllByTestId(
+            'application-accordion-list'
+        );
         expect(lists.length).toBeGreaterThan(0);
     });
 
     it('renders dialogs', async () => {
-        expect(await screen.findByTestId('delete-file-thread-dialog')).toBeInTheDocument();
-        expect(await screen.findByTestId('set-as-final-file-dialog')).toBeInTheDocument();
+        expect(
+            await screen.findByTestId('delete-file-thread-dialog')
+        ).toBeInTheDocument();
+        expect(
+            await screen.findByTestId('set-as-final-file-dialog')
+        ).toBeInTheDocument();
     });
 
     it('renders set program status dialog', async () => {
-        expect(await screen.findByTestId('set-program-status-dialog')).toBeInTheDocument();
+        expect(
+            await screen.findByTestId('set-program-status-dialog')
+        ).toBeInTheDocument();
     });
 });

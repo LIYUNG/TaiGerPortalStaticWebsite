@@ -2,7 +2,10 @@ import { useQuery } from '@tanstack/react-query';
 import queryString from 'query-string';
 
 import { getStudentsV3 } from '@/api';
-import type { GetStudentsResponse, IStudentResponse } from '@taiger-common/model';
+import type {
+    GetStudentsResponse,
+    IStudentResponse
+} from '@taiger-common/model';
 
 export type StudentsV3Params = Record<
     string,
@@ -22,11 +25,7 @@ export function useStudentsV3(
 ) {
     const queryStringValue = queryString.stringify(params);
 
-    const result = useQuery<
-        GetStudentsResponse,
-        Error,
-        IStudentResponse[]
-    >({
+    const result = useQuery<GetStudentsResponse, Error, IStudentResponse[]>({
         queryKey: ['students/v3', queryStringValue],
         queryFn: () => getStudentsV3(queryStringValue),
         staleTime: 1000 * 60 * 5, // 5 minutes

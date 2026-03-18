@@ -9,7 +9,8 @@ vi.mock('@/api', () => ({
 vi.mock('@store/constant', () => ({
     default: {
         STUDENT_DATABASE_STUDENTID_LINK: (id: string) => `/student/${id}`,
-        SINGLE_PROGRAM_LINK: (school: string, program: string) => `/program/${school}/${program}`
+        SINGLE_PROGRAM_LINK: (school: string, program: string) =>
+            `/program/${school}/${program}`
     }
 }));
 
@@ -30,7 +31,8 @@ vi.mock('@tanstack/react-query', async () => {
 
 vi.mock('react-i18next', () => ({
     useTranslation: () => ({
-        t: (key: string, opts?: { defaultValue?: string }) => opts?.defaultValue || key
+        t: (key: string, opts?: { defaultValue?: string }) =>
+            opts?.defaultValue || key
     })
 }));
 
@@ -41,13 +43,17 @@ const createWrapper = () => {
         defaultOptions: { queries: { retry: false } }
     });
     return ({ children }: { children: React.ReactNode }) => (
-        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+        <QueryClientProvider client={queryClient}>
+            {children}
+        </QueryClientProvider>
     );
 };
 
 describe('SimilarStudents - with leadId', () => {
     beforeEach(() => {
-        render(<SimilarStudents leadId="lead123" />, { wrapper: createWrapper() });
+        render(<SimilarStudents leadId="lead123" />, {
+            wrapper: createWrapper()
+        });
     });
 
     it('renders without crashing', () => {
@@ -59,7 +65,11 @@ describe('SimilarStudents - with leadId', () => {
     });
 
     it('renders the manual fetch CTA text', () => {
-        expect(screen.getByText('No similar students loaded. Click the button below to fetch suggestions for this lead.')).toBeTruthy();
+        expect(
+            screen.getByText(
+                'No similar students loaded. Click the button below to fetch suggestions for this lead.'
+            )
+        ).toBeTruthy();
     });
 
     it('renders fetch suggestions button', () => {

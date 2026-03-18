@@ -34,10 +34,14 @@ describe('MeetingFormModal', () => {
     });
 
     it('renders save button', () => {
-        expect(screen.getByRole('button', { name: /save/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('button', { name: /save/i })
+        ).toBeInTheDocument();
     });
 
     it('renders cancel button', () => {
-        expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('button', { name: /cancel/i })
+        ).toBeInTheDocument();
     });
 });

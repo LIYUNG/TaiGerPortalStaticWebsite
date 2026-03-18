@@ -33,7 +33,9 @@ vi.mock('../../config', () => ({
 
 vi.mock('../Utils/TabTitle', () => ({ TabTitle: vi.fn() }));
 vi.mock('../Utils/ErrorPage', () => ({ default: () => <div>ErrorPage</div> }));
-vi.mock('../Utils/ModalHandler/ModalMain', () => ({ default: () => <div>Modal</div> }));
+vi.mock('../Utils/ModalHandler/ModalMain', () => ({
+    default: () => <div>Modal</div>
+}));
 vi.mock('@/api', () => ({ updateCredentials: vi.fn() }));
 
 vi.mock('react-i18next', () => ({
@@ -62,6 +64,8 @@ describe('Settings', () => {
     });
 
     it('renders reset password button', () => {
-        expect(screen.getByRole('button', { name: /reset password/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('button', { name: /reset password/i })
+        ).toBeInTheDocument();
     });
 });

@@ -33,7 +33,12 @@ vi.mock('react-router-dom', async () => {
 vi.mock('@hooks/useMyStudentsApplicationsV2', () => ({
     useMyStudentsApplicationsV2: () => ({
         data: {
-            user: { _id: 'agent1', firstname: 'Alice', lastname: 'Agent', pictureUrl: '' },
+            user: {
+                _id: 'agent1',
+                firstname: 'Alice',
+                lastname: 'Agent',
+                pictureUrl: ''
+            },
             applications: []
         },
         isLoading: false
@@ -94,7 +99,9 @@ describe('AgentPage', () => {
     });
 
     it('renders breadcrumbs', () => {
-        expect(document.querySelector('[aria-label="breadcrumb"]')).toBeTruthy();
+        expect(
+            document.querySelector('[aria-label="breadcrumb"]')
+        ).toBeTruthy();
     });
 
     it('renders agent stats cards', () => {

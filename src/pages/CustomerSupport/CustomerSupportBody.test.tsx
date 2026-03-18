@@ -19,7 +19,8 @@ vi.mock('@store/constant', () => ({
         DASHBOARD_LINK: '/dashboard',
         CUSTOMER_CENTER_LINK: '/customer-center',
         CUSTOMER_CENTER_ADD_TICKET_LINK: '/customer-center/add',
-        CUSTOMER_CENTER_TICKET_DETAIL_PAGE_LINK: (id: string) => `/customer-center/${id}`
+        CUSTOMER_CENTER_TICKET_DETAIL_PAGE_LINK: (id: string) =>
+            `/customer-center/${id}`
     }
 }));
 
@@ -69,6 +70,8 @@ describe('CustomerSupportBody', () => {
                 <CustomerSupportBody complaintTickets={[]} />
             </MemoryRouter>
         );
-        expect(screen.getByRole('button', { name: /Add Ticket/i })).toBeTruthy();
+        expect(
+            screen.getByRole('button', { name: /Add Ticket/i })
+        ).toBeTruthy();
     });
 });

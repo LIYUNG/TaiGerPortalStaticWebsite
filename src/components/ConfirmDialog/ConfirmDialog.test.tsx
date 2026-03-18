@@ -64,7 +64,9 @@ describe('ConfirmDialog', () => {
                 }
             />
         );
-        const bold = screen.getByText((_, el) => el?.tagName === 'B' && el.textContent === 'Alice - Smith');
+        const bold = screen.getByText(
+            (_, el) => el?.tagName === 'B' && el.textContent === 'Alice - Smith'
+        );
         expect(bold).toBeInTheDocument();
     });
 });

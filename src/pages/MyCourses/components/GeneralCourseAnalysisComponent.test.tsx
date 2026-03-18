@@ -8,12 +8,21 @@ vi.mock('@taiger-common/core', () => ({
 }));
 
 vi.mock('@components/GaugeCard', () => ({
-    default: ({ title }: { title: string }) => <div data-testid="gauge-card">{title}</div>
+    default: ({ title }: { title: string }) => (
+        <div data-testid="gauge-card">{title}</div>
+    )
 }));
 
 vi.mock('@components/Tabs', () => ({
-    CustomTabPanel: ({ children, index, value }: { children: React.ReactNode; index: number; value: number }) =>
-        index === value ? <div>{children}</div> : null,
+    CustomTabPanel: ({
+        children,
+        index,
+        value
+    }: {
+        children: React.ReactNode;
+        index: number;
+        value: number;
+    }) => (index === value ? <div>{children}</div> : null),
     a11yProps: () => ({})
 }));
 
@@ -29,7 +38,9 @@ vi.mock('./GPACard', () => ({
 }));
 
 vi.mock('./ProgramMatchingScores', () => ({
-    default: () => <div data-testid="program-matching-scores">ProgramMatchingScores</div>
+    default: () => (
+        <div data-testid="program-matching-scores">ProgramMatchingScores</div>
+    )
 }));
 
 vi.mock('./CourseTable', () => ({
@@ -86,6 +97,8 @@ describe('GeneralCourseAnalysisComponent', () => {
     });
 
     it('renders ProgramMatchingScores component', () => {
-        expect(screen.getByTestId('program-matching-scores')).toBeInTheDocument();
+        expect(
+            screen.getByTestId('program-matching-scores')
+        ).toBeInTheDocument();
     });
 });

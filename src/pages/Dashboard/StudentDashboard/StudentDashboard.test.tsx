@@ -43,7 +43,9 @@ vi.mock('@hooks/useApplicationStudent', () => ({
 }));
 
 vi.mock('@/api', () => ({
-    updateBanner: vi.fn(() => Promise.resolve({ data: { success: true }, status: 200 }))
+    updateBanner: vi.fn(() =>
+        Promise.resolve({ data: { success: true }, status: 200 })
+    )
 }));
 
 vi.mock('../../Utils/util_functions', () => ({
@@ -57,11 +59,19 @@ vi.mock('../../Utils/util_functions', () => ({
 }));
 
 vi.mock('../MainViewTab/RespondedThreads/RespondedThreads', () => ({
-    default: () => <tr data-testid="responded-threads"><td /></tr>
+    default: () => (
+        <tr data-testid="responded-threads">
+            <td />
+        </tr>
+    )
 }));
 
 vi.mock('../MainViewTab/StudentTasks/StudentTasksResponsive', () => ({
-    default: () => <tr data-testid="student-tasks-responsive"><td /></tr>
+    default: () => (
+        <tr data-testid="student-tasks-responsive">
+            <td />
+        </tr>
+    )
 }));
 
 vi.mock('../../Utils/ErrorPage', () => ({
@@ -76,9 +86,12 @@ vi.mock('@components/Banner/ProgramLanguageNotMatchedBanner', () => ({
     default: () => <div data-testid="program-language-not-matched-banner" />
 }));
 
-vi.mock('@components/Banner/EnglishCertificateExpiredBeforeDeadlineBanner', () => ({
-    default: () => <div data-testid="english-cert-expired-banner" />
-}));
+vi.mock(
+    '@components/Banner/EnglishCertificateExpiredBeforeDeadlineBanner',
+    () => ({
+        default: () => <div data-testid="english-cert-expired-banner" />
+    })
+);
 
 vi.mock('@components/Loading/Loading', () => ({
     default: () => <div data-testid="loading" />
@@ -121,17 +134,37 @@ const wrapper = ({ children }: { children: ReactNode }) => (
 
 describe('StudentDashboard', () => {
     it('renders without crashing', () => {
-        render(<StudentDashboard isCoursesFilled={true} student={mockStudent as never} />, { wrapper });
-        expect(screen.getByTestId('program-language-not-matched-banner')).toBeTruthy();
+        render(
+            <StudentDashboard
+                isCoursesFilled={true}
+                student={mockStudent as never}
+            />,
+            { wrapper }
+        );
+        expect(
+            screen.getByTestId('program-language-not-matched-banner')
+        ).toBeTruthy();
     });
 
     it('renders the english cert expired banner', () => {
-        render(<StudentDashboard isCoursesFilled={true} student={mockStudent as never} />, { wrapper });
+        render(
+            <StudentDashboard
+                isCoursesFilled={true}
+                student={mockStudent as never}
+            />,
+            { wrapper }
+        );
         expect(screen.getByTestId('english-cert-expired-banner')).toBeTruthy();
     });
 
     it('renders student tasks table', () => {
-        render(<StudentDashboard isCoursesFilled={true} student={mockStudent as never} />, { wrapper });
+        render(
+            <StudentDashboard
+                isCoursesFilled={true}
+                student={mockStudent as never}
+            />,
+            { wrapper }
+        );
         expect(screen.getByTestId('student-tasks-responsive')).toBeTruthy();
     });
 });

@@ -17,7 +17,9 @@ vi.mock('@/api/query', () => ({
 }));
 
 vi.mock('./SingleStudentPage', () => ({
-    SingleStudentPageMainContent: () => <div data-testid="single-student-page-main-content" />
+    SingleStudentPageMainContent: () => (
+        <div data-testid="single-student-page-main-content" />
+    )
 }));
 
 import { FetchStudentLayer } from './FetchStudentLayer';
@@ -48,6 +50,8 @@ describe('FetchStudentLayer', () => {
 
     it('shows loading state when data is undefined', () => {
         // When isLoading=true, the CircularProgress is shown, not the main content
-        expect(screen.queryByTestId('single-student-page-main-content')).toBeNull();
+        expect(
+            screen.queryByTestId('single-student-page-main-content')
+        ).toBeNull();
     });
 });

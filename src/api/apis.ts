@@ -981,7 +981,7 @@ export const updateProgram = (program: {
 export const updateProgramV2 = ({
     program
 }: {
-    program: { _id: string;[key: string]: unknown };
+    program: { _id: string; [key: string]: unknown };
 }) => putData(`/api/programs/${program._id}`, program);
 
 export const getProgramChangeRequests = (programId: string) =>

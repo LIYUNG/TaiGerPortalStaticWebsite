@@ -21,7 +21,9 @@ vi.mock('./CourseTable', () => ({
 }));
 
 vi.mock('./EstimationCard', () => ({
-    EstimationCard: () => <div data-testid="estimation-card">EstimationCard</div>
+    EstimationCard: () => (
+        <div data-testid="estimation-card">EstimationCard</div>
+    )
 }));
 
 vi.mock('@utils/contants', () => ({
@@ -77,7 +79,9 @@ describe('CourseAnalysisComponent', () => {
     });
 
     it('renders Back to Overview button', () => {
-        expect(screen.getByRole('button', { name: /back to overview/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('button', { name: /back to overview/i })
+        ).toBeInTheDocument();
     });
 
     it('renders Program Analysis heading', () => {

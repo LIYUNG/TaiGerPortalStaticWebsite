@@ -48,11 +48,7 @@ describe('InterviewsTable', () => {
     it('renders the MaterialReactTable', () => {
         render(
             <MemoryRouter>
-                <InterviewsTable
-                    isLoading={false}
-                    data={[]}
-                    columns={[]}
-                />
+                <InterviewsTable isLoading={false} data={[]} columns={[]} />
             </MemoryRouter>
         );
         expect(screen.getByTestId('mrt-table')).toBeTruthy();

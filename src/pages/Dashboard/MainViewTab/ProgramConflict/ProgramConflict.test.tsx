@@ -7,7 +7,8 @@ import ProgramConflict from './ProgramConflict';
 vi.mock('@store/constant', () => ({
     default: {
         SINGLE_PROGRAM_LINK: (id: string) => `/programs/${id}`,
-        STUDENT_DATABASE_STUDENTID_LINK: (id: string, hash: string) => `/student/${id}${hash}`,
+        STUDENT_DATABASE_STUDENTID_LINK: (id: string, hash: string) =>
+            `/student/${id}${hash}`,
         PROFILE_HASH: '#profile'
     }
 }));
@@ -40,23 +41,34 @@ describe('ProgramConflict', () => {
         render(
             <MemoryRouter>
                 <Table>
-                    <ProgramConflict program={mockProgram} students={mockStudents} />
+                    <ProgramConflict
+                        program={mockProgram}
+                        students={mockStudents}
+                    />
                 </Table>
             </MemoryRouter>
         );
     });
 
     it('renders the school name link', () => {
-        expect(screen.getByRole('link', { name: /TU Munich/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('link', { name: /TU Munich/i })
+        ).toBeInTheDocument();
     });
 
     it('renders the program name link', () => {
-        expect(screen.getByRole('link', { name: /Computer Science/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('link', { name: /Computer Science/i })
+        ).toBeInTheDocument();
     });
 
     it('renders student name links', () => {
-        expect(screen.getByRole('link', { name: /John, Doe/i })).toBeInTheDocument();
-        expect(screen.getByRole('link', { name: /Jane, Smith/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('link', { name: /John, Doe/i })
+        ).toBeInTheDocument();
+        expect(
+            screen.getByRole('link', { name: /Jane, Smith/i })
+        ).toBeInTheDocument();
     });
 
     it('renders the application deadline', () => {

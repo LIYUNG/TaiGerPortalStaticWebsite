@@ -2,7 +2,10 @@ import { useQuery } from '@tanstack/react-query';
 import queryString from 'query-string';
 
 import { getApplications } from '@/api';
-import type { GetApplicationsResponse, IApplicationPopulated } from '@taiger-common/model';
+import type {
+    GetApplicationsResponse,
+    IApplicationPopulated
+} from '@taiger-common/model';
 
 export type ApplicationsParams = Record<
     string,
@@ -22,12 +25,15 @@ export function useApplications(
 ) {
     const queryStringValue = queryString.stringify(params);
 
-    const result = useQuery<GetApplicationsResponse, Error, IApplicationPopulated[]>({
+    const result = useQuery<
+        GetApplicationsResponse,
+        Error,
+        IApplicationPopulated[]
+    >({
         queryKey: ['applications', queryStringValue],
         queryFn: () => getApplications(queryStringValue),
         staleTime: 1000 * 60 * 5, // 5 minutes
-        select: (response) =>
-            response.data ?? [],
+        select: (response) => response.data ?? [],
         enabled: options?.enabled ?? true
     });
 

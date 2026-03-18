@@ -87,7 +87,9 @@ const RequirementsSection = ({
                                             }}
                                             target="_blank"
                                             to={`${DEMO.SINGLE_PROGRAM_LINK(
-                                                (thread.program_id as IProgramWithId)._id.toString()
+                                                (
+                                                    thread.program_id as IProgramWithId
+                                                )._id.toString()
                                             )}`}
                                         >
                                             <EditIcon sx={{ fontSize: 16 }} />

@@ -43,7 +43,9 @@ describe('CreateComplaintTicket', () => {
                 <CreateComplaintTicket />
             </MemoryRouter>
         );
-        expect(screen.getAllByText(/Describe your title/i).length).toBeGreaterThan(0);
+        expect(
+            screen.getAllByText(/Describe your title/i).length
+        ).toBeGreaterThan(0);
     });
 
     it('renders submit button', () => {

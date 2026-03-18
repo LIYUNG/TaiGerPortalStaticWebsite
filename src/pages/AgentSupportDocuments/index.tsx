@@ -82,10 +82,7 @@ const AgentSupportDocuments = () => {
     });
 
     const baseOpenTasksArr = useMemo(
-        () =>
-            open_tasks_v2(
-                threadsData.threads as IDocumentthreadPopulated[]
-            ),
+        () => open_tasks_v2(threadsData.threads as IDocumentthreadPopulated[]),
         [threadsData.threads]
     );
 
@@ -166,27 +163,18 @@ const AgentSupportDocuments = () => {
     );
 
     const fav_message_tasks = open_tasks_withMyEssay_arr.filter((open_task) =>
-        is_my_fav_message_status(
-            user,
-            open_task as unknown as IDocumentthread
-        )
+        is_my_fav_message_status(user, open_task as unknown as IDocumentthread)
     );
 
     const followup_tasks = open_tasks_withMyEssay_arr.filter(
         (open_task) =>
-            is_pending_status(
-                user,
-                open_task as unknown as IDocumentthread
-            ) &&
+            is_pending_status(user, open_task as unknown as IDocumentthread) &&
             open_task.latest_message_left_by_id !== '- None - '
     );
 
     const pending_progress_tasks = open_tasks_withMyEssay_arr.filter(
         (open_task) =>
-            is_pending_status(
-                user,
-                open_task as unknown as IDocumentthread
-            ) &&
+            is_pending_status(user, open_task as unknown as IDocumentthread) &&
             open_task.latest_message_left_by_id === '- None - '
     );
 

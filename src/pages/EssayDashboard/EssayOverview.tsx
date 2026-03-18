@@ -484,9 +484,7 @@ const EssayOverview = (props: EssayOverviewProps) => {
                 />
             </CustomTabPanel>
             <CustomTabPanel index={1} value={value}>
-                <Alert severity="warning">
-                    Follow up
-                </Alert>
+                <Alert severity="warning">Follow up</Alert>
                 <MuiDataGrid
                     autoHeight={true}
                     columnVisibilityModel={{
@@ -499,9 +497,7 @@ const EssayOverview = (props: EssayOverviewProps) => {
                 />
             </CustomTabPanel>
             <CustomTabPanel index={2} value={value}>
-                <Alert severity="info">
-                    My Favorite
-                </Alert>
+                <Alert severity="info">My Favorite</Alert>
                 <MuiDataGrid
                     autoHeight={true}
                     columnVisibilityModel={{
@@ -514,9 +510,7 @@ const EssayOverview = (props: EssayOverviewProps) => {
                 />
             </CustomTabPanel>
             <CustomTabPanel index={3} value={value}>
-                <Alert severity="info">
-                    Follow up
-                </Alert>
+                <Alert severity="info">Follow up</Alert>
                 <MuiDataGrid
                     autoHeight={true}
                     columnVisibilityModel={{
@@ -529,9 +523,7 @@ const EssayOverview = (props: EssayOverviewProps) => {
                 />
             </CustomTabPanel>
             <CustomTabPanel index={4} value={value}>
-                <Alert
-                    severity={is_TaiGer_role(user) ? 'info' : 'warning'}
-                >
+                <Alert severity={is_TaiGer_role(user) ? 'info' : 'warning'}>
                     {is_TaiGer_role(user)
                         ? 'Waiting inputs. No action needed'
                         : 'Please provide input as soon as possible'}
@@ -548,9 +540,7 @@ const EssayOverview = (props: EssayOverviewProps) => {
                 />
             </CustomTabPanel>
             <CustomTabPanel index={5} value={value}>
-                <Alert severity="success">
-                    These tasks are closed.
-                </Alert>
+                <Alert severity="success">These tasks are closed.</Alert>
                 <MuiDataGrid
                     autoHeight={true}
                     columnVisibilityModel={{
@@ -569,9 +559,7 @@ const EssayOverview = (props: EssayOverviewProps) => {
                 </Typography>
             </CustomTabPanel>
             <CustomTabPanel index={6} value={value}>
-                <Alert severity="info">
-                    All Essays
-                </Alert>
+                <Alert severity="info">All Essays</Alert>
                 <MuiDataGrid
                     autoHeight={true}
                     columnVisibilityModel={{

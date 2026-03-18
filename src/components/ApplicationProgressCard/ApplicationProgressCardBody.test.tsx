@@ -11,7 +11,8 @@ vi.mock('@store/constant', () => ({
         DOCUMENT_MODIFICATION_LINK: (id: string) => `/docs/${id}`,
         SURVEY_LINK: '/survey',
         UNI_ASSIST_LINK: '/uni-assist',
-        STUDENT_APPLICATIONS_ID_LINK: (id: string) => `/student/${id}/applications`,
+        STUDENT_APPLICATIONS_ID_LINK: (id: string) =>
+            `/student/${id}/applications`,
         PORTALS_MANAGEMENT_STUDENTID_LINK: (id: string) => `/portals/${id}`
     }
 }));

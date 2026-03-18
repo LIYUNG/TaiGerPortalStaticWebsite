@@ -28,7 +28,9 @@ vi.mock('react-router-dom', async () => {
 });
 
 vi.mock('../Utils/ErrorPage', () => ({ default: () => <div>ErrorPage</div> }));
-vi.mock('../Utils/ModalHandler/ModalMain', () => ({ default: () => <div>Modal</div> }));
+vi.mock('../Utils/ModalHandler/ModalMain', () => ({
+    default: () => <div>Modal</div>
+}));
 
 vi.mock('@contexts/use-snack-bar', () => ({
     useSnackBar: () => ({
@@ -43,16 +45,28 @@ vi.mock('@/api', () => ({
 }));
 
 vi.mock('@components/Tabs', () => ({
-    CustomTabPanel: ({ children, index, value }: { children: React.ReactNode; index: number; value: number }) =>
-        index === value ? <div>{children}</div> : null,
+    CustomTabPanel: ({
+        children,
+        index,
+        value
+    }: {
+        children: React.ReactNode;
+        index: number;
+        value: number;
+    }) => (index === value ? <div>{children}</div> : null),
     a11yProps: () => ({})
 }));
 
-vi.mock('@components/ProgramRequirementsTable/ProgramRequirementsTable', () => ({
-    ProgramRequirementsTable: () => (
-        <div data-testid="program-requirements-table">ProgramRequirementsTable</div>
-    )
-}));
+vi.mock(
+    '@components/ProgramRequirementsTable/ProgramRequirementsTable',
+    () => ({
+        ProgramRequirementsTable: () => (
+            <div data-testid="program-requirements-table">
+                ProgramRequirementsTable
+            </div>
+        )
+    })
+);
 
 vi.mock('@utils/contants', () => ({
     convertDateUXFriendly: (d: string) => d
@@ -92,6 +106,8 @@ describe('CourseWidgetBody', () => {
     });
 
     it('renders ProgramRequirementsTable', () => {
-        expect(screen.getByTestId('program-requirements-table')).toBeInTheDocument();
+        expect(
+            screen.getByTestId('program-requirements-table')
+        ).toBeInTheDocument();
     });
 });

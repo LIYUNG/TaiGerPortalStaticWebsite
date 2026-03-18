@@ -26,7 +26,9 @@ vi.mock('react-router-dom', async () => {
 });
 
 vi.mock('./PortalCredentialsCard', () => ({
-    default: () => <div data-testid="portal-credentials-card">PortalCredentialsCard</div>
+    default: () => (
+        <div data-testid="portal-credentials-card">PortalCredentialsCard</div>
+    )
 }));
 
 describe('PortalCredentialPage', () => {
@@ -39,7 +41,9 @@ describe('PortalCredentialPage', () => {
     });
 
     it('renders PortalCredentialsCard for student user', () => {
-        expect(screen.getByTestId('portal-credentials-card')).toBeInTheDocument();
+        expect(
+            screen.getByTestId('portal-credentials-card')
+        ).toBeInTheDocument();
     });
 });
 
@@ -47,9 +51,14 @@ describe('PortalCredentialPage - with student_id prop', () => {
     it('renders PortalCredentialsCard with explicit student_id prop', () => {
         render(
             <MemoryRouter>
-                <PortalCredentialPage student_id="explicit123" showTitle={true} />
+                <PortalCredentialPage
+                    student_id="explicit123"
+                    showTitle={true}
+                />
             </MemoryRouter>
         );
-        expect(screen.getByTestId('portal-credentials-card')).toBeInTheDocument();
+        expect(
+            screen.getByTestId('portal-credentials-card')
+        ).toBeInTheDocument();
     });
 });

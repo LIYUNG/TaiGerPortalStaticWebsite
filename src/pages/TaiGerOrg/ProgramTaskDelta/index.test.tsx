@@ -36,7 +36,9 @@ vi.mock('@components/Loading/Loading', () => ({
 }));
 
 vi.mock('../../Utils/ErrorPage', () => ({
-    default: ({ res_status }: { res_status: number }) => <div data-testid="error-page">{res_status}</div>
+    default: ({ res_status }: { res_status: number }) => (
+        <div data-testid="error-page">{res_status}</div>
+    )
 }));
 
 vi.mock('../../Utils/TabTitle', () => ({
@@ -47,9 +49,12 @@ vi.mock('../../../config', () => ({
     appConfig: { companyName: 'TaiGer' }
 }));
 
-vi.mock('@pages/Dashboard/MainViewTab/ProgramTaskDelta/TabProgramTaskDelta', () => ({
-    default: () => <div data-testid="tab-program-task-delta" />
-}));
+vi.mock(
+    '@pages/Dashboard/MainViewTab/ProgramTaskDelta/TabProgramTaskDelta',
+    () => ({
+        default: () => <div data-testid="tab-program-task-delta" />
+    })
+);
 
 vi.mock('../../Utils/ModalHandler/ModalMain', () => ({
     default: () => <div data-testid="modal-main" />
