@@ -145,12 +145,6 @@ export const getStudentQuery = (studentId: StudentId): UseQueryOptions => ({
     staleTime: 1000 * 60 * 5 // 5 minutes
 });
 
-export const getAllCoursessQuery = (): UseQueryOptions => ({
-    queryKey: ['all-courses/all'],
-    queryFn: () => getAllCourses(),
-    staleTime: 1000 * 60 * 5 // 5 minutes
-});
-
 export const getCoursessQuery = (courseId: string): UseQueryOptions => ({
     queryKey: ['all-courses/all', courseId],
     queryFn: () => getCourse({ courseId }),

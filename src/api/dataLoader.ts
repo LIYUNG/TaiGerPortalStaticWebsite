@@ -15,7 +15,6 @@ import {
 } from '.';
 import { queryClient } from './client';
 import {
-    getAllCoursessQuery,
     getCoursessQuery,
     getProgramRequirementsQuery
 } from './query';
@@ -30,10 +29,6 @@ export async function getStudentsLoader() {
     } else {
         return response;
     }
-}
-
-export async function getAllCoursesLoader() {
-    return queryClient.fetchQuery(getAllCoursessQuery());
 }
 
 export async function getCourseLoader({ params }: { params: Params<string> }) {

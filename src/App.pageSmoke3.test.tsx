@@ -367,8 +367,6 @@ vi.mock('@/api/query', async (importOriginal) => {
             factory(['communications', 'my'], { data: { data: [] } }),
         getMessagThreadQuery: () =>
             factory(['MessageThread', 'test'], { data: { data: {} } }),
-        getAllCoursessQuery: () =>
-            factory(['all-courses/all'], { data: { data: [] } }),
         getCoursessQuery: () =>
             factory(['all-courses/all', 'test'], { data: { data: {} } }),
         getProgramRequirementsQuery: () =>

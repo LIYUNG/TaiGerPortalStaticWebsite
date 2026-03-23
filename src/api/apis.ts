@@ -260,6 +260,7 @@ import {
     type TaigerAiResponse,
     type CvmlrlAiResponse,
     type GetProgramResponse,
+    GetAllCoursesResponseSchema,
     GetProgramResponseSchema,
 } from '@taiger-common/model';
 
@@ -734,8 +735,10 @@ export const deleteKeywordSet = (keywordsSetId: string) =>
     );
 
 // Courses DB
-export const getAllCourses = () =>
-    getData<GetAllCoursesResponse>(`/api/all-courses`);
+export async function getAllCourses(): Promise<GetAllCoursesResponse> {
+    const data = await getData<GetAllCoursesResponse>(`/api/all-courses`);
+    return GetAllCoursesResponseSchema.parse(data) as GetAllCoursesResponse;
+}
 export const getCourse = ({ courseId }: { courseId: string }) =>
     getData<GetAllCourseResponse>(`/api/all-courses/${courseId}`);
 export const updateCourse = ({
