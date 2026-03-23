@@ -47,8 +47,12 @@ describe('Overview', () => {
                 <Overview />
             </MemoryRouter>
         );
-        expect(screen.getByRole('tab', { name: /Student/i })).toBeInTheDocument();
-        expect(screen.getByRole('tab', { name: /Application/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('tab', { name: /Student/i })
+        ).toBeInTheDocument();
+        expect(
+            screen.getByRole('tab', { name: /Application/i })
+        ).toBeInTheDocument();
     });
 
     it('renders map and country breakdown tabs', () => {
@@ -57,7 +61,11 @@ describe('Overview', () => {
                 <Overview />
             </MemoryRouter>
         );
-        expect(screen.getByRole('tab', { name: /Map View/i })).toBeInTheDocument();
-        expect(screen.getByRole('tab', { name: /Country Breakdown/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('tab', { name: /Map View/i })
+        ).toBeInTheDocument();
+        expect(
+            screen.getByRole('tab', { name: /Country Breakdown/i })
+        ).toBeInTheDocument();
     });
 });

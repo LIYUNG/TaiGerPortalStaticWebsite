@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import type { IUser } from '@taiger-common/model';
 import { is_TaiGer_role } from '@taiger-common/core';
 
 import { useAuth } from '@components/AuthProvider';
@@ -11,6 +12,7 @@ import {
 import { useSnackBar } from '@contexts/use-snack-bar';
 import { queryClient } from '@/api';
 import { useMutation } from '@tanstack/react-query';
+import { OutputData } from '@editorjs/editorjs';
 
 interface UseCommunicationsProps {
     data: unknown[];
@@ -50,7 +52,8 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
             setMessage(error.message || 'An error occurred. Please try again.');
             setOpenSnackbar(true);
         },
-        onSuccess: (responseData: { data?: unknown[] }) => {
+        onSuccess: (responseData: unknown) => {
+            const data = (responseData as { data?: unknown[] })?.data ?? [];
             queryClient.invalidateQueries({
                 queryKey: [
                     'communications',
@@ -64,10 +67,7 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
                 ...prevState,
                 editorState: {},
                 count: prevState.count + 1,
-                thread: [
-                    ...communicationsState.thread,
-                    ...(responseData.data ?? [])
-                ],
+                thread: [...communicationsState.thread, ...data],
                 files: [],
                 accordionKeys: [
                     ...communicationsState.accordionKeys,
@@ -78,7 +78,10 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
     });
 
     const { mutate: mutateDelete, isPending: isDeleting } = useMutation({
-        mutationFn: deleteAMessageInCommunicationThreadV2,
+        mutationFn: (vars: {
+            student_id: string;
+            communication_messageId: string;
+        }) => deleteAMessageInCommunicationThreadV2(vars),
         onError: (error: Error) => {
             setSeverity('error');
             setMessage(error.message || 'An error occurred. Please try again.');
@@ -86,7 +89,7 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
         },
         onSuccess: (
             _data: unknown,
-            variables: { communication_messageId: string }
+            variables: { student_id: string; communication_messageId: string }
         ) => {
             const { communication_messageId: message_id } = variables;
             queryClient.invalidateQueries({
@@ -100,16 +103,20 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
             });
             const new_messages = [...communicationsState.thread];
             const idx = new_messages.findIndex(
-                (message: { _id?: { toString: () => string } }) =>
-                    message._id?.toString() === message_id
+                (message: unknown) =>
+                    (
+                        message as { _id?: { toString: () => string } }
+                    )._id?.toString() === message_id
             );
             if (idx !== -1) {
                 new_messages.splice(idx, 1);
             }
             const new_upper_messages = [...communicationsState.upperThread];
             const idx2 = new_upper_messages.findIndex(
-                (message: { _id?: { toString: () => string } }) =>
-                    message._id?.toString() === message_id
+                (message: unknown) =>
+                    (
+                        message as { _id?: { toString: () => string } }
+                    )._id?.toString() === message_id
             );
             if (idx2 !== -1) {
                 new_upper_messages.splice(idx2, 1);
@@ -179,7 +186,8 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
                             ...respData,
                             ...communicationsState.upperThread
                         ],
-                        student: respStudent ?? student,
+                        student: (respStudent ??
+                            student) as typeof prevState.student,
                         pageNumber: communicationsState.pageNumber + 1,
                         uppderaccordionKeys: [
                             ...new Array(
@@ -216,11 +224,7 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
         );
     };
 
-    const onDeleteSingleMessage = (
-        e: React.MouseEvent,
-        message_id: string
-    ): void => {
-        e.preventDefault();
+    const onDeleteSingleMessage = (message_id: string): void => {
         mutateDelete({
             student_id: student._id?.toString() ?? '',
             communication_messageId: message_id
@@ -234,7 +238,7 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
             if (!e.target.files) {
                 return;
             }
-            if (!is_TaiGer_role(user)) {
+            if (user == null || !is_TaiGer_role(user as IUser)) {
                 setCommunicationsState((prevState) => ({
                     ...prevState,
                     files: Array.from(e.target.files ?? [])
@@ -284,7 +288,7 @@ function useCommunications({ data, student }: UseCommunicationsProps) {
 
     const handleClickSave = (
         e: React.MouseEvent,
-        editorState: Record<string, unknown>
+        editorState: OutputData
     ): void => {
         e.preventDefault();
         const message = JSON.stringify(editorState);

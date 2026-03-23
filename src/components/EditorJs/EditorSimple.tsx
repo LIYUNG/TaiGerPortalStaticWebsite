@@ -12,7 +12,7 @@ import Underline from '@editorjs/underline';
 import ColorPlugin from 'editorjs-text-color-plugin';
 import TextAlign from '@canburaks/text-align-editorjs';
 
-import { OutputData } from '@editorjs/editorjs';
+import { type ToolConfig, type OutputData } from '@editorjs/editorjs';
 import { uploadImage, uploadDocumentThreadImage } from '@/api';
 
 /**
@@ -115,19 +115,28 @@ const EditorSimple = (props: EditorSimpleProps) => {
                               async uploadByFile(file: File) {
                                   const formData = new FormData();
                                   formData.append('file', file);
-                                  let res: { data: { data: string } };
+                                  let url: string;
                                   if (props.thread) {
-                                      res = await uploadDocumentThreadImage(
-                                          props.thread._id.toString(),
-                                          props.thread.student_id._id.toString(),
-                                          formData
-                                      );
+                                      const res =
+                                          await uploadDocumentThreadImage(
+                                              props.thread._id.toString(),
+                                              props.thread.student_id._id.toString(),
+                                              formData
+                                          );
+                                      url =
+                                          (res.data?.data as
+                                              | string
+                                              | undefined) ?? '';
                                   } else {
-                                      res = await uploadImage(formData);
+                                      const res = await uploadImage(formData);
+                                      url =
+                                          (res.data?.data as
+                                              | string
+                                              | undefined) ?? '';
                                   }
                                   return {
                                       success: 1,
-                                      file: { url: res.data.data }
+                                      file: { url }
                                   };
                               },
                               async uploadByUrl(url: string) {
@@ -164,7 +173,7 @@ const EditorSimple = (props: EditorSimpleProps) => {
                 'Please organize your questions and expected help concretely.',
             readOnly: props.readOnly,
             minHeight: props.defaultHeight,
-            tools: tools
+            tools: tools as ToolConfig
         }) as EditorJS;
     };
 

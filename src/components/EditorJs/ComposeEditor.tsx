@@ -1,9 +1,4 @@
-import {
-    forwardRef,
-    useImperativeHandle,
-    useRef,
-    useCallback
-} from 'react';
+import { forwardRef, useImperativeHandle, useRef, useCallback } from 'react';
 import type { OutputData } from '@editorjs/editorjs';
 import EditorSimple from './EditorSimple';
 import { useEditorState } from '@hooks/useEditorState';
@@ -12,10 +7,7 @@ import type { EditorSimpleProps } from './EditorSimple';
 export interface ComposeEditorProps
     extends Pick<
         EditorSimpleProps,
-        | 'defaultHeight'
-        | 'imageEnable'
-        | 'readOnly'
-        | 'thread'
+        'defaultHeight' | 'imageEnable' | 'readOnly' | 'thread'
     > {
     /** Unique id for the editor holder (e.g. "doc-thread-editor" or "thread-editor-{id}") */
     holder: string;

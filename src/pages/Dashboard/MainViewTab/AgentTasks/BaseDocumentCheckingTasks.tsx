@@ -1,5 +1,5 @@
 import { Link as LinkDom } from 'react-router-dom';
-import { Box, Link, ListItem, Typography } from '@mui/material';
+import { Box, Link, TableCell, TableRow, Typography } from '@mui/material';
 
 import { convertDate } from '@utils/contants';
 import DEMO from '@store/constant';
@@ -16,20 +16,14 @@ const BaseDocumentCheckingTasks = ({
             {student.profile?.map(
                 (file, i) =>
                     file.status === 'uploaded' && (
-                        <ListItem
+                        <TableRow
                             key={i}
                             sx={{
-                                display: 'flex',
-                                gap: 2,
-                                alignItems: 'center',
                                 borderBottom: 1,
                                 borderColor: 'divider'
                             }}
                         >
-                            <Typography
-                                component="span"
-                                sx={{ minWidth: 120 }}
-                            >
+                            <TableCell sx={{ minWidth: 120 }}>
                                 <Link
                                     component={LinkDom}
                                     to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
@@ -38,20 +32,31 @@ const BaseDocumentCheckingTasks = ({
                                     )}`}
                                 >
                                     <b>
-                                        {student.firstname}{' '}
-                                        {student.lastname}
+                                        {student.firstname} {student.lastname}
                                     </b>
                                 </Link>
-                            </Typography>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
-                                <Typography component="span">
-                                    {file.name}
-                                </Typography>
-                                <Typography component="span" variant="subtitle2" color="text.secondary">
-                                    {convertDate(file.updatedAt)}
-                                </Typography>
-                            </Box>
-                        </ListItem>
+                            </TableCell>
+                            <TableCell>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: 0.25
+                                    }}
+                                >
+                                    <Typography component="span">
+                                        {file.name}
+                                    </Typography>
+                                    <Typography
+                                        component="span"
+                                        variant="subtitle2"
+                                        color="text.secondary"
+                                    >
+                                        {convertDate(file.updatedAt)}
+                                    </Typography>
+                                </Box>
+                            </TableCell>
+                        </TableRow>
                     )
             )}
         </>

@@ -17,7 +17,9 @@ interface AssignmentWrapperProps {
 const AssignmentWrapper = ({ role }: AssignmentWrapperProps) => {
     const { user } = useAuth();
     const { data: fetchedAllStudents } = useStudentsV3(
-        role === 'agent' ? { agents: [], archiv: false } : { editors: [], archiv: false }
+        role === 'agent'
+            ? { agents: [], archiv: false }
+            : { editors: [], archiv: false }
     );
 
     const {
@@ -36,7 +38,11 @@ const AssignmentWrapper = ({ role }: AssignmentWrapperProps) => {
     }
 
     return (
-        <Box data-testid={role === 'agent' ? 'assignment_agents' : 'assignment_editors'}>
+        <Box
+            data-testid={
+                role === 'agent' ? 'assignment_agents' : 'assignment_editors'
+            }
+        >
             {res_modal_status >= 400 ? (
                 <ModalMain
                     ConfirmError={ConfirmError}

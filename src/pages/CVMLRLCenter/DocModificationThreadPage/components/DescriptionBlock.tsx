@@ -36,7 +36,7 @@ const DescriptionBlock = ({
                     <Box
                         sx={{
                             p: 1.5,
-                            bgcolor: theme.palette.info.lighter || 'info.50',
+                            bgcolor: 'info.50',
                             borderLeft: `3px solid ${theme.palette.info.main}`
                         }}
                     >

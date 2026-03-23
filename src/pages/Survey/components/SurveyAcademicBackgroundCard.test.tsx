@@ -9,7 +9,9 @@ vi.mock('@taiger-common/core', () => ({
 }));
 
 vi.mock('@utils/contants', () => ({
-    BACHELOR_GRADUATE_STATUS_OPTIONS: [{ value: 'graduated', label: 'Graduated' }],
+    BACHELOR_GRADUATE_STATUS_OPTIONS: [
+        { value: 'graduated', label: 'Graduated' }
+    ],
     DUAL_STATE_OPTIONS: [{ value: 'No', label: 'No' }],
     HIG_SCHOOL_TRI_STATE_OPTIONS: [{ value: 'Yes', label: 'Yes' }],
     convertDate: (d: string) => d,
@@ -66,7 +68,9 @@ describe('SurveyAcademicBackgroundCard', () => {
     });
 
     it('renders Academic Background Survey heading', () => {
-        expect(screen.getByText('Academic Background Survey')).toBeInTheDocument();
+        expect(
+            screen.getByText('Academic Background Survey')
+        ).toBeInTheDocument();
     });
 
     it('renders High School section', () => {
@@ -74,6 +78,8 @@ describe('SurveyAcademicBackgroundCard', () => {
     });
 
     it('renders update button', () => {
-        expect(screen.getByRole('button', { name: /update/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('button', { name: /update/i })
+        ).toBeInTheDocument();
     });
 });

@@ -26,9 +26,16 @@ vi.mock('@components/BreadcrumbsNavigation/BreadcrumbsNavigation', () => ({
     )
 }));
 
-vi.mock('@pages/Dashboard/MainViewTab/NoAgentsStudentsCard/NoAgentsStudentsCard', () => ({
-    default: () => <tr data-testid="no-agents-card"><td /></tr>
-}));
+vi.mock(
+    '@pages/Dashboard/MainViewTab/NoAgentsStudentsCard/NoAgentsStudentsCard',
+    () => ({
+        default: () => (
+            <tr data-testid="no-agents-card">
+                <td />
+            </tr>
+        )
+    })
+);
 
 import AssignAgentsPage from './AssignAgentsPage';
 
@@ -47,7 +54,10 @@ describe('AssignAgentsPage', () => {
     it('renders without crashing', () => {
         render(
             <MemoryRouter>
-                <AssignAgentsPage students={[]} submitUpdateAgentlist={vi.fn()} />
+                <AssignAgentsPage
+                    students={[]}
+                    submitUpdateAgentlist={vi.fn()}
+                />
             </MemoryRouter>
         );
         expect(screen.getByTestId('breadcrumbs')).toBeTruthy();
@@ -56,7 +66,10 @@ describe('AssignAgentsPage', () => {
     it('renders No Agents Students heading', () => {
         render(
             <MemoryRouter>
-                <AssignAgentsPage students={mockStudents} submitUpdateAgentlist={vi.fn()} />
+                <AssignAgentsPage
+                    students={mockStudents}
+                    submitUpdateAgentlist={vi.fn()}
+                />
             </MemoryRouter>
         );
         expect(screen.getByText(/No Agents Students/i)).toBeTruthy();
@@ -65,7 +78,10 @@ describe('AssignAgentsPage', () => {
     it('renders student rows', () => {
         render(
             <MemoryRouter>
-                <AssignAgentsPage students={mockStudents} submitUpdateAgentlist={vi.fn()} />
+                <AssignAgentsPage
+                    students={mockStudents}
+                    submitUpdateAgentlist={vi.fn()}
+                />
             </MemoryRouter>
         );
         expect(screen.getByTestId('no-agents-card')).toBeTruthy();

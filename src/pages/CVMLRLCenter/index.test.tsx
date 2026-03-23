@@ -63,7 +63,9 @@ vi.mock('@/api', () => ({
     getThreadsByStudent: vi.fn(() =>
         Promise.resolve({ data: { threads: [] }, success: true, status: 200 })
     ),
-    putThreadFavorite: vi.fn(() => Promise.resolve({ data: { success: true }, status: 200 }))
+    putThreadFavorite: vi.fn(() =>
+        Promise.resolve({ data: { success: true }, status: 200 })
+    )
 }));
 
 describe('CVMLRLCenter (index)', () => {

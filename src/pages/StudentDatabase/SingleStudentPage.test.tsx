@@ -5,7 +5,11 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
 vi.mock('@tanstack/react-query', async (orig) => ({
     ...(await orig()),
-    useQuery: vi.fn(() => ({ data: undefined, isLoading: false, refetch: vi.fn() })),
+    useQuery: vi.fn(() => ({
+        data: undefined,
+        isLoading: false,
+        refetch: vi.fn()
+    })),
     useMutation: vi.fn(() => ({
         mutate: vi.fn(),
         isPending: false,
@@ -84,9 +88,16 @@ vi.mock('../Notes/index', () => ({
     default: () => <div data-testid="notes" />
 }));
 
-vi.mock('@pages/Dashboard/MainViewTab/ApplicationProgress/ApplicationProgress', () => ({
-    default: () => <tr data-testid="application-progress"><td /></tr>
-}));
+vi.mock(
+    '@pages/Dashboard/MainViewTab/ApplicationProgress/ApplicationProgress',
+    () => ({
+        default: () => (
+            <tr data-testid="application-progress">
+                <td />
+            </tr>
+        )
+    })
+);
 
 vi.mock('@pages/Dashboard/StudentDashboard/StudentDashboard', () => ({
     default: () => <div data-testid="student-dashboard" />
@@ -104,13 +115,19 @@ vi.mock('@components/Banner/ProgramLanguageNotMatchedBanner', () => ({
     default: () => <div data-testid="program-language-not-matched-banner" />
 }));
 
-vi.mock('@components/Banner/EnglishCertificateExpiredBeforeDeadlineBanner', () => ({
-    default: () => <div data-testid="english-cert-expired-banner" />
-}));
+vi.mock(
+    '@components/Banner/EnglishCertificateExpiredBeforeDeadlineBanner',
+    () => ({
+        default: () => <div data-testid="english-cert-expired-banner" />
+    })
+);
 
-vi.mock('@pages/Dashboard/MainViewTab/StudentBriefOverview/StudentBriefOverview', () => ({
-    default: () => <div data-testid="student-brief-overview" />
-}));
+vi.mock(
+    '@pages/Dashboard/MainViewTab/StudentBriefOverview/StudentBriefOverview',
+    () => ({
+        default: () => <div data-testid="student-brief-overview" />
+    })
+);
 
 vi.mock('../Program/ProgramDetailsComparisonTable', () => ({
     default: () => <div data-testid="program-details-comparison-table" />
@@ -133,8 +150,18 @@ vi.mock('../Utils/TabTitle', () => ({
 }));
 
 vi.mock('@components/Tabs', () => ({
-    CustomTabPanel: ({ children, index, value }: { children: ReactNode; index: number; value: number }) =>
-        index === value ? <div data-testid={`tab-panel-${index}`}>{children}</div> : null,
+    CustomTabPanel: ({
+        children,
+        index,
+        value
+    }: {
+        children: ReactNode;
+        index: number;
+        value: number;
+    }) =>
+        index === value ? (
+            <div data-testid={`tab-panel-${index}`}>{children}</div>
+        ) : null,
     a11yProps: vi.fn(() => ({}))
 }));
 
@@ -145,7 +172,9 @@ vi.mock('@store/constant', () => ({
         STUDENT_DATABASE_STUDENTID_LINK: vi.fn(() => '/student/123'),
         PROFILE_HASH: '#profile',
         PROFILE_STUDENT_LINK: vi.fn((id: string) => `/profile/${id}`),
-        STUDENT_APPLICATIONS_ID_LINK: vi.fn((id: string) => `/applications/${id}`),
+        STUDENT_APPLICATIONS_ID_LINK: vi.fn(
+            (id: string) => `/applications/${id}`
+        ),
         COMMUNICATIONS_TAIGER_MODE_LINK: vi.fn((id: string) => `/comms/${id}`),
         CRM_LEAD_LINK: vi.fn((id: string) => `/crm/${id}`),
         COURSES_INPUT_LINK: vi.fn((id: string) => `/courses/${id}`),
@@ -205,6 +234,8 @@ describe('SingleStudentPageMainContent', () => {
 
     it('renders the program language not matched banner', () => {
         render(<SingleStudentPageMainContent {...defaultProps} />, { wrapper });
-        expect(screen.getByTestId('program-language-not-matched-banner')).toBeTruthy();
+        expect(
+            screen.getByTestId('program-language-not-matched-banner')
+        ).toBeTruthy();
     });
 });

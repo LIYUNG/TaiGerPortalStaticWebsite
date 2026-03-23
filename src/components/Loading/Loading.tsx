@@ -7,7 +7,9 @@ interface LoadingProps {
     variant?: 'full' | 'child';
 }
 
-export default function Loading({ variant = 'full' }: LoadingProps): JSX.Element {
+export default function Loading({
+    variant = 'full'
+}: LoadingProps): JSX.Element {
     const [showExtraMessage, setShowExtraMessage] = useState(false);
 
     useEffect(() => {

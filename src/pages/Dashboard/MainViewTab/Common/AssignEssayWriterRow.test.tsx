@@ -18,7 +18,9 @@ describe('AssignEssayWriterRow', () => {
             <MemoryRouter>
                 <Table>
                     <TableBody>
-                        <AssignEssayWriterRow tasksOverview={mockTasksOverview} />
+                        <AssignEssayWriterRow
+                            tasksOverview={mockTasksOverview}
+                        />
                     </TableBody>
                 </Table>
             </MemoryRouter>
@@ -32,7 +34,9 @@ describe('AssignEssayWriterRow', () => {
             <MemoryRouter>
                 <Table>
                     <TableBody>
-                        <AssignEssayWriterRow tasksOverview={mockTasksOverview} />
+                        <AssignEssayWriterRow
+                            tasksOverview={mockTasksOverview}
+                        />
                     </TableBody>
                 </Table>
             </MemoryRouter>

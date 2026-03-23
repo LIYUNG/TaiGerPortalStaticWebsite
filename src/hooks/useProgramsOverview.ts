@@ -1,22 +1,26 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { getProgramsOverviewQuery } from '@/api/query';
+import { getProgramsOverview } from '@/api';
+import type { GetProgramsOverviewResponse } from '@taiger-common/model';
 
 /**
  * Fetches programs overview (totals, byCountry, byDegree, etc.).
- * Unifies getProgramsOverviewQuery usage across SchoolDistributionPage,
- * ProgramDistributionDetailPage, and ProgramsOverviewPage.
  */
 export function useProgramsOverview() {
-    const query = getProgramsOverviewQuery();
-
-    const result = useQuery(query);
+    const result = useQuery<
+        GetProgramsOverviewResponse,
+        Error,
+        Record<string, unknown>
+    >({
+        queryKey: ['programs', 'overview'],
+        queryFn: getProgramsOverview,
+        staleTime: 1000 * 60 * 5, // 5 minutes
+        select: (response) => response.data ?? {}
+    });
 
     return {
         ...result,
-        data:
-            (result.data as { data?: Record<string, unknown> } | undefined)
-                ?.data ?? {},
-        queryKey: query.queryKey
+        data: result.data ?? {},
+        queryKey: ['programs', 'overview'] as const
     };
 }

@@ -15,11 +15,6 @@ import {
     Button,
     Chip,
     Card,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
     FormControlLabel,
     Checkbox,
     IconButton,
@@ -27,6 +22,7 @@ import {
     Typography,
     useTheme
 } from '@mui/material';
+import { ConfirmDialog } from '@components/ConfirmDialog';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -95,7 +91,7 @@ export interface MessageCardProps {
     isLoaded: boolean;
     documentsthreadId: string;
     apiPrefix: string;
-    onDeleteSingleMessage: (e: MouseEvent, messageId: string) => void;
+    onDeleteSingleMessage: (messageId: string) => void;
     handleClickSave?: (
         e: MouseEvent,
         editorState: { time?: number; blocks?: unknown[] }
@@ -105,8 +101,13 @@ export interface MessageCardProps {
 const DEFAULT_IGNORE = false;
 
 const MessageCard = (props: MessageCardProps) => {
-    const { message, isLoaded, documentsthreadId, apiPrefix, onDeleteSingleMessage } =
-        props;
+    const {
+        message,
+        isLoaded,
+        documentsthreadId,
+        apiPrefix,
+        onDeleteSingleMessage
+    } = props;
     const { user } = useAuth();
     const theme = useTheme();
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
@@ -154,14 +155,11 @@ const MessageCard = (props: MessageCardProps) => {
         }));
     }, []);
 
-    const onConfirmDelete = useCallback(
-        (e: MouseEvent) => {
-            e.preventDefault();
-            setMessageState((prev) => ({ ...prev, deleteModalOpen: false }));
-            onDeleteSingleMessage(e, messageState.messageId);
-        },
-        [messageState.messageId, onDeleteSingleMessage]
-    );
+    /** ConfirmDialog calls onConfirm with no event; parent still expects (e, id) and may call e.preventDefault(). */
+    const handleConfirmDeleteFromDialog = useCallback(() => {
+        setMessageState((prev) => ({ ...prev, deleteModalOpen: false }));
+        onDeleteSingleMessage(messageState.messageId);
+    }, [messageState.messageId, onDeleteSingleMessage]);
 
     const handleCheckboxChange = useCallback(async () => {
         const nextIgnore = !messageState.ignore_message;
@@ -372,7 +370,9 @@ const MessageCard = (props: MessageCardProps) => {
                         >
                             <EditorSimple
                                 defaultHeight={0}
-                                editorState={messageState.editorState ?? undefined}
+                                editorState={
+                                    messageState.editorState ?? undefined
+                                }
                                 holder={`${message._id.toString()}`}
                                 imageEnable={true}
                                 readOnly={true}
@@ -409,8 +409,16 @@ const MessageCard = (props: MessageCardProps) => {
 
                             {user &&
                                 message.user_id &&
-                                !is_TaiGer_Student(user as Parameters<typeof is_TaiGer_Student>[0]) &&
-                                is_TaiGer_Student(message.user_id as Parameters<typeof is_TaiGer_Student>[0]) && (
+                                !is_TaiGer_Student(
+                                    user as Parameters<
+                                        typeof is_TaiGer_Student
+                                    >[0]
+                                ) &&
+                                is_TaiGer_Student(
+                                    message.user_id as Parameters<
+                                        typeof is_TaiGer_Student
+                                    >[0]
+                                ) && (
                                     <Box
                                         sx={{
                                             mt: 2,
@@ -446,39 +454,26 @@ const MessageCard = (props: MessageCardProps) => {
                     </AccordionDetails>
                 </Accordion>
             </Card>
-            <Dialog
-                aria-labelledby="contained-modal-title-vcenter"
-                onClose={onCloseDeleteModal}
+            <ConfirmDialog
                 open={messageState.deleteModalOpen}
-            >
-                <DialogTitle>
-                    {i18next.t('Warning', { ns: 'common' })}
-                </DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
-                        Do you wan to delete this message on{' '}
+                onClose={onCloseDeleteModal}
+                title={i18next.t('Warning', { ns: 'common' })}
+                content={
+                    <>
+                        Do you want to delete this message on{' '}
                         <b>{convertDate(messageState.createdAt ?? '')}?</b>
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button
-                        color="primary"
-                        disabled={!isLoaded}
-                        onClick={onConfirmDelete}
-                        variant="contained"
-                    >
-                        {isLoaded
-                            ? i18next.t('Delete', { ns: 'common' })
-                            : i18next.t('Pending', { ns: 'common' })}
-                    </Button>
-                    <Button
-                        onClick={onCloseDeleteModal}
-                        variant="outlined"
-                    >
-                        {i18next.t('Cancel', { ns: 'common' })}
-                    </Button>
-                </DialogActions>
-            </Dialog>
+                    </>
+                }
+                variant="confirm"
+                confirmLabel={
+                    isLoaded
+                        ? i18next.t('Delete', { ns: 'common' })
+                        : i18next.t('Pending', { ns: 'common' })
+                }
+                cancelLabel={i18next.t('Cancel', { ns: 'common' })}
+                onConfirm={handleConfirmDeleteFromDialog}
+                confirmDisabled={!isLoaded}
+            />
         </>
     );
 };

@@ -25,7 +25,12 @@ vi.mock('../../config', () => ({
 vi.mock('@hooks/usePrograms', () => ({
     usePrograms: () => ({
         data: [
-            { _id: 'p1', school: 'TU Berlin', program_name: 'CS', degree: 'Master' }
+            {
+                _id: 'p1',
+                school: 'TU Berlin',
+                program_name: 'CS',
+                degree: 'Master'
+            }
         ],
         isLoading: false,
         isError: false,
@@ -59,10 +64,14 @@ describe('ProgramList', () => {
     });
 
     it('renders View Overview button', () => {
-        expect(screen.getByRole('link', { name: /View Overview/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('link', { name: /View Overview/i })
+        ).toBeInTheDocument();
     });
 
     it('renders breadcrumb navigation', () => {
-        expect(screen.getByRole('navigation', { name: 'breadcrumb' })).toBeInTheDocument();
+        expect(
+            screen.getByRole('navigation', { name: 'breadcrumb' })
+        ).toBeInTheDocument();
     });
 });

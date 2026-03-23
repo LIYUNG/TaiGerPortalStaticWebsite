@@ -28,7 +28,9 @@ describe('FinalThoughtsStep', () => {
     });
 
     it('renders subtitle text', () => {
-        expect(screen.getByText(/additional feedback or comments/)).toBeDefined();
+        expect(
+            screen.getByText(/additional feedback or comments/)
+        ).toBeDefined();
     });
 });
 

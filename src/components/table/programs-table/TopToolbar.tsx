@@ -5,7 +5,10 @@ import { PROGRAM_SUBJECTS, SCHOOL_TAGS } from '@taiger-common/model';
 
 import DEMO from '@store/constant';
 import { useTranslation } from 'react-i18next';
-import { GenericTopToolbar } from '@components/table/GenericTopToolbar';
+import {
+    GenericTopToolbar,
+    type GenericTopToolbarTable
+} from '@components/table/GenericTopToolbar';
 
 interface SubjectGroupOption {
     code: string;
@@ -151,7 +154,6 @@ export const TopToolbar = ({
                         renderTags={(value, getTagProps) =>
                             value.map((option, index) => (
                                 <Chip
-                                    key={option.code}
                                     label={option.code}
                                     size="small"
                                     {...getTagProps({ index })}
@@ -177,7 +179,6 @@ export const TopToolbar = ({
                         renderTags={(value, getTagProps) =>
                             value.map((option, index) => (
                                 <Chip
-                                    key={option.code}
                                     label={option.code}
                                     size="small"
                                     {...getTagProps({ index })}
@@ -188,7 +189,7 @@ export const TopToolbar = ({
                     />
                 </>
             }
-            table={table}
+            table={table as GenericTopToolbarTable}
             toolbarStyle={toolbarStyle}
         />
     );

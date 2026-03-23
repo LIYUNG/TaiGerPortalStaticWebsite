@@ -57,7 +57,9 @@ describe('FilesList', () => {
                 <FilesList thread={threadNoFiles} />
             </MemoryRouter>
         );
-        expect(screen.getByText(/No files have been uploaded yet/i)).toBeInTheDocument();
+        expect(
+            screen.getByText(/No files have been uploaded yet/i)
+        ).toBeInTheDocument();
     });
 
     it('renders null thread shows no messages text', () => {

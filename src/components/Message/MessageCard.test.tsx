@@ -12,7 +12,9 @@ vi.mock('@taiger-common/core', () => ({
 
 vi.mock('@/api', () => ({
     BASE_URL: 'http://localhost:5000',
-    IgnoreMessageThread: vi.fn(() => Promise.resolve({ data: { success: true } }))
+    IgnoreMessageThread: vi.fn(() =>
+        Promise.resolve({ data: { success: true } })
+    )
 }));
 
 vi.mock('@utils/contants', () => ({

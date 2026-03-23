@@ -320,7 +320,10 @@ const ProgramMatchingScores = memo(
                     }
                     subheader="Course requirement coverage for each analyzed program"
                     title="Program-wise Matching Scores"
-                    titleTypographyProps={{ variant: 'h6', fontWeight: 'medium' }}
+                    titleTypographyProps={{
+                        variant: 'h6',
+                        fontWeight: 'medium'
+                    }}
                 />
                 <CardContent sx={{ pb: 3 }}>
                     {viewMode === 'cards' ? (

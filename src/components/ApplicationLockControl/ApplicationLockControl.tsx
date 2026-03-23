@@ -1,16 +1,6 @@
 import { useState } from 'react';
-import {
-    IconButton,
-    Tooltip,
-    Chip,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Button,
-    Typography,
-    Box
-} from '@mui/material';
+import { IconButton, Tooltip, Chip, Typography, Box } from '@mui/material';
+import { ConfirmDialog } from '@components/ConfirmDialog';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
@@ -198,51 +188,38 @@ const ApplicationLockControl = ({
                 </Tooltip>
             )}
 
-            <Dialog
-                onClose={() => {
-                    setOpenDialog(false);
-                }}
+            <ConfirmDialog
                 open={openDialog}
-            >
-                <DialogTitle>
-                    {t('Unlock Application', { ns: 'common' })}
-                </DialogTitle>
-                <DialogContent>
-                    <Typography>
-                        {t(
-                            'Are you sure you want to unlock this application? This will allow document modifications to proceed.',
-                            { ns: 'common' }
-                        )}
-                    </Typography>
-                    <Typography
-                        color="text.secondary"
-                        sx={{ display: 'block', mt: 1 }}
-                        variant="caption"
-                    >
-                        {t('Reason', { ns: 'common' })}: {getLockReasonText()}
-                    </Typography>
-                </DialogContent>
-                <DialogActions>
-                    <Button
-                        disabled={isLoading}
-                        onClick={() => {
-                            setOpenDialog(false);
-                        }}
-                    >
-                        {t('Cancel', { ns: 'common' })}
-                    </Button>
-                    <Button
-                        color="primary"
-                        disabled={isLoading}
-                        onClick={handleUnlock}
-                        variant="contained"
-                    >
-                        {isLoading
-                            ? t('Unlocking...', { ns: 'common' })
-                            : t('Unlock', { ns: 'common' })}
-                    </Button>
-                </DialogActions>
-            </Dialog>
+                onClose={() => setOpenDialog(false)}
+                title={t('Unlock Application', { ns: 'common' })}
+                content={
+                    <>
+                        <Typography>
+                            {t(
+                                'Are you sure you want to unlock this application? This will allow document modifications to proceed.',
+                                { ns: 'common' }
+                            )}
+                        </Typography>
+                        <Typography
+                            color="text.secondary"
+                            sx={{ display: 'block', mt: 1 }}
+                            variant="caption"
+                        >
+                            {t('Reason', { ns: 'common' })}:{' '}
+                            {getLockReasonText()}
+                        </Typography>
+                    </>
+                }
+                variant="confirm"
+                confirmLabel={
+                    isLoading
+                        ? t('Unlocking...', { ns: 'common' })
+                        : t('Unlock', { ns: 'common' })
+                }
+                cancelLabel={t('Cancel', { ns: 'common' })}
+                onConfirm={handleUnlock}
+                confirmDisabled={isLoading}
+            />
         </Box>
     );
 };

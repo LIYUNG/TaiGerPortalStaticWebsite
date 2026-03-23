@@ -21,7 +21,10 @@ describe('VerticalSingleBarChart', () => {
 
     it('renders with xLabel prop', () => {
         render(
-            <VerticalSingleBarChart data={sampleData} xLabel="Number of Students" />
+            <VerticalSingleBarChart
+                data={sampleData}
+                xLabel="Number of Students"
+            />
         );
         expect(screen.getByTestId('bar-chart')).toBeDefined();
     });

@@ -11,6 +11,7 @@ import {
     TableRow,
     Paper
 } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import {
     Restore as RestoreIcon,
     ArrowBack as ArrowBackIcon,
@@ -40,10 +41,10 @@ const getDiffKeys = (
     incoming: Record<string, unknown>
 ) => {
     const allKeys = getAllKeys(original, incoming);
-    const modifiedKeys = [];
-    const originalKey = [];
+    const modifiedKeys: string[] = [];
+    const originalKey: string[] = [];
 
-    allKeys.forEach((key) => {
+    allKeys.forEach((key: string) => {
         if (IGNORE_KEYS.includes(key)) return;
         const originalValue = original?.[key];
         const incomingValue = incoming?.[key];
@@ -98,7 +99,14 @@ const DiffRow = ({
         <TableRow
             hover
             {...rowProps}
-            sx={!showToggleButton ? { bgcolor: 'grey.300' } : {}}
+            sx={
+                !showToggleButton
+                    ? {
+                          bgcolor: (theme) =>
+                              alpha(theme.palette.text.primary, 0.06)
+                      }
+                    : {}
+            }
         >
             <TableCell>
                 <Typography variant="body1">
@@ -110,7 +118,10 @@ const DiffRow = ({
             <TableCell
                 sx={
                     isAccepted && showToggleButton
-                        ? { bgcolor: 'error.light' }
+                        ? {
+                              bgcolor: (theme) =>
+                                  alpha(theme.palette.error.main, 0.18)
+                          }
                         : {}
                 }
             >
@@ -128,7 +139,10 @@ const DiffRow = ({
             <TableCell
                 sx={
                     !isAccepted && showToggleButton
-                        ? { bgcolor: 'success.light' }
+                        ? {
+                              bgcolor: (theme) =>
+                                  alpha(theme.palette.success.main, 0.18)
+                          }
                         : {}
                 }
             >
@@ -218,7 +232,7 @@ const DiffTableContent = ({
 
 interface ProgramCompareProps {
     originalProgram: Record<string, unknown>;
-    incomingChanges: Record<string, any>;
+    incomingChanges: Record<string, unknown>;
     submitCallBack?: () => void;
 }
 
@@ -262,14 +276,14 @@ const ProgramCompare = ({
                 onClick={() => {
                     setDelta({});
                 }}
-                style={{ width: '50%' }}
+                sx={{ width: '50%' }}
             >
                 {t('Reject All', { ns: 'common' })}
             </Button>
             <Button
                 color="primary"
                 onClick={acceptAllChanges}
-                style={{ width: '50%' }}
+                sx={{ width: '50%' }}
             >
                 {t('Accept All', { ns: 'common' })}
             </Button>
@@ -281,11 +295,11 @@ const ProgramCompare = ({
                             <TableCell>
                                 {t('Field', { ns: 'common' })}
                             </TableCell>
-                            <TableCell style={{ width: '45%' }}>
+                            <TableCell sx={{ width: '45%' }}>
                                 {t('Original')}
                             </TableCell>
                             <TableCell />
-                            <TableCell style={{ width: '45%' }}>
+                            <TableCell sx={{ width: '45%' }}>
                                 {t('Changed to')}
                             </TableCell>
                         </TableRow>

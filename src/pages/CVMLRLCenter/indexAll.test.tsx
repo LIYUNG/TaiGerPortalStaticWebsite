@@ -53,7 +53,9 @@ describe('CVMLRLCenterAll (indexAll)', () => {
     });
 
     it('renders breadcrumbs navigation', () => {
-        expect(screen.getByRole('navigation', { name: /breadcrumb/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('navigation', { name: /breadcrumb/i })
+        ).toBeInTheDocument();
     });
 
     it('renders the CVMLRLDashboard component', () => {
@@ -65,6 +67,8 @@ describe('CVMLRLCenterAll (indexAll)', () => {
     });
 
     it('renders company name link in breadcrumbs', () => {
-        expect(screen.getByRole('link', { name: 'TaiGer' })).toBeInTheDocument();
+        expect(
+            screen.getByRole('link', { name: 'TaiGer' })
+        ).toBeInTheDocument();
     });
 });

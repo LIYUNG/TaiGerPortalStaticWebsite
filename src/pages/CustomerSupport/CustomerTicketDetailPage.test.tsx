@@ -4,7 +4,9 @@ import { describe, it, expect, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 
 vi.mock('@components/AuthProvider', () => ({
-    useAuth: () => ({ user: { role: 'Admin', _id: 'u1', firstname: 'Test', lastname: 'User' } })
+    useAuth: () => ({
+        user: { role: 'Admin', _id: 'u1', firstname: 'Test', lastname: 'User' }
+    })
 }));
 
 const mockTicket = {
@@ -24,7 +26,13 @@ vi.mock('react-router-dom', async (orig) => {
             complaintTicket: Promise.resolve(mockTicket)
         })),
         useNavigate: vi.fn(() => vi.fn()),
-        Await: ({ resolve, children }: { resolve: unknown; children: (data: unknown) => ReactNode }) => {
+        Await: ({
+            resolve,
+            children
+        }: {
+            resolve: unknown;
+            children: (data: unknown) => ReactNode;
+        }) => {
             return <>{children(mockTicket)}</>;
         }
     };

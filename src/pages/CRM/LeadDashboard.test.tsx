@@ -26,7 +26,10 @@ vi.mock('@taiger-common/core', () => ({
 }));
 
 vi.mock('@/api/query', () => ({
-    getCRMLeadsQuery: vi.fn(() => ({ queryKey: ['crm/leads'], queryFn: vi.fn() }))
+    getCRMLeadsQuery: vi.fn(() => ({
+        queryKey: ['crm/leads'],
+        queryFn: vi.fn()
+    }))
 }));
 
 vi.mock('material-react-table', () => ({

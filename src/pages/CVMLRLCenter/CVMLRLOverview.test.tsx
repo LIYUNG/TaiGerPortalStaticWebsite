@@ -25,7 +25,9 @@ vi.mock('react-i18next', () => ({
 }));
 
 vi.mock('@utils/contants', () => ({
-    ATTRIBUTES: Array.from({ length: 12 }, (_, i) => ({ definition: `def${i}` })),
+    ATTRIBUTES: Array.from({ length: 12 }, (_, i) => ({
+        definition: `def${i}`
+    })),
     COLORS: {},
     THREADS_TABLE_TABS: {},
     THREADS_TABLE_REVERSED_TABS: {}
@@ -36,8 +38,18 @@ vi.mock('../Utils/ModalHandler/ModalMain', () => ({
 }));
 
 vi.mock('@components/Tabs', () => ({
-    CustomTabPanel: ({ children, index, value }: { children: React.ReactNode; index: number; value: number }) =>
-        index === value ? <div data-testid={`tab-panel-${index}`}>{children}</div> : null,
+    CustomTabPanel: ({
+        children,
+        index,
+        value
+    }: {
+        children: React.ReactNode;
+        index: number;
+        value: number;
+    }) =>
+        index === value ? (
+            <div data-testid={`tab-panel-${index}`}>{children}</div>
+        ) : null,
     a11yProps: () => ({})
 }));
 
@@ -93,8 +105,12 @@ describe('CVMLRLOverview', () => {
 
     it('renders tabs', () => {
         expect(screen.getByRole('tab', { name: /TODO/i })).toBeInTheDocument();
-        expect(screen.getByRole('tab', { name: /My Favorites/i })).toBeInTheDocument();
-        expect(screen.getByRole('tab', { name: /Follow up/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('tab', { name: /My Favorites/i })
+        ).toBeInTheDocument();
+        expect(
+            screen.getByRole('tab', { name: /Follow up/i })
+        ).toBeInTheDocument();
     });
 
     it('renders the first tab panel by default', () => {

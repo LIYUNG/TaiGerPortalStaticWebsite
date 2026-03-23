@@ -29,14 +29,26 @@ vi.mock('@store/constant', () => ({
     default: {
         TEAM_AGENT_LINK: (id: string) => `/agents/${id}`,
         TEAM_EDITOR_LINK: (id: string) => `/editors/${id}`,
-        STUDENT_DATABASE_STUDENTID_LINK: (id: string, hash: string) => `/students/${id}#${hash}`,
+        STUDENT_DATABASE_STUDENTID_LINK: (id: string, hash: string) =>
+            `/students/${id}#${hash}`,
         PROFILE_HASH: 'profile'
     }
 }));
 
 vi.mock('@utils/contants', () => ({
-    COLORS: ['default', 'primary', 'secondary', 'error', 'warning', 'info', 'success'],
-    stringAvatar: vi.fn((name: string) => ({ children: name.charAt(0), sx: { bgcolor: '#aaa' } })),
+    COLORS: [
+        'default',
+        'primary',
+        'secondary',
+        'error',
+        'warning',
+        'info',
+        'success'
+    ],
+    stringAvatar: vi.fn((name: string) => ({
+        children: name.charAt(0),
+        sx: { bgcolor: '#aaa' }
+    })),
     ATTRIBUTES: Array.from({ length: 5 }, (_, i) => ({ definition: `def${i}` }))
 }));
 
@@ -45,9 +57,15 @@ vi.mock('@hooks/useDialog', () => ({
 }));
 
 vi.mock('@/api', () => ({
-    updateAgents: vi.fn(() => Promise.resolve({ data: { success: true, data: { agents: [] } } })),
-    updateEditors: vi.fn(() => Promise.resolve({ data: { success: true, data: { editors: [] } } })),
-    updateAttributes: vi.fn(() => Promise.resolve({ data: { success: true, data: { attributes: [] } } }))
+    updateAgents: vi.fn(() =>
+        Promise.resolve({ data: { success: true, data: { agents: [] } } })
+    ),
+    updateEditors: vi.fn(() =>
+        Promise.resolve({ data: { success: true, data: { editors: [] } } })
+    ),
+    updateAttributes: vi.fn(() =>
+        Promise.resolve({ data: { success: true, data: { attributes: [] } } })
+    )
 }));
 
 import StudentBriefOverview from './StudentBriefOverview';

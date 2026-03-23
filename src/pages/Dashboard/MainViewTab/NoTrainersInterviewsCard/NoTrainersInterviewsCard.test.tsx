@@ -20,7 +20,8 @@ vi.mock('../StudDocsOverview/EditInterviewTrainersSubpage', () => ({
 
 vi.mock('@store/constant', () => ({
     default: {
-        STUDENT_DATABASE_STUDENTID_LINK: (id: string, hash: string) => `/students/${id}#${hash}`,
+        STUDENT_DATABASE_STUDENTID_LINK: (id: string, hash: string) =>
+            `/students/${id}#${hash}`,
         INTERVIEW_SINGLE_LINK: (id: string) => `/interviews/${id}`,
         PROFILE_HASH: 'profile'
     }
@@ -37,7 +38,13 @@ const interviewWithoutTrainers = {
     _id: 'iv1',
     trainer_id: [],
     student_id: { _id: 's1', firstname: 'Jane', lastname: 'Doe' },
-    program_id: { _id: 'p1', school: 'MIT', program_name: 'CS', degree: 'MS', semester: 'WS2025' },
+    program_id: {
+        _id: 'p1',
+        school: 'MIT',
+        program_name: 'CS',
+        degree: 'MS',
+        semester: 'WS2025'
+    },
     interview_date: '2025-01-15T10:00:00Z'
 } as any;
 
@@ -45,7 +52,13 @@ const interviewWithTrainers = {
     _id: 'iv2',
     trainer_id: [{ _id: 't1', firstname: 'Trainer', lastname: 'One' }],
     student_id: { _id: 's2', firstname: 'John', lastname: 'Smith' },
-    program_id: { _id: 'p2', school: 'Stanford', program_name: 'EE', degree: 'PhD', semester: 'SS2025' },
+    program_id: {
+        _id: 'p2',
+        school: 'Stanford',
+        program_name: 'EE',
+        degree: 'PhD',
+        semester: 'SS2025'
+    },
     interview_date: '2025-02-20T10:00:00Z'
 } as any;
 

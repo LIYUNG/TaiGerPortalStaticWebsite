@@ -8,7 +8,10 @@ vi.mock('@tanstack/react-query', async (orig) => ({
 }));
 
 vi.mock('@/api/query', () => ({
-    getAdmissionsQuery: vi.fn(() => ({ queryKey: ['admissions'], queryFn: vi.fn() }))
+    getAdmissionsQuery: vi.fn(() => ({
+        queryKey: ['admissions'],
+        queryFn: vi.fn()
+    }))
 }));
 
 vi.mock('@/api', () => ({
@@ -17,7 +20,8 @@ vi.mock('@/api', () => ({
 
 vi.mock('@store/constant', () => ({
     default: {
-        STUDENT_DATABASE_STUDENTID_LINK: (id: string, hash: string) => `/student/${id}#${hash}`,
+        STUDENT_DATABASE_STUDENTID_LINK: (id: string, hash: string) =>
+            `/student/${id}#${hash}`,
         SINGLE_PROGRAM_LINK: (id: string) => `/program/${id}`,
         PROFILE_HASH: 'profile'
     }
@@ -37,7 +41,9 @@ describe('AdmissionTable', () => {
     it('renders without crashing', () => {
         render(
             <MemoryRouter>
-                <AdmissionTable query={{ decided: 'O', closed: 'O', admission: 'O' }} />
+                <AdmissionTable
+                    query={{ decided: 'O', closed: 'O', admission: 'O' }}
+                />
             </MemoryRouter>
         );
         expect(screen.getByTestId('mui-data-grid')).toBeInTheDocument();

@@ -18,7 +18,9 @@ describe('AssignInterviewTrainerRow', () => {
             <MemoryRouter>
                 <Table>
                     <TableBody>
-                        <AssignInterviewTrainerRow tasksOverview={mockTasksOverview} />
+                        <AssignInterviewTrainerRow
+                            tasksOverview={mockTasksOverview}
+                        />
                     </TableBody>
                 </Table>
             </MemoryRouter>
@@ -32,11 +34,15 @@ describe('AssignInterviewTrainerRow', () => {
             <MemoryRouter>
                 <Table>
                     <TableBody>
-                        <AssignInterviewTrainerRow tasksOverview={mockTasksOverview} />
+                        <AssignInterviewTrainerRow
+                            tasksOverview={mockTasksOverview}
+                        />
                     </TableBody>
                 </Table>
             </MemoryRouter>
         );
-        expect(screen.getByText('Please assign interview trainers')).toBeTruthy();
+        expect(
+            screen.getByText('Please assign interview trainers')
+        ).toBeTruthy();
     });
 });

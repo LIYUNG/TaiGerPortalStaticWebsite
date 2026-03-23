@@ -26,13 +26,18 @@ vi.mock('../Utils/util_functions', () => ({
 
 vi.mock('../Utils/document-status', () => ({
     checkGeneralDocs: vi.fn(() => false),
-    getGeneralDocumentStatus: vi.fn(() => ({ missing: [], extra: [], rlApplications: [] })),
+    getGeneralDocumentStatus: vi.fn(() => ({
+        missing: [],
+        extra: [],
+        rlApplications: []
+    })),
     getProgramDocumentStatus: vi.fn(() => ({ missing: [], extra: [] }))
 }));
 
 vi.mock('@store/constant', () => ({
     default: {
-        STUDENT_APPLICATIONS_ID_LINK: (id: string) => `/students/${id}/applications`,
+        STUDENT_APPLICATIONS_ID_LINK: (id: string) =>
+            `/students/${id}/applications`,
         DOCUMENT_MODIFICATION_LINK: (id: string) => `/docs/${id}`
     }
 }));
@@ -42,7 +47,9 @@ vi.mock('./ManualFilesList', () => ({
 }));
 
 vi.mock('./ToggleableUploadFileForm', () => ({
-    default: () => <div data-testid="toggleable-upload">ToggleableUploadFileForm</div>
+    default: () => (
+        <div data-testid="toggleable-upload">ToggleableUploadFileForm</div>
+    )
 }));
 
 const mockStudent = {

@@ -37,12 +37,14 @@ describe('ToggleableUploadFileForm', () => {
             <ToggleableUploadFileForm
                 {...defaultProps}
                 filetype="ProgramSpecific"
-                application={{
-                    _id: 'app1',
-                    decided: 'O',
-                    closed: '-',
-                    programId: { _id: 'prog1' }
-                } as any}
+                application={
+                    {
+                        _id: 'app1',
+                        decided: 'O',
+                        closed: '-',
+                        programId: { _id: 'prog1' }
+                    } as any
+                }
             />
         );
         expect(screen.getByText('Add Task')).toBeInTheDocument();

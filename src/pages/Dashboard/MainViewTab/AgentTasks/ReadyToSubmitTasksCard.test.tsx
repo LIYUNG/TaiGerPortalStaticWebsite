@@ -39,9 +39,7 @@ describe('ReadyToSubmitTasksCard', () => {
                 <ReadyToSubmitTasksCard applications={[]} students={[]} />
             </MemoryRouter>
         );
-        expect(
-            screen.getByText(/Ready To Submit Tasks/i)
-        ).toBeInTheDocument();
+        expect(screen.getByText(/Ready To Submit Tasks/i)).toBeInTheDocument();
     });
 
     it('renders table headers', () => {
@@ -71,11 +69,12 @@ describe('ReadyToSubmitTasksCard', () => {
         ] as never[];
         render(
             <MemoryRouter>
-                <ReadyToSubmitTasksCard applications={applications} students={[]} />
+                <ReadyToSubmitTasksCard
+                    applications={applications}
+                    students={[]}
+                />
             </MemoryRouter>
         );
-        expect(
-            screen.getByText(/Ready To Submit Tasks/i)
-        ).toBeInTheDocument();
+        expect(screen.getByText(/Ready To Submit Tasks/i)).toBeInTheDocument();
     });
 });

@@ -16,7 +16,7 @@ export interface MessageContainerProps {
     isDeleting: boolean;
     isTaiGerView: boolean;
     lastupdate: string;
-    onDeleteSingleMessage: () => void;
+    onDeleteSingleMessage: (messageId: string) => void;
     onTrashClick: () => void;
     idx: number;
 }

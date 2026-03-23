@@ -11,15 +11,22 @@ vi.mock('@/api', () => ({
 
 vi.mock('@tanstack/react-form', () => ({
     useForm: vi.fn(() => ({
-        Field: ({ children }: { children: (field: unknown) => React.ReactNode }) =>
+        Field: ({
+            children
+        }: {
+            children: (field: unknown) => React.ReactNode;
+        }) =>
             children({
                 name: 'field',
                 state: { value: '', meta: { errors: [] } },
                 handleChange: vi.fn(),
                 handleBlur: vi.fn()
             }),
-        Subscribe: ({ children }: { children: (...args: unknown[]) => React.ReactNode }) =>
-            children('', '', ''),
+        Subscribe: ({
+            children
+        }: {
+            children: (...args: unknown[]) => React.ReactNode;
+        }) => children('', '', ''),
         handleSubmit: vi.fn(),
         reset: vi.fn()
     }))
@@ -48,7 +55,9 @@ describe('CreateUserFromLeadModal', () => {
     });
 
     it('renders dialog title', () => {
-        expect(screen.getByText('actions.createUserAccountFromLead')).toBeTruthy();
+        expect(
+            screen.getByText('actions.createUserAccountFromLead')
+        ).toBeTruthy();
     });
 
     it('renders cancel button', () => {

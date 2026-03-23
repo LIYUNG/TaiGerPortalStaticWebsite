@@ -37,9 +37,7 @@ describe('NoProgramStudentTable', () => {
                 />
             </MemoryRouter>
         );
-        expect(
-            screen.getByText('No Program Selected Yet')
-        ).toBeInTheDocument();
+        expect(screen.getByText('No Program Selected Yet')).toBeInTheDocument();
     });
 
     it('renders table headers', () => {

@@ -4,12 +4,10 @@ import SingleProgram from './SingleProgram';
 import { useAuth } from '@components/AuthProvider';
 import { mockSingleProgramNoStudentsData } from '../../test/testingSingleProgramPageData';
 
-const mockLoaderData = {
-    data: Promise.resolve({
-        data: mockSingleProgramNoStudentsData.data,
-        students: [],
-        vc: []
-    })
+const mockProgramData = {
+    data: mockSingleProgramNoStudentsData.data,
+    students: [],
+    vc: []
 };
 
 vi.mock('react-router-dom', async (importOriginal) => {
@@ -17,7 +15,7 @@ vi.mock('react-router-dom', async (importOriginal) => {
         (await importOriginal()) as typeof import('react-router-dom');
     return {
         ...actual,
-        useLoaderData: () => mockLoaderData,
+        useParams: () => ({ programId: 'program-id-1' }),
         useNavigate: () => vi.fn(),
         useRevalidator: () => ({ revalidate: vi.fn() })
     };
@@ -34,6 +32,13 @@ vi.mock('@tanstack/react-query', async (importOriginal) => {
         })
     };
 });
+
+vi.mock('@hooks/useProgram', () => ({
+    useProgram: () => ({
+        data: mockProgramData,
+        isLoading: false
+    })
+}));
 
 vi.mock('@components/AuthProvider');
 vi.mock('@contexts/use-snack-bar', () => ({

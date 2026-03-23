@@ -28,7 +28,11 @@ vi.mock('@taiger-common/core', () => ({
 }));
 
 vi.mock('@taiger-common/model', () => ({
-    DocumentStatusType: { Missing: 'Missing', NotNeeded: 'NotNeeded', Accepted: 'Accepted' }
+    DocumentStatusType: {
+        Missing: 'Missing',
+        NotNeeded: 'NotNeeded',
+        Accepted: 'Accepted'
+    }
 }));
 
 vi.mock('@pages/Utils/util_functions', () => ({
@@ -55,7 +59,9 @@ vi.mock('@pages/Utils/util_functions', () => ({
     numApplicationsSubmitted: vi.fn(() => 0),
     num_uni_assist_vpd_needed: vi.fn(() => 0),
     num_uni_assist_vpd_uploaded: vi.fn(() => 0),
-    prepTaskStudent: vi.fn((s: any) => ({ firstname_lastname: `${s.firstname} ${s.lastname}` })),
+    prepTaskStudent: vi.fn((s: any) => ({
+        firstname_lastname: `${s.firstname} ${s.lastname}`
+    })),
     to_register_application_portals: vi.fn(() => false),
     has_admissions: vi.fn(() => false)
 }));

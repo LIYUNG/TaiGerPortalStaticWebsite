@@ -10,7 +10,6 @@ import {
     getProgramRequirementsLoader,
     getProgramsAndCourseKeywordSetsLoader,
     getProgramRequirementLoader,
-    getProgramLoader,
     getProgramRequirementsV2Loader,
     getAllCoursesLoader,
     getCourseLoader,
@@ -350,7 +349,10 @@ const routes = [
     {
         path: '/courses',
         children: [
-            { path: 'analysis/courses/new', element: <CourseForm mode="create" /> },
+            {
+                path: 'analysis/courses/new',
+                element: <CourseForm mode="create" />
+            },
             {
                 path: 'analysis/courses/edit/:courseId',
                 errorElement: <DefaultErrorPage />,
@@ -463,7 +465,6 @@ const routes = [
             {
                 path: ':programId',
                 errorElement: <DefaultErrorPage />,
-                loader: getProgramLoader,
                 Component: SingleProgram
             },
             {

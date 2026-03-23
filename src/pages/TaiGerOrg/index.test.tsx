@@ -35,9 +35,27 @@ vi.mock('react-router-dom', async () => {
 vi.mock('@hooks/useTeamMembers', () => ({
     useTeamMembers: () => ({
         teams: [
-            { _id: { toString: () => 'u0' }, firstname: 'Admin', lastname: 'User', role: 'Admin', permissions: [{}] },
-            { _id: { toString: () => 'u1' }, firstname: 'Alice', lastname: 'Smith', role: 'Agent', permissions: [{}] },
-            { _id: { toString: () => 'u2' }, firstname: 'Bob', lastname: 'Jones', role: 'Editor', permissions: [{}] }
+            {
+                _id: { toString: () => 'u0' },
+                firstname: 'Admin',
+                lastname: 'User',
+                role: 'Admin',
+                permissions: [{}]
+            },
+            {
+                _id: { toString: () => 'u1' },
+                firstname: 'Alice',
+                lastname: 'Smith',
+                role: 'Agent',
+                permissions: [{}]
+            },
+            {
+                _id: { toString: () => 'u2' },
+                firstname: 'Bob',
+                lastname: 'Jones',
+                role: 'Editor',
+                permissions: [{}]
+            }
         ],
         isLoading: false,
         isError: false,
@@ -58,7 +76,9 @@ vi.mock('@components/Loading/Loading', () => ({
 }));
 
 vi.mock('../Utils/ErrorPage', () => ({
-    default: ({ res_status }: { res_status: number }) => <div data-testid="error-page">{res_status}</div>
+    default: ({ res_status }: { res_status: number }) => (
+        <div data-testid="error-page">{res_status}</div>
+    )
 }));
 
 vi.mock('../Utils/TabTitle', () => ({
@@ -113,7 +133,9 @@ describe('TaiGerOrg', () => {
     });
 
     it('renders breadcrumbs', () => {
-        expect(document.querySelector('[aria-label="breadcrumb"]')).toBeTruthy();
+        expect(
+            document.querySelector('[aria-label="breadcrumb"]')
+        ).toBeTruthy();
     });
 
     it('renders admin section when admin user', () => {

@@ -16,8 +16,18 @@ vi.mock('../Utils/ModalHandler/ModalMain', () => ({
 }));
 
 vi.mock('@components/Tabs', () => ({
-    CustomTabPanel: ({ children, index, value }: { children: React.ReactNode; index: number; value: number }) =>
-        index === value ? <div data-testid={`tab-panel-${index}`}>{children}</div> : null,
+    CustomTabPanel: ({
+        children,
+        index,
+        value
+    }: {
+        children: React.ReactNode;
+        index: number;
+        value: number;
+    }) =>
+        index === value ? (
+            <div data-testid={`tab-panel-${index}`}>{children}</div>
+        ) : null,
     a11yProps: () => ({})
 }));
 
@@ -64,9 +74,15 @@ describe('CVMLRLDashboard', () => {
     });
 
     it('renders the tabs', () => {
-        expect(screen.getByRole('tab', { name: /In Progress/i })).toBeInTheDocument();
-        expect(screen.getByRole('tab', { name: /No Input/i })).toBeInTheDocument();
-        expect(screen.getByRole('tab', { name: /Closed/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('tab', { name: /In Progress/i })
+        ).toBeInTheDocument();
+        expect(
+            screen.getByRole('tab', { name: /No Input/i })
+        ).toBeInTheDocument();
+        expect(
+            screen.getByRole('tab', { name: /Closed/i })
+        ).toBeInTheDocument();
     });
 
     it('renders the In Progress tab content by default', () => {

@@ -18,7 +18,7 @@ export interface FinalEnrolmentItem {
     city: string;
 }
 
-export interface FinalDecisionRow {
+export interface FinalDecisionRow extends Record<string, unknown> {
     id: string;
     studentId: string;
     name: string;
@@ -261,7 +261,12 @@ const FinalDecisionOverview = ({ students }: FinalDecisionOverviewProps) => {
 
     return (
         <Card>
-            <MuiDataGrid columns={columns} rows={rows} />
+            <MuiDataGrid
+                columns={
+                    columns as MuiDataGridColumn<Record<string, unknown>>[]
+                }
+                rows={rows as Record<string, unknown>[]}
+            />
         </Card>
     );
 };

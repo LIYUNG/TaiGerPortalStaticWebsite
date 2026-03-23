@@ -477,11 +477,7 @@ const DocModificationThreadPage = ({
         );
     };
 
-    const onDeleteSingleMessage = (
-        e: MouseEvent<HTMLElement>,
-        message_id: string
-    ) => {
-        e.preventDefault();
+    const onDeleteSingleMessage = (message_id: string) => {
         setDocModificationThreadPageState((prevState) => ({
             ...prevState,
             isLoaded: false

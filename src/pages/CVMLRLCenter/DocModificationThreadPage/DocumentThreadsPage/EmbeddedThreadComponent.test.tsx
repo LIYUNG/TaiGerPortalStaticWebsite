@@ -89,7 +89,10 @@ vi.mock('@utils/contants', () => ({
 }));
 
 vi.mock('@/api/query', () => ({
-    getMessagThreadQuery: vi.fn((id: string) => ({ queryKey: ['thread', id], queryFn: vi.fn() }))
+    getMessagThreadQuery: vi.fn((id: string) => ({
+        queryKey: ['thread', id],
+        queryFn: vi.fn()
+    }))
 }));
 
 describe('EmbeddedThreadComponent', () => {
@@ -102,7 +105,9 @@ describe('EmbeddedThreadComponent', () => {
     });
 
     it('renders the doc modification thread page', () => {
-        expect(screen.getByTestId('doc-modification-thread-page')).toBeInTheDocument();
+        expect(
+            screen.getByTestId('doc-modification-thread-page')
+        ).toBeInTheDocument();
     });
 
     it('renders the school name', () => {

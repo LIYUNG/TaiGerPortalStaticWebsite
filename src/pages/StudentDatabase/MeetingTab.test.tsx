@@ -5,7 +5,12 @@ import { MemoryRouter } from 'react-router-dom';
 
 vi.mock('@tanstack/react-query', async (orig) => ({
     ...(await orig()),
-    useQuery: vi.fn(() => ({ data: undefined, isLoading: false, error: null, refetch: vi.fn() })),
+    useQuery: vi.fn(() => ({
+        data: undefined,
+        isLoading: false,
+        error: null,
+        refetch: vi.fn()
+    })),
     useMutation: vi.fn(() => ({
         mutate: vi.fn(),
         isPending: false,

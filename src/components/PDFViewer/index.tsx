@@ -68,7 +68,7 @@ const PDFViewer = (apiFilePath: string, path: string): ReactElement => {
                         style={{ height: '60vh', overflow: 'auto' }}
                     >
                         <Document
-                            file={pdfData}
+                            file={pdfData as File | undefined}
                             onLoadError={console.error}
                             onLoadSuccess={onDocumentLoadSuccess}
                         >

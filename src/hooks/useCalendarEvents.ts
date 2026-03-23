@@ -2,8 +2,14 @@ import { ChangeEvent, FormEvent, useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import queryString from 'query-string';
 
-import { confirmEvent, deleteEvent, postEvent, updateEvent } from '@/api';
-import { getEventsQuery, getBookedEventsQuery } from '@/api/query';
+import {
+    confirmEvent,
+    deleteEvent,
+    getBookedEvents,
+    getEvents,
+    postEvent,
+    updateEvent
+} from '@/api';
 import { useStudentsV3 } from '@hooks/useStudentsV3';
 import {
     is_TaiGer_Agent,
@@ -28,30 +34,39 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
     const { user } = useAuth();
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
 
-    const eventsQuery = useQuery(
-        getEventsQuery(
-            queryString.stringify({
-                startTime: props.startTime,
-                endTime: props.endTime,
-                requester_id: props.requester_id,
-                receiver_id: props.receiver_id
-            })
-        )
-    );
+    const eventsQueryString = queryString.stringify({
+        startTime: props.startTime,
+        endTime: props.endTime,
+        requester_id: props.requester_id,
+        receiver_id: props.receiver_id
+    });
+
+    const eventsQuery = useQuery({
+        queryKey: ['events', eventsQueryString],
+        queryFn: () => getEvents(eventsQueryString),
+        staleTime: 1000 * 60 * 2 // 2 minutes
+    });
 
     const bookedEventsQuery = useQuery({
-        ...getBookedEventsQuery({
-            startTime: props.startTime,
-            endTime: props.endTime
-        }),
+        queryKey: [
+            'events',
+            'booked',
+            { startTime: props.startTime, endTime: props.endTime }
+        ],
+        queryFn: () =>
+            getBookedEvents({
+                startTime: props.startTime,
+                endTime: props.endTime
+            }),
+        staleTime: 1000 * 60 * 2, // 2 minutes
         enabled: !props.isAll && user != null && is_TaiGer_Student(user)
     });
     const studentsParams =
         user != null && is_TaiGer_Agent(user)
             ? { agents: user._id, archiv: false }
             : user != null && is_TaiGer_Editor(user)
-                ? { editors: user._id, archiv: false }
-                : { agents: undefined, archiv: false };
+              ? { editors: user._id, archiv: false }
+              : { agents: undefined, archiv: false };
     const studentsQuery = useStudentsV3(studentsParams, {
         enabled:
             !props.isAll &&
@@ -204,8 +219,8 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
                 calendarEventsState.newEventEnd instanceof Date
                     ? calendarEventsState.newEventEnd
                     : calendarEventsState.newEventEnd
-                        ? new Date(calendarEventsState.newEventEnd as string)
-                        : (() => {
+                      ? new Date(calendarEventsState.newEventEnd as string)
+                      : (() => {
                             const end = new Date(startDate);
                             end.setMinutes(end.getMinutes() + 30);
                             return end;
@@ -405,7 +420,7 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
 
     const handleConfirmAppointmentModalOpen = (
         e: MouseEvent,
-        event: { _id: { toString: () => string };[key: string]: unknown }
+        event: { _id: { toString: () => string }; [key: string]: unknown }
     ): void => {
         e.preventDefault();
         e.stopPropagation();
@@ -419,7 +434,7 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
 
     const handleEditAppointmentModalOpen = (
         e: MouseEvent,
-        event: { _id: { toString: () => string };[key: string]: unknown }
+        event: { _id: { toString: () => string }; [key: string]: unknown }
     ): void => {
         e.preventDefault();
         e.stopPropagation();

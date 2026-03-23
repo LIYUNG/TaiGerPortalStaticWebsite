@@ -15,11 +15,16 @@ vi.mock('@utils/contants', () => ({
     convertDateUXFriendly: (d: string) => d
 }));
 
-vi.mock('@components/ProgramRequirementsTable/ProgramRequirementsTable', () => ({
-    ProgramRequirementsTable: () => (
-        <div data-testid="program-requirements-table">ProgramRequirementsTable</div>
-    )
-}));
+vi.mock(
+    '@components/ProgramRequirementsTable/ProgramRequirementsTable',
+    () => ({
+        ProgramRequirementsTable: () => (
+            <div data-testid="program-requirements-table">
+                ProgramRequirementsTable
+            </div>
+        )
+    })
+);
 
 import { ProgramRequirementsTableWrapper } from './ProgramRequirementsTableWrapper';
 
@@ -27,7 +32,15 @@ const mockData = {
     data: [
         {
             _id: 'req1',
-            programId: [{ school: 'TU Munich', program_name: 'CS', degree: 'M.Sc.', lang: 'English', country: 'Germany' }],
+            programId: [
+                {
+                    school: 'TU Munich',
+                    program_name: 'CS',
+                    degree: 'M.Sc.',
+                    lang: 'English',
+                    country: 'Germany'
+                }
+            ],
             attributes: ['EE'],
             updatedAt: '2025-01-01'
         }
@@ -36,7 +49,10 @@ const mockData = {
 
 describe('ProgramRequirementsTableWrapper', () => {
     beforeEach(() => {
-        mockUseQuery.mockReturnValue({ data: { data: mockData.data }, isLoading: false });
+        mockUseQuery.mockReturnValue({
+            data: { data: mockData.data },
+            isLoading: false
+        });
         render(
             <MemoryRouter>
                 <ProgramRequirementsTableWrapper onAnalyseV2={vi.fn()} />
@@ -45,7 +61,9 @@ describe('ProgramRequirementsTableWrapper', () => {
     });
 
     it('renders ProgramRequirementsTable', () => {
-        expect(screen.getByTestId('program-requirements-table')).toBeInTheDocument();
+        expect(
+            screen.getByTestId('program-requirements-table')
+        ).toBeInTheDocument();
     });
 });
 

@@ -57,6 +57,8 @@ describe('DocumentsListItems', () => {
             </MemoryRouter>
         );
         // idx is rendered as a bare text node; use getAllByText which accepts partial match
-        expect(screen.getByText((content) => content.includes('3'))).toBeInTheDocument();
+        expect(
+            screen.getByText((content) => content.includes('3'))
+        ).toBeInTheDocument();
     });
 });

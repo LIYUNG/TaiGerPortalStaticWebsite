@@ -1,6 +1,7 @@
 import { Button } from '@mui/material';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { useTranslation } from 'react-i18next';
+import type { IUser } from '@taiger-common/model';
 import { is_TaiGer_role } from '@taiger-common/core';
 
 import { GenericTopToolbar } from '@components/table/GenericTopToolbar';
@@ -11,7 +12,7 @@ interface TopToolbarProps {
     };
     toolbarStyle?: object;
     onAssignClick: () => void;
-    user: unknown;
+    user: IUser | null;
 }
 
 export const TopToolbar = ({
@@ -25,7 +26,7 @@ export const TopToolbar = ({
     return (
         <GenericTopToolbar
             actions={
-                is_TaiGer_role(user) ? (
+                user != null && is_TaiGer_role(user) ? (
                     <Button
                         color="success"
                         disabled={

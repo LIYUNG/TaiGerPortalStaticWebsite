@@ -81,7 +81,11 @@ describe('ProgramsTable', () => {
     it('renders with empty data array', () => {
         render(
             <MemoryRouter>
-                <ProgramsTable isLoading={false} data={[]} student={{ _id: 's1' }} />
+                <ProgramsTable
+                    isLoading={false}
+                    data={[]}
+                    student={{ _id: 's1' }}
+                />
             </MemoryRouter>
         );
         expect(screen.getByTestId('material-react-table')).toBeInTheDocument();
@@ -90,7 +94,11 @@ describe('ProgramsTable', () => {
     it('renders in loading state', () => {
         render(
             <MemoryRouter>
-                <ProgramsTable isLoading={true} data={undefined} student={null} />
+                <ProgramsTable
+                    isLoading={true}
+                    data={undefined}
+                    student={null}
+                />
             </MemoryRouter>
         );
         expect(screen.getByTestId('material-react-table')).toBeInTheDocument();

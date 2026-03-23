@@ -1,16 +1,12 @@
-import { Suspense, useState } from 'react';
-import { Box } from '@mui/material';
-import {
-    Await,
-    useLoaderData,
-    useNavigate,
-    useRevalidator
-} from 'react-router-dom';
+import { useState } from 'react';
+import { Box, Typography } from '@mui/material';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 
 import { deleteProgramV2, processProgramList, refreshProgram } from '@/api';
-import type { GetProgramResponse } from '@taiger-common/model';
+import type { IProgram } from '@taiger-common/model';
 import SingleProgramView from './SingleProgramView';
+import type { SingleProgramViewProgram } from './SingleProgramView';
 import ProgramDeleteWarning from './ProgramDeleteWarning';
 import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';
@@ -19,13 +15,14 @@ import { AssignProgramsToStudentDialog } from './AssignProgramsToStudentDialog';
 import { queryClient } from '@/api';
 import DEMO from '@store/constant';
 import { useSnackBar } from '@contexts/use-snack-bar';
+import { useProgram } from '@hooks/useProgram';
 
 const SingleProgram = () => {
-    const { data } = useLoaderData() as { data: Promise<GetProgramResponse> };
     const { user } = useAuth();
+    const { programId = '' } = useParams();
     const navigate = useNavigate();
-    const revalidator = useRevalidator();
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
+    const { data: loadedData, error, isError, isLoading } = useProgram(programId);
 
     const { mutate, isPending } = useMutation({
         mutationFn: deleteProgramV2,
@@ -50,8 +47,6 @@ const SingleProgram = () => {
             onSuccess: () => {
                 queryClient.invalidateQueries({ queryKey: ['programs'] });
                 queryClient.invalidateQueries({ queryKey: ['program'] });
-                // Revalidate the route loader to refresh the program data
-                revalidator.revalidate();
                 setSeverity('success');
                 setMessage('Program refreshed successfully!');
                 setOpenSnackbar(true);
@@ -101,73 +96,65 @@ const SingleProgram = () => {
         );
     };
 
+    if (isLoading) {
+        return <Loading />;
+    }
+    if (isError || !loadedData) {
+        return (
+            <Box data-testid="single_program_error">
+                <Typography color="error">
+                    {error?.message || 'Failed to load program.'}
+                </Typography>
+            </Box>
+        );
+    }
+
     return (
         <Box data-testid="single_program_page">
-            <Suspense fallback={<Loading />}>
-                <Await resolve={data}>
-                    {(loadedData) => {
-                        return (
-                            <>
-                                <SingleProgramView
-                                    isRefreshing={isRefreshing}
-                                    onRefreshProgram={() =>
-                                        refreshProgramMutation({
-                                            programId:
-                                                loadedData.data._id?.toString()
-                                        })
-                                    }
-                                    program={loadedData.data}
-                                    programListAssistant={programListAssistant}
-                                    setDeleteProgramWarningOpen={
-                                        setDeleteProgramWarningOpen
-                                    }
-                                    setDiffModalShow={setDiffModal(true)}
-                                    setModalShowAssignWindow={
-                                        setModalShowAssignWindow
-                                    }
-                                    students={loadedData.students}
-                                    user={user}
-                                    versions={loadedData.vc}
-                                />
-                                <ProgramDeleteWarning
-                                    RemoveProgramHandler={
-                                        RemoveProgramHandlerV2
-                                    }
-                                    deleteProgramWarning={
-                                        deleteProgramWarningOpen
-                                    }
-                                    isPending={isPending}
-                                    program_id={loadedData.data._id?.toString()}
-                                    program_name={loadedData.data.program_name}
-                                    setDeleteProgramWarningOpen={
-                                        setDeleteProgramWarningOpen
-                                    }
-                                    uni_name={loadedData.data.school}
-                                />
-                                <AssignProgramsToStudentDialog
-                                    handleOnSuccess={() =>
-                                        setModalShowAssignWindow(false)
-                                    }
-                                    onClose={() =>
-                                        setModalShowAssignWindow(false)
-                                    }
-                                    open={modalShowAssignWindowOpen}
-                                    programs={[loadedData.data]}
-                                />
-                                {singleProgramState.modalShowDiffWindow ? (
-                                    <ProgramDiffModal
-                                        open={
-                                            singleProgramState.modalShowDiffWindow
-                                        }
-                                        originalProgram={loadedData.data}
-                                        setModalHide={setDiffModal(false)}
-                                    />
-                                ) : null}
-                            </>
-                        );
-                    }}
-                </Await>
-            </Suspense>
+            <SingleProgramView
+                isRefreshing={isRefreshing}
+                onRefreshProgram={() =>
+                    refreshProgramMutation({
+                        programId: loadedData.data._id?.toString()
+                    })
+                }
+                program={loadedData.data as unknown as SingleProgramViewProgram}
+                programListAssistant={programListAssistant}
+                setDeleteProgramWarningOpen={setDeleteProgramWarningOpen}
+                setDiffModalShow={setDiffModal(true)}
+                setModalShowAssignWindow={setModalShowAssignWindow}
+                students={loadedData.students}
+                user={user}
+                versions={
+                    loadedData.vc as unknown as {
+                        [versionId: string]: {
+                            [k: string]: string | number | boolean;
+                        };
+                    }
+                }
+            />
+            <ProgramDeleteWarning
+                RemoveProgramHandler={RemoveProgramHandlerV2}
+                deleteProgramWarning={deleteProgramWarningOpen}
+                isPending={isPending}
+                program_id={loadedData.data._id?.toString()}
+                program_name={loadedData.data.program_name}
+                setDeleteProgramWarningOpen={setDeleteProgramWarningOpen}
+                uni_name={loadedData.data.school}
+            />
+            <AssignProgramsToStudentDialog
+                handleOnSuccess={() => setModalShowAssignWindow(false)}
+                onClose={() => setModalShowAssignWindow(false)}
+                open={modalShowAssignWindowOpen}
+                programs={[loadedData.data as IProgram]}
+            />
+            {singleProgramState.modalShowDiffWindow ? (
+                <ProgramDiffModal
+                    open={singleProgramState.modalShowDiffWindow}
+                    originalProgram={loadedData.data}
+                    setModalHide={setDiffModal(false)}
+                />
+            ) : null}
         </Box>
     );
 };

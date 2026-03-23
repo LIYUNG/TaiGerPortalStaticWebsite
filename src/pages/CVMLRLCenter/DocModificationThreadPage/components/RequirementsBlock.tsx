@@ -49,7 +49,7 @@ const RequirementsBlock = ({ thread, isGeneralRL }: RequirementsBlockProps) => {
                 <Box
                     sx={{
                         p: 1.5,
-                        bgcolor: theme.palette.info.lighter || 'info.50',
+                        bgcolor: theme.palette.info.light || 'info.50',
                         borderLeft: `3px solid ${theme.palette.warning.main}`
                     }}
                 >
@@ -63,7 +63,7 @@ const RequirementsBlock = ({ thread, isGeneralRL }: RequirementsBlockProps) => {
                 <Box
                     sx={{
                         p: 1.5,
-                        bgcolor: theme.palette.info.lighter || 'info.50',
+                        bgcolor: theme.palette.info.light || 'info.50',
                         borderRadius: 1
                     }}
                 >

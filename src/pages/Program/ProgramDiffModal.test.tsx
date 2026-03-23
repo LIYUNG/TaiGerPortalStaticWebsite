@@ -2,7 +2,9 @@ import { render, screen } from '@testing-library/react';
 import ProgramDiffModal from './ProgramDiffModal';
 
 vi.mock('@/api', () => ({
-    getProgramChangeRequests: vi.fn(() => Promise.resolve({ data: { data: [] } }))
+    getProgramChangeRequests: vi.fn(() =>
+        Promise.resolve({ data: { data: [] } })
+    )
 }));
 
 vi.mock('@utils/contants', () => ({
@@ -10,8 +12,13 @@ vi.mock('@utils/contants', () => ({
 }));
 
 vi.mock('@components/Modal', () => ({
-    default: ({ children, open }: { children: React.ReactNode; open: boolean }) =>
-        open ? <div data-testid="modal-new">{children}</div> : null
+    default: ({
+        children,
+        open
+    }: {
+        children: React.ReactNode;
+        open: boolean;
+    }) => (open ? <div data-testid="modal-new">{children}</div> : null)
 }));
 
 vi.mock('./ProgramCompare', () => ({

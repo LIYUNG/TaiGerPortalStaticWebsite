@@ -13,7 +13,12 @@ interface FriendsProps {
     handleCloseChat?: () => void;
 }
 
-const Friends = ({ students, user, embedded, handleCloseChat }: FriendsProps) => {
+const Friends = ({
+    students,
+    user,
+    embedded,
+    handleCloseChat
+}: FriendsProps) => {
     const { t } = useTranslation();
     const studentsArray = Array.isArray(students) ? students : [];
 
@@ -33,19 +38,21 @@ const Friends = ({ students, user, embedded, handleCloseChat }: FriendsProps) =>
         );
     }
 
-    const friendList = studentsArray.map((f: Record<string, unknown>) => {
+    const friendList = studentsArray.map((f: unknown) => {
+        const rec = f as Record<string, unknown>;
         const key =
-            (f._id as { toString?: () => string })?.toString?.() ?? String(f._id);
+            (rec._id as { toString?: () => string })?.toString?.() ??
+            String(rec._id);
         return embedded ? (
             <EmbeddedFriend
                 activeId={user._id?.toString() ?? ''}
-                data={f as Parameters<typeof EmbeddedFriend>[0]['data']}
+                data={rec as Parameters<typeof EmbeddedFriend>[0]['data']}
                 key={key}
             />
         ) : (
             <Friend
                 activeId={user._id?.toString() ?? ''}
-                data={f as Parameters<typeof Friend>[0]['data']}
+                data={rec as Parameters<typeof Friend>[0]['data']}
                 handleCloseChat={handleCloseChat}
                 key={key}
             />

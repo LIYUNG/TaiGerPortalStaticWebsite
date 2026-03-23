@@ -19,8 +19,14 @@ vi.mock('@tanstack/react-query', async (orig) => ({
 }));
 
 vi.mock('@/api/query', () => ({
-    getInterviewsByProgramIdQuery: vi.fn(() => ({ queryKey: ['programInterviews'], queryFn: vi.fn() })),
-    getInterviewsByStudentIdQuery: vi.fn(() => ({ queryKey: ['studentInterviews'], queryFn: vi.fn() }))
+    getInterviewsByProgramIdQuery: vi.fn(() => ({
+        queryKey: ['programInterviews'],
+        queryFn: vi.fn()
+    })),
+    getInterviewsByStudentIdQuery: vi.fn(() => ({
+        queryKey: ['studentInterviews'],
+        queryFn: vi.fn()
+    }))
 }));
 
 vi.mock('@components/Loading/Loading', () => ({
@@ -34,7 +40,8 @@ vi.mock('@utils/contants', () => ({
 
 vi.mock('@store/constant', () => ({
     default: {
-        INTERVIEW_SINGLE_SURVEY_LINK: (id: string) => `/interviews/${id}/survey`,
+        INTERVIEW_SINGLE_SURVEY_LINK: (id: string) =>
+            `/interviews/${id}/survey`,
         INTERVIEW_SINGLE_LINK: (id: string) => `/interviews/${id}`
     }
 }));
@@ -44,7 +51,13 @@ import { InterviewFeedback } from './InterviewFeedback';
 const mockInterview = {
     _id: 'iv1',
     student_id: { _id: 's1', firstname: 'Jane', lastname: 'Doe' },
-    program_id: { _id: 'p1', school: 'MIT', program_name: 'CS', degree: 'MS', semester: 'WS2025' },
+    program_id: {
+        _id: 'p1',
+        school: 'MIT',
+        program_name: 'CS',
+        degree: 'MS',
+        semester: 'WS2025'
+    },
     interview_date: '2025-01-01T10:00:00Z',
     surveyResponses: []
 };
@@ -56,7 +69,9 @@ describe('InterviewFeedback', () => {
                 <InterviewFeedback interview={mockInterview} />
             </MemoryRouter>
         );
-        expect(screen.getByText('Previous Interview Questionnaire')).toBeTruthy();
+        expect(
+            screen.getByText('Previous Interview Questionnaire')
+        ).toBeTruthy();
     });
 
     it('renders Student Interview Records section for TaiGer role', () => {

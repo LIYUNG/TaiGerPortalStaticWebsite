@@ -1,14 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 import queryString from 'query-string';
-import { Link } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link as LinkDom } from '@mui/material';
+import { Link } from '@mui/material';
 
 import DEMO from '@store/constant';
 import { BASE_URL } from '@/api';
 import { getAdmissionsQuery } from '@/api/query';
-import { MuiDataGrid } from '@components/MuiDataGrid';
+import { MuiDataGrid, type MuiDataGridColumn } from '@components/MuiDataGrid';
 import type { GridRenderCellParams } from '@mui/x-data-grid';
 
 interface AdmissionTableProps {
@@ -20,6 +20,7 @@ export default function AdmissionTable({ query }: AdmissionTableProps) {
     const { data, isLoading } = useQuery(
         getAdmissionsQuery(queryString.stringify(query))
     );
+    const rawData = (data as { data?: unknown[] } | undefined)?.data;
 
     const memoizedColumns = useMemo(
         () => [
@@ -36,7 +37,7 @@ export default function AdmissionTable({ query }: AdmissionTableProps) {
                     )}`;
                     return (
                         <Link
-                            component={LinkDom}
+                            component={RouterLink}
                             target="_blank"
                             to={linkUrl}
                             underline="hover"
@@ -59,7 +60,7 @@ export default function AdmissionTable({ query }: AdmissionTableProps) {
                     )}`;
                     return (
                         <Link
-                            component={LinkDom}
+                            component={RouterLink}
                             target="_blank"
                             to={linkUrl}
                             underline="hover"
@@ -82,7 +83,7 @@ export default function AdmissionTable({ query }: AdmissionTableProps) {
                     )}`;
                     return (
                         <Link
-                            component={LinkDom}
+                            component={RouterLink}
                             target="_blank"
                             to={linkUrl}
                             underline="hover"
@@ -110,7 +111,7 @@ export default function AdmissionTable({ query }: AdmissionTableProps) {
                     const linkUrl = `${DEMO.SINGLE_PROGRAM_LINK(params.row.programId)}`;
                     return (
                         <Link
-                            component={LinkDom}
+                            component={RouterLink}
                             target="_blank"
                             to={linkUrl}
                             underline="hover"
@@ -128,7 +129,7 @@ export default function AdmissionTable({ query }: AdmissionTableProps) {
                     const linkUrl = `${DEMO.SINGLE_PROGRAM_LINK(params.row.programId)}`;
                     return (
                         <Link
-                            component={LinkDom}
+                            component={RouterLink}
                             target="_blank"
                             to={linkUrl}
                             underline="hover"
@@ -164,7 +165,7 @@ export default function AdmissionTable({ query }: AdmissionTableProps) {
                     )}`;
                     return (
                         <Link
-                            component={LinkDom}
+                            component={RouterLink}
                             target="_blank"
                             to={linkUrl}
                             underline="hover"
@@ -191,69 +192,66 @@ export default function AdmissionTable({ query }: AdmissionTableProps) {
 
     return (
         <MuiDataGrid
-            columns={memoizedColumns}
-            isLoading={isLoading}
-            rows={
-                data?.data.map(
-                    (application: {
-                        _id: string;
-                        programId?: {
-                            _id?: string;
-                            school?: string;
-                            program_name?: string;
-                            semester?: string;
-                            degree?: string;
-                        };
-                        studentId?: {
-                            _id?: string;
-                            firstname?: string;
-                            lastname?: string;
-                            firstname_chinese?: string;
-                            lastname_chinese?: string;
-                            agents?: { firstname?: string }[];
-                            editors?: { firstname?: string }[];
-                        };
-                        finalEnrolment?: boolean;
-                        admission_letter?: { admission_file_path?: string };
-                        application_year?: string;
-                        decided?: string;
-                        admission?: string;
-                        [key: string]: unknown;
-                    }) => ({
-                        ...application,
-                        id: `${application._id}${application.programId}`,
-                        programId: application.programId?._id,
-                        firstname: application.studentId?.firstname,
-                        lastname: application.studentId?.lastname,
-                        firstname_chinese:
-                            application.studentId?.firstname_chinese,
-                        lastname_chinese:
-                            application.studentId?.lastname_chinese,
-                        student_id: application.studentId?._id,
-                        agents: application.studentId?.agents
-                            ?.map(
-                                (agent: { firstname?: string }) =>
-                                    agent.firstname
-                            )
-                            .join(' '),
-                        editors: application.studentId?.editors
-                            ?.map(
-                                (editor: { firstname?: string }) =>
-                                    editor.firstname
-                            )
-                            .join(' '),
-                        school: application.programId?.school,
-                        program_name: application.programId?.program_name,
-                        semester: application.programId?.semester,
-                        degree: application.programId?.degree,
-                        name: `${application.studentId?.firstname}, ${application.studentId?.lastname}`,
-                        finalEnrolment: application.finalEnrolment ? 'O' : '',
-                        admission_file_path:
-                            application.admission_letter?.admission_file_path,
-                        application_year: application.application_year
-                    })
-                ) || []
+            columns={
+                memoizedColumns as MuiDataGridColumn<Record<string, unknown>>[]
             }
+            isLoading={isLoading}
+            rows={(rawData ?? []).map((application: unknown) => {
+                const app = application as {
+                    _id: string;
+                    programId?: {
+                        _id?: string;
+                        school?: string;
+                        program_name?: string;
+                        semester?: string;
+                        degree?: string;
+                    };
+                    studentId?: {
+                        _id?: string;
+                        firstname?: string;
+                        lastname?: string;
+                        firstname_chinese?: string;
+                        lastname_chinese?: string;
+                        agents?: { firstname?: string }[];
+                        editors?: { firstname?: string }[];
+                    };
+                    finalEnrolment?: boolean;
+                    admission_letter?: { admission_file_path?: string };
+                    application_year?: string;
+                    decided?: string;
+                    admission?: string;
+                    [key: string]: unknown;
+                };
+                return {
+                    ...app,
+                    id: `${app._id}${app.programId}`,
+                    programId: app.programId?._id,
+                    firstname: app.studentId?.firstname,
+                    lastname: app.studentId?.lastname,
+                    firstname_chinese: app.studentId?.firstname_chinese,
+                    lastname_chinese: app.studentId?.lastname_chinese,
+                    student_id: app.studentId?._id,
+                    agents: app.studentId?.agents
+                        ?.map(
+                            (agent: { firstname?: string }) => agent.firstname
+                        )
+                        .join(' '),
+                    editors: app.studentId?.editors
+                        ?.map(
+                            (editor: { firstname?: string }) => editor.firstname
+                        )
+                        .join(' '),
+                    school: app.programId?.school,
+                    program_name: app.programId?.program_name,
+                    semester: app.programId?.semester,
+                    degree: app.programId?.degree,
+                    name: `${app.studentId?.firstname}, ${app.studentId?.lastname}`,
+                    finalEnrolment: app.finalEnrolment ? 'O' : '',
+                    admission_file_path:
+                        app.admission_letter?.admission_file_path,
+                    application_year: app.application_year
+                };
+            })}
         />
     );
 }

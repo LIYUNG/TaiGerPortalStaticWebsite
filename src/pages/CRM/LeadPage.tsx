@@ -54,7 +54,7 @@ const LeadPage = () => {
 
     const { lead, isLoading: leadLoading, data: leadData } = useLead(leadId);
 
-    TabTitle(`${t('common.lead', { ns: 'crm' })} - ${lead.fullName}`);
+    TabTitle(`${t('common.lead', { ns: 'crm' })} - ${lead?.fullName}`);
 
     const hasPortalUser = !!lead?.userId;
     const isMigratedLead = lead?.status === 'migrated' && hasPortalUser;
@@ -266,10 +266,6 @@ const LeadPage = () => {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     if (isLoading) return <Loading />;
 
-    // If the lead endpoint explicitly returned 404, redirect to lead list
-    if (!leadLoading && leadData?.status === 404)
-        return <Navigate replace to="/crm/leads" />;
-
     return (
         <Box>
             <Box sx={{ mb: 3 }}>
@@ -299,218 +295,260 @@ const LeadPage = () => {
                         {t('breadcrumbs.leads', { ns: 'crm' })}
                     </Link>
                     <Typography color="text.primary">
-                        {lead.fullName}
+                        {lead?.fullName}
                     </Typography>
                 </Breadcrumbs>
             </Box>
-            <LeadProfileHeader
-                lead={lead}
-                isMigratedLead={isMigratedLead}
-                hasPortalUser={hasPortalUser}
-                isEditing={leadEditStates.personal}
-                formData={formData}
-                salesOptions={salesOptions}
-                updateIsPending={updateLeadMutation.isPending}
-                hasUnsavedChanges={hasUnsavedChanges('personal')}
-                onEdit={() => handleEdit('personal')}
-                onSave={() => handleSave('personal')}
-                onCancel={() => handleCancel('personal')}
-                onFieldChange={handleFieldChange}
-                onCreateUser={handleCreateUser}
-                onCreateDeal={() => {
-                    setEditingDeal(null);
-                    setShowDealModal(true);
-                }}
-                onEditDeal={handleEditDeal}
-                updateStatusMutation={updateStatusMutation}
-                openStatusMenu={openStatusMenu}
-                t={t}
-            />
-            <MeetingsList meetings={lead?.meetings ?? []} t={t} />
-            <SimilarStudents
-                leadId={leadId}
-                similarUsers={lead?.leadSimilarUsers}
-            />
-            {/* Student data */}
-            {hasPortalUser && (
-                <Accordion
-                    defaultExpanded={hasPortalUser}
-                    disableGutters
-                    elevation={0}
-                    square
-                    sx={{
-                        backgroundColor: 'transparent',
-                        boxShadow: 'none',
-                        borderBottom: '1px solid',
-                        borderColor: 'divider',
-                        '&:before': { display: 'none' }
-                    }}
-                >
-                    <AccordionSummary
-                        expandIcon={<ExpandMoreIcon />}
-                        sx={{
-                            '& .MuiAccordionSummary-content': {
-                                alignItems: 'center',
-                                gap: 1
-                            }
+            {!lead && (
+                <Typography color="text.secondary" variant="body1">
+                    {t('common.leadNotFound', { ns: 'crm' })}
+                </Typography>
+            )}
+            {lead && (
+                <>
+                    <LeadProfileHeader
+                        lead={lead}
+                        isMigratedLead={isMigratedLead}
+                        hasPortalUser={hasPortalUser}
+                        isEditing={leadEditStates.personal}
+                        formData={formData}
+                        salesOptions={salesOptions}
+                        updateIsPending={updateLeadMutation.isPending}
+                        hasUnsavedChanges={hasUnsavedChanges('personal')}
+                        onEdit={() => handleEdit('personal')}
+                        onSave={() => handleSave('personal')}
+                        onCancel={() => handleCancel('personal')}
+                        onFieldChange={handleFieldChange}
+                        onCreateUser={handleCreateUser}
+                        onCreateDeal={() => {
+                            setEditingDeal(null);
+                            setShowDealModal(true);
                         }}
-                    >
-                        <Typography sx={{ flexGrow: 1 }} variant="h6">
-                            {`${t('common.studentDetails', { ns: 'crm' })}  (${t('readOnly', { ns: 'common' })})`}
-                        </Typography>
-
-                        <IconButton
-                            aria-label="Edit student survey"
-                            component="a"
-                            href={`/student-database/${lead.userId}#survey`}
-                            onClick={(e) => e.stopPropagation()}
-                            size="small"
+                        onEditDeal={handleEditDeal}
+                        updateStatusMutation={updateStatusMutation}
+                        openStatusMenu={openStatusMenu}
+                        t={t}
+                    />
+                    <MeetingsList meetings={lead?.meetings ?? []} t={t} />
+                    <SimilarStudents
+                        leadId={leadId}
+                        similarUsers={lead?.leadSimilarUsers}
+                    />
+                    {/* Student data */}
+                    {hasPortalUser && (
+                        <Accordion
+                            defaultExpanded={hasPortalUser}
+                            disableGutters
+                            elevation={0}
+                            square
+                            sx={{
+                                backgroundColor: 'transparent',
+                                boxShadow: 'none',
+                                borderBottom: '1px solid',
+                                borderColor: 'divider',
+                                '&:before': { display: 'none' }
+                            }}
                         >
-                            <EditIcon fontSize="small" />
-                        </IconButton>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                        <Grid container spacing={3} sx={{ pb: 5 }}>
-                            {studentCardConfigurations.map((config) => (
-                                <Grid item key={config.id} {...config.gridSize}>
-                                    <EditableCard
-                                        disableEdit={hasPortalUser}
-                                        title={config.title}
-                                        viewContent={
-                                            <GenericCardContent
-                                                config={config}
-                                                isEditing={false}
-                                                lead={flattenObject(student)}
-                                                onFieldChange={
-                                                    handleFieldChange
+                            <AccordionSummary
+                                expandIcon={<ExpandMoreIcon />}
+                                sx={{
+                                    '& .MuiAccordionSummary-content': {
+                                        alignItems: 'center',
+                                        gap: 1
+                                    }
+                                }}
+                            >
+                                <Typography sx={{ flexGrow: 1 }} variant="h6">
+                                    {`${t('common.studentDetails', { ns: 'crm' })}  (${t('readOnly', { ns: 'common' })})`}
+                                </Typography>
+
+                                <IconButton
+                                    aria-label="Edit student survey"
+                                    component="a"
+                                    href={`/student-database/${lead.userId}#survey`}
+                                    onClick={(e) => e.stopPropagation()}
+                                    size="small"
+                                >
+                                    <EditIcon fontSize="small" />
+                                </IconButton>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                                <Grid container spacing={3} sx={{ pb: 5 }}>
+                                    {studentCardConfigurations.map((config) => (
+                                        <Grid
+                                            item
+                                            key={config.id}
+                                            {...config.gridSize}
+                                        >
+                                            <EditableCard
+                                                disableEdit={hasPortalUser}
+                                                title={config.title}
+                                                viewContent={
+                                                    <GenericCardContent
+                                                        config={config}
+                                                        isEditing={false}
+                                                        lead={flattenObject(
+                                                            student
+                                                        )}
+                                                        onFieldChange={
+                                                            handleFieldChange
+                                                        }
+                                                    />
                                                 }
                                             />
-                                        }
-                                    />
+                                        </Grid>
+                                    ))}
                                 </Grid>
-                            ))}
-                        </Grid>
-                    </AccordionDetails>
-                </Accordion>
-            )}
+                            </AccordionDetails>
+                        </Accordion>
+                    )}
 
-            {!isMigratedLead && (
-                <Accordion
-                    defaultExpanded={!hasPortalUser}
-                    disableGutters
-                    elevation={0}
-                    square
-                    sx={{
-                        backgroundColor: 'transparent',
-                        boxShadow: 'none',
-                        borderBottom: '1px solid',
-                        borderColor: 'divider',
-                        '&:before': { display: 'none' }
-                    }}
-                >
-                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                        <Typography variant="h6">
-                            {t('common.leadDetails', { ns: 'crm' })}
-                            {hasPortalUser
-                                ? ` (${t('readOnly', { ns: 'common' })})`
-                                : ''}
-                        </Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                        {lead && Object.keys(lead).length > 0 ? (
-                            <Grid container spacing={3} sx={{ pb: 5 }}>
-                                {leadCardConfigurations.map((config) => (
-                                    <Grid
-                                        item
-                                        key={config.id}
-                                        {...config.gridSize}
-                                    >
-                                        <EditableCard
-                                            disableEdit={hasPortalUser}
-                                            editContent={
-                                                <GenericCardContent
-                                                    config={config}
-                                                    formData={formData}
-                                                    isEditing={true}
-                                                    lead={lead}
-                                                    onFieldChange={
-                                                        handleFieldChange
-                                                    }
-                                                />
-                                            }
-                                            hasUnsavedChanges={hasUnsavedChanges(
-                                                config.id
-                                            )}
-                                            isEditing={
-                                                leadEditStates[config.id]
-                                            }
-                                            isLoading={
-                                                updateLeadMutation.isPending
-                                            }
-                                            onCancel={() =>
-                                                handleCancel(config.id)
-                                            }
-                                            onEdit={() => handleEdit(config.id)}
-                                            onSave={() => handleSave(config.id)}
-                                            title={config.title}
-                                            viewContent={
-                                                <GenericCardContent
-                                                    config={config}
-                                                    formData={formData}
-                                                    isEditing={false}
-                                                    lead={lead}
-                                                    onFieldChange={
-                                                        handleFieldChange
-                                                    }
-                                                />
-                                            }
-                                        />
+                    {!isMigratedLead && (
+                        <Accordion
+                            defaultExpanded={!hasPortalUser}
+                            disableGutters
+                            elevation={0}
+                            square
+                            sx={{
+                                backgroundColor: 'transparent',
+                                boxShadow: 'none',
+                                borderBottom: '1px solid',
+                                borderColor: 'divider',
+                                '&:before': { display: 'none' }
+                            }}
+                        >
+                            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                                <Typography variant="h6">
+                                    {t('common.leadDetails', { ns: 'crm' })}
+                                    {hasPortalUser
+                                        ? ` (${t('readOnly', { ns: 'common' })})`
+                                        : ''}
+                                </Typography>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                                {lead && Object.keys(lead).length > 0 ? (
+                                    <Grid container spacing={3} sx={{ pb: 5 }}>
+                                        {leadCardConfigurations.map(
+                                            (config) => (
+                                                <Grid
+                                                    item
+                                                    key={config.id}
+                                                    {...config.gridSize}
+                                                >
+                                                    <EditableCard
+                                                        disableEdit={
+                                                            hasPortalUser
+                                                        }
+                                                        editContent={
+                                                            <GenericCardContent
+                                                                config={config}
+                                                                formData={
+                                                                    formData
+                                                                }
+                                                                isEditing={true}
+                                                                lead={lead}
+                                                                onFieldChange={
+                                                                    handleFieldChange
+                                                                }
+                                                            />
+                                                        }
+                                                        hasUnsavedChanges={hasUnsavedChanges(
+                                                            config.id
+                                                        )}
+                                                        isEditing={
+                                                            leadEditStates[
+                                                                config.id
+                                                            ]
+                                                        }
+                                                        isLoading={
+                                                            updateLeadMutation.isPending
+                                                        }
+                                                        onCancel={() =>
+                                                            handleCancel(
+                                                                config.id
+                                                            )
+                                                        }
+                                                        onEdit={() =>
+                                                            handleEdit(
+                                                                config.id
+                                                            )
+                                                        }
+                                                        onSave={() =>
+                                                            handleSave(
+                                                                config.id
+                                                            )
+                                                        }
+                                                        title={config.title}
+                                                        viewContent={
+                                                            <GenericCardContent
+                                                                config={config}
+                                                                formData={
+                                                                    formData
+                                                                }
+                                                                isEditing={
+                                                                    false
+                                                                }
+                                                                lead={lead}
+                                                                onFieldChange={
+                                                                    handleFieldChange
+                                                                }
+                                                            />
+                                                        }
+                                                    />
+                                                </Grid>
+                                            )
+                                        )}
                                     </Grid>
-                                ))}
-                            </Grid>
-                        ) : (
-                            <Typography color="text.secondary" variant="body1">
-                                {t('common.loadingLeadInfo', { ns: 'crm' })}
-                            </Typography>
-                        )}
-                    </AccordionDetails>
-                </Accordion>
-            )}
+                                ) : (
+                                    <Typography
+                                        color="text.secondary"
+                                        variant="body1"
+                                    >
+                                        {t('common.loadingLeadInfo', {
+                                            ns: 'crm'
+                                        })}
+                                    </Typography>
+                                )}
+                            </AccordionDetails>
+                        </Accordion>
+                    )}
 
-            {/* ------------ Modals ------------ */}
-            <CreateUserFromLeadModal
-                lead={selectedLead}
-                onClose={handleCloseCreateUserModal}
-                onSuccess={handleUserCreated}
-                open={showCreateUserModal}
-            />
-            <DealModal
-                deal={editingDeal}
-                lockLeadSelect={true}
-                lockSalesUserSelect={lead?.salesRep?.userId ?? false}
-                onClose={closeDealModal}
-                onCreated={() =>
-                    queryClient.invalidateQueries(['crm/lead', leadId])
-                }
-                onUpdated={() =>
-                    queryClient.invalidateQueries(['crm/lead', leadId])
-                }
-                open={showDealModal}
-                preselectedLeadId={leadId}
-                preselectedSalesUserId={lead?.salesRep?.userId || null}
-            />
-            <StatusMenu
-                anchorEl={statusMenu.anchorEl}
-                currentStatus={statusMenu.row?.status}
-                onChoose={(s: string) => {
-                    const id = getDealId(statusMenu.row);
-                    updateStatusMutation.mutate(
-                        { id, status: s },
-                        { onSettled: () => closeStatusMenu() }
-                    );
-                }}
-                onClose={closeStatusMenu}
-            />
+                    {/* ------------ Modals ------------ */}
+                    <CreateUserFromLeadModal
+                        lead={selectedLead}
+                        onClose={handleCloseCreateUserModal}
+                        onSuccess={handleUserCreated}
+                        open={showCreateUserModal}
+                    />
+                    <DealModal
+                        deal={editingDeal}
+                        lockLeadSelect={true}
+                        lockSalesUserSelect={lead?.salesRep?.userId ?? false}
+                        onClose={closeDealModal}
+                        onCreated={() =>
+                            queryClient.invalidateQueries(['crm/lead', leadId])
+                        }
+                        onUpdated={() =>
+                            queryClient.invalidateQueries(['crm/lead', leadId])
+                        }
+                        open={showDealModal}
+                        preselectedLeadId={leadId}
+                        preselectedSalesUserId={lead?.salesRep?.userId || null}
+                    />
+                    <StatusMenu
+                        anchorEl={statusMenu.anchorEl}
+                        currentStatus={statusMenu.row?.status}
+                        onChoose={(s: string) => {
+                            const id = getDealId(statusMenu.row);
+                            updateStatusMutation.mutate(
+                                { id, status: s },
+                                { onSettled: () => closeStatusMenu() }
+                            );
+                        }}
+                        onClose={closeStatusMenu}
+                    />
+                </>
+            )}
         </Box>
     );
 };

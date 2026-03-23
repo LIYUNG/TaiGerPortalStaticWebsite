@@ -17,11 +17,18 @@ vi.mock('@store/constant', () => ({
 
 vi.mock('../Utils/TabTitle', () => ({ TabTitle: vi.fn() }));
 vi.mock('../Utils/ErrorPage', () => ({ default: () => <div>ErrorPage</div> }));
-vi.mock('@components/Loading/Loading', () => ({ default: () => <div>Loading</div> }));
-vi.mock('./NotesCard', () => ({ default: () => <div data-testid="notes-card">NotesCard</div> }));
+vi.mock('@components/Loading/Loading', () => ({
+    default: () => <div>Loading</div>
+}));
+vi.mock('./NotesCard', () => ({
+    default: () => <div data-testid="notes-card">NotesCard</div>
+}));
 vi.mock('@/api', () => ({
     getStudentNotes: vi.fn(() =>
-        Promise.resolve({ data: { data: { notes: '{}' }, success: true }, status: 200 })
+        Promise.resolve({
+            data: { data: { notes: '{}' }, success: true },
+            status: 200
+        })
     )
 }));
 

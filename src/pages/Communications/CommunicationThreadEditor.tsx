@@ -30,8 +30,9 @@ import { TaiGerChatAssistant } from '@/api';
 import { appConfig } from '../../config';
 
 export interface CommunicationThreadEditorProps {
+    buttonDisabled: boolean;
     editorState: unknown;
-    handleClickSave?: (e: React.MouseEvent, editorState: unknown) => void;
+    handleClickSave?: (e: React.MouseEvent, editorState: OutputData) => void;
     thread: unknown;
     files?: Array<{ name: string; path?: string }>;
     count?: number;
@@ -45,7 +46,10 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
     const { user } = useAuth();
     const composeRef = useRef<ComposeEditorRef>(null);
     const [hasContent, setHasContent] = useState(false);
-    const [streamingData, setStreamingData] = useState({ data: '', isGenerating: false });
+    const [streamingData, setStreamingData] = useState({
+        data: '',
+        isGenerating: false
+    });
     const [isSending, setIsSending] = useState(false);
 
     const handleSend = useCallback(
@@ -208,16 +212,29 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
                     <span>
                         <Button
                             color="primary"
-                            disabled={!hasContent || props.buttonDisabled || isSending}
-                            onClick={hasContent && !props.buttonDisabled ? handleSend : undefined}
+                            disabled={
+                                !hasContent || props.buttonDisabled || isSending
+                            }
+                            onClick={
+                                hasContent && !props.buttonDisabled
+                                    ? handleSend
+                                    : undefined
+                            }
                             startIcon={
                                 isSending ? (
-                                    <CircularProgress color="inherit" size={20} />
+                                    <CircularProgress
+                                        color="inherit"
+                                        size={20}
+                                    />
                                 ) : (
                                     <SendIcon />
                                 )
                             }
-                            variant={hasContent && !props.buttonDisabled ? 'contained' : 'outlined'}
+                            variant={
+                                hasContent && !props.buttonDisabled
+                                    ? 'contained'
+                                    : 'outlined'
+                            }
                         >
                             {t('Send', { ns: 'common' })}
                         </Button>

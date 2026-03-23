@@ -55,22 +55,22 @@ const ProgramDiffModal = (props: ProgramDiffModalProps) => {
                     label="Requests"
                     labelId="request-select-label"
                     onChange={(e) => setChangeIndex(Number(e.target.value))}
-                    value={
-                        incomingChanges.length > 0 ? changeIndex : ''
-                    }
+                    value={incomingChanges.length > 0 ? changeIndex : ''}
                 >
-                    {incomingChanges.length > 0
-                        ? incomingChanges.map((change, index) => {
-                              return (
-                                  <MenuItem key={index} value={index}>
-                                      {convertDate(change?.updatedAt)} -{' '}
-                                      {change.requestedBy
-                                          ? `${change.requestedBy.firstname} ${change.requestedBy.lastname} `
-                                          : 'External Source'}
-                                  </MenuItem>
-                              );
-                          })
-                        : <MenuItem value="">—</MenuItem>}
+                    {incomingChanges.length > 0 ? (
+                        incomingChanges.map((change, index) => {
+                            return (
+                                <MenuItem key={index} value={index}>
+                                    {convertDate(change?.updatedAt)} -{' '}
+                                    {change.requestedBy
+                                        ? `${change.requestedBy.firstname} ${change.requestedBy.lastname} `
+                                        : 'External Source'}
+                                </MenuItem>
+                            );
+                        })
+                    ) : (
+                        <MenuItem value="">—</MenuItem>
+                    )}
                 </Select>
             </FormControl>
             <ProgramCompare

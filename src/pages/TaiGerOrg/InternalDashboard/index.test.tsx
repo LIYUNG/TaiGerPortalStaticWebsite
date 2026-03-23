@@ -45,10 +45,22 @@ vi.mock('@tanstack/react-query', async () => {
 });
 
 vi.mock('@/api/query', () => ({
-    getStatisticsOverviewQuery: vi.fn(() => ({ queryKey: ['overview'], queryFn: vi.fn() })),
-    getStatisticsAgentsQuery: vi.fn(() => ({ queryKey: ['agents'], queryFn: vi.fn() })),
-    getStatisticsKPIQuery: vi.fn(() => ({ queryKey: ['kpi'], queryFn: vi.fn() })),
-    getStatisticsResponseTimeQuery: vi.fn(() => ({ queryKey: ['response'], queryFn: vi.fn() }))
+    getStatisticsOverviewQuery: vi.fn(() => ({
+        queryKey: ['overview'],
+        queryFn: vi.fn()
+    })),
+    getStatisticsAgentsQuery: vi.fn(() => ({
+        queryKey: ['agents'],
+        queryFn: vi.fn()
+    })),
+    getStatisticsKPIQuery: vi.fn(() => ({
+        queryKey: ['kpi'],
+        queryFn: vi.fn()
+    })),
+    getStatisticsResponseTimeQuery: vi.fn(() => ({
+        queryKey: ['response'],
+        queryFn: vi.fn()
+    }))
 }));
 
 vi.mock('@components/Loading/Loading', () => ({
@@ -64,7 +76,9 @@ vi.mock('../../../config', () => ({
 }));
 
 vi.mock('@components/Tabs', () => ({
-    CustomTabPanel: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+    CustomTabPanel: ({ children }: { children: React.ReactNode }) => (
+        <div>{children}</div>
+    ),
     a11yProps: () => ({})
 }));
 
@@ -127,7 +141,9 @@ describe('InternalDashboard', () => {
     });
 
     it('renders breadcrumbs', () => {
-        expect(document.querySelector('[aria-label="breadcrumb"]')).toBeTruthy();
+        expect(
+            document.querySelector('[aria-label="breadcrumb"]')
+        ).toBeTruthy();
     });
 
     it('renders overview tab content', () => {

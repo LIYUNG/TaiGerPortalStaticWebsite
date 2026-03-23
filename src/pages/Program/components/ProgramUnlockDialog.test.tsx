@@ -9,7 +9,11 @@ vi.mock('react-router-dom', async (importOriginal) => {
     return {
         ...actual,
         Link: React.forwardRef(function LinkMock(
-            props: { children?: ReactNode; to?: string; [key: string]: unknown },
+            props: {
+                children?: ReactNode;
+                to?: string;
+                [key: string]: unknown;
+            },
             ref: React.Ref<HTMLAnchorElement>
         ) {
             const {

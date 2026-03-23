@@ -48,8 +48,20 @@ vi.mock('@hooks/useStudentsV3', () => ({
 }));
 
 const mockPrograms = [
-    { _id: 'p1', school: 'TU Berlin', program_name: 'CS', degree: 'Master', semester: 'WS' },
-    { _id: 'p2', school: 'LMU', program_name: 'Physics', degree: 'Master', semester: 'SS' }
+    {
+        _id: 'p1',
+        school: 'TU Berlin',
+        program_name: 'CS',
+        degree: 'Master',
+        semester: 'WS'
+    },
+    {
+        _id: 'p2',
+        school: 'LMU',
+        program_name: 'Physics',
+        degree: 'Master',
+        semester: 'SS'
+    }
 ] as any[];
 
 const defaultProps = {

@@ -42,7 +42,10 @@ const renderWithTable = (students = [], tasksOverview = mockTasksOverview) =>
         <MemoryRouter>
             <table>
                 <tbody>
-                    <AdminTasks students={students} tasksOverview={tasksOverview} />
+                    <AdminTasks
+                        students={students}
+                        tasksOverview={tasksOverview}
+                    />
                 </tbody>
             </table>
         </MemoryRouter>

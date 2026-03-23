@@ -13,7 +13,7 @@ vi.mock('@components/AuthProvider', () => ({
     useAuth: () => ({
         user: {
             role: 'Agent',
-            _id: 'u1',
+            _id: 'u1'
         }
     })
 }));

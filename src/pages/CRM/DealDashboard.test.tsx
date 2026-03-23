@@ -5,7 +5,11 @@ import { MemoryRouter } from 'react-router-dom';
 vi.mock('@tanstack/react-query', async (orig) => ({
     ...(await orig()),
     useQuery: vi.fn(() => ({ data: undefined, isLoading: false })),
-    useMutation: vi.fn(() => ({ mutate: vi.fn(), isPending: false, variables: null })),
+    useMutation: vi.fn(() => ({
+        mutate: vi.fn(),
+        isPending: false,
+        variables: null
+    })),
     useQueryClient: vi.fn(() => ({
         invalidateQueries: vi.fn(),
         setQueryData: vi.fn()
@@ -26,7 +30,10 @@ vi.mock('@taiger-common/core', () => ({
 }));
 
 vi.mock('@/api/query', () => ({
-    getCRMDealsQuery: vi.fn(() => ({ queryKey: ['crm/deals'], queryFn: vi.fn() }))
+    getCRMDealsQuery: vi.fn(() => ({
+        queryKey: ['crm/deals'],
+        queryFn: vi.fn()
+    }))
 }));
 
 vi.mock('@/api', () => ({

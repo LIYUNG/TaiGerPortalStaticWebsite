@@ -124,13 +124,11 @@ vi.mock('@/api', async (importOriginal) => ({
         .fn()
         .mockResolvedValue({ data: { data: [] } }),
     getActiveThreads: vi.fn().mockResolvedValue({ data: [] }),
-    getMyStudentsThreads: vi
-        .fn()
-        .mockResolvedValue({
-            data: { threads: [] },
-            success: true,
-            status: 200
-        }),
+    getMyStudentsThreads: vi.fn().mockResolvedValue({
+        data: { threads: [] },
+        success: true,
+        status: 200
+    }),
     putThreadFavorite: vi.fn().mockResolvedValue({ data: { success: true } }),
     getApplicationStudentV2: vi.fn().mockResolvedValue({ data: null }),
     // CRM
@@ -164,45 +162,39 @@ vi.mock('@/api', async (importOriginal) => ({
     getMyCommunicationThreadV2: vi
         .fn()
         .mockResolvedValue({ data: { data: [] } }),
-    getMessagThread: vi
-        .fn()
-        .mockResolvedValue({
+    getMessagThread: vi.fn().mockResolvedValue({
+        data: {
             data: {
-                data: {
-                    student_id: { firstname: 'Test', lastname: 'Student' }
-                },
-                success: true,
-                agents: [],
-                editors: [],
-                conflict_list: [],
-                deadline: null,
-                threadAuditLog: [],
-                similarThreads: []
-            }
-        }),
+                student_id: { firstname: 'Test', lastname: 'Student' }
+            },
+            success: true,
+            agents: [],
+            editors: [],
+            conflict_list: [],
+            deadline: null,
+            threadAuditLog: [],
+            similarThreads: []
+        }
+    }),
     // Documentation
-    getCategorizedDocumentationPage: vi
-        .fn()
-        .mockResolvedValue({
-            data: { data: { text: null, author: '' }, success: true },
-            status: 200
-        }),
+    getCategorizedDocumentationPage: vi.fn().mockResolvedValue({
+        data: { data: { text: null, author: '' }, success: true },
+        status: 200
+    }),
     updateDocumentationPage: vi
         .fn()
         .mockResolvedValue({ data: { success: true } }),
     // Calendar
-    getEvents: vi
-        .fn()
-        .mockResolvedValue({
-            data: {
-                data: [],
-                success: true,
-                agents: {},
-                editors: [],
-                hasEvents: false
-            },
-            status: 200
-        }),
+    getEvents: vi.fn().mockResolvedValue({
+        data: {
+            data: [],
+            success: true,
+            agents: {},
+            editors: [],
+            hasEvents: false
+        },
+        status: 200
+    }),
     getBookedEvents: vi.fn().mockResolvedValue({ data: { data: [] } }),
     postEvent: vi.fn().mockResolvedValue({ data: { success: true } }),
     updateEvent: vi.fn().mockResolvedValue({ data: { success: true } }),
@@ -375,35 +367,14 @@ vi.mock('@/api/query', async (importOriginal) => {
             factory(['communications', 'my'], { data: { data: [] } }),
         getMessagThreadQuery: () =>
             factory(['MessageThread', 'test'], { data: { data: {} } }),
-        getActiveThreadsQuery: (qs: string) =>
-            factory(['active-threads', qs], { data: [] }),
-        getActiveStudentsQuery: (qs: string) =>
-            factory(['students/active', qs], { data: [] }),
         getAllCoursessQuery: () =>
             factory(['all-courses/all'], { data: { data: [] } }),
         getCoursessQuery: () =>
             factory(['all-courses/all', 'test'], { data: { data: {} } }),
         getProgramRequirementsQuery: () =>
             factory(['program-requirements/all'], { data: { data: [] } }),
-        getEventsQuery: () =>
-            factory(['events', ''], {
-                data: {
-                    data: [],
-                    success: true,
-                    agents: {},
-                    editors: [],
-                    hasEvents: false
-                }
-            }),
-        getBookedEventsQuery: () =>
-            factory(['events', 'booked'], { data: { data: [] } }),
         getMycoursesQuery: () =>
             factory(['mycourses', 'test'], { data: { data: [] } }),
-        getStudentsAndDocLinks2Query: (qs: string) =>
-            factory(['students/doc-links', qs], {
-                data: [],
-                base_docs_link: []
-            }),
         getUsersCountQuery: () =>
             factory(['users/count'], {
                 data: {
@@ -415,29 +386,12 @@ vi.mock('@/api/query', async (importOriginal) => {
                 }
             }),
         getUsersQuery: () => factory(['users'], { data: { data: [] } }),
-        getTeamMembersQuery: () =>
-            factory(['team-members'], { data: { data: [], success: true } }),
         getApplicationStudentV2Query: () =>
             factory(['applications/student', 'test'], { data: null }),
-        getProgramsOverviewQuery: () =>
-            factory(['programs', 'overview'], { data: { data: {} } }),
-        getSchoolsDistributionQuery: () =>
-            factory(['programs', 'schools-distribution'], {
-                data: { data: [] }
-            }),
         getInterviewsByStudentIdQuery: () =>
             factory(['interviews/student', 'test'], { data: { data: [] } }),
         getInterviewsByProgramIdQuery: () =>
             factory(['interviews/program', 'test'], { data: { data: [] } }),
-        getMyStudentsThreadsQuery: () =>
-            factory(['document-threads/overview/taiger-user', 'test', ''], {
-                data: null
-            }),
-        getMyStudentsApplicationsV2Query: () =>
-            factory(['applications/taiger-user', 'test', ''], {
-                data: { data: [] }
-            }),
-        getStudentsV3Query: () => factory(['students/v3', ''], { data: [] }),
         getProgramsAndCourseKeywordSetsLoader: vi.fn().mockResolvedValue({})
     };
 });

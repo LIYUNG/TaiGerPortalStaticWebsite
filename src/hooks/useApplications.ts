@@ -1,8 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import queryString from 'query-string';
 
-import { getApplicationsQuery } from '@/api/query';
-import type { IApplicationPopulated } from '@taiger-common/model';
+import { getApplications } from '@/api';
+import type {
+    GetApplicationsResponse,
+    IApplicationPopulated
+} from '@taiger-common/model';
 
 export type ApplicationsParams = Record<
     string,
@@ -15,38 +18,24 @@ export type UseApplicationsOptions = {
 
 /**
  * Fetches applications with optional filter params.
- * Unifies getApplicationsQuery usage across Admissions Overview and other consumers.
  */
 export function useApplications(
     params: ApplicationsParams = {},
     options?: UseApplicationsOptions
 ) {
     const queryStringValue = queryString.stringify(params);
-    const query = getApplicationsQuery(queryStringValue);
 
-    const result = useQuery({
-        ...query,
-        queryFn: async () => {
-            const res = await query.queryFn();
-            return res as {
-                data?: IApplicationPopulated[];
-                result?: IApplicationPopulated[];
-            };
-        },
-        select: (
-            data:
-                | {
-                      data?: IApplicationPopulated[];
-                      result?: IApplicationPopulated[];
-                  }
-                | undefined
-        ) => data?.data ?? data?.result ?? [],
+    const result = useQuery<
+        GetApplicationsResponse,
+        Error,
+        IApplicationPopulated[]
+    >({
+        queryKey: ['applications', queryStringValue],
+        queryFn: () => getApplications(queryStringValue),
+        staleTime: 1000 * 60 * 5, // 5 minutes
+        select: (response) => response.data ?? [],
         enabled: options?.enabled ?? true
     });
 
-    return {
-        ...result,
-        data: result.data ?? [],
-        queryKey: query.queryKey
-    };
+    return result;
 }

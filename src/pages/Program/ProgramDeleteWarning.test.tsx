@@ -2,7 +2,15 @@ import { render, screen } from '@testing-library/react';
 import ProgramDeleteWarning from './ProgramDeleteWarning';
 
 vi.mock('@components/Modal/ConfirmationModal', () => ({
-    ConfirmationModal: ({ title, content, open }: { title: string; content: string; open: boolean }) =>
+    ConfirmationModal: ({
+        title,
+        content,
+        open
+    }: {
+        title: string;
+        content: string;
+        open: boolean;
+    }) =>
         open ? (
             <div data-testid="confirmation-modal">
                 <span>{title}</span>
@@ -39,7 +47,14 @@ describe('ProgramDeleteWarning', () => {
     });
 
     it('does not render modal when deleteProgramWarning is false', () => {
-        render(<ProgramDeleteWarning {...defaultProps} deleteProgramWarning={false} />);
-        expect(screen.queryByTestId('confirmation-modal')).not.toBeInTheDocument();
+        render(
+            <ProgramDeleteWarning
+                {...defaultProps}
+                deleteProgramWarning={false}
+            />
+        );
+        expect(
+            screen.queryByTestId('confirmation-modal')
+        ).not.toBeInTheDocument();
     });
 });

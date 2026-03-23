@@ -15,7 +15,8 @@ vi.mock('@taiger-common/core', () => ({
 vi.mock('@store/constant', () => ({
     default: {
         DASHBOARD_LINK: '/',
-        STUDENT_DATABASE_STUDENTID_LINK: (_id: string, hash: string) => `/student/${_id}${hash}`,
+        STUDENT_DATABASE_STUDENTID_LINK: (_id: string, hash: string) =>
+            `/student/${_id}${hash}`,
         COMMUNICATIONS_TAIGER_MODE_LINK: (id: string) => `/comm/${id}`,
         CVMLRL_HASH: '#cvmlrl'
     }
@@ -93,7 +94,10 @@ vi.mock('@components/BreadcrumbsNavigation/BreadcrumbsNavigation', () => ({
 }));
 
 vi.mock('@/api/query', () => ({
-    getMessagThreadQuery: vi.fn((id: string) => ({ queryKey: ['thread', id], queryFn: vi.fn() }))
+    getMessagThreadQuery: vi.fn((id: string) => ({
+        queryKey: ['thread', id],
+        queryFn: vi.fn()
+    }))
 }));
 
 describe('SingleThreadPage', () => {
@@ -106,7 +110,9 @@ describe('SingleThreadPage', () => {
     });
 
     it('renders breadcrumbs navigation', () => {
-        expect(screen.getByRole('navigation', { name: /breadcrumb/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('navigation', { name: /breadcrumb/i })
+        ).toBeInTheDocument();
     });
 
     it('renders the student name in breadcrumbs', () => {
@@ -114,7 +120,9 @@ describe('SingleThreadPage', () => {
     });
 
     it('renders the doc modification thread page', () => {
-        expect(screen.getByTestId('doc-modification-thread-page')).toBeInTheDocument();
+        expect(
+            screen.getByTestId('doc-modification-thread-page')
+        ).toBeInTheDocument();
     });
 
     it('renders a Switch View link or button for non-student users', () => {

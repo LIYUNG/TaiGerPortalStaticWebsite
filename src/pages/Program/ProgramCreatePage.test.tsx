@@ -7,7 +7,9 @@ vi.mock('react-router-dom', async () => {
     return {
         ...actual,
         useLoaderData: () => ({
-            distinctSchools: Promise.resolve([{ school: 'TU Berlin', count: 10 }])
+            distinctSchools: Promise.resolve([
+                { school: 'TU Berlin', count: 10 }
+            ])
         }),
         useNavigate: () => vi.fn()
     };
@@ -61,7 +63,9 @@ describe('ProgramCreatePage', () => {
     });
 
     it('renders without crashing', async () => {
-        expect(await screen.findByTestId('new-program-edit')).toBeInTheDocument();
+        expect(
+            await screen.findByTestId('new-program-edit')
+        ).toBeInTheDocument();
     });
 
     it('renders NewProgramEdit with create type', async () => {

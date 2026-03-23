@@ -27,8 +27,14 @@ vi.mock('@taiger-common/core', () => ({
 }));
 
 vi.mock('@/api/query', () => ({
-    getCRMMeetingsQuery: vi.fn(() => ({ queryKey: ['crm/meetings'], queryFn: vi.fn() })),
-    getCRMLeadsQuery: vi.fn(() => ({ queryKey: ['crm/leads'], queryFn: vi.fn() }))
+    getCRMMeetingsQuery: vi.fn(() => ({
+        queryKey: ['crm/meetings'],
+        queryFn: vi.fn()
+    })),
+    getCRMLeadsQuery: vi.fn(() => ({
+        queryKey: ['crm/leads'],
+        queryFn: vi.fn()
+    }))
 }));
 
 vi.mock('@/api', () => ({

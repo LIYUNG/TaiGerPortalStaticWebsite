@@ -5,12 +5,20 @@ import TooManyRequestsError from './TooManyRequestsError';
 
 describe('TooManyRequestsError', () => {
     it('renders without crashing', () => {
-        render(<MemoryRouter><TooManyRequestsError /></MemoryRouter>);
+        render(
+            <MemoryRouter>
+                <TooManyRequestsError />
+            </MemoryRouter>
+        );
         expect(screen.getByText(/too many requests/i)).toBeInTheDocument();
     });
 
     it('shows try later message', () => {
-        render(<MemoryRouter><TooManyRequestsError /></MemoryRouter>);
+        render(
+            <MemoryRouter>
+                <TooManyRequestsError />
+            </MemoryRouter>
+        );
         expect(screen.getByText(/try later/i)).toBeInTheDocument();
     });
 });

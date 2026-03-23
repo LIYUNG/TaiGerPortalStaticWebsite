@@ -50,9 +50,7 @@ describe('EditEssayWritersSubpage', () => {
                 />
             </MemoryRouter>
         );
-        expect(
-            screen.getByText(/Essay Writer for ml-/i)
-        ).toBeInTheDocument();
+        expect(screen.getByText(/Essay Writer for ml-/i)).toBeInTheDocument();
     });
 
     it('does not render dialog content when show=false', () => {

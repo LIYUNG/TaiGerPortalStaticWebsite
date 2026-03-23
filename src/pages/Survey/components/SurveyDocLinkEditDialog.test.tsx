@@ -30,15 +30,21 @@ describe('SurveyDocLinkEditDialog', () => {
     });
 
     it('renders text field with doc name label', () => {
-        expect(screen.getByLabelText(/documentation link for grading system/i)).toBeInTheDocument();
+        expect(
+            screen.getByLabelText(/documentation link for grading system/i)
+        ).toBeInTheDocument();
     });
 
     it('renders save button', () => {
-        expect(screen.getByRole('button', { name: /save/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('button', { name: /save/i })
+        ).toBeInTheDocument();
     });
 
     it('shows current survey link value', () => {
-        const input = screen.getByLabelText(/documentation link for grading system/i) as HTMLInputElement;
+        const input = screen.getByLabelText(
+            /documentation link for grading system/i
+        ) as HTMLInputElement;
         expect(input.value).toBe('https://example.com/doc');
     });
 });

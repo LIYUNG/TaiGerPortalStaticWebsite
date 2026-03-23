@@ -45,7 +45,9 @@ vi.mock('../../../config', () => ({
 vi.mock('@components/BreadcrumbsNavigation/BreadcrumbsNavigation', () => ({
     BreadcrumbsNavigation: ({ items }: { items: { label: string }[] }) => (
         <nav data-testid="breadcrumbs">
-            {items.map((item, i) => <span key={i}>{item.label}</span>)}
+            {items.map((item, i) => (
+                <span key={i}>{item.label}</span>
+            ))}
         </nav>
     )
 }));

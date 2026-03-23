@@ -73,9 +73,8 @@ const OriginAuthorStatementBar = ({
                 {originAuthorConfirmed ? (
                     <>
                         <CheckCircleIcon
-                            size={18}
+                            fontSize="small"
                             style={{ color: green[500] }}
-                            title="Agree"
                         />
                         <Typography variant="body1">
                             {t('confirmDocument', {
@@ -100,7 +99,10 @@ const OriginAuthorStatementBar = ({
                     </>
                 ) : (
                     <>
-                        <HelpIcon size={18} style={{ color: grey[400] }} />
+                        <HelpIcon
+                            fontSize="small"
+                            style={{ color: grey[400] }}
+                        />
                         <Typography variant="body1">
                             {t('notConfirmDocument', {
                                 ns: 'documents',

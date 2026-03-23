@@ -17,8 +17,14 @@ const TasksDistributionBarChart = ({
     yLabel
 }: TasksDistributionBarChartProps) => {
     const labels = data.map((d) => d[k]);
-    const active_a = data.map((d) => d[value1]);
-    const potential_a = data.map((d) => d[value2]);
+    const active_a = data.map((d) => {
+        const v = d[value1];
+        return typeof v === 'number' ? v : null;
+    });
+    const potential_a = data.map((d) => {
+        const v = d[value2];
+        return typeof v === 'number' ? v : null;
+    });
     return (
         <BarChart
             barLabel="value"
@@ -38,8 +44,7 @@ const TasksDistributionBarChart = ({
                 {
                     data: labels,
                     scaleType: 'band',
-                    id: 'axis1',
-                    interval: 0
+                    id: 'axis1'
                 }
             ]}
             yAxis={[

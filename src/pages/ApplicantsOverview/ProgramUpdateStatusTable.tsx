@@ -10,7 +10,7 @@ import {
 import DEMO from '@store/constant';
 import { convertDate } from '@utils/contants';
 
-interface ProgramUpdateStatusRow {
+export interface ProgramUpdateStatusRow {
     program_id: string;
     school: string;
     program_name: string;
@@ -35,8 +35,8 @@ const ProgramUpdateStatusTable = ({
 
     // Remove duplicates based on program_id
     const uniquePrograms = useMemo(() => {
-        const set = new Set();
-        const result = [];
+        const set = new Set<string>();
+        const result: ProgramUpdateStatusRow[] = [];
 
         data.forEach((program) => {
             if (!set.has(program.program_id)) {
@@ -58,7 +58,7 @@ const ProgramUpdateStatusTable = ({
                 header: t('School'),
                 size: 250,
                 Cell: ({ row }: { row: MRT_Row<ProgramUpdateStatusRow> }) => {
-                    const linkUrl = `${DEMO.SINGLE_PROGRAM_LINK(row.original.id)}`;
+                    const linkUrl = `${DEMO.SINGLE_PROGRAM_LINK(row.original.id ?? row.original.program_id)}`;
                     return (
                         <Link
                             component={LinkDom}
@@ -76,7 +76,7 @@ const ProgramUpdateStatusTable = ({
                 header: t('Program', { ns: 'common' }),
                 size: 250,
                 Cell: ({ row }: { row: MRT_Row<ProgramUpdateStatusRow> }) => {
-                    const linkUrl = `${DEMO.SINGLE_PROGRAM_LINK(row.original.id)}`;
+                    const linkUrl = `${DEMO.SINGLE_PROGRAM_LINK(row.original.id ?? row.original.program_id)}`;
                     return (
                         <Link
                             component={LinkDom}

@@ -75,12 +75,21 @@ vi.mock('@/api', () => ({
                 status: 200,
                 data: {
                     file_type: 'CV',
-                    student_id: { _id: { toString: () => 'student1' }, firstname: 'John', lastname: 'Doe' },
+                    student_id: {
+                        _id: { toString: () => 'student1' },
+                        firstname: 'John',
+                        lastname: 'Doe'
+                    },
                     program_id: null,
                     surveyInputs: {
                         general: {
                             surveyContent: [
-                                { questionId: 'q1', question: 'Question 1', answer: '', type: 'paragraph' }
+                                {
+                                    questionId: 'q1',
+                                    question: 'Question 1',
+                                    answer: '',
+                                    type: 'paragraph'
+                                }
                             ]
                         }
                     }

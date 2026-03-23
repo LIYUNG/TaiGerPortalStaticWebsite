@@ -2,16 +2,28 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 
 vi.mock('./statusUtils', () => ({
-    isTerminalStatus: vi.fn((status: string) => status === 'closed' || status === 'canceled'),
-    getStatusColor: vi.fn((status: string) =>
-        ({ initiated: 'info', sent: 'warning', signed: 'success', closed: 'default', canceled: 'error' }[status] || 'default')
+    isTerminalStatus: vi.fn(
+        (status: string) => status === 'closed' || status === 'canceled'
+    ),
+    getStatusColor: vi.fn(
+        (status: string) =>
+            ({
+                initiated: 'info',
+                sent: 'warning',
+                signed: 'success',
+                closed: 'default',
+                canceled: 'error'
+            })[status] || 'default'
     )
 }));
 
+import type { CRMDealItem } from '@taiger-common/model';
 import DealItem from './DealItem';
 import type { TFunction } from 'i18next';
 
-const mockT: TFunction = vi.fn((key: string, opts?: { defaultValue?: string }) => opts?.defaultValue || key) as unknown as TFunction;
+const mockT: TFunction = vi.fn(
+    (key: string, opts?: { defaultValue?: string }) => opts?.defaultValue || key
+) as unknown as TFunction;
 
 const mockDeal = {
     _id: 'deal1',
@@ -22,7 +34,7 @@ const mockDeal = {
 };
 
 const defaultProps = {
-    deal: mockDeal as unknown as import('@taiger-common/model').CRMDealItem,
+    deal: mockDeal as unknown as CRMDealItem,
     t: mockT,
     onOpenStatusMenu: vi.fn(),
     onEditDeal: vi.fn(),
@@ -47,6 +59,8 @@ describe('DealItem', () => {
     });
 
     it('renders expand/collapse button when events exist', () => {
-        expect(document.querySelector('[aria-label="toggle-deal-timeline"]')).toBeTruthy();
+        expect(
+            document.querySelector('[aria-label="toggle-deal-timeline"]')
+        ).toBeTruthy();
     });
 });

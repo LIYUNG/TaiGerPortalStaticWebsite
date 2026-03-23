@@ -16,7 +16,11 @@ vi.mock('react-router-dom', async (orig) => {
                 data: [
                     {
                         editors: [
-                            { firstname: 'Alice', lastname: 'Editor', email: 'alice@example.com' }
+                            {
+                                firstname: 'Alice',
+                                lastname: 'Editor',
+                                email: 'alice@example.com'
+                            }
                         ],
                         agents: [
                             {

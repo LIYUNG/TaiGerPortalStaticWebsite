@@ -1,6 +1,9 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render } from '@testing-library/react';
-import { getLeadCardConfigurations, getStudentCardConfigurations } from './CardConfigurations';
+import {
+    getLeadCardConfigurations,
+    getStudentCardConfigurations
+} from './CardConfigurations';
 import type { TFunction } from 'i18next';
 
 const mockT: TFunction = vi.fn((key: string) => key) as unknown as TFunction;
@@ -38,7 +41,9 @@ describe('CardConfigurations', () => {
         expect(workField?.type).toBe('custom');
         expect(typeof workField?.render).toBe('function');
         // Verify the render function returns a React element
-        const element = workField?.render({ workExperience: 'Some experience' });
+        const element = workField?.render({
+            workExperience: 'Some experience'
+        });
         expect(element).toBeTruthy();
     });
 });

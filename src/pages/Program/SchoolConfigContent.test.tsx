@@ -11,7 +11,9 @@ vi.mock('@utils/contants', () => ({
 }));
 
 vi.mock('@/api', () => ({
-    updateSchoolAttributes: vi.fn(() => Promise.resolve({ data: { success: true } }))
+    updateSchoolAttributes: vi.fn(() =>
+        Promise.resolve({ data: { success: true } })
+    )
 }));
 
 vi.mock('@components/Input/searchableMuliselect', () => ({
@@ -27,8 +29,24 @@ vi.mock('@contexts/use-snack-bar', () => ({
 }));
 
 const mockData = [
-    { school: 'TU Berlin', count: 10, country: 'Germany', schoolType: 'University', isPrivateSchool: false, isPartnerSchool: true, tags: [] },
-    { school: 'LMU Munich', count: 8, country: 'Germany', schoolType: 'University', isPrivateSchool: false, isPartnerSchool: false, tags: [] }
+    {
+        school: 'TU Berlin',
+        count: 10,
+        country: 'Germany',
+        schoolType: 'University',
+        isPrivateSchool: false,
+        isPartnerSchool: true,
+        tags: []
+    },
+    {
+        school: 'LMU Munich',
+        count: 8,
+        country: 'Germany',
+        schoolType: 'University',
+        isPrivateSchool: false,
+        isPartnerSchool: false,
+        tags: []
+    }
 ];
 
 describe('SchoolConfigContent', () => {

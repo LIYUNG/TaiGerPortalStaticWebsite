@@ -37,7 +37,10 @@ vi.mock('@tanstack/react-query', async () => {
 });
 
 vi.mock('@/api/query', () => ({
-    getApplicationConflictsQuery: vi.fn(() => ({ queryKey: ['conflicts'], queryFn: vi.fn() }))
+    getApplicationConflictsQuery: vi.fn(() => ({
+        queryKey: ['conflicts'],
+        queryFn: vi.fn()
+    }))
 }));
 
 vi.mock('@components/Loading/Loading', () => ({
@@ -45,7 +48,9 @@ vi.mock('@components/Loading/Loading', () => ({
 }));
 
 vi.mock('../../Utils/ErrorPage', () => ({
-    default: ({ res_status }: { res_status: number }) => <div data-testid="error-page">{res_status}</div>
+    default: ({ res_status }: { res_status: number }) => (
+        <div data-testid="error-page">{res_status}</div>
+    )
 }));
 
 vi.mock('../../Utils/TabTitle', () => ({
@@ -56,9 +61,12 @@ vi.mock('../../../config', () => ({
     appConfig: { companyName: 'TaiGer' }
 }));
 
-vi.mock('@pages/Dashboard/MainViewTab/ProgramConflict/TabProgramConflict', () => ({
-    default: () => <div data-testid="tab-program-conflict" />
-}));
+vi.mock(
+    '@pages/Dashboard/MainViewTab/ProgramConflict/TabProgramConflict',
+    () => ({
+        default: () => <div data-testid="tab-program-conflict" />
+    })
+);
 
 vi.mock('react-i18next', () => ({
     useTranslation: () => ({ t: (key: string) => key })
@@ -87,7 +95,9 @@ describe('ProgramConflictDashboard', () => {
     });
 
     it('renders breadcrumbs', () => {
-        expect(document.querySelector('[aria-label="breadcrumb"]')).toBeTruthy();
+        expect(
+            document.querySelector('[aria-label="breadcrumb"]')
+        ).toBeTruthy();
     });
 
     it('renders program conflict tab', () => {

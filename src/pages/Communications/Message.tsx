@@ -62,7 +62,7 @@ export interface MessageProps {
     path: string;
     isTaiGerView: boolean;
     isLoaded: boolean;
-    onDeleteSingleMessage: (e: React.MouseEvent, messageId: string) => void;
+    onDeleteSingleMessage: (messageId: string) => void;
     handleClickSave?: (
         e: React.MouseEvent,
         editorState: { time?: number; blocks?: unknown[] }
@@ -159,13 +159,12 @@ const Message = ({
         }));
     };
 
-    const onDeleteSingleMessageHandler = (e: React.MouseEvent<HTMLElement>) => {
-        e.preventDefault();
+    const onDeleteSingleMessageHandler = () => {
         setMessageState((prevState) => ({
             ...prevState,
             deleteMessageModalShow: false
         }));
-        onDeleteSingleMessage(e, messageState.message_id);
+        onDeleteSingleMessage(messageState.message_id);
     };
 
     const closePreviewWindow = () => {

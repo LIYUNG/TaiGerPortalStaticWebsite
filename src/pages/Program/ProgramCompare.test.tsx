@@ -34,11 +34,15 @@ describe('ProgramCompare', () => {
     });
 
     it('renders without crashing', () => {
-        expect(screen.getByRole('button', { name: /Accept All/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('button', { name: /Accept All/i })
+        ).toBeInTheDocument();
     });
 
     it('renders Reject All button', () => {
-        expect(screen.getByRole('button', { name: /Reject All/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('button', { name: /Reject All/i })
+        ).toBeInTheDocument();
     });
 
     it('renders comparison table headers', () => {

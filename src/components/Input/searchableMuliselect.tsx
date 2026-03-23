@@ -29,10 +29,7 @@ const SearchableMultiSelect = ({
     label = 'Select Options',
     ...props
 }: SearchableMultiSelectProps) => {
-    const handleValueChange = (
-        _event: SyntheticEvent,
-        newValue: string[]
-    ) => {
+    const handleValueChange = (_event: SyntheticEvent, newValue: string[]) => {
         setValue(newValue);
     };
 

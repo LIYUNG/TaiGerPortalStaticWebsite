@@ -43,7 +43,9 @@ describe('InterviewExperienceStep', () => {
     });
 
     it('renders description text', () => {
-        expect(screen.getByText(/rate your interview experience/)).toBeDefined();
+        expect(
+            screen.getByText(/rate your interview experience/)
+        ).toBeDefined();
     });
 });
 

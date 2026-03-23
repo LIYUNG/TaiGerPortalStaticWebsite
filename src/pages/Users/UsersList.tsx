@@ -14,10 +14,9 @@ import {
 } from '@taiger-common/core';
 
 import UsersListSubpage from './UsersListSubpage';
-import UserDeleteWarning from './UserDeleteWarning';
 import { deleteUser, changeUserRole, updateArchivUser } from '@/api';
 import { stringAvatar } from '@utils/contants';
-import UserArchivWarning from './UserArchivWarning';
+import { ConfirmDialog, useConfirmDialog } from '@components/ConfirmDialog';
 import { getUsersQuery } from '@/api/query';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import DEMO from '@store/constant';
@@ -44,16 +43,14 @@ const UsersList = (props: UsersListProps) => {
 
     const [usersListState, setUsersListState] = useState({
         modalShow: false,
-        delete_field: '',
         firstname: '',
         lastname: '',
         selected_user_role: '',
         selected_user_id: '',
-        archiv: false,
-        modalShowNewProgram: false,
-        deleteUserWarning: false,
-        archivUserWarning: false
+        modalShowNewProgram: false
     });
+    const archivDialog = useConfirmDialog();
+    const deleteDialog = useConfirmDialog();
 
     // Format date for display (e.g., "Mar 4, 2024")
     const formatDate = (date: string | number | Date) => {
@@ -334,12 +331,8 @@ const UsersList = (props: UsersListProps) => {
                 queryClient.invalidateQueries({
                     queryKey: ['users/count']
                 });
+                deleteDialog.closeDialog();
                 setOpenSnackbar(true);
-                setUsersListState((prevState) => ({
-                    ...prevState,
-                    deleteUserWarning: false,
-                    delete_field: ''
-                }));
             }
         });
 
@@ -362,14 +355,7 @@ const UsersList = (props: UsersListProps) => {
             queryClient.invalidateQueries({
                 queryKey: ['users/count']
             });
-            setUsersListState((prevState) => ({
-                ...prevState,
-                archivUserWarning: false,
-                archiv: false,
-                selected_user_id: '',
-                firstname: '',
-                lastname: ''
-            }));
+            archivDialog.closeDialog();
             setOpenSnackbar(true);
         }
     });
@@ -397,49 +383,66 @@ const UsersList = (props: UsersListProps) => {
         }));
     };
 
-    const setModalArchivHide = () => {
-        setUsersListState((prevState) => ({
-            ...prevState,
-            archivUserWarning: false
-        }));
-    };
-
-    const setModalHideDDelete = () => {
-        setUsersListState((prevState) => ({
-            ...prevState,
-            deleteUserWarning: false,
-            delete_field: ''
-        }));
-    };
-
-    const setModalShowDelete = (
+    const handleDeleteClick = (
         user_firstname: string,
         user_lastname: string,
         user_id: string
     ) => {
-        setUsersListState((prevState) => ({
-            ...prevState,
-            deleteUserWarning: true,
-            firstname: user_firstname,
-            lastname: user_lastname,
-            selected_user_id: user_id
-        }));
+        deleteDialog.openDialog({
+            title: t('Warning', { ns: 'common' }),
+            content: (
+                <>
+                    {t('Do you want to delete')}{' '}
+                    <b>
+                        {user_firstname} - {user_lastname}
+                    </b>
+                    ?
+                </>
+            ),
+            variant: 'confirm',
+            confirmLabel: t('Yes', { ns: 'common' }),
+            cancelLabel: t('No', { ns: 'common' }),
+            requireTypedConfirm: {
+                keyword: 'delete',
+                label: (
+                    <>
+                        Please enter{' '}
+                        <i>
+                            <b>delete</b>
+                        </i>
+                    </>
+                )
+            },
+            onConfirm: () => deleteUserMutation({ id: user_id })
+        });
     };
 
-    const setModalArchiv = (
+    const handleArchiveClick = (
         user_firstname: string,
         user_lastname: string,
         user_id: string,
-        archiv: boolean
+        archiv?: boolean
     ) => {
-        setUsersListState((prevState) => ({
-            ...prevState,
-            archivUserWarning: true,
-            firstname: user_firstname,
-            lastname: user_lastname,
-            selected_user_id: user_id,
-            archiv
-        }));
+        archivDialog.openDialog({
+            title: t('Warning', { ns: 'common' }),
+            content: (
+                <>
+                    Do you want to archiv{' '}
+                    <b>
+                        {user_firstname} - {user_lastname}
+                    </b>
+                    ?
+                </>
+            ),
+            variant: 'confirm',
+            confirmLabel: t('Yes', { ns: 'common' }),
+            cancelLabel: t('No', { ns: 'common' }),
+            onConfirm: () =>
+                updateArchivUserMutation({
+                    user_id,
+                    isArchived: archiv === true ? false : true
+                })
+        });
     };
 
     const handleChange2 = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -447,17 +450,6 @@ const UsersList = (props: UsersListProps) => {
         setUsersListState((prevState) => ({
             ...prevState,
             selected_user_role: value
-        }));
-    };
-
-    const handleDeleteUser = (user_id: string) => {
-        deleteUserMutation({ id: user_id });
-    };
-
-    const onChangeDeleteField = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setUsersListState((prevState) => ({
-            ...prevState,
-            delete_field: e.target.value
         }));
     };
 
@@ -509,8 +501,8 @@ const UsersList = (props: UsersListProps) => {
         },
         renderTopToolbar: ({ table }) => (
             <TopToolbar
-                onArchiveClick={setModalArchiv}
-                onDeleteClick={setModalShowDelete}
+                onArchiveClick={handleArchiveClick}
+                onDeleteClick={handleDeleteClick}
                 onEditClick={setModalShow}
                 table={table}
                 toolbarStyle={customTableStyles.toolbarStyle}
@@ -533,26 +525,27 @@ const UsersList = (props: UsersListProps) => {
                 setModalHide={setModalHide}
                 show={usersListState.modalShow}
             />
-            <UserDeleteWarning
-                deleteUserWarning={usersListState.deleteUserWarning}
-                delete_field={usersListState.delete_field}
-                firstname={usersListState.firstname}
-                handleDeleteUser={handleDeleteUser}
-                isDeletingUser={isDeletingUser}
-                lastname={usersListState.lastname}
-                onChangeDeleteField={onChangeDeleteField}
-                selected_user_id={usersListState.selected_user_id}
-                setModalHideDDelete={setModalHideDDelete}
+            <ConfirmDialog
+                open={deleteDialog.open}
+                onClose={deleteDialog.closeDialog}
+                {...deleteDialog.dialogConfig}
+                confirmDisabled={isDeletingUser}
+                confirmLabel={
+                    isDeletingUser
+                        ? t('Loading')
+                        : deleteDialog.dialogConfig.confirmLabel
+                }
             />
-            <UserArchivWarning
-                archiv={usersListState.archiv}
-                archivUserWarning={usersListState.archivUserWarning}
-                firstname={usersListState.firstname}
-                isUpdatingArchivUser={isUpdatingArchivUser}
-                lastname={usersListState.lastname}
-                selected_user_id={usersListState.selected_user_id}
-                setModalArchivHide={setModalArchivHide}
-                updateUserArchivStatus={updateArchivUserMutation}
+            <ConfirmDialog
+                open={archivDialog.open}
+                onClose={archivDialog.closeDialog}
+                {...archivDialog.dialogConfig}
+                confirmDisabled={isUpdatingArchivUser}
+                confirmLabel={
+                    isUpdatingArchivUser
+                        ? t('Loading')
+                        : archivDialog.dialogConfig.confirmLabel
+                }
             />
         </Box>
     );

@@ -7,7 +7,9 @@ vi.mock('react-i18next', () => ({
 }));
 
 vi.mock('@/api', () => ({
-    updateStudentNotes: vi.fn(() => Promise.resolve({ data: { success: true }, status: 200 }))
+    updateStudentNotes: vi.fn(() =>
+        Promise.resolve({ data: { success: true }, status: 200 })
+    )
 }));
 
 vi.mock('./NotesEditor', () => ({
@@ -21,22 +23,14 @@ vi.mock('./NotesEditor', () => ({
 describe('NotesCard', () => {
     it('renders NotesEditor', () => {
         render(
-            <NotesCard
-                notes={null}
-                isLoaded={true}
-                student_id="student1"
-            />
+            <NotesCard notes={null} isLoaded={true} student_id="student1" />
         );
         expect(screen.getByTestId('notes-editor')).toBeInTheDocument();
     });
 
     it('passes correct notes_id to NotesEditor', () => {
         render(
-            <NotesCard
-                notes={null}
-                isLoaded={true}
-                student_id="student42"
-            />
+            <NotesCard notes={null} isLoaded={true} student_id="student42" />
         );
         expect(screen.getByTestId('notes-editor')).toHaveAttribute(
             'data-notes-id',
@@ -47,11 +41,7 @@ describe('NotesCard', () => {
     it('renders with initial notes data', () => {
         const notes = { blocks: [] };
         render(
-            <NotesCard
-                notes={notes}
-                isLoaded={true}
-                student_id="student1"
-            />
+            <NotesCard notes={notes} isLoaded={true} student_id="student1" />
         );
         expect(screen.getByTestId('notes-editor')).toBeInTheDocument();
     });

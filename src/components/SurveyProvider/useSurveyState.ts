@@ -150,19 +150,20 @@ export function useSurveyState({
         university: Record<string, unknown>
     ) => {
         updateAcademicBackground(
-            university,
-            surveyState.student_id as string
-        ).then(
-            (resp: {
-                data: {
-                    data?: Record<string, unknown>;
-                    success?: boolean;
-                    message?: string;
+            university as unknown as string,
+            surveyState.student_id as unknown as string
+        )
+            .then((resp: unknown) => {
+                const r = resp as {
+                    data: {
+                        data?: Record<string, unknown>;
+                        success?: boolean;
+                        message?: string;
+                    };
+                    status?: number;
                 };
-                status?: number;
-            }) => {
-                const { data, success } = resp.data;
-                const { status } = resp;
+                const { data, success } = r.data;
+                const { status } = r;
                 if (success && data) {
                     setSurveyState((prevState) => ({
                         ...prevState,
@@ -177,23 +178,22 @@ export function useSurveyState({
                     }));
                     onSuccess?.();
                 } else {
-                    const { message } = resp.data;
+                    const { message } = r.data;
                     setSurveyState((prevState) => ({
                         ...prevState,
                         res_modal_message: message,
                         res_modal_status: status
                     }));
                 }
-            },
-            (error: unknown) => {
+            })
+            .catch((error: unknown) => {
                 setSurveyState((prevState) => ({
                     ...prevState,
                     error,
                     res_modal_status: 500,
                     res_modal_message: JSON.stringify(error)
                 }));
-            }
-        );
+            });
     };
 
     const handleSurveyLanguageSubmit = (
@@ -201,17 +201,21 @@ export function useSurveyState({
         language: Record<string, unknown>
     ) => {
         e.preventDefault();
-        updateLanguageSkill(language, surveyState.student_id as string).then(
-            (resp: {
-                data: {
-                    data?: Record<string, unknown>;
-                    success?: boolean;
-                    message?: string;
+        updateLanguageSkill(
+            language as unknown as string,
+            surveyState.student_id as unknown as string
+        )
+            .then((resp: unknown) => {
+                const r = resp as {
+                    data: {
+                        data?: Record<string, unknown>;
+                        success?: boolean;
+                        message?: string;
+                    };
+                    status?: number;
                 };
-                status?: number;
-            }) => {
-                const { data, success } = resp.data;
-                const { status } = resp;
+                const { data, success } = r.data;
+                const { status } = r;
                 if (success && data) {
                     setSurveyState((prevState) => ({
                         ...prevState,
@@ -226,23 +230,22 @@ export function useSurveyState({
                     }));
                     onSuccess?.();
                 } else {
-                    const { message } = resp.data;
+                    const { message } = r.data;
                     setSurveyState((prevState) => ({
                         ...prevState,
                         res_modal_message: message,
                         res_modal_status: status
                     }));
                 }
-            },
-            (error: unknown) => {
+            })
+            .catch((error: unknown) => {
                 setSurveyState((prevState) => ({
                     ...prevState,
                     error,
                     res_modal_status: 500,
                     res_modal_message: ''
                 }));
-            }
-        );
+            });
     };
 
     const handleApplicationPreferenceSubmit = (
@@ -252,18 +255,19 @@ export function useSurveyState({
         e.preventDefault();
         updateApplicationPreference(
             application_preference,
-            surveyState.student_id as string
-        ).then(
-            (resp: {
-                data: {
-                    data?: Record<string, unknown>;
-                    success?: boolean;
-                    message?: string;
+            surveyState.student_id as unknown as string
+        )
+            .then((resp: unknown) => {
+                const r = resp as {
+                    data: {
+                        data?: Record<string, unknown>;
+                        success?: boolean;
+                        message?: string;
+                    };
+                    status?: number;
                 };
-                status?: number;
-            }) => {
-                const { data, success } = resp.data;
-                const { status } = resp;
+                const { data, success } = r.data;
+                const { status } = r;
                 if (success && data) {
                     setSurveyState((prevState) => ({
                         ...prevState,
@@ -275,23 +279,22 @@ export function useSurveyState({
                     }));
                     onSuccess?.();
                 } else {
-                    const { message } = resp.data;
+                    const { message } = r.data;
                     setSurveyState((prevState) => ({
                         ...prevState,
                         res_modal_message: message,
                         res_modal_status: status
                     }));
                 }
-            },
-            (error: unknown) => {
+            })
+            .catch((error: unknown) => {
                 setSurveyState((prevState) => ({
                     ...prevState,
                     error,
                     res_modal_status: 500,
                     res_modal_message: ''
                 }));
-            }
-        );
+            });
     };
 
     const updateDocLink = (link: string, key: string) => {

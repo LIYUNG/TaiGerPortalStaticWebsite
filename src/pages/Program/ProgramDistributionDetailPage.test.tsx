@@ -36,7 +36,10 @@ vi.mock('@hooks/useProgramsOverview', () => ({
         data: {
             totalPrograms: 100,
             totalSchools: 50,
-            byCountry: [{ country: 'Germany', count: 40 }, { country: 'USA', count: 30 }],
+            byCountry: [
+                { country: 'Germany', count: 40 },
+                { country: 'USA', count: 30 }
+            ],
             byDegree: [{ degree: 'Master', count: 80 }],
             byLanguage: [{ language: 'English', count: 60 }],
             bySubject: [{ subject: 'CS', count: 30 }]
@@ -69,11 +72,15 @@ describe('ProgramDistributionDetailPage', () => {
     });
 
     it('renders without crashing', () => {
-        expect(screen.getAllByText('Programs by Country')[0]).toBeInTheDocument();
+        expect(
+            screen.getAllByText('Programs by Country')[0]
+        ).toBeInTheDocument();
     });
 
     it('renders breadcrumb navigation', () => {
-        expect(screen.getByRole('navigation', { name: 'breadcrumb' })).toBeInTheDocument();
+        expect(
+            screen.getByRole('navigation', { name: 'breadcrumb' })
+        ).toBeInTheDocument();
     });
 
     it('renders distribution items', () => {
@@ -82,6 +89,8 @@ describe('ProgramDistributionDetailPage', () => {
     });
 
     it('renders Back to Overview button', () => {
-        expect(screen.getByRole('button', { name: /Back to Overview/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('button', { name: /Back to Overview/i })
+        ).toBeInTheDocument();
     });
 });

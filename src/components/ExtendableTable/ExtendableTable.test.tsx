@@ -4,7 +4,8 @@ import { MemoryRouter } from 'react-router-dom';
 
 vi.mock('@store/constant', () => ({
     default: {
-        STUDENT_APPLICATIONS_ID_LINK: (id: string) => `/student/${id}/applications`,
+        STUDENT_APPLICATIONS_ID_LINK: (id: string) =>
+            `/student/${id}/applications`,
         DOCUMENT_MODIFICATION_LINK: (id: string) => `/docs/${id}`
     }
 }));
@@ -22,7 +23,12 @@ const mockData = [
         lastname: 'Smith',
         applying_program_count: 3,
         expenses: [
-            { amount: 100, currency: 'EUR', status: 'paid', description: 'Tuition' }
+            {
+                amount: 100,
+                currency: 'EUR',
+                status: 'paid',
+                description: 'Tuition'
+            }
         ],
         generaldocs_threads: [],
         applications: []

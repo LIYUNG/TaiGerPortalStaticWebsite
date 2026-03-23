@@ -4,7 +4,12 @@ import { MemoryRouter } from 'react-router-dom';
 
 vi.mock('../AuthProvider', () => ({
     useAuth: () => ({
-        user: { _id: 'u1', role: 'Agent', firstname: 'Alice', lastname: 'Smith' },
+        user: {
+            _id: 'u1',
+            role: 'Agent',
+            firstname: 'Alice',
+            lastname: 'Smith'
+        },
         isAuthenticated: true,
         isLoaded: true,
         logout: vi.fn()
@@ -35,9 +40,7 @@ vi.mock('@/api', () => ({
     getMyCommunicationUnreadNumber: vi.fn(() =>
         Promise.resolve({ data: { data: 0 } })
     ),
-    getActiveEventsNumber: vi.fn(() =>
-        Promise.resolve({ data: { data: 0 } })
-    )
+    getActiveEventsNumber: vi.fn(() => Promise.resolve({ data: { data: 0 } }))
 }));
 
 vi.mock('../../config', () => ({

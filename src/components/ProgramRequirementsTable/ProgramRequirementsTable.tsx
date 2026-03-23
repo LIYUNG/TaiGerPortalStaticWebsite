@@ -13,6 +13,7 @@ import {
     SelectChangeEvent,
     Stack,
     Tooltip,
+    Typography,
     useMediaQuery,
     useTheme,
     Chip,
@@ -22,6 +23,7 @@ import {
 import { PROGRAM_SUBJECTS } from '@taiger-common/model';
 import i18next from 'i18next';
 import {
+    type MRT_TableInstance,
     MaterialReactTable,
     MRT_GlobalFilterTextField as MRTGlobalFilterTextField,
     MRT_ToggleFiltersButton as MRTToggleFiltersButton,
@@ -33,7 +35,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import InfoIcon from '@mui/icons-material/Info';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 
-import CourseAnalysisConfirmDialog from '@pages/MyCourses/CourseAnalysisConfirmDialog';
+import { ConfirmDialog } from '@components/ConfirmDialog';
 
 export interface ProgramRequirementRow {
     _id: string;
@@ -146,13 +148,13 @@ export const ProgramRequirementsTable = ({
             },
             {
                 accessorKey: 'lang',
-                filterVariant: 'autocomplete',
+                filterVariant: 'autocomplete' as const,
                 header: i18next.t('Language', { ns: 'common' }),
                 size: isMobile ? 100 : 120
             },
             {
                 accessorKey: 'country',
-                filterVariant: 'autocomplete',
+                filterVariant: 'autocomplete' as const,
                 header: i18next.t('Country', { ns: 'common' }),
                 size: isMobile ? 100 : 120
             },
@@ -246,10 +248,9 @@ export const ProgramRequirementsTable = ({
                         renderTags={(value, getTagProps) =>
                             value.map((option, index) => (
                                 <Chip
-                                    key={option.code}
+                                    {...getTagProps({ index })}
                                     label={option.code}
                                     size="small"
-                                    {...getTagProps({ index })}
                                 />
                             ))
                         }
@@ -381,7 +382,9 @@ export const ProgramRequirementsTable = ({
             shape: 'rounded',
             variant: 'outlined'
         },
-        renderTopToolbar
+        renderTopToolbar: renderTopToolbar as unknown as (props: {
+            table: MRT_TableInstance<ProgramRequirementRow>;
+        }) => React.ReactNode
     });
 
     const isButtonDisable =
@@ -410,14 +413,33 @@ export const ProgramRequirementsTable = ({
                         </Box>
                     </Box>
                 )}
-                <CourseAnalysisConfirmDialog
-                    data={table
-                        .getSelectedRowModel()
-                        .rows.map((row) => row.original)}
-                    isButtonDisable={isButtonDisable}
-                    onAnalyse={onAnalyse}
-                    setModalHide={setModalHide}
-                    show={statedata.modalShowAssignWindow}
+                <ConfirmDialog
+                    open={statedata.modalShowAssignWindow}
+                    onClose={setModalHide}
+                    title={
+                        <>
+                            Analyse{' '}
+                            {table.getSelectedRowModel().rows.map((row, i) => (
+                                <Typography key={i}>
+                                    {row.original.program_name}
+                                </Typography>
+                            ))}
+                        </>
+                    }
+                    content=""
+                    variant="confirm"
+                    confirmLabel={
+                        isButtonDisable
+                            ? i18next.t('Loading')
+                            : i18next.t('Analyze', { ns: 'common' })
+                    }
+                    cancelLabel={i18next.t('Cancel', { ns: 'common' })}
+                    onConfirm={() =>
+                        onAnalyse({
+                            preventDefault: () => {}
+                        } as React.MouseEvent<HTMLButtonElement>)
+                    }
+                    confirmDisabled={isButtonDisable}
                 />
             </Box>
         </LocalizationProvider>

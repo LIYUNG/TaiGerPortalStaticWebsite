@@ -107,6 +107,8 @@ describe('CustomerTicketDetailPageBody', () => {
                 <CustomerTicketDetailPageBody complaintTicket={mockTicket} />
             </MemoryRouter>
         );
-        expect(screen.getByRole('button', { name: /Delete Ticket/i })).toBeTruthy();
+        expect(
+            screen.getByRole('button', { name: /Delete Ticket/i })
+        ).toBeTruthy();
     });
 });

@@ -16,7 +16,10 @@ const SingleBarChart = ({
     yLabel
 }: SingleBarChartProps) => {
     const labels = data.map((d) => d[dataKey]);
-    const active_a = data.map((d) => d[dataYKey]);
+    const active_a = data.map((d) => {
+        const v = d[dataYKey];
+        return typeof v === 'number' ? v : null;
+    });
     return (
         <BarChart
             barLabel="value"

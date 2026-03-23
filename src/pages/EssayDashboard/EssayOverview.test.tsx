@@ -22,13 +22,22 @@ vi.mock('@store/constant', () => ({
     }
 }));
 
-vi.mock('../Utils/ModalHandler/ModalMain', () => ({ default: () => <div>Modal</div> }));
+vi.mock('../Utils/ModalHandler/ModalMain', () => ({
+    default: () => <div>Modal</div>
+}));
 vi.mock('@components/MuiDataGrid', () => ({
     MuiDataGrid: () => <div data-testid="data-grid">DataGrid</div>
 }));
 vi.mock('@components/Tabs', () => ({
-    CustomTabPanel: ({ children, index, value }: { children: React.ReactNode; index: number; value: number }) =>
-        index === value ? <div>{children}</div> : null,
+    CustomTabPanel: ({
+        children,
+        index,
+        value
+    }: {
+        children: React.ReactNode;
+        index: number;
+        value: number;
+    }) => (index === value ? <div>{children}</div> : null),
     a11yProps: () => ({})
 }));
 

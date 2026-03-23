@@ -75,12 +75,15 @@ vi.mock('./UsersListSubpage', () => ({
     default: () => createElement('div', { 'data-testid': 'subpage-modal' })
 }));
 
-vi.mock('./UserDeleteWarning', () => ({
-    default: () => createElement('div', { 'data-testid': 'delete-warning' })
-}));
-
-vi.mock('./UserArchivWarning', () => ({
-    default: () => createElement('div', { 'data-testid': 'archiv-warning' })
+vi.mock('@components/ConfirmDialog', () => ({
+    ConfirmDialog: () =>
+        createElement('div', { 'data-testid': 'confirm-dialog' }),
+    useConfirmDialog: () => ({
+        open: false,
+        openDialog: vi.fn(),
+        closeDialog: vi.fn(),
+        dialogConfig: {}
+    })
 }));
 
 vi.mock('@store/constant', () => ({
@@ -107,7 +110,6 @@ describe('UsersList', () => {
     it('renders the modal stubs', () => {
         render(<UsersList {...defaultProps} />);
         expect(screen.getByTestId('subpage-modal')).toBeInTheDocument();
-        expect(screen.getByTestId('delete-warning')).toBeInTheDocument();
-        expect(screen.getByTestId('archiv-warning')).toBeInTheDocument();
+        expect(screen.getAllByTestId('confirm-dialog')).toHaveLength(2);
     });
 });

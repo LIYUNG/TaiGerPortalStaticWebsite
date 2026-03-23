@@ -19,9 +19,16 @@ vi.mock('../../Utils/ModalHandler/ModalMain', () => ({
     default: () => <div data-testid="modal-main" />
 }));
 
-vi.mock('@pages/Dashboard/MainViewTab/NoTrainersInterviewsCard/NoTrainersInterviewsCard', () => ({
-    default: () => <tr data-testid="no-trainers-card"><td /></tr>
-}));
+vi.mock(
+    '@pages/Dashboard/MainViewTab/NoTrainersInterviewsCard/NoTrainersInterviewsCard',
+    () => ({
+        default: () => (
+            <tr data-testid="no-trainers-card">
+                <td />
+            </tr>
+        )
+    })
+);
 
 import AssignInterviewTrainersPage from './AssignInterviewTrainersPage';
 

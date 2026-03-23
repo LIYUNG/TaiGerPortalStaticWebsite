@@ -45,7 +45,7 @@ vi.mock('react-router-dom', async (importOriginal) => {
     return {
         ...actual,
         Navigate: () => null,
-        Link: forwardRef((props: any, ref: any) =>
+        Link: forwardRef((props: unknown, ref: unknown) =>
             createElement(
                 'a',
                 { href: props.to ?? '', ref, ...props },
@@ -107,17 +107,15 @@ vi.mock('@/api', async (importOriginal) => ({
         .mockResolvedValue({ data: { result: [] }, success: true }),
     getArchivStudents: vi.fn().mockResolvedValue({ data: [], status: 200 }),
     getStudents: vi.fn().mockResolvedValue({ data: [], status: 200 }),
-    getUsersCount: vi
-        .fn()
-        .mockResolvedValue({
-            data: {
-                studentCount: 0,
-                agentCount: 0,
-                editorCount: 0,
-                externalCount: 0,
-                adminCount: 0
-            }
-        }),
+    getUsersCount: vi.fn().mockResolvedValue({
+        data: {
+            studentCount: 0,
+            agentCount: 0,
+            editorCount: 0,
+            externalCount: 0,
+            adminCount: 0
+        }
+    }),
     getUsers: vi.fn().mockResolvedValue({ data: { data: [] } }),
     getUsersOverview: vi.fn().mockResolvedValue({ data: [] }),
     getStudentsAndDocLinks2: vi
@@ -132,20 +130,16 @@ vi.mock('@/api', async (importOriginal) => ({
     getMyAcademicBackground: vi.fn().mockResolvedValue({ data: {} }),
     getProgram: vi.fn().mockResolvedValue({ data: {} }),
     getAllOpenInterviews: vi.fn().mockResolvedValue({ data: [] }),
-    getMyStudentsThreads: vi
-        .fn()
-        .mockResolvedValue({
-            data: { threads: [] },
-            success: true,
-            status: 200
-        }),
-    getThreadsByStudent: vi
-        .fn()
-        .mockResolvedValue({
-            data: { threads: [] },
-            success: true,
-            status: 200
-        }),
+    getMyStudentsThreads: vi.fn().mockResolvedValue({
+        data: { threads: [] },
+        success: true,
+        status: 200
+    }),
+    getThreadsByStudent: vi.fn().mockResolvedValue({
+        data: { threads: [] },
+        success: true,
+        status: 200
+    }),
     updateCredentials: vi
         .fn()
         .mockResolvedValue({ data: { success: true }, status: 200 }),
@@ -308,11 +302,6 @@ vi.mock('@/api/query', async (importOriginal) => {
     const actual = await importOriginal<typeof import('@/api/query')>();
     return {
         ...actual,
-        getStudentsAndDocLinks2Query: (qs: string) => ({
-            queryKey: ['students/doc-links', qs],
-            queryFn: () => Promise.resolve({ data: [], base_docs_link: [] }),
-            staleTime: 60000
-        }),
         getUsersCountQuery: () => ({
             queryKey: ['users/count'],
             queryFn: () =>
@@ -332,46 +321,10 @@ vi.mock('@/api/query', async (importOriginal) => {
             queryFn: () => Promise.resolve({ data: { data: [] } }),
             staleTime: 300000
         }),
-        getTeamMembersQuery: () => ({
-            queryKey: ['team-members'],
-            queryFn: () =>
-                Promise.resolve({ data: { data: [], success: true } }),
-            staleTime: 300000
-        }),
         getApplicationConflictsQuery: () => ({
             queryKey: ['application-conflicts'],
             queryFn: () =>
                 Promise.resolve({ data: { data: [], success: true } }),
-            staleTime: 300000
-        }),
-        getActiveStudentsQuery: (qs: string) => ({
-            queryKey: ['students/active', qs],
-            queryFn: () => Promise.resolve({ data: [] }),
-            staleTime: 60000
-        }),
-        getActiveThreadsQuery: (qs: string) => ({
-            queryKey: ['active-threads', qs],
-            queryFn: () => Promise.resolve({ data: [] }),
-            staleTime: 300000
-        }),
-        getProgramQuery: () => ({
-            queryKey: ['programs', 'test-program'],
-            queryFn: () => Promise.resolve({ data: { data: {} } }),
-            staleTime: 60000
-        }),
-        getProgramsQuery: () => ({
-            queryKey: ['programs'],
-            queryFn: () => Promise.resolve({ data: { data: [] } }),
-            staleTime: 60000
-        }),
-        getProgramsOverviewQuery: () => ({
-            queryKey: ['programs', 'overview'],
-            queryFn: () => Promise.resolve({ data: { data: {} } }),
-            staleTime: 300000
-        }),
-        getSchoolsDistributionQuery: () => ({
-            queryKey: ['programs', 'schools-distribution'],
-            queryFn: () => Promise.resolve({ data: { data: [] } }),
             staleTime: 300000
         }),
         getExpenseQuery: () => ({
@@ -402,25 +355,6 @@ vi.mock('@/api/query', async (importOriginal) => {
             queryFn: () => Promise.resolve({ data: {} }),
             staleTime: 300000,
             enabled: false
-        }),
-        getMyStudentsThreadsQuery: () => ({
-            queryKey: [
-                'document-threads/overview/taiger-user',
-                'test-user',
-                ''
-            ],
-            queryFn: () => Promise.resolve({ data: null }),
-            staleTime: 300000
-        }),
-        getMyStudentsApplicationsV2Query: () => ({
-            queryKey: ['applications/taiger-user', 'test-user', ''],
-            queryFn: () => Promise.resolve({ data: { data: [] } }),
-            staleTime: 300000
-        }),
-        getStudentsV3Query: () => ({
-            queryKey: ['students/v3', ''],
-            queryFn: () => Promise.resolve({ data: [] }),
-            staleTime: 300000
         }),
         getApplicationStudentV2Query: () => ({
             queryKey: ['applications/student', 'test-student'],
@@ -553,7 +487,7 @@ vi.mock('@hooks/useLead', () => ({
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 const wrapWithSuspense = (
-    Component: LazyExoticComponent<ComponentType<any>>
+    Component: LazyExoticComponent<ComponentType<unknown>>
 ) => (
     <Suspense fallback={<div data-testid="loading">Loading...</div>}>
         <Component />

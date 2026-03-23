@@ -13,18 +13,24 @@ import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
 import { BreadcrumbsNavigation } from '@components/BreadcrumbsNavigation/BreadcrumbsNavigation';
 import Loading from '@components/Loading/Loading';
+import type { IApplicationPopulated } from '@taiger-common/model';
 import { useMyStudentsApplicationsV2 } from '@hooks/useMyStudentsApplicationsV2';
 import { useStudentsV3 } from '@hooks/useStudentsV3';
 
 const ApplicantsOverview = () => {
     const { user } = useAuth();
 
-    const role = is_TaiGer_Editor(user) ? 'editors' : 'agents';
+    const role = user != null && is_TaiGer_Editor(user) ? 'editors' : 'agents';
+    const userIdStr = user?._id?.toString() ?? '';
     const { data: fetchedMyStudents, isLoading: isLoadingMyStudents } =
-        useStudentsV3({ [role]: user._id, archiv: false });
+        useStudentsV3({ [role]: userIdStr, archiv: false });
 
     const { data: myStudentsApplications, isLoading } =
-        useMyStudentsApplicationsV2({ userId: user._id });
+        useMyStudentsApplicationsV2({ userId: userIdStr });
+
+    if (!user) {
+        return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
+    }
 
     if (is_TaiGer_Student(user)) {
         return (
@@ -61,7 +67,9 @@ const ApplicantsOverview = () => {
                 ]}
             />
             <ApplicationOverviewTabs
-                applications={myStudentsApplications.applications}
+                applications={
+                    myStudentsApplications.applications as IApplicationPopulated[]
+                }
                 students={fetchedMyStudents}
             />
         </Box>

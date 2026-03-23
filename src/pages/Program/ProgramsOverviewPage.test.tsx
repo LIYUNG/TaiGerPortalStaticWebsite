@@ -110,6 +110,8 @@ describe('ProgramsOverviewPage', () => {
     });
 
     it('renders View All Programs button', () => {
-        expect(screen.getByRole('link', { name: 'View All Programs' })).toBeInTheDocument();
+        expect(
+            screen.getByRole('link', { name: 'View All Programs' })
+        ).toBeInTheDocument();
     });
 });

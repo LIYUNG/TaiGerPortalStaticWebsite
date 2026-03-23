@@ -19,6 +19,10 @@ import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
 import Loading from '@components/Loading/Loading';
+import type {
+    IDocumentthread,
+    IDocumentthreadPopulated
+} from '@taiger-common/model';
 import {
     is_my_fav_message_status,
     is_new_message_status,
@@ -78,12 +82,12 @@ const AgentSupportDocuments = () => {
     });
 
     const baseOpenTasksArr = useMemo(
-        () => open_tasks_v2(threadsData.threads),
+        () => open_tasks_v2(threadsData.threads as IDocumentthreadPopulated[]),
         [threadsData.threads]
     );
 
     const open_tasks_arr_safe = useMemo(() => {
-        const userIdStr = user?._id?.toString();
+        const userIdStr = user?._id?.toString() ?? '';
         if (!userIdStr) return baseOpenTasksArr;
         return baseOpenTasksArr.map((row) => {
             const toggled = optimisticFavToggles[row.id];
@@ -105,14 +109,19 @@ const AgentSupportDocuments = () => {
     }, [baseOpenTasksArr, optimisticFavToggles, user?._id]);
 
     const handleFavoriteToggle = (id: string) => {
+        if (typeof id !== 'string') return;
         const row = open_tasks_arr_safe.find((r) => r.id === id);
         const currentIsFav = (row?.flag_by_user_id ?? []).includes(
-            user?._id?.toString()
+            user?._id?.toString() ?? ''
         );
         setOptimisticFavToggles((prev) => ({ ...prev, [id]: !currentIsFav }));
         setMutationError(null);
         putThreadFavoriteMutation.mutate(id);
     };
+
+    if (!user) {
+        return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
+    }
 
     const res_status = isThreadsError
         ? 500
@@ -121,7 +130,7 @@ const AgentSupportDocuments = () => {
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
-    TabTitle(t('Agent Support Documents', { ns: 'common' }), { ns: 'common' });
+    TabTitle(t('Agent Support Documents', { ns: 'common' }));
     if (isLoadedThreads) {
         return <Loading />;
     }
@@ -132,14 +141,16 @@ const AgentSupportDocuments = () => {
 
     const tasks_withMyEssay_arr = open_tasks_arr_safe.filter(
         (open_task) =>
-            [...AGENT_SUPPORT_DOCUMENTS_A].includes(open_task.file_type) ||
+            (open_task.file_type != null &&
+                [...AGENT_SUPPORT_DOCUMENTS_A].includes(open_task.file_type)) ||
             (
                 open_task.outsourced_user_id as
                     | Array<{ _id: { toString: () => string } }>
                     | undefined
             )?.some(
                 (outsourcedUser) =>
-                    outsourcedUser._id.toString() === user._id.toString()
+                    outsourcedUser._id.toString() ===
+                    (user._id?.toString() ?? '')
             )
     );
 
@@ -148,22 +159,22 @@ const AgentSupportDocuments = () => {
     );
 
     const new_message_tasks = open_tasks_withMyEssay_arr.filter((open_task) =>
-        is_new_message_status(user, open_task)
+        is_new_message_status(user, open_task as unknown as IDocumentthread)
     );
 
     const fav_message_tasks = open_tasks_withMyEssay_arr.filter((open_task) =>
-        is_my_fav_message_status(user, open_task)
+        is_my_fav_message_status(user, open_task as unknown as IDocumentthread)
     );
 
     const followup_tasks = open_tasks_withMyEssay_arr.filter(
         (open_task) =>
-            is_pending_status(user, open_task) &&
+            is_pending_status(user, open_task as unknown as IDocumentthread) &&
             open_task.latest_message_left_by_id !== '- None - '
     );
 
     const pending_progress_tasks = open_tasks_withMyEssay_arr.filter(
         (open_task) =>
-            is_pending_status(user, open_task) &&
+            is_pending_status(user, open_task as unknown as IDocumentthread) &&
             open_task.latest_message_left_by_id === '- None - '
     );
 
@@ -209,7 +220,6 @@ const AgentSupportDocuments = () => {
                 isLoaded={!isLoadedThreads}
                 new_message_tasks={new_message_tasks}
                 pending_progress_tasks={pending_progress_tasks}
-                students={threadsData}
                 success={threadsData.success}
             />
         </Box>

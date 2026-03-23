@@ -58,9 +58,7 @@ describe('ExampleWithLocalizationProvider with row selection', () => {
     });
 
     it('renders with empty data', () => {
-        render(
-            <ExampleWithLocalizationProvider col={mockColumns} data={[]} />
-        );
+        render(<ExampleWithLocalizationProvider col={mockColumns} data={[]} />);
         expect(screen.getByTestId('material-react-table')).toBeDefined();
     });
 });

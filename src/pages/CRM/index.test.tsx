@@ -26,7 +26,10 @@ vi.mock('@taiger-common/core', () => ({
 }));
 
 vi.mock('@/api/query', () => ({
-    getCRMStatsQuery: vi.fn(() => ({ queryKey: ['crm/stats'], queryFn: vi.fn() }))
+    getCRMStatsQuery: vi.fn(() => ({
+        queryKey: ['crm/stats'],
+        queryFn: vi.fn()
+    }))
 }));
 
 vi.mock('@mui/x-charts/BarChart', () => ({
@@ -49,7 +52,9 @@ describe('CRMDashboard', () => {
     it('renders dashboard content when data is available', async () => {
         const { useQuery } = await import('@tanstack/react-query');
         (useQuery as ReturnType<typeof vi.fn>).mockReturnValue({
-            data: { data: { data: { totalLeadCount: 5, totalMeetingCount: 3 } } },
+            data: {
+                data: { data: { totalLeadCount: 5, totalMeetingCount: 3 } }
+            },
             isLoading: false
         });
 

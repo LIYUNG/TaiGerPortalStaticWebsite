@@ -7,7 +7,8 @@ import ProgramTaskDelta from './ProgramTaskDelta';
 vi.mock('@store/constant', () => ({
     default: {
         SINGLE_PROGRAM_LINK: (id: string) => `/programs/${id}`,
-        STUDENT_DATABASE_STUDENTID_LINK: (id: string, hash: string) => `/student/${id}${hash}`,
+        STUDENT_DATABASE_STUDENTID_LINK: (id: string, hash: string) =>
+            `/student/${id}${hash}`,
         CVMLRL_HASH: '#cvmlrl'
     }
 }));
@@ -37,22 +38,31 @@ describe('ProgramTaskDelta', () => {
         render(
             <MemoryRouter>
                 <Table>
-                    <ProgramTaskDelta program={mockProgram} students={mockStudents} />
+                    <ProgramTaskDelta
+                        program={mockProgram}
+                        students={mockStudents}
+                    />
                 </Table>
             </MemoryRouter>
         );
     });
 
     it('renders the school name link', () => {
-        expect(screen.getByRole('link', { name: /TU Munich/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('link', { name: /TU Munich/i })
+        ).toBeInTheDocument();
     });
 
     it('renders the program name link', () => {
-        expect(screen.getByRole('link', { name: /Computer Science/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('link', { name: /Computer Science/i })
+        ).toBeInTheDocument();
     });
 
     it('renders student name link', () => {
-        expect(screen.getByRole('link', { name: /John, Doe/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('link', { name: /John, Doe/i })
+        ).toBeInTheDocument();
     });
 
     it('renders missing file types (delta add)', () => {

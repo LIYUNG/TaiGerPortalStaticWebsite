@@ -612,7 +612,14 @@ const NewProgramEdit = (props: NewProgramEditProps) => {
                                 onChange={(e) => handleChange(e)}
                                 size="small"
                                 value={
-                                    ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].includes(
+                                    [
+                                        'A1',
+                                        'A2',
+                                        'B1',
+                                        'B2',
+                                        'C1',
+                                        'C2'
+                                    ].includes(
                                         program.goetheZertifikat as string
                                     )
                                         ? (program.goetheZertifikat as string)

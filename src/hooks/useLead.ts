@@ -1,6 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { getCRMLeadQuery } from '@/api/query';
+import { getCRMLead } from '@/api';
+import type {
+    CRMLeadWithMeetings,
+    GetCRMLeadResponse
+} from '@taiger-common/model';
 
 export type UseLeadOptions = {
     enabled?: boolean;
@@ -8,21 +12,28 @@ export type UseLeadOptions = {
 
 /**
  * Fetches a single CRM lead by id.
- * Unifies getCRMLeadQuery usage and normalizes response to a lead object.
+ * Normalizes response to a lead object.
  */
 export function useLead(leadId: string | undefined, options?: UseLeadOptions) {
-    const query = getCRMLeadQuery(leadId ?? '');
+    const enabled = (options?.enabled ?? true) && !!leadId;
 
-    const result = useQuery({
-        ...query,
-        enabled: (options?.enabled ?? true) && !!leadId
+    const result = useQuery<
+        GetCRMLeadResponse,
+        Error,
+        CRMLeadWithMeetings | undefined
+    >({
+        queryKey: ['crm/lead', leadId],
+        queryFn: () => getCRMLead(leadId!),
+        staleTime: 1000 * 60 * 5, // 5 minutes
+        enabled,
+        select: (response) => response.data
     });
 
-    const lead = result.data?.data?.data ?? {};
+    const lead = result.data;
 
     return {
         ...result,
         lead,
-        queryKey: query.queryKey
+        queryKey: ['crm/lead', leadId]
     };
 }

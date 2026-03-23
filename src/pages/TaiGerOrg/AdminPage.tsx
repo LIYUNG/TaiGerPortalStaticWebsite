@@ -38,7 +38,7 @@ const AdminPage = () => {
     }
 
     const admin: AdminUser | null = Array.isArray(teams)
-        ? (teams as AdminUser[])[0] ?? null
+        ? ((teams as AdminUser[])[0] ?? null)
         : (teams as AdminUser);
 
     TabTitle(`${appConfig.companyName} Admin`);

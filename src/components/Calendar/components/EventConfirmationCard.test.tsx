@@ -56,10 +56,14 @@ describe('EventConfirmationCard', () => {
         render(
             <MemoryRouter>
                 <EventConfirmationCard
-                    event={mockEvent}
-                    onDelete={vi.fn()}
-                    onConfirm={vi.fn()}
-                    isLoading={false}
+                    event={
+                        mockEvent as Parameters<
+                            typeof EventConfirmationCard
+                        >[0]['event']
+                    }
+                    handleConfirmAppointmentModalOpen={vi.fn()}
+                    handleEditAppointmentModalOpen={vi.fn()}
+                    handleDeleteAppointmentModalOpen={vi.fn()}
                 />
             </MemoryRouter>
         );
@@ -70,10 +74,14 @@ describe('EventConfirmationCard', () => {
         render(
             <MemoryRouter>
                 <EventConfirmationCard
-                    event={mockEvent}
-                    onDelete={vi.fn()}
-                    onConfirm={vi.fn()}
-                    isLoading={true}
+                    event={
+                        mockEvent as Parameters<
+                            typeof EventConfirmationCard
+                        >[0]['event']
+                    }
+                    handleConfirmAppointmentModalOpen={vi.fn()}
+                    handleEditAppointmentModalOpen={vi.fn()}
+                    handleDeleteAppointmentModalOpen={vi.fn()}
                 />
             </MemoryRouter>
         );

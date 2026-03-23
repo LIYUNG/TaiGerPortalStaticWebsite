@@ -53,7 +53,7 @@ vi.mock('../Utils/util_functions', () => ({
     AGENT_SUPPORT_DOCUMENTS_A: [],
     FILE_TYPE_E: { essay_required: 'essay_required' },
     open_tasks_v2: vi.fn(() => []),
-    toogleItemInArray: vi.fn((arr: string[], id: string) => arr)
+    toogleItemInArray: vi.fn((arr: string[], _id: string) => arr)
 }));
 
 vi.mock('@utils/contants', () => ({
@@ -98,7 +98,7 @@ describe('AgentSupportDocuments', () => {
             isLoading: true,
             isError: false,
             error: null
-        } as ReturnType<typeof useMyStudentsThreads>);
+        } as unknown as ReturnType<typeof useMyStudentsThreads>);
         render(
             <MemoryRouter>
                 <AgentSupportDocuments />
@@ -113,7 +113,7 @@ describe('AgentSupportDocuments', () => {
             isLoading: false,
             isError: false,
             error: null
-        } as ReturnType<typeof useMyStudentsThreads>);
+        } as unknown as ReturnType<typeof useMyStudentsThreads>);
         render(
             <MemoryRouter>
                 <AgentSupportDocuments />

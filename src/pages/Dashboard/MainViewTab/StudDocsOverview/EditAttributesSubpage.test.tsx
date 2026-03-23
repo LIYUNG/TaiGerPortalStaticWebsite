@@ -5,16 +5,8 @@ import { MemoryRouter } from 'react-router-dom';
 import EditAttributesSubpage from './EditAttributesSubpage';
 
 vi.mock('@components/Modal/ConfirmationModal', () => ({
-    ConfirmationModal: ({
-        title,
-        open
-    }: {
-        title: string;
-        open: boolean;
-    }) =>
-        open ? (
-            <div data-testid="confirmation-modal">{title}</div>
-        ) : null
+    ConfirmationModal: ({ title, open }: { title: string; open: boolean }) =>
+        open ? <div data-testid="confirmation-modal">{title}</div> : null
 }));
 
 vi.mock('@utils/contants', () => ({
@@ -46,9 +38,7 @@ describe('EditAttributesSubpage', () => {
                 />
             </MemoryRouter>
         );
-        expect(
-            screen.getByTestId('confirmation-modal')
-        ).toBeInTheDocument();
+        expect(screen.getByTestId('confirmation-modal')).toBeInTheDocument();
     });
 
     it('does not render modal when show=false', () => {

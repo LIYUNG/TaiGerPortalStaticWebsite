@@ -33,9 +33,27 @@ vi.mock('react-router-dom', async () => {
 vi.mock('@hooks/useTeamMembers', () => ({
     useTeamMembers: () => ({
         teams: [
-            { _id: { toString: () => 'a1' }, firstname: 'Alice', lastname: 'Admin', role: 'Admin', email: 'alice@example.com' },
-            { _id: { toString: () => 'ag1' }, firstname: 'Bob', lastname: 'Agent', role: 'Agent', email: 'bob@example.com' },
-            { _id: { toString: () => 'e1' }, firstname: 'Carol', lastname: 'Editor', role: 'Editor', email: 'carol@example.com' }
+            {
+                _id: { toString: () => 'a1' },
+                firstname: 'Alice',
+                lastname: 'Admin',
+                role: 'Admin',
+                email: 'alice@example.com'
+            },
+            {
+                _id: { toString: () => 'ag1' },
+                firstname: 'Bob',
+                lastname: 'Agent',
+                role: 'Agent',
+                email: 'bob@example.com'
+            },
+            {
+                _id: { toString: () => 'e1' },
+                firstname: 'Carol',
+                lastname: 'Editor',
+                role: 'Editor',
+                email: 'carol@example.com'
+            }
         ],
         isLoading: false,
         isError: false,
@@ -50,7 +68,9 @@ vi.mock('@components/Loading/Loading', () => ({
 }));
 
 vi.mock('../../Utils/ErrorPage', () => ({
-    default: ({ res_status }: { res_status: number }) => <div data-testid="error-page">{res_status}</div>
+    default: ({ res_status }: { res_status: number }) => (
+        <div data-testid="error-page">{res_status}</div>
+    )
 }));
 
 vi.mock('../../Utils/TabTitle', () => ({
@@ -62,7 +82,10 @@ vi.mock('../../../config', () => ({
 }));
 
 vi.mock('react-i18next', () => ({
-    useTranslation: () => ({ t: (key: string, opts?: Record<string, unknown>) => opts?.tenant ? `${opts.tenant} ${key}` : key })
+    useTranslation: () => ({
+        t: (key: string, opts?: Record<string, unknown>) =>
+            opts?.tenant ? `${opts.tenant} ${key}` : key
+    })
 }));
 
 import TaiGerMember from './index';
@@ -88,7 +111,9 @@ describe('TaiGerMember', () => {
     });
 
     it('renders breadcrumbs', () => {
-        expect(document.querySelector('[aria-label="breadcrumb"]')).toBeTruthy();
+        expect(
+            document.querySelector('[aria-label="breadcrumb"]')
+        ).toBeTruthy();
     });
 
     it('renders member sections for agent and editor', () => {

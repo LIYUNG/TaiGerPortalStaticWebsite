@@ -232,11 +232,7 @@ const SingleInterview = () => {
         setAccordionKeys(newAccordionKeys);
     };
 
-    const onDeleteSingleMessage = (
-        e: MouseEvent<HTMLElement>,
-        message_id: string
-    ) => {
-        e.preventDefault();
+    const onDeleteSingleMessage = (message_id: string) => {
         deleteMessageMutation.mutate({
             threadId: interview?.thread_id?._id.toString(),
             messageId: message_id

@@ -30,8 +30,8 @@ vi.mock('@mui/x-date-pickers/AdapterDayjs', () => ({
     AdapterDayjs: vi.fn()
 }));
 
-vi.mock('@pages/MyCourses/CourseAnalysisConfirmDialog', () => ({
-    default: () => <div data-testid="course-analysis-dialog" />
+vi.mock('@components/ConfirmDialog', () => ({
+    ConfirmDialog: () => <div data-testid="confirm-dialog" />
 }));
 
 import { ProgramRequirementsTable } from './ProgramRequirementsTable';
@@ -70,7 +70,7 @@ describe('ProgramRequirementsTable', () => {
     });
 
     it('renders course analysis dialog', () => {
-        expect(screen.getByTestId('course-analysis-dialog')).toBeDefined();
+        expect(screen.getByTestId('confirm-dialog')).toBeInTheDocument();
     });
 });
 

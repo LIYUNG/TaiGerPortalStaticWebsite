@@ -23,7 +23,8 @@ vi.mock('@store/constant', () => ({
         SINGLE_PROGRAM_LINK: (id: string) => `/program/${id}`,
         PROGRAM_EDIT: (id: string) => `/program/${id}/edit`,
         BASE_DOCUMENTS_LINK: '/base-docs',
-        STUDENT_APPLICATIONS_ID_LINK: (id: string) => `/student/${id}/applications`
+        STUDENT_APPLICATIONS_ID_LINK: (id: string) =>
+            `/student/${id}/applications`
     }
 }));
 
@@ -105,11 +106,15 @@ describe('SingleProgramView', () => {
     });
 
     it('renders without crashing', () => {
-        expect(screen.getByText(/TU Berlin-Computer Science/)).toBeInTheDocument();
+        expect(
+            screen.getByText(/TU Berlin-Computer Science/)
+        ).toBeInTheDocument();
     });
 
     it('renders breadcrumb navigation', () => {
-        expect(screen.getByRole('navigation', { name: 'breadcrumb' })).toBeInTheDocument();
+        expect(
+            screen.getByRole('navigation', { name: 'breadcrumb' })
+        ).toBeInTheDocument();
     });
 
     it('renders ProgramInfoTabs', () => {

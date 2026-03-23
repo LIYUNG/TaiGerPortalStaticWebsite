@@ -37,7 +37,8 @@ export function useEditorState(
     useEffect(() => {
         if (!syncFromInitial) return;
         const next =
-            initialValue == null || (initialValue && !initialValue.blocks?.length)
+            initialValue == null ||
+            (initialValue && !initialValue.blocks?.length)
                 ? EMPTY_EDITOR_STATE
                 : (initialValue as OutputData);
         setValue(next);
@@ -52,8 +53,7 @@ export function useEditorState(
         setEditorKey((k) => k + 1);
     }, []);
 
-    const isEmpty =
-        !value?.blocks || value.blocks.length === 0;
+    const isEmpty = !value?.blocks || value.blocks.length === 0;
 
     return { value, onChange, reset, isEmpty, editorKey };
 }

@@ -13,8 +13,8 @@ vi.mock('./components/ApplicationsTableBanners', () => ({
     default: () => <div>Banners</div>
 }));
 
-vi.mock('./components/ProgramCorrectnessReminderDialog', () => ({
-    default: () => null
+vi.mock('@components/ConfirmDialog', () => ({
+    ConfirmDialog: () => null
 }));
 
 vi.mock('@taiger-common/core', () => ({

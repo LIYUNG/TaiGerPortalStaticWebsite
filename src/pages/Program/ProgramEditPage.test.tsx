@@ -7,7 +7,9 @@ vi.mock('react-router-dom', async () => {
     return {
         ...actual,
         useLoaderData: () => ({
-            distinctSchools: Promise.resolve([{ school: 'TU Berlin', count: 10 }])
+            distinctSchools: Promise.resolve([
+                { school: 'TU Berlin', count: 10 }
+            ])
         }),
         useNavigate: () => vi.fn(),
         useParams: () => ({ programId: 'prog1' })
@@ -18,17 +20,6 @@ vi.mock('@tanstack/react-query', async () => {
     const actual = await vi.importActual('@tanstack/react-query');
     return {
         ...actual,
-        useQuery: () => ({
-            data: {
-                data: {
-                    _id: 'prog1',
-                    school: 'TU Berlin',
-                    program_name: 'CS',
-                    degree: 'Master'
-                }
-            },
-            isLoading: false
-        }),
         useMutation: () => ({
             mutate: vi.fn(),
             isPending: false
@@ -36,13 +27,23 @@ vi.mock('@tanstack/react-query', async () => {
     };
 });
 
+vi.mock('@hooks/useProgram', () => ({
+    useProgram: () => ({
+        data: {
+            data: {
+                _id: 'prog1',
+                school: 'TU Berlin',
+                program_name: 'CS',
+                degree: 'Master'
+            }
+        },
+        isLoading: false
+    })
+}));
+
 vi.mock('@/api', () => ({
     updateProgramV2: vi.fn(),
     queryClient: { invalidateQueries: vi.fn() }
-}));
-
-vi.mock('@/api/query', () => ({
-    getProgramQuery: vi.fn(() => ({ queryKey: ['programs', 'prog1'], queryFn: vi.fn() }))
 }));
 
 vi.mock('@contexts/use-snack-bar', () => ({
@@ -77,7 +78,9 @@ describe('ProgramEditPage', () => {
     });
 
     it('renders without crashing', async () => {
-        expect(await screen.findByTestId('new-program-edit')).toBeInTheDocument();
+        expect(
+            await screen.findByTestId('new-program-edit')
+        ).toBeInTheDocument();
     });
 
     it('renders NewProgramEdit after data loads', async () => {

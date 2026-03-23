@@ -38,7 +38,9 @@ vi.mock('@tanstack/react-query', () => ({
 }));
 
 vi.mock('./EmbeddedThreadComponent', () => ({
-    EmbeddedThreadComponent: () => <div data-testid="embedded-thread-component" />
+    EmbeddedThreadComponent: () => (
+        <div data-testid="embedded-thread-component" />
+    )
 }));
 
 vi.mock('@components/Loading/Loading', () => ({
@@ -60,9 +62,7 @@ vi.mock('@/api', () => ({
     getMyStudentThreadMetrics: vi.fn(() =>
         Promise.resolve({ data: { data: { students: [] } } })
     ),
-    getThreadsByStudent: vi.fn(() =>
-        Promise.resolve({ data: { threads: [] } })
-    )
+    getThreadsByStudent: vi.fn(() => Promise.resolve({ data: { threads: [] } }))
 }));
 
 describe('DocumentCommunicationExpandPage', () => {

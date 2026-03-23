@@ -87,9 +87,9 @@ describe('StudentTasksResponsive', () => {
     });
 
     it('shows profile task when academic background is not filled', async () => {
-        const {
-            check_academic_background_filled
-        } = await import('../../../Utils/util_functions');
+        const { check_academic_background_filled } = await import(
+            '../../../Utils/util_functions'
+        );
         vi.mocked(check_academic_background_filled).mockReturnValue(false);
 
         render(
@@ -108,9 +108,9 @@ describe('StudentTasksResponsive', () => {
     });
 
     it('shows base document task when docs are missing', async () => {
-        const {
-            are_base_documents_missing
-        } = await import('../../../Utils/util_functions');
+        const { are_base_documents_missing } = await import(
+            '../../../Utils/util_functions'
+        );
         vi.mocked(are_base_documents_missing).mockReturnValue(true);
 
         render(

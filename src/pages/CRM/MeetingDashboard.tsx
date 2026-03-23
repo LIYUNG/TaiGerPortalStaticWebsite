@@ -274,10 +274,7 @@ const MeetingPage = () => {
         setSearchTerm('');
     };
 
-    const handleTabChange = (
-        _event: SyntheticEvent,
-        newValue: number
-    ) => {
+    const handleTabChange = (_event: SyntheticEvent, newValue: number) => {
         setActiveTab(newValue);
     };
 
