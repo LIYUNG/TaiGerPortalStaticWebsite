@@ -15,7 +15,7 @@ import {
     FormControl,
     FormGroup
 } from '@mui/material';
-import { ChangeEvent, MouseEvent, useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
