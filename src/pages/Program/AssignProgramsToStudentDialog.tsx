@@ -96,7 +96,7 @@ export const AssignProgramsToStudentDialog = ({
         setStudentId(value);
     };
 
-    const handleSubmit = (e: MouseEvent<HTMLButtonElement>) => {
+    const handleSubmit = () => {
         const program_ids = programs?.map(({ _id }) => _id);
         mutate({ studentId, program_ids });
     };
@@ -178,9 +178,7 @@ export const AssignProgramsToStudentDialog = ({
                 <Button
                     color="primary"
                     disabled={isPending || studentId === ''}
-                    onClick={(e: MouseEvent<HTMLButtonElement>) =>
-                        handleSubmit(e)
-                    }
+                    onClick={handleSubmit}
                     variant="contained"
                 >
                     {isPending ? (

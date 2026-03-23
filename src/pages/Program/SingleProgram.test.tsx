@@ -26,16 +26,19 @@ vi.mock('@tanstack/react-query', async (importOriginal) => {
         (await importOriginal()) as typeof import('@tanstack/react-query');
     return {
         ...actual,
-        useQuery: () => ({
-            data: mockProgramData,
-            isLoading: false
-        }),
         useMutation: () => ({
             mutate: vi.fn(),
             isPending: false
         })
     };
 });
+
+vi.mock('@hooks/useProgram', () => ({
+    useProgram: () => ({
+        data: mockProgramData,
+        isLoading: false
+    })
+}));
 
 vi.mock('@components/AuthProvider');
 vi.mock('@contexts/use-snack-bar', () => ({

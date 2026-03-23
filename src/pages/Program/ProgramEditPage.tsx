@@ -1,26 +1,26 @@
 import { Suspense } from 'react';
-import { Box } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { Await, useLoaderData, useNavigate, useParams } from 'react-router-dom';
 
 import NewProgramEdit from './NewProgramEdit';
 import Loading from '@components/Loading/Loading';
 import { updateProgramV2 } from '@/api';
 import DEMO from '@store/constant';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import type { IProgramWithId } from '@taiger-common/model';
 import { queryClient } from '@/api';
-import { getProgramQuery } from '@/api/query';
 import { useSnackBar } from '@contexts/use-snack-bar';
+import { useProgram } from '@hooks/useProgram';
 
 const ProgramEditPage = () => {
-    const { distinctSchools } = useLoaderData();
+    const { distinctSchools } = useLoaderData() as {
+        distinctSchools: Promise<unknown[]>;
+    };
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
 
     const navigate = useNavigate();
-    const { programId } = useParams();
-    const { data, isLoading } = useQuery({
-        ...getProgramQuery({ programId })
-    });
+    const { programId = '' } = useParams();
+    const { data, error, isError, isLoading } = useProgram(programId);
 
     const onClickIToSingleProgramPage = () => {
         navigate(DEMO.SINGLE_PROGRAM_LINK(programId));
@@ -55,7 +55,13 @@ const ProgramEditPage = () => {
                     {(loadedData) => (
                         <>
                             {isLoading ? <Loading /> : null}
-                            {!isLoading ? (
+                            {isError ? (
+                                <Typography color="error">
+                                    {error?.message ||
+                                        'Failed to load program.'}
+                                </Typography>
+                            ) : null}
+                            {!isLoading && !isError ? (
                                 <NewProgramEdit
                                     handleClick={onClickIToSingleProgramPage}
                                     handleSubmit_Program={handleSubmitProgram}

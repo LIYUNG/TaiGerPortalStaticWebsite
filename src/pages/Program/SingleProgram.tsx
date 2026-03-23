@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { Box } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 
 import { deleteProgramV2, processProgramList, refreshProgram } from '@/api';
-import type { GetProgramResponse, IProgram } from '@taiger-common/model';
+import type { IProgram } from '@taiger-common/model';
 import SingleProgramView from './SingleProgramView';
 import type { SingleProgramViewProgram } from './SingleProgramView';
 import ProgramDeleteWarning from './ProgramDeleteWarning';
@@ -15,17 +15,14 @@ import { AssignProgramsToStudentDialog } from './AssignProgramsToStudentDialog';
 import { queryClient } from '@/api';
 import DEMO from '@store/constant';
 import { useSnackBar } from '@contexts/use-snack-bar';
-import { getProgramQuery } from '@/api/query';
+import { useProgram } from '@hooks/useProgram';
 
 const SingleProgram = () => {
     const { user } = useAuth();
     const { programId = '' } = useParams();
     const navigate = useNavigate();
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
-    const { data, isLoading } = useQuery({
-        ...getProgramQuery({ programId })
-    });
-    const loadedData = data as GetProgramResponse | undefined;
+    const { data: loadedData, error, isError, isLoading } = useProgram(programId);
 
     const { mutate, isPending } = useMutation({
         mutationFn: deleteProgramV2,
@@ -99,8 +96,17 @@ const SingleProgram = () => {
         );
     };
 
-    if (isLoading || !loadedData) {
+    if (isLoading) {
         return <Loading />;
+    }
+    if (isError || !loadedData) {
+        return (
+            <Box data-testid="single_program_error">
+                <Typography color="error">
+                    {error?.message || 'Failed to load program.'}
+                </Typography>
+            </Box>
+        );
     }
 
     return (

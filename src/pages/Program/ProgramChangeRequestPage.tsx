@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link as LinkDom, useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
 import {
     Card,
     Stack,
@@ -17,13 +16,12 @@ import {
 
 import ProgramCompare from './ProgramCompare';
 import { getProgramChangeRequests } from '@/api';
-import { getProgramQuery } from '@/api/query';
+import { useProgram } from '@hooks/useProgram';
 
 import { appConfig } from '../../config';
 import DEMO from '@store/constant';
 import { convertDate } from '@utils/contants';
 import { IProgram } from '@taiger-common/model/dist/types/model/Program';
-import type { GetProgramResponse } from '@taiger-common/model';
 
 export interface ProgramChangeRequestBreadcrumbProgram {
     _id: string | number;
@@ -84,11 +82,8 @@ const ProgramChangeRequestPage = () => {
         ProgramChangeRequestItem[]
     >([]);
     const [changeIndex, setChangeIndex] = useState(0);
-    const { data } = useQuery({
-        ...getProgramQuery({ programId })
-    });
-    const originalProgram = (data as GetProgramResponse | undefined)
-        ?.data as IProgram | undefined;
+    const { data, error, isError, isLoading } = useProgram(programId);
+    const originalProgram = data?.data as IProgram | undefined;
 
     // remove the request from the list after submission
     const removeRequestFn = (requestId: string) => {
@@ -114,6 +109,12 @@ const ProgramChangeRequestPage = () => {
 
     return (
         <>
+            {isLoading ? <Typography>Loading program...</Typography> : null}
+            {isError ? (
+                <Typography color="error">
+                    {error?.message || 'Failed to load program.'}
+                </Typography>
+            ) : null}
             {originalProgram ? (
                 <CustomBreadcrumbs
                     program={{

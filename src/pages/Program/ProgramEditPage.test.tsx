@@ -20,17 +20,6 @@ vi.mock('@tanstack/react-query', async () => {
     const actual = await vi.importActual('@tanstack/react-query');
     return {
         ...actual,
-        useQuery: () => ({
-            data: {
-                data: {
-                    _id: 'prog1',
-                    school: 'TU Berlin',
-                    program_name: 'CS',
-                    degree: 'Master'
-                }
-            },
-            isLoading: false
-        }),
         useMutation: () => ({
             mutate: vi.fn(),
             isPending: false
@@ -38,16 +27,23 @@ vi.mock('@tanstack/react-query', async () => {
     };
 });
 
+vi.mock('@hooks/useProgram', () => ({
+    useProgram: () => ({
+        data: {
+            data: {
+                _id: 'prog1',
+                school: 'TU Berlin',
+                program_name: 'CS',
+                degree: 'Master'
+            }
+        },
+        isLoading: false
+    })
+}));
+
 vi.mock('@/api', () => ({
     updateProgramV2: vi.fn(),
     queryClient: { invalidateQueries: vi.fn() }
-}));
-
-vi.mock('@/api/query', () => ({
-    getProgramQuery: vi.fn(() => ({
-        queryKey: ['programs', 'prog1'],
-        queryFn: vi.fn()
-    }))
 }));
 
 vi.mock('@contexts/use-snack-bar', () => ({

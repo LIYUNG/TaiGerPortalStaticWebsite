@@ -327,11 +327,6 @@ vi.mock('@/api/query', async (importOriginal) => {
                 Promise.resolve({ data: { data: [], success: true } }),
             staleTime: 300000
         }),
-        getProgramQuery: () => ({
-            queryKey: ['programs', 'test-program'],
-            queryFn: () => Promise.resolve({ data: { data: {} } }),
-            staleTime: 60000
-        }),
         getExpenseQuery: () => ({
             queryKey: ['expenses', 'user', 'test-user'],
             queryFn: () => Promise.resolve({ data: { data: [] } }),

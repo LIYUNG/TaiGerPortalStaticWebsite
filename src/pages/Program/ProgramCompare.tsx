@@ -41,10 +41,10 @@ const getDiffKeys = (
     incoming: Record<string, unknown>
 ) => {
     const allKeys = getAllKeys(original, incoming);
-    const modifiedKeys = [];
-    const originalKey = [];
+    const modifiedKeys: string[] = [];
+    const originalKey: string[] = [];
 
-    allKeys.forEach((key) => {
+    allKeys.forEach((key: string) => {
         if (IGNORE_KEYS.includes(key)) return;
         const originalValue = original?.[key];
         const incomingValue = incoming?.[key];
@@ -232,7 +232,7 @@ const DiffTableContent = ({
 
 interface ProgramCompareProps {
     originalProgram: Record<string, unknown>;
-    incomingChanges: Record<string, any>;
+    incomingChanges: Record<string, unknown>;
     submitCallBack?: () => void;
 }
 

@@ -4,7 +4,6 @@ import {
     getAdmissionsOverview,
     verifyV2,
     getProgramTicketsV2,
-    getProgramV2,
     getStatisticsOverviewV2,
     getStatisticsAgentsV2,
     getStatisticsKPIV2,
@@ -56,16 +55,6 @@ export const getMessagThreadQuery = (threadId: string): UseQueryOptions => ({
             throw error;
         }
     },
-    staleTime: 1000 * 60 // 1 minutes
-});
-
-export const getProgramQuery = ({
-    programId
-}: {
-    programId: string;
-}): UseQueryOptions => ({
-    queryKey: ['programs', programId],
-    queryFn: () => getProgramV2(programId),
     staleTime: 1000 * 60 // 1 minutes
 });
 
