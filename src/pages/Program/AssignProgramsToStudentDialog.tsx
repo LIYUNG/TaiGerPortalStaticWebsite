@@ -32,7 +32,7 @@ export interface AssignProgramsToStudentDialogProps {
     onClose: () => void;
     programs: IProgram[];
     handleOnSuccess: () => void;
-    student: IStudentResponse;
+    student?: IStudentResponse;
 }
 
 export const AssignProgramsToStudentDialog = ({

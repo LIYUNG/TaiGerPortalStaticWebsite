@@ -10,7 +10,6 @@ import {
     getProgramRequirementsLoader,
     getProgramsAndCourseKeywordSetsLoader,
     getProgramRequirementLoader,
-    getProgramLoader,
     getProgramRequirementsV2Loader,
     getAllCoursesLoader,
     getCourseLoader,
@@ -466,7 +465,6 @@ const routes = [
             {
                 path: ':programId',
                 errorElement: <DefaultErrorPage />,
-                loader: getProgramLoader,
                 Component: SingleProgram
             },
             {

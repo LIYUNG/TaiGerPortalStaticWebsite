@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link as LinkDom, useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
 import {
     Card,
     Stack,
@@ -15,12 +16,14 @@ import {
 } from '@mui/material';
 
 import ProgramCompare from './ProgramCompare';
-import { getProgramChangeRequests, getProgram } from '@/api';
+import { getProgramChangeRequests } from '@/api';
+import { getProgramQuery } from '@/api/query';
 
 import { appConfig } from '../../config';
 import DEMO from '@store/constant';
 import { convertDate } from '@utils/contants';
 import { IProgram } from '@taiger-common/model/dist/types/model/Program';
+import type { GetProgramResponse } from '@taiger-common/model';
 
 export interface ProgramChangeRequestBreadcrumbProgram {
     _id: string | number;
@@ -30,6 +33,13 @@ export interface ProgramChangeRequestBreadcrumbProgram {
 
 export interface CustomBreadcrumbsProps {
     program: ProgramChangeRequestBreadcrumbProgram;
+}
+
+interface ProgramChangeRequestItem {
+    _id: string;
+    updatedAt?: string | Date;
+    requestedBy?: { firstname?: string; lastname?: string };
+    [key: string]: unknown;
 }
 
 const CustomBreadcrumbs = ({ program }: CustomBreadcrumbsProps) => {
@@ -69,10 +79,16 @@ const CustomBreadcrumbs = ({ program }: CustomBreadcrumbsProps) => {
 
 const ProgramChangeRequestPage = () => {
     const navigate = useNavigate();
-    const { programId } = useParams();
-    const [originalProgram, setOriginalProgram] = useState<IProgram>();
-    const [incomingChanges, setIncomingChanges] = useState([]);
+    const { programId = '' } = useParams();
+    const [incomingChanges, setIncomingChanges] = useState<
+        ProgramChangeRequestItem[]
+    >([]);
     const [changeIndex, setChangeIndex] = useState(0);
+    const { data } = useQuery({
+        ...getProgramQuery({ programId })
+    });
+    const originalProgram = (data as GetProgramResponse | undefined)
+        ?.data as IProgram | undefined;
 
     // remove the request from the list after submission
     const removeRequestFn = (requestId: string) => {
@@ -92,25 +108,28 @@ const ProgramChangeRequestPage = () => {
             if (!data?.length) {
                 navigate(DEMO.SINGLE_PROGRAM_LINK(programId));
             }
-            setIncomingChanges(data);
-        });
-        getProgram(programId).then((res) => {
-            const { data } = res.data;
-            setOriginalProgram(data);
+            setIncomingChanges((data || []) as ProgramChangeRequestItem[]);
         });
     }, [programId, navigate]);
 
     return (
         <>
-            <CustomBreadcrumbs program={originalProgram} />
+            {originalProgram ? (
+                <CustomBreadcrumbs
+                    program={{
+                        ...(originalProgram as unknown as ProgramChangeRequestBreadcrumbProgram),
+                        _id: programId
+                    }}
+                />
+            ) : null}
             <Box sx={{ my: 3 }}>
                 <Card sx={{ padding: 2 }} variant="outlined">
                     <Typography color="text.secondary" variant="caption">
                         <Stack sx={{ mb: 3 }}>
-                            <div>School: {originalProgram.school}</div>
-                            <div>Program: {originalProgram.program_name}</div>
-                            <div>Degree: {originalProgram.degree}</div>
-                            <div>Semester: {originalProgram.semester}</div>
+                            <div>School: {originalProgram?.school}</div>
+                            <div>Program: {originalProgram?.program_name}</div>
+                            <div>Degree: {originalProgram?.degree}</div>
+                            <div>Semester: {originalProgram?.semester}</div>
                         </Stack>
                     </Typography>
 
@@ -122,14 +141,19 @@ const ProgramChangeRequestPage = () => {
                             id="request-select"
                             label={`Requests (${incomingChanges?.length || 0})`}
                             labelId="request-select-label"
-                            onChange={(e) => setChangeIndex(e.target.value)}
+                            onChange={(e) =>
+                                setChangeIndex(Number(e.target.value))
+                            }
                             value={changeIndex}
                         >
                             {incomingChanges.length > 0
                                 ? incomingChanges.map((change, index) => {
                                       return (
                                           <MenuItem key={index} value={index}>
-                                              {convertDate(change?.updatedAt)} -{' '}
+                                              {convertDate(
+                                                  change?.updatedAt || ''
+                                              )}{' '}
+                                              -{' '}
                                               {change.requestedBy
                                                   ? `${change.requestedBy.firstname} ${change.requestedBy.lastname} `
                                                   : 'External Source'}
@@ -143,7 +167,10 @@ const ProgramChangeRequestPage = () => {
             </Box>
             <ProgramCompare
                 incomingChanges={incomingChanges[changeIndex] || {}}
-                originalProgram={originalProgram || {}}
+                originalProgram={(originalProgram || {}) as Record<
+                    string,
+                    unknown
+                >}
                 submitCallBack={removeRequestFn(
                     incomingChanges[changeIndex]?._id
                 )}

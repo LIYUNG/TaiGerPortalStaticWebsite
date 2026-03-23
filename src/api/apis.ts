@@ -960,9 +960,6 @@ export const updateSchoolAttributes = (schoolAttributes: ApiPayload) =>
         schoolAttributes
     );
 
-export const getProgram = (programId: string) =>
-    request.get<GetProgramResponse>(`/api/programs/${programId}`);
-
 export const getProgramV2 = (programId: string) =>
     getData<GetProgramResponse>(`/api/programs/${programId}`);
 

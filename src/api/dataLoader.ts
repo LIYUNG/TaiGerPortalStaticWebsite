@@ -11,7 +11,6 @@ import {
     getProgramRequirement,
     getProgramRequirements,
     getProgramsAndCourseKeywordSets,
-    getProgram,
     getAllOpenInterviews
 } from '.';
 import { queryClient } from './client';
@@ -233,25 +232,6 @@ export async function getProgramRequirementsV2Loader() {
 }
 
 ///
-
-export async function ProgramLoader({ params }: { params: Params<string> }) {
-    const programId = params.programId ?? '';
-
-    const response = await getProgram(programId);
-    if (response.status >= 400) {
-        throw json(
-            { message: response.statusText },
-            { status: response.status }
-        );
-    } else {
-        return response.data;
-    }
-}
-
-export function getProgramLoader({ params }: { params: Params<string> }) {
-    // { data, success, students, vc } = resp.data;
-    return defer({ data: ProgramLoader({ params }) });
-}
 
 export async function getAllOpenInterviewLoader() {
     const response = await getAllOpenInterviews();
