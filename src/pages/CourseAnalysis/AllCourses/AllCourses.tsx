@@ -8,8 +8,7 @@ import i18next from 'i18next';
 import { useAllCourses } from '@hooks/useAllCourses';
 
 const AllCourses = () => {
-    const { data, isLoading } = useAllCourses();
-    const courses = data?.data ?? [];
+    const { data: courses, isLoading } = useAllCourses();
 
     return (
         <>
@@ -36,7 +35,7 @@ const AllCourses = () => {
             </Breadcrumbs>
             {isLoading ? <Loading /> : null}
             {!isLoading ? (
-                <AllCoursesTable data={courses} isLoading={isLoading} />
+                <AllCoursesTable courses={courses} isLoading={isLoading} />
             ) : null}
         </>
     );

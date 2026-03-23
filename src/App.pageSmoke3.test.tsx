@@ -46,14 +46,14 @@ vi.mock('react-router-dom', async (importOriginal) => {
     return {
         ...actual,
         Navigate: () => null,
-        NavLink: forwardRef((props: any, ref: any) =>
+        NavLink: forwardRef((props: unknown, ref: unknown) =>
             createElement(
                 'a',
                 { href: props.to ?? '', ref, ...props },
                 props.children
             )
         ),
-        Link: forwardRef((props: any, ref: any) =>
+        Link: forwardRef((props: unknown, ref: unknown) =>
             createElement(
                 'a',
                 { href: props.to ?? '', ref, ...props },
@@ -533,7 +533,7 @@ vi.mock('@hooks/useStudentsV3', () => ({
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 const wrapWithSuspense = (
-    Component: LazyExoticComponent<ComponentType<any>>
+    Component: LazyExoticComponent<ComponentType<unknown>>
 ) => (
     <Suspense fallback={<div data-testid="loading">Loading...</div>}>
         <Component />

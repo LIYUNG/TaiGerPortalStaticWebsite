@@ -6,7 +6,6 @@ import {
     getAllComplaintTicketsLoader,
     getComplaintTicketLoader,
     getDistinctSchoolsLoader,
-    getCourseKeywordSetsLoader,
     getProgramRequirementsLoader,
     getProgramsAndCourseKeywordSetsLoader,
     getProgramRequirementLoader,
@@ -366,7 +365,6 @@ const routes = [
             {
                 path: 'analysis/keywords',
                 errorElement: <DefaultErrorPage />,
-                loader: getCourseKeywordSetsLoader,
                 element: <CourseKeywordsEdit />
             },
             {
