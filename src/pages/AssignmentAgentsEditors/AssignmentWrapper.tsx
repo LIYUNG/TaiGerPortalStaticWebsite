@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom';
-import { Box } from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
 import { is_TaiGer_role } from '@taiger-common/core';
 
 import AssignAgentsPage from './AssignAgents/AssignAgentsPage';
@@ -16,11 +16,12 @@ interface AssignmentWrapperProps {
 
 const AssignmentWrapper = ({ role }: AssignmentWrapperProps) => {
     const { user } = useAuth();
-    const { data: fetchedAllStudents } = useStudentsV3(
-        role === 'agent'
-            ? { agents: [], archiv: false }
-            : { editors: [], archiv: false }
-    );
+    const { data: fetchedAllStudents, isLoading: isLoadingStudents } =
+        useStudentsV3(
+            role === 'agent'
+                ? { agents: [], archiv: false }
+                : { editors: [], archiv: false }
+        );
 
     const {
         students,
@@ -30,7 +31,7 @@ const AssignmentWrapper = ({ role }: AssignmentWrapperProps) => {
         submitUpdateEditorlist,
         ConfirmError
     } = useStudents({
-        students: fetchedAllStudents
+        students: fetchedAllStudents || []
     });
 
     if (!is_TaiGer_role(user)) {
@@ -50,17 +51,23 @@ const AssignmentWrapper = ({ role }: AssignmentWrapperProps) => {
                     res_modal_status={res_modal_status}
                 />
             ) : null}
-            {role === 'agent' ? (
-                <AssignAgentsPage
-                    students={students}
-                    submitUpdateAgentlist={submitUpdateAgentlist}
-                />
-            ) : (
-                <AssignEditorsPage
-                    students={students}
-                    submitUpdateEditorlist={submitUpdateEditorlist}
-                />
-            )}
+            {isLoadingStudents ? (
+                <Box>
+                    <CircularProgress />
+                </Box>
+            ) : null}
+            {!isLoadingStudents &&
+                (role === 'agent' ? (
+                    <AssignAgentsPage
+                        students={students}
+                        submitUpdateAgentlist={submitUpdateAgentlist}
+                    />
+                ) : (
+                    <AssignEditorsPage
+                        students={students}
+                        submitUpdateEditorlist={submitUpdateEditorlist}
+                    />
+                ))}
         </Box>
     );
 };
