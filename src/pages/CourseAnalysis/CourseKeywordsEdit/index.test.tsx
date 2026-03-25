@@ -3,7 +3,6 @@ import { render, screen } from '@testing-library/react';
 import CourseKeywords from './index';
 
 vi.mock('react-router-dom', () => ({
-    useLoaderData: () => ({ courseKeywordSets: [] }),
     useNavigate: () => vi.fn(),
     Link: forwardRef<HTMLAnchorElement, { children?: ReactNode; to?: string }>(
         function LinkMock({ children, to }, ref) {
@@ -13,14 +12,14 @@ vi.mock('react-router-dom', () => ({
                 </a>
             );
         }
-    ),
-    Await: ({
-        children
-    }: {
-        children: ((data: unknown) => React.ReactNode) | React.ReactNode;
-        resolve: unknown;
-    }) => <>{typeof children === 'function' ? children([]) : children}</>,
-    Suspense: ({ children }: { children: React.ReactNode }) => <>{children}</>
+    )
+}));
+
+vi.mock('@hooks/useCourseKeywordSets', () => ({
+    useCourseKeywordSets: () => ({
+        data: [],
+        isLoading: false
+    })
 }));
 
 vi.mock('@store/constant', () => ({
@@ -60,7 +59,7 @@ describe('CourseKeywords (index)', () => {
         expect(screen.getByText('TaiGer')).toBeInTheDocument();
     });
 
-    it('renders CourseKeywordsOverview via Await', () => {
+    it('renders CourseKeywordsOverview', () => {
         render(<CourseKeywords />);
         expect(
             screen.getByTestId('course-keywords-overview')

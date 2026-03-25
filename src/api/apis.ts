@@ -120,6 +120,7 @@ import {
     type CreateKeywordsetResponse,
     type UpdateKeywordsetResponse,
     type DeleteKeywordsetResponse,
+    GetCourseKeywordsetsResponseSchema,
     type GetStudentCoursesResponse,
     type UpdateStudentCoursesResponse,
     // Account
@@ -260,9 +261,9 @@ import {
     type TaigerAiResponse,
     type CvmlrlAiResponse,
     type GetProgramResponse,
-    GetProgramResponseSchema,
+    GetAllCoursesResponseSchema,
+    GetProgramResponseSchema
 } from '@taiger-common/model';
-
 
 export const login = (credentials: LoginCredentials) =>
     request.post<AuthLoginResponse>('/auth/login', credentials);
@@ -712,8 +713,12 @@ export const analyzedFileV2Download = (user_id: UserId) =>
         `/api/courses/transcript/v2/${user_id}`
     );
 
-export const getCourseKeywordSets = () =>
-    request.get<GetCourseKeywordsetsResponse>(`/api/course-keywords`);
+export async function getCourseKeywordSets(): Promise<GetCourseKeywordsetsResponse> {
+    const data = await getData<unknown>(`/api/course-keywords`);
+    return GetCourseKeywordsetsResponseSchema.parse(
+        data
+    ) as GetCourseKeywordsetsResponse;
+}
 export const getCourseKeywordSet = (keywordsSetId: string) =>
     request.get<GetCourseKeywordsetResponse>(
         `/api/course-keywords/${keywordsSetId}`
@@ -734,8 +739,10 @@ export const deleteKeywordSet = (keywordsSetId: string) =>
     );
 
 // Courses DB
-export const getAllCourses = () =>
-    getData<GetAllCoursesResponse>(`/api/all-courses`);
+export async function getAllCourses(): Promise<GetAllCoursesResponse> {
+    const data = await getData<GetAllCoursesResponse>(`/api/all-courses`);
+    return GetAllCoursesResponseSchema.parse(data) as GetAllCoursesResponse;
+}
 export const getCourse = ({ courseId }: { courseId: string }) =>
     getData<GetAllCourseResponse>(`/api/all-courses/${courseId}`);
 export const updateCourse = ({
@@ -965,7 +972,9 @@ export const updateSchoolAttributes = (schoolAttributes: ApiPayload) =>
 export const getProgramV2 = async (
     programId: string
 ): Promise<GetProgramResponse> => {
-    const data = await getData<GetProgramResponse>(`/api/programs/${programId}`);
+    const data = await getData<GetProgramResponse>(
+        `/api/programs/${programId}`
+    );
     return GetProgramResponseSchema.parse(data) as GetProgramResponse;
 };
 
@@ -984,7 +993,7 @@ export const updateProgram = (program: {
 export const updateProgramV2 = ({
     program
 }: {
-    program: { _id: string;[key: string]: unknown };
+    program: { _id: string; [key: string]: unknown };
 }) => putData(`/api/programs/${program._id}`, program);
 
 export const getProgramChangeRequests = (programId: string) =>

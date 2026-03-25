@@ -6,12 +6,10 @@ import {
     getAllComplaintTicketsLoader,
     getComplaintTicketLoader,
     getDistinctSchoolsLoader,
-    getCourseKeywordSetsLoader,
     getProgramRequirementsLoader,
     getProgramsAndCourseKeywordSetsLoader,
     getProgramRequirementLoader,
     getProgramRequirementsV2Loader,
-    getAllCoursesLoader,
     getCourseLoader,
     getAllOpenInterviewsLoader
 } from '@/api/dataLoader';
@@ -362,13 +360,11 @@ const routes = [
             {
                 path: 'analysis/courses/all',
                 errorElement: <DefaultErrorPage />,
-                loader: getAllCoursesLoader,
                 element: <AllCourses />
             },
             {
                 path: 'analysis/keywords',
                 errorElement: <DefaultErrorPage />,
-                loader: getCourseKeywordSetsLoader,
                 element: <CourseKeywordsEdit />
             },
             {

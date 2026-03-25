@@ -1,16 +1,14 @@
-import { useQuery } from '@tanstack/react-query';
 import { Link as LinkDom } from 'react-router-dom';
 import { Breadcrumbs, Link, Typography } from '@mui/material';
-import { getAllCoursessQuery } from '@/api/query';
 import Loading from '@components/Loading/Loading';
 import { AllCoursesTable } from './AllCoursesTable';
 import DEMO from '@store/constant';
 import { appConfig } from '../../../config';
 import i18next from 'i18next';
+import { useAllCourses } from '@hooks/useAllCourses';
 
 const AllCourses = () => {
-    const { data, isLoading } = useQuery(getAllCoursessQuery());
-    const courses = data?.data;
+    const { data: courses, isLoading } = useAllCourses();
 
     return (
         <>
@@ -37,7 +35,7 @@ const AllCourses = () => {
             </Breadcrumbs>
             {isLoading ? <Loading /> : null}
             {!isLoading ? (
-                <AllCoursesTable data={courses} isLoading={isLoading} />
+                <AllCoursesTable courses={courses} isLoading={isLoading} />
             ) : null}
         </>
     );

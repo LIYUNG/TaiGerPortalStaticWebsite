@@ -1,5 +1,4 @@
-import React, { Suspense } from 'react';
-import { Await, useLoaderData, Link as LinkDom } from 'react-router-dom';
+import { Link as LinkDom } from 'react-router-dom';
 import { TabTitle } from '../../Utils/TabTitle';
 
 import CourseKeywordsOverview from './CourseKeywordsOverview';
@@ -8,9 +7,10 @@ import Loading from '@components/Loading/Loading';
 import { appConfig } from '../../../config';
 import DEMO from '@store/constant';
 import { useTranslation } from 'react-i18next';
+import { useCourseKeywordSets } from '@hooks/useCourseKeywordSets';
 
 const CourseKeywords = () => {
-    const { courseKeywordSets } = useLoaderData();
+    const { data: courseKeywordSets, isLoading } = useCourseKeywordSets();
     const { t } = useTranslation();
 
     TabTitle('Course Keywords Edit');
@@ -46,15 +46,12 @@ const CourseKeywords = () => {
                     {t('Keywords', { ns: 'common' })}
                 </Typography>
             </Breadcrumbs>
-            <Suspense fallback={<Loading />}>
-                <Await resolve={courseKeywordSets}>
-                    {(loadedData) => (
-                        <CourseKeywordsOverview
-                            courseKeywordSets={loadedData}
-                        />
-                    )}
-                </Await>
-            </Suspense>
+            {isLoading ? <Loading /> : null}
+            {!isLoading ? (
+                <CourseKeywordsOverview
+                    courseKeywordSets={courseKeywordSets ?? []}
+                />
+            ) : null}
         </Box>
     );
 };

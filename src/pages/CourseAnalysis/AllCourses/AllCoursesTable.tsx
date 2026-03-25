@@ -8,20 +8,21 @@ import { getTableConfig, useTableStyles } from '@components/table';
 import { TopToolbar } from '@components/table/all-courses-table/TopToolbar';
 import { DeleteCourseDialog } from './DeleteCourseDialog';
 import { MRT_ColumnDef } from 'material-react-table';
+import type { IAllCourse } from '@taiger-common/model';
 
 export const AllCoursesTable = ({
-    isLoading,
-    data
+    courses,
+    isLoading
 }: {
+    courses: IAllCourse[];
     isLoading: boolean;
-    data: Record<string, unknown>[];
 }) => {
     const customTableStyles = useTableStyles();
     const { t } = useTranslation();
     const tableConfig = getTableConfig(customTableStyles, isLoading);
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
-    const columns: Array<MRT_ColumnDef<Record<string, unknown>>> = [
+    const columns: Array<MRT_ColumnDef<IAllCourse>> = [
         {
             accessorKey: 'all_course_chinese',
             header: t('Course Name (ZH)', { ns: 'common' }),
@@ -56,7 +57,7 @@ export const AllCoursesTable = ({
         ...tableConfig,
         columns,
         state: { isLoading },
-        data: data || [],
+        data: courses || [],
         renderTopToolbar: () => (
             <TopToolbar
                 onDeleteClick={() => setOpenDeleteDialog(true)}

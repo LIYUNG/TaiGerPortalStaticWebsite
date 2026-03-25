@@ -7,18 +7,13 @@ import {
     getComplaintsTickets,
     getComplaintsTicket,
     getDistinctSchools,
-    getCourseKeywordSets,
     getProgramRequirement,
     getProgramRequirements,
     getProgramsAndCourseKeywordSets,
     getAllOpenInterviews
 } from '.';
 import { queryClient } from './client';
-import {
-    getAllCoursessQuery,
-    getCoursessQuery,
-    getProgramRequirementsQuery
-} from './query';
+import { getCoursessQuery, getProgramRequirementsQuery } from './query';
 
 export async function getStudentsLoader() {
     const response = await getStudents();
@@ -30,10 +25,6 @@ export async function getStudentsLoader() {
     } else {
         return response;
     }
-}
-
-export async function getAllCoursesLoader() {
-    return queryClient.fetchQuery(getAllCoursessQuery());
 }
 
 export async function getCourseLoader({ params }: { params: Params<string> }) {
@@ -140,24 +131,6 @@ export async function DistinctSchoolsLoader() {
 
 export function getDistinctSchoolsLoader() {
     return defer({ distinctSchools: DistinctSchoolsLoader() });
-}
-
-///
-
-export async function CourseKeywordSetsLoader() {
-    const response = await getCourseKeywordSets();
-    if (response.status >= 400) {
-        throw json(
-            { message: response.statusText },
-            { status: response.status }
-        );
-    } else {
-        return response.data.data;
-    }
-}
-
-export function getCourseKeywordSetsLoader() {
-    return defer({ courseKeywordSets: CourseKeywordSetsLoader() });
 }
 
 ///

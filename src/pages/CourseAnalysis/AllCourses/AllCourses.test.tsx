@@ -1,11 +1,10 @@
 import { ReactNode, forwardRef, Ref } from 'react';
 import { render, screen } from '@testing-library/react';
-import { useQuery } from '@tanstack/react-query';
 import AllCourses from './AllCourses';
+import { useAllCourses } from '@hooks/useAllCourses';
 
-vi.mock('@tanstack/react-query', async (orig) => ({
-    ...(await orig()),
-    useQuery: vi.fn(() => ({ data: undefined, isLoading: false }))
+vi.mock('@hooks/useAllCourses', () => ({
+    useAllCourses: vi.fn(() => ({ data: undefined, isLoading: false }))
 }));
 
 vi.mock('react-router-dom', () => {
@@ -40,13 +39,6 @@ vi.mock('../../../config', () => ({
     appConfig: { companyName: 'TaiGer' }
 }));
 
-vi.mock('@/api/query', () => ({
-    getAllCoursessQuery: vi.fn(() => ({
-        queryKey: ['all-courses/all'],
-        queryFn: vi.fn()
-    }))
-}));
-
 vi.mock('./AllCoursesTable', () => ({
     AllCoursesTable: () => <div data-testid="all-courses-table" />
 }));
@@ -57,7 +49,7 @@ vi.mock('@components/Loading/Loading', () => ({
 
 describe('AllCourses', () => {
     it('renders breadcrumb with company name', () => {
-        vi.mocked(useQuery).mockReturnValue({
+        vi.mocked(useAllCourses).mockReturnValue({
             data: undefined,
             isLoading: false
         } as never);
@@ -66,7 +58,7 @@ describe('AllCourses', () => {
     });
 
     it('renders AllCoursesTable when not loading', () => {
-        vi.mocked(useQuery).mockReturnValue({
+        vi.mocked(useAllCourses).mockReturnValue({
             data: { data: [] },
             isLoading: false
         } as never);
@@ -75,7 +67,7 @@ describe('AllCourses', () => {
     });
 
     it('renders Loading when isLoading is true', () => {
-        vi.mocked(useQuery).mockReturnValue({
+        vi.mocked(useAllCourses).mockReturnValue({
             data: undefined,
             isLoading: true
         } as never);

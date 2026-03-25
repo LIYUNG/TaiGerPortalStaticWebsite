@@ -48,7 +48,7 @@ const AssignEditorsPage = ({
     submitUpdateEditorlist
 }: AssignEditorsPageProps) => {
     const { t } = useTranslation();
-    const no_editor_students = students.map((student, i) => (
+    const no_editor_students = students?.map((student, i) => (
         <NoEditorsStudentsCard
             key={i}
             student={student}
