@@ -229,7 +229,6 @@ const MessageCard = (props: MessageCardProps) => {
                 }
                 clickable
                 component={LinkDom}
-                icon={<AttachFileIcon />}
                 label={file.name}
                 size="small"
                 sx={{
