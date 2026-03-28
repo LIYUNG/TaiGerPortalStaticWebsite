@@ -1,10 +1,4 @@
-import {
-    useCallback,
-    useEffect,
-    useMemo,
-    useState,
-    type MouseEvent
-} from 'react';
+import { useCallback, useMemo, useState, type MouseEvent } from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import {
     Accordion,
@@ -12,7 +6,6 @@ import {
     AccordionSummary,
     Avatar,
     Box,
-    Button,
     Chip,
     Card,
     FormControlLabel,
@@ -78,9 +71,7 @@ export interface ThreadMessage {
 }
 
 export interface MessageCardState {
-    editorState: OutputData | null;
     messageId: string;
-    isLoaded: boolean;
     deleteModalOpen: boolean;
     ignore_message: boolean;
     createdAt?: string | Date;
@@ -112,9 +103,7 @@ const MessageCard = (props: MessageCardProps) => {
     const theme = useTheme();
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
     const [messageState, setMessageState] = useState<MessageCardState>(() => ({
-        editorState: null,
         messageId: '',
-        isLoaded: false,
         deleteModalOpen: false,
         ignore_message:
             props.message.ignore_message === false ||
@@ -123,15 +112,10 @@ const MessageCard = (props: MessageCardProps) => {
                 : Boolean(props.message.ignore_message)
     }));
 
-    useEffect(() => {
-        const editorState = parseMessageToEditorState(message.message);
-        setMessageState((prev) => ({
-            ...prev,
-            editorState,
-            isLoaded,
-            deleteModalOpen: false
-        }));
-    }, [message.message, isLoaded]);
+    const editorState = useMemo(
+        () => parseMessageToEditorState(message.message),
+        [message.message]
+    );
 
     const onOpenDeleteModal = useCallback(
         (e: MouseEvent, messageId: string, createdAt: string | Date) => {
@@ -245,7 +229,7 @@ const MessageCard = (props: MessageCardProps) => {
         ));
     }, [message.file, apiPrefix]);
 
-    if (!messageState.isLoaded && !messageState.editorState) {
+    if (!isLoaded) {
         return <Loading />;
     }
 
@@ -369,9 +353,7 @@ const MessageCard = (props: MessageCardProps) => {
                         >
                             <EditorSimple
                                 defaultHeight={0}
-                                editorState={
-                                    messageState.editorState ?? undefined
-                                }
+                                editorState={editorState ?? undefined}
                                 holder={`${message._id.toString()}`}
                                 imageEnable={true}
                                 readOnly={true}

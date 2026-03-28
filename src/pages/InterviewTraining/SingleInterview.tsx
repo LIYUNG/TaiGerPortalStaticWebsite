@@ -1,4 +1,6 @@
 import React, { useState, useMemo, type MouseEvent } from 'react';
+import type { AxiosResponse } from 'axios';
+import type { GetInterviewResponse } from '@taiger-common/model';
 import { Link as LinkDom, useLocation, useParams } from 'react-router-dom';
 import {
     Card,
@@ -83,7 +85,7 @@ const SingleInterview = () => {
         error
     } = useQuery({
         ...getInterviewQuery(interview_id),
-        onSuccess: (response: any) => {
+        onSuccess: (response: AxiosResponse<GetInterviewResponse>) => {
             if (response.data.success && response.data.data) {
                 const messagesLength =
                     response.data.data.thread_id?.messages?.length || 0;

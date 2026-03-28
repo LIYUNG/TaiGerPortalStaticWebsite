@@ -1,7 +1,11 @@
 import { ReactNode } from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import {
+    QueryClient,
+    QueryClientProvider,
+    type UseQueryOptions
+} from '@tanstack/react-query';
 import { is_TaiGer_role } from '@taiger-common/core';
 
 import SingleInterview from './SingleInterview';
@@ -201,7 +205,7 @@ describe('SingleInterview', () => {
         vi.mocked(getInterviewQuery).mockReturnValueOnce({
             queryKey: ['interviews', 'interview-001'],
             queryFn: () => pendingPromise
-        } as any);
+        } as UseQueryOptions);
 
         render(
             <QueryClientProvider client={queryClient}>
@@ -286,10 +290,8 @@ describe('SingleInterview', () => {
         const { getInterviewQuery } = await import('@/api/query');
         vi.mocked(getInterviewQuery).mockReturnValueOnce({
             queryKey: ['interviews', 'interview-001'],
-            queryFn: vi
-                .fn()
-                .mockRejectedValue({ response: { status: 403 } })
-        } as any);
+            queryFn: vi.fn().mockRejectedValue({ response: { status: 403 } })
+        } as UseQueryOptions);
 
         render(
             <QueryClientProvider client={queryClient}>
@@ -312,7 +314,7 @@ describe('SingleInterview', () => {
         vi.mocked(getInterviewQuery).mockReturnValueOnce({
             queryKey: ['interviews', 'interview-001'],
             queryFn: vi.fn().mockRejectedValue(new Error('Network error'))
-        } as any);
+        } as UseQueryOptions);
 
         render(
             <QueryClientProvider client={queryClient}>
@@ -341,7 +343,7 @@ describe('SingleInterview', () => {
                     interviewAuditLog: []
                 }
             })
-        } as any);
+        } as UseQueryOptions);
 
         render(
             <QueryClientProvider client={queryClient}>
