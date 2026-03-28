@@ -1,4 +1,6 @@
 import React, { useState, useMemo, type MouseEvent } from 'react';
+import type { AxiosResponse } from 'axios';
+import type { GetInterviewResponse } from '@taiger-common/model';
 import { Link as LinkDom, useLocation, useParams } from 'react-router-dom';
 import {
     Card,
@@ -29,7 +31,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { CheckCircle as CheckCircleIcon } from '@mui/icons-material';
 
 import ErrorPage from '../Utils/ErrorPage';
-import ModalMain from '../Utils/ModalHandler/ModalMain';
 import {
     SubmitMessageWithAttachment,
     deleteAMessageInThread,
@@ -53,6 +54,7 @@ import { a11yProps, CustomTabPanel } from '@components/Tabs';
 import Audit from '../Audit';
 import { InterviewFeedback } from './InterviewFeedback';
 import InterviewMetadataSidebar from './components/InterviewMetadataSidebar';
+import { useSnackBar } from '@/contexts/use-snack-bar';
 
 const SingleInterview = () => {
     const { interview_id } = useParams();
@@ -62,6 +64,7 @@ const SingleInterview = () => {
     const theme = useTheme();
     const queryClient = useQueryClient();
     const isDarkMode = theme.palette.mode === 'dark';
+    const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
 
     // State management
     const [value, setValue] = useState(THREAD_TABS[hash.replace('#', '')] || 0);
@@ -73,11 +76,6 @@ const SingleInterview = () => {
     const [accordionKeys, setAccordionKeys] = useState([]);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [closeDialogOpen, setCloseDialogOpen] = useState(false);
-    const [modalError, setModalError] = useState({
-        show: false,
-        message: '',
-        status: 0
-    });
 
     // Fetch interview data with useQuery
     const {
@@ -87,7 +85,7 @@ const SingleInterview = () => {
         error
     } = useQuery({
         ...getInterviewQuery(interview_id),
-        onSuccess: (response: any) => {
+        onSuccess: (response: AxiosResponse<GetInterviewResponse>) => {
             if (response.data.success && response.data.data) {
                 const messagesLength =
                     response.data.data.thread_id?.messages?.length || 0;
@@ -118,13 +116,11 @@ const SingleInterview = () => {
             setEditorInputState({ time: new Date(), blocks: [] });
             setFile(null);
         },
-        onError: (error: any) => {
-            setModalError({
-                show: true,
-                message:
-                    error?.response?.data?.message || 'Failed to send message',
-                status: error?.response?.status || 500
-            });
+        onError: (error: Error) => {
+            console.log('error', error);
+            setOpenSnackbar(true);
+            setSeverity('error');
+            setMessage(error?.message || 'Failed to send message');
         }
     });
 
@@ -139,14 +135,10 @@ const SingleInterview = () => {
         onSuccess: () => {
             queryClient.invalidateQueries(['interviews', interview_id]);
         },
-        onError: (error: any) => {
-            setModalError({
-                show: true,
-                message:
-                    error?.response?.data?.message ||
-                    'Failed to delete message',
-                status: error?.response?.status || 500
-            });
+        onError: (error: Error) => {
+            setSeverity('error');
+            setMessage(error?.message || 'Failed to delete message');
+            setOpenSnackbar(true);
         }
     });
 
@@ -162,14 +154,10 @@ const SingleInterview = () => {
             queryClient.invalidateQueries(['interviews', interview_id]);
             setCloseDialogOpen(false);
         },
-        onError: (error: any) => {
-            setModalError({
-                show: true,
-                message:
-                    error?.response?.data?.message ||
-                    'Failed to update interview',
-                status: error?.response?.status || 500
-            });
+        onError: (error: Error) => {
+            setSeverity('error');
+            setMessage(error?.message || 'Failed to update interview');
+            setOpenSnackbar(true);
         }
     });
 
@@ -178,14 +166,10 @@ const SingleInterview = () => {
         onSuccess: () => {
             setDeleteDialogOpen(false);
         },
-        onError: (error: any) => {
-            setModalError({
-                show: true,
-                message:
-                    error?.response?.data?.message ||
-                    'Failed to delete interview',
-                status: error?.response?.status || 500
-            });
+        onError: (error: Error) => {
+            setSeverity('error');
+            setMessage(error?.message || 'Failed to delete interview');
+            setOpenSnackbar(true);
         }
     });
 
@@ -194,7 +178,6 @@ const SingleInterview = () => {
         e: MouseEvent<HTMLElement>,
         editorState: unknown
     ) => {
-        e.preventDefault();
         const message = JSON.stringify(editorState);
         const formData = new FormData();
 
@@ -212,17 +195,15 @@ const SingleInterview = () => {
 
     const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
-        const fileNum = e.target.files.length;
+        const fileNum = e.target.files?.length ?? 0;
         if (fileNum <= 3) {
             if (e.target.files) {
                 setFile(Array.from(e.target.files));
             }
         } else {
-            setModalError({
-                show: true,
-                message: 'You can only select up to 3 files.',
-                status: 423
-            });
+            setSeverity('error');
+            setMessage('You can only select up to 3 files.');
+            setOpenSnackbar(true);
         }
     };
 
@@ -327,17 +308,6 @@ const SingleInterview = () => {
 
     return (
         <Box>
-            {/* Error Modal */}
-            {modalError.show && (
-                <ModalMain
-                    ConfirmError={() =>
-                        setModalError({ show: false, message: '', status: 0 })
-                    }
-                    res_modal_message={modalError.message}
-                    res_modal_status={modalError.status}
-                />
-            )}
-
             {/* Breadcrumbs */}
             <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 3 }}>
                 <Link

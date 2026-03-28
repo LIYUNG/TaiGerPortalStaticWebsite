@@ -1037,7 +1037,7 @@ export const SubmitMessageWithAttachment = (
     studentId: StudentId,
     newFile: File | FormData
 ) =>
-    request.post<SubmitMessageResponse>(
+    postData<SubmitMessageResponse>(
         `/api/document-threads/${documentsthreadId}/${studentId}`,
         newFile
     );

@@ -1,7 +1,11 @@
 import { ReactNode } from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import {
+    QueryClient,
+    QueryClientProvider,
+    type UseQueryOptions
+} from '@tanstack/react-query';
 import { is_TaiGer_role } from '@taiger-common/core';
 
 import SingleInterview from './SingleInterview';
@@ -18,8 +22,17 @@ vi.mock('@components/AuthProvider', () => ({
             firstname: 'Test',
             lastname: 'Agent',
             email: 'agent@example.com',
-            timezone: 'UTC'
+            timezone: 'UTC',
+            archiv: false
         }
+    })
+}));
+
+vi.mock('@/contexts/use-snack-bar', () => ({
+    useSnackBar: () => ({
+        setOpenSnackbar: vi.fn(),
+        setSeverity: vi.fn(),
+        setMessage: vi.fn()
     })
 }));
 
@@ -192,7 +205,7 @@ describe('SingleInterview', () => {
         vi.mocked(getInterviewQuery).mockReturnValueOnce({
             queryKey: ['interviews', 'interview-001'],
             queryFn: () => pendingPromise
-        } as any);
+        } as UseQueryOptions);
 
         render(
             <QueryClientProvider client={queryClient}>
@@ -269,6 +282,81 @@ describe('SingleInterview', () => {
         renderSingleInterview();
         await waitFor(() => {
             expect(screen.getByText('History')).toBeInTheDocument();
+        });
+    });
+
+    it('renders error page with HTTP status when interview query fails with axios-style error', async () => {
+        const queryClient = createTestQueryClient();
+        const { getInterviewQuery } = await import('@/api/query');
+        vi.mocked(getInterviewQuery).mockReturnValueOnce({
+            queryKey: ['interviews', 'interview-001'],
+            queryFn: vi.fn().mockRejectedValue({ response: { status: 403 } })
+        } as UseQueryOptions);
+
+        render(
+            <QueryClientProvider client={queryClient}>
+                <MemoryRouter>
+                    <SingleInterview />
+                </MemoryRouter>
+            </QueryClientProvider>
+        );
+
+        await waitFor(() => {
+            expect(screen.getByTestId('error-page')).toHaveTextContent(
+                'Error 403'
+            );
+        });
+    });
+
+    it('renders error page 500 when interview query fails without response status', async () => {
+        const queryClient = createTestQueryClient();
+        const { getInterviewQuery } = await import('@/api/query');
+        vi.mocked(getInterviewQuery).mockReturnValueOnce({
+            queryKey: ['interviews', 'interview-001'],
+            queryFn: vi.fn().mockRejectedValue(new Error('Network error'))
+        } as UseQueryOptions);
+
+        render(
+            <QueryClientProvider client={queryClient}>
+                <MemoryRouter>
+                    <SingleInterview />
+                </MemoryRouter>
+            </QueryClientProvider>
+        );
+
+        await waitFor(() => {
+            expect(screen.getByTestId('error-page')).toHaveTextContent(
+                'Error 500'
+            );
+        });
+    });
+
+    it('renders error page 404 when API returns no interview payload', async () => {
+        const queryClient = createTestQueryClient();
+        const { getInterviewQuery } = await import('@/api/query');
+        vi.mocked(getInterviewQuery).mockReturnValueOnce({
+            queryKey: ['interviews', 'interview-001'],
+            queryFn: vi.fn().mockResolvedValue({
+                data: {
+                    success: true,
+                    data: null,
+                    interviewAuditLog: []
+                }
+            })
+        } as UseQueryOptions);
+
+        render(
+            <QueryClientProvider client={queryClient}>
+                <MemoryRouter>
+                    <SingleInterview />
+                </MemoryRouter>
+            </QueryClientProvider>
+        );
+
+        await waitFor(() => {
+            expect(screen.getByTestId('error-page')).toHaveTextContent(
+                'Error 404'
+            );
         });
     });
 });
