@@ -27,6 +27,7 @@ import type {
     IUser,
     IUserWithId
 } from '@taiger-common/model';
+import type { OutputData } from '@editorjs/editorjs';
 
 import { appConfig } from '../../config';
 import DEMO from '@store/constant';
@@ -36,12 +37,30 @@ import {
     submitMessageInTicketWithAttachment,
     updateComplaintsTicket
 } from '@/api';
-import MessageList from '@components/Message/MessageList';
+import MessageList, { type MessageThread } from '@components/Message/MessageList';
 import { stringAvatar } from '@utils/contants';
 import { useAuth } from '@components/AuthProvider';
-import DocThreadEditor from '@components/Message/DocThreadEditor';
+import DocThreadEditor, { type CheckResultItem } from '@components/Message/DocThreadEditor';
 import { readDOCX, readPDF, readXLSX } from '../Utils/util_functions';
 import { TopBar } from '@components/TopBar/TopBar';
+
+interface CustomerTicketDetailPageBodyState {
+    thread: IComplaintWithId;
+    editorState: OutputData;
+    isSubmissionLoaded: boolean;
+    isLoaded: boolean;
+    SetAsFinalFileModel: boolean;
+    file?: File[] | null;
+    buttonDisabled?: boolean;
+    newStatus?: string;
+    isFinalVersion?: boolean;
+    success?: boolean;
+    res_modal_message?: string;
+    res_modal_status?: number;
+    in_edit_mode?: boolean;
+    ticket_id?: string;
+    error?: unknown;
+}
 
 interface CustomerTicketDetailPageBodyProps {
     complaintTicket: IComplaintWithId;
@@ -53,20 +72,16 @@ const CustomerTicketDetailPageBody = ({
     const { t } = useTranslation();
     const theme = useTheme();
     const { user } = useAuth();
-    const [checkResult, setCheckResult] = useState([]);
+    const [checkResult, setCheckResult] = useState<Record<string, CheckResultItem>[]>([]);
     const [isDeleted, setIsDeleted] = useState(false);
+    const messages = complaintTicket.messages ?? [];
     const [
         customerTicketDetailPageBodyState,
         setCustomerTicketDetailPageBodyState
-    ] = useState({
+    ] = useState<CustomerTicketDetailPageBodyState>({
         thread: complaintTicket,
-        editorState: {},
+        editorState: { blocks: [] },
         isSubmissionLoaded: true,
-        accordionKeys: new Array(complaintTicket.messages.length)
-            .fill()
-            .map((_x: undefined, i: number) =>
-                i === complaintTicket.messages.length - 1 ? i : -1
-            ), // to collapse all
         isLoaded: true,
         SetAsFinalFileModel: false
     });
@@ -82,38 +97,27 @@ const CustomerTicketDetailPageBody = ({
         setOpen(false);
     };
 
-    const singleExpandtHandler = (idx: number) => {
-        const accordionKeys = [
-            ...customerTicketDetailPageBodyState.accordionKeys
-        ];
-        accordionKeys[idx] = accordionKeys[idx] !== idx ? idx : -1;
-        setCustomerTicketDetailPageBodyState((prevState) => ({
-            ...prevState,
-            accordionKeys: accordionKeys
-        }));
-    };
-
     const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
+        if (!e.target.files) {
+            return;
+        }
         const file_num = e.target.files.length;
         if (file_num <= 3) {
-            if (!e.target.files) {
-                return;
-            }
-            if (!is_TaiGer_role(user)) {
+            if (!is_TaiGer_role(user as IUser)) {
                 setCustomerTicketDetailPageBodyState((prevState) => ({
                     ...prevState,
-                    file: Array.from(e.target.files)
+                    file: Array.from(e.target.files!)
                 }));
                 return;
             }
             // Ensure a file is selected
             const checkPromises = Array.from(e.target.files).map((file) => {
-                const extension = file.name.split('.').pop().toLowerCase();
+                const extension = file.name.split('.').pop()?.toLowerCase() ?? '';
                 const studentName = (
                     customerTicketDetailPageBodyState.thread
-                        .requester_id as IUser
-                ).firstname;
+                        .requester_id as unknown as IUser
+                ).firstname ?? '';
 
                 if (extension === 'pdf') {
                     return readPDF(file, studentName);
@@ -127,10 +131,10 @@ const CustomerTicketDetailPageBody = ({
             });
             Promise.all(checkPromises)
                 .then((results) => {
-                    setCheckResult(results);
+                    setCheckResult(results as Record<string, CheckResultItem>[]);
                     setCustomerTicketDetailPageBodyState((prevState) => ({
                         ...prevState,
-                        file: Array.from(e.target.files)
+                        file: Array.from(e.target.files!)
                     }));
                 })
                 .catch((error) => {
@@ -173,7 +177,7 @@ const CustomerTicketDetailPageBody = ({
             customerTicketDetailPageBodyState.thread._id,
             (
                 customerTicketDetailPageBodyState.thread
-                    .requester_id as IUserWithId
+                    .requester_id as unknown as IUserWithId
             )._id,
             formData
         ).then(
@@ -185,17 +189,13 @@ const CustomerTicketDetailPageBody = ({
                         ...prevState,
                         success,
                         file: null,
-                        editorState: {},
+                        editorState: { blocks: [] },
                         thread: {
                             ...customerTicketDetailPageBodyState.thread,
                             messages: data?.messages
                         },
                         isLoaded: true,
                         buttonDisabled: false,
-                        accordionKeys: [
-                            ...customerTicketDetailPageBodyState.accordionKeys,
-                            data.messages.length - 1
-                        ],
                         res_modal_status: status
                     }));
                 } else {
@@ -241,13 +241,11 @@ const CustomerTicketDetailPageBody = ({
                 const { status } = resp;
                 if (success) {
                     // TODO: remove that message
-                    const new_messages = [
-                        ...customerTicketDetailPageBodyState.thread.messages
-                    ];
-                    const idx =
-                        customerTicketDetailPageBodyState.thread.messages.findIndex(
-                            (message) => message._id.toString() === message_id
-                        );
+                    const threadMessages = customerTicketDetailPageBodyState.thread.messages ?? [];
+                    const new_messages = [...threadMessages];
+                    const idx = threadMessages.findIndex(
+                        (message) => (message as unknown as { _id: string })._id?.toString() === message_id
+                    );
                     if (idx !== -1) {
                         new_messages.splice(idx, 1);
                     }
@@ -326,7 +324,7 @@ const CustomerTicketDetailPageBody = ({
                         isSubmissionLoaded: true,
                         thread: {
                             ...prevState.thread,
-                            status: data.status
+                            status: data?.status ?? prevState.thread.status
                         },
                         success: success,
                         newStatus: '',
@@ -480,7 +478,7 @@ const CustomerTicketDetailPageBody = ({
                                                 gutterBottom
                                                 variant="body1"
                                             >
-                                                {`${(complaintTicket.requester_id as IUser)?.firstname} ${(complaintTicket.requester_id as IUser)?.lastname}`}
+                                                {`${(complaintTicket.requester_id as unknown as IUser)?.firstname} ${(complaintTicket.requester_id as unknown as IUser)?.lastname}`}
                                             </Typography>
                                         </Box>
                                     </Box>
@@ -511,19 +509,17 @@ const CustomerTicketDetailPageBody = ({
                             </Grid>
                         </Grid>
                         <MessageList
-                            accordionKeys={
-                                customerTicketDetailPageBodyState.accordionKeys
-                            }
                             apiPrefix="/api/complaints"
                             documentsthreadId={complaintTicket._id}
                             isLoaded={
                                 customerTicketDetailPageBodyState.isLoaded
                             }
                             onDeleteSingleMessage={onDeleteSingleMessage}
-                            singleExpandtHandler={singleExpandtHandler}
-                            thread={customerTicketDetailPageBodyState.thread}
+                            thread={
+                                customerTicketDetailPageBodyState.thread as unknown as MessageThread
+                            }
                         />
-                        {user.archiv !== true ? (
+                        {user?.archiv !== true ? (
                             <Card
                                 sx={{
                                     borderRadius: 2,
@@ -560,7 +556,7 @@ const CustomerTicketDetailPageBody = ({
                                             >
                                                 <Avatar
                                                     {...stringAvatar(
-                                                        `${user.firstname} ${user.lastname}`
+                                                        `${user?.firstname ?? ''} ${user?.lastname ?? ''}`
                                                     )}
                                                     src={user?.pictureUrl}
                                                     sx={{
@@ -574,8 +570,8 @@ const CustomerTicketDetailPageBody = ({
                                                         fontWeight="600"
                                                         variant="body2"
                                                     >
-                                                        {user.firstname}{' '}
-                                                        {user.lastname}
+                                                        {user?.firstname}{' '}
+                                                        {user?.lastname}
                                                     </Typography>
                                                     <Typography
                                                         sx={{
@@ -600,12 +596,12 @@ const CustomerTicketDetailPageBody = ({
                                                     customerTicketDetailPageBodyState.buttonDisabled
                                                 }
                                                 checkResult={checkResult}
-                                                doc_title="customerTicketDetailPageBodyState.doc_title"
                                                 editorState={
                                                     customerTicketDetailPageBodyState.editorState
                                                 }
                                                 file={
-                                                    customerTicketDetailPageBodyState.file
+                                                    customerTicketDetailPageBodyState.file ??
+                                                    undefined
                                                 }
                                                 handleClickSave={
                                                     handleClickSave
@@ -627,7 +623,7 @@ const CustomerTicketDetailPageBody = ({
                                 </Typography>
                             </Card>
                         )}
-                        {is_TaiGer_role(user) ? (
+                        {is_TaiGer_role(user as IUser) ? (
                             customerTicketDetailPageBodyState.thread.status ===
                             'open' ? (
                                 <Button

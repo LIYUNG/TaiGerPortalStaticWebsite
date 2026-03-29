@@ -57,6 +57,7 @@ export interface EventParticipant {
 }
 
 export interface EventConfirmationCardEvent {
+    _id?: string | { toString: () => string };
     start: Date | string;
     end: Date | string;
     description?: string;
@@ -68,6 +69,8 @@ export interface EventConfirmationCardEvent {
     event_type?: string;
     createdAt?: string;
     updatedAt?: string;
+    title?: string;
+    [key: string]: unknown;
 }
 
 interface EventConfirmationCardProps {
@@ -624,7 +627,7 @@ export default function EventConfirmationCard(
                                                             }
                                                         }}
                                                         to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                                                            requester._id.toString(),
+                                                            requester._id?.toString() ?? '',
                                                             DEMO.PROFILE_HASH
                                                         )}`}
                                                         variant="body1"

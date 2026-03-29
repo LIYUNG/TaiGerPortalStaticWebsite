@@ -74,7 +74,7 @@ import NotesEditor from '../../Notes/NotesEditor';
 import { OutputData } from '@editorjs/editorjs';
 
 /** Interview with populated references as returned by the API. */
-interface IInterviewPopulated {
+export interface IInterviewPopulated {
     _id: string;
     student_id: IUserWithId;
     trainer_id: IUserWithId[];
@@ -1072,7 +1072,7 @@ const InterviewMetadataSidebar = ({
                     </Card>
 
                     {/* Official Details Collapsible Card */}
-                    {user && is_TaiGer_role(user) && (
+                    {
                         <Card
                             sx={{
                                 borderRadius: 2,
@@ -1259,7 +1259,7 @@ const InterviewMetadataSidebar = ({
                                 </Box>
                             </Collapse>
                         </Card>
-                    )}
+                    }
 
                     {/* Actions Card (for TaiGer roles) */}
                     {user && is_TaiGer_role(user) && (

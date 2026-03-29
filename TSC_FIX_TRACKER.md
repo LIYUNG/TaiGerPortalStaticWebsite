@@ -2,7 +2,7 @@
 
 **Date:** 2026-03-29  
 **Initial:** 4,267 errors from `npx tsc --noEmit -p tsconfig.app.json`  
-**Current:** 1,800 errors (from latest `tsc-errors.txt` refresh)  
+**Current:** 1,575 errors (from latest `tsc-errors.txt` refresh)  
 **Full output:** `tsc-errors.txt`  
 **Refactoring plan:** `TSC_REFACTOR_PLAN.md`
 
@@ -16,27 +16,25 @@ run:
 
 | Code | Count | Prev | Δ | Description | Category |
 |------|-------|------|---|-------------|----------|
-| TS2345 | 518 | 611 | -93 | Argument type not assignable | Type mismatch |
-| TS2322 | 358 | 385 | -27 | Type not assignable | Type mismatch |
-| TS2339 | 314 | 411 | -97 | Property does not exist on type | Interface mismatch |
-| TS18048 | 152 | 188 | -36 | Possibly undefined | Null safety |
-| TS2769 | 96 | 122 | -26 | No overload matches | Overload mismatch |
-| TS7053 | 69 | 75 | -6 | Index signature issue | Index types |
-| TS18047 | 67 | 85 | -18 | Possibly null | Null safety |
-| TS18046 | 48 | 53 | -5 | Type is unknown | Unknown narrowing |
-| TS2352 | 27 | 27 | 0 | Type conversion may be mistake | Misc |
-| TS2741 | 26 | 28 | -2 | Missing required property | Interface mismatch |
-| TS2739 | 9 | 12 | -3 | Missing properties | Interface mismatch |
-| TS2538 | 8 | 10 | -2 | Type cannot be used as index | Index types |
+| TS2345 | 482 | 518 | -36 | Argument type not assignable | Type mismatch |
+| TS2322 | 298 | 358 | -60 | Type not assignable | Type mismatch |
+| TS2339 | 263 | 314 | -51 | Property does not exist on type | Interface mismatch |
+| TS18048 | 124 | 152 | -28 | Possibly undefined | Null safety |
+| TS2769 | 78 | 96 | -18 | No overload matches | Overload mismatch |
+| TS7053 | 62 | 69 | -7 | Index signature issue | Index types |
+| TS18047 | 60 | 67 | -7 | Possibly null | Null safety |
+| TS18046 | 46 | 48 | -2 | Type is unknown | Unknown narrowing |
+| TS2352 | 26 | 27 | -1 | Type conversion may be mistake | Misc |
+| TS2741 | 25 | 26 | -1 | Missing required property | Interface mismatch |
+| TS2739 | 9 | 9 | 0 | Missing properties | Interface mismatch |
 | TS2559 | 8 | 8 | 0 | No common properties | Type mismatch |
-| TS2551 | 8 | 9 | -1 | Property name typo | Misc |
 | TS2698 | 8 | 8 | 0 | Spread / rest | Misc |
+| TS2538 | 7 | 8 | -1 | Type cannot be used as index | Index types |
 | TS7034 | 6 | 6 | 0 | Variable implicitly has type | Untyped vars |
-| TS7005 | 6 | 6 | 0 | Variable implicitly has 'any' type | Untyped vars |
 | TS6133 | **0** | **0** | 0 | Declared but never read | **Cleared** |
-| Others | ~72 | ~74 | — | TS2554, TS2488, TS2353, TS2722, TS2304, … | Misc |
+| Others | ~73 | ~80 | — | TS2554, TS2488, TS2353, TS2551, TS7005, … | Misc |
 
-**Note:** Prev = counts from previous run (2,133-total snapshot). Current run: **1,800** errors (−333).
+**Note:** Prev = counts from previous run (1,800-total snapshot). Current run: **1,575** errors (−225).
 
 ---
 
@@ -300,3 +298,4 @@ run:
 | 2026-03-29 | Batch 2 & 3 follow-up: ProgramCompare, ProgramsOverviewPage, MyDocumentCard, SingleInterview, DealModal, LeadPage; `tsc-errors.txt` refresh | 2,376 | **2,213** |
 | 2026-03-29 | **TS6133 cleared**: Removed all 54 unused imports/variables across ~42 files (unused React imports, event params, test imports, dead vars) | 2,213 | **2,133** |
 | 2026-03-29 | Batch 4: InterviewMetadataSidebar (72→0), MyCourses/index (52→0), contants.tsx (45→partial), ManualFiles (50→partial), AddInterview (42→0), util_functions.test (51→0), OfficeHours shared hook/types (partial) | 2,133 | **1,800** |
+| 2026-03-29 | Batch 5: OfficeHours 3 files + hook (96→0), InterviewSurveyForm (38→0), DocModificationThreadInput (37→0), SingleInterview (34→0), CustomerTicketDetailPageBody (33→0) | 1,800 | **1,575** |

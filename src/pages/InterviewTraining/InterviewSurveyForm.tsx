@@ -1,8 +1,9 @@
-import { useEffect, useState, type ChangeEvent } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, Paper, Container, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { is_TaiGer_role } from '@taiger-common/core';
+import type { IProgramWithId, IUserWithId } from '@taiger-common/model';
 import { getInterview, getInterviewSurvey, updateInterviewSurvey } from '@/api';
 import Loading from '@components/Loading/Loading';
 import ErrorPage from '../Utils/ErrorPage';
@@ -19,6 +20,38 @@ import InterviewExperienceStep from '@components/SurveyProvider/InterviewExperie
 import ProgramFeedbackStep from '@components/SurveyProvider/ProgramFeedbackStep';
 import FinalThoughtsStep from '@components/SurveyProvider/FinalThoughtsStep';
 
+/** Interview with populated references as returned by the API. */
+interface IInterviewPopulated {
+    _id: string;
+    student_id: IUserWithId;
+    trainer_id: IUserWithId[];
+    program_id: IProgramWithId;
+    thread_id?: string;
+    interview_description?: string;
+    interviewer?: string;
+    interview_duration?: string;
+    interview_date?: Date;
+    start?: Date;
+    end?: Date;
+}
+
+interface SurveyValues {
+    interviewRating: string;
+    informationClarity: string;
+    trainerFriendliness: string;
+    interviewQuestions: string;
+    interviewFeedback: string;
+    isFinal: boolean;
+}
+
+interface SurveyResponse {
+    questionId: string;
+    answer: number;
+    q1?: number;
+    q2?: number;
+    q3?: number;
+}
+
 const steps = ['Interview Experience', 'Program Feedback', 'Final Thoughts'];
 
 const InterviewSurveyForm = () => {
@@ -30,16 +63,18 @@ const InterviewSurveyForm = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [isChanged, setIsChanged] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [values, setValues] = useState({
+    const [values, setValues] = useState<SurveyValues>({
         interviewRating: '',
         informationClarity: '',
         trainerFriendliness: '',
-        questionsAnswered: '',
         interviewQuestions: '',
-        interviewFeedback: ''
+        interviewFeedback: '',
+        isFinal: false
     });
-    const [validationErrors, setValidationErrors] = useState([]);
-    const [interview, setInterview] = useState({});
+    const [validationErrors, setValidationErrors] = useState<string[]>([]);
+    const [interview, setInterview] = useState<IInterviewPopulated | null>(
+        null
+    );
     const [interviewSurveyState, setInterviewSurveyState] = useState({
         isLoaded: false,
         res_status: 0
@@ -84,30 +119,22 @@ const InterviewSurveyForm = () => {
                 data: { data, success }
             } = await getInterviewSurvey(interview_id);
             if (success) {
-                const result = data?.responses?.reduce((acc, item) => {
-                    acc[item.questionId] = item.answer;
-                    return acc;
-                }, {});
-
-                // Map questionsAnswered numeric values back to strings
-                const questionsAnsweredReverseMap = {
-                    1: 'yes',
-                    2: 'mostly',
-                    3: 'some',
-                    4: 'no'
-                };
+                const result = (data?.responses ?? []).reduce(
+                    (acc: Record<string, number>, item: SurveyResponse) => {
+                        acc[item.questionId] = item.answer;
+                        return acc;
+                    },
+                    {} as Record<string, number>
+                );
 
                 // Map the old field names to new field names
-                const mappedValues = {
-                    interviewRating: result.q1 || '',
-                    informationClarity: result.q2 || '',
-                    trainerFriendliness: result.q3 || '',
-                    questionsAnswered:
-                        questionsAnsweredReverseMap[result.questionsAnswered] ||
-                        '',
-                    interviewQuestions: data?.interviewQuestions || '',
-                    interviewFeedback: data?.interviewFeedback || '',
-                    isFinal: data?.isFinal || false
+                const mappedValues: SurveyValues = {
+                    interviewRating: result.q1 ? String(result.q1) : '',
+                    informationClarity: result.q2 ? String(result.q2) : '',
+                    trainerFriendliness: result.q3 ? String(result.q3) : '',
+                    interviewQuestions: data?.interviewQuestions ?? '',
+                    interviewFeedback: data?.interviewFeedback ?? '',
+                    isFinal: data?.isFinal ?? false
                 };
 
                 setValues(mappedValues);
@@ -122,7 +149,9 @@ const InterviewSurveyForm = () => {
         }
     };
 
-    const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (event: {
+        target: { name: string; value: string };
+    }) => {
         const { name, value } = event.target;
         console.log('handleChange called:', { name, value, event });
         if (
@@ -142,16 +171,8 @@ const InterviewSurveyForm = () => {
         try {
             setIsChanged(false);
 
-            // Map questionsAnswered string values to numbers
-            const questionsAnsweredMap = {
-                yes: 1,
-                mostly: 2,
-                some: 3,
-                no: 4
-            };
-
             const response = await updateInterviewSurvey(interview_id, {
-                student_id: interview.student_id?._id?.toString(),
+                student_id: interview?.student_id?._id?.toString(),
                 interview_id: interview_id,
                 responses: [
                     {
@@ -165,11 +186,6 @@ const InterviewSurveyForm = () => {
                     {
                         questionId: 'q3',
                         answer: Number(values.trainerFriendliness)
-                    },
-                    {
-                        questionId: 'questionsAnswered',
-                        answer:
-                            questionsAnsweredMap[values.questionsAnswered] || 0
                     }
                 ],
                 interviewQuestions: values.interviewQuestions,
@@ -185,16 +201,8 @@ const InterviewSurveyForm = () => {
         try {
             setIsLoading(true);
 
-            // Map questionsAnswered string values to numbers
-            const questionsAnsweredMap = {
-                yes: 1,
-                mostly: 2,
-                some: 3,
-                no: 4
-            };
-
             const response = await updateInterviewSurvey(interview_id, {
-                student_id: interview.student_id?._id?.toString(),
+                student_id: interview?.student_id?._id?.toString(),
                 interview_id: interview_id,
                 responses: [
                     {
@@ -208,11 +216,6 @@ const InterviewSurveyForm = () => {
                     {
                         questionId: 'q3',
                         answer: Number(values.trainerFriendliness)
-                    },
-                    {
-                        questionId: 'questionsAnswered',
-                        answer:
-                            questionsAnsweredMap[values.questionsAnswered] || 0
                     }
                 ],
                 isFinal: true,
@@ -256,9 +259,6 @@ const InterviewSurveyForm = () => {
         if (!values.trainerFriendliness) {
             errors.push('Trainer friendliness rating is required');
         }
-        if (!values.questionsAnswered) {
-            errors.push('Questions answered selection is required');
-        }
         if (!values.interviewQuestions) {
             errors.push('Interview questions are required');
         }
@@ -272,8 +272,7 @@ const InterviewSurveyForm = () => {
                 return (
                     values.interviewRating &&
                     values.informationClarity &&
-                    values.trainerFriendliness &&
-                    values.questionsAnswered
+                    values.trainerFriendliness
                 );
             case 1:
                 return values.interviewQuestions;
@@ -295,9 +294,8 @@ const InterviewSurveyForm = () => {
             case 0:
                 return (
                     <InterviewExperienceStep
-                        disabled={values.isFinal as boolean}
+                        disabled={values.isFinal}
                         onChange={handleChange}
-                        t={t}
                         values={values}
                     />
                 );
@@ -306,7 +304,6 @@ const InterviewSurveyForm = () => {
                     <ProgramFeedbackStep
                         disabled={values.isFinal}
                         onChange={handleChange}
-                        t={t}
                         values={values}
                     />
                 );
@@ -315,7 +312,6 @@ const InterviewSurveyForm = () => {
                     <FinalThoughtsStep
                         disabled={values.isFinal}
                         onChange={handleChange}
-                        t={t}
                         values={values}
                     />
                 );
@@ -334,7 +330,7 @@ const InterviewSurveyForm = () => {
         return <ErrorPage res_status={res_status} />;
     }
 
-    const interview_name = `${interview?.student_id?.firstname} ${interview?.student_id?.lastname} - ${interview?.program_id?.school} ${interview?.program_id?.program_name} ${interview?.program_id?.degree} ${interview?.program_id?.semester}`;
+    const interview_name = `${interview?.student_id?.firstname ?? ''} ${interview?.student_id?.lastname ?? ''} - ${interview?.program_id?.school ?? ''} ${interview?.program_id?.program_name ?? ''} ${interview?.program_id?.degree ?? ''} ${interview?.program_id?.semester ?? ''}`;
 
     const breadcrumbs = [
         {
@@ -342,14 +338,15 @@ const InterviewSurveyForm = () => {
             to: `${DEMO.DASHBOARD_LINK}`
         },
         {
-            label: is_TaiGer_role(user)
-                ? t('All Interviews', { ns: 'interviews' })
-                : t('My Interviews', { ns: 'interviews' }),
+            label:
+                user && is_TaiGer_role(user)
+                    ? t('All Interviews', { ns: 'interviews' })
+                    : t('My Interviews', { ns: 'interviews' }),
             to: `${DEMO.INTERVIEW_LINK}`
         },
         {
             label: interview_name,
-            to: `${DEMO.INTERVIEW_SINGLE_LINK(interview_id)}`
+            to: `${DEMO.INTERVIEW_SINGLE_LINK(interview_id ?? '')}`
         },
         {
             label: t('Survey', { ns: 'common' })
