@@ -140,8 +140,8 @@ export default function ResetPassword() {
                         </Grid>
                         <Grid item xs={6}>
                             <Link
-                                component={NavLink}
-                                sx={{ mb: 2 }}
+                                component={RouterLink}
+                                sx={{ mb: 2, display: 'inline-block' }}
                                 to={DEMO.LOGIN_LINK}
                             >
                                 <Typography>

@@ -40,6 +40,8 @@ vi.mock('react-router-dom', async (importOriginal) => {
     return {
         ...actual,
         NavLink: NavLinkMock,
+        /** ResetPassword uses `Link as RouterLink` — must not use real RR Link without a Router */
+        RouterLink: NavLinkMock,
         useNavigate: () => vi.fn()
     };
 });
