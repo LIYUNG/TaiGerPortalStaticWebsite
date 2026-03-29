@@ -31,7 +31,7 @@ import type {
     IProgramWithId,
     IUserWithId
 } from '@taiger-common/model';
-import TimezoneSelect, { type ITimezone } from 'react-timezone-select';
+import TimezoneSelect from 'react-timezone-select';
 import dayjs, { type Dayjs } from 'dayjs';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -320,6 +320,32 @@ const InterviewMetadataSidebar = ({
         setInterviewTrainingTimeChange(true);
     };
 
+    const getErrorMessage = (error: unknown): string => {
+        if (
+            error &&
+            typeof error === 'object' &&
+            'response' in error &&
+            error.response &&
+            typeof error.response === 'object' &&
+            'data' in error.response &&
+            error.response.data &&
+            typeof error.response.data === 'object' &&
+            'message' in error.response.data &&
+            typeof error.response.data.message === 'string'
+        ) {
+            return error.response.data.message;
+        }
+        if (
+            error &&
+            typeof error === 'object' &&
+            'message' in error &&
+            typeof error.message === 'string'
+        ) {
+            return error.message;
+        }
+        return 'An error occurred while sending the interview invitation. Please try again later.';
+    };
+
     const handleSendInterviewInvitation = async (
         e: MouseEvent<HTMLButtonElement>
     ) => {
@@ -355,18 +381,8 @@ const InterviewMetadataSidebar = ({
                     status: resp.status
                 });
             }
-        } catch (error: any) {
-            let errorMessage =
-                'An error occurred while sending the interview invitation. Please try again later.';
-            if (
-                error.response &&
-                error.response.data &&
-                error.response.data.message
-            ) {
-                errorMessage = error.response.data.message;
-            } else if (error.message) {
-                errorMessage = error.message;
-            }
+        } catch (error: unknown) {
+            const errorMessage = getErrorMessage(error);
             setModalError({
                 show: true,
                 message: errorMessage,

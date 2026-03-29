@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import type { IStudentResponse } from '@taiger-common/model';
 
 vi.mock('@taiger-common/core', () => ({
     is_TaiGer_role: vi.fn(() => false),
@@ -54,12 +55,12 @@ vi.mock('../Program/ProgramList', () => ({
 
 import StudentApplicationsAssignProgramlistPage from './StudentApplicationsAssignProgramlistPage';
 
-const mockStudent = {
+const mockStudent: IStudentResponse = {
     _id: 'stu1',
     firstname: 'John',
     lastname: 'Doe',
     applications: []
-} as any;
+} as IStudentResponse;
 
 const renderPage = (props = {}) =>
     render(

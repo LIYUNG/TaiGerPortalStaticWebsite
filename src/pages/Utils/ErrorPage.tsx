@@ -12,7 +12,7 @@ interface ErrorPageProps {
     error?: unknown;
 }
 
-const ErrorPage = ({ error: _error, res_status }: ErrorPageProps) => {
+const ErrorPage = ({ res_status }: ErrorPageProps) => {
     if (res_status === 400) {
         return (
             <Box>
