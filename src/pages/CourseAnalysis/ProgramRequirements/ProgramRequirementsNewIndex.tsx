@@ -1,5 +1,4 @@
-import { Suspense } from 'react';
-import { Await, useLoaderData, Link as LinkDom } from 'react-router-dom';
+import { Link as LinkDom } from 'react-router-dom';
 import { TabTitle } from '../../Utils/TabTitle';
 
 import { Box, Breadcrumbs, Link, Typography } from '@mui/material';
@@ -8,10 +7,12 @@ import DEMO from '@store/constant';
 import { appConfig } from '../../../config';
 import { useTranslation } from 'react-i18next';
 import ProgramRequirementsNew from './ProgramRequirementsNew';
+import { useProgramsAndCourseKeywordSets } from '@/hooks/useProgramsAndCourseKeywordSets';
 
 const ProgramRequirementsNewIndex = () => {
     const { t } = useTranslation();
-    const { programsAndCourseKeywordSets } = useLoaderData();
+    const { data, isLoading, isError, error } =
+        useProgramsAndCourseKeywordSets();
     TabTitle('Program Requirement Creation');
 
     return (
@@ -45,15 +46,19 @@ const ProgramRequirementsNewIndex = () => {
                     {t('Create', { ns: 'common' })}
                 </Typography>
             </Breadcrumbs>
-            <Suspense fallback={<Loading />}>
-                <Await resolve={programsAndCourseKeywordSets}>
-                    {(loadedData) => (
-                        <ProgramRequirementsNew
-                            programsAndCourseKeywordSets={loadedData}
-                        />
-                    )}
-                </Await>
-            </Suspense>
+            {isLoading && <Loading />}
+            {isError && (
+                <Typography color="error" sx={{ mt: 2 }}>
+                    {error instanceof Error
+                        ? error.message
+                        : t('something-went-wrong')}
+                </Typography>
+            )}
+            {!isLoading && !isError && (
+                <ProgramRequirementsNew
+                    programsAndCourseKeywordSets={data ?? {}}
+                />
+            )}
         </Box>
     );
 };

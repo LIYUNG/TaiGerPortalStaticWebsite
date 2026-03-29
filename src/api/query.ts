@@ -10,7 +10,6 @@ import {
     getStatisticsResponseTimeV2,
     getStudentUniAssistV2,
     getProgramRequirementsV2,
-    getAllCourses,
     getCourse,
     getCommunicationThreadV2,
     getPdfV2,

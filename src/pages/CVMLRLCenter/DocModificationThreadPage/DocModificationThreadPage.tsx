@@ -47,6 +47,10 @@ import Audit from '../../Audit';
 import { useTranslation } from 'react-i18next';
 import i18next from 'i18next';
 import { useSnackBar } from '@contexts/use-snack-bar';
+import type {
+    IApplicationPopulated,
+    IProgramWithId
+} from '@taiger-common/model';
 import { GeneralRLRequirementsTab } from './DocumentThreadsPage/GeneralRLRequirementsTab';
 import InformationBlock from '@pages/CVMLRLCenter/DocModificationThreadPage/components/InformationBlock';
 import SimilarThreadsTab, {
@@ -160,16 +164,16 @@ const DocModificationThreadPage = ({
     let lockStatus = null;
     let isLocked = false;
     if (thread?.application_id && thread?.application_id?.programId) {
-        // Construct application object from thread data
         const application = {
             ...thread.application_id,
             programId: thread.program_id || thread.application_id.programId
-        };
+        } as IApplicationPopulated;
         lockStatus = calculateApplicationLockStatus(application);
         isLocked = lockStatus.isLocked === true;
     } else if (thread?.program_id) {
-        // Fallback to program-level lock status
-        lockStatus = calculateProgramLockStatus(thread.program_id);
+        lockStatus = calculateProgramLockStatus(
+            thread.program_id as IProgramWithId
+        );
         isLocked = lockStatus.isLocked === true;
     }
 
@@ -192,19 +196,22 @@ const DocModificationThreadPage = ({
     useEffect(() => {
         setDocModificationThreadPageState((prevState) => ({
             ...prevState,
-            thread: threadProps
+            thread:
+                (threadProps as DocModificationThreadPageThread) ??
+                prevState.thread
         }));
         // eslint-disable-next-line react-hooks/exhaustive-deps -- sync only when route id changes
     }, [documentsthreadId]);
     useEffect(() => {
-        if (scrollableRef?.current) {
-            setTimeout(() => {
-                scrollableRef.current.scrollTo({
-                    top: scrollableRef.current.scrollHeight,
-                    behavior: 'smooth'
-                });
-            }, 100);
-        }
+        const el = scrollableRef?.current;
+        if (!el) return;
+        const t = window.setTimeout(() => {
+            el.scrollTo({
+                top: el.scrollHeight,
+                behavior: 'smooth'
+            });
+        }, 100);
+        return () => window.clearTimeout(t);
         // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount to scroll into view
     }, []);
 
@@ -223,44 +230,41 @@ const DocModificationThreadPage = ({
             setOpenSnackbar(true);
             return;
         }
-        const file_num = e.target?.files?.length ?? 0;
+        const files = e.target.files;
+        const file_num = files?.length ?? 0;
         if (file_num <= 3) {
-            if (!e.target.files) {
+            if (!files) {
                 return;
             }
-            if (!is_TaiGer_role(user)) {
+            if (!user || !is_TaiGer_role(user)) {
                 setDocModificationThreadPageState((prevState) => ({
                     ...prevState,
-                    file: Array.from(e.target.files)
+                    file: Array.from(files)
                 }));
                 return;
             }
-            // Ensure a file is selected
-            // TODO: make array
-            const checkPromises = Array.from(e.target?.files || []).map(
-                (file) => {
-                    const extension = file.name.split('.').pop()?.toLowerCase();
-                    const studentName =
-                        docModificationThreadPageState.thread.student_id
-                            .firstname;
+            const studentName =
+                docModificationThreadPageState.thread.student_id?.firstname ??
+                '';
+            const checkPromises = Array.from(files).map((file) => {
+                const extension = file.name.split('.').pop()?.toLowerCase();
 
-                    if (extension === 'pdf') {
-                        return readPDF(file, studentName);
-                    } else if (extension === 'docx') {
-                        return readDOCX(file, studentName);
-                    } else if (extension === 'xlsx') {
-                        return readXLSX(file, studentName);
-                    } else {
-                        return Promise.resolve({});
-                    }
+                if (extension === 'pdf') {
+                    return readPDF(file, studentName);
+                } else if (extension === 'docx') {
+                    return readDOCX(file, studentName);
+                } else if (extension === 'xlsx') {
+                    return readXLSX(file, studentName);
+                } else {
+                    return Promise.resolve({});
                 }
-            );
+            });
             Promise.all(checkPromises)
                 .then((results) => {
                     setCheckResult(results);
                     setDocModificationThreadPageState((prevState) => ({
                         ...prevState,
-                        file: Array.from(e.target.files)
+                        file: Array.from(files)
                     }));
                 })
                 .catch((error) => {
@@ -319,8 +323,10 @@ const DocModificationThreadPage = ({
             formData
         ).then(
             (resp) => {
-                const { success, data } = resp.data;
-                const { status } = resp;
+                const { success, data } = resp;
+                const status = 200;
+                const nextMessages = data?.messages ?? [];
+
                 if (success) {
                     setDocModificationThreadPageState((prevState) => ({
                         ...prevState,
@@ -328,26 +334,28 @@ const DocModificationThreadPage = ({
                         file: null,
                         editorState: {},
                         thread: {
-                            ...docModificationThreadPageState.thread,
-                            messages: data?.messages
+                            ...prevState.thread,
+                            messages: nextMessages
                         },
                         isLoaded: true,
                         buttonDisabled: false,
-                        accordionKeys: [
-                            ...docModificationThreadPageState.accordionKeys,
-                            data.messages.length - 1
-                        ],
-                        res_modal_status: status
+                        accordionKeys:
+                            nextMessages.length > 0
+                                ? [
+                                      ...prevState.accordionKeys,
+                                      nextMessages.length - 1
+                                  ]
+                                : prevState.accordionKeys,
+                        res_modal_status: status,
+                        res_modal_message: ''
                     }));
                 } else {
-                    // TODO: what if data is oversize? data type not match?
-                    const { message } = resp.data;
                     setDocModificationThreadPageState((prevState) => ({
                         ...prevState,
                         isLoaded: true,
                         buttonDisabled: false,
-                        res_modal_message: message,
-                        res_modal_status: status
+                        res_modal_message: resp.message ?? 'Submission failed.',
+                        res_modal_status: 400
                     }));
                 }
             },

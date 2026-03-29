@@ -2,37 +2,29 @@ import { ReactNode, forwardRef, Ref } from 'react';
 import { render, screen } from '@testing-library/react';
 import ProgramRequirementsNewIndex from './ProgramRequirementsNewIndex';
 
-vi.mock('react-router-dom', () => {
-    return {
-        useLoaderData: () => ({ programsAndCourseKeywordSets: null }),
-        useNavigate: () => vi.fn(),
-        useParams: () => ({}),
-        Link: forwardRef(function LinkMock(
-            props: { children?: ReactNode; to?: string },
-            ref: Ref<HTMLAnchorElement>
-        ) {
-            const { children, to, ...rest } = props;
-            return (
-                <a ref={ref} href={to ?? '#'} {...rest}>
-                    {children}
-                </a>
-            );
-        }),
-        Await: ({
-            children
-        }: {
-            children: ((data: unknown) => ReactNode) | ReactNode;
-            resolve: unknown;
-        }) => (
-            <>
-                {typeof children === 'function'
-                    ? children({ distinctPrograms: [], keywordsets: [] })
-                    : children}
-            </>
-        ),
-        Suspense: ({ children }: { children: ReactNode }) => <>{children}</>
-    };
-});
+vi.mock('@/hooks/useProgramsAndCourseKeywordSets', () => ({
+    useProgramsAndCourseKeywordSets: () => ({
+        data: { distinctPrograms: [], keywordsets: [] },
+        isLoading: false,
+        isError: false,
+        error: null,
+        queryKey: ['program-requirements', 'programs-and-keywords'] as const
+    })
+}));
+
+vi.mock('react-router-dom', () => ({
+    Link: forwardRef(function LinkMock(
+        props: { children?: ReactNode; to?: string },
+        ref: Ref<HTMLAnchorElement>
+    ) {
+        const { children, to, ...rest } = props;
+        return (
+            <a ref={ref} href={to ?? '#'} {...rest}>
+                {children}
+            </a>
+        );
+    })
+}));
 
 vi.mock('@store/constant', () => ({
     default: {
@@ -71,7 +63,7 @@ describe('ProgramRequirementsNewIndex', () => {
         expect(screen.getByText('TaiGer')).toBeInTheDocument();
     });
 
-    it('renders ProgramRequirementsNew via Await', () => {
+    it('renders ProgramRequirementsNew when data is loaded', () => {
         render(<ProgramRequirementsNewIndex />);
         expect(
             screen.getByTestId('program-requirements-new')

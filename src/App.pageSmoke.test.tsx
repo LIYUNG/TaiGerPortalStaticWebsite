@@ -105,7 +105,6 @@ vi.mock('@/api', async (importOriginal) => ({
     getStudentsAndDocLinks2: vi
         .fn()
         .mockResolvedValue({ data: [], base_docs_link: [] }),
-    getProgramsAndCourseKeywordSetsLoader: vi.fn().mockResolvedValue({}),
     getApplicationStudentV2: vi.fn().mockResolvedValue({ data: null }),
     getComplaintsTickets: vi.fn().mockResolvedValue({ data: { data: [] } }),
     getComplaintsTicket: vi
@@ -241,7 +240,7 @@ vi.mock('@hooks/useStudentsAndDocLinks', () => ({
 }));
 
 const wrapWithSuspense = (
-    Component: LazyExoticComponent<ComponentType<any>>
+    Component: LazyExoticComponent<ComponentType<Record<string, never>>>
 ) => (
     <Suspense fallback={<div data-testid="loading">Loading...</div>}>
         <Component />

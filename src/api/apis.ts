@@ -774,7 +774,7 @@ export const postProgramRequirements = (payload: ApiPayload) =>
         payload
     );
 export const getProgramsAndCourseKeywordSets = () =>
-    request.get<GetProgramsAndKeywordSetsResponse>(
+    getData<GetProgramsAndKeywordSetsResponse>(
         `/api/program-requirements/programs-and-keywords`
     );
 export const getProgramRequirement = (programRequirementId: string) =>
@@ -885,7 +885,7 @@ export const putThreadFavorite = (documentsthreadId: string) =>
 
 // Portal Informations APIs
 export const getPortalCredentials = (student_id: string) =>
-    request.get<GetPortalCredentialsResponse>(
+    getData<GetPortalCredentialsResponse>(
         `/api/portal-informations/${student_id}`
     );
 export const postPortalCredentials = (

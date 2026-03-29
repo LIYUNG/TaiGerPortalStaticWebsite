@@ -7,7 +7,6 @@ import {
     getComplaintTicketLoader,
     getDistinctSchoolsLoader,
     getProgramRequirementsLoader,
-    getProgramsAndCourseKeywordSetsLoader,
     getProgramRequirementLoader,
     getProgramRequirementsV2Loader,
     getCourseLoader,
@@ -381,7 +380,6 @@ const routes = [
             {
                 path: 'analysis/programs/requirements/new',
                 errorElement: <DefaultErrorPage />,
-                loader: getProgramsAndCourseKeywordSetsLoader,
                 element: <ProgramRequirementsNewIndex />
             },
             {
