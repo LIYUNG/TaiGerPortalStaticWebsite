@@ -27,7 +27,7 @@ import {
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { COLORS } from '@utils/contants';
-import type { IStudentResponse } from '@taiger-common/model';
+import type { IStudentResponse, IUser } from '@taiger-common/model';
 
 import EditUserListSubpage from '../StudDocsOverview/EditUserListSubpage';
 import EditAttributesSubpage from '../StudDocsOverview/EditAttributesSubpage';
@@ -273,7 +273,7 @@ const StudentsAgentEditor = ({
                                 <MenuItem onClick={() => startEditingEditor()}>
                                     {t('Edit Editor', { ns: 'dashboard' })}
                                 </MenuItem>
-                                {!is_TaiGer_Editor(user) ? (
+                                {!is_TaiGer_Editor(user as IUser) ? (
                                     <MenuItem
                                         onClick={() => startEditingAttributes()}
                                     >
@@ -282,7 +282,7 @@ const StudentsAgentEditor = ({
                                         })}
                                     </MenuItem>
                                 ) : null}
-                                {!is_TaiGer_Editor(user) ? (
+                                {!is_TaiGer_Editor(user as IUser) ? (
                                     <MenuItem
                                         onClick={() => setArchivModalOpen()}
                                     >
@@ -299,7 +299,7 @@ const StudentsAgentEditor = ({
                         </>
                     ) : null}
                 </TableCell>
-                {!is_TaiGer_Student(user) ? (
+                {!is_TaiGer_Student(user as IUser) ? (
                     <TableCell>
                         <Typography fontWeight="bold" variant="body2">
                             <Link
@@ -321,11 +321,15 @@ const StudentsAgentEditor = ({
                             </Link>
                         </Typography>
                         <Typography variant="body2">{student.email}</Typography>
-                        {is_TaiGer_role(user)
+                        {is_TaiGer_role(user as IUser)
                             ? student.attributes?.map((attribute) => (
                                   <Chip
-                                      color={COLORS[attribute.value]}
-                                      key={attribute._id}
+                                      color={
+                                          COLORS[
+                                              attribute.value as keyof typeof COLORS
+                                          ]
+                                      }
+                                      key={String(attribute?._id)}
                                       label={attribute.name}
                                       size="small"
                                   />
@@ -409,7 +413,7 @@ const StudentsAgentEditor = ({
                     </Typography>
                 </TableCell>
             </TableRow>
-            {is_TaiGer_role(user) ? (
+            {is_TaiGer_role(user as IUser) ? (
                 <>
                     {studentsAgentEditor.showAgentPage ? (
                         <EditUserListSubpage

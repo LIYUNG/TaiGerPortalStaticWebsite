@@ -236,7 +236,7 @@ const EssayOverview = (props: EssayOverviewProps) => {
                 ],
                 filterFn: (
                     row: Row<OpenTaskRow>,
-                    columnId: string,
+                    _columnId: string,
                     filterValue: string
                 ) => {
                     const isLocked =

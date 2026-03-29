@@ -4,10 +4,7 @@ import { isProgramDecided } from '@taiger-common/core';
 import type { Application } from '@/api/types';
 
 import ManualFiles from './ManualFiles';
-import {
-    calculateApplicationLockStatus,
-    calculateProgramLockStatus
-} from '../Utils/util_functions';
+import { calculateApplicationLockStatus } from '../Utils/util_functions';
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import {

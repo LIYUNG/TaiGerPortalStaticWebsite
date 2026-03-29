@@ -1,4 +1,4 @@
-import { Fragment, useState, type MouseEvent } from 'react';
+import { Fragment, useState } from 'react';
 import { Link as LinkDom } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {

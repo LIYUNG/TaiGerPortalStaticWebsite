@@ -1,4 +1,3 @@
-import { ChangeEvent } from 'react';
 import {
     Badge,
     Button,
@@ -29,7 +28,7 @@ import {
 import { useTranslation } from 'react-i18next';
 
 interface CalendarEvent {
-    id?: string;
+    id?: string | number;
     title?: string;
     start?: Date;
     end?: Date;
@@ -39,6 +38,7 @@ interface CalendarEvent {
         firstname?: string;
         lastname?: string;
     };
+    [key: string]: unknown;
 }
 
 interface UserWithAgents {
@@ -56,7 +56,7 @@ interface UserWithAgents {
 interface PoppingProps {
     open: unknown;
     handleClose: () => void;
-    handleChange: (e: ChangeEvent<HTMLInputElement>) => void;
+    handleChange: (e: { target: { value: string } }) => void;
     handleChangeReceiver: (e: { target: { value: string } }) => void;
     newReceiver: string;
     BookButtonDisable: boolean;

@@ -32,9 +32,11 @@ import type {
     IStudentResponse,
     IApplicationPopulated,
     IInterviewWithId,
+    IUser,
     IProgramWithId
 } from '@taiger-common/model';
 import type { AxiosResponse } from 'axios';
+import type { Dayjs } from 'dayjs';
 
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
@@ -45,26 +47,55 @@ import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
 import Loading from '@components/Loading/Loading';
 import { showTimezoneOffset } from '@utils/contants';
-import { OutputData } from '@editorjs/editorjs';
+import type { OutputData } from '@editorjs/editorjs';
+
+interface InterviewData {
+    program_id?: string;
+    interview_date?: Dayjs | null;
+    interview_duration?: string;
+    interviewer?: string;
+    interview_description?: string;
+    [key: string]: unknown;
+}
+
+interface AddInterviewState {
+    error: unknown;
+    isLoaded: boolean;
+    data: null;
+    success: boolean;
+    interviewslist: GetMyInterviewsResponse['data'];
+    program_id: string;
+    interviewData: InterviewData;
+    isSubmitting: boolean;
+    editorState: OutputData | undefined;
+    res_status: number;
+    res_modal_message: string;
+    res_modal_status: number;
+    student?: IStudentResponse;
+    students?: IStudentResponse[];
+    thread?: unknown;
+    in_edit_mode?: boolean;
+}
 
 const AddInterview = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const [interviewTrainingState, setAddInterviewState] = useState({
-        error: '',
-        isLoaded: false,
-        data: null,
-        success: false,
-        interviewslist: [],
-        program_id: '',
-        interviewData: {},
-        isSubmitting: false,
-        editorState: '',
-        res_status: 0,
-        res_modal_message: '',
-        res_modal_status: 0
-    });
+    const [interviewTrainingState, setAddInterviewState] =
+        useState<AddInterviewState>({
+            error: '',
+            isLoaded: false,
+            data: null,
+            success: false,
+            interviewslist: [],
+            program_id: '',
+            interviewData: {},
+            isSubmitting: false,
+            editorState: undefined,
+            res_status: 0,
+            res_modal_message: '',
+            res_modal_status: 0
+        });
 
     useEffect(() => {
         getMyInterviews().then(
@@ -103,12 +134,12 @@ const AddInterview = () => {
     const handleEditorChange = (content: unknown) => {
         setAddInterviewState((state) => ({
             ...state,
-            editorState: content
+            editorState: content as OutputData
         }));
     };
 
     const handleClickSave = (
-        e: MouseEvent<HTMLElement>,
+        e: MouseEvent,
         editorState: OutputData
     ) => {
         e.preventDefault();
@@ -127,9 +158,9 @@ const AddInterview = () => {
             isSubmitting: true
         }));
         createInterview(
-            interviewTrainingState.interviewData.program_id,
-            interviewTrainingState.student._id,
-            interviewData_temp
+            interviewTrainingState.interviewData.program_id!,
+            interviewTrainingState.student!._id,
+            interviewData_temp as Record<string, unknown>
         ).then(
             (resp: AxiosResponse<CreateInterviewResponse>) => {
                 const { success } = resp.data;
@@ -160,7 +191,9 @@ const AddInterview = () => {
         setAddInterviewState((state) => ({ ...state, in_edit_mode: false }));
     };
 
-    const handleChange_AddInterview = (e: ChangeEvent<HTMLInputElement>) => {
+    const handleChange_AddInterview = (
+        e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
         if (e.target.name === 'student') {
             setAddInterviewState((prevState) => ({
                 ...prevState,
@@ -215,18 +248,18 @@ const AddInterview = () => {
                 !interviewslist.find(
                     (interview: IInterviewWithId) =>
                         (
-                            interview.program_id as IProgramWithId
+                            interview.program_id as unknown as IProgramWithId
                         )._id.toString() ===
-                            application.programId._id.toString() &&
+                            application.programId!._id.toString() &&
                         (
-                            interview.student_id as IStudentResponse
+                            interview.student_id as unknown as IStudentResponse
                         )._id.toString() === student._id.toString()
                 )
         )
         .map((application: IApplicationPopulated) => {
             return {
-                key: application.programId._id.toString(),
-                value: `${application.programId.school} ${application.programId.program_name} ${application.programId.degree} ${application.programId.semester}`
+                key: application.programId!._id.toString(),
+                value: `${application.programId!.school} ${application.programId!.program_name} ${application.programId!.degree} ${application.programId!.semester}`
             };
         });
 
@@ -254,7 +287,7 @@ const AddInterview = () => {
                     to={`${DEMO.INTERVIEW_LINK}`}
                     underline="hover"
                 >
-                    {is_TaiGer_role(user)
+                    {is_TaiGer_role(user as IUser)
                         ? t('All Interviews', { ns: 'interviews' })
                         : t('My Interviews', { ns: 'interviews' })}
                 </Link>
@@ -296,7 +329,7 @@ const AddInterview = () => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {is_TaiGer_role(user) ? (
+                        {is_TaiGer_role(user as IUser) ? (
                             <TableRow>
                                 <TableCell>
                                     <Typography>{t('Student')}</Typography>
@@ -351,9 +384,7 @@ const AddInterview = () => {
                                     dateAdapter={AdapterDayjs}
                                 >
                                     <DesktopDateTimePicker
-                                        fullWidth
-                                        id="interview_date"
-                                        onChange={(newValue) => {
+                                        onChange={(newValue: Dayjs | null) => {
                                             const interviewData_temp = {
                                                 ...interviewTrainingState.interviewData
                                             };
@@ -367,11 +398,17 @@ const AddInterview = () => {
                                                 })
                                             );
                                         }}
-                                        required
-                                        size="small"
+                                        slotProps={{
+                                            textField: {
+                                                fullWidth: true,
+                                                id: 'interview_date',
+                                                required: true,
+                                                size: 'small'
+                                            }
+                                        }}
                                         value={
                                             interviewTrainingState.interviewData
-                                                ?.interview_date
+                                                ?.interview_date ?? null
                                         }
                                     />
                                 </LocalizationProvider>
@@ -495,13 +532,14 @@ const AddInterview = () => {
                         interviewTrainingState.interviewData.program_id ===
                             '' ||
                         !interviewTrainingState.interviewData.interview_date ||
-                        interviewTrainingState.interviewData.interview_date ===
-                            '' ||
                         interviewTrainingState.isSubmitting
                     }
-                    editorState={interviewTrainingState.editorState}
+                    editorState={
+                        interviewTrainingState.editorState as OutputData
+                    }
                     handleClickSave={handleClickSave}
                     handleEditorChange={handleEditorChange}
+                    notes_id="add-interview"
                     thread={interviewTrainingState.thread}
                 />
             </Card>

@@ -17,12 +17,13 @@ import { useAuth } from '../../AuthProvider';
 const localizer = momentLocalizer(moment);
 
 export interface CalendarEventType {
-    id?: string;
+    id?: string | number;
     title?: string;
     start: Date;
     end: Date;
     description?: string;
-    provider?: { firstname?: string; lastname?: string };
+    provider?: { firstname?: string; lastname?: string; [key: string]: unknown };
+    [key: string]: unknown;
 }
 
 interface CalendarEventComponentProps {
@@ -48,15 +49,18 @@ const CalendarEventComponent = ({
 interface MyCalendarProps {
     BookButtonDisable: boolean;
     events: CalendarEventType[];
-    selectedEvent: CalendarEventType | null;
+    selectedEvent: Partial<CalendarEventType> | null;
     handleModalClose: () => void;
-    handleModalBook: () => void;
-    handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    handleSelectEvent: (event: CalendarEventType) => void;
+    handleModalBook: (e?: React.FormEvent) => void;
+    handleChange: (
+        e: { target: { value: string } }
+    ) => void;
+    handleSelectEvent: (event: CalendarEventType | Record<string, unknown>) => void;
     handleSelectSlot: (slotInfo: { start: Date; end: Date }) => void;
     handleChangeReceiver: (e: { target: { value: string } }) => void;
     newDescription: string;
     newReceiver: string;
+    [key: string]: unknown;
 }
 
 const MyCalendar = ({

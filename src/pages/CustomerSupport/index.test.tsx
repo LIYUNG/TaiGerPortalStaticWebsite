@@ -15,7 +15,6 @@ vi.mock('react-router-dom', async (orig) => {
             complaintTickets: Promise.resolve([])
         })),
         Await: ({
-            resolve,
             children
         }: {
             resolve: unknown;

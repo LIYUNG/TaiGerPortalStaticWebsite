@@ -26,7 +26,7 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 import { is_TaiGer_role } from '@taiger-common/core';
-import type { IEventWithId, IUserWithId } from '@taiger-common/model';
+import type { IUserWithId } from '@taiger-common/model';
 import { getUsersQuery } from '@/api/query';
 
 import { isInTheFuture } from '@utils/contants';
@@ -58,7 +58,7 @@ const AllOfficeHours = () => {
     const { data: agentsList, isLoading: isLoadingAgents } = useQuery(
         getUsersQuery('role=Agent&archiv=false')
     );
-    const agents = agentsList ?? [];
+    const agents = (agentsList as IUserWithId[] | undefined) ?? [];
 
     const {
         events,
@@ -104,6 +104,8 @@ const AllOfficeHours = () => {
     } = useCalendarEvents({
         user_id: '',
         isAll: true,
+        startTime: '',
+        endTime: '',
         receiver_id: receiverIdFromUrl || undefined
     });
 
@@ -132,12 +134,12 @@ const AllOfficeHours = () => {
         return <ErrorPage res_status={res_status} />;
     }
 
-    const booked_events = events.map((event: IEventWithId) => ({
+    const booked_events = events.map((event) => ({
         ...event,
-        id: event._id.toString(),
+        id: event._id?.toString() ?? '',
         start: new Date(event.start),
         end: new Date(event.end),
-        provider: event.requester_id?.[0] || {
+        provider: (event.requester_id?.[0] as { firstname?: string; lastname?: string } | undefined) || {
             firstname: 'TBD',
             lastname: 'TBD'
         }
@@ -240,6 +242,7 @@ const AllOfficeHours = () => {
             </Box>
             <CustomTabPanel index={0} value={value}>
                 <MyCalendar
+                    BookButtonDisable={BookButtonDisable}
                     events={[...booked_events]}
                     handleChange={handleChange}
                     handleChangeReceiver={handleChangeReceiver}
@@ -256,7 +259,7 @@ const AllOfficeHours = () => {
                     newEventEnd={newEventEnd}
                     newEventStart={newEventStart}
                     newReceiver={newReceiver}
-                    selectedEvent={selectedEvent}
+                    selectedEvent={selectedEvent as Partial<import('@components/Calendar/components/Calendar').CalendarEventType> | null}
                     student_id={student_id}
                     students={students}
                 />
@@ -264,7 +267,7 @@ const AllOfficeHours = () => {
             <CustomTabPanel index={1} value={value}>
                 <>
                     {events?.filter(
-                        (event: IEventWithId) =>
+                        (event) =>
                             isInTheFuture(event.end) &&
                             (!event.isConfirmedReceiver ||
                                 !event.isConfirmedRequester)
@@ -272,14 +275,14 @@ const AllOfficeHours = () => {
                         ? _.reverse(
                               _.sortBy(
                                   events?.filter(
-                                      (event: IEventWithId) =>
+                                      (event) =>
                                           isInTheFuture(event.end) &&
                                           (!event.isConfirmedReceiver ||
                                               !event.isConfirmedRequester)
                                   ),
                                   ['start']
                               )
-                          ).map((event: IEventWithId, i: number) => (
+                          ).map((event, i) => (
                               <EventConfirmationCard
                                   event={event}
                                   handleConfirmAppointmentModalOpen={
@@ -300,7 +303,7 @@ const AllOfficeHours = () => {
                             {t('Upcoming', { ns: 'common' })}
                         </Typography>
                         {events?.filter(
-                            (event: IEventWithId) =>
+                            (event) =>
                                 isInTheFuture(event.end) &&
                                 event.isConfirmedRequester &&
                                 event.isConfirmedReceiver
@@ -308,14 +311,14 @@ const AllOfficeHours = () => {
                             ? _.reverse(
                                   _.sortBy(
                                       events?.filter(
-                                          (event: IEventWithId) =>
+                                          (event) =>
                                               isInTheFuture(event.end) &&
                                               event.isConfirmedRequester &&
                                               event.isConfirmedReceiver
                                       ),
                                       ['start']
                                   )
-                              ).map((event: IEventWithId, i: number) => (
+                              ).map((event, i) => (
                                   <EventConfirmationCard
                                       event={event}
                                       handleConfirmAppointmentModalOpen={
@@ -339,12 +342,12 @@ const AllOfficeHours = () => {
                         {_.reverse(
                             _.sortBy(
                                 events?.filter(
-                                    (event: IEventWithId) =>
+                                    (event) =>
                                         !isInTheFuture(event.end)
                                 ),
                                 ['start']
                             )
-                        ).map((event: IEventWithId, i: number) => (
+                        ).map((event, i) => (
                             <EventConfirmationCard
                                 disabled={true}
                                 event={event}

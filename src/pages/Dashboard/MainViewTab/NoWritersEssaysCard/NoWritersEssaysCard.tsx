@@ -16,14 +16,14 @@ import EditEssayWritersSubpage from '../StudDocsOverview/EditEssayWritersSubpage
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import type {
-    IDocumentthreadWithId,
+    IDocumentthreadPopulated,
     IProgram,
     IUser,
     IStudentResponse
 } from '@taiger-common/model';
 
 interface NoWritersEssaysCardProps {
-    essayDocumentThread: IDocumentthreadWithId;
+    essayDocumentThread: IDocumentthreadPopulated;
     isArchivPage: boolean;
     submitUpdateEssayWriterlist: (
         e: FormEvent<HTMLFormElement>,

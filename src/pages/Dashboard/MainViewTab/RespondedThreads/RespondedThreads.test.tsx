@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { Table, TableBody } from '@mui/material';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import RespondedThreads from './RespondedThreads';
 
 vi.mock('@store/constant', () => ({

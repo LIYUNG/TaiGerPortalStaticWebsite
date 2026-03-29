@@ -45,7 +45,7 @@ const AllBaseDocuments = () => {
 
             {!isLoading && !isError ? (
                 is_TaiGer_role(user) ? (
-                    <BaseDocumentsTable students={students} />
+                    <BaseDocumentsTable students={students ?? []} />
                 ) : null
             ) : null}
         </Box>

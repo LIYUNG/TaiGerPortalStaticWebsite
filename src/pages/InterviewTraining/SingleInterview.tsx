@@ -3,7 +3,6 @@ import type { AxiosResponse, AxiosError } from 'axios';
 import type { OutputData } from '@editorjs/editorjs';
 import type {
     GetInterviewResponse,
-    IInterviewWithId,
     IUser
 } from '@taiger-common/model';
 import { Link as LinkDom, useLocation, useParams } from 'react-router-dom';
@@ -58,8 +57,16 @@ import DocThreadEditor from '@components/Message/DocThreadEditor';
 import { a11yProps, CustomTabPanel } from '@components/Tabs';
 import Audit from '../Audit';
 import { InterviewFeedback } from './InterviewFeedback';
-import InterviewMetadataSidebar from './components/InterviewMetadataSidebar';
+import InterviewMetadataSidebar, {
+    type IInterviewPopulated
+} from './components/InterviewMetadataSidebar';
+import type { MessageThread } from '@components/Message/MessageList';
 import { useSnackBar } from '@/contexts/use-snack-bar';
+
+/** Extended populated interview with thread_id as a populated object (has _id + messages). */
+type IInterviewPopulatedWithThread = Omit<IInterviewPopulated, 'thread_id'> & {
+    thread_id?: MessageThread & { _id: { toString(): string } };
+};
 
 const SingleInterview = () => {
     const { interview_id } = useParams();
@@ -215,8 +222,12 @@ const SingleInterview = () => {
     };
 
     const onDeleteSingleMessage = (message_id: string) => {
+        const threadId = interview?.thread_id?._id?.toString();
+        if (!threadId) {
+            return;
+        }
         deleteMessageMutation.mutate({
-            threadId: interview?.thread_id?._id.toString(),
+            threadId,
             messageId: message_id
         });
     };
@@ -257,12 +268,12 @@ const SingleInterview = () => {
     };
 
     // Memoized values
-    const interview = useMemo((): IInterviewWithId | undefined => {
+    const interview = useMemo((): IInterviewPopulatedWithThread | undefined => {
         const res = interviewData as
             | AxiosResponse<GetInterviewResponse>
             | undefined;
         const raw = res?.data?.data;
-        return raw as IInterviewWithId | undefined;
+        return raw as unknown as IInterviewPopulatedWithThread | undefined;
     }, [interviewData]);
 
     const interviewAuditLog = useMemo(() => {
@@ -275,7 +286,7 @@ const SingleInterview = () => {
 
     const interview_name = useMemo(() => {
         if (!interview) return '';
-        return `${interview.student_id.firstname} ${interview.student_id.lastname} - ${interview.program_id.school} ${interview.program_id.program_name} ${interview.program_id.degree} ${interview.program_id.semester}`;
+        return `${interview.student_id?.firstname} ${interview.student_id?.lastname} - ${interview.program_id?.school} ${interview.program_id?.program_name} ${interview.program_id?.degree} ${interview.program_id?.semester}`;
     }, [interview]);
 
     // Loading and error states
@@ -660,12 +671,12 @@ const SingleInterview = () => {
                         {t('Do you want to set')}{' '}
                         <strong>
                             {t('Interview for')}{' '}
-                            {interview.student_id.firstname}{' '}
-                            {interview.student_id.lastname}{' '}
-                            {interview.program_id.school}{' '}
-                            {interview.program_id.program_name}{' '}
-                            {interview.program_id.degree}{' '}
-                            {interview.program_id.semester}
+                            {interview.student_id?.firstname}{' '}
+                            {interview.student_id?.lastname}{' '}
+                            {interview.program_id?.school}{' '}
+                            {interview.program_id?.program_name}{' '}
+                            {interview.program_id?.degree}{' '}
+                            {interview.program_id?.semester}
                         </strong>{' '}
                         {t('as')}{' '}
                         <strong>
@@ -710,8 +721,8 @@ const SingleInterview = () => {
                     <DialogContentText>
                         {t('Do you want to delete the interview request of')}{' '}
                         <strong>
-                            {interview.program_id.school}{' '}
-                            {interview.program_id.program_name}
+                            {interview.program_id?.school}{' '}
+                            {interview.program_id?.program_name}
                         </strong>
                         ?
                     </DialogContentText>

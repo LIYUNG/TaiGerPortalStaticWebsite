@@ -1,5 +1,4 @@
 import { useState, type FormEvent } from 'react';
-import { NavLink } from 'react-router-dom';
 import {
     Button,
     CircularProgress,
@@ -8,6 +7,7 @@ import {
     TextField,
     Typography
 } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import { resetPassword } from '@/api';
@@ -45,9 +45,9 @@ export default function ResetPassword() {
                 if (password === passwordRepeat) {
                     setButtonDisable(true);
                     const resp = await resetPassword({
-                        email,
+                        email: email ?? undefined,
                         password,
-                        token
+                        token: token ?? undefined
                     });
                     const { success } = resp.data;
                     setButtonDisable(false);
@@ -77,9 +77,13 @@ export default function ResetPassword() {
                     <Typography>
                         {t('Please login with your new password')}
                     </Typography>
-                    <NavLink sx={{ mb: 2 }} to={DEMO.LOGIN_LINK}>
+                    <Link
+                        component={RouterLink}
+                        sx={{ mb: 2, display: 'inline-block' }}
+                        to={DEMO.LOGIN_LINK}
+                    >
                         <Typography>{t('Login', { ns: 'auth' })}</Typography>
-                    </NavLink>
+                    </Link>
                 </>
             ) : (
                 <>
@@ -136,8 +140,8 @@ export default function ResetPassword() {
                         </Grid>
                         <Grid item xs={6}>
                             <Link
-                                component={NavLink}
-                                sx={{ mb: 2 }}
+                                component={RouterLink}
+                                sx={{ mb: 2, display: 'inline-block' }}
                                 to={DEMO.LOGIN_LINK}
                             >
                                 <Typography>

@@ -48,15 +48,16 @@ import DEMO from '@store/constant';
 import EventDateComponent from '../../DateComponent';
 import { useAuth } from '../../AuthProvider';
 
-interface EventParticipant {
-    _id: { toString: () => string };
+export interface EventParticipant {
+    _id?: string | { toString: () => string };
     firstname?: string;
     lastname?: string;
     email?: string;
     pictureUrl?: string;
 }
 
-interface EventConfirmationCardEvent {
+export interface EventConfirmationCardEvent {
+    _id?: string | { toString: () => string };
     start: Date | string;
     end: Date | string;
     description?: string;
@@ -68,6 +69,8 @@ interface EventConfirmationCardEvent {
     event_type?: string;
     createdAt?: string;
     updatedAt?: string;
+    title?: string;
+    [key: string]: unknown;
 }
 
 interface EventConfirmationCardProps {
@@ -624,7 +627,7 @@ export default function EventConfirmationCard(
                                                             }
                                                         }}
                                                         to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                                                            requester._id.toString(),
+                                                            requester._id?.toString() ?? '',
                                                             DEMO.PROFILE_HASH
                                                         )}`}
                                                         variant="body1"

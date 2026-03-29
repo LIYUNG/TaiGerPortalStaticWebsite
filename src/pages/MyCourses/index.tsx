@@ -49,6 +49,42 @@ import { a11yProps, CustomTabPanel } from '@components/Tabs';
 import { ProgramRequirementsTableWrapper } from './ProgramRequirementsTableWrapper';
 import i18next from 'i18next';
 import { useSnackBar } from '@contexts/use-snack-bar';
+import type { IUserWithId } from '@taiger-common/model';
+
+interface CourseRow {
+    course_chinese: string;
+    course_english: string;
+    credits: string;
+    grades: string;
+}
+
+interface AnalysisData {
+    isAnalysedV2?: boolean;
+    updatedAtV2?: string;
+    [key: string]: unknown;
+}
+
+interface MyCoursesState {
+    error: string;
+    isLoaded: boolean;
+    coursesdata: CourseRow[];
+    table_data_string_locked: boolean;
+    coursesdata_taiger_guided: CourseRow[];
+    analysis: AnalysisData;
+    success: boolean;
+    student: IUserWithId | null;
+    file: string;
+    analysis_language: string;
+    analyzed_course: string;
+    expand: boolean;
+    isAnalysing: boolean;
+    isUpdating: boolean;
+    isDownloading: boolean;
+    res_status: number;
+    res_modal_status: number;
+    res_modal_message: string | React.ReactNode;
+    updatedAt?: string;
+}
 
 export default function MyCourses() {
     const { student_id } = useParams();
@@ -59,10 +95,10 @@ export default function MyCourses() {
 
     const theme = useTheme(); // Get the current theme from Material UI
 
-    const [statedata, setStatedata] = useState({
+    const [statedata, setStatedata] = useState<MyCoursesState>({
         error: '',
         isLoaded: false,
-        coursesdata: {},
+        coursesdata: [],
         table_data_string_locked: false,
         coursesdata_taiger_guided: [
             {
@@ -88,7 +124,7 @@ export default function MyCourses() {
     });
 
     useEffect(() => {
-        const studentId = student_id || user._id.toString();
+        const studentId = student_id || (user as IUserWithId)._id.toString();
         //TODO: what if student_id not found : handle status 500
         getMycourses(studentId).then(
             (resp) => {
@@ -135,13 +171,13 @@ export default function MyCourses() {
     }, [student_id, user]);
 
     const handleChangeValue = (
-        event: React.SyntheticEvent,
+        _event: React.SyntheticEvent,
         newValue: number
     ) => {
         setValue(newValue);
     };
 
-    const onChange = (new_data: Record<string, string>[]) => {
+    const onChange = (new_data: CourseRow[]) => {
         setStatedata((prevState) => ({
             ...prevState,
             coursesdata: new_data
@@ -166,7 +202,7 @@ export default function MyCourses() {
         }));
     };
 
-    const onChange_taiger_guided = (new_data: Record<string, string>[]) => {
+    const onChange_taiger_guided = (new_data: CourseRow[]) => {
         setStatedata((prevState) => ({
             ...prevState,
             coursesdata_taiger_guided: new_data
@@ -174,9 +210,14 @@ export default function MyCourses() {
     };
 
     const { mutate: mutateLockTable } = useMutation({
-        mutationFn: ({ studentId, table_data_string_locked }) =>
-            putMycourses(studentId, { table_data_string_locked }),
-        onSuccess: (resp, variables) => {
+        mutationFn: ({
+            studentId,
+            table_data_string_locked
+        }: {
+            studentId: string;
+            table_data_string_locked: boolean;
+        }) => putMycourses(studentId, { table_data_string_locked }),
+        onSuccess: (_resp, variables) => {
             setSeverity('success');
             setMessage(i18next.t('Locked updated successfully!'));
             setOpenSnackbar(true);
@@ -199,6 +240,7 @@ export default function MyCourses() {
 
     const handleLockTable = (e: React.ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
+        if (!statedata.student) return;
         const table_data_string_locked_temp =
             statedata.table_data_string_locked;
         mutateLockTable({
@@ -213,6 +255,11 @@ export default function MyCourses() {
             student,
             coursesdata_string,
             coursesdata_taiger_guided_string
+        }: {
+            studentId: string;
+            student: IUserWithId;
+            coursesdata_string: string;
+            coursesdata_taiger_guided_string: string;
         }) =>
             putMycourses(studentId, {
                 student_id: studentId,
@@ -248,6 +295,7 @@ export default function MyCourses() {
     });
 
     const onSubmit = () => {
+        if (!statedata.student) return;
         const coursesdata_string = JSON.stringify(statedata.coursesdata);
         const coursesdata_taiger_guided_string = JSON.stringify(
             statedata.coursesdata_taiger_guided
@@ -271,7 +319,7 @@ export default function MyCourses() {
     const onAnalyseV2 = async (
         requirementIds: string[],
         lang: string,
-        factor: string
+        factor: number
     ) => {
         try {
             const response = await transcriptanalyser_testV2({
@@ -301,9 +349,12 @@ export default function MyCourses() {
                         'Make sure that you updated your courses and select the right target group and language!'
                 }));
             }
-        } catch (error) {
+        } catch (error: unknown) {
             setSeverity('error');
-            setMessage(error.message || 'An error occurred. Please try again.');
+            setMessage(
+                (error as Error).message ||
+                    'An error occurred. Please try again.'
+            );
             setOpenSnackbar(true);
         }
     };
@@ -330,6 +381,10 @@ export default function MyCourses() {
     if (!statedata.isLoaded) {
         return <Loading />;
     }
+    if (!user) {
+        return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
+    }
+
     if (!student_id) {
         if (is_TaiGer_role(user)) {
             return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
@@ -339,6 +394,11 @@ export default function MyCourses() {
     if (statedata.res_status >= 400) {
         return <ErrorPage res_status={statedata.res_status} />;
     }
+
+    if (!statedata.student) {
+        return <Loading />;
+    }
+
     TabTitle(
         `Student ${statedata.student.firstname} - ${statedata.student.lastname} || Courses List`
     );
@@ -478,17 +538,21 @@ export default function MyCourses() {
                             : onChange
                     }
                     rowHeight={25}
-                    style={{
-                        minWidth: '450px',
-                        '--dsg-selection-border-color':
-                            theme.palette.text.primary,
-                        '--dsg-cell-color': theme.palette.text.primary,
-                        '--dsg-cell-background-color':
-                            theme.palette.background.default,
-                        '--dsg-header-text-color': theme.palette.text.primary,
-                        '--dsg-header-active-text-color':
-                            theme.palette.text.primary
-                    }}
+                    style={
+                        {
+                            minWidth: '450px',
+                            '--dsg-selection-border-color':
+                                theme.palette.text.primary,
+                            '--dsg-cell-color': theme.palette.text.primary,
+                            '--dsg-cell-background-color':
+                                theme.palette.background.default,
+                            '--dsg-header-text-color':
+                                theme.palette.text.primary,
+                            '--dsg-header-active-text-color':
+                                theme.palette.text.primary
+                        } as React.CSSProperties &
+                            Record<string, string>
+                    }
                     value={statedata.coursesdata}
                 />
             </TableContainer>
@@ -520,18 +584,21 @@ export default function MyCourses() {
                         id={2}
                         onChange={onChange_taiger_guided}
                         rowHeight={25}
-                        style={{
-                            minWidth: '450px',
-                            '--dsg-selection-border-color':
-                                theme.palette.text.primary,
-                            '--dsg-cell-color': theme.palette.text.primary,
-                            '--dsg-cell-background-color':
-                                theme.palette.background.default,
-                            '--dsg-header-text-color':
-                                theme.palette.text.primary,
-                            '--dsg-header-active-text-color':
-                                theme.palette.text.primary
-                        }}
+                        style={
+                            {
+                                minWidth: '450px',
+                                '--dsg-selection-border-color':
+                                    theme.palette.text.primary,
+                                '--dsg-cell-color': theme.palette.text.primary,
+                                '--dsg-cell-background-color':
+                                    theme.palette.background.default,
+                                '--dsg-header-text-color':
+                                    theme.palette.text.primary,
+                                '--dsg-header-active-text-color':
+                                    theme.palette.text.primary
+                            } as React.CSSProperties &
+                                Record<string, string>
+                        }
                         value={statedata.coursesdata_taiger_guided}
                     />
                 </TableContainer>

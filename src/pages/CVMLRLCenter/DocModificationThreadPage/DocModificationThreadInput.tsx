@@ -24,11 +24,13 @@ import {
     TextField,
     Typography,
     OutlinedInput,
-    Select
+    Select,
+    type SelectChangeEvent
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import { KeyboardArrowUp, KeyboardArrowDown } from '@mui/icons-material';
 import { is_TaiGer_role } from '@taiger-common/core';
+import type { IUser } from '@taiger-common/model';
 
 import ErrorPage from '../../Utils/ErrorPage';
 import ModalMain from '../../Utils/ModalHandler/ModalMain';
@@ -47,8 +49,8 @@ import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';
 import { appConfig } from '../../../config';
 
-const type2width = { word: 3, sentence: 5, paragraph: 12, essay: 12 };
-const type2rows = { word: 1, sentence: 1, paragraph: 4, essay: 10 };
+const type2width: Record<string, number> = { word: 3, sentence: 5, paragraph: 12, essay: 12 };
+const type2rows: Record<string, number> = { word: 1, sentence: 1, paragraph: 4, essay: 10 };
 
 interface ProgressButtonProps {
     label?: string;
@@ -105,7 +107,7 @@ const CheckboxSection = ({ isChecked, onChange }: CheckboxSectionProps) => (
 );
 
 interface LanguageSelectProps {
-    onChange: (e: { target: { value: string } }) => void;
+    onChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent<string>) => void;
 }
 const LanguageSelect = ({ onChange }: LanguageSelectProps) => (
     <Grid item xs={12}>
@@ -127,7 +129,7 @@ const LanguageSelect = ({ onChange }: LanguageSelectProps) => (
 );
 
 interface GPTModelSelectProps {
-    onChange: (e: { target: { value: string } }) => void;
+    onChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent<string>) => void;
 }
 const GPTModelSelect = ({ onChange }: GPTModelSelectProps) => (
     <Grid item xs={12}>
@@ -151,7 +153,7 @@ const GPTModelSelect = ({ onChange }: GPTModelSelectProps) => (
 );
 
 interface LastModifiedTextProps {
-    updatedAt?: string | number;
+    updatedAt?: string | number | Date;
     isFinalVersion?: boolean;
 }
 const LastModifiedText = ({
@@ -180,19 +182,20 @@ const LastModifiedText = ({
 };
 
 interface SurveyQuestionItem {
-    questionId: string;
-    question: string;
+    questionId?: string;
+    question?: string;
     placeholder?: string;
     answer?: string;
-    type: string;
+    type?: string;
+    contentType?: string;
 }
 
 interface SurveyFormProps {
     title?: string | null;
     surveyInput: {
         isFinalVersion?: boolean;
-        updatedAt?: string | number;
-        surveyContent: SurveyQuestionItem[];
+        updatedAt?: string | number | Date;
+        surveyContent?: SurveyQuestionItem[];
     };
     onChange: (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -297,12 +300,12 @@ const SurveyForm = ({
             ) : null}
             <Collapse in={collapseOpen}>
                 <Grid container sx={{ gap: 1 }}>
-                    {surveyInput.surveyContent.map(
+                    {(surveyInput.surveyContent ?? []).map(
                         (questionItem, index: number) => (
                             <Grid
                                 item
                                 key={index}
-                                sm={type2width[questionItem.type] || 3}
+                                sm={type2width[questionItem.type ?? ''] || 3}
                                 xs={12}
                             >
                                 <FormControl fullWidth>
@@ -323,7 +326,7 @@ const SurveyForm = ({
                                         multiline
                                         onChange={onChange}
                                         placeholder={questionItem.placeholder}
-                                        rows={type2rows[questionItem.type] || 3}
+                                        rows={type2rows[questionItem.type ?? ''] || 3}
                                         value={questionItem.answer}
                                     />
                                 </FormControl>
@@ -340,7 +343,7 @@ interface InputGeneratorProps {
     isChecked: boolean;
     data: string;
     isGenerating: boolean;
-    onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+    onChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent<string>) => void;
     onGenerate: () => void;
 }
 
@@ -408,8 +411,15 @@ const InputGenerator = ({
 
 /** General or specific survey input; may have isFinalVersion and surveyContent */
 interface SurveyInputItem {
+    _id?: string;
+    studentId?: string;
+    programId?: string;
+    fileType?: string;
     isFinalVersion?: boolean;
-    surveyContent?: unknown[];
+    surveyContent?: SurveyQuestionItem[];
+    surveyStatus?: string;
+    updatedAt?: string | number | Date;
+    createdAt?: Date;
     [key: string]: unknown;
 }
 
@@ -417,7 +427,7 @@ interface SurveyInputItem {
 interface DocModificationThreadInputThread {
     _id?: string | { toString(): string };
     file_type?: string;
-    program_id?: {
+    program_id?: Record<string, string> & {
         school?: string;
         country?: string;
         semester?: string;
@@ -432,6 +442,45 @@ interface DocModificationThreadInputThread {
         lastname?: string;
         _id?: { toString(): string };
     };
+    [key: string]: unknown;
+}
+
+/** Editor requirements state */
+interface EditorRequirements {
+    useProgramRequirementData?: boolean;
+    outputLanguage?: string;
+    gptModel?: string;
+    additionalPrompt?: string;
+    [key: string]: unknown;
+}
+
+/** Component state */
+interface DocModificationThreadInputComponentState {
+    editorRequirements: EditorRequirements;
+    document_requirements?: string | boolean;
+    res_status: number | Record<string, number>;
+    res_modal_status: number;
+    res_modal_message: string;
+}
+
+/** Shape of the actual backend response for getSurveyInputs */
+interface GetSurveyInputsActualData {
+    student_id: { _id: { toString(): string }; firstname?: string; lastname?: string };
+    file_type: string;
+    program_id?: {
+        _id?: string;
+        school?: string;
+        degree?: string;
+        program_name?: string;
+        lang?: string;
+        [key: string]: string | undefined;
+    };
+    _id?: string;
+    surveyInputs?: {
+        general?: SurveyInputItem;
+        specific?: SurveyInputItem;
+    };
+    [key: string]: unknown;
 }
 
 const DocModificationThreadInput = () => {
@@ -460,7 +509,7 @@ const DocModificationThreadInput = () => {
     const [
         docModificationThreadInputState,
         setDocModificationThreadInputState
-    ] = useState({
+    ] = useState<DocModificationThreadInputComponentState>({
         editorRequirements: {},
         res_status: 0,
         res_modal_status: 0,
@@ -470,39 +519,45 @@ const DocModificationThreadInput = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const threadResp = await getSurveyInputs(documentsthreadId);
-                const { success, data: threadData, status } = threadResp.data;
-                const surveyData = threadData?.surveyInputs || {};
-                if (!surveyData?.general) {
+                const threadResp = await getSurveyInputs(documentsthreadId ?? '');
+                const { success } = threadResp.data;
+                // The backend returns a thread document merged with surveyInputs,
+                // which doesn't match the Zod schema type. Cast to actual shape.
+                const threadData = threadResp.data.data as unknown as GetSurveyInputsActualData | undefined;
+                const surveyData: { general?: SurveyInputItem; specific?: SurveyInputItem } = threadData?.surveyInputs || {};
+                if (threadData && !surveyData?.general) {
                     surveyData.general = {
-                        studentId: threadData.student_id._id,
+                        studentId: threadData.student_id._id.toString(),
                         fileType: threadData.file_type,
-                        surveyContent: prepQuestions(threadData)
+                        surveyContent: prepQuestions(threadData as never, false) as SurveyQuestionItem[]
                     };
                 }
                 if (threadData?.program_id?._id && !surveyData?.specific) {
                     surveyData.specific = {
-                        studentId: threadData.student_id._id,
+                        studentId: threadData.student_id._id.toString(),
                         programId: threadData.program_id._id,
                         fileType: threadData.file_type,
-                        surveyContent: prepQuestions(threadData, true)
+                        surveyContent: prepQuestions(threadData as never, true) as SurveyQuestionItem[]
                     };
                 }
 
                 setIsLoaded(true);
                 if (success) {
-                    setThread(threadData);
-                    setSurveyInputs({ ...surveyData });
+                    setThread(threadData as unknown as DocModificationThreadInputThread);
+                    setSurveyInputs({
+                        general: surveyData.general ?? {},
+                        specific: surveyData.specific ?? {}
+                    });
                     setDocModificationThreadInputState((prevState) => ({
                         ...prevState,
-                        document_requirements: {},
+                        document_requirements: '',
                         editorRequirements: {},
-                        res_status: status
+                        res_status: 200
                     }));
                 } else {
                     setDocModificationThreadInputState((prevState) => ({
                         ...prevState,
-                        res_status: status
+                        res_status: 400
                     }));
                 }
             } catch {
@@ -528,7 +583,7 @@ const DocModificationThreadInput = () => {
     ) => {
         const id = e.target.id;
         const answer = e.target.value;
-        const survey = e.target.getAttribute('survey');
+        const survey = e.target.getAttribute('survey') as 'general' | 'specific' | null;
 
         setSurveyInputs((prevState) => {
             const surveyInput =
@@ -540,23 +595,27 @@ const DocModificationThreadInput = () => {
                           ...prevState.specific
                       };
 
-            const questionItem = surveyInput.surveyContent.find(
-                (question) => question.questionId === id
+            const questionItem = (surveyInput.surveyContent ?? []).find(
+                (question: SurveyQuestionItem) => question.questionId === id
             );
-            questionItem['answer'] = answer;
+            if (questionItem) {
+                questionItem.answer = answer;
+            }
             return prevState;
         });
 
-        setIsChanged((prevState) => ({
-            ...prevState,
-            [survey]: true
-        }));
+        if (survey) {
+            setIsChanged((prevState) => ({
+                ...prevState,
+                [survey]: true
+            }));
+        }
     };
 
-    const onChangeEditorRequirements = (e: ChangeEvent<HTMLInputElement>) => {
-        const name = e.target.name;
+    const onChangeEditorRequirements = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent<string>) => {
+        const name = (e.target as HTMLInputElement).name;
         if (name === 'useProgramRequirementData') {
-            const checked = e.target.checked;
+            const checked = (e.target as HTMLInputElement).checked;
             setDocModificationThreadInputState((prevState) => ({
                 ...prevState,
                 editorRequirements: {
@@ -597,7 +656,7 @@ const DocModificationThreadInput = () => {
 
     const submitInput = async () => {
         try {
-            const allStatus = {};
+            const allStatus: Record<string, number> = {};
             if (isChanged?.general && surveyInputs?.general) {
                 // only set final if general survey, where programId not present
                 const genIsFinalVersion = !thread?.program_id && isFinalVersion;
@@ -616,7 +675,7 @@ const DocModificationThreadInput = () => {
                 if (success) {
                     setSurveyInputs((prevState) => ({
                         ...prevState,
-                        general: data
+                        general: (data ?? prevState.general) as SurveyInputItem
                     }));
                 }
             }
@@ -632,7 +691,7 @@ const DocModificationThreadInput = () => {
                 if (success) {
                     setSurveyInputs((prevState) => ({
                         ...prevState,
-                        specific: data
+                        specific: (data ?? prevState.specific) as SurveyInputItem
                     }));
                 }
             }
@@ -662,7 +721,7 @@ const DocModificationThreadInput = () => {
             return;
         }
         setIsSubmitting(true);
-        await submitInput(surveyInputs, isFinalVersion);
+        await submitInput();
         setIsChanged({ general: false, specific: false });
         setIsSubmitting(false);
         setIsLoaded(true);
@@ -688,10 +747,10 @@ const DocModificationThreadInput = () => {
             ...(surveyInputs.specific?.surveyContent || [])
         ];
 
-        const response = await cvmlrlAi2({
+        const response = await cvmlrlAi2(JSON.stringify({
             student_input: JSON.stringify(studentInput),
             document_requirements: JSON.stringify(
-                docModificationThreadInputState.document_requirements
+                docModificationThreadInputState.document_requirements ?? ''
             ),
             editor_requirements: JSON.stringify(
                 docModificationThreadInputState.editorRequirements
@@ -699,7 +758,7 @@ const DocModificationThreadInput = () => {
             student_id: thread.student_id?._id?.toString() ?? '',
             program_full_name: programFullName,
             file_type: thread.file_type
-        });
+        }));
 
         setIsLoaded(true);
         if (response.status === 403) {
@@ -713,7 +772,7 @@ const DocModificationThreadInput = () => {
                 res_modal_status: response.status
             }));
         } else {
-            const reader = response.body
+            const reader = response.body!
                 .pipeThrough(new TextDecoderStream())
                 .getReader();
 
@@ -742,7 +801,7 @@ const DocModificationThreadInput = () => {
         return <Loading />;
     }
 
-    if (res_status >= 400) {
+    if (typeof res_status === 'number' && res_status >= 400) {
         return <ErrorPage res_status={res_status} />;
     }
 
@@ -824,7 +883,7 @@ const DocModificationThreadInput = () => {
             <Card sx={{ p: 2, mb: 2 }}>
                 <Typography fontWeight="bold">Requirements:</Typography>
                 {thread?.program_id ? (
-                    <LinkableNewlineText text={getRequirement(thread)} />
+                    <LinkableNewlineText text={String(getRequirement(thread) || '')} />
                 ) : (
                     <Typography>{t('No', { ns: 'common' })}</Typography>
                 )}
@@ -891,9 +950,9 @@ const DocModificationThreadInput = () => {
                                 control={
                                     <Checkbox
                                         checked={
-                                            isFinalLocked || isFinalVersion
+                                            !!isFinalLocked || isFinalVersion
                                         }
-                                        disabled={isFinalLocked}
+                                        disabled={!!isFinalLocked}
                                         name="isFinalVersion"
                                         onChange={(e) => {
                                             setIsChanged({
@@ -902,7 +961,6 @@ const DocModificationThreadInput = () => {
                                             });
                                             setIsFinalVersion(e.target.checked);
                                         }}
-                                        type="checkbox"
                                     />
                                 }
                                 label="Is Final Version?"
@@ -938,7 +996,7 @@ const DocModificationThreadInput = () => {
             </Card>
 
             {/* GPT input generation -> only for internal users */}
-            {is_TaiGer_role(user) ? (
+            {user && is_TaiGer_role(user as IUser) ? (
                 <Card sx={{ p: 2, mb: 2 }}>
                     <InputGenerator
                         data={gptData}

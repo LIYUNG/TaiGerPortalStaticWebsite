@@ -76,7 +76,7 @@ const EditAttributesSubpage = (props: Props) => {
     });
 
     const onAttributesChange = (
-        e: React.SyntheticEvent,
+        _e: React.SyntheticEvent,
         newValues: unknown
     ) => {
         setCheckboxState((prevState) => ({

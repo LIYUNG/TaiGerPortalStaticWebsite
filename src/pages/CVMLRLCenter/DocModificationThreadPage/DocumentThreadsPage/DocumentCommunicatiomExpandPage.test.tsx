@@ -82,7 +82,7 @@ describe('DocumentCommunicationExpandPage', () => {
 
     it('renders the embedded thread component when a thread is selected from params', () => {
         // documentsthreadId is mocked, so the embedded thread renders
-        const embedded = screen.queryByTestId('embedded-thread-component');
+        screen.queryByTestId('embedded-thread-component');
         // May or may not be in DOM depending on layout, just verify the component renders
         expect(document.body).toBeInTheDocument();
     });

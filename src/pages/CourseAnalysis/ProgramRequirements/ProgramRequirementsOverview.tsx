@@ -22,7 +22,7 @@ import {
     MRT_GlobalFilterTextField as MRTGlobalFilterTextField,
     MRT_ToggleFiltersButton as MRTToggleFiltersButton
 } from 'material-react-table';
-import React, { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import type { MRT_Row, MRT_TableInstance } from 'material-react-table';
 import DEMO from '@store/constant';
 import { useTranslation } from 'react-i18next';

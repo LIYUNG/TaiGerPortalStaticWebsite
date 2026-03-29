@@ -73,8 +73,8 @@ interface TopBarProps {
     ismobile: boolean;
     handleDrawerClose: () => void;
     student: IStudentResponse;
-    student_name_english: string | false;
-    student_id: string | undefined;
+    student_name_english: string;
+    student_id: string;
     agentsEditorsDropdownId: string;
     handleAgentsEditorsModalOpen: (
         event: React.MouseEvent<HTMLElement>
@@ -241,7 +241,7 @@ const TopBar = ({
                                 {truncateText(student_name_english, 24)}
                             </Typography>
                         </Link>
-                        <LastLoginTime date={student.lastLoginAt} />
+                        <LastLoginTime date={student.lastLoginAt as Date} />
                     </Box>
                 </Box>
                 <Box sx={{ flexGrow: 1 }} />
@@ -378,7 +378,7 @@ const CommunicationExpandPage = () => {
             document.body.removeChild(link);
             window.URL.revokeObjectURL(url);
         };
-        const resp = await WidgetExportMessagePDF(studentId);
+        const resp = await WidgetExportMessagePDF(studentId as string);
         const blob = resp.data;
         downloadBlob(blob, 'exported_file.pdf');
         setIsExportingMessageDisabled(false);
