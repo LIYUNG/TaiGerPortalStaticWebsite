@@ -29,6 +29,7 @@ import {
 import SearchableMultiSelect from '@components/Input/searchableMuliselect';
 import type {
     IKeywordsetWithId,
+    ProgramRequirementProgramCategory,
     ProgramsAndKeywordsData
 } from '@taiger-common/model';
 
@@ -408,9 +409,10 @@ const ProgramRequirementsNew = ({
                                     <Grid item md={4} xs={12}>
                                         <TextField
                                             error={
-                                                programCategory.requiredECTS &&
-                                                programCategory.requiredECTS <=
-                                                    0
+                                                programCategory.requiredECTS
+                                                    ? programCategory.requiredECTS <=
+                                                      0
+                                                    : false
                                             }
                                             fullWidth
                                             helperText={
@@ -424,15 +426,20 @@ const ProgramRequirementsNew = ({
                                             label="Required ECTS"
                                             onChange={(e) =>
                                                 setProgramCategories((prev) =>
-                                                    prev.map((pc, i) =>
-                                                        i === index
-                                                            ? {
-                                                                  ...pc,
-                                                                  requiredECTS:
-                                                                      e.target
-                                                                          .value
-                                                              }
-                                                            : pc
+                                                    prev.map(
+                                                        (
+                                                            pc: ProgramRequirementProgramCategory,
+                                                            i
+                                                        ) =>
+                                                            i === index
+                                                                ? {
+                                                                      ...pc,
+                                                                      requiredECTS:
+                                                                          e
+                                                                              .target
+                                                                              .value
+                                                                  }
+                                                                : pc
                                                     )
                                                 )
                                             }
@@ -450,15 +457,20 @@ const ProgramRequirementsNew = ({
                                             label="Points (if applicable)"
                                             onChange={(e) =>
                                                 setProgramCategories((prev) =>
-                                                    prev.map((pc, i) =>
-                                                        i === index
-                                                            ? {
-                                                                  ...pc,
-                                                                  maxScore:
-                                                                      e.target
-                                                                          .value
-                                                              }
-                                                            : pc
+                                                    prev.map(
+                                                        (
+                                                            pc: ProgramRequirementProgramCategory,
+                                                            i
+                                                        ) =>
+                                                            i === index
+                                                                ? {
+                                                                      ...pc,
+                                                                      maxScore:
+                                                                          e
+                                                                              .target
+                                                                              .value
+                                                                  }
+                                                                : pc
                                                     )
                                                 )
                                             }
