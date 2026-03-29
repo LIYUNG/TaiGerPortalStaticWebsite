@@ -2,7 +2,7 @@
 
 **Date:** 2026-03-29  
 **Initial:** 4,267 errors from `npx tsc --noEmit -p tsconfig.app.json`  
-**Current:** 2,213 errors (from latest `tsc-errors.txt` refresh)  
+**Current:** 2,133 errors (from latest `tsc-errors.txt` refresh)  
 **Full output:** `tsc-errors.txt`  
 **Refactoring plan:** `TSC_REFACTOR_PLAN.md`
 
@@ -16,37 +16,30 @@ run:
 
 | Code | Count | Prev | Δ | Description | Category |
 |------|-------|------|---|-------------|----------|
-| TS2345 | 658 | 757 | -99 | Argument type not assignable | Type mismatch |
-| TS2339 | 451 | 679 | -228 | Property does not exist on type | Interface mismatch |
-| TS2322 | 435 | 472 | -37 | Type not assignable | Type mismatch |
-| TS18048 | 189 | 276 | -87 | Possibly undefined | Null safety |
-| TS2769 | 151 | 155 | -4 | No overload matches | Overload mismatch |
-| TS7053 | 102 | 105 | -3 | Index signature issue | Index types |
-| TS18047 | 95 | 148 | -53 | Possibly null | Null safety |
-| TS18046 | 62 | 68 | -6 | Type is unknown | Unknown narrowing |
-| TS6133 | 54 | 52 | +2 | Declared but never read | Unused |
-| TS2741 | 28 | 24 | +4 | Missing required property | Interface mismatch |
-| TS2559 | 14 | 14 | 0 | No common properties | Type mismatch |
-| TS2551 | 12 | 18 | -6 | Property name typo | Misc |
-| TS2538 | 11 | — | — | Type cannot be used as index | Index types |
-| TS2353 | 10 | 14 | -4 | Object literal excess props | Type mismatch |
-| TS2739 | 10 | — | — | Missing properties | Interface mismatch |
-| TS7034 | 9 | 10 | -1 | Variable implicitly has type | Untyped vars |
-| TS7005 | 9 | 10 | -1 | Variable implicitly has 'any' type | Untyped vars |
-| TS2488 | 8 | — | — | Iterable / tuple | Misc |
-| TS2722 | 6 | 13 | -7 | Object may be undefined | Null safety |
-| TS7006 | 6 | **0** | +6 | Parameter implicitly has 'any' type | **Re-check** |
-| TS2554 | 6 | — | — | Wrong arity | Misc |
-| TS2698 | 5 | — | — | Spread / rest | Misc |
-| TS2532 | 5 | — | — | Possibly undefined object | Null safety |
-| TS2304 | 4 | — | — | Cannot find name | Misc |
-| TS1294 | 3 | — | — | erasableSyntaxOnly (node_modules) | External |
-| TS2367 | 3 | — | — | Unintentional comparison | Misc |
-| TS2307 | 3 | — | — | Cannot find module | Misc |
-| TS2347 | 3 | — | — | Union / overlap | Misc |
-| Others | ~35 | ~150 | — | TS18049, TS2352, TS2315, TS2447, … | Misc |
+| TS2345 | 611 | 658 | -47 | Argument type not assignable | Type mismatch |
+| TS2339 | 411 | 451 | -40 | Property does not exist on type | Interface mismatch |
+| TS2322 | 385 | 435 | -50 | Type not assignable | Type mismatch |
+| TS18048 | 188 | 189 | -1 | Possibly undefined | Null safety |
+| TS2769 | 122 | 151 | -29 | No overload matches | Overload mismatch |
+| TS18047 | 85 | 95 | -10 | Possibly null | Null safety |
+| TS7053 | 75 | 102 | -27 | Index signature issue | Index types |
+| TS18046 | 53 | 62 | -9 | Type is unknown | Unknown narrowing |
+| TS6133 | **0** | 54 | **-54** | Declared but never read | **Cleared** |
+| TS2741 | 28 | 28 | 0 | Missing required property | Interface mismatch |
+| TS2352 | 27 | — | — | Type conversion may be mistake | Misc |
+| TS2739 | 12 | 10 | +2 | Missing properties | Interface mismatch |
+| TS2538 | 10 | 11 | -1 | Type cannot be used as index | Index types |
+| TS2353 | 10 | 10 | 0 | Object literal excess props | Type mismatch |
+| TS2551 | 9 | 12 | -3 | Property name typo | Misc |
+| TS2559 | 8 | 14 | -6 | No common properties | Type mismatch |
+| TS2488 | 8 | 8 | 0 | Iterable / tuple | Misc |
+| TS2698 | 8 | 5 | +3 | Spread / rest | Misc |
+| TS7034 | 6 | 9 | -3 | Variable implicitly has type | Untyped vars |
+| TS7005 | 6 | 9 | -3 | Variable implicitly has 'any' type | Untyped vars |
+| TS2722 | 6 | 6 | 0 | Object may be undefined | Null safety |
+| Others | ~74 | ~82 | — | TS2554, TS2532, TS2304, TS7006, TS2367, … | Misc |
 
-**Note:** Prev = counts from previous tracker row (2,926-total snapshot). Current run: **2,376** errors (−550 vs that snapshot).
+**Note:** Prev = counts from previous run (2,213-total snapshot). Current run: **2,133** errors (−80).
 
 ---
 
@@ -288,12 +281,11 @@ run:
 
 ## Pending Actions (Next Session)
 
-1. **TS7006 (6)**: Re-clear implicit-any parameters (stricter config or new call sites).
-2. **Phase 3C**: Null safety (TS18048/TS18047/TS18046 — ~350 in `src/`).
-3. **Phase 3D**: Type mismatches (TS2345/TS2322 — large share of remaining errors).
-4. **Phase 3E**: Interface mismatches (TS2339 — ~451 in `src/`).
-5. **EditorJS TS1294**: Exclude or pin types / adjust `erasableSyntaxOnly` if blocking CI.
-6. **Phase 3A follow-up**: Export/re-export `IStudentResponse`, `StudentId`, `UserId` in `src/api/types.ts` where still needed.
+1. **Phase 3C**: Null safety (TS18048/TS18047/TS18046 — ~326 in `src/`).
+2. **Phase 3D**: Type mismatches (TS2345/TS2322 — ~996, largest share of remaining errors).
+3. **Phase 3E**: Interface mismatches (TS2339 — ~411 in `src/`).
+4. **EditorJS TS1294**: Exclude or pin types / adjust `erasableSyntaxOnly` if blocking CI.
+5. **Phase 3A follow-up**: Export/re-export `IStudentResponse`, `StudentId`, `UserId` in `src/api/types.ts` where still needed.
 
 ---
 
@@ -309,3 +301,4 @@ run:
 | 2026-03-03 | Refreshed `tsc-errors.txt`; updated TSC_FIX_TRACKER.md and TSC_REFACTOR_PLAN.md to current code | 3,268 | 2,926 |
 | 2026-03-29 | Refreshed `tsc-errors.txt`; program-requirements React Query + `getData`; smoke test ESLint `any` fix; tracker tables recomputed | 2,926 | **2,376** |
 | 2026-03-29 | Batch 2 & 3 follow-up: ProgramCompare, ProgramsOverviewPage, MyDocumentCard, SingleInterview, DealModal, LeadPage; `tsc-errors.txt` refresh | 2,376 | **2,213** |
+| 2026-03-29 | **TS6133 cleared**: Removed all 54 unused imports/variables across ~42 files (unused React imports, event params, test imports, dead vars) | 2,213 | **2,133** |

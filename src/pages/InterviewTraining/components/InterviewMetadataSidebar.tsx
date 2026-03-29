@@ -26,9 +26,13 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { is_TaiGer_role } from '@taiger-common/core';
-import type { IInterviewWithId, IUserWithId } from '@taiger-common/model';
-import TimezoneSelect from 'react-timezone-select';
-import dayjs from 'dayjs';
+import type {
+    IEventWithId,
+    IProgramWithId,
+    IUserWithId
+} from '@taiger-common/model';
+import TimezoneSelect, { type ITimezone } from 'react-timezone-select';
+import dayjs, { type Dayjs } from 'dayjs';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DesktopDateTimePicker } from '@mui/x-date-pickers/DesktopDateTimePicker';
@@ -69,9 +73,26 @@ import { TopBar } from '@components/TopBar/TopBar';
 import NotesEditor from '../../Notes/NotesEditor';
 import { OutputData } from '@editorjs/editorjs';
 
+/** Interview with populated references as returned by the API. */
+interface IInterviewPopulated {
+    _id: string;
+    student_id: IUserWithId;
+    trainer_id: IUserWithId[];
+    program_id: IProgramWithId;
+    event_id?: IEventWithId;
+    thread_id?: string;
+    interview_description?: string;
+    interviewer?: string;
+    interview_duration?: string;
+    interview_date?: Date;
+    isClosed?: boolean;
+    start?: Date;
+    end?: Date;
+}
+
 // Interview Metadata Sidebar Component
 export interface InterviewMetadataSidebarProps {
-    interview: IInterviewWithId;
+    interview: IInterviewPopulated;
     openDeleteDocModalWindow: (e: MouseEvent<HTMLElement>) => void;
     theme: Theme;
     onInterviewUpdate: () => void;
@@ -90,30 +111,29 @@ const InterviewMetadataSidebar = ({
 
     // State for trainer assignment
     const [showTrainerModal, setShowTrainerModal] = useState(false);
-    const [editors, setEditors] = useState([]);
+    const [editors, setEditors] = useState<IUserWithId[]>([]);
     const [trainerId, setTrainerId] = useState(
-        new Set(
-            interview.trainer_id?.map((t_id: IUserWithId) =>
-                t_id._id.toString()
-            )
-        )
+        new Set(interview.trainer_id?.map((t_id) => t_id._id.toString()))
     );
 
     // State for interview time
     const [interviewTrainingTimeChange, setInterviewTrainingTimeChange] =
         useState(false);
-    const [utcTime, setUtcTime] = useState(
-        dayjs(interview.event_id?.start || '')
+    const [utcTime, setUtcTime] = useState<Dayjs | null>(
+        dayjs(interview.event_id?.start ?? '')
     );
-    const [timezone, setTimezone] = useState(
-        user.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone
-    );
+    const timezone =
+        user?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
 
     // State for official details
     const [isOfficialDetailsOpen, setIsOfficialDetailsOpen] = useState(
-        is_TaiGer_role(user)
+        user ? user && is_TaiGer_role(user) : false
     );
-    const [localInterview, setLocalInterview] = useState({
+    const [localInterview, setLocalInterview] = useState<
+        Omit<IInterviewPopulated, 'interview_description'> & {
+            interview_description: OutputData;
+        }
+    >({
         ...interview,
         interview_description:
             interview?.interview_description &&
@@ -255,11 +275,7 @@ const InterviewMetadataSidebar = ({
 
     const toggleTrainerModal = () => {
         setTrainerId(
-            new Set(
-                interview.trainer_id.map((t_id: IUserWithId) =>
-                    t_id._id.toString()
-                )
-            )
+            new Set(interview.trainer_id.map((t_id) => t_id._id.toString()))
         );
         setShowTrainerModal(!showTrainerModal);
     };
@@ -309,17 +325,18 @@ const InterviewMetadataSidebar = ({
     ) => {
         e.preventDefault();
         try {
-            const end_date = new Date(utcTime);
+            const startDate = utcTime ? utcTime.toDate() : new Date();
+            const end_date = new Date(startDate);
             end_date.setMinutes(end_date.getMinutes() + 60);
             const interviewTrainingEvent = {
                 _id: interview.event_id?._id,
                 requester_id: [interview.student_id],
                 receiver_id: [...interview.trainer_id],
-                title: `${interview.student_id.firstname} ${interview.student_id.lastname} - ${interview.program_id.school} - ${interview.program_id.program_name} ${interview.program_id.degree} interview training`,
+                title: `${interview.student_id.firstname} ${interview.student_id.lastname} - ${interview.program_id.school} - ${interview.program_id.program_name} ${interview.program_id.degree ?? ''} interview training`,
                 description:
                     'This is the interview training. Please prepare and practice',
                 event_type: 'Interview',
-                start: new Date(utcTime),
+                start: startDate,
                 end: end_date
             };
             const resp = await addInterviewTrainingDateTime(
@@ -363,7 +380,7 @@ const InterviewMetadataSidebar = ({
     };
 
     const handleChange_UpdateInterview = (
-        e: React.ChangeEvent<HTMLInputElement>
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => {
         setButtonDisabled(false);
         setLocalInterview((prevState) => ({
@@ -396,7 +413,15 @@ const InterviewMetadataSidebar = ({
         );
         const { data: interview_updated, success } = data;
         if (success) {
-            setLocalInterview(interview_updated);
+            const parsed = {
+                ...interview_updated,
+                interview_description:
+                    interview_updated.interview_description &&
+                    interview_updated.interview_description !== '{}'
+                        ? JSON.parse(interview_updated.interview_description)
+                        : { time: new Date(), blocks: [] }
+            };
+            setLocalInterview(parsed as typeof localInterview);
             setButtonDisabled(true);
             onInterviewUpdate();
         } else {
@@ -516,10 +541,7 @@ const InterviewMetadataSidebar = ({
                                         gap={0.75}
                                     >
                                         {interview.trainer_id.map(
-                                            (
-                                                trainer: IUserWithId,
-                                                idx: number
-                                            ) => (
+                                            (trainer, idx) => (
                                                 <Tooltip
                                                     key={idx}
                                                     title={`${trainer.firstname} ${trainer.lastname}`}
@@ -565,7 +587,7 @@ const InterviewMetadataSidebar = ({
                                             )
                                         )}
                                     </Stack>
-                                    {is_TaiGer_role(user) && (
+                                    {user && is_TaiGer_role(user) && (
                                         <Button
                                             color="primary"
                                             fullWidth
@@ -587,7 +609,7 @@ const InterviewMetadataSidebar = ({
                                     >
                                         {t('No Trainer Assigned')}
                                     </Typography>
-                                    {is_TaiGer_role(user) && (
+                                    {user && is_TaiGer_role(user) && (
                                         <Button
                                             color="primary"
                                             fullWidth
@@ -635,15 +657,12 @@ const InterviewMetadataSidebar = ({
                             </Stack>
                         </Box>
                         <Box sx={{ p: 2 }}>
-                            {is_TaiGer_role(user) ? (
+                            {user && is_TaiGer_role(user) ? (
                                 interview.trainer_id?.length !== 0 ? (
                                     <Stack spacing={1.5}>
                                         <TimezoneSelect
                                             displayValue="UTC"
                                             isDisabled={true}
-                                            onChange={(e) =>
-                                                setTimezone(e.value)
-                                            }
                                             value={timezone}
                                         />
                                         <LocalizationProvider
@@ -694,7 +713,7 @@ const InterviewMetadataSidebar = ({
                                     sx={{ textAlign: 'center' }}
                                     variant="body1"
                                 >
-                                    {`${convertDate(utcTime)} ${NoonNightLabel(utcTime)} ${
+                                    {`${convertDate(utcTime?.toDate() as Date)} ${NoonNightLabel(utcTime?.toDate() as Date)} ${
                                         Intl.DateTimeFormat().resolvedOptions()
                                             .timeZone
                                     }`}
@@ -1023,7 +1042,7 @@ const InterviewMetadataSidebar = ({
                             <Button
                                 color="primary"
                                 disabled={isInTheFuture(
-                                    interview.interview_date
+                                    interview.interview_date as Date
                                 )}
                                 fullWidth
                                 onClick={onClickToInterviewSurveyHandler}
@@ -1037,7 +1056,7 @@ const InterviewMetadataSidebar = ({
                     </Card>
 
                     {/* Official Details Collapsible Card */}
-                    {is_TaiGer_role(user) && (
+                    {user && is_TaiGer_role(user) && (
                         <Card
                             sx={{
                                 borderRadius: 2,
@@ -1157,30 +1176,30 @@ const InterviewMetadataSidebar = ({
                                                 dateAdapter={AdapterDayjs}
                                             >
                                                 <DesktopDateTimePicker
-                                                    fullWidth
-                                                    id="interview_date"
-                                                    onChange={(newValue) => {
-                                                        const interviewData_temp =
-                                                            {
-                                                                ...localInterview
-                                                            };
-                                                        interviewData_temp.interview_date =
-                                                            newValue;
+                                                    onChange={(
+                                                        newValue: Dayjs | null
+                                                    ) => {
                                                         setButtonDisabled(
                                                             false
                                                         );
                                                         setLocalInterview(
-                                                            interviewData_temp
+                                                            (prev) => ({
+                                                                ...prev,
+                                                                interview_date:
+                                                                    newValue?.toDate()
+                                                            })
                                                         );
                                                     }}
-                                                    required
                                                     slotProps={{
                                                         textField: {
-                                                            size: 'small'
+                                                            size: 'small',
+                                                            fullWidth: true,
+                                                            id: 'interview_date',
+                                                            required: true
                                                         }
                                                     }}
                                                     value={dayjs(
-                                                        localInterview.interview_date ||
+                                                        localInterview.interview_date ??
                                                             ''
                                                     )}
                                                 />
@@ -1227,7 +1246,7 @@ const InterviewMetadataSidebar = ({
                     )}
 
                     {/* Actions Card (for TaiGer roles) */}
-                    {is_TaiGer_role(user) && (
+                    {user && is_TaiGer_role(user) && (
                         <Card
                             sx={{
                                 borderRadius: 2,

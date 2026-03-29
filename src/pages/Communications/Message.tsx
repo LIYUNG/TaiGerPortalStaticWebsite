@@ -138,7 +138,7 @@ const Message = ({
     }, [message.message, isLoaded]);
 
     const onOpendeleteMessageModalShow = (
-        e: React.MouseEvent<HTMLElement>,
+        _e: React.MouseEvent<HTMLElement>,
         message_id: string,
         createdAt: string
     ) => {

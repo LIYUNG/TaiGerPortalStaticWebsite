@@ -37,10 +37,12 @@ import {
     putThreadFavorite
 } from '@/api';
 import { TabTitle } from '../../Utils/TabTitle';
+import type { DocumentThreadResponse } from '@/api/types';
 import FilesList from './FilesList';
 import { useAuth } from '@components/AuthProvider';
 import EditEssayWritersSubpage from '@pages/Dashboard/MainViewTab/StudDocsOverview/EditEssayWritersSubpage';
-import MessageList from '@components/Message/MessageList';
+import type { EssayDocumentThreadForWriters } from '@pages/Dashboard/MainViewTab/StudDocsOverview/EditUserListSubpage';
+import MessageList, { type MessageThread } from '@components/Message/MessageList';
 import DocumentCheckingResultModal from './DocumentCheckingResultModal';
 import { a11yProps, CustomTabPanel } from '@components/Tabs';
 import Audit from '../../Audit';
@@ -49,14 +51,22 @@ import i18next from 'i18next';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import type {
     IApplicationPopulated,
-    IProgramWithId
+    IDocumentthreadPopulated,
+    IProgramWithId,
+    ITemplateWithId,
+    IUserWithId,
+    IAuditWithId
 } from '@taiger-common/model';
 import { GeneralRLRequirementsTab } from './DocumentThreadsPage/GeneralRLRequirementsTab';
 import InformationBlock from '@pages/CVMLRLCenter/DocModificationThreadPage/components/InformationBlock';
 import SimilarThreadsTab, {
     type SimilarThread
 } from './components/SimilarThreadsTab';
-import DiscussionEditorCard from './components/DiscussionEditorCard';
+import DiscussionEditorCard, {
+    type DiscussionEditorCardThread,
+    type DiscussionEditorCardUser
+} from './components/DiscussionEditorCard';
+import type { OutputData } from '@editorjs/editorjs';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 
@@ -283,10 +293,10 @@ const DocModificationThreadPage = ({
                         file: Array.from(files)
                     }));
                 })
-                .catch((error) => {
+                .catch((error: unknown) => {
                     setDocModificationThreadPageState((prevState) => ({
                         ...prevState,
-                        res_modal_message: error,
+                        res_modal_message: String(error ?? ''),
                         res_modal_status: 500
                     }));
                 });
@@ -334,8 +344,8 @@ const DocModificationThreadPage = ({
         formData.append('message', message);
 
         SubmitMessageWithAttachment(
-            documentsthreadId,
-            docModificationThreadPageState.thread.student_id._id,
+            documentsthreadId ?? '',
+            docModificationThreadPageState.thread.student_id?._id,
             formData
         ).then(
             (resp) => {
@@ -375,11 +385,11 @@ const DocModificationThreadPage = ({
                     }));
                 }
             },
-            (error) => {
+            (error: unknown) => {
                 setDocModificationThreadPageState((prevState) => ({
                     ...prevState,
                     isLoaded: true,
-                    error,
+                    error: String(error ?? ''),
                     res_modal_status: 500,
                     res_modal_message: ''
                 }));
@@ -451,14 +461,14 @@ const DocModificationThreadPage = ({
         }));
 
         SetFileAsFinal(
-            docModificationThreadPageState.doc_thread_id,
+            docModificationThreadPageState.doc_thread_id as string,
             docModificationThreadPageState.student_id,
             docModificationThreadPageState.application_id
         ).then(
             (resp) => {
                 const { data, success } = resp.data;
                 const { status } = resp;
-                if (success) {
+                if (success && data) {
                     setDocModificationThreadPageState((prevState) => ({
                         ...prevState,
                         isSubmissionLoaded: true,
@@ -484,7 +494,7 @@ const DocModificationThreadPage = ({
                         ...prevState,
                         isLoaded: true,
                         isSubmissionLoaded: true,
-                        res_modal_message: message,
+                        res_modal_message: String(message ?? ''),
                         res_modal_status: status
                     }));
                 }
@@ -493,7 +503,7 @@ const DocModificationThreadPage = ({
                 setDocModificationThreadPageState((prevState) => ({
                     ...prevState,
                     isLoaded: true,
-                    error,
+                    error: String(error ?? ''),
                     res_modal_status: 500,
                     res_modal_message: ''
                 }));
@@ -506,22 +516,21 @@ const DocModificationThreadPage = ({
             ...prevState,
             isLoaded: false
         }));
-        deleteAMessageInThread(documentsthreadId, message_id).then(
+        deleteAMessageInThread(documentsthreadId ?? '', message_id).then(
             (resp) => {
                 const { success } = resp.data;
                 const { status } = resp;
                 if (success) {
                     // TODO: remove that message
-                    const new_messages = [
-                        ...docModificationThreadPageState.thread.messages
-                    ];
-                    const idx =
-                        docModificationThreadPageState.thread.messages.findIndex(
-                            (message: {
-                                _id: { toString(): string };
-                                [key: string]: unknown;
-                            }) => message._id.toString() === message_id
-                        );
+                    const currentMessages =
+                        (docModificationThreadPageState.thread.messages as Array<{
+                            _id: { toString(): string };
+                            [key: string]: unknown;
+                        }>) ?? [];
+                    const new_messages = [...currentMessages];
+                    const idx = currentMessages.findIndex(
+                        (message) => message._id.toString() === message_id
+                    );
                     if (idx !== -1) {
                         new_messages.splice(idx, 1);
                     }
@@ -546,7 +555,7 @@ const DocModificationThreadPage = ({
                         ...prevState,
                         isLoaded: true,
                         buttonDisabled: false,
-                        res_modal_message: message,
+                        res_modal_message: String(message ?? ''),
                         res_modal_status: status
                     }));
                 }
@@ -555,7 +564,7 @@ const DocModificationThreadPage = ({
                 setDocModificationThreadPageState((prevState) => ({
                     ...prevState,
                     isLoaded: true,
-                    error,
+                    error: String(error ?? ''),
                     res_modal_status: 500,
                     res_modal_message: ''
                 }));
@@ -583,8 +592,8 @@ const DocModificationThreadPage = ({
     };
 
     const submitUpdateEssayWriterlist = (
-        e: FormEvent<HTMLFormElement>,
-        updateEssayWriterList: unknown,
+        e: React.SyntheticEvent,
+        updateEssayWriterList: Record<string, boolean>,
         essayDocumentThread_id: string
     ) => {
         e.preventDefault();
@@ -596,11 +605,11 @@ const DocModificationThreadPage = ({
             (resp) => {
                 const { data, success } = resp.data;
                 const { status } = resp;
-                if (success) {
+                if (success && data) {
                     const essays_temp = {
                         ...docModificationThreadPageState.thread
                     };
-                    essays_temp.outsourced_user_id = data.outsourced_user_id; // data is single student updated
+                    essays_temp.outsourced_user_id = (data as Record<string, unknown>).outsourced_user_id; // data is single student updated
                     setDocModificationThreadPageState((prevState) => ({
                         ...prevState,
                         isLoaded: true, //false to reload everything
@@ -624,12 +633,12 @@ const DocModificationThreadPage = ({
                     setDocModificationThreadPageState((prevState) => ({
                         ...prevState,
                         isLoaded: true,
-                        res_modal_message: message,
+                        res_modal_message: String(message ?? ''),
                         res_modal_status: status
                     }));
                 }
             },
-            (error) => {
+            (error: { message?: string }) => {
                 setSeverity('error');
                 setMessage(
                     error.message || 'An error occurred. Please try again.'
@@ -647,8 +656,8 @@ const DocModificationThreadPage = ({
             thread: {
                 ...prevState.thread,
                 flag_by_user_id: toogleItemInArray(
-                    docModificationThreadPageState.thread?.flag_by_user_id,
-                    user._id.toString()
+                    docModificationThreadPageState.thread?.flag_by_user_id ?? [],
+                    user?._id?.toString() ?? ''
                 )
             }
         }));
@@ -671,10 +680,10 @@ const DocModificationThreadPage = ({
                     }));
                 }
             },
-            (error) => {
+            (error: unknown) => {
                 setDocModificationThreadPageState((prevState) => ({
                     ...prevState,
-                    error,
+                    error: String(error ?? ''),
                     res_status: 500
                 }));
             }
@@ -691,19 +700,20 @@ const DocModificationThreadPage = ({
     } = docModificationThreadPageState;
 
     // Only CV, ML RL has instructions and template. (Computed before any return so hooks below run unconditionally.)
-    const template_obj = thread?.file_type
+    const fileType = thread?.file_type ?? '';
+    const template_obj = fileType
         ? templatelist.find(
               ({ prop, alias }) =>
-                  prop.includes(thread.file_type.split('_')[0]) ||
-                  alias.includes(thread.file_type.split('_')[0])
+                  prop.includes(fileType.split('_')[0]) ||
+                  alias.includes(fileType.split('_')[0])
           )
         : null;
     let docName = '';
     if (thread?.program_id) {
         const { school, degree, program_name } = thread.program_id;
-        docName = `${school} - ${degree} - ${program_name} ${thread.file_type}`;
-    } else if (thread?.file_type) {
-        docName = thread.file_type;
+        docName = `${school} - ${degree} - ${program_name} ${fileType}`;
+    } else if (fileType) {
+        docName = fileType;
     }
     const student_name =
         thread?.student_id != null
@@ -714,7 +724,7 @@ const DocModificationThreadPage = ({
         (template_obj?.prop.includes('RL') ||
             template_obj?.alias.includes('Recommendation'));
 
-    const isTaiGerUser = is_TaiGer_role(user);
+    const isTaiGerUser = !!user && is_TaiGer_role(user);
 
     const tabKeys = useMemo(
         () => [
@@ -774,7 +784,7 @@ const DocModificationThreadPage = ({
         return <ErrorPage res_status={res_status} />;
     }
 
-    const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
         setValue(newValue);
         const nextHashKey = tabKeyByIndex[newValue];
         if (nextHashKey) {
@@ -784,7 +794,7 @@ const DocModificationThreadPage = ({
         }
     };
 
-    const isFavorite = thread.flag_by_user_id?.includes(user._id.toString());
+    const isFavorite = thread.flag_by_user_id?.includes(user?._id?.toString() ?? '') ?? false;
     TabTitle(`${student_name} ${docName}`);
     return (
         <Box>
@@ -832,7 +842,7 @@ const DocModificationThreadPage = ({
                 {isTaiGerUser ? (
                     <Tab
                         icon={<LibraryBooksIcon />}
-                        label={`${t('Database', { ns: 'common' })} (${similarThreads?.length || 0})`}
+                        label={`${t('Database', { ns: 'common' })} (${Array.isArray(similarThreads) ? similarThreads.length : 0})`}
                         {...a11yProps(value, databaseTabIndex)}
                         sx={{
                             fontWeight:
@@ -851,48 +861,43 @@ const DocModificationThreadPage = ({
             </Tabs>
             <CustomTabPanel index={discussionTabIndex} value={value}>
                 <InformationBlock
-                    agents={docModificationThreadPageState.agents}
-                    conflict_list={conflict_list}
-                    deadline={docModificationThreadPageState.deadline}
-                    documentsthreadId={documentsthreadId}
-                    editors={docModificationThreadPageState.editors}
+                    agents={docModificationThreadPageState.agents as IUserWithId[]}
+                    conflict_list={conflict_list as Array<{ _id: { toString: () => string }; firstname?: string; lastname?: string }>}
+                    deadline={(docModificationThreadPageState.deadline as string) ?? ''}
+                    documentsthreadId={documentsthreadId ?? ''}
+                    editors={docModificationThreadPageState.editors as IUserWithId[]}
                     handleFavoriteToggle={handleFavoriteToggle}
                     isFavorite={isFavorite}
-                    isGeneralRL={isGeneralRL}
+                    isGeneralRL={isGeneralRL ?? false}
                     startEditingEditor={startEditingEditor}
-                    template_obj={template_obj}
-                    thread={docModificationThreadPageState.thread}
-                    user={user}
+                    template_obj={template_obj as ITemplateWithId | null}
+                    thread={docModificationThreadPageState.thread as unknown as IDocumentthreadPopulated}
+                    user={user as IUserWithId}
                 >
                     <MessageList
-                        accordionKeys={
-                            docModificationThreadPageState.accordionKeys
-                        }
                         apiPrefix="/api/document-threads"
-                        documentsthreadId={documentsthreadId}
+                        documentsthreadId={documentsthreadId ?? ''}
                         isLoaded={docModificationThreadPageState.isLoaded}
                         onDeleteSingleMessage={onDeleteSingleMessage}
-                        thread={thread}
-                        user={user}
+                        thread={thread as unknown as MessageThread}
                     />
                     <DiscussionEditorCard
                         buttonDisabled={
                             docModificationThreadPageState.buttonDisabled
                         }
                         checkResult={checkResult}
-                        editorState={docModificationThreadPageState.editorState}
+                        editorState={docModificationThreadPageState.editorState as OutputData}
                         file={docModificationThreadPageState.file}
                         handleAsFinalFile={handleAsFinalFile}
                         handleClickSave={handleClickSave}
                         isLocked={isLocked}
                         isReadOnlyThread={isReadOnlyThread}
                         isSubmissionLoaded={isSubmissionLoaded}
-                        isTaiGerUser={isTaiGerUser}
                         lockTooltip={lockTooltip}
                         onFileChange={onFileChange}
                         t={t}
-                        thread={thread}
-                        user={user}
+                        thread={thread as DiscussionEditorCardThread}
+                        user={user as unknown as DiscussionEditorCardUser}
                     />
                 </InformationBlock>
             </CustomTabPanel>
@@ -919,7 +924,7 @@ const DocModificationThreadPage = ({
                         )}
                     </Typography>
                 </Box>
-                <FilesList thread={thread} />
+                <FilesList thread={thread as unknown as DocumentThreadResponse} />
             </CustomTabPanel>
             {isTaiGerUser ? (
                 <CustomTabPanel index={databaseTabIndex} value={value}>
@@ -930,34 +935,36 @@ const DocModificationThreadPage = ({
                 </CustomTabPanel>
             ) : null}
             <CustomTabPanel index={auditTabIndex} value={value}>
-                <Audit audit={threadAuditLog} />
+                <Audit audit={threadAuditLog as IAuditWithId[]} />
             </CustomTabPanel>
 
             <DocumentCheckingResultModal
                 docName={docName}
-                file_type={thread.file_type}
-                isFinalVersion={thread.isFinalVersion}
+                file_type={thread.file_type ?? ''}
+                isFinalVersion={thread.isFinalVersion ?? false}
                 isSubmissionLoaded={
                     docModificationThreadPageState.isSubmissionLoaded
                 }
                 onClose={closeSetAsFinalFileModelWindow}
-                onConfirm={(e: MouseEvent<HTMLElement>) =>
-                    ConfirmSetAsFinalFileHandler(e)
+                onConfirm={() =>
+                    ConfirmSetAsFinalFileHandler({
+                        preventDefault: () => {}
+                    } as React.FormEvent)
                 }
                 open={docModificationThreadPageState.SetAsFinalFileModel}
                 student_name={student_name}
-                thread_id={thread._id}
+                thread_id={String(thread._id ?? '')}
                 title={t('Warning', { ns: 'common' })}
             />
-            {is_TaiGer_role(user) &&
+            {isTaiGerUser &&
             docModificationThreadPageState.showEditorPage ? (
                 <EditEssayWritersSubpage
                     actor={
-                        [FILE_TYPE_E.essay_required].includes(thread.file_type)
+                        [FILE_TYPE_E.essay_required].includes(thread.file_type ?? '')
                             ? 'Essay Writer'
                             : 'Editor'
                     }
-                    essayDocumentThread={thread}
+                    essayDocumentThread={thread as unknown as EssayDocumentThreadForWriters}
                     isSubmitting={docModificationThreadPageState.isSubmitting}
                     onHide={setEditorModalhide}
                     show={docModificationThreadPageState.showEditorPage}

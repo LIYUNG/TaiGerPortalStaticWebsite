@@ -36,6 +36,33 @@ import i18next from 'i18next';
 import { APPROVAL_COUNTRIES } from '@pages/Utils/util_functions';
 import { MRT_ColumnDef } from 'material-react-table';
 import type { IUserWithId, IProgramWithId } from '@taiger-common/model';
+import type { ChipOwnProps } from '@mui/material';
+
+interface IDocRowData extends Record<string, unknown> {
+    student_id?: string;
+    firstname_lastname?: string;
+    file_type?: string;
+    outsourced_user_id?: IUserWithId[];
+    editors?: IUserWithId[];
+    deadline?: string;
+    days_left?: number;
+    lang?: string;
+    isApplicationLocked?: boolean;
+    isProgramLocked?: boolean;
+    thread_id?: string;
+    document_name?: string;
+    program_id?: string | { country?: string };
+    program_name?: string;
+    degree?: string;
+    school?: string;
+    country?: string;
+    attributes?: { _id?: string; name?: string; value?: number }[];
+    latest_reply?: string;
+    keywords_zh?: string;
+    antiKeywords_zh?: string;
+    keywords_en?: string;
+    antiKeywords_en?: string;
+}
 
 export const IS_DEV =
     !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
@@ -1116,7 +1143,7 @@ export const ATTRIBUTES = [
     }
 ];
 
-export const COLORS = [
+export const COLORS: ChipOwnProps['color'][] = [
     'primary',
     'secondary',
     'secondary',
@@ -1500,7 +1527,7 @@ export const DEGREE_ARRAY_OPTIONS = [
 
 export const is_new_message_status = (
     user: IUserWithId,
-    thread: IDocumentthread
+    thread: IDocumentthread & { latest_message_left_by_id?: string }
 ): boolean => {
     if (thread.isFinalVersion) {
         return false;
@@ -1523,12 +1550,16 @@ export const is_my_fav_message_status = (
     user: IUserWithId,
     thread: IDocumentthread
 ): boolean => {
-    return thread.flag_by_user_id?.includes(user._id.toString());
+    return (
+        (thread.flag_by_user_id as string[] | undefined)?.includes(
+            user._id.toString()
+        ) ?? false
+    );
 };
 
 export const is_pending_status = (
     user: IUserWithId,
-    thread: IDocumentthread
+    thread: IDocumentthread & { latest_message_left_by_id?: string }
 ): boolean => {
     return !is_new_message_status(user, thread);
 };
@@ -1567,7 +1598,7 @@ export const internal_documentation_categories = {
     others: 'Others'
 };
 
-export const col_keywords: Array<MRT_ColumnDef<Record<string, unknown>>> = [
+export const col_keywords: Array<MRT_ColumnDef<IDocRowData>> = [
     {
         accessorKey: 'categoryName', //accessorKey used to define `data` column. `id` gets set to accessorKey automatically
         filterVariant: 'autocomplete',
@@ -1648,7 +1679,7 @@ export const col_keywords: Array<MRT_ColumnDef<Record<string, unknown>>> = [
     }
 ];
 
-export const c1_mrt: MRT_ColumnDef<Record<string, unknown>>[] = [
+export const c1_mrt: MRT_ColumnDef<IDocRowData>[] = [
     {
         accessorKey: 'firstname_lastname', //accessorKey used to define `data` column. `id` gets set to accessorKey automatically
         filterVariant: 'autocomplete',
@@ -1789,7 +1820,7 @@ export const c1_mrt: MRT_ColumnDef<Record<string, unknown>>[] = [
             { value: 'Locked', label: 'Locked' },
             { value: 'Unlocked', label: 'Unlocked' }
         ],
-        filterFn: (row, columnId, filterValue) => {
+        filterFn: (row, _columnId, filterValue) => {
             const isLocked =
                 row.original?.isApplicationLocked === true ||
                 row.original?.isProgramLocked === true;
@@ -1830,11 +1861,14 @@ export const c1_mrt: MRT_ColumnDef<Record<string, unknown>>[] = [
             )}`;
 
             // Check country from multiple possible locations
+            const programId = row.original?.program_id;
             const programCountry =
                 row.original?.country ||
-                (typeof row.original?.program_id === 'object' &&
-                row.original?.program_id?.country
-                    ? row.original.program_id.country
+                (typeof programId === 'object' &&
+                programId !== null &&
+                'country' in programId &&
+                (programId as { country?: string })?.country
+                    ? (programId as { country?: string }).country
                     : null);
             const isNonApprovalCountry = programCountry
                 ? !APPROVAL_COUNTRIES.includes(
@@ -1849,18 +1883,19 @@ export const c1_mrt: MRT_ColumnDef<Record<string, unknown>>[] = [
                             name?: string;
                             value?: number;
                         }) =>
+                            attribute.value != null &&
                             [1, 3, 9, 10, 11].includes(attribute.value) && (
                                 <Tooltip
                                     key={attribute._id}
-                                    title={`${attribute.name}: ${
+                                    title={`${attribute.name ?? ''}: ${
                                         ATTRIBUTES[attribute.value - 1]
-                                            .definition
+                                            ?.definition ?? ''
                                     }`}
                                 >
                                     <Chip
                                         color={COLORS[attribute.value]}
                                         data-testid={`chip-${attribute.name}`}
-                                        label={attribute.name[0]}
+                                        label={attribute.name?.[0] ?? ''}
                                         size="small"
                                     />
                                 </Tooltip>
@@ -1883,16 +1918,16 @@ export const c1_mrt: MRT_ColumnDef<Record<string, unknown>>[] = [
                             <Link
                                 component={LinkDom}
                                 target="_blank"
-                                title={params.value}
+                                title={String(row.original.document_name ?? '')}
                                 to={linkUrl}
                                 underline="hover"
                             >
-                                {row.original.file_type}{' '}
+                                {String(row.original.file_type ?? '')}{' '}
                                 {row.original.program_id
                                     ? ' - ' +
-                                      row.original.program_name +
+                                      String(row.original.program_name ?? '') +
                                       ' - ' +
-                                      row.original.degree
+                                      String(row.original.degree ?? '')
                                     : ''}
                             </Link>
                             <Typography
@@ -1900,7 +1935,7 @@ export const c1_mrt: MRT_ColumnDef<Record<string, unknown>>[] = [
                                 sx={{ display: 'block', mt: 0.25 }}
                                 variant="caption"
                             >
-                                {row.original.school}
+                                {String(row.original.school ?? '')}
                             </Typography>
                         </>
                     }
@@ -1975,7 +2010,11 @@ export const c1 = [
         align: 'left',
         headerAlign: 'left',
         width: 150,
-        renderCell: (params: Record<string, unknown>) => {
+        renderCell: (params: {
+            row: IDocRowData;
+            value: unknown;
+            [key: string]: unknown;
+        }) => {
             const linkUrl = `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
                 params.row.student_id,
                 DEMO.PROFILE_HASH
@@ -1984,11 +2023,11 @@ export const c1 = [
                 <Link
                     component={LinkDom}
                     target="_blank"
-                    title={params.value}
+                    title={String(params.value ?? '')}
                     to={linkUrl}
                     underline="hover"
                 >
-                    {params.value}
+                    {String(params.value ?? '')}
                 </Link>
             );
         }
@@ -1999,7 +2038,11 @@ export const c1 = [
         align: 'left',
         headerAlign: 'left',
         minWidth: 150,
-        renderCell: (params: Record<string, unknown>) => {
+        renderCell: (params: {
+            row: IDocRowData;
+            value: unknown;
+            [key: string]: unknown;
+        }) => {
             return params.row.file_type === 'Essay'
                 ? params.row.outsourced_user_id?.map(
                       (outsourcer: IUserWithId) => (
@@ -2017,18 +2060,20 @@ export const c1 = [
                           </Link>
                       )
                   ) || []
-                : params.value?.map((editor: IUserWithId) => (
-                      <Link
-                          component={LinkDom}
-                          key={`${editor._id.toString()}`}
-                          target="_blank"
-                          title={editor.firstname}
-                          to={DEMO.TEAM_EDITOR_LINK(editor._id.toString())}
-                          underline="hover"
-                      >
-                          {`${editor.firstname} `}
-                      </Link>
-                  ));
+                : (params.value as IUserWithId[] | undefined)?.map(
+                      (editor: IUserWithId) => (
+                          <Link
+                              component={LinkDom}
+                              key={`${editor._id.toString()}`}
+                              target="_blank"
+                              title={editor.firstname}
+                              to={DEMO.TEAM_EDITOR_LINK(editor._id.toString())}
+                              underline="hover"
+                          >
+                              {`${editor.firstname} `}
+                          </Link>
+                      )
+                  );
         }
     },
     {
@@ -2045,7 +2090,11 @@ export const c1 = [
         field: 'document_name',
         headerName: 'Document name',
         minWidth: 380,
-        renderCell: (params: Record<string, unknown>) => {
+        renderCell: (params: {
+            row: IDocRowData;
+            value: unknown;
+            [key: string]: unknown;
+        }) => {
             const linkUrl = `${DEMO.DOCUMENT_MODIFICATION_LINK(
                 params.row.thread_id
             )}`;
@@ -2064,7 +2113,7 @@ export const c1 = [
                     }}
                 >
                     {isLocked ? <LockOutlinedIcon fontSize="inherit" /> : null}
-                    <span>{params.value}</span>
+                    <span>{String(params.value ?? '')}</span>
                 </Box>
             );
             return (
@@ -2075,17 +2124,18 @@ export const c1 = [
                             name?: string;
                             value?: number;
                         }) =>
+                            attribute.value != null &&
                             [1, 3, 9, 10, 11].includes(attribute.value) && (
                                 <Tooltip
                                     key={attribute._id}
-                                    title={`${attribute.name}: ${
+                                    title={`${attribute.name ?? ''}: ${
                                         ATTRIBUTES[attribute.value - 1]
-                                            .definition
+                                            ?.definition ?? ''
                                     }`}
                                 >
                                     <Chip
                                         color={COLORS[attribute.value]}
-                                        label={attribute.name[0]}
+                                        label={attribute.name?.[0] ?? ''}
                                         size="small"
                                     />
                                 </Tooltip>
@@ -2104,7 +2154,7 @@ export const c1 = [
                         <Link
                             component={LinkDom}
                             target="_blank"
-                            title={params.value}
+                            title={String(params.value ?? '')}
                             to={linkUrl}
                             underline="hover"
                         >

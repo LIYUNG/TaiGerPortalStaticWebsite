@@ -69,7 +69,7 @@ export const ProgramsTable = ({
             header: t('Status', { ns: 'common' }),
             size: 110,
             filterVariant: 'select',
-            filterFn: (row, columnId, filterValue) => {
+            filterFn: (row, _columnId, filterValue) => {
                 const lockStatus = calculateProgramLockStatus(row.original);
                 const status = lockStatus.isLocked ? 'Locked' : 'Unlocked';
                 return status === filterValue;

@@ -27,7 +27,6 @@ vi.mock('react-router-dom', async (orig) => {
         })),
         useNavigate: vi.fn(() => vi.fn()),
         Await: ({
-            resolve,
             children
         }: {
             resolve: unknown;

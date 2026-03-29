@@ -28,7 +28,7 @@ vi.mock('../../../Utils/util_functions', () => ({
 
 const theme = createTheme();
 
-const makeUser = (overrides = {}) =>
+const makeUser = (_overrides = {}) =>
     ({
         _id: 'user-1',
         role: 'Agent',

@@ -68,13 +68,6 @@ export const EstimationCard = ({
             germanGPA = 0;
         }
     }
-    const acquiredECTS = (table: CategorySummaryRow[]) => {
-        return table[table.length - 1].credits;
-    };
-
-    const requiredECTS = (table: CategorySummaryRow[]) => {
-        return table[table.length - 1].requiredECTS;
-    };
 
     const getOverallCourseScoreArray = () => {
         const scoreArray = Object.keys(sortedCourses).map((category) =>

@@ -17,7 +17,7 @@ vi.mock('@components/AuthProvider', () => ({
     })
 }));
 
-vi.mock('@components/EditorJs/ComposeEditor', async (importOriginal) => {
+vi.mock('@components/EditorJs/ComposeEditor', async () => {
     const React = await import('react');
     return {
         default: React.forwardRef(function MockComposeEditor(
