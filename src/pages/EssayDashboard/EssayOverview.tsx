@@ -279,13 +279,7 @@ const EssayOverview = (props: EssayOverviewProps) => {
                     const linkUrl = `${DEMO.DOCUMENT_MODIFICATION_LINK(
                         params.row.thread_id
                     )}`;
-                    const isLocked =
-                        params.row?.isApplicationLocked === true ||
-                        params.row?.isProgramLocked === true;
-                    const lockTooltip = t(
-                        'Program is locked. Contact an agent to unlock this task.',
-                        { ns: 'common' }
-                    );
+
                     const programCountry =
                         params.row?.program_id?.country || params.row?.country;
                     const isNonApprovalCountry = programCountry

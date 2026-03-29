@@ -84,6 +84,21 @@ interface DocModificationThreadPageThread {
     [key: string]: unknown;
 }
 
+/** Stable hash segment keys for doc thread tabs (avoids new object refs in useMemo deps). */
+const DOC_THREAD_TAB_KEYS = {
+    discussion: 'communication',
+    generalRL: 'general-rl',
+    files: 'files',
+    database: 'database',
+    audit: 'audit'
+} as const;
+
+const DOC_THREAD_LEGACY_HASH_MAP: Record<string, string> = {
+    communication: DOC_THREAD_TAB_KEYS.discussion,
+    history: DOC_THREAD_TAB_KEYS.files,
+    audit: DOC_THREAD_TAB_KEYS.audit
+};
+
 export interface DocModificationThreadPageProps {
     agents?: unknown;
     conflictList?: unknown;
@@ -701,32 +716,16 @@ const DocModificationThreadPage = ({
 
     const isTaiGerUser = is_TaiGer_role(user);
 
-    const TAB_KEYS = {
-        discussion: 'communication',
-        generalRL: 'general-rl',
-        files: 'files',
-        database: 'database',
-        audit: 'audit'
-    };
-
-    const legacyHashKeyMap: Record<string, string> = {
-        communication: TAB_KEYS.discussion,
-        history: TAB_KEYS.files,
-        audit: TAB_KEYS.audit
-    };
-
-    const tabKeys = useMemo(() => {
-        const keys = [TAB_KEYS.discussion];
-        if (isGeneralRL) {
-            keys.push(TAB_KEYS.generalRL);
-        }
-        keys.push(TAB_KEYS.files);
-        if (isTaiGerUser) {
-            keys.push(TAB_KEYS.database);
-        }
-        keys.push(TAB_KEYS.audit);
-        return keys;
-    }, [isGeneralRL, isTaiGerUser, TAB_KEYS]);
+    const tabKeys = useMemo(
+        () => [
+            DOC_THREAD_TAB_KEYS.discussion,
+            ...(isGeneralRL ? [DOC_THREAD_TAB_KEYS.generalRL] : []),
+            DOC_THREAD_TAB_KEYS.files,
+            ...(isTaiGerUser ? [DOC_THREAD_TAB_KEYS.database] : []),
+            DOC_THREAD_TAB_KEYS.audit
+        ],
+        [isGeneralRL, isTaiGerUser]
+    );
 
     const tabIndexMap = useMemo(() => {
         const map: Record<string, number> = {};
@@ -744,16 +743,16 @@ const DocModificationThreadPage = ({
         return map;
     }, [tabKeys]);
 
-    const discussionTabIndex = tabIndexMap[TAB_KEYS.discussion];
-    const rlReqTabIndex = tabIndexMap[TAB_KEYS.generalRL];
-    const filesTabIndex = tabIndexMap[TAB_KEYS.files];
-    const databaseTabIndex = tabIndexMap[TAB_KEYS.database];
-    const auditTabIndex = tabIndexMap[TAB_KEYS.audit];
+    const discussionTabIndex = tabIndexMap[DOC_THREAD_TAB_KEYS.discussion];
+    const rlReqTabIndex = tabIndexMap[DOC_THREAD_TAB_KEYS.generalRL];
+    const filesTabIndex = tabIndexMap[DOC_THREAD_TAB_KEYS.files];
+    const databaseTabIndex = tabIndexMap[DOC_THREAD_TAB_KEYS.database];
+    const auditTabIndex = tabIndexMap[DOC_THREAD_TAB_KEYS.audit];
 
     const resolvedHashKey =
         tabIndexMap[hashKey] !== undefined
             ? hashKey
-            : legacyHashKeyMap[hashKey];
+            : DOC_THREAD_LEGACY_HASH_MAP[hashKey];
     const desiredValueFromHash = tabIndexMap[resolvedHashKey];
 
     useEffect(() => {
