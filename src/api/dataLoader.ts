@@ -9,7 +9,6 @@ import {
     getDistinctSchools,
     getProgramRequirement,
     getProgramRequirements,
-    getProgramsAndCourseKeywordSets,
     getAllOpenInterviews
 } from '.';
 import { queryClient } from './client';
@@ -135,26 +134,6 @@ export function getDistinctSchoolsLoader() {
 
 ///
 
-export async function ProgramsAndCourseKeywordSetsLoader() {
-    const response = await getProgramsAndCourseKeywordSets();
-    if (response.status >= 400) {
-        throw json(
-            { message: response.statusText },
-            { status: response.status }
-        );
-    } else {
-        return response.data.data;
-    }
-}
-
-export function getProgramsAndCourseKeywordSetsLoader() {
-    return defer({
-        programsAndCourseKeywordSets: ProgramsAndCourseKeywordSetsLoader()
-    });
-}
-
-///
-
 export async function ProgramRequirementLoader({
     params
 }: {
@@ -204,16 +183,3 @@ export async function getProgramRequirementsV2Loader() {
     return queryClient.fetchQuery(getProgramRequirementsQuery());
 }
 
-///
-
-export async function getAllOpenInterviewLoader() {
-    const response = await getAllOpenInterviews();
-    if (response.status >= 400) {
-        throw json(
-            { message: response.statusText },
-            { status: response.status }
-        );
-    } else {
-        return response;
-    }
-}

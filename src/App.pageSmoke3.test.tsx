@@ -389,8 +389,7 @@ vi.mock('@/api/query', async (importOriginal) => {
         getInterviewsByStudentIdQuery: () =>
             factory(['interviews/student', 'test'], { data: { data: [] } }),
         getInterviewsByProgramIdQuery: () =>
-            factory(['interviews/program', 'test'], { data: { data: [] } }),
-        getProgramsAndCourseKeywordSetsLoader: vi.fn().mockResolvedValue({})
+            factory(['interviews/program', 'test'], { data: { data: [] } })
     };
 });
 

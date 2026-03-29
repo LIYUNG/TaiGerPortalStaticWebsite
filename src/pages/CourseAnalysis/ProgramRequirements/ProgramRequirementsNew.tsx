@@ -27,6 +27,7 @@ import {
     SCORES_TYPE
 } from '@utils/contants';
 import SearchableMultiSelect from '@components/Input/searchableMuliselect';
+import type { ProgramsAndKeywordsData } from '@taiger-common/model';
 
 /** Program option in requirement form */
 export interface ProgramRequirementProgramOption {
@@ -54,9 +55,7 @@ export interface ProgramRequirementRequirement {
 }
 
 export interface ProgramRequirementsNewProps {
-    programsAndCourseKeywordSets: {
-        distinctPrograms?: ProgramRequirementProgramOption[];
-        keywordsets?: { id?: string; name?: string }[];
+    programsAndCourseKeywordSets: ProgramsAndKeywordsData & {
         requirement?: ProgramRequirementRequirement;
     };
 }

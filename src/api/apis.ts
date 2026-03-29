@@ -774,7 +774,7 @@ export const postProgramRequirements = (payload: ApiPayload) =>
         payload
     );
 export const getProgramsAndCourseKeywordSets = () =>
-    request.get<GetProgramsAndKeywordSetsResponse>(
+    getData<GetProgramsAndKeywordSetsResponse>(
         `/api/program-requirements/programs-and-keywords`
     );
 export const getProgramRequirement = (programRequirementId: string) =>
