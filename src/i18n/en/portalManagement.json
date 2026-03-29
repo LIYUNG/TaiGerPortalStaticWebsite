@@ -1,3 +1,25 @@
 {
-    "Update portal credentials successfully": "Portal credentials updated successfully"
+    "Update portal credentials successfully": "Portal credentials updated successfully",
+    "portalCreds": {
+        "guideTitle": "What to do on this page",
+        "step1": "Register or log in on each university website",
+        "step2": "Copy your account and password into the fields below",
+        "step3": "Press Save on that program after you edit",
+        "cardHeading": "Your application portal logins",
+        "cardSubheading": "Agents use these to verify uploads. Only share credentials for portals you use.",
+        "instructionPrimary": "Visit each university website using the Link column, register for that school's application portal, and enter your account and password on this page so your agent can log in later to verify uploads. If there is an Instructions link, open it and follow the steps. After entering credentials, click Update under each application to save.",
+        "instructionSecondary": "Please share your universities' application portal credentials below. Your agent(s) can help you review your applications when you are blocked.",
+        "emptyState": "There are no decided applications with portal links here yet. When a program is marked decided, it will appear in this list.",
+        "breadcrumbAriaLabel": "Breadcrumb",
+        "breadcrumbCurrent": "Portal Credentials",
+        "tabTitle": "Student {{firstName}} {{lastName}} || Portal Credentials",
+        "errorGeneric": "An error occurred. Please try again.",
+        "updateFailedAlert": "Could not save portal credentials. Please try again later.",
+        "saveDisabledHint": "Change account or password above, then press Save",
+        "saveEnabledHint": "Save these credentials for this program",
+        "saving": "Saving…",
+        "portalA": "Application portal A",
+        "portalB": "Application portal B",
+        "missingCredentialsWarning": "Please register and provide credentials"
+    }
 }

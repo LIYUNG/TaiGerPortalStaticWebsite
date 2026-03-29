@@ -404,74 +404,31 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
                 const linkUrl = `${DEMO.DOCUMENT_MODIFICATION_LINK(
                     params.row.thread_id
                 )}`;
-                const isLocked =
-                    params.row?.isApplicationLocked ||
-                    params.row?.isProgramLocked;
 
                 return (
                     <Box>
-                        {isLocked ? (
-                            <Tooltip
-                                title={t(
-                                    'Program is locked. Contact your agent to unlock this task.',
-                                    { ns: 'common' }
-                                )}
-                            >
-                                <Box>
-                                    <Link
-                                        component={LinkDom}
-                                        sx={{
-                                            color: 'text.disabled',
-                                            pointerEvents: 'none'
-                                        }}
-                                        target="_blank"
-                                        title={params.value}
-                                        to={linkUrl}
-                                        underline="hover"
-                                    >
-                                        {params.row.file_type}{' '}
-                                        {params.row.program_id
-                                            ? ' - ' +
-                                              params.row.program_name +
-                                              ' - ' +
-                                              params.row.degree
-                                            : ''}
-                                    </Link>
-                                    <Typography
-                                        color="text.secondary"
-                                        sx={{ display: 'block', mt: 0.25 }}
-                                        variant="caption"
-                                    >
-                                        {params.row.school}
-                                    </Typography>
-                                </Box>
-                            </Tooltip>
-                        ) : (
-                            <>
-                                <Link
-                                    component={LinkDom}
-                                    target="_blank"
-                                    title={params.value}
-                                    to={linkUrl}
-                                    underline="hover"
-                                >
-                                    {params.row.file_type}{' '}
-                                    {params.row.program_id
-                                        ? ' - ' +
-                                          params.row.program_name +
-                                          ' - ' +
-                                          params.row.degree
-                                        : ''}
-                                </Link>
-                                <Typography
-                                    color="text.secondary"
-                                    sx={{ display: 'block', mt: 0.25 }}
-                                    variant="caption"
-                                >
-                                    {params.row.school}
-                                </Typography>
-                            </>
-                        )}
+                        <Link
+                            component={LinkDom}
+                            target="_blank"
+                            title={params.value}
+                            to={linkUrl}
+                            underline="hover"
+                        >
+                            {params.row.file_type}{' '}
+                            {params.row.program_id
+                                ? ' - ' +
+                                  params.row.program_name +
+                                  ' - ' +
+                                  params.row.degree
+                                : ''}
+                        </Link>
+                        <Typography
+                            color="text.secondary"
+                            sx={{ display: 'block', mt: 0.25 }}
+                            variant="caption"
+                        >
+                            {params.row.school}
+                        </Typography>
                     </Box>
                 );
             }

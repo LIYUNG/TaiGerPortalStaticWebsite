@@ -14,12 +14,13 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import LaunchIcon from '@mui/icons-material/Launch';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
-import { is_TaiGer_Student } from '@taiger-common/core';
+import { is_TaiGer_role, is_TaiGer_Student } from '@taiger-common/core';
 import type {
     IUserWithId,
     IDocumentthreadPopulated,
     ITemplateWithId,
-    IStudentResponse
+    IStudentResponse,
+    IProgramWithId
 } from '@taiger-common/model';
 import { useTranslation } from 'react-i18next';
 
@@ -32,6 +33,7 @@ import RequirementsSection from './RequirementsSection';
 import InstructionsSection from './InstructionsSection';
 import TeamInformationCard from './TeamInformationCard';
 import ProgramDetailsCard from './ProgramDetailsCard';
+import { EssayDifficultyIndicator } from './EssayDifficultyIndicator';
 
 interface InformationBlockProps {
     agents: IUserWithId[];
@@ -214,6 +216,15 @@ const InformationBlock = ({
                                 urgent={urgent}
                                 user={user}
                             />
+
+                            {is_TaiGer_role(user) && thread?.file_type === 'Essay' && (
+                                <EssayDifficultyIndicator
+                                    essayDifficulty={
+                                        (thread.program_id as IProgramWithId)
+                                            .essay_difficulty
+                                    }
+                                />
+                            )}
 
                             {thread?.file_type === 'Essay' ? (
                                 <OriginAuthorStatementBar

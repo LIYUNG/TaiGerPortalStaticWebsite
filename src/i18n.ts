@@ -19,7 +19,8 @@ i18n.use(initReactI18next).init({
         'Note',
         'courses',
         'survey',
-        'crm'
+        'crm',
+        'portalManagement'
     ],
     defaultNS: 'translation',
     debug: true,

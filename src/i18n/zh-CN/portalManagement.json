@@ -1,3 +1,25 @@
 {
-    "Update portal credentials successfully": "帐号密码更新成功"
+    "Update portal credentials successfully": "帐号密码更新成功",
+    "portalCreds": {
+        "guideTitle": "此页面要做什么",
+        "step1": "到各校网站注册或登录申请帐号",
+        "step2": "将帐号与密码复制到下方字段",
+        "step3": "编辑后请按该申请的保存",
+        "cardHeading": "各校申请入口登录信息",
+        "cardSubheading": "顾问会用这些信息协助确认上传内容。仅提供您实际使用的入口帐号密码。",
+        "instructionPrimary": "请到下列各学校网站「链接」栏申请该校的申请平台帐号密码，并在此页面提供帐号密码，方便日后 Agent 为您登录检查上传文件正确性。若有「说明」链接，请点入链接，依照里面教学完成。填完帐号密码，请务必点击各申请下方的「更新」按钮保存。",
+        "instructionSecondary": "请在下方提供各校申请入口帐号密码。若您卡住，顾问可协助检视申请状况。",
+        "emptyState": "目前没有已决定且具有入口链接的申请。当某个志愿标记为已决定后，会出现在这份列表。",
+        "breadcrumbAriaLabel": "导航路径",
+        "breadcrumbCurrent": "申请入口帐号密码",
+        "tabTitle": "学生 {{firstName}} {{lastName}} || 申请入口帐号密码",
+        "errorGeneric": "发生错误，请再试一次。",
+        "updateFailedAlert": "无法保存申请入口帐号密码，请稍后再试。",
+        "saveDisabledHint": "请先变更上方帐号或密码，再按保存",
+        "saveEnabledHint": "保存此志愿的帐号密码",
+        "saving": "保存中…",
+        "portalA": "申请入口 A",
+        "portalB": "申请入口 B",
+        "missingCredentialsWarning": "请注册帐号密码并更新至此"
+    }
 }

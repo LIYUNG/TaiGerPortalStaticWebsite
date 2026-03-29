@@ -88,7 +88,8 @@ describe('PortalCredentialsCard - loaded state', () => {
         renderWithProviders(
             <PortalCredentialsCard student_id="student1" showTitle={false} />
         );
-        const updateBtn = await screen.findByText(/update/i);
-        expect(updateBtn).toBeInTheDocument();
+        expect(
+            await screen.findByText('portalCreds.cardHeading')
+        ).toBeInTheDocument();
     });
 });

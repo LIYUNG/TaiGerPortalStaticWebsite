@@ -1,3 +1,25 @@
 {
-    "Update portal credentials successfully": "帳號密碼更新成功"
+    "Update portal credentials successfully": "帳號密碼更新成功",
+    "portalCreds": {
+        "guideTitle": "此頁面要做什麼",
+        "step1": "到各校網站註冊或登入申請帳號",
+        "step2": "將帳號與密碼複製到下方欄位",
+        "step3": "編輯後請按該申請的儲存",
+        "cardHeading": "各校申請入口登入資訊",
+        "cardSubheading": "顧問會用這些資訊協助確認上傳內容。僅提供您實際使用的入口帳密。",
+        "instructionPrimary": "請到下列各學校網站「連結」欄申請該校的申請平台帳號密碼，並在此頁面提供帳號密碼，方便日後 Agent 為您登入檢查上傳文件正確性。若有「說明」連結，請點入連結，依照裡面教學完成。填完帳號密碼，請務必點擊各申請下方的「更新」按鈕儲存。",
+        "instructionSecondary": "請在下方提供各校申請入口帳密。若您卡關，顧問可協助檢視申請狀況。",
+        "emptyState": "目前尚無已決定且具入口連結的申請。當某志願標記為已決定後，會出現在這份清單。",
+        "breadcrumbAriaLabel": "導覽路徑",
+        "breadcrumbCurrent": "申請入口帳密",
+        "tabTitle": "學生 {{firstName}} {{lastName}} || 申請入口帳密",
+        "errorGeneric": "發生錯誤，請再試一次。",
+        "updateFailedAlert": "無法儲存申請入口帳密，請稍後再試。",
+        "saveDisabledHint": "請先變更上方帳號或密碼，再按儲存",
+        "saveEnabledHint": "儲存此志願的帳密",
+        "saving": "儲存中…",
+        "portalA": "申請入口 A",
+        "portalB": "申請入口 B",
+        "missingCredentialsWarning": "請註冊帳號密碼並更新至此"
+    }
 }
