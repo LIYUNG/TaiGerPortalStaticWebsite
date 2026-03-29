@@ -323,8 +323,10 @@ const DocModificationThreadPage = ({
             formData
         ).then(
             (resp) => {
-                const { success, data } = resp.data;
-                const { status } = resp;
+                const { success, data } = resp;
+                const status = 200;
+                const nextMessages = data?.messages ?? [];
+
                 if (success) {
                     setDocModificationThreadPageState((prevState) => ({
                         ...prevState,
@@ -332,26 +334,28 @@ const DocModificationThreadPage = ({
                         file: null,
                         editorState: {},
                         thread: {
-                            ...docModificationThreadPageState.thread,
-                            messages: data?.messages
+                            ...prevState.thread,
+                            messages: nextMessages
                         },
                         isLoaded: true,
                         buttonDisabled: false,
-                        accordionKeys: [
-                            ...docModificationThreadPageState.accordionKeys,
-                            data.messages.length - 1
-                        ],
-                        res_modal_status: status
+                        accordionKeys:
+                            nextMessages.length > 0
+                                ? [
+                                      ...prevState.accordionKeys,
+                                      nextMessages.length - 1
+                                  ]
+                                : prevState.accordionKeys,
+                        res_modal_status: status,
+                        res_modal_message: ''
                     }));
                 } else {
-                    // TODO: what if data is oversize? data type not match?
-                    const { message } = resp.data;
                     setDocModificationThreadPageState((prevState) => ({
                         ...prevState,
                         isLoaded: true,
                         buttonDisabled: false,
-                        res_modal_message: message,
-                        res_modal_status: status
+                        res_modal_message: resp.message ?? 'Submission failed.',
+                        res_modal_status: 400
                     }));
                 }
             },
