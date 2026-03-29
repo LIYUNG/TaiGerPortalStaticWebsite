@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, useState } from 'react';
+import { ChangeEvent, FormEvent, MouseEvent as ReactMouseEvent, useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import queryString from 'query-string';
 
@@ -21,8 +21,24 @@ import { getUTCWithDST, time_slots } from '@utils/contants';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import { queryClient } from '@/api';
 import { SelectChangeEvent } from '@mui/material';
+import type { EventConfirmationCardEvent } from '@components/Calendar/components/EventConfirmationCard';
+
+export interface OfficeHoursAgent {
+    _id?: string;
+    firstname?: string;
+    lastname?: string;
+    email?: string;
+    timezone?: string;
+    pictureUrl?: string;
+    officehours?: Record<
+        string,
+        { active?: boolean; time_slots?: { value: string; label?: string }[] }
+    >;
+    [key: string]: unknown;
+}
 
 export interface UseCalendarEventsProps {
+    user_id?: string;
     startTime: string;
     endTime: string;
     requester_id?: string;
@@ -76,35 +92,37 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
     });
 
     interface EventsResponse {
-        data?: unknown[];
-        agents?: Record<string, unknown>;
-        editors?: unknown[];
+        data?: EventConfirmationCardEvent[];
+        agents?: OfficeHoursAgent[];
+        editors?: OfficeHoursAgent[];
         hasEvents?: boolean;
         success?: boolean;
     }
     const queryData = eventsQuery.data as { data?: EventsResponse } | undefined;
     const rawEvents = queryData?.data;
     const eventsResponse: EventsResponse = (rawEvents ?? {}) as EventsResponse;
-    const events = eventsResponse.data ?? [];
-    const agents = eventsResponse.agents || {};
-    const editors = eventsResponse.editors || [];
+    const events: EventConfirmationCardEvent[] = eventsResponse.data ?? [];
+    const agents: OfficeHoursAgent[] = eventsResponse.agents ?? [];
+    const editors: OfficeHoursAgent[] = eventsResponse.editors ?? [];
     const students = studentsQuery.data || [];
     const hasEvents = eventsResponse.hasEvents || false;
-    const booked_events =
-        (bookedEventsQuery.data as { data?: { data?: unknown[] } } | undefined)
-            ?.data?.data ?? [];
+    const booked_events: EventConfirmationCardEvent[] =
+        ((bookedEventsQuery.data as { data?: { data?: EventConfirmationCardEvent[] } } | undefined)
+            ?.data?.data ?? []);
     const res_status =
         (eventsQuery.data as { status?: number } | undefined)?.status ?? 0;
     const success = eventsResponse.success || false;
+
+    type PartialEvent = Partial<EventConfirmationCardEvent> & Record<string, unknown>;
 
     const [calendarEventsState, setCalendarEventsState] = useState<{
         student_id: string;
         isDeleteModalOpen: boolean;
         isEditModalOpen: boolean;
         isConfirmModalOpen: boolean;
-        event_temp: Record<string, unknown>;
+        event_temp: PartialEvent;
         event_id: string;
-        selectedEvent: Record<string, unknown>;
+        selectedEvent: PartialEvent;
         newReceiver: string;
         BookButtonDisable: boolean;
         newDescription: string;

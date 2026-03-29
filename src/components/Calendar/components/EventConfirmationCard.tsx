@@ -48,15 +48,15 @@ import DEMO from '@store/constant';
 import EventDateComponent from '../../DateComponent';
 import { useAuth } from '../../AuthProvider';
 
-interface EventParticipant {
-    _id: { toString: () => string };
+export interface EventParticipant {
+    _id?: string | { toString: () => string };
     firstname?: string;
     lastname?: string;
     email?: string;
     pictureUrl?: string;
 }
 
-interface EventConfirmationCardEvent {
+export interface EventConfirmationCardEvent {
     start: Date | string;
     end: Date | string;
     description?: string;
