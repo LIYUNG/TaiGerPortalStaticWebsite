@@ -9,6 +9,8 @@
 **Note:** `tsc-errors.txt` includes **3× TS1294** under `node_modules/@editorjs/editorjs` (`erasableSyntaxOnly`). Remaining **2,373** errors are under `src/`.
 
 ---
+run:
+`npx tsc -b 2>&1 | Tee-Object -FilePath tsc-errors.txt`
 
 ## Error Breakdown by Code
 
