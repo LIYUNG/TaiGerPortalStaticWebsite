@@ -11,7 +11,10 @@ import { appConfig } from '../../config';
 import Loading from '@components/Loading/Loading';
 import { BaseDocumentsTable } from './BaseDocumentsTable';
 import { useStudentsAndDocLinks } from '@hooks/useStudentsAndDocLinks';
-import type { IStudentResponse } from '@taiger-common/model';
+import type {
+    IBasedocumentationslinkWithId,
+    IStudentResponseDef
+} from '@taiger-common/model';
 
 const BaseDocuments = () => {
     const { user } = useAuth();
@@ -22,11 +25,17 @@ const BaseDocuments = () => {
 
     TabTitle('Base Documents');
 
+    const docLinks: IBasedocumentationslinkWithId[] = Array.isArray(
+        base_docs_link
+    )
+        ? (base_docs_link as IBasedocumentationslinkWithId[])
+        : [];
+
     const StudentDocoumentsView = () =>
-        students?.map((student: IStudentResponse, i: number) => (
+        students?.map((student: IStudentResponseDef, i: number) => (
             <Card key={i}>
                 <BaseDocumentStudentView
-                    base_docs_link={base_docs_link}
+                    base_docs_link={docLinks}
                     student={student}
                 />
             </Card>
@@ -59,10 +68,10 @@ const BaseDocuments = () => {
                 )}
             </Breadcrumbs>
             {isLoading ? <Loading /> : null}
-            {isError ? error : null}
+            {isError ? error?.message : null}
             {!isLoading && !isError ? (
                 is_TaiGer_role(user) ? (
-                    <BaseDocumentsTable students={students} />
+                    <BaseDocumentsTable students={students ?? []} />
                 ) : (
                     <StudentDocoumentsView />
                 )

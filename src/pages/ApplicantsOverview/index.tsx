@@ -70,7 +70,7 @@ const ApplicantsOverview = () => {
                 applications={
                     myStudentsApplications.applications as IApplicationPopulated[]
                 }
-                students={fetchedMyStudents}
+                students={fetchedMyStudents ?? []}
             />
         </Box>
     );

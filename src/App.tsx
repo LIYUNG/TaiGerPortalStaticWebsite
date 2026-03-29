@@ -4,7 +4,8 @@ import {
     Outlet,
     RouterProvider,
     createBrowserRouter,
-    useNavigation
+    useNavigation,
+    type RouteObject
 } from 'react-router-dom';
 import '@fontsource/roboto';
 import '@fontsource/roboto/400.css';
@@ -64,12 +65,12 @@ const router = createBrowserRouter([
     {
         path: '/account',
         element: <WrapperPublic />,
-        children: [...routes2]
+        children: [...routes2] as RouteObject[]
     },
     {
         path: '/',
         element: <Layout />,
-        children: [...routes]
+        children: [...routes] as RouteObject[]
     },
     {
         path: '*',

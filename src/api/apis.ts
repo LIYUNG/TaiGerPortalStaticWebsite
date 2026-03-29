@@ -870,7 +870,7 @@ export const SetFileAsFinal = (
     );
 
 export const updateEssayWriter = (
-    editor_id: string,
+    editor_id: Record<string, boolean>,
     documentsthreadId: string
 ) =>
     request.post<UpdateEssayWriterResponse>(

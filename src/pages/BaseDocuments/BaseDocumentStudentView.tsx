@@ -5,7 +5,8 @@ import { PROFILE_NAME } from '@taiger-common/core';
 import { DocumentStatusType } from '@taiger-common/model';
 import type {
     IBasedocumentationslinkWithId,
-    IUserProfileItem
+    IUserProfileItem,
+    IStudentResponseDef
 } from '@taiger-common/model';
 
 import ModalMain from '../Utils/ModalHandler/ModalMain';
@@ -15,8 +16,8 @@ import Loading from '@components/Loading/Loading';
 import MyDocumentCard from './MyDocumentCard';
 
 export interface BaseDocumentStudentViewProps {
-    student: Record<string, unknown>;
-    base_docs_link: string;
+    student: IStudentResponseDef;
+    base_docs_link: IBasedocumentationslinkWithId[];
 }
 
 const BaseDocumentStudentView = ({
@@ -30,12 +31,13 @@ const BaseDocumentStudentView = ({
             error: '',
             student: student,
             student_id: '',
-            isLoaded: {},
+            isLoaded: {} as Record<string, boolean>,
             ready: false,
             file: '',
             deleteFileWarningModel: false,
             res_status: 0,
-            res_modal_status: ''
+            res_modal_status: 0,
+            res_modal_message: ''
         });
 
     useEffect(() => {

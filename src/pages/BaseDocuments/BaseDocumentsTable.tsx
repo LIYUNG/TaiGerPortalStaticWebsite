@@ -20,7 +20,7 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { PROFILE_NAME } from '@taiger-common/core';
-import { DocumentStatusType } from '@taiger-common/model';
+import { DocumentStatusType, IStudentResponseDef } from '@taiger-common/model';
 import {
     MaterialReactTable,
     useMaterialReactTable
@@ -84,7 +84,7 @@ export interface BaseDocumentsTableRowOriginal {
 }
 
 export interface BaseDocumentsTableProps {
-    students: BaseDocumentStudentRow[];
+    students: IStudentResponseDef[];
 }
 
 interface BaseDocumentsTableState {
@@ -832,7 +832,11 @@ export const BaseDocumentsTable = ({ students }: BaseDocumentsTableProps) => {
 
             <AcceptProfileFileModel
                 closePreviewWindow={closePreviewWindow}
-                isLoaded={baseDocumentsTableState.isLoaded}
+                isLoaded={
+                    typeof baseDocumentsTableState.isLoaded === 'boolean'
+                        ? baseDocumentsTableState.isLoaded
+                        : false
+                }
                 k={baseDocumentsTableState.doc_key}
                 onUpdateProfileDocStatus={onUpdateProfileDocStatus}
                 path={baseDocumentsTableState.preview_path}

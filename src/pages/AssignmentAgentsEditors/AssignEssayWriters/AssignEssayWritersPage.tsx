@@ -75,7 +75,10 @@ const AssignEssayWritersPage = ({
     });
 
     const updateEssayWriterList = useCallback(
-        async (updateEditorList: string, essayDocumentThread_id: string) => {
+        async (
+            updateEditorList: Record<string, boolean>,
+            essayDocumentThread_id: string
+        ) => {
             try {
                 const resp = await updateEssayWriter(
                     updateEditorList,
@@ -125,7 +128,7 @@ const AssignEssayWritersPage = ({
     const handleSubmit = useCallback(
         (
             e: FormEvent<HTMLFormElement>,
-            updateEditorList: unknown,
+            updateEditorList: Record<string, boolean>,
             essayDocumentThread_id: string
         ) => {
             e.preventDefault();
@@ -150,6 +153,7 @@ const AssignEssayWritersPage = ({
             .map((essayDocumentThread: IDocumentthreadPopulated) => (
                 <NoWritersEssaysCard
                     essayDocumentThread={essayDocumentThread}
+                    isArchivPage={false}
                     key={essayDocumentThread._id}
                     submitUpdateEssayWriterlist={handleSubmit}
                 />
