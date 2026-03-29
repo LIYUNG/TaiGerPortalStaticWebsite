@@ -50,32 +50,25 @@ interface PortalCredentialsCardProps {
 }
 
 function PortalCredentialsHowToGuide() {
-    const { t } = useTranslation();
+    const { t } = useTranslation('portalManagement');
     const theme = useTheme();
     const steps = [
         {
             n: 1,
             icon: <LanguageOutlinedIcon sx={{ fontSize: 20 }} />,
-            label: t('portalCreds.step1', {
-                defaultValue: 'Register or log in on each university website'
-            }),
+            label: t('portalCreds.step1'),
             color: theme.palette.primary.main
         },
         {
             n: 2,
             icon: <TouchAppOutlinedIcon sx={{ fontSize: 20 }} />,
-            label: t('portalCreds.step2', {
-                defaultValue:
-                    'Copy your account & password into the fields below'
-            }),
+            label: t('portalCreds.step2'),
             color: theme.palette.info.main
         },
         {
             n: 3,
             icon: <SaveOutlinedIcon sx={{ fontSize: 20 }} />,
-            label: t('portalCreds.step3', {
-                defaultValue: 'Press Save on that program after you edit'
-            }),
+            label: t('portalCreds.step3'),
             color: theme.palette.success.main
         }
     ];
@@ -99,9 +92,7 @@ function PortalCredentialsHowToGuide() {
                 sx={{ mb: 1.5, color: 'info.dark' }}
                 variant="subtitle2"
             >
-                {t('portalCreds.guideTitle', {
-                    defaultValue: 'What to do on this page'
-                })}
+                {t('portalCreds.guideTitle')}
             </Typography>
             <Stack
                 direction={{ xs: 'column', md: 'row' }}
@@ -158,7 +149,7 @@ function PortalCredentialsHowToGuide() {
 export default function PortalCredentialsCard(
     props: PortalCredentialsCardProps
 ) {
-    const { t } = useTranslation();
+    const { t } = useTranslation('portalManagement');
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
     const portalQuery = usePortalCredentials(props.student_id);
     const { postCredentialsMutation } = portalQuery;
@@ -245,9 +236,12 @@ export default function PortalCredentialsCard(
 
     useEffect(() => {
         TabTitle(
-            `Student ${student?.firstname ?? ''} ${student?.lastname ?? ''} || Portal Credentials`
+            t('portalCreds.tabTitle', {
+                firstName: student?.firstname ?? '',
+                lastName: student?.lastname ?? ''
+            })
         );
-    }, [student?.firstname, student?.lastname]);
+    }, [student?.firstname, student?.lastname, t]);
 
     const onCredentialFieldChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -313,7 +307,7 @@ export default function PortalCredentialsCard(
             const message =
                 error instanceof Error
                     ? error.message
-                    : 'An error occurred. Please try again.';
+                    : t('portalCreds.errorGeneric');
             setSeverity('error');
             setMessage(message);
             setOpenSnackbar(true);
@@ -325,7 +319,7 @@ export default function PortalCredentialsCard(
                 ...prev,
                 [application_id]: true
             }));
-            alert('Course Update failed. Please try later.');
+            alert(t('portalCreds.updateFailedAlert'));
         }
     };
 
@@ -356,7 +350,10 @@ export default function PortalCredentialsCard(
                 />
             ) : null}
             {!props.showTitle ? (
-                <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2 }}>
+                <Breadcrumbs
+                    aria-label={t('portalCreds.breadcrumbAriaLabel')}
+                    sx={{ mb: 2 }}
+                >
                     <Link
                         color="inherit"
                         component={LinkDom}
@@ -366,7 +363,7 @@ export default function PortalCredentialsCard(
                         {appConfig.companyName}
                     </Link>
                     <Typography color="text.primary">
-                        Portal Credentials
+                        {t('portalCreds.breadcrumbCurrent')}
                     </Typography>
                 </Breadcrumbs>
             ) : null}
@@ -409,10 +406,7 @@ export default function PortalCredentialsCard(
                                 sx={{ mb: 0.5, color: 'primary.dark' }}
                                 variant="h6"
                             >
-                                {t('portalCreds.cardHeading', {
-                                    defaultValue:
-                                        'Your application portal logins'
-                                })}
+                                {t('portalCreds.cardHeading')}
                             </Typography>
                             <Typography
                                 color="text.secondary"
@@ -435,27 +429,7 @@ export default function PortalCredentialsCard(
                             variant="body1"
                             sx={{ lineHeight: 1.7 }}
                         >
-                            請到下列各學校網站 [
-                            <Box component="span" sx={{ fontWeight: 700 }}>
-                                {t('Link', { ns: 'common' })}
-                            </Box>
-                            ]
-                            申請該校的申請平台帳號密碼，並在此頁面提供帳號密碼，方便日後Agent為您登入檢查上傳文件正確性。若有[
-                            <Box component="span" sx={{ fontWeight: 700 }}>
-                                {t('Instructions')}
-                            </Box>
-                            ]
-                            連結，請點入連結，依照裡面教學完成。填完帳號密碼，請務必點擊各申請下方的{' '}
-                            <Box
-                                component="span"
-                                sx={{
-                                    fontWeight: 700,
-                                    color: 'primary.main'
-                                }}
-                            >
-                                {t('Update', { ns: 'common' })}
-                            </Box>
-                            按鈕儲存。
+                            {t('portalCreds.instructionPrimary')}
                         </Typography>
                         <Typography
                             color="text.secondary"
@@ -463,9 +437,7 @@ export default function PortalCredentialsCard(
                             variant="body2"
                             sx={{ lineHeight: 1.65, m: 0 }}
                         >
-                            Please share your universities&apos; application
-                            portal credentials below. Your agent(s) can help you
-                            review your applications when you are blocked.
+                            {t('portalCreds.instructionSecondary')}
                         </Typography>
                     </Stack>
 
@@ -479,10 +451,7 @@ export default function PortalCredentialsCard(
                                     alpha(th.palette.info.main, 0.06)
                             }}
                         >
-                            {t('No programs to show portal credentials for.', {
-                                defaultValue:
-                                    'There are no decided applications with portal links here yet. When a program is marked decided, it will appear in this list.'
-                            })}
+                            {t('portalCreds.emptyState')}
                         </Alert>
                     ) : null}
 

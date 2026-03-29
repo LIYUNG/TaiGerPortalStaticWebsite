@@ -346,41 +346,15 @@ const EssayOverview = (props: EssayOverviewProps) => {
                                     />
                                 </Tooltip>
                             )}
-                            {isLocked ? (
-                                <Tooltip title={lockTooltip}>
-                                    <Box
-                                        component="span"
-                                        sx={{
-                                            display: 'inline-flex',
-                                            alignItems: 'center',
-                                            gap: 0.75,
-                                            color: 'text.disabled'
-                                        }}
-                                    >
-                                        <LockOutlinedIcon
-                                            color="disabled"
-                                            fontSize="small"
-                                        />
-                                        <Typography
-                                            component="span"
-                                            sx={{ color: 'text.disabled' }}
-                                            variant="body2"
-                                        >
-                                            {params.value}
-                                        </Typography>
-                                    </Box>
-                                </Tooltip>
-                            ) : (
-                                <Link
-                                    component={LinkDom}
-                                    target="_blank"
-                                    title={params.value}
-                                    to={linkUrl}
-                                    underline="hover"
-                                >
-                                    {params.value}
-                                </Link>
-                            )}
+                            <Link
+                                component={LinkDom}
+                                target="_blank"
+                                title={params.value}
+                                to={linkUrl}
+                                underline="hover"
+                            >
+                                {params.value}
+                            </Link>
                         </>
                     );
                 }

@@ -72,7 +72,8 @@ export function PortalCredentialsApplicationBlock({
     onCredentialFieldChange,
     onUpdateClick
 }: PortalCredentialsApplicationBlockProps) {
-    const { t } = useTranslation();
+    const { t } = useTranslation('portalManagement');
+    const { t: tTrans } = useTranslation();
     const hasAnyPortal = Boolean(
         program.application_portal_a || program.application_portal_b
     );
@@ -81,17 +82,12 @@ export function PortalCredentialsApplicationBlock({
     const saveDisabled = !isUpdateLoaded || !isChanged || isSubmittingThisApp;
     const saveTooltip = (() => {
         if (isSubmittingThisApp || !isUpdateLoaded) {
-            return t('Saving…', { defaultValue: 'Saving…' });
+            return t('portalCreds.saving');
         }
         if (!isChanged) {
-            return t('portalCreds.saveDisabledHint', {
-                defaultValue:
-                    'Change account or password above, then press Save'
-            });
+            return t('portalCreds.saveDisabledHint');
         }
-        return t('portalCreds.saveEnabledHint', {
-            defaultValue: 'Save these credentials for this program'
-        });
+        return t('portalCreds.saveEnabledHint');
     })();
 
     return (
@@ -176,8 +172,8 @@ export function PortalCredentialsApplicationBlock({
                                     variant="contained"
                                 >
                                     {!isUpdateLoaded || isSubmittingThisApp
-                                        ? t('Updating')
-                                        : t('Update', { ns: 'common' })}
+                                        ? tTrans('Updating')
+                                        : tTrans('Update', { ns: 'common' })}
                                 </Button>
                             </span>
                         </Tooltip>
@@ -202,7 +198,7 @@ export function PortalCredentialsApplicationBlock({
                                 }}
                                 variant="outlined"
                             >
-                                {t('Please register and provide credentials')}
+                                {t('portalCreds.missingCredentialsWarning')}
                             </Alert>
                         ) : null}
 
@@ -221,7 +217,7 @@ export function PortalCredentialsApplicationBlock({
                                     variant="caption"
                                     sx={{ fontWeight: 600, letterSpacing: 0.3 }}
                                 >
-                                    {t('Account', { ns: 'common' })}
+                                    {tTrans('Account', { ns: 'common' })}
                                 </Typography>
                             </Grid>
                             <Grid item {...fieldGridProps}>
@@ -230,7 +226,7 @@ export function PortalCredentialsApplicationBlock({
                                     variant="caption"
                                     sx={{ fontWeight: 600, letterSpacing: 0.3 }}
                                 >
-                                    {t('Password', { ns: 'common' })}
+                                    {tTrans('Password', { ns: 'common' })}
                                 </Typography>
                             </Grid>
                             <Grid item {...fieldGridProps}>
@@ -239,7 +235,7 @@ export function PortalCredentialsApplicationBlock({
                                     variant="caption"
                                     sx={{ fontWeight: 600, letterSpacing: 0.3 }}
                                 >
-                                    {t('Link', { ns: 'common' })}
+                                    {tTrans('Link', { ns: 'common' })}
                                 </Typography>
                             </Grid>
                             <Grid item {...fieldGridProps}>
@@ -248,7 +244,7 @@ export function PortalCredentialsApplicationBlock({
                                     variant="caption"
                                     sx={{ fontWeight: 600, letterSpacing: 0.3 }}
                                 >
-                                    {t('Instructions')}
+                                    {tTrans('Instructions')}
                                 </Typography>
                             </Grid>
                         </Grid>
@@ -290,7 +286,7 @@ export function PortalCredentialsApplicationBlock({
                                                     </InputAdornment>
                                                 )
                                             }}
-                                            label={t('Account', {
+                                            label={tTrans('Account', {
                                                 ns: 'common'
                                             })}
                                             margin="dense"
@@ -316,7 +312,7 @@ export function PortalCredentialsApplicationBlock({
                                                     </InputAdornment>
                                                 )
                                             }}
-                                            label={t('Password', {
+                                            label={tTrans('Password', {
                                                 ns: 'common'
                                             })}
                                             margin="dense"
@@ -346,7 +342,7 @@ export function PortalCredentialsApplicationBlock({
                                                 }}
                                                 variant="caption"
                                             >
-                                                {t('Link', { ns: 'common' })}
+                                                {tTrans('Link', { ns: 'common' })}
                                             </Typography>
                                             <LinkableNewlineText
                                                 text={
@@ -374,7 +370,7 @@ export function PortalCredentialsApplicationBlock({
                                                 }}
                                                 variant="caption"
                                             >
-                                                {t('Instructions')}
+                                                {tTrans('Instructions')}
                                             </Typography>
                                             <LinkableNewlineText
                                                 text={
@@ -393,9 +389,7 @@ export function PortalCredentialsApplicationBlock({
                                 <Chip
                                     color="secondary"
                                     icon={<Filter2OutlinedIcon />}
-                                    label={t('Application portal B', {
-                                        defaultValue: 'Application portal B'
-                                    })}
+                                    label={t('portalCreds.portalB')}
                                     size="small"
                                     sx={{
                                         fontWeight: 600,
@@ -425,7 +419,7 @@ export function PortalCredentialsApplicationBlock({
                                                     </InputAdornment>
                                                 )
                                             }}
-                                            label={t('Account', {
+                                            label={tTrans('Account', {
                                                 ns: 'common'
                                             })}
                                             margin="dense"
@@ -451,7 +445,7 @@ export function PortalCredentialsApplicationBlock({
                                                     </InputAdornment>
                                                 )
                                             }}
-                                            label={t('Password', {
+                                            label={tTrans('Password', {
                                                 ns: 'common'
                                             })}
                                             margin="dense"
@@ -481,7 +475,7 @@ export function PortalCredentialsApplicationBlock({
                                                 }}
                                                 variant="caption"
                                             >
-                                                {t('Link', { ns: 'common' })}
+                                                {tTrans('Link', { ns: 'common' })}
                                             </Typography>
                                             <LinkableNewlineText
                                                 text={
@@ -509,7 +503,7 @@ export function PortalCredentialsApplicationBlock({
                                                 }}
                                                 variant="caption"
                                             >
-                                                {t('Instructions')}
+                                                {tTrans('Instructions')}
                                             </Typography>
                                             <LinkableNewlineText
                                                 text={

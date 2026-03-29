@@ -68,6 +68,7 @@ interface DocModificationThreadPageThread {
         school?: string;
         degree?: string;
         program_name?: string;
+        essay_difficulty?: string;
         [key: string]: unknown;
     };
     file_type?: string;
