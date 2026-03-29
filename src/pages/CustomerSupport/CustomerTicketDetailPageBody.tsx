@@ -37,10 +37,14 @@ import {
     submitMessageInTicketWithAttachment,
     updateComplaintsTicket
 } from '@/api';
-import MessageList, { type MessageThread } from '@components/Message/MessageList';
+import MessageList, {
+    type MessageThread
+} from '@components/Message/MessageList';
 import { stringAvatar } from '@utils/contants';
 import { useAuth } from '@components/AuthProvider';
-import DocThreadEditor, { type CheckResultItem } from '@components/Message/DocThreadEditor';
+import DocThreadEditor, {
+    type CheckResultItem
+} from '@components/Message/DocThreadEditor';
 import { readDOCX, readPDF, readXLSX } from '../Utils/util_functions';
 import { TopBar } from '@components/TopBar/TopBar';
 
@@ -72,9 +76,10 @@ const CustomerTicketDetailPageBody = ({
     const { t } = useTranslation();
     const theme = useTheme();
     const { user } = useAuth();
-    const [checkResult, setCheckResult] = useState<Record<string, CheckResultItem>[]>([]);
+    const [checkResult, setCheckResult] = useState<
+        Record<string, CheckResultItem>[]
+    >([]);
     const [isDeleted, setIsDeleted] = useState(false);
-    const messages = complaintTicket.messages ?? [];
     const [
         customerTicketDetailPageBodyState,
         setCustomerTicketDetailPageBodyState
@@ -113,11 +118,13 @@ const CustomerTicketDetailPageBody = ({
             }
             // Ensure a file is selected
             const checkPromises = Array.from(e.target.files).map((file) => {
-                const extension = file.name.split('.').pop()?.toLowerCase() ?? '';
-                const studentName = (
-                    customerTicketDetailPageBodyState.thread
-                        .requester_id as unknown as IUser
-                ).firstname ?? '';
+                const extension =
+                    file.name.split('.').pop()?.toLowerCase() ?? '';
+                const studentName =
+                    (
+                        customerTicketDetailPageBodyState.thread
+                            .requester_id as unknown as IUser
+                    ).firstname ?? '';
 
                 if (extension === 'pdf') {
                     return readPDF(file, studentName);
@@ -131,7 +138,9 @@ const CustomerTicketDetailPageBody = ({
             });
             Promise.all(checkPromises)
                 .then((results) => {
-                    setCheckResult(results as Record<string, CheckResultItem>[]);
+                    setCheckResult(
+                        results as Record<string, CheckResultItem>[]
+                    );
                     setCustomerTicketDetailPageBodyState((prevState) => ({
                         ...prevState,
                         file: Array.from(e.target.files!)
@@ -241,10 +250,14 @@ const CustomerTicketDetailPageBody = ({
                 const { status } = resp;
                 if (success) {
                     // TODO: remove that message
-                    const threadMessages = customerTicketDetailPageBodyState.thread.messages ?? [];
+                    const threadMessages =
+                        customerTicketDetailPageBodyState.thread.messages ?? [];
                     const new_messages = [...threadMessages];
                     const idx = threadMessages.findIndex(
-                        (message) => (message as unknown as { _id: string })._id?.toString() === message_id
+                        (message) =>
+                            (
+                                message as unknown as { _id: string }
+                            )._id?.toString() === message_id
                     );
                     if (idx !== -1) {
                         new_messages.splice(idx, 1);

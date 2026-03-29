@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Box, Paper, Container, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
@@ -80,40 +80,7 @@ const InterviewSurveyForm = () => {
         res_status: 0
     });
 
-    useEffect(() => {
-        fetchInterviewAndSurvey();
-        getInterview(interview_id).then(
-            (resp) => {
-                const { data, success } = resp.data;
-                const { status } = resp;
-                if (success) {
-                    setInterview(data);
-                    setInterviewSurveyState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        success: success,
-                        res_status: status
-                    }));
-                } else {
-                    setInterviewSurveyState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        res_status: status
-                    }));
-                }
-            },
-            (error) => {
-                setInterviewSurveyState((prevState) => ({
-                    ...prevState,
-                    isLoaded: true,
-                    error,
-                    res_status: 500
-                }));
-            }
-        );
-    }, [interview_id]);
-
-    const fetchInterviewAndSurvey = async () => {
+    const fetchInterviewAndSurvey = useCallback(async () => {
         try {
             const {
                 data: { data, success }
@@ -147,7 +114,40 @@ const InterviewSurveyForm = () => {
                 res_status: 500
             }));
         }
-    };
+    }, [interview_id]);
+
+    useEffect(() => {
+        void fetchInterviewAndSurvey();
+        getInterview(interview_id).then(
+            (resp) => {
+                const { data, success } = resp.data;
+                const { status } = resp;
+                if (success) {
+                    setInterview(data);
+                    setInterviewSurveyState((prevState) => ({
+                        ...prevState,
+                        isLoaded: true,
+                        success: success,
+                        res_status: status
+                    }));
+                } else {
+                    setInterviewSurveyState((prevState) => ({
+                        ...prevState,
+                        isLoaded: true,
+                        res_status: status
+                    }));
+                }
+            },
+            (error) => {
+                setInterviewSurveyState((prevState) => ({
+                    ...prevState,
+                    isLoaded: true,
+                    error,
+                    res_status: 500
+                }));
+            }
+        );
+    }, [interview_id, fetchInterviewAndSurvey]);
 
     const handleChange = (event: {
         target: { name: string; value: string };
