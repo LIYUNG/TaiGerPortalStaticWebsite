@@ -1,7 +1,27 @@
+import type { ReactElement } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import PortalCredentialsCard from './PortalCredentialsCard';
+
+const createTestQueryClient = () =>
+    new QueryClient({
+        defaultOptions: {
+            queries: {
+                retry: false
+            }
+        }
+    });
+
+function renderWithProviders(ui: ReactElement) {
+    const client = createTestQueryClient();
+    return render(
+        <QueryClientProvider client={client}>
+            <MemoryRouter>{ui}</MemoryRouter>
+        </QueryClientProvider>
+    );
+}
 
 vi.mock('@store/constant', () => ({
     default: { DASHBOARD_LINK: '/', CV_ML_RL_DOCS_LINK: '/docs' }
@@ -33,14 +53,11 @@ vi.mock('@contexts/use-snack-bar', () => ({
 vi.mock('@/api', () => ({
     getPortalCredentials: vi.fn(() =>
         Promise.resolve({
+            success: true,
             data: {
-                success: true,
-                data: {
-                    applications: [],
-                    student: { firstname: 'Alice', lastname: 'Wang' }
-                }
-            },
-            status: 200
+                applications: [],
+                student: { firstname: 'Alice', lastname: 'Wang' }
+            }
         })
     ),
     postPortalCredentials: vi.fn()
@@ -56,13 +73,8 @@ vi.mock('react-i18next', () => ({
 
 describe('PortalCredentialsCard', () => {
     beforeEach(() => {
-        render(
-            <MemoryRouter>
-                <PortalCredentialsCard
-                    student_id="student1"
-                    showTitle={false}
-                />
-            </MemoryRouter>
+        renderWithProviders(
+            <PortalCredentialsCard student_id="student1" showTitle={false} />
         );
     });
 
@@ -73,13 +85,8 @@ describe('PortalCredentialsCard', () => {
 
 describe('PortalCredentialsCard - loaded state', () => {
     it('renders card content after loading', async () => {
-        render(
-            <MemoryRouter>
-                <PortalCredentialsCard
-                    student_id="student1"
-                    showTitle={false}
-                />
-            </MemoryRouter>
+        renderWithProviders(
+            <PortalCredentialsCard student_id="student1" showTitle={false} />
         );
         const updateBtn = await screen.findByText(/update/i);
         expect(updateBtn).toBeInTheDocument();

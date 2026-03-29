@@ -240,7 +240,7 @@ vi.mock('@hooks/useStudentsAndDocLinks', () => ({
 }));
 
 const wrapWithSuspense = (
-    Component: LazyExoticComponent<ComponentType<any>>
+    Component: LazyExoticComponent<ComponentType<Record<string, never>>>
 ) => (
     <Suspense fallback={<div data-testid="loading">Loading...</div>}>
         <Component />

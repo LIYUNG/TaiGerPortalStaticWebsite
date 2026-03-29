@@ -86,86 +86,110 @@ export const EmbeddedChatListWidth = 290;
 export const CVMLRL_DOC_PRECHECK_STATUS_E = {
     OK_SYMBOL: (
         <CheckCircleIcon
-            size={18}
-            style={{ color: green[500] }}
-            title="Decided"
+            sx={{ fontSize: 18, color: green[500] }}
+            titleAccess="Decided"
         />
     ),
     NOT_OK_SYMBOL: (
-        <CancelIcon size={18} style={{ color: red[700] }} title="Decided No" />
+        <CancelIcon
+            sx={{ fontSize: 18, color: red[700] }}
+            titleAccess="Decided No"
+        />
     ),
     RISK_SYMBOL: (
-        <BugReportIcon size={18} style={{ color: grey[400] }} title="Risk" />
+        <BugReportIcon
+            sx={{ fontSize: 18, color: grey[400] }}
+            titleAccess="Risk"
+        />
     ),
     WARNING_SYMBOK: (
-        <WarningIcon size={18} style={{ color: red[700] }} title="Warning" />
+        <WarningIcon
+            sx={{ fontSize: 18, color: red[700] }}
+            titleAccess="Warning"
+        />
     )
 };
 
 export const DECISION_STATUS_E = {
     OK_SYMBOL: (
         <CheckCircleIcon
-            size={18}
-            style={{ color: green[500] }}
-            title="Decided"
+            sx={{ fontSize: 18, color: green[500] }}
+            titleAccess="Decided"
         />
     ),
     NOT_OK_SYMBOL: (
-        <CancelIcon size={18} style={{ color: red[700] }} title="Decided No" />
+        <CancelIcon
+            sx={{ fontSize: 18, color: red[700] }}
+            titleAccess="Decided No"
+        />
     ),
     UNKNOWN_SYMBOL: (
-        <HelpIcon size={18} style={{ color: grey[400] }} title="Not sure" />
+        <HelpIcon
+            sx={{ fontSize: 18, color: grey[400] }}
+            titleAccess="Not sure"
+        />
     )
 };
 
 export const INTERVIEW_STATUS_E = {
     SCHEDULED_SYMBOL: (
         <CheckCircleIcon
-            size={18}
-            style={{ color: green[500] }}
-            title="Scheduled"
+            sx={{ fontSize: 18, color: green[500] }}
+            titleAccess="Scheduled"
         />
     ),
     DELETED_SUCCESS_SYMBOL: (
         <CheckCircleIcon
-            size={18}
-            style={{ color: green[500] }}
-            title="Success"
+            sx={{ fontSize: 18, color: green[500] }}
+            titleAccess="Success"
         />
     ),
     UNSCHEDULED_SYMBOL: (
-        <HelpIcon size={18} style={{ color: grey[400] }} title="Unscheduled" />
+        <HelpIcon
+            sx={{ fontSize: 18, color: grey[400] }}
+            titleAccess="Unscheduled"
+        />
     )
 };
 
 export const SUBMISSION_STATUS_E = {
     OK_SYMBOL: (
         <CheckCircleIcon
-            size={18}
-            style={{ color: green[500] }}
-            title="Submitted"
+            sx={{ fontSize: 18, color: green[500] }}
+            titleAccess="Submitted"
         />
     ),
     NOT_OK_SYMBOL: (
-        <CancelIcon size={18} style={{ color: red[700] }} title="Withdraw" />
+        <CancelIcon
+            sx={{ fontSize: 18, color: red[700] }}
+            titleAccess="Withdraw"
+        />
     ),
     UNKNOWN_SYMBOL: (
-        <HelpIcon size={18} style={{ color: grey[400] }} title="In Progress" />
+        <HelpIcon
+            sx={{ fontSize: 18, color: grey[400] }}
+            titleAccess="In Progress"
+        />
     )
 };
 export const ADMISSION_STATUS_E = {
     OK_SYMBOL: (
         <CheckCircleIcon
-            size={18}
-            style={{ color: green[500] }}
-            title="Admitted"
+            sx={{ fontSize: 18, color: green[500] }}
+            titleAccess="Admitted"
         />
     ),
     NOT_OK_SYMBOL: (
-        <CancelIcon size={18} style={{ color: red[700] }} title="Rejected" />
+        <CancelIcon
+            sx={{ fontSize: 18, color: red[700] }}
+            titleAccess="Rejected"
+        />
     ),
     UNKNOWN_SYMBOL: (
-        <HelpIcon size={18} style={{ color: grey[400] }} title="Pending" />
+        <HelpIcon
+            sx={{ fontSize: 18, color: grey[400] }}
+            titleAccess="Pending"
+        />
     )
 };
 
@@ -173,35 +197,35 @@ export const FILE_OK_SYMBOL = (
     <CheckCircleIcon
         fontSize="small"
         style={{ color: green[500] }}
-        title="Valid Document"
+        titleAccess="Valid Document"
     />
 );
 export const FILE_NOT_OK_SYMBOL = (
     <CancelIcon
         fontSize="small"
         style={{ color: red[700] }}
-        title="Invalid Document"
+        titleAccess="Invalid Document"
     />
 );
 export const FILE_UPLOADED_SYMBOL = (
     <QueryBuilderIcon
         fontSize="small"
         style={{ color: orange[400] }}
-        title="Uploaded successfully"
+        titleAccess="Uploaded successfully"
     />
 );
 export const FILE_MISSING_SYMBOL = (
     <HelpIcon
         fontSize="small"
         style={{ color: grey[400] }}
-        title="No Document uploaded"
+        titleAccess="No Document uploaded"
     />
 );
 export const FILE_DONT_CARE_SYMBOL = (
     <RemoveIcon
         fontSize="small"
         style={{ color: grey[400] }}
-        title="Not needed"
+        titleAccess="Not needed"
     />
 );
 
@@ -216,7 +240,7 @@ export const prepQuestions = (
     thread: IDocumentthread,
     isSpecific: boolean
 ): unknown[] => {
-    let questions = [];
+    let questions: unknown[] = [];
     if (
         thread?.file_type?.includes('RL') ||
         thread?.file_type?.includes('Recommendation')
@@ -416,14 +440,17 @@ export const MLQuestions = (
     isSpecific: boolean
 ): unknown[] => {
     if (isSpecific) {
+        const countryCode = (thread?.program_id as IProgram)?.country;
+        const countryLabel =
+            countryCode && countryCode in COUNTRIES_MAPPING
+                ? COUNTRIES_MAPPING[
+                      countryCode as keyof typeof COUNTRIES_MAPPING
+                  ]
+                : 'this country';
         return [
             {
                 questionId: 'q6',
-                question: `6. Why do you want to study in ${
-                    COUNTRIES_MAPPING[
-                        (thread?.program_id as IProgram)?.country
-                    ] || 'this country'
-                } and not in your home country or any other country?`,
+                question: `6. Why do you want to study in ${countryLabel} and not in your home country or any other country?`,
                 type: questionType.paragraph,
                 answer: ''
             },
@@ -618,7 +645,7 @@ export const getTimezoneOffset = (timezone?: string): number => {
         timezone ? timezone : Intl.DateTimeFormat().resolvedOptions().timeZone
     );
     const now = Date.now();
-    const offset = zone.offset(new Date(now));
+    const offset = zone.offset(now);
     const offsetHours = offset / 60;
     return offsetHours;
 };
@@ -1177,9 +1204,11 @@ const create_years = (start_year: number, end_year: number) => {
 
 export const isProgramValid = (program: IProgramWithId): boolean => {
     const pattern = /^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/;
+    const deadline = program.application_deadline;
     if (
-        !program.application_deadline?.toLowerCase()?.includes('rolling') &&
-        !pattern.test(program.application_deadline)
+        deadline &&
+        !deadline.toLowerCase().includes('rolling') &&
+        !pattern.test(deadline)
     ) {
         return false;
     }

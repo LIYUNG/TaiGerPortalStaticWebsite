@@ -1,10 +1,12 @@
 # TypeScript Fix Tracker — TaiGerPortalStaticWebsite
 
-**Date:** 2026-03-03
-**Initial:** 4,267 errors from `npx tsc --noEmit -p tsconfig.app.json`
-**Current:** 2,926 errors (from latest `tsc-errors.txt` refresh)
-**Full output:** `tsc-errors.txt`
+**Date:** 2026-03-29  
+**Initial:** 4,267 errors from `npx tsc --noEmit -p tsconfig.app.json`  
+**Current:** 2,376 errors (from latest `tsc-errors.txt` refresh)  
+**Full output:** `tsc-errors.txt`  
 **Refactoring plan:** `TSC_REFACTOR_PLAN.md`
+
+**Note:** `tsc-errors.txt` includes **3× TS1294** under `node_modules/@editorjs/editorjs` (`erasableSyntaxOnly`). Remaining **2,373** errors are under `src/`.
 
 ---
 
@@ -12,28 +14,37 @@
 
 | Code | Count | Prev | Δ | Description | Category |
 |------|-------|------|---|-------------|----------|
-| TS2345 | 757 | 926 | -169 | Argument type not assignable | Type mismatch |
-| TS2339 | 679 | 739 | -60 | Property does not exist on type | Interface mismatch |
-| TS2322 | 472 | 478 | -6 | Type not assignable | Type mismatch |
-| TS18048 | 276 | 338 | -62 | Possibly undefined | Null safety |
-| TS2769 | 155 | 166 | -11 | No overload matches | Overload mismatch |
-| TS18047 | 148 | 152 | -4 | Possibly null | Null safety |
-| TS7053 | 105 | 111 | -6 | Index signature issue | Index types |
-| TS18046 | 68 | 73 | -5 | Type is unknown | Unknown narrowing |
-| TS6133 | 52 | 56 | -4 | Declared but never read | Unused |
-| TS2741 | 24 | 27 | -3 | Missing required property | Interface mismatch |
-| TS2551 | 18 | 19 | -1 | Property name typo | Misc |
-| TS2353 | 14 | 14 | 0 | Object literal excess props | Type mismatch |
+| TS2345 | 658 | 757 | -99 | Argument type not assignable | Type mismatch |
+| TS2339 | 451 | 679 | -228 | Property does not exist on type | Interface mismatch |
+| TS2322 | 435 | 472 | -37 | Type not assignable | Type mismatch |
+| TS18048 | 189 | 276 | -87 | Possibly undefined | Null safety |
+| TS2769 | 151 | 155 | -4 | No overload matches | Overload mismatch |
+| TS7053 | 102 | 105 | -3 | Index signature issue | Index types |
+| TS18047 | 95 | 148 | -53 | Possibly null | Null safety |
+| TS18046 | 62 | 68 | -6 | Type is unknown | Unknown narrowing |
+| TS6133 | 54 | 52 | +2 | Declared but never read | Unused |
+| TS2741 | 28 | 24 | +4 | Missing required property | Interface mismatch |
 | TS2559 | 14 | 14 | 0 | No common properties | Type mismatch |
-| TS7016 | 14 | 14 | 0 | Missing type declarations | Missing @types |
-| TS2722 | 13 | — | — | Object may be undefined | Null safety |
-| TS7006 | **0** | 0 | 0 | Parameter implicitly has 'any' type | **DONE** |
-| TS7031 | **0** | 0 | 0 | Binding element implicitly has 'any' type | **DONE** |
-| TS7034 | 10 | 10 | 0 | Variable implicitly has type | Untyped vars |
-| TS7005 | 10 | 10 | 0 | Variable implicitly has 'any' type | Untyped vars |
-| Others | ~150 | ~121 | +29 | Various (TS2554, TS2538, TS2739, etc.) | Misc |
+| TS2551 | 12 | 18 | -6 | Property name typo | Misc |
+| TS2538 | 11 | — | — | Type cannot be used as index | Index types |
+| TS2353 | 10 | 14 | -4 | Object literal excess props | Type mismatch |
+| TS2739 | 10 | — | — | Missing properties | Interface mismatch |
+| TS7034 | 9 | 10 | -1 | Variable implicitly has type | Untyped vars |
+| TS7005 | 9 | 10 | -1 | Variable implicitly has 'any' type | Untyped vars |
+| TS2488 | 8 | — | — | Iterable / tuple | Misc |
+| TS2722 | 6 | 13 | -7 | Object may be undefined | Null safety |
+| TS7006 | 6 | **0** | +6 | Parameter implicitly has 'any' type | **Re-check** |
+| TS2554 | 6 | — | — | Wrong arity | Misc |
+| TS2698 | 5 | — | — | Spread / rest | Misc |
+| TS2532 | 5 | — | — | Possibly undefined object | Null safety |
+| TS2304 | 4 | — | — | Cannot find name | Misc |
+| TS1294 | 3 | — | — | erasableSyntaxOnly (node_modules) | External |
+| TS2367 | 3 | — | — | Unintentional comparison | Misc |
+| TS2307 | 3 | — | — | Cannot find module | Misc |
+| TS2347 | 3 | — | — | Union / overlap | Misc |
+| Others | ~35 | ~150 | — | TS18049, TS2352, TS2315, TS2447, … | Misc |
 
-**Note:** Prev = counts from last tracker update (3,268 total). Current run has 2,926 errors (-342 overall).
+**Note:** Prev = counts from previous tracker row (2,926-total snapshot). Current run: **2,376** errors (−550 vs that snapshot).
 
 ---
 
@@ -41,71 +52,71 @@
 
 | Category | Errors | % | Prev | Fix Strategy |
 |----------|--------|---|------|-------------|
-| Type mismatch (TS2345, TS2322, TS2769, TS2559, TS2353) | ~1,412 | 48% | ~1,598 | Fix at call sites, update function signatures |
-| Interface mismatch (TS2339, TS2741, TS2739) | ~710 | 24% | ~773 | taiger-model populated types, frontend types cleanup |
-| Null safety (TS18048, TS18047, TS18046, TS2722) | ~492 | 17% | ~563 | Optional chaining, null checks |
-| Untyped params/props (TS7006, TS7031, TS7034, TS7005) | **20** | <1% | 20 | **Phase 3B COMPLETE** |
-| Index types (TS7053, TS2538) | ~113 | 4% | ~122 | Add index signatures |
-| Unused/misc (TS6133, TS2551, TS7016, etc.) | ~179 | 6% | ~192 | Remove unused, fix typos |
+| Type mismatch (TS2345, TS2322, TS2769, TS2559, TS2353, …) | ~1,290 | ~54% | ~1,412 | Fix at call sites, update function signatures |
+| Interface mismatch (TS2339, TS2741, TS2739) | ~489 | ~21% | ~710 | taiger-model populated types, frontend types cleanup |
+| Null safety (TS18048, TS18047, TS18046, TS2722, …) | ~354 | ~15% | ~492 | Optional chaining, null checks |
+| Untyped params/props (TS7006, TS7034, TS7005) | **24** | ~1% | 20 | Address remaining TS7006 (6) + implicit vars |
+| Index types (TS7053, TS2538) | ~113 | ~5% | ~113 | Add index signatures / narrow keys |
+| Unused / external / misc (TS6133, TS1294, TS2551, …) | ~95 | ~4% | ~179 | Remove unused; EditorJS / deps |
 
 ---
 
 ## Files by Error Count (Top 50)
 
-*(From latest `tsc-errors.txt` — 2,926 errors total.)*
+*(From latest `tsc-errors.txt` — `src/` only, 2,373 errors.)*
 
 | # | File | Errors | Status |
 |---|------|--------|--------|
-| 1 | src/pages/Program/SingleProgramView.tsx | 85 | ⬜ Pending |
-| 2 | src/utils/contants.tsx | 79 | ⬜ Pending |
-| 3 | src/pages/CVMLRLCenter/DocModificationThreadPage/DocModificationThreadPage.tsx | 77 | ⬜ Pending |
-| 4 | src/pages/PortalCredentialPage/PortalCredentialsCard.tsx | 71 | ⬜ Pending |
-| 5 | src/pages/InterviewTraining/SingleInterview.tsx | 71 | ⬜ Pending |
-| 6 | src/pages/StudentApplications/StudentApplicationsTableTemplate.tsx | 58 | ⬜ Pending |
-| 7 | src/pages/MyCourses/index.tsx | 54 | ⬜ Pending |
-| 8 | src/pages/Utils/util_functions.test.ts | 51 | ⬜ Pending |
-| 9 | src/pages/CVMLRLCenter/ManualFiles.tsx | 50 | ⬜ Pending |
-| 10 | src/pages/Program/ProgramsOverviewPage.tsx | 46 | ⬜ Pending |
-| 11 | src/pages/Dashboard/ManagerDashboard/ManagerMainView.tsx | 44 | ⬜ Pending |
-| 12 | src/pages/CRM/LeadPage.tsx | 44 | ⬜ Pending |
-| 13 | src/pages/InterviewTraining/AddInterview.tsx | 44 | ⬜ Pending |
-| 14 | src/pages/InterviewTraining/index.tsx | 43 | ⬜ Pending |
-| 15 | src/components/StudentOverviewTable/index.tsx | 40 | ⬜ Pending |
-| 16 | src/pages/InterviewTraining/InterviewSurveyForm.tsx | 38 | ⬜ Pending |
-| 17 | src/pages/CVMLRLCenter/DocModificationThreadPage/DocModificationThreadInput.tsx | 37 | ⬜ Pending |
-| 18 | src/pages/OfficeHours/taiger_index.tsx | 37 | ⬜ Pending |
-| 19 | src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx | 35 | ⬜ Pending |
-| 20 | src/pages/CourseAnalysis/ProgramRequirements/ProgramRequirementsNew.tsx | 35 | ⬜ Pending |
-| 21 | src/pages/Dashboard/AgentDashboard/AgentMainView.tsx | 34 | ⬜ Pending |
-| 22 | src/pages/MyCourses/CourseAnalysisV2.tsx | 34 | ⬜ Pending |
-| 23 | src/pages/OfficeHours/all_index.tsx | 32 | ⬜ Pending |
-| 24 | src/pages/Communications/CommunicationThreadEditor.tsx | 32 | ⬜ Pending |
-| 25 | src/pages/BaseDocuments/MyDocumentCard.tsx | 31 | ⬜ Pending |
-| 26 | src/pages/BaseDocuments/BaseDocumentStudentView.tsx | 30 | ⬜ Pending |
-| 27 | src/pages/OfficeHours/index.tsx | 28 | ⬜ Pending |
-| 28 | src/pages/CVMLRLCenter/index.tsx | 27 | ⬜ Pending |
-| 29 | src/pages/Audit/MiniAudit.tsx | 27 | ⬜ Pending |
-| 30 | src/pages/MyCourses/CourseWidgetBody.tsx | 26 | ⬜ Pending |
-| 31 | src/pages/EssayDashboard/EssayOverview.tsx | 25 | ⬜ Pending |
-| 32 | src/pages/Dashboard/StudentDashboard/StudentDashboard.tsx | 25 | ⬜ Pending |
-| 33 | src/pages/Documentation/SingleInternalDoc.tsx | 24 | ⬜ Pending |
-| 34 | src/pages/Communications/Message.tsx | 24 | ⬜ Pending |
-| 35 | src/pages/StudentDatabase/SingleStudentPage.tsx | 24 | ⬜ Pending |
-| 36 | src/pages/Audit/index.tsx | 23 | ⬜ Pending |
-| 37 | src/pages/Program/SchoolDistributionPage.tsx | 23 | ⬜ Pending |
-| 38 | src/pages/Documentation/SingleDoc.tsx | 23 | ⬜ Pending |
-| 39 | src/pages/DownloadCenter/DownloadPage.tsx | 22 | ⬜ Pending |
-| 40 | src/pages/CVMLRLCenter/CVMLRLOverview.tsx | 22 | ⬜ Pending |
-| 41 | src/pages/Program/ProgramReport.tsx | 22 | ⬜ Pending |
-| 42 | src/pages/StudentDatabase/MeetingTab.tsx | 21 | ⬜ Pending |
-| 43 | src/pages/CourseAnalysis/CourseKeywordsEdit/CourseKeywordsOverview.tsx | 21 | ⬜ Pending |
-| 44 | src/pages/Communications/MessageContainer.tsx | 20 | ⬜ Pending |
-| 45 | src/pages/CRM/DealDashboard.tsx | 20 | ⬜ Pending |
-| 46 | src/pages/Users/UsersList.tsx | 20 | ⬜ Pending |
-| 47 | src/pages/Dashboard/MainViewTab/StudentBriefOverview/StudentBriefOverview.tsx | 20 | ⬜ Pending |
-| 48 | src/pages/Documentation/index.tsx | 20 | ⬜ Pending |
-| 49 | src/pages/CRM/components/DealModal.tsx | 20 | ⬜ Pending |
-| 50 | src/pages/UniAssist/UniAssistProgramBlock.tsx | 19 | ⬜ Pending |
+| 1 | src/utils/contants.tsx | 73 | ⬜ Pending |
+| 2 | src/pages/PortalCredentialPage/PortalCredentialsCard.tsx | 70 | ⬜ Pending |
+| 3 | src/pages/CVMLRLCenter/DocModificationThreadPage/DocModificationThreadPage.tsx | 65 | ⬜ Pending |
+| 4 | src/pages/MyCourses/index.tsx | 54 | ⬜ Pending |
+| 5 | src/pages/Utils/util_functions.test.ts | 51 | ⬜ Pending |
+| 6 | src/pages/CVMLRLCenter/ManualFiles.tsx | 50 | ⬜ Pending |
+| 7 | src/pages/OfficeHours/taiger_index.tsx | 45 | ⬜ Pending |
+| 8 | src/pages/OfficeHours/all_index.tsx | 42 | ⬜ Pending |
+| 9 | src/pages/CRM/LeadPage.tsx | 42 | ⬜ Pending |
+| 10 | src/pages/InterviewTraining/AddInterview.tsx | 40 | ⬜ Pending |
+| 11 | src/pages/OfficeHours/index.tsx | 39 | ⬜ Pending |
+| 12 | src/pages/InterviewTraining/SingleInterview.tsx | 38 | ⬜ Pending |
+| 13 | src/pages/InterviewTraining/InterviewSurveyForm.tsx | 38 | ⬜ Pending |
+| 14 | src/pages/CVMLRLCenter/DocModificationThreadPage/DocModificationThreadInput.tsx | 37 | ⬜ Pending |
+| 15 | src/pages/CourseAnalysis/ProgramRequirements/ProgramRequirementsNew.tsx | 35 | ⬜ Pending |
+| 16 | src/pages/CustomerSupport/CustomerTicketDetailPageBody.tsx | 33 | ⬜ Pending |
+| 17 | src/pages/Dashboard/AgentDashboard/AgentMainView.tsx | 33 | ⬜ Pending |
+| 18 | src/pages/InterviewTraining/components/InterviewMetadataSidebar.tsx | 33 | ⬜ Pending |
+| 19 | src/pages/BaseDocuments/MyDocumentCard.tsx | 31 | ⬜ Pending |
+| 20 | src/pages/BaseDocuments/BaseDocumentStudentView.tsx | 30 | ⬜ Pending |
+| 21 | src/pages/Program/SingleProgramView.tsx | 30 | ⬜ Pending |
+| 22 | src/pages/StudentApplications/components/ApplicationTableRow.tsx | 28 | ⬜ Pending |
+| 23 | src/pages/Program/ProgramsOverviewPage.tsx | 28 | ⬜ Pending |
+| 24 | src/pages/CVMLRLCenter/index.tsx | 27 | ⬜ Pending |
+| 25 | src/pages/StudentApplications/StudentApplicationsTableTemplate.tsx | 27 | ⬜ Pending |
+| 26 | src/pages/MyCourses/CourseWidgetBody.tsx | 26 | ⬜ Pending |
+| 27 | src/pages/Dashboard/StudentDashboard/StudentDashboard.tsx | 25 | ⬜ Pending |
+| 28 | src/pages/TaiGerOrg/EditorPage.tsx | 25 | ⬜ Pending |
+| 29 | src/pages/Communications/Message.tsx | 24 | ⬜ Pending |
+| 30 | src/pages/Documentation/SingleDoc.tsx | 23 | ⬜ Pending |
+| 31 | src/pages/StudentDatabase/SingleStudentPage.tsx | 23 | ⬜ Pending |
+| 32 | src/pages/Communications/CommunicationThreadEditor.tsx | 23 | ⬜ Pending |
+| 33 | src/pages/Program/ProgramReport.tsx | 22 | ⬜ Pending |
+| 34 | src/pages/MyCourses/CourseAnalysisV2.tsx | 22 | ⬜ Pending |
+| 35 | src/pages/Program/SchoolDistributionPage.tsx | 22 | ⬜ Pending |
+| 36 | src/pages/Documentation/SingleInternalDoc.tsx | 22 | ⬜ Pending |
+| 37 | src/pages/Program/components/ProgramInfoTabs.tsx | 21 | ⬜ Pending |
+| 38 | src/pages/CourseAnalysis/CourseKeywordsEdit/CourseKeywordsOverview.tsx | 21 | ⬜ Pending |
+| 39 | src/pages/StudentDatabase/MeetingTab.tsx | 21 | ⬜ Pending |
+| 40 | src/pages/CRM/DealDashboard.tsx | 20 | ⬜ Pending |
+| 41 | src/pages/Documentation/index.tsx | 20 | ⬜ Pending |
+| 42 | src/pages/DownloadCenter/DownloadPage.tsx | 20 | ⬜ Pending |
+| 43 | src/pages/CRM/components/DealModal.tsx | 20 | ⬜ Pending |
+| 44 | src/pages/Dashboard/MainViewTab/StudentBriefOverview/StudentBriefOverview.tsx | 20 | ⬜ Pending |
+| 45 | src/pages/Users/UsersList.tsx | 19 | ⬜ Pending |
+| 46 | src/pages/UniAssist/UniAssistProgramBlock.tsx | 19 | ⬜ Pending |
+| 47 | src/pages/InterviewTraining/index.tsx | 19 | ⬜ Pending |
+| 48 | src/pages/Program/ProgramChangeRequestPage.tsx | 18 | ⬜ Pending |
+| 49 | src/pages/Profile/index.tsx | 18 | ⬜ Pending |
+| 50 | src/pages/TaiGerOrg/InternalDashboard/index.tsx | 18 | ⬜ Pending |
 
 ---
 
@@ -254,13 +265,22 @@
 
 ---
 
+## Recent fixes (2026-03-29)
+
+- **Program requirements (new)**: `ProgramRequirementsNewIndex` loads data with `useProgramsAndCourseKeywordSets` (React Query); `getProgramsAndCourseKeywordSets` uses `getData` + `ProgramsAndKeywordsData`; `ProgramRequirementsNewProps` aligned with `@taiger-common/model`.
+- **Tests / lint**: `App.pageSmoke.test.tsx` — `wrapWithSuspense` uses `ComponentType<Record<string, never>>` instead of `any` (`@typescript-eslint/no-explicit-any`).
+- **Tracker**: Recomputed counts from `tsc-errors.txt` (see header and tables).
+
+---
+
 ## Pending Actions (Next Session)
 
-1. ~~**Phase 3B**~~: **COMPLETE** — TS7006 0, TS7031 0.
-2. **Phase 3C**: Fix null safety errors (TS18048/TS18047/TS18046 — ~492 errors).
-3. **Phase 3D**: Fix remaining type mismatches (TS2345/TS2322 — ~1,229 errors).
-4. **Phase 3E**: Fix interface mismatches (TS2339 — 679 errors).
-5. **Phase 3A follow-up**: Export/re-export `IStudentResponse`, `StudentId`, `UserId` in `src/api/types.ts` to fix query.ts (TS2724/TS2305).
+1. **TS7006 (6)**: Re-clear implicit-any parameters (stricter config or new call sites).
+2. **Phase 3C**: Null safety (TS18048/TS18047/TS18046 — ~350 in `src/`).
+3. **Phase 3D**: Type mismatches (TS2345/TS2322 — large share of remaining errors).
+4. **Phase 3E**: Interface mismatches (TS2339 — ~451 in `src/`).
+5. **EditorJS TS1294**: Exclude or pin types / adjust `erasableSyntaxOnly` if blocking CI.
+6. **Phase 3A follow-up**: Export/re-export `IStudentResponse`, `StudentId`, `UserId` in `src/api/types.ts` where still needed.
 
 ---
 
@@ -274,3 +294,4 @@
 | 2026-03-03 | Phase 3B session 1: Typed ~40 files — TS7006 703→218 (-485), TS7031 305→69 (-236) | 4,063 | 3,363 |
 | 2026-03-03 | Phase 3B session 2: Typed ~85 remaining files — **TS7006 218→0, TS7031 69→0** | 3,363 | 3,268 |
 | 2026-03-03 | Refreshed `tsc-errors.txt`; updated TSC_FIX_TRACKER.md and TSC_REFACTOR_PLAN.md to current code | 3,268 | 2,926 |
+| 2026-03-29 | Refreshed `tsc-errors.txt`; program-requirements React Query + `getData`; smoke test ESLint `any` fix; tracker tables recomputed | 2,926 | **2,376** |
