@@ -26,7 +26,7 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { is_TaiGer_role } from '@taiger-common/core';
-import type { IUserWithId } from '@taiger-common/model';
+import type { IInterviewWithId, IUserWithId } from '@taiger-common/model';
 import TimezoneSelect from 'react-timezone-select';
 import dayjs from 'dayjs';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -71,11 +71,8 @@ import { OutputData } from '@editorjs/editorjs';
 
 // Interview Metadata Sidebar Component
 export interface InterviewMetadataSidebarProps {
-    interview: Record<string, any>;
-    openDeleteDocModalWindow: (
-        e: MouseEvent<HTMLElement>,
-        interview: Record<string, any>
-    ) => void;
+    interview: IInterviewWithId;
+    openDeleteDocModalWindow: (e: MouseEvent<HTMLElement>) => void;
     theme: Theme;
     onInterviewUpdate: () => void;
 }
@@ -1272,10 +1269,7 @@ const InterviewMetadataSidebar = ({
                                             color="error"
                                             fullWidth
                                             onClick={(e) =>
-                                                openDeleteDocModalWindow(
-                                                    e,
-                                                    interview
-                                                )
+                                                openDeleteDocModalWindow(e)
                                             }
                                             size="small"
                                             startIcon={<DeleteIcon />}

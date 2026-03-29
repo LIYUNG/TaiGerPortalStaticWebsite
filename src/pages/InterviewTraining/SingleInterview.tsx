@@ -71,7 +71,8 @@ const SingleInterview = () => {
     const isDarkMode = theme.palette.mode === 'dark';
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
 
-    const hashTabKey = (hash?.replace('#', '') ?? '') as keyof typeof THREAD_TABS;
+    const hashTabKey = (hash?.replace('#', '') ??
+        '') as keyof typeof THREAD_TABS;
 
     // State management
     const [value, setValue] = useState(THREAD_TABS[hashTabKey] ?? 0);
@@ -244,10 +245,7 @@ const SingleInterview = () => {
         ];
     };
 
-    const openDeleteDocModalWindow = (
-        e: MouseEvent<Element>,
-        _interview?: Record<string, unknown>
-    ) => {
+    const openDeleteDocModalWindow = (e: MouseEvent<HTMLElement>) => {
         e.stopPropagation();
         setDeleteDialogOpen(true);
     };
@@ -390,7 +388,10 @@ const SingleInterview = () => {
                     )}
                     <Tab
                         label={t('Audit', { ns: 'common' })}
-                        {...a11yProps(value, is_TaiGer_role(taiGerUser) ? 2 : 1)}
+                        {...a11yProps(
+                            value,
+                            is_TaiGer_role(taiGerUser) ? 2 : 1
+                        )}
                     />
                 </Tabs>
 
