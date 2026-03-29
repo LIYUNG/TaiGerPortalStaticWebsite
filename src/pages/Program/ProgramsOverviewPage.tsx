@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Link as LinkDom, Navigate, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link as LinkDom, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
     Alert,
@@ -39,14 +39,14 @@ import SummaryStatsGrid from './components/SummaryStatsGrid';
 import DistributionAnalysisSection from './components/DistributionAnalysisSection';
 import TopPerformersSection from './components/TopPerformersSection';
 import AdditionalInsightsSection from './components/AdditionalInsightsSection';
+import type { IUser } from '@taiger-common/model';
 
 const ProgramsOverviewPage = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
-    const navigate = useNavigate();
     const [refreshing, setRefreshing] = useState(false);
     const [cooldownSeconds, setCooldownSeconds] = useState(0);
-    const [lastRefreshTime, setLastRefreshTime] = useState(null);
+    const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null);
 
     const {
         data: rawOverview,
@@ -55,7 +55,7 @@ const ProgramsOverviewPage = () => {
         error,
         queryKey
     } = useProgramsOverview();
-    const overview = rawOverview as unknown as ProgramsOverviewData;
+    const overview = rawOverview as ProgramsOverviewData;
 
     TabTitle(t('Programs Overview', { ns: 'common' }));
 
@@ -104,7 +104,7 @@ const ProgramsOverviewPage = () => {
         return t('Refresh data', { ns: 'common' });
     };
 
-    if (!is_TaiGer_role(user)) {
+    if (!user || !is_TaiGer_role(user as IUser)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
@@ -121,14 +121,16 @@ const ProgramsOverviewPage = () => {
     }
 
     // Calculate summary statistics
-    const totalCountries = overview.byCountry.length;
+    const byCountry = overview.byCountry ?? [];
+    const topApplicationPrograms = overview.topApplicationPrograms ?? [];
+    const totalCountries = byCountry.length;
     const avgAdmissionRate =
-        overview.topApplicationPrograms.length > 0
+        topApplicationPrograms.length > 0
             ? (
-                  overview.topApplicationPrograms.reduce(
-                      (sum, p) => sum + p.admissionRate,
+                  topApplicationPrograms.reduce(
+                      (sum, p) => sum + (p.admissionRate ?? 0),
                       0
-                  ) / overview.topApplicationPrograms.length
+                  ) / topApplicationPrograms.length
               ).toFixed(1)
             : 0;
 
@@ -221,7 +223,9 @@ const ProgramsOverviewPage = () => {
 
                 <Alert icon={<Info />} severity="info">
                     {t('Last updated', { ns: 'common' })}:{' '}
-                    {new Date(overview.generatedAt).toLocaleString()}
+                    {overview.generatedAt
+                        ? new Date(overview.generatedAt).toLocaleString()
+                        : '—'}
                     {lastRefreshTime && (
                         <>
                             {' • '}
@@ -233,24 +237,33 @@ const ProgramsOverviewPage = () => {
             </Box>
 
             <SummaryStatsGrid
-                totalPrograms={overview.totalPrograms}
+                totalPrograms={overview.totalPrograms ?? 0}
                 totalCountries={totalCountries}
-                totalSchools={overview.totalSchools}
+                totalSchools={overview.totalSchools ?? 0}
                 avgAdmissionRate={avgAdmissionRate}
                 t={t}
             />
 
             <DistributionAnalysisSection
-                byCountry={overview.byCountry}
-                byDegree={overview.byDegree}
-                byLanguage={overview.byLanguage}
-                totalPrograms={overview.totalPrograms}
+                byCountry={(overview.byCountry ?? []).map((item) => ({
+                    ...item,
+                    count: item.count ?? 0
+                }))}
+                byDegree={(overview.byDegree ?? []).map((item) => ({
+                    ...item,
+                    count: item.count ?? 0
+                }))}
+                byLanguage={(overview.byLanguage ?? []).map((item) => ({
+                    ...item,
+                    count: item.count ?? 0
+                }))}
+                totalPrograms={overview.totalPrograms ?? 0}
                 t={t}
             />
 
             <TopPerformersSection
-                topSchools={overview.topSchools}
-                topApplicationPrograms={overview.topApplicationPrograms}
+                topSchools={overview.topSchools ?? []}
+                topApplicationPrograms={topApplicationPrograms}
                 t={t}
             />
 
@@ -262,7 +275,7 @@ const ProgramsOverviewPage = () => {
             />
 
             {/* Recent Activity Section */}
-            {overview.recentlyUpdated.length > 0 && (
+            {(overview.recentlyUpdated ?? []).length > 0 && (
                 <>
                     <Typography gutterBottom sx={{ mt: 4, mb: 3 }} variant="h5">
                         {t('Recent Activity', { ns: 'common' })}
@@ -322,7 +335,7 @@ const ProgramsOverviewPage = () => {
                                                 </TableRow>
                                             </TableHead>
                                             <TableBody>
-                                                {overview.recentlyUpdated.map(
+                                                {(overview.recentlyUpdated ?? []).map(
                                                     (program) => (
                                                         <TableRow
                                                             key={program._id}

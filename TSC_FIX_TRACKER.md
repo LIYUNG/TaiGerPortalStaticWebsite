@@ -2,7 +2,7 @@
 
 **Date:** 2026-03-29  
 **Initial:** 4,267 errors from `npx tsc --noEmit -p tsconfig.app.json`  
-**Current:** 2,376 errors (from latest `tsc-errors.txt` refresh)  
+**Current:** 2,213 errors (from latest `tsc-errors.txt` refresh)  
 **Full output:** `tsc-errors.txt`  
 **Refactoring plan:** `TSC_REFACTOR_PLAN.md`
 
@@ -147,6 +147,16 @@
 - **DocModificationThreadInput.tsx**: 46→37 (-9). Added `ProgressButtonProps`, `SurveyFormProps`, `InputGeneratorProps`.
 - **CVMLRLOverview.tsx**: 41→22 (-19). Added `TaskAttribute`, `FilterRow`. Typed DataGrid callbacks.
 
+### Batch 2 & 3 — 2026-03-29 follow-up (tracker targets)
+- **ProgramCompare.tsx**: 5→0. Cast `programChanges` to `Record<string, unknown>`; `String()` for `_id` / change request ids in `updateProgram` / `reviewProgramChangeRequests`.
+- **MyDocumentCard.tsx**: 9→13. `UploadIconButton`/`DocumentStatusType`/`MouseEvent<Element>` alignment; checklist key; `status` + `checkedBoxes: string[]` in state; typed mutation `onSuccess` bodies. Some handler/Dialog/IUser mismatches remain for a follow-up pass.
+- **ProgramsOverviewPage.tsx**: 28→8. `Date | null` refresh time; `IUser` guard; normalized distribution arrays; optional `overview` fields; removed unused `React` default import / `useNavigate`.
+- **SingleInterview.tsx**: 38→33. `OutputData` editor state; `isPending` mutations; `AxiosResponse`/`IInterviewWithId` casts; `invalidateQueries({ queryKey })`; `MessageList` props aligned with current component API; removed obsolete accordion state.
+- **DealModal.tsx**: 20→15. Sales-reps query normalizes array; `DealFormValues` for `initialRef` and edit `init`; `String(deal.id)` for update.
+- **LeadPage.tsx**: 42→29. `Record` state types; `IUser` guard; `invalidateQueries` query keys; `getChangedFields` / form reset typing; `String(lead.userId)` for student query.
+- **OfficeHours/index.tsx**, **DocModificationThreadInput.tsx**, **CVMLRLOverview.tsx**, **util_functions.ts**: not fully cleared in this pass (remaining errors unchanged or deferred).
+- **Project `tsc`:** 2,376 → **2,213** errors (−163).
+
 ### Batch 4
 - **TaiGerOrg/InternalDashboard/index.tsx**: 34→19 (-15). Added `FinishedDoc` interface. Typed filter/map/reduce callbacks.
 - **StudentsTable.tsx**: 15→0 (-15). Added `StudentsTableProps`. Typed export and archive handlers.
@@ -270,6 +280,7 @@
 - **Program requirements (new)**: `ProgramRequirementsNewIndex` loads data with `useProgramsAndCourseKeywordSets` (React Query); `getProgramsAndCourseKeywordSets` uses `getData` + `ProgramsAndKeywordsData`; `ProgramRequirementsNewProps` aligned with `@taiger-common/model`.
 - **Tests / lint**: `App.pageSmoke.test.tsx` — `wrapWithSuspense` uses `ComponentType<Record<string, never>>` instead of `any` (`@typescript-eslint/no-explicit-any`).
 - **Tracker**: Recomputed counts from `tsc-errors.txt` (see header and tables).
+- **Batch 2 & 3 (this session)**: `ProgramCompare`, `ProgramsOverviewPage`, `MyDocumentCard`, `SingleInterview`, `DealModal`, `LeadPage`; refreshed `tsc-errors.txt` — total errors **2,213** (see “Batch 2 & 3 — 2026-03-29 follow-up”).
 
 ---
 
@@ -295,3 +306,4 @@
 | 2026-03-03 | Phase 3B session 2: Typed ~85 remaining files — **TS7006 218→0, TS7031 69→0** | 3,363 | 3,268 |
 | 2026-03-03 | Refreshed `tsc-errors.txt`; updated TSC_FIX_TRACKER.md and TSC_REFACTOR_PLAN.md to current code | 3,268 | 2,926 |
 | 2026-03-29 | Refreshed `tsc-errors.txt`; program-requirements React Query + `getData`; smoke test ESLint `any` fix; tracker tables recomputed | 2,926 | **2,376** |
+| 2026-03-29 | Batch 2 & 3 follow-up: ProgramCompare, ProgramsOverviewPage, MyDocumentCard, SingleInterview, DealModal, LeadPage; `tsc-errors.txt` refresh | 2,376 | **2,213** |

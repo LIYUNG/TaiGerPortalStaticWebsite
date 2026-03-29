@@ -114,7 +114,10 @@ const DealModal = ({
         ...getCRMLeadsQuery(),
         enabled: open && !isEditMode // Only fetch leads when creating, not editing
     });
-    const allLeads = leadsData?.data?.data || [];
+    const allLeads =
+        (
+            leadsData as { data?: { data?: Record<string, unknown>[] } } | undefined
+        )?.data?.data ?? [];
 
     // Fetch sales reps from API
     const { data: salesData } = useQuery({
@@ -122,10 +125,12 @@ const DealModal = ({
         enabled: open && !isEditMode, // Only fetch sales reps when creating, not editing
         queryFn: async () => {
             const res = await getCRMSalesReps();
-            return res?.data?.data ?? res?.data ?? [];
+            const body = res?.data as { data?: Record<string, string>[] };
+            return body?.data ?? [];
         }
     });
-    const salesOptions = (salesData || []).map((s: Record<string, string>) => ({
+    const salesList = Array.isArray(salesData) ? salesData : [];
+    const salesOptions = salesList.map((s: Record<string, string>) => ({
         userId: s.userId || s.value,
         label:
             s.label ||
@@ -154,22 +159,22 @@ const DealModal = ({
 
     const [errors, setErrors] = useState({});
     // Snapshot of initial values to compute diffs for update
-    const initialRef = useRef(null);
+    const initialRef = useRef<DealFormValues | null>(null);
 
     useEffect(() => {
         if (open) {
             if (isEditMode && deal) {
                 // Pre-populate form with deal data for edit mode
-                const init = {
-                    leadId: deal.leadId,
-                    salesUserId: deal.salesUserId,
-                    dealSizeNtd: deal.dealSizeNtd || null,
+                const init: DealFormValues = {
+                    leadId: deal.leadId ?? '',
+                    salesUserId: deal.salesUserId ?? '',
+                    dealSizeNtd: deal.dealSizeNtd ?? '',
                     status: deal.status || 'initiated',
-                    note: deal.note || null,
-                    initiatedAt: formatDateForInput(deal.initiatedAt) || null,
-                    sentAt: formatDateForInput(deal.sentAt) || null,
-                    signedAt: formatDateForInput(deal.signedAt) || null,
-                    closedAt: formatDateForInput(deal.closedAt) || null
+                    note: deal.note ?? '',
+                    initiatedAt: formatDateForInput(deal.initiatedAt) || '',
+                    sentAt: formatDateForInput(deal.sentAt) || '',
+                    signedAt: formatDateForInput(deal.signedAt) || '',
+                    closedAt: formatDateForInput(deal.closedAt) || ''
                 };
                 form.reset(init);
                 initialRef.current = init;
@@ -273,8 +278,8 @@ const DealModal = ({
         setErrors(newErrors);
         if (Object.keys(newErrors).length) return;
         const payloadCreate = {
-            leadId: values.leadId,
-            salesUserId: values.salesUserId,
+            leadId: values.leadId as string,
+            salesUserId: values.salesUserId as string,
             dealSizeNtd: Number(values.dealSizeNtd),
             status: values.status,
             note: values.note || undefined,
@@ -291,8 +296,8 @@ const DealModal = ({
                 const isoOrNull = (v: string | Date | null | undefined) =>
                     v === '' || v == null ? null : (toIso(v) ?? null);
                 const payloadUpdate = {
-                    leadId: values.leadId,
-                    salesUserId: values.salesUserId,
+                    leadId: values.leadId ?? '',
+                    salesUserId: values.salesUserId ?? '',
                     dealSizeNtd:
                         values.dealSizeNtd === ''
                             ? null
@@ -304,7 +309,7 @@ const DealModal = ({
                     signedAt: isoOrNull(values.signedAt),
                     closedAt: isoOrNull(values.closedAt)
                 };
-                await updateCRMDeal(deal.id, payloadUpdate);
+                await updateCRMDeal(String(deal.id), payloadUpdate);
                 await queryClient.invalidateQueries({
                     queryKey: ['crm/deals']
                 });

@@ -1,6 +1,11 @@
-import React, { useState, useMemo, type MouseEvent } from 'react';
-import type { AxiosResponse } from 'axios';
-import type { GetInterviewResponse } from '@taiger-common/model';
+import { useState, useMemo, type MouseEvent } from 'react';
+import type { AxiosResponse, AxiosError } from 'axios';
+import type { OutputData } from '@editorjs/editorjs';
+import type {
+    GetInterviewResponse,
+    IInterviewWithId,
+    IUser
+} from '@taiger-common/model';
 import { Link as LinkDom, useLocation, useParams } from 'react-router-dom';
 import {
     Card,
@@ -66,14 +71,15 @@ const SingleInterview = () => {
     const isDarkMode = theme.palette.mode === 'dark';
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
 
+    const hashTabKey = (hash?.replace('#', '') ?? '') as keyof typeof THREAD_TABS;
+
     // State management
-    const [value, setValue] = useState(THREAD_TABS[hash.replace('#', '')] || 0);
-    const [file, setFile] = useState(null);
-    const [editorInputState, setEditorInputState] = useState({
-        time: new Date(),
+    const [value, setValue] = useState(THREAD_TABS[hashTabKey] ?? 0);
+    const [file, setFile] = useState<File[] | undefined>(undefined);
+    const [editorInputState, setEditorInputState] = useState<OutputData>({
+        time: Date.now(),
         blocks: []
     });
-    const [accordionKeys, setAccordionKeys] = useState([]);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [closeDialogOpen, setCloseDialogOpen] = useState(false);
 
@@ -84,20 +90,8 @@ const SingleInterview = () => {
         isError,
         error
     } = useQuery({
-        ...getInterviewQuery(interview_id),
-        onSuccess: (response: AxiosResponse<GetInterviewResponse>) => {
-            if (response.data.success && response.data.data) {
-                const messagesLength =
-                    response.data.data.thread_id?.messages?.length || 0;
-                setAccordionKeys(
-                    new Array(messagesLength)
-                        .fill(undefined)
-                        .map((_x: undefined, i: number) =>
-                            i === messagesLength - 1 ? i : -1
-                        )
-                );
-            }
-        }
+        ...getInterviewQuery(interview_id ?? ''),
+        enabled: Boolean(interview_id)
     });
 
     // Mutations
@@ -112,9 +106,11 @@ const SingleInterview = () => {
             formData: FormData;
         }) => SubmitMessageWithAttachment(threadId, studentId, formData),
         onSuccess: () => {
-            queryClient.invalidateQueries(['interviews', interview_id]);
-            setEditorInputState({ time: new Date(), blocks: [] });
-            setFile(null);
+            queryClient.invalidateQueries({
+                queryKey: ['interviews', interview_id]
+            });
+            setEditorInputState({ time: Date.now(), blocks: [] });
+            setFile(undefined);
         },
         onError: (error: Error) => {
             console.log('error', error);
@@ -133,7 +129,9 @@ const SingleInterview = () => {
             messageId: string;
         }) => deleteAMessageInThread(threadId, messageId),
         onSuccess: () => {
-            queryClient.invalidateQueries(['interviews', interview_id]);
+            queryClient.invalidateQueries({
+                queryKey: ['interviews', interview_id]
+            });
         },
         onError: (error: Error) => {
             setSeverity('error');
@@ -151,7 +149,9 @@ const SingleInterview = () => {
             payload: Record<string, unknown>;
         }) => updateInterview(interviewId, payload),
         onSuccess: () => {
-            queryClient.invalidateQueries(['interviews', interview_id]);
+            queryClient.invalidateQueries({
+                queryKey: ['interviews', interview_id]
+            });
             setCloseDialogOpen(false);
         },
         onError: (error: Error) => {
@@ -175,7 +175,7 @@ const SingleInterview = () => {
 
     // Handlers
     const handleClickSave = (
-        e: MouseEvent<HTMLElement>,
+        _e: MouseEvent<HTMLElement>,
         editorState: unknown
     ) => {
         const message = JSON.stringify(editorState);
@@ -186,9 +186,15 @@ const SingleInterview = () => {
         }
         formData.append('message', message);
 
+        const threadId = interview?.thread_id?._id?.toString();
+        const studentId = interview?.student_id?._id?.toString();
+        if (!threadId || !studentId) {
+            return;
+        }
+
         submitMessageMutation.mutate({
-            threadId: interview?.thread_id?._id.toString(),
-            studentId: interview?.student_id?._id.toString(),
+            threadId,
+            studentId,
             formData
         });
     };
@@ -207,12 +213,6 @@ const SingleInterview = () => {
         }
     };
 
-    const singleExpandtHandler = (idx: number) => {
-        const newAccordionKeys = [...accordionKeys];
-        newAccordionKeys[idx] = newAccordionKeys[idx] !== idx ? idx : -1;
-        setAccordionKeys(newAccordionKeys);
-    };
-
     const onDeleteSingleMessage = (message_id: string) => {
         deleteMessageMutation.mutate({
             threadId: interview?.thread_id?._id.toString(),
@@ -221,6 +221,9 @@ const SingleInterview = () => {
     };
 
     const handleToggleInterviewStatus = () => {
+        if (!interview) {
+            return;
+        }
         updateInterviewMutation.mutate({
             interviewId: interview._id.toString(),
             payload: { isClosed: !interview.isClosed }
@@ -228,30 +231,48 @@ const SingleInterview = () => {
     };
 
     const handleDeleteInterview = () => {
+        if (!interview) {
+            return;
+        }
         deleteInterviewMutation.mutate(interview._id.toString());
     };
 
-    const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
         setValue(newValue);
-        window.location.hash = THREAD_REVERSED_TABS[newValue];
+        window.location.hash = (THREAD_REVERSED_TABS as Record<number, string>)[
+            newValue
+        ];
     };
 
-    const openDeleteDocModalWindow = (e: MouseEvent<HTMLElement>) => {
+    const openDeleteDocModalWindow = (
+        e: MouseEvent<Element>,
+        _interview?: Record<string, unknown>
+    ) => {
         e.stopPropagation();
         setDeleteDialogOpen(true);
     };
 
     const handleInterviewUpdate = () => {
-        queryClient.invalidateQueries(['interviews', interview_id]);
+        queryClient.invalidateQueries({
+            queryKey: ['interviews', interview_id]
+        });
     };
 
     // Memoized values
-    const interview = useMemo(() => {
-        return interviewData?.data?.data;
+    const interview = useMemo((): IInterviewWithId | undefined => {
+        const res = interviewData as
+            | AxiosResponse<GetInterviewResponse>
+            | undefined;
+        const raw = res?.data?.data;
+        return raw as IInterviewWithId | undefined;
     }, [interviewData]);
 
     const interviewAuditLog = useMemo(() => {
-        return interviewData?.data?.interviewAuditLog || [];
+        const res = interviewData as
+            | AxiosResponse<GetInterviewResponse>
+            | undefined;
+        const body = res?.data;
+        return body?.interviewAuditLog ?? [];
     }, [interviewData]);
 
     const interview_name = useMemo(() => {
@@ -265,7 +286,9 @@ const SingleInterview = () => {
     }
 
     if (isError) {
-        return <ErrorPage res_status={error?.response?.status || 500} />;
+        const axErr = error as AxiosError;
+        const status = axErr.response?.status ?? 500;
+        return <ErrorPage res_status={status} />;
     }
 
     if (!interview && deleteInterviewMutation.isSuccess) {
@@ -304,6 +327,12 @@ const SingleInterview = () => {
         return <ErrorPage res_status={404} />;
     }
 
+    if (!user) {
+        return <Loading />;
+    }
+
+    const taiGerUser = user as IUser;
+
     TabTitle(`Interview: ${interview_name}`);
 
     return (
@@ -324,7 +353,7 @@ const SingleInterview = () => {
                     to={`${DEMO.INTERVIEW_LINK}`}
                     underline="hover"
                 >
-                    {is_TaiGer_role(user)
+                    {is_TaiGer_role(taiGerUser)
                         ? t('All Interviews', { ns: 'interviews' })
                         : t('My Interviews', { ns: 'interviews' })}
                 </Link>
@@ -353,7 +382,7 @@ const SingleInterview = () => {
                         label={t('discussion-thread', { ns: 'common' })}
                         {...a11yProps(value, 0)}
                     />
-                    {is_TaiGer_role(user) && (
+                    {is_TaiGer_role(taiGerUser) && (
                         <Tab
                             label={t('History', { ns: 'common' })}
                             {...a11yProps(value, 1)}
@@ -361,7 +390,7 @@ const SingleInterview = () => {
                     )}
                     <Tab
                         label={t('Audit', { ns: 'common' })}
-                        {...a11yProps(value, is_TaiGer_role(user) ? 2 : 1)}
+                        {...a11yProps(value, is_TaiGer_role(taiGerUser) ? 2 : 1)}
                     />
                 </Tabs>
 
@@ -403,18 +432,16 @@ const SingleInterview = () => {
                                 >
                                     {/* Messages List */}
                                     <MessageList
-                                        accordionKeys={accordionKeys}
                                         apiPrefix="/api/document-threads"
-                                        documentsthreadId={interview.thread_id?._id?.toString()}
+                                        documentsthreadId={
+                                            interview.thread_id?._id?.toString() ??
+                                            ''
+                                        }
                                         isLoaded={true}
                                         onDeleteSingleMessage={
                                             onDeleteSingleMessage
                                         }
-                                        singleExpandtHandler={
-                                            singleExpandtHandler
-                                        }
                                         thread={interview.thread_id}
-                                        user={user}
                                     />
 
                                     {/* Message Input */}
@@ -524,7 +551,7 @@ const SingleInterview = () => {
                                                     <Box sx={{ p: 2 }}>
                                                         <DocThreadEditor
                                                             buttonDisabled={
-                                                                submitMessageMutation.isLoading
+                                                                submitMessageMutation.isPending
                                                             }
                                                             checkResult={[]}
                                                             editorState={
@@ -559,7 +586,7 @@ const SingleInterview = () => {
                                     )}
 
                                     {/* Action Button for TaiGer Roles */}
-                                    {is_TaiGer_role(user) && (
+                                    {is_TaiGer_role(taiGerUser) && (
                                         <Button
                                             color={
                                                 interview.isClosed
@@ -567,7 +594,7 @@ const SingleInterview = () => {
                                                     : 'success'
                                             }
                                             disabled={
-                                                updateInterviewMutation.isLoading
+                                                updateInterviewMutation.isPending
                                             }
                                             fullWidth
                                             onClick={() =>
@@ -585,7 +612,7 @@ const SingleInterview = () => {
                                                     : 'contained'
                                             }
                                         >
-                                            {updateInterviewMutation.isLoading ? (
+                                            {updateInterviewMutation.isPending ? (
                                                 <CircularProgress size={24} />
                                             ) : interview.isClosed ? (
                                                 t('Mark as open')
@@ -601,7 +628,7 @@ const SingleInterview = () => {
                 </CustomTabPanel>
 
                 {/* History Tab */}
-                {is_TaiGer_role(user) && (
+                {is_TaiGer_role(taiGerUser) && (
                     <CustomTabPanel index={1} value={value}>
                         <Box sx={{ p: 3 }}>
                             <InterviewFeedback interview={interview} />
@@ -611,7 +638,7 @@ const SingleInterview = () => {
 
                 {/* Audit Tab */}
                 <CustomTabPanel
-                    index={is_TaiGer_role(user) ? 2 : 1}
+                    index={is_TaiGer_role(taiGerUser) ? 2 : 1}
                     value={value}
                 >
                     <Box sx={{ p: 3 }}>
@@ -656,11 +683,11 @@ const SingleInterview = () => {
                     </Button>
                     <Button
                         color="primary"
-                        disabled={updateInterviewMutation.isLoading}
+                        disabled={updateInterviewMutation.isPending}
                         onClick={handleToggleInterviewStatus}
                         variant="contained"
                     >
-                        {updateInterviewMutation.isLoading ? (
+                        {updateInterviewMutation.isPending ? (
                             <CircularProgress size={24} />
                         ) : (
                             t('Yes', { ns: 'common' })
@@ -698,11 +725,11 @@ const SingleInterview = () => {
                     </Button>
                     <Button
                         color="error"
-                        disabled={deleteInterviewMutation.isLoading}
+                        disabled={deleteInterviewMutation.isPending}
                         onClick={handleDeleteInterview}
                         variant="contained"
                     >
-                        {deleteInterviewMutation.isLoading ? (
+                        {deleteInterviewMutation.isPending ? (
                             <CircularProgress size={24} />
                         ) : (
                             t('Yes', { ns: 'common' })

@@ -82,7 +82,7 @@ interface SingleDocumentCardProps {
     st: string;
     isUploadingFile: boolean;
     onDeleteFileWarningPopUp: (
-        e: React.MouseEvent<HTMLElement>,
+        e: React.MouseEvent<Element>,
         category: string,
         student_id: string,
         docName: string
@@ -120,10 +120,10 @@ interface SingleDocumentCardProps {
         studentId: string
     ) => void;
     onUpdateProfileDocStatus: (
-        e: React.MouseEvent<HTMLElement>,
+        e: React.MouseEvent<Element>,
         category: string,
         student_id: string,
-        status: string
+        status: DocumentStatusType
     ) => void;
     setBaseDocsflagOffcanvas: (show: boolean) => void;
 }
@@ -216,7 +216,6 @@ const SingleDocumentCard = ({
                                     handleGeneralDocSubmitV2
                                 }
                                 isLoading={isUploadingFile}
-                                user={user}
                             />
                         ) : null}
                         {st === DocumentStatusType.Rejected ||
@@ -320,11 +319,15 @@ const MyDocumentCard = (props: MyDocumentCardProps) => {
         feedback: '',
         deleteFileWarningModel: false,
         preview_path: '#',
-        num_points: base_documents_checklist[props.category]
-            ? base_documents_checklist[props.category].length
-            : 0,
+        status: props.status,
+        num_points:
+            props.category in base_documents_checklist
+                ? base_documents_checklist[
+                      props.category as keyof typeof base_documents_checklist
+                  ].length
+                : 0,
         num_checked_points: 0,
-        checkedBoxes: []
+        checkedBoxes: [] as string[]
     });
 
     const apiPath = `/api/students/${MyDocumentCardState.student_id.toString()}/files/${
@@ -338,12 +341,15 @@ const MyDocumentCard = (props: MyDocumentCardProps) => {
             setMessage(error.message || 'An error occurred. Please try again.');
             setOpenSnackbar(true);
         },
-        onSuccess: ({ data }) => {
+        onSuccess: (res) => {
+            const data = res.data as { status?: string; path?: string };
             setSeverity('success');
             setMessage('Update file status successfully!');
-            setStatus(data.status);
-            const fileName = data.path?.replace(/\\/g, '/').split('/')[1];
-            setFileName(fileName);
+            if (data?.status) {
+                setStatus(data.status);
+            }
+            const fileName = data?.path?.replace(/\\/g, '/').split('/')[1];
+            setFileName(fileName ?? '');
             queryClient.invalidateQueries({ queryKey: ['students/doc-links'] });
             setOpenSnackbar(true);
 
@@ -365,14 +371,17 @@ const MyDocumentCard = (props: MyDocumentCardProps) => {
                 );
                 setOpenSnackbar(true);
             },
-            onSuccess: ({ data }) => {
+            onSuccess: (res) => {
+                const data = res.data as { status?: string; path?: string };
                 setSeverity('success');
                 setMessage(
                     'Uploaded file successfully. Your agent is informed and will check it as soon as possible.'
                 );
-                setStatus(data.status);
-                const fileName = data.path.split('/')[1];
-                setFileName(fileName);
+                if (data?.status) {
+                    setStatus(data.status);
+                }
+                const fileName = data?.path?.split('/')[1];
+                setFileName(fileName ?? '');
                 queryClient.invalidateQueries({
                     queryKey: ['students/doc-links']
                 });
@@ -390,16 +399,19 @@ const MyDocumentCard = (props: MyDocumentCardProps) => {
                 );
                 setOpenSnackbar(true);
             },
-            onSuccess: ({ data }) => {
+            onSuccess: (res) => {
+                const data = res.data as { status?: string; path?: string };
                 setSeverity('success');
                 setMessage('Deleted file successfully.');
-                setStatus(data.status);
+                if (data?.status) {
+                    setStatus(data.status);
+                }
                 setMyDocumentCardState((prevState) => ({
                     ...prevState,
                     deleteFileWarningModel: false
                 }));
-                const fileName = data.path.split('/')[1];
-                setFileName(fileName);
+                const fileName = data?.path?.split('/')[1];
+                setFileName(fileName ?? '');
                 queryClient.invalidateQueries({
                     queryKey: ['students/doc-links']
                 });
@@ -426,7 +438,7 @@ const MyDocumentCard = (props: MyDocumentCardProps) => {
     };
 
     const onDeleteFileWarningPopUp = (
-        e: React.MouseEvent<HTMLElement>,
+        e: React.MouseEvent<Element>,
         category: string,
         student_id: string,
         docName: string
@@ -453,10 +465,10 @@ const MyDocumentCard = (props: MyDocumentCardProps) => {
     };
 
     const onUpdateProfileDocStatus = (
-        e: React.MouseEvent<HTMLElement>,
+        e: React.MouseEvent<Element>,
         category: string,
         student_id: string,
-        status: string
+        status: DocumentStatusType
     ) => {
         e.preventDefault();
         setMyDocumentCardState((prevState) => ({
@@ -516,7 +528,11 @@ const MyDocumentCard = (props: MyDocumentCardProps) => {
         studentId: string
     ) => {
         const formData = new FormData();
-        formData.append('file', e.target.files[0]);
+        const file = e.target.files?.[0];
+        if (!file) {
+            return;
+        }
+        formData.append('file', file);
         mutateUploadFile({ category, studentId, formData });
     };
 
