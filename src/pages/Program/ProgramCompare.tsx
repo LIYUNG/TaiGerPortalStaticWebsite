@@ -243,7 +243,8 @@ const ProgramCompare = ({
 }: ProgramCompareProps) => {
     const { t } = useTranslation('common');
     const [delta, setDelta] = useState<Record<string, unknown>>({});
-    const incomingProgram = incomingChanges?.programChanges || {};
+    const incomingProgram = (incomingChanges?.programChanges ??
+        {}) as Record<string, unknown>;
 
     const acceptAllChanges = () => {
         const { modifiedKeys } = getDiffKeys(originalProgram, incomingProgram);
@@ -258,11 +259,13 @@ const ProgramCompare = ({
 
     const submitChanges = async () => {
         const program = updateProgram({
-            _id: originalProgram._id,
+            _id: String(originalProgram._id),
             ...delta,
-            changeRequestId: incomingChanges._id
+            changeRequestId: String(incomingChanges._id)
         });
-        const changeRequest = reviewProgramChangeRequests(incomingChanges._id);
+        const changeRequest = reviewProgramChangeRequests(
+            String(incomingChanges._id)
+        );
         await Promise.all([program, changeRequest]);
         if (typeof submitCallBack === 'function') {
             submitCallBack();

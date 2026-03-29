@@ -20,6 +20,7 @@ import {
 } from '@mui/icons-material';
 
 import { is_TaiGer_role } from '@taiger-common/core';
+import type { IUser } from '@taiger-common/model';
 import { getStudentQuery } from '@/api/query';
 import { useLead } from '@hooks/useLead';
 import { request } from '@/api';
@@ -52,7 +53,7 @@ const LeadPage = () => {
     const { user } = useAuth();
     const queryClient = useQueryClient();
 
-    const { lead, isLoading: leadLoading, data: leadData } = useLead(leadId);
+    const { lead, isLoading: leadLoading } = useLead(leadId);
 
     TabTitle(`${t('common.lead', { ns: 'crm' })} - ${lead?.fullName}`);
 
@@ -61,7 +62,7 @@ const LeadPage = () => {
 
     // lead.userId exists fetch student data
     const studentQueryOptions = hasPortalUser
-        ? getStudentQuery(lead.userId)
+        ? getStudentQuery(String(lead.userId))
         : {
               queryKey: ['student', lead?.userId],
               queryFn: async () => null,
@@ -72,9 +73,15 @@ const LeadPage = () => {
     const student = studentData?.data?.data || {};
     const isLoading = leadLoading || (hasPortalUser && studentLoading);
 
-    const [selectedLead, setSelectedLead] = useState(null);
+    const [selectedLead, setSelectedLead] = useState<Record<
+        string,
+        unknown
+    > | null>(null);
     const [showCreateUserModal, setShowCreateUserModal] = useState(false);
-    const [editingDeal, setEditingDeal] = useState(null);
+    const [editingDeal, setEditingDeal] = useState<Record<
+        string,
+        unknown
+    > | null>(null);
     const [showDealModal, setShowDealModal] = useState(false);
     const [statusMenu, setStatusMenu] = useState({ anchorEl: null, row: null });
 
@@ -88,8 +95,10 @@ const LeadPage = () => {
             ),
         [leadCardConfigurations]
     );
-    const [leadEditStates, setLeadEditStates] = useState(initLeadEditStates);
-    const [formData, setFormData] = useState({});
+    const [leadEditStates, setLeadEditStates] = useState<
+        Record<string, boolean>
+    >(initLeadEditStates);
+    const [formData, setFormData] = useState<Record<string, unknown>>({});
 
     const { data: salesData } = useQuery({
         queryKey: ['crm/sales-reps'],
@@ -97,7 +106,7 @@ const LeadPage = () => {
             const res = await request.get('/api/crm/sales-reps');
             return res?.data?.data ?? res?.data ?? [];
         },
-        enabled: !!leadEditStates?.personal,
+        enabled: Boolean(leadEditStates.personal),
         staleTime: 300000
     });
     const salesOptions = useMemo(
@@ -126,7 +135,7 @@ const LeadPage = () => {
         orig: Record<string, unknown>,
         cur: Record<string, unknown>
     ) => {
-        const out = {};
+        const out: Record<string, unknown> = {};
         Object.keys(cur).forEach((k) => {
             if (['createdAt', 'updatedAt', 'meetings', 'id'].includes(k))
                 return;
@@ -143,8 +152,9 @@ const LeadPage = () => {
 
     useMemo(() => {
         if (lead && Object.keys(lead).length) {
-            setFormData(lead);
-            form.reset(lead);
+            const leadRecord = lead as unknown as Record<string, unknown>;
+            setFormData(leadRecord);
+            form.reset(leadRecord);
         }
     }, [lead, form]);
 
@@ -164,24 +174,31 @@ const LeadPage = () => {
                     }
                 };
             });
-            queryClient.invalidateQueries(['crm-lead', leadId]);
+            queryClient.invalidateQueries({
+                queryKey: ['crm/lead', leadId]
+            });
         }
     });
 
     const handleEdit = (cardId: string) => {
         setLeadEditStates((p) => ({ ...p, [cardId]: true }));
         if (lead && Object.keys(lead).length) {
-            setFormData(lead);
-            form.reset(lead);
+            const leadRecord = lead as unknown as Record<string, unknown>;
+            setFormData(leadRecord);
+            form.reset(leadRecord);
         }
     };
     const handleCancel = (cardId: string) => {
         setLeadEditStates((p) => ({ ...p, [cardId]: false }));
-        setFormData(lead);
-        form.reset(lead);
+        const leadRecord = (lead ?? {}) as unknown as Record<string, unknown>;
+        setFormData(leadRecord);
+        form.reset(leadRecord);
     };
     const handleSave = async (cardId: string) => {
-        const changed = getChangedFields(lead, formData);
+        const changed = getChangedFields(
+            (lead ?? {}) as unknown as Record<string, unknown>,
+            formData
+        );
         if (Object.keys(changed).length === 0) {
             setLeadEditStates((p) => ({ ...p, [cardId]: false }));
             return;
@@ -194,7 +211,10 @@ const LeadPage = () => {
         form.setFieldValue(field, value);
     };
     const hasUnsavedChanges = (cardId: string) => {
-        const changed = getChangedFields(lead, formData);
+        const changed = getChangedFields(
+            (lead ?? {}) as unknown as Record<string, unknown>,
+            formData
+        );
         const cfg = leadCardConfigurations.find((c) => c.id === cardId);
         if (!cfg) return false;
         const fields = [
@@ -230,7 +250,9 @@ const LeadPage = () => {
                 );
             }
         }
-        queryClient.invalidateQueries(['crm/lead', leadId]);
+        queryClient.invalidateQueries({
+            queryKey: ['crm/lead', leadId]
+        });
     };
 
     const closeDealModal = () => {
@@ -262,7 +284,7 @@ const LeadPage = () => {
     });
     // Note: status changes are handled in StatusMenu onChoose
 
-    if (!is_TaiGer_role(user))
+    if (!user || !is_TaiGer_role(user as IUser))
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     if (isLoading) return <Loading />;
 
