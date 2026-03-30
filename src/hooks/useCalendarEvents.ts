@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, useState } from 'react';
+import { ChangeEvent, FormEvent, MouseEvent as ReactMouseEvent, useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import queryString from 'query-string';
 
@@ -21,8 +21,24 @@ import { getUTCWithDST, time_slots } from '@utils/contants';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import { queryClient } from '@/api';
 import { SelectChangeEvent } from '@mui/material';
+import type { EventConfirmationCardEvent } from '@components/Calendar/components/EventConfirmationCard';
+
+export interface OfficeHoursAgent {
+    _id?: string;
+    firstname?: string;
+    lastname?: string;
+    email?: string;
+    timezone?: string;
+    pictureUrl?: string;
+    officehours?: Record<
+        string,
+        { active?: boolean; time_slots?: { value: string; label?: string }[] }
+    >;
+    [key: string]: unknown;
+}
 
 export interface UseCalendarEventsProps {
+    user_id?: string;
     startTime: string;
     endTime: string;
     requester_id?: string;
@@ -76,35 +92,37 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
     });
 
     interface EventsResponse {
-        data?: unknown[];
-        agents?: Record<string, unknown>;
-        editors?: unknown[];
+        data?: EventConfirmationCardEvent[];
+        agents?: OfficeHoursAgent[];
+        editors?: OfficeHoursAgent[];
         hasEvents?: boolean;
         success?: boolean;
     }
     const queryData = eventsQuery.data as { data?: EventsResponse } | undefined;
     const rawEvents = queryData?.data;
     const eventsResponse: EventsResponse = (rawEvents ?? {}) as EventsResponse;
-    const events = eventsResponse.data ?? [];
-    const agents = eventsResponse.agents || {};
-    const editors = eventsResponse.editors || [];
+    const events: EventConfirmationCardEvent[] = eventsResponse.data ?? [];
+    const agents: OfficeHoursAgent[] = eventsResponse.agents ?? [];
+    const editors: OfficeHoursAgent[] = eventsResponse.editors ?? [];
     const students = studentsQuery.data || [];
     const hasEvents = eventsResponse.hasEvents || false;
-    const booked_events =
-        (bookedEventsQuery.data as { data?: { data?: unknown[] } } | undefined)
-            ?.data?.data ?? [];
+    const booked_events: EventConfirmationCardEvent[] =
+        ((bookedEventsQuery.data as { data?: { data?: EventConfirmationCardEvent[] } } | undefined)
+            ?.data?.data ?? []);
     const res_status =
         (eventsQuery.data as { status?: number } | undefined)?.status ?? 0;
     const success = eventsResponse.success || false;
+
+    type PartialEvent = Partial<EventConfirmationCardEvent>;
 
     const [calendarEventsState, setCalendarEventsState] = useState<{
         student_id: string;
         isDeleteModalOpen: boolean;
         isEditModalOpen: boolean;
         isConfirmModalOpen: boolean;
-        event_temp: Record<string, unknown>;
+        event_temp: PartialEvent;
         event_id: string;
-        selectedEvent: Record<string, unknown>;
+        selectedEvent: PartialEvent;
         newReceiver: string;
         BookButtonDisable: boolean;
         newDescription: string;
@@ -190,7 +208,7 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
     const handleModalCreateEvent = (
         newEvent: Record<string, unknown>
     ): void => {
-        const eventWrapper = { ...newEvent };
+        const eventWrapper: Record<string, unknown> = { ...newEvent };
         if (user != null && (is_TaiGer_Agent(user) || is_TaiGer_Editor(user))) {
             const temp_std = students.find(
                 (std: { _id: { toString: () => string } }) =>
@@ -205,8 +223,8 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
         createEventMutation.mutate(eventWrapper);
     };
 
-    const handleModalBook = (e: FormEvent): void => {
-        e.preventDefault();
+    const handleModalBook = (e?: FormEvent): void => {
+        e?.preventDefault();
         let eventWrapper: Record<string, unknown> = {};
 
         if (calendarEventsState.newEventStart) {
@@ -295,7 +313,7 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
     });
 
     const handleConfirmAppointmentModal = (
-        e: FormEvent,
+        e: FormEvent | ReactMouseEvent,
         event_id: string,
         updated_event: Record<string, unknown>
     ): void => {
@@ -356,7 +374,7 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
     });
 
     const handleEditAppointmentModal = (
-        e: FormEvent,
+        e: FormEvent | ReactMouseEvent,
         event_id: string,
         updated_event: Record<string, unknown>
     ): void => {
@@ -411,7 +429,7 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
     });
 
     const handleDeleteAppointmentModal = (
-        e: FormEvent,
+        e: FormEvent | ReactMouseEvent,
         event_id: string
     ): void => {
         e.preventDefault();
@@ -419,8 +437,8 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
     };
 
     const handleConfirmAppointmentModalOpen = (
-        e: MouseEvent,
-        event: { _id: { toString: () => string }; [key: string]: unknown }
+        e: ReactMouseEvent | MouseEvent,
+        event: EventConfirmationCardEvent
     ): void => {
         e.preventDefault();
         e.stopPropagation();
@@ -428,13 +446,13 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
             ...prevState,
             isConfirmModalOpen: true,
             event_temp: event,
-            event_id: event._id.toString()
+            event_id: event._id?.toString() ?? ''
         }));
     };
 
     const handleEditAppointmentModalOpen = (
-        e: MouseEvent,
-        event: { _id: { toString: () => string }; [key: string]: unknown }
+        e: ReactMouseEvent | MouseEvent,
+        event: EventConfirmationCardEvent
     ): void => {
         e.preventDefault();
         e.stopPropagation();
@@ -442,7 +460,7 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
             ...prevState,
             isEditModalOpen: true,
             event_temp: event,
-            event_id: event._id.toString()
+            event_id: event._id?.toString() ?? ''
         }));
     };
 
@@ -473,7 +491,7 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
     };
 
     const handleUpdateTimeSlotAgent = (
-        e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+        e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | { target: { value: string } }
     ): void => {
         const new_timeslot_temp = e.target.value;
         setCalendarEventsState((prevState) => ({
@@ -508,15 +526,15 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
     };
 
     const handleDeleteAppointmentModalOpen = (
-        e: MouseEvent,
-        event: { _id: { toString: () => string } }
+        e: ReactMouseEvent | MouseEvent,
+        event: EventConfirmationCardEvent
     ): void => {
         e.preventDefault();
         e.stopPropagation();
         setCalendarEventsState((prevState) => ({
             ...prevState,
             isDeleteModalOpen: true,
-            event_id: event._id.toString()
+            event_id: event._id?.toString() ?? ''
         }));
     };
 
@@ -530,7 +548,7 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
     };
 
     const handleChangeReceiver = (
-        e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+        e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | { target: { value: string } }
     ): void => {
         const receiver_temp = e.target.value;
         setCalendarEventsState((prevState) => ({
@@ -539,14 +557,14 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
         }));
     };
 
-    const handleSelectEvent = (event: Record<string, unknown>): void => {
+    const handleSelectEvent = (event: Record<string, unknown> | PartialEvent): void => {
         setCalendarEventsState((prevState) => ({
             ...prevState,
-            selectedEvent: event
+            selectedEvent: event as PartialEvent
         }));
     };
     const handleChange = (
-        e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+        e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | { target: { value: string } }
     ): void => {
         const description_temp = e.target.value;
         setCalendarEventsState((prevState) => ({
@@ -637,7 +655,7 @@ function useCalendarEvents(props: UseCalendarEventsProps) {
     };
 
     const handleSelectStudent = (
-        e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+        e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | { target: { value: string } }
     ): void => {
         const student_id = e.target.value;
         setCalendarEventsState((prevState) => ({

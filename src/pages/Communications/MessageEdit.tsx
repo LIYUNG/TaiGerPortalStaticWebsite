@@ -39,7 +39,7 @@ export interface MessageEditProps {
     buttonDisabled?: boolean;
     handleClickSave: (
         e: MouseEvent<HTMLElement>,
-        editorState: unknown,
+        editorState: OutputData,
         message_id: string
     ) => void;
     handleCancelEdit: (e: MouseEvent<HTMLElement>) => void;
@@ -49,7 +49,7 @@ export interface MessageEditProps {
 const MessageEdit = (props: MessageEditProps) => {
     const { t } = useTranslation();
     const [messageEditState, setMessageEditState] = useState<{
-        editorState: unknown;
+        editorState: OutputData;
         message_id: string;
         deleteMessageModalShow: boolean;
         createdAt?: string;
@@ -89,7 +89,7 @@ const MessageEdit = (props: MessageEditProps) => {
         props.onDeleteSingleMessage(messageEditState.message_id);
     };
 
-    const handleEditorChange = (content: unknown) => {
+    const handleEditorChange = (content: OutputData) => {
         setMessageEditState((prevState) => ({
             ...prevState,
             editorState: content

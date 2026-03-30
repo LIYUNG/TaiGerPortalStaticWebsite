@@ -60,7 +60,7 @@ import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { TabTitle } from '../Utils/TabTitle';
 import MyCalendar from '@components/Calendar/components/Calendar';
-import EventConfirmationCard from '@components/Calendar/components/EventConfirmationCard';
+import EventConfirmationCard, { type EventConfirmationCardEvent } from '@components/Calendar/components/EventConfirmationCard';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';
@@ -69,20 +69,6 @@ import { a11yProps, CustomTabPanel } from '@components/Tabs';
 import { CreateNewEventModal } from '@components/Calendar/components/CreateNewEventModal';
 import useCalendarEvents from '@hooks/useCalendarEvents';
 import { updateOfficehours } from '@/api';
-
-interface CalendarEvent {
-    start: Date | string;
-    end: Date | string;
-    description?: string;
-    isConfirmedReceiver?: boolean;
-    isConfirmedRequester?: boolean;
-    requester_id?: {
-        firstname?: string;
-        lastname?: string;
-        [key: string]: unknown;
-    }[];
-    [key: string]: unknown;
-}
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -303,8 +289,11 @@ const TaiGerOfficeHours = () => {
         string,
         { active?: boolean; time_slots?: { value: string; label: string }[] }
     >;
+    const userWithOfficeHours = user as typeof user & {
+        officehours?: OfficeHoursState;
+    };
     const [officeHours, setOfficeHours] = useState<OfficeHoursState>(
-        (user?.officehours as OfficeHoursState) || {}
+        (userWithOfficeHours?.officehours as OfficeHoursState) || {}
     );
     const [selectedTimezone, setSelectedTimezone] = useState(
         user?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone
@@ -316,13 +305,13 @@ const TaiGerOfficeHours = () => {
         useState(false);
 
     useEffect(() => {
-        if (user?.officehours) {
-            setOfficeHours(user.officehours as OfficeHoursState);
+        if (userWithOfficeHours?.officehours) {
+            setOfficeHours(userWithOfficeHours.officehours as OfficeHoursState);
         }
         if (user?.timezone) {
             setSelectedTimezone(user.timezone);
         }
-    }, [user?.officehours, user?.timezone]);
+    }, [userWithOfficeHours?.officehours, user?.timezone]);
 
     const handleMainTabChange = (
         _event: React.SyntheticEvent,
@@ -340,8 +329,9 @@ const TaiGerOfficeHours = () => {
         setSearchParams(newParams);
     };
 
-    const handleTimezoneChange = (timezone: { value: string }) => {
-        setSelectedTimezone(timezone.value);
+    const handleTimezoneChange = (timezone: { value: string } | string) => {
+        const value = typeof timezone === 'string' ? timezone : timezone.value;
+        setSelectedTimezone(value);
         setIsOfficeHoursModified(true);
     };
 
@@ -415,6 +405,7 @@ const TaiGerOfficeHours = () => {
         return <ErrorPage res_status={res_status} />;
     }
 
+    const agentWithOH = userWithOfficeHours;
     let available_termins: {
         id: number;
         title: string;
@@ -423,9 +414,9 @@ const TaiGerOfficeHours = () => {
         provider: typeof user;
     }[] = [];
     available_termins = [0, 1, 2, 3, 4, 5].flatMap((iter, x) =>
-        [user].flatMap((agent) =>
-            agent.timezone && moment.tz.zone(agent.timezone)
-                ? getReorderWeekday(getTodayAsWeekday(agent.timezone)).flatMap(
+        [agentWithOH].flatMap((agent) =>
+            agent?.timezone && moment.tz.zone(agent.timezone)
+                ? (getReorderWeekday(getTodayAsWeekday(agent.timezone)) as string[]).flatMap(
                       (weekday: string, i: number) => {
                           const slots =
                               agent.officehours?.[weekday]?.time_slots;
@@ -445,18 +436,18 @@ const TaiGerOfficeHours = () => {
                                                 getNextDayDate(
                                                     getReorderWeekday(
                                                         getTodayAsWeekday(
-                                                            agent.timezone
+                                                            agent.timezone!
                                                         )
-                                                    ),
+                                                    ) as string[],
                                                     weekday,
-                                                    agent.timezone,
+                                                    agent.timezone!,
                                                     iter
                                                 );
                                             const test_date = getUTCWithDST(
                                                 year,
                                                 month,
                                                 day,
-                                                agent.timezone,
+                                                agent.timezone!,
                                                 time_slot.value
                                             );
 
@@ -475,7 +466,7 @@ const TaiGerOfficeHours = () => {
                                                 title: `${new Date(test_date)}`,
                                                 start: new Date(test_date),
                                                 end: end_date,
-                                                provider: agent
+                                                provider: agent as typeof user
                                             };
                                         }
                                     )
@@ -536,7 +527,8 @@ const TaiGerOfficeHours = () => {
                 </Box>
                 <CustomTabPanel index={0} value={mainTabValue}>
                     <MyCalendar
-                        events={[...booked_events]}
+                        BookButtonDisable={BookButtonDisable}
+                        events={booked_events.map((ev) => ({ ...ev, start: new Date(ev.start), end: new Date(ev.end) }))}
                         handleChange={handleChange}
                         handleChangeReceiver={handleChangeReceiver}
                         handleModalBook={handleModalBook}
@@ -551,7 +543,7 @@ const TaiGerOfficeHours = () => {
                         newDescription={newDescription}
                         newEventEnd={newEventEnd}
                         newReceiver={newReceiver}
-                        selectedEvent={selectedEvent}
+                        selectedEvent={selectedEvent as Partial<import('@components/Calendar/components/Calendar').CalendarEventType> | null}
                     />
                 </CustomTabPanel>
 
@@ -610,7 +602,7 @@ const TaiGerOfficeHours = () => {
                             {viewMode === 'future' ? (
                                 <>
                                     {events?.filter(
-                                        (event: CalendarEvent) =>
+                                        (event: EventConfirmationCardEvent) =>
                                             isInTheFuture(event.end) &&
                                             (!event.isConfirmedReceiver ||
                                                 !event.isConfirmedRequester)
@@ -618,7 +610,7 @@ const TaiGerOfficeHours = () => {
                                         ? _.reverse(
                                               _.sortBy(
                                                   events?.filter(
-                                                      (event: CalendarEvent) =>
+                                                      (event: EventConfirmationCardEvent) =>
                                                           isInTheFuture(
                                                               event.end
                                                           ) &&
@@ -651,7 +643,7 @@ const TaiGerOfficeHours = () => {
                                         </Typography>
                                         <Box>
                                             {events?.filter(
-                                                (event: CalendarEvent) =>
+                                                (event: EventConfirmationCardEvent) =>
                                                     isInTheFuture(event.end) &&
                                                     event.isConfirmedRequester &&
                                                     event.isConfirmedReceiver
@@ -660,7 +652,7 @@ const TaiGerOfficeHours = () => {
                                                       _.sortBy(
                                                           events?.filter(
                                                               (
-                                                                  event: CalendarEvent
+                                                                  event: EventConfirmationCardEvent
                                                               ) =>
                                                                   isInTheFuture(
                                                                       event.end

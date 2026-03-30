@@ -27,7 +27,11 @@ import {
     SCORES_TYPE
 } from '@utils/contants';
 import SearchableMultiSelect from '@components/Input/searchableMuliselect';
-import type { ProgramsAndKeywordsData } from '@taiger-common/model';
+import type {
+    IKeywordsetWithId,
+    ProgramRequirementProgramCategory,
+    ProgramsAndKeywordsData
+} from '@taiger-common/model';
 
 /** Program option in requirement form */
 export interface ProgramRequirementProgramOption {
@@ -82,7 +86,7 @@ const ProgramRequirementsNew = ({
     );
 
     const [program, setProgram] = useState(
-        requirement?.programId[0]
+        requirement?.programId?.[0]
             ? {
                   school: requirement.programId[0].school,
                   program_name: requirement.programId[0].program_name,
@@ -148,12 +152,12 @@ const ProgramRequirementsNew = ({
     };
 
     const filterOptions = createFilterOptions({
-        stringify: (option) =>
+        stringify: (option: ProgramRequirementProgramOption) =>
             `${option.school} ${option.program_name} ${option.degree}`
     });
 
     const filterKeywordOptions = createFilterOptions({
-        stringify: (option) =>
+        stringify: (option: IKeywordsetWithId) =>
             `${option.categoryName} ${option.keywords?.zh?.join(
                 ', '
             )} ${option.keywords?.en?.join(', ')}`
@@ -214,9 +218,9 @@ const ProgramRequirementsNew = ({
         programCategories?.length === 0 ||
         programCategories.some(
             (category) =>
-                category.program_category.trim() === '' || // Check if program_category is not an empty string
-                category.requiredECTS <= 0 || // Check if requiredECTS is greater than 0
-                category.keywordSets.length === 0 // Ensure at least one keyword set is added
+                category?.program_category?.trim() === '' || // Check if program_category is not an empty string
+                (category?.requiredECTS && category?.requiredECTS <= 0) || // Check if requiredECTS is greater than 0
+                category?.keywordSets?.length === 0 // Ensure at least one keyword set is added
         ) ||
         JSON.stringify(program) === '{}';
 
@@ -257,15 +261,13 @@ const ProgramRequirementsNew = ({
                         getOptionLabel={(option) =>
                             `${option.school} ${option.program_name} ${option.degree}`
                         }
-                        label={t('Add Keyword Set', { ns: 'common' })}
-                        onChange={(e, newValue) => handleAddProgram(newValue)} // `newValue` will be the selected object
+                        onChange={(_e, newValue) => handleAddProgram(newValue)} // `newValue` will be the selected object
                         options={distinctPrograms || []}
                         renderInput={(params) => (
                             <TextField {...params} label="Program" />
                         )}
                         size="small"
                         value={program}
-                        variant="outlined"
                     />
                 </Box>
                 <Box>
@@ -311,7 +313,9 @@ const ProgramRequirementsNew = ({
                                     id="categoryName"
                                     label={score.label}
                                     name={score.name}
-                                    onChange={(e) => handleScores(e)}
+                                    onChange={(
+                                        e: ChangeEvent<HTMLInputElement>
+                                    ) => handleScores(e)}
                                     size="small"
                                     type="number"
                                     value={scores[score.name]}
@@ -405,13 +409,16 @@ const ProgramRequirementsNew = ({
                                     <Grid item md={4} xs={12}>
                                         <TextField
                                             error={
-                                                programCategory.requiredECTS <=
-                                                0
+                                                programCategory.requiredECTS
+                                                    ? programCategory.requiredECTS <=
+                                                      0
+                                                    : false
                                             }
                                             fullWidth
                                             helperText={
+                                                programCategory.requiredECTS &&
                                                 programCategory.requiredECTS <=
-                                                0
+                                                    0
                                                     ? 'ECTS should more than 0'
                                                     : null
                                             }
@@ -419,15 +426,20 @@ const ProgramRequirementsNew = ({
                                             label="Required ECTS"
                                             onChange={(e) =>
                                                 setProgramCategories((prev) =>
-                                                    prev.map((pc, i) =>
-                                                        i === index
-                                                            ? {
-                                                                  ...pc,
-                                                                  requiredECTS:
-                                                                      e.target
-                                                                          .value
-                                                              }
-                                                            : pc
+                                                    prev.map(
+                                                        (
+                                                            pc: ProgramRequirementProgramCategory,
+                                                            i
+                                                        ) =>
+                                                            i === index
+                                                                ? {
+                                                                      ...pc,
+                                                                      requiredECTS:
+                                                                          e
+                                                                              .target
+                                                                              .value
+                                                                  }
+                                                                : pc
                                                     )
                                                 )
                                             }
@@ -445,15 +457,20 @@ const ProgramRequirementsNew = ({
                                             label="Points (if applicable)"
                                             onChange={(e) =>
                                                 setProgramCategories((prev) =>
-                                                    prev.map((pc, i) =>
-                                                        i === index
-                                                            ? {
-                                                                  ...pc,
-                                                                  maxScore:
-                                                                      e.target
-                                                                          .value
-                                                              }
-                                                            : pc
+                                                    prev.map(
+                                                        (
+                                                            pc: ProgramRequirementProgramCategory,
+                                                            i
+                                                        ) =>
+                                                            i === index
+                                                                ? {
+                                                                      ...pc,
+                                                                      maxScore:
+                                                                          e
+                                                                              .target
+                                                                              .value
+                                                                  }
+                                                                : pc
                                                     )
                                                 )
                                             }
@@ -514,7 +531,7 @@ const ProgramRequirementsNew = ({
                                                     value
                                                 ) => option._id === value._id}
                                                 multiple
-                                                onChange={(e, newValue) =>
+                                                onChange={(_e, newValue) =>
                                                     handleAddKeywordSet(
                                                         newValue,
                                                         index
@@ -594,7 +611,7 @@ const ProgramRequirementsNew = ({
             </Box>
             <Box display="flex" gap={2} justifyContent="flex-end">
                 <Button
-                    as={LinkDom}
+                    component={LinkDom}
                     color="secondary"
                     to={DEMO.PROGRAM_ANALYSIS}
                     variant="outlined"

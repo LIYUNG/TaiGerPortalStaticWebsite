@@ -64,7 +64,7 @@ export default function CourseWidgetBody({
     const [value, setValue] = useState(0);
 
     const handleChangeValue = (
-        event: React.SyntheticEvent,
+        _event: React.SyntheticEvent,
         newValue: number
     ) => {
         setValue(newValue);

@@ -8,6 +8,7 @@ import { useMutation } from '@tanstack/react-query';
 import { queryClient } from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import type { ThreadMessage } from '@components/Message/MessageCard';
+import { OutputData } from '@editorjs/editorjs';
 
 export interface MessageContainerProps {
     message: ThreadMessage;
@@ -15,9 +16,7 @@ export interface MessageContainerProps {
     accordionKeys: number[];
     isDeleting: boolean;
     isTaiGerView: boolean;
-    lastupdate: string;
     onDeleteSingleMessage: (messageId: string) => void;
-    onTrashClick: () => void;
     idx: number;
 }
 
@@ -86,7 +85,7 @@ const MessageContainer = (props: MessageContainerProps) => {
 
     const updateMessage = (
         e: React.FormEvent<HTMLFormElement>,
-        editorState: unknown,
+        editorState: OutputData,
         messageId: string
     ) => {
         e.preventDefault();
@@ -133,10 +132,8 @@ const MessageContainer = (props: MessageContainerProps) => {
             idx={props.idx}
             isDeleting={props.isDeleting}
             isTaiGerView={props.isTaiGerView}
-            lastupdate={props.lastupdate}
             message={props.message}
             onDeleteSingleMessage={props.onDeleteSingleMessage}
-            onTrashClick={props.onTrashClick}
         />
     ) : (
         <Message
@@ -144,11 +141,9 @@ const MessageContainer = (props: MessageContainerProps) => {
             idx={props.idx}
             isDeleting={props.isDeleting}
             isTaiGerView={props.isTaiGerView}
-            lastupdate={props.lastupdate}
             message={messageContainerState.message}
             onDeleteSingleMessage={props.onDeleteSingleMessage}
             onEditMode={onEditMode}
-            onTrashClick={props.onTrashClick}
         />
     );
 };

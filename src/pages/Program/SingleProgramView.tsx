@@ -37,7 +37,7 @@ import { useAuth } from '@components/AuthProvider';
 import { useQuery } from '@tanstack/react-query';
 import { getSameProgramStudentsQuery } from '@/api/query';
 import type { IUser } from '@taiger-common/model';
-import ProgramInfoTabs from './components/ProgramInfoTabs';
+import ProgramInfoTabs, { type ProgramInfoTabsProps } from './components/ProgramInfoTabs';
 import SameProgramStudentsCard from './components/SameProgramStudentsCard';
 import ProgramUnlockDialog from './components/ProgramUnlockDialog';
 
@@ -79,24 +79,27 @@ const SingleProgramView = (props: SingleProgramViewProps) => {
     const { programId } = useParams();
     const { user } = useAuth();
     const { t } = useTranslation();
+    const typedUser = user as IUser;
     const [value, setValue] = useState(0);
     const [unlockDialogOpen, setUnlockDialogOpen] = useState(false);
-    const program = props.program || {};
+    const program = props.program || ({} as SingleProgramViewProgram);
     const versions = props?.versions || {};
-    const lockStatus = calculateProgramLockStatus(program);
+    const lockStatus = calculateProgramLockStatus(
+        program as Parameters<typeof calculateProgramLockStatus>[0]
+    );
     const isProgramLocked = lockStatus.isLocked;
     const canViewUnlockedChip =
-        is_TaiGer_Admin(user) ||
-        is_TaiGer_Manager(user) ||
-        is_TaiGer_Agent(user) ||
-        is_TaiGer_Editor(user);
+        is_TaiGer_Admin(typedUser) ||
+        is_TaiGer_Manager(typedUser) ||
+        is_TaiGer_Agent(typedUser) ||
+        is_TaiGer_Editor(typedUser);
     const { data, isLoading } = useQuery(
         getSameProgramStudentsQuery({
-            programId,
+            programId: programId ?? '',
             enabled:
-                is_TaiGer_Admin(user) ||
-                is_TaiGer_Agent(user) ||
-                is_TaiGer_Editor(user)
+                is_TaiGer_Admin(typedUser) ||
+                is_TaiGer_Agent(typedUser) ||
+                is_TaiGer_Editor(typedUser)
         })
     );
     const students: SingleProgramViewStudent[] =
@@ -117,7 +120,7 @@ const SingleProgramView = (props: SingleProgramViewProps) => {
                 >
                     {appConfig.companyName}
                 </Link>
-                {is_TaiGer_role(user) ? (
+                {is_TaiGer_role(typedUser) ? (
                     <Link
                         color="inherit"
                         component={LinkDom}
@@ -130,7 +133,7 @@ const SingleProgramView = (props: SingleProgramViewProps) => {
                     <Link
                         color="inherit"
                         component={LinkDom}
-                        to={`${DEMO.STUDENT_APPLICATIONS_ID_LINK(user._id.toString())}`}
+                        to={`${DEMO.STUDENT_APPLICATIONS_ID_LINK(user?._id?.toString() ?? '')}`}
                         underline="hover"
                     >
                         {t('Applications')}
@@ -190,21 +193,21 @@ const SingleProgramView = (props: SingleProgramViewProps) => {
                         handleChange={handleChange}
                         program={program}
                         setDiffModalShow={props.setDiffModalShow}
-                        user={user}
+                        user={typedUser}
                         value={value}
-                        versions={versions}
+                        versions={versions as ProgramInfoTabsProps['versions']}
                     />
                 </Grid>
                 <Grid item md={4} xs={12}>
-                    {is_TaiGer_role(user) ? (
+                    {is_TaiGer_role(typedUser) ? (
                         <Grid alignItems="center" container spacing={1}>
-                            {is_TaiGer_AdminAgent(user) ? (
+                            {is_TaiGer_AdminAgent(typedUser) ? (
                                 <Grid item>
                                     <Button
                                         color="primary"
                                         fullWidth
                                         onClick={() =>
-                                            props.setModalShowAssignWindow(true)
+                                            props.setModalShowAssignWindow?.(true)
                                         }
                                         variant="outlined"
                                     >
@@ -217,20 +220,20 @@ const SingleProgramView = (props: SingleProgramViewProps) => {
                                     color="info"
                                     component={LinkDom}
                                     to={DEMO.PROGRAM_EDIT(
-                                        props.program._id?.toString()
+                                        props.program?._id?.toString() ?? ''
                                     )}
                                     variant="contained"
                                 >
                                     {t('Edit', { ns: 'common' })}
                                 </Button>
                             </Grid>
-                            {!is_TaiGer_Student(user) ? (
+                            {!is_TaiGer_Student(typedUser) ? (
                                 <Grid item>
                                     <Button
                                         color="secondary"
                                         disabled={
                                             !isProgramLocked ||
-                                            props.isRefreshing
+                                            (props.isRefreshing ?? false)
                                         }
                                         onClick={() =>
                                             setUnlockDialogOpen(true)
@@ -254,12 +257,12 @@ const SingleProgramView = (props: SingleProgramViewProps) => {
                                     </Button>
                                 </Grid>
                             ) : null}
-                            {is_TaiGer_Admin(user) ? (
+                            {is_TaiGer_Admin(typedUser) ? (
                                 <Grid item>
                                     <Button
                                         color="error"
                                         onClick={() =>
-                                            props.setDeleteProgramWarningOpen(
+                                            props.setDeleteProgramWarningOpen?.(
                                                 true
                                             )
                                         }
@@ -279,7 +282,7 @@ const SingleProgramView = (props: SingleProgramViewProps) => {
                                 '&',
                                 'and'
                             )}+${program.program_name?.replace('&', 'and')}+${
-                                program.degree
+                                program.degree ?? ''
                             }`}
                         >
                             <Button
@@ -292,7 +295,7 @@ const SingleProgramView = (props: SingleProgramViewProps) => {
                             </Button>
                         </Link>
                     </Box>
-                    {is_TaiGer_role(user) ? (
+                    {is_TaiGer_role(typedUser) ? (
                         <>
                             <SameProgramStudentsCard
                                 isLoading={isLoading}
@@ -309,7 +312,7 @@ const SingleProgramView = (props: SingleProgramViewProps) => {
                                     <Button
                                         color="primary"
                                         disabled={isProgramLocked}
-                                        onClick={props.programListAssistant}
+                                        onClick={props.programListAssistant as React.MouseEventHandler<HTMLButtonElement> | undefined}
                                         size="small"
                                         variant="contained"
                                     >
@@ -325,9 +328,9 @@ const SingleProgramView = (props: SingleProgramViewProps) => {
                                 {t('Provide Feedback', { ns: 'programList' })}
                             </Typography>
                             <ProgramReport
-                                program_id={props.program._id?.toString()}
-                                program_name={props.program.program_name}
-                                uni_name={props.program.school}
+                                program_id={props.program?._id?.toString() ?? ''}
+                                program_name={props.program?.program_name ?? ''}
+                                uni_name={props.program?.school ?? ''}
                             />
                         </CardContent>
                     </Card>
@@ -335,11 +338,11 @@ const SingleProgramView = (props: SingleProgramViewProps) => {
             </Grid>
 
             <ProgramUnlockDialog
-                isRefreshing={props.isRefreshing}
+                isRefreshing={props.isRefreshing ?? false}
                 onClose={() => setUnlockDialogOpen(false)}
-                onConfirmUnlock={props.onRefreshProgram}
+                onConfirmUnlock={props.onRefreshProgram ?? (() => {})}
                 open={unlockDialogOpen}
-                programId={props.program._id?.toString() || ''}
+                programId={props.program?._id?.toString() ?? ''}
             />
         </>
     );

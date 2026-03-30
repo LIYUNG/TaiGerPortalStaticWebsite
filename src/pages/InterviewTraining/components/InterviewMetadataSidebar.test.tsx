@@ -239,10 +239,11 @@ describe('InterviewMetadataSidebar', () => {
         expect(screen.getByText('Actions')).toBeInTheDocument();
     });
 
-    it('does not show Official Details card for non-TaiGer role users', () => {
+    it('shows Official Details for non-TaiGer users but hides Actions', () => {
         vi.mocked(is_TaiGer_role).mockReturnValue(false);
         renderSidebar();
-        expect(screen.queryByText('Official Details')).not.toBeInTheDocument();
+        expect(screen.getByText('Official Details')).toBeInTheDocument();
+        expect(screen.queryByText('Actions')).not.toBeInTheDocument();
     });
 
     it('shows Delete Interview button for TaiGer role users', () => {

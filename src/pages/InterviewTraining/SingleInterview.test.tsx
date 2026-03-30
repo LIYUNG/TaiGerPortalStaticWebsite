@@ -131,7 +131,7 @@ vi.mock('@components/Message/DocThreadEditor', () => ({
 }));
 
 vi.mock('@components/Tabs', () => ({
-    a11yProps: (value: number, index: number) => ({
+    a11yProps: (_value: number, index: number) => ({
         id: `tab-${index}`,
         'aria-controls': `tabpanel-${index}`
     }),

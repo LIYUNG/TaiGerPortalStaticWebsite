@@ -698,7 +698,7 @@ export const transcriptanalyser_testV2 = ({
     language: string;
     studentId: string;
     requirementIds: string[];
-    factor: string;
+    factor: number;
 }) =>
     request.post<TranscriptAnalyserResponse>(
         `/api/courses/transcript/v2/${studentId}/${language}`,
@@ -870,7 +870,7 @@ export const SetFileAsFinal = (
     );
 
 export const updateEssayWriter = (
-    editor_id: string,
+    editor_id: Record<string, boolean>,
     documentsthreadId: string
 ) =>
     request.post<UpdateEssayWriterResponse>(

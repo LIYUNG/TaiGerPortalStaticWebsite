@@ -26,9 +26,13 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { is_TaiGer_role } from '@taiger-common/core';
-import type { IInterviewWithId, IUserWithId } from '@taiger-common/model';
+import type {
+    IEventWithId,
+    IProgramWithId,
+    IUserWithId
+} from '@taiger-common/model';
 import TimezoneSelect from 'react-timezone-select';
-import dayjs from 'dayjs';
+import dayjs, { type Dayjs } from 'dayjs';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DesktopDateTimePicker } from '@mui/x-date-pickers/DesktopDateTimePicker';
@@ -69,9 +73,26 @@ import { TopBar } from '@components/TopBar/TopBar';
 import NotesEditor from '../../Notes/NotesEditor';
 import { OutputData } from '@editorjs/editorjs';
 
+/** Interview with populated references as returned by the API. */
+export interface IInterviewPopulated {
+    _id: string;
+    student_id: IUserWithId;
+    trainer_id: IUserWithId[];
+    program_id: IProgramWithId;
+    event_id?: IEventWithId;
+    thread_id?: string;
+    interview_description?: string;
+    interviewer?: string;
+    interview_duration?: string;
+    interview_date?: Date;
+    isClosed?: boolean;
+    start?: Date;
+    end?: Date;
+}
+
 // Interview Metadata Sidebar Component
 export interface InterviewMetadataSidebarProps {
-    interview: IInterviewWithId;
+    interview: IInterviewPopulated;
     openDeleteDocModalWindow: (e: MouseEvent<HTMLElement>) => void;
     theme: Theme;
     onInterviewUpdate: () => void;
@@ -90,30 +111,29 @@ const InterviewMetadataSidebar = ({
 
     // State for trainer assignment
     const [showTrainerModal, setShowTrainerModal] = useState(false);
-    const [editors, setEditors] = useState([]);
+    const [editors, setEditors] = useState<IUserWithId[]>([]);
     const [trainerId, setTrainerId] = useState(
-        new Set(
-            interview.trainer_id?.map((t_id: IUserWithId) =>
-                t_id._id.toString()
-            )
-        )
+        new Set(interview.trainer_id?.map((t_id) => t_id._id.toString()))
     );
 
     // State for interview time
     const [interviewTrainingTimeChange, setInterviewTrainingTimeChange] =
         useState(false);
-    const [utcTime, setUtcTime] = useState(
-        dayjs(interview.event_id?.start || '')
+    const [utcTime, setUtcTime] = useState<Dayjs | null>(
+        dayjs(interview.event_id?.start ?? '')
     );
-    const [timezone, setTimezone] = useState(
-        user.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone
-    );
+    const timezone =
+        user?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
 
     // State for official details
     const [isOfficialDetailsOpen, setIsOfficialDetailsOpen] = useState(
-        is_TaiGer_role(user)
+        user ? user && is_TaiGer_role(user) : false
     );
-    const [localInterview, setLocalInterview] = useState({
+    const [localInterview, setLocalInterview] = useState<
+        Omit<IInterviewPopulated, 'interview_description'> & {
+            interview_description: OutputData;
+        }
+    >({
         ...interview,
         interview_description:
             interview?.interview_description &&
@@ -255,11 +275,7 @@ const InterviewMetadataSidebar = ({
 
     const toggleTrainerModal = () => {
         setTrainerId(
-            new Set(
-                interview.trainer_id.map((t_id: IUserWithId) =>
-                    t_id._id.toString()
-                )
-            )
+            new Set(interview.trainer_id.map((t_id) => t_id._id.toString()))
         );
         setShowTrainerModal(!showTrainerModal);
     };
@@ -304,22 +320,49 @@ const InterviewMetadataSidebar = ({
         setInterviewTrainingTimeChange(true);
     };
 
+    const getErrorMessage = (error: unknown): string => {
+        if (
+            error &&
+            typeof error === 'object' &&
+            'response' in error &&
+            error.response &&
+            typeof error.response === 'object' &&
+            'data' in error.response &&
+            error.response.data &&
+            typeof error.response.data === 'object' &&
+            'message' in error.response.data &&
+            typeof error.response.data.message === 'string'
+        ) {
+            return error.response.data.message;
+        }
+        if (
+            error &&
+            typeof error === 'object' &&
+            'message' in error &&
+            typeof error.message === 'string'
+        ) {
+            return error.message;
+        }
+        return 'An error occurred while sending the interview invitation. Please try again later.';
+    };
+
     const handleSendInterviewInvitation = async (
         e: MouseEvent<HTMLButtonElement>
     ) => {
         e.preventDefault();
         try {
-            const end_date = new Date(utcTime);
+            const startDate = utcTime ? utcTime.toDate() : new Date();
+            const end_date = new Date(startDate);
             end_date.setMinutes(end_date.getMinutes() + 60);
             const interviewTrainingEvent = {
                 _id: interview.event_id?._id,
                 requester_id: [interview.student_id],
                 receiver_id: [...interview.trainer_id],
-                title: `${interview.student_id.firstname} ${interview.student_id.lastname} - ${interview.program_id.school} - ${interview.program_id.program_name} ${interview.program_id.degree} interview training`,
+                title: `${interview.student_id.firstname} ${interview.student_id.lastname} - ${interview.program_id.school} - ${interview.program_id.program_name} ${interview.program_id.degree ?? ''} interview training`,
                 description:
                     'This is the interview training. Please prepare and practice',
                 event_type: 'Interview',
-                start: new Date(utcTime),
+                start: startDate,
                 end: end_date
             };
             const resp = await addInterviewTrainingDateTime(
@@ -338,18 +381,8 @@ const InterviewMetadataSidebar = ({
                     status: resp.status
                 });
             }
-        } catch (error: any) {
-            let errorMessage =
-                'An error occurred while sending the interview invitation. Please try again later.';
-            if (
-                error.response &&
-                error.response.data &&
-                error.response.data.message
-            ) {
-                errorMessage = error.response.data.message;
-            } else if (error.message) {
-                errorMessage = error.message;
-            }
+        } catch (error: unknown) {
+            const errorMessage = getErrorMessage(error);
             setModalError({
                 show: true,
                 message: errorMessage,
@@ -363,7 +396,7 @@ const InterviewMetadataSidebar = ({
     };
 
     const handleChange_UpdateInterview = (
-        e: React.ChangeEvent<HTMLInputElement>
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => {
         setButtonDisabled(false);
         setLocalInterview((prevState) => ({
@@ -396,7 +429,15 @@ const InterviewMetadataSidebar = ({
         );
         const { data: interview_updated, success } = data;
         if (success) {
-            setLocalInterview(interview_updated);
+            const parsed = {
+                ...interview_updated,
+                interview_description:
+                    interview_updated.interview_description &&
+                    interview_updated.interview_description !== '{}'
+                        ? JSON.parse(interview_updated.interview_description)
+                        : { time: new Date(), blocks: [] }
+            };
+            setLocalInterview(parsed as typeof localInterview);
             setButtonDisabled(true);
             onInterviewUpdate();
         } else {
@@ -516,10 +557,7 @@ const InterviewMetadataSidebar = ({
                                         gap={0.75}
                                     >
                                         {interview.trainer_id.map(
-                                            (
-                                                trainer: IUserWithId,
-                                                idx: number
-                                            ) => (
+                                            (trainer, idx) => (
                                                 <Tooltip
                                                     key={idx}
                                                     title={`${trainer.firstname} ${trainer.lastname}`}
@@ -565,7 +603,7 @@ const InterviewMetadataSidebar = ({
                                             )
                                         )}
                                     </Stack>
-                                    {is_TaiGer_role(user) && (
+                                    {user && is_TaiGer_role(user) && (
                                         <Button
                                             color="primary"
                                             fullWidth
@@ -587,7 +625,7 @@ const InterviewMetadataSidebar = ({
                                     >
                                         {t('No Trainer Assigned')}
                                     </Typography>
-                                    {is_TaiGer_role(user) && (
+                                    {user && is_TaiGer_role(user) && (
                                         <Button
                                             color="primary"
                                             fullWidth
@@ -635,15 +673,12 @@ const InterviewMetadataSidebar = ({
                             </Stack>
                         </Box>
                         <Box sx={{ p: 2 }}>
-                            {is_TaiGer_role(user) ? (
+                            {user && is_TaiGer_role(user) ? (
                                 interview.trainer_id?.length !== 0 ? (
                                     <Stack spacing={1.5}>
                                         <TimezoneSelect
                                             displayValue="UTC"
                                             isDisabled={true}
-                                            onChange={(e) =>
-                                                setTimezone(e.value)
-                                            }
                                             value={timezone}
                                         />
                                         <LocalizationProvider
@@ -694,7 +729,7 @@ const InterviewMetadataSidebar = ({
                                     sx={{ textAlign: 'center' }}
                                     variant="body1"
                                 >
-                                    {`${convertDate(utcTime)} ${NoonNightLabel(utcTime)} ${
+                                    {`${convertDate(utcTime?.toDate() as Date)} ${NoonNightLabel(utcTime?.toDate() as Date)} ${
                                         Intl.DateTimeFormat().resolvedOptions()
                                             .timeZone
                                     }`}
@@ -1023,7 +1058,7 @@ const InterviewMetadataSidebar = ({
                             <Button
                                 color="primary"
                                 disabled={isInTheFuture(
-                                    interview.interview_date
+                                    interview.interview_date as Date
                                 )}
                                 fullWidth
                                 onClick={onClickToInterviewSurveyHandler}
@@ -1036,198 +1071,184 @@ const InterviewMetadataSidebar = ({
                         </Box>
                     </Card>
 
-                    {/* Official Details Collapsible Card */}
-                    {is_TaiGer_role(user) && (
-                        <Card
+                    <Card
+                        sx={{
+                            borderRadius: 2,
+                            boxShadow: theme.shadows[1],
+                            border: `1px solid ${theme.palette.divider}`
+                        }}
+                    >
+                        <Box
+                            onClick={() =>
+                                setIsOfficialDetailsOpen(!isOfficialDetailsOpen)
+                            }
                             sx={{
-                                borderRadius: 2,
-                                boxShadow: theme.shadows[1],
-                                border: `1px solid ${theme.palette.divider}`
+                                cursor: 'pointer',
+                                p: 1.5,
+                                bgcolor: isDarkMode
+                                    ? 'rgba(255,255,255,0.05)'
+                                    : theme.palette.grey[50],
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                '&:hover': {
+                                    bgcolor: isDarkMode
+                                        ? 'rgba(255,255,255,0.1)'
+                                        : theme.palette.grey[100]
+                                }
                             }}
                         >
-                            <Box
-                                onClick={() =>
-                                    setIsOfficialDetailsOpen(
-                                        !isOfficialDetailsOpen
-                                    )
-                                }
-                                sx={{
-                                    cursor: 'pointer',
-                                    p: 1.5,
-                                    bgcolor: isDarkMode
-                                        ? 'rgba(255,255,255,0.05)'
-                                        : theme.palette.grey[50],
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                    '&:hover': {
-                                        bgcolor: isDarkMode
-                                            ? 'rgba(255,255,255,0.1)'
-                                            : theme.palette.grey[100]
-                                    }
-                                }}
+                            <Stack
+                                alignItems="center"
+                                direction="row"
+                                spacing={1}
                             >
-                                <Stack
-                                    alignItems="center"
-                                    direction="row"
-                                    spacing={1}
+                                <InfoIcon
+                                    fontSize="small"
+                                    sx={{ color: 'text.secondary' }}
+                                />
+                                <Typography
+                                    color="text.secondary"
+                                    fontWeight="600"
+                                    variant="subtitle2"
                                 >
-                                    <InfoIcon
-                                        fontSize="small"
-                                        sx={{ color: 'text.secondary' }}
-                                    />
-                                    <Typography
-                                        color="text.secondary"
-                                        fontWeight="600"
-                                        variant="subtitle2"
-                                    >
-                                        {t('Official Details', {
-                                            ns: 'interviews'
-                                        })}
-                                    </Typography>
+                                    {t('Official Details', {
+                                        ns: 'interviews'
+                                    })}
+                                </Typography>
+                            </Stack>
+                            {isOfficialDetailsOpen ? (
+                                <ExpandLessIcon />
+                            ) : (
+                                <ExpandMoreIcon />
+                            )}
+                        </Box>
+                        <Collapse in={isOfficialDetailsOpen}>
+                            <Box sx={{ p: 2 }}>
+                                <Stack spacing={2}>
+                                    {/* Interviewer */}
+                                    <Box>
+                                        <Typography
+                                            color="text.secondary"
+                                            sx={{
+                                                fontSize: '0.7rem',
+                                                textTransform: 'uppercase',
+                                                letterSpacing: 0.5,
+                                                mb: 0.5
+                                            }}
+                                            variant="overline"
+                                        >
+                                            {t('Interviewer', {
+                                                ns: 'interviews'
+                                            })}
+                                        </Typography>
+                                        <TextField
+                                            InputLabelProps={{
+                                                shrink: true
+                                            }}
+                                            fullWidth
+                                            id="interviewer"
+                                            name="interviewer"
+                                            onChange={(e) =>
+                                                handleChange_UpdateInterview(e)
+                                            }
+                                            placeholder="Prof. Sebastian"
+                                            required
+                                            size="small"
+                                            type="text"
+                                            value={localInterview.interviewer}
+                                        />
+                                    </Box>
+
+                                    {/* Official Interview Time */}
+                                    <Box>
+                                        <Typography
+                                            color="text.secondary"
+                                            sx={{
+                                                fontSize: '0.7rem',
+                                                textTransform: 'uppercase',
+                                                letterSpacing: 0.5,
+                                                mb: 0.5
+                                            }}
+                                            variant="overline"
+                                        >
+                                            {t('Official Interview Time')} (
+                                            {t('Your timezone local time')}{' '}
+                                            {`${
+                                                Intl.DateTimeFormat().resolvedOptions()
+                                                    .timeZone
+                                            } ${showTimezoneOffset()}`}
+                                            )
+                                        </Typography>
+                                        <LocalizationProvider
+                                            dateAdapter={AdapterDayjs}
+                                        >
+                                            <DesktopDateTimePicker
+                                                onChange={(
+                                                    newValue: Dayjs | null
+                                                ) => {
+                                                    setButtonDisabled(false);
+                                                    setLocalInterview(
+                                                        (prev) => ({
+                                                            ...prev,
+                                                            interview_date:
+                                                                newValue?.toDate()
+                                                        })
+                                                    );
+                                                }}
+                                                slotProps={{
+                                                    textField: {
+                                                        size: 'small',
+                                                        fullWidth: true,
+                                                        id: 'interview_date',
+                                                        required: true
+                                                    }
+                                                }}
+                                                value={dayjs(
+                                                    localInterview.interview_date ??
+                                                        ''
+                                                )}
+                                            />
+                                        </LocalizationProvider>
+                                    </Box>
+
+                                    {/* Description */}
+                                    <Box>
+                                        <Typography
+                                            color="text.secondary"
+                                            sx={{
+                                                fontSize: '0.7rem',
+                                                textTransform: 'uppercase',
+                                                letterSpacing: 0.5,
+                                                mb: 0.5
+                                            }}
+                                            variant="overline"
+                                        >
+                                            {t('Description', {
+                                                ns: 'common'
+                                            })}
+                                        </Typography>
+                                        <NotesEditor
+                                            buttonDisabled={buttonDisabled}
+                                            editorState={
+                                                localInterview.interview_description
+                                            }
+                                            handleClickSave={handleClickSave}
+                                            handleEditorChange={
+                                                handleEditorChange
+                                            }
+                                            notes_id={`${interview._id.toString()}-description`}
+                                            readOnly={false}
+                                            thread={null}
+                                        />
+                                    </Box>
                                 </Stack>
-                                {isOfficialDetailsOpen ? (
-                                    <ExpandLessIcon />
-                                ) : (
-                                    <ExpandMoreIcon />
-                                )}
                             </Box>
-                            <Collapse in={isOfficialDetailsOpen}>
-                                <Box sx={{ p: 2 }}>
-                                    <Stack spacing={2}>
-                                        {/* Interviewer */}
-                                        <Box>
-                                            <Typography
-                                                color="text.secondary"
-                                                sx={{
-                                                    fontSize: '0.7rem',
-                                                    textTransform: 'uppercase',
-                                                    letterSpacing: 0.5,
-                                                    mb: 0.5
-                                                }}
-                                                variant="overline"
-                                            >
-                                                {t('Interviewer', {
-                                                    ns: 'interviews'
-                                                })}
-                                            </Typography>
-                                            <TextField
-                                                InputLabelProps={{
-                                                    shrink: true
-                                                }}
-                                                fullWidth
-                                                id="interviewer"
-                                                name="interviewer"
-                                                onChange={(e) =>
-                                                    handleChange_UpdateInterview(
-                                                        e
-                                                    )
-                                                }
-                                                placeholder="Prof. Sebastian"
-                                                required
-                                                size="small"
-                                                type="text"
-                                                value={
-                                                    localInterview.interviewer
-                                                }
-                                            />
-                                        </Box>
-
-                                        {/* Official Interview Time */}
-                                        <Box>
-                                            <Typography
-                                                color="text.secondary"
-                                                sx={{
-                                                    fontSize: '0.7rem',
-                                                    textTransform: 'uppercase',
-                                                    letterSpacing: 0.5,
-                                                    mb: 0.5
-                                                }}
-                                                variant="overline"
-                                            >
-                                                {t('Official Interview Time')} (
-                                                {t('Your timezone local time')}{' '}
-                                                {`${
-                                                    Intl.DateTimeFormat().resolvedOptions()
-                                                        .timeZone
-                                                } ${showTimezoneOffset()}`}
-                                                )
-                                            </Typography>
-                                            <LocalizationProvider
-                                                dateAdapter={AdapterDayjs}
-                                            >
-                                                <DesktopDateTimePicker
-                                                    fullWidth
-                                                    id="interview_date"
-                                                    onChange={(newValue) => {
-                                                        const interviewData_temp =
-                                                            {
-                                                                ...localInterview
-                                                            };
-                                                        interviewData_temp.interview_date =
-                                                            newValue;
-                                                        setButtonDisabled(
-                                                            false
-                                                        );
-                                                        setLocalInterview(
-                                                            interviewData_temp
-                                                        );
-                                                    }}
-                                                    required
-                                                    slotProps={{
-                                                        textField: {
-                                                            size: 'small'
-                                                        }
-                                                    }}
-                                                    value={dayjs(
-                                                        localInterview.interview_date ||
-                                                            ''
-                                                    )}
-                                                />
-                                            </LocalizationProvider>
-                                        </Box>
-
-                                        {/* Description */}
-                                        <Box>
-                                            <Typography
-                                                color="text.secondary"
-                                                sx={{
-                                                    fontSize: '0.7rem',
-                                                    textTransform: 'uppercase',
-                                                    letterSpacing: 0.5,
-                                                    mb: 0.5
-                                                }}
-                                                variant="overline"
-                                            >
-                                                {t('Description', {
-                                                    ns: 'common'
-                                                })}
-                                            </Typography>
-                                            <NotesEditor
-                                                buttonDisabled={buttonDisabled}
-                                                editorState={
-                                                    localInterview.interview_description
-                                                }
-                                                handleClickSave={
-                                                    handleClickSave
-                                                }
-                                                handleEditorChange={
-                                                    handleEditorChange
-                                                }
-                                                notes_id={`${interview._id.toString()}-description`}
-                                                readOnly={false}
-                                                thread={null}
-                                                unique_id={`${interview._id.toString()}-description`}
-                                            />
-                                        </Box>
-                                    </Stack>
-                                </Box>
-                            </Collapse>
-                        </Card>
-                    )}
+                        </Collapse>
+                    </Card>
 
                     {/* Actions Card (for TaiGer roles) */}
-                    {is_TaiGer_role(user) && (
+                    {user && is_TaiGer_role(user) && (
                         <Card
                             sx={{
                                 borderRadius: 2,

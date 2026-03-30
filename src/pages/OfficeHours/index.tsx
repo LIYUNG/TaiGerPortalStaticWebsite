@@ -53,50 +53,17 @@ import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { TabTitle } from '../Utils/TabTitle';
 import MyCalendar from '@components/Calendar/components/Calendar';
 
-import EventConfirmationCard from '@components/Calendar/components/EventConfirmationCard';
+import EventConfirmationCard, { type EventConfirmationCardEvent } from '@components/Calendar/components/EventConfirmationCard';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';
 import { useTranslation } from 'react-i18next';
 import { appConfig } from '../../config';
 import { CustomTabPanel, a11yProps } from '@components/Tabs';
-import useCalendarEvents from '@hooks/useCalendarEvents';
+import useCalendarEvents, { type OfficeHoursAgent } from '@hooks/useCalendarEvents';
 
-interface OfficeHoursAgent {
-    _id?: string;
-    firstname?: string;
-    lastname?: string;
-    email?: string;
-    timezone?: string;
-    pictureUrl?: string;
-    officehours?: Record<
-        string,
-        { active?: boolean; time_slots: { value: string }[] }
-    >;
-    [key: string]: unknown;
-}
-
-interface OfficeHoursEvent {
-    _id?: string | { toString(): string };
-    start: Date | string;
-    end: Date | string;
-    description?: string;
-    isConfirmedReceiver?: boolean;
-    isConfirmedRequester?: boolean;
-    receiver_id?: {
-        _id?: string;
-        firstname?: string;
-        lastname?: string;
-        email?: string;
-    }[];
-    [key: string]: unknown;
-}
-
-interface BookedEvent {
-    start: Date | string;
-    receiver_id?: { _id?: string }[];
-    [key: string]: unknown;
-}
+type OfficeHoursEvent = EventConfirmationCardEvent;
+type BookedEvent = EventConfirmationCardEvent;
 
 const tabNameToIndexMap = {
     calendar: 0,
@@ -203,9 +170,9 @@ const OfficeHours = () => {
         return [0, 1, 2, 3, 4, 5].flatMap((iter, x) =>
             users.flatMap((agent: OfficeHoursAgent) =>
                 agent && agent.timezone && moment.tz.zone(agent.timezone)
-                    ? getReorderWeekday(
+                    ? (getReorderWeekday(
                           getTodayAsWeekday(agent.timezone)
-                      ).flatMap((weekday: string, i: number) => {
+                      ) as string[]).flatMap((weekday: string, i: number) => {
                           const slots =
                               agent.officehours?.[weekday]?.time_slots;
                           const timeSlots =
@@ -221,18 +188,18 @@ const OfficeHours = () => {
                                                 getNextDayDate(
                                                     getReorderWeekday(
                                                         getTodayAsWeekday(
-                                                            agent.timezone
+                                                            agent.timezone ?? ''
                                                         )
-                                                    ),
+                                                    ) as string[],
                                                     weekday,
-                                                    agent.timezone,
+                                                    agent.timezone ?? '',
                                                     iter
                                                 );
                                             const test_date = getUTCWithDST(
                                                 year,
                                                 month,
                                                 day,
-                                                agent.timezone,
+                                                agent.timezone ?? '',
                                                 time_slot.value
                                             );
                                             const hour = parseInt(
@@ -249,7 +216,7 @@ const OfficeHours = () => {
                                                         .timeZone
                                                 ) -
                                                 getTimezoneOffset(
-                                                    agent.timezone
+                                                    agent.timezone ?? ''
                                                 );
                                             const condition =
                                                 booked_events.some(
@@ -270,10 +237,8 @@ const OfficeHours = () => {
                                                                 time_difference
                                                             ).toISOString() &&
                                                         booked_event.receiver_id?.some(
-                                                            (receiver: {
-                                                                _id?: string;
-                                                            }) =>
-                                                                receiver._id ===
+                                                            (receiver) =>
+                                                                receiver._id?.toString() ===
                                                                 agent._id
                                                         )
                                                 );

@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { render, screen } from '@testing-library/react';
 import ResetPassword from './ResetPassword';
 
@@ -23,13 +24,11 @@ vi.mock('@store/constant', () => ({
 vi.mock('react-router-dom', async (importOriginal) => {
     const actual =
         (await importOriginal()) as typeof import('react-router-dom');
-    const React = require('react');
     const NavLinkMock = React.forwardRef<
         HTMLAnchorElement,
         { children?: React.ReactNode; to: string; [key: string]: unknown }
     >(function NavLinkMock(props, ref) {
-        const { children, to, focusRipple, focusVisibleClassName, ...rest } =
-            props;
+        const { children, to, ...rest } = props;
         return (
             <a ref={ref} href={to} {...rest}>
                 {children}
@@ -40,6 +39,8 @@ vi.mock('react-router-dom', async (importOriginal) => {
     return {
         ...actual,
         NavLink: NavLinkMock,
+        /** `import { Link as RouterLink }` uses the `Link` export — mock so tests need no Router */
+        Link: NavLinkMock,
         useNavigate: () => vi.fn()
     };
 });

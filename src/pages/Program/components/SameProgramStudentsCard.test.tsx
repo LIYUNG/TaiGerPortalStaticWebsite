@@ -5,7 +5,7 @@ import SameProgramStudentsCard from './SameProgramStudentsCard';
 vi.mock('react-router-dom', async (importOriginal) => {
     const actual =
         (await importOriginal()) as typeof import('react-router-dom');
-    const React = require('react');
+
     return {
         ...actual,
         Link: forwardRef(function LinkMock(

@@ -4,6 +4,7 @@ import type {
     IStudentResponse,
     IUserAcademicBackground
 } from '@taiger-common/model';
+import type { Application } from '@/api/types';
 import {
     is_cv_assigned,
     isCVFinished,
@@ -419,7 +420,7 @@ describe('Language Check Functions', () => {
         });
 
         test('should return false if academic_background or language is not provided', () => {
-            expect(check_english_language_passed(null)).toBe(false);
+            expect(check_english_language_passed(null as unknown as IUserAcademicBackground)).toBe(false);
             expect(check_english_language_passed(undefined)).toBe(false);
             expect(check_english_language_passed({})).toBe(false);
         });
@@ -443,7 +444,7 @@ describe('Language Check Functions', () => {
         });
 
         test('should return false if academic_background or language is not provided', () => {
-            expect(check_english_language_Notneeded(null)).toBe(false);
+            expect(check_english_language_Notneeded(null as unknown as IUserAcademicBackground)).toBe(false);
             expect(check_english_language_Notneeded(undefined)).toBe(false);
             expect(check_english_language_Notneeded({})).toBe(false);
         });
@@ -465,7 +466,7 @@ describe('Language Check Functions', () => {
         });
 
         test('should return false if academic_background or language is not provided', () => {
-            expect(check_german_language_passed(null)).toBe(false);
+            expect(check_german_language_passed(null as unknown as IUserAcademicBackground)).toBe(false);
             expect(check_german_language_passed(undefined)).toBe(false);
             expect(check_german_language_passed({})).toBe(false);
         });
@@ -487,7 +488,7 @@ describe('Language Check Functions', () => {
         });
 
         test('should return false if academic_background or language is not provided', () => {
-            expect(check_german_language_Notneeded(null)).toBe(false);
+            expect(check_german_language_Notneeded(null as unknown as IUserAcademicBackground)).toBe(false);
             expect(check_german_language_Notneeded(undefined)).toBe(false);
             expect(check_german_language_Notneeded({})).toBe(false);
         });
@@ -497,7 +498,7 @@ describe('Language Check Functions', () => {
 describe('based_documents_init', () => {
     test('should initialize all document statuses to Missing', () => {
         const student = { profile: [] };
-        const { object_init } = based_documents_init(student);
+        const { object_init } = based_documents_init(student as unknown as IStudentResponse);
         const documentlist2_keys = Object.keys(ProfileNameType);
 
         for (const key of documentlist2_keys) {
@@ -522,7 +523,7 @@ describe('based_documents_init', () => {
                 }
             ]
         };
-        const { object_init } = based_documents_init(student);
+        const { object_init } = based_documents_init(student as unknown as IStudentResponse);
 
         expect(object_init.High_School_Diploma).toBe(
             DocumentStatusType.Uploaded
@@ -544,7 +545,7 @@ describe('based_documents_init', () => {
                 }
             ]
         };
-        const { object_init } = based_documents_init(student);
+        const { object_init } = based_documents_init(student as unknown as IStudentResponse);
 
         expect(object_init.High_School_Diploma).toBe(
             DocumentStatusType.Missing
@@ -560,7 +561,7 @@ describe('based_documents_init', () => {
                 }
             ]
         };
-        const { object_init } = based_documents_init(student);
+        const { object_init } = based_documents_init(student as unknown as IStudentResponse);
 
         expect(object_init.High_School_Diploma).toBe(
             DocumentStatusType.NotNeeded
@@ -576,7 +577,7 @@ describe('based_documents_init', () => {
                 }
             ]
         };
-        const { object_init } = based_documents_init(student);
+        const { object_init } = based_documents_init(student as unknown as IStudentResponse);
 
         expect(object_init.High_School_Diploma).toBe(
             DocumentStatusType.Uploaded
@@ -612,7 +613,7 @@ describe('is_any_base_documents_uploaded', () => {
     const students = [studentWithUploadedDocument, studentWithoutDocuments];
 
     test('should return true if any base document is uploaded', () => {
-        expect(is_any_base_documents_uploaded(students)).toBe(true);
+        expect(is_any_base_documents_uploaded(students as unknown as IStudentResponse[])).toBe(true);
     });
 
     test('should return false if no base document is uploaded', () => {
@@ -634,7 +635,7 @@ describe('is_any_base_documents_uploaded', () => {
                 ]
             }
         ];
-        expect(is_any_base_documents_uploaded(studentsNoDocs)).toBe(false);
+        expect(is_any_base_documents_uploaded(studentsNoDocs as unknown as IStudentResponse[])).toBe(false);
     });
 
     test('should return false if students array is empty', () => {
@@ -642,15 +643,15 @@ describe('is_any_base_documents_uploaded', () => {
     });
 
     test('should return false if students array is null or undefined', () => {
-        expect(is_any_base_documents_uploaded(null)).toBe(false);
-        expect(is_any_base_documents_uploaded(undefined)).toBe(false);
+        expect(is_any_base_documents_uploaded(null as unknown as IStudentResponse[])).toBe(false);
+        expect(is_any_base_documents_uploaded(undefined as unknown as IStudentResponse[])).toBe(false);
     });
 });
 
 describe('is_all_uni_assist_vpd_uploaded', () => {
     test('should return false if student applications is undefined', () => {
         const student = { applications: undefined };
-        const result = is_all_uni_assist_vpd_uploaded(student);
+        const result = is_all_uni_assist_vpd_uploaded(student as unknown as IStudentResponse);
         expect(result).toBe(false);
     });
 
@@ -667,7 +668,7 @@ describe('is_all_uni_assist_vpd_uploaded', () => {
                 }
             ]
         };
-        const result = is_all_uni_assist_vpd_uploaded(student);
+        const result = is_all_uni_assist_vpd_uploaded(student as unknown as IStudentResponse);
         expect(result).toBe(true); // Should ignore this application since 'VPD' is not in uni_assist
     });
 
@@ -681,7 +682,7 @@ describe('is_all_uni_assist_vpd_uploaded', () => {
                 }
             ]
         };
-        const result = is_all_uni_assist_vpd_uploaded(student);
+        const result = is_all_uni_assist_vpd_uploaded(student as unknown as IStudentResponse);
         expect(result).toBe(false);
     });
 
@@ -703,7 +704,7 @@ describe('is_all_uni_assist_vpd_uploaded', () => {
                 }
             ]
         };
-        const result = is_all_uni_assist_vpd_uploaded(student);
+        const result = is_all_uni_assist_vpd_uploaded(student as unknown as IStudentResponse);
         expect(result).toBe(true); // Should skip the first application due to status NotNeeded
     });
 
@@ -720,7 +721,7 @@ describe('is_all_uni_assist_vpd_uploaded', () => {
                 }
             ]
         };
-        const result = is_all_uni_assist_vpd_uploaded(student);
+        const result = is_all_uni_assist_vpd_uploaded(student as unknown as IStudentResponse);
         expect(result).toBe(false); // Should return false since status is not 'Uploaded' and file path is empty
     });
 
@@ -745,14 +746,14 @@ describe('is_all_uni_assist_vpd_uploaded', () => {
                 }
             ]
         };
-        const result = is_all_uni_assist_vpd_uploaded(student);
+        const result = is_all_uni_assist_vpd_uploaded(student as unknown as IStudentResponse);
         expect(result).toBe(true); // All conditions for uploading are satisfied
     });
 });
 
 describe('check_languages_filled', () => {
     test('should return false if academic_background or language is not provided', () => {
-        expect(check_languages_filled(null)).toBe(false);
+        expect(check_languages_filled(null as unknown as IUserAcademicBackground)).toBe(false);
         expect(check_languages_filled(undefined)).toBe(false);
         expect(check_languages_filled({})).toBe(false);
     });
@@ -822,10 +823,10 @@ describe('check_languages_filled', () => {
 
 describe('check_academic_background_filled', () => {
     test('should return false if academic_background or university is not provided', () => {
-        expect(check_academic_background_filled(null)).toBe(false);
+        expect(check_academic_background_filled(null as unknown as IUserAcademicBackground)).toBe(false);
         expect(check_academic_background_filled(undefined)).toBe(false);
         expect(check_academic_background_filled({})).toBe(false);
-        expect(check_academic_background_filled({ university: null })).toBe(
+        expect(check_academic_background_filled({ university: undefined })).toBe(
             false
         );
     });
@@ -842,7 +843,7 @@ describe('check_academic_background_filled', () => {
                 attended_university_program: 'Computer Science'
             }
         };
-        expect(check_academic_background_filled(academic_background)).toBe(
+        expect(check_academic_background_filled(academic_background as unknown as IUserAcademicBackground)).toBe(
             false
         );
     });
@@ -859,7 +860,7 @@ describe('check_academic_background_filled', () => {
                 attended_university_program: 'Computer Science'
             }
         };
-        expect(check_academic_background_filled(academic_background)).toBe(
+        expect(check_academic_background_filled(academic_background as unknown as IUserAcademicBackground)).toBe(
             true
         );
     });
@@ -874,7 +875,7 @@ describe('check_academic_background_filled', () => {
                 attended_university_program: ''
             }
         };
-        expect(check_academic_background_filled(academic_background)).toBe(
+        expect(check_academic_background_filled(academic_background as unknown as IUserAcademicBackground)).toBe(
             false
         );
     });
@@ -1121,7 +1122,7 @@ describe('num_uni_assist_vpd_uploaded', () => {
         const student = {
             applications: []
         };
-        const result = num_uni_assist_vpd_uploaded(student);
+        const result = num_uni_assist_vpd_uploaded(student as unknown as IStudentResponse);
         expect(result).toBe(0);
     });
 
@@ -1135,7 +1136,7 @@ describe('num_uni_assist_vpd_uploaded', () => {
                 }
             ]
         };
-        const result = num_uni_assist_vpd_uploaded(student);
+        const result = num_uni_assist_vpd_uploaded(student as unknown as IStudentResponse);
         expect(result).toBe(0);
     });
 
@@ -1155,7 +1156,7 @@ describe('num_uni_assist_vpd_uploaded', () => {
                 }
             ]
         };
-        const result = num_uni_assist_vpd_uploaded(student);
+        const result = num_uni_assist_vpd_uploaded(student as unknown as IStudentResponse);
         expect(result).toBe(0);
     });
 
@@ -1190,7 +1191,7 @@ describe('num_uni_assist_vpd_uploaded', () => {
                 }
             ]
         };
-        const result = num_uni_assist_vpd_uploaded(student);
+        const result = num_uni_assist_vpd_uploaded(student as unknown as IStudentResponse);
         expect(result).toBe(2); // Three applications have uploaded VPD documents
     });
 });
@@ -1201,7 +1202,7 @@ describe('num_uni_assist_vpd_needed', () => {
         const student = {
             applications: []
         };
-        const result = num_uni_assist_vpd_needed(student);
+        const result = num_uni_assist_vpd_needed(student as unknown as IStudentResponse);
         expect(result).toBe(0);
     });
 
@@ -1220,7 +1221,7 @@ describe('num_uni_assist_vpd_needed', () => {
                 }
             ]
         };
-        const result = num_uni_assist_vpd_needed(student);
+        const result = num_uni_assist_vpd_needed(student as unknown as IStudentResponse);
         expect(result).toBe(0);
     });
 
@@ -1250,7 +1251,7 @@ describe('num_uni_assist_vpd_needed', () => {
                 }
             ]
         };
-        const result = num_uni_assist_vpd_needed(student);
+        const result = num_uni_assist_vpd_needed(student as unknown as IStudentResponse);
         expect(result).toBe(2); // Three applications require uni assist for VPD
     });
 });
@@ -1261,7 +1262,7 @@ describe('is_program_ml_rl_essay_finished', () => {
         const application = {
             doc_modification_thread: []
         };
-        const result = is_program_ml_rl_essay_finished(application);
+        const result = is_program_ml_rl_essay_finished(application as unknown as Application);
         expect(result).toBe(true);
     });
 
@@ -1274,7 +1275,7 @@ describe('is_program_ml_rl_essay_finished', () => {
                 { isFinalVersion: true }
             ]
         };
-        const result = is_program_ml_rl_essay_finished(application);
+        const result = is_program_ml_rl_essay_finished(application as unknown as Application);
         expect(result).toBe(false);
     });
 
@@ -1287,7 +1288,7 @@ describe('is_program_ml_rl_essay_finished', () => {
                 { isFinalVersion: true }
             ]
         };
-        const result = is_program_ml_rl_essay_finished(application);
+        const result = is_program_ml_rl_essay_finished(application as unknown as Application);
         expect(result).toBe(true);
     });
 });
@@ -1295,19 +1296,19 @@ describe('is_program_ml_rl_essay_finished', () => {
 describe('isUniAssistVPDNeeded', () => {
     test('returns false when the program is not decided', () => {
         const application = {};
-        const result = isUniAssistVPDNeeded(application);
+        const result = isUniAssistVPDNeeded(application as unknown as Application);
         expect(result).toBe(false);
     });
 
     test('returns false when programId does not have uni_assist', () => {
         const application = { programId: {} };
-        const result = isUniAssistVPDNeeded(application);
+        const result = isUniAssistVPDNeeded(application as unknown as Application);
         expect(result).toBe(false);
     });
 
     test('returns false when uni_assist does not include VPD', () => {
         const application = { programId: { uni_assist: 'Yes-FULL' } };
-        const result = isUniAssistVPDNeeded(application);
+        const result = isUniAssistVPDNeeded(application as unknown as Application);
         expect(result).toBe(false);
     });
 
@@ -1317,7 +1318,7 @@ describe('isUniAssistVPDNeeded', () => {
             uni_assist: {},
             decided: 'O'
         };
-        const result = isUniAssistVPDNeeded(application);
+        const result = isUniAssistVPDNeeded(application as unknown as Application);
         expect(result).toBe(true);
     });
 
@@ -1327,7 +1328,7 @@ describe('isUniAssistVPDNeeded', () => {
             uni_assist: { status: DocumentStatusType.NotNeeded },
             decided: 'O'
         };
-        const result = isUniAssistVPDNeeded(application);
+        const result = isUniAssistVPDNeeded(application as unknown as Application);
         expect(result).toBe(false);
     });
 
@@ -1335,12 +1336,12 @@ describe('isUniAssistVPDNeeded', () => {
         const application = {
             programId: { uni_assist: 'Yes-VPD' },
             uni_assist: {
-                status: DocumentStatusType.Pending,
+                status: DocumentStatusType.Missing,
                 vpd_file_path: ''
             },
             decided: 'O'
         };
-        const result = isUniAssistVPDNeeded(application);
+        const result = isUniAssistVPDNeeded(application as unknown as Application);
         expect(result).toBe(true);
     });
 
@@ -1353,7 +1354,7 @@ describe('isUniAssistVPDNeeded', () => {
             },
             decided: 'O'
         };
-        const result = isUniAssistVPDNeeded(application);
+        const result = isUniAssistVPDNeeded(application as unknown as Application);
         expect(result).toBe(false);
     });
 });
@@ -1362,7 +1363,7 @@ describe('is_uni_assist_paid_and_docs_uploaded', () => {
     // Test case 1: No uni assist
     test('returns false when uni assist is not provided', () => {
         const application = {};
-        const result = is_uni_assist_paid_and_docs_uploaded(application);
+        const result = is_uni_assist_paid_and_docs_uploaded(application as unknown as Application);
         expect(result).toBe(false);
     });
 
@@ -1373,7 +1374,7 @@ describe('is_uni_assist_paid_and_docs_uploaded', () => {
                 isPaid: false
             }
         };
-        const result = is_uni_assist_paid_and_docs_uploaded(application);
+        const result = is_uni_assist_paid_and_docs_uploaded(application as unknown as Application);
         expect(result).toBe(false);
     });
 
@@ -1384,7 +1385,7 @@ describe('is_uni_assist_paid_and_docs_uploaded', () => {
                 isPaid: true
             }
         };
-        const result = is_uni_assist_paid_and_docs_uploaded(application);
+        const result = is_uni_assist_paid_and_docs_uploaded(application as unknown as Application);
         expect(result).toBe(true);
     });
 });
@@ -1393,7 +1394,7 @@ describe('check_student_needs_uni_assist', () => {
     // Test case 1: No applications
     test('returns false when no applications are provided', () => {
         const student = { applications: [] };
-        const result = check_student_needs_uni_assist(student);
+        const result = check_student_needs_uni_assist(student as unknown as IStudentResponse);
         expect(result).toBe(false);
     });
 
@@ -1402,7 +1403,7 @@ describe('check_student_needs_uni_assist', () => {
         const student = {
             applications: [{ programId: { uni_assist: 'No' }, decided: 'O' }]
         };
-        const result = check_student_needs_uni_assist(student);
+        const result = check_student_needs_uni_assist(student as unknown as IStudentResponse);
         expect(result).toBe(false);
     });
 
@@ -1414,7 +1415,7 @@ describe('check_student_needs_uni_assist', () => {
                 { programId: { uni_assist: 'No' }, decided: 'O' }
             ]
         };
-        const result = check_student_needs_uni_assist(student);
+        const result = check_student_needs_uni_assist(student as unknown as IStudentResponse);
         expect(result).toBe(true);
     });
 
@@ -1426,7 +1427,7 @@ describe('check_student_needs_uni_assist', () => {
                 { programId: { uni_assist: 'No' }, decided: 'O' }
             ]
         };
-        const result = check_student_needs_uni_assist(student);
+        const result = check_student_needs_uni_assist(student as unknown as IStudentResponse);
         expect(result).toBe(true);
     });
 
@@ -1438,7 +1439,7 @@ describe('check_student_needs_uni_assist', () => {
                 { programId: { uni_assist: 'Yes_VPD' }, decided: '-' }
             ]
         };
-        const result = check_student_needs_uni_assist(student);
+        const result = check_student_needs_uni_assist(student as unknown as IStudentResponse);
         expect(result).toBe(false);
     });
 });

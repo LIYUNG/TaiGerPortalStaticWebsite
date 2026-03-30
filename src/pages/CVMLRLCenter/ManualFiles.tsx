@@ -1,5 +1,13 @@
-import { useState, type ChangeEvent, type MouseEvent } from 'react';
-import { Alert, Button, Card, Grid, Link, Typography } from '@mui/material';
+import { useState, type MouseEvent } from 'react';
+import {
+    Alert,
+    Button,
+    Card,
+    Grid,
+    Link,
+    type SelectChangeEvent,
+    Typography
+} from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { Link as LinkDom } from 'react-router-dom';
 import { is_TaiGer_role, isProgramDecided } from '@taiger-common/core';
@@ -65,6 +73,19 @@ const ManualFiles = (props: ManualFilesProps) => {
     const { t } = useTranslation();
     const [categoryState, setCategory] = useState('');
 
+    type DocEntry = {
+        docKey: string;
+        docType?: string;
+        status?: string;
+        scope?: string;
+        counts?: {
+            required?: number;
+            provided?: number;
+            delta?: number;
+        };
+    };
+    type RLApp = { programId: string; programLabel: string; required: number };
+
     // Always use calculateApplicationLockStatus - it correctly handles both approval and non-approval countries
     let lockStatus = null;
     let isLocked = false;
@@ -90,7 +111,7 @@ const ManualFiles = (props: ManualFilesProps) => {
         docType?: string;
         status?: string;
         scope?: string;
-        counts?: { required: number; provided: number; delta: number };
+        counts?: { required?: number; provided?: number; delta?: number };
     }) => {
         if (!docEntry) {
             return '';
@@ -120,7 +141,7 @@ const ManualFiles = (props: ManualFilesProps) => {
         });
     };
 
-    const renderDocumentList = (docEntries = []) =>
+    const renderDocumentList = (docEntries: DocEntry[] = []) =>
         docEntries.map((docEntry, index) => (
             <li
                 key={`${docEntry.docKey}-${docEntry.scope}-${docEntry.status}-${index}`}
@@ -139,7 +160,7 @@ const ManualFiles = (props: ManualFilesProps) => {
             alert('Please select file type');
         } else {
             props.initGeneralFileThread(e, studentId, fileCategory);
-            setCategory({ category: '' });
+            setCategory('');
         }
     };
 
@@ -163,13 +184,20 @@ const ManualFiles = (props: ManualFilesProps) => {
         }
     };
 
-    const handleSelect = (e: ChangeEvent<HTMLInputElement>) => {
+    const handleSelect = (e: SelectChangeEvent) => {
         e.preventDefault();
         setCategory(e.target.value);
     };
 
-    let programDocumentStatus = { missing: [], extra: [] };
-    let generalDocumentStatus = { missing: [], extra: [], rlApplications: [] };
+    let programDocumentStatus: { missing: DocEntry[]; extra: DocEntry[] } = {
+        missing: [],
+        extra: []
+    };
+    let generalDocumentStatus: {
+        missing: DocEntry[];
+        extra: DocEntry[];
+        rlApplications: RLApp[];
+    } = { missing: [], extra: [], rlApplications: [] };
     if (props.filetype !== 'General') {
         programDocumentStatus = getProgramDocumentStatus(props.application);
     } else {
@@ -185,7 +213,7 @@ const ManualFiles = (props: ManualFilesProps) => {
     const generalExtraDocs = generalDocumentStatus.extra;
     const generalRLApplications = generalDocumentStatus.rlApplications || [];
 
-    const renderGeneralRLApplicationList = (applications = []) => {
+    const renderGeneralRLApplicationList = (applications: RLApp[] = []) => {
         if (!applications.length) {
             return null;
         }
@@ -253,7 +281,7 @@ const ManualFiles = (props: ManualFilesProps) => {
                             <Grid item xs={12}>
                                 {generalMissingDocs.length > 0 && (
                                     <Alert severity="error">
-                                        <Typography variant="string">
+                                        <Typography variant="body2">
                                             {t('missingDocumentsWarning', {
                                                 ns: 'cvmlrl'
                                             })}
@@ -268,7 +296,7 @@ const ManualFiles = (props: ManualFilesProps) => {
                             <Grid item xs={12}>
                                 {generalExtraDocs.length > 0 ? (
                                     <Alert severity="warning">
-                                        <Typography variant="string">
+                                        <Typography variant="body2">
                                             {t('extraDocumentsWarning', {
                                                 ns: 'cvmlrl'
                                             })}
@@ -288,7 +316,7 @@ const ManualFiles = (props: ManualFilesProps) => {
                             <Grid item xs={12}>
                                 {missingDocs.length > 0 ? (
                                     <Alert severity="error">
-                                        <Typography variant="string">
+                                        <Typography variant="body2">
                                             {t('missingDocumentsWarning', {
                                                 ns: 'cvmlrl'
                                             })}
@@ -301,7 +329,7 @@ const ManualFiles = (props: ManualFilesProps) => {
                             <Grid item xs={12}>
                                 {extraDocs.length > 0 ? (
                                     <Alert severity="warning">
-                                        <Typography variant="string">
+                                        <Typography variant="body2">
                                             {t('extraDocumentsWarning', {
                                                 ns: 'cvmlrl'
                                             })}
@@ -314,9 +342,10 @@ const ManualFiles = (props: ManualFilesProps) => {
                         </>
                     ) : null}
                     {props.filetype === 'ProgramSpecific' &&
+                    props.application &&
                     !isProgramDecided(props.application) ? (
                         <Grid item xs={12}>
-                            <Typography sx={{ my: 2 }} variant="string">
+                            <Typography sx={{ my: 2 }} variant="body2">
                                 <b>
                                     This following tasks are not visible in
                                     tasks dashboard and CV/ML/RL/Center. Please
@@ -325,7 +354,7 @@ const ManualFiles = (props: ManualFilesProps) => {
                                             component={LinkDom}
                                             target="_blank"
                                             to={`${DEMO.STUDENT_APPLICATIONS_ID_LINK(
-                                                props.student._id.toString()
+                                                props.student._id?.toString() ?? ''
                                             )}`}
                                         >
                                             {' '}
@@ -343,7 +372,9 @@ const ManualFiles = (props: ManualFilesProps) => {
                             handleAsFinalFile={props.handleAsFinalFile}
                             isLocked={isLocked}
                             onDeleteFileThread={props.onDeleteFileThread}
-                            student={props.student}
+                            student={
+                                props.student as unknown as import('@taiger-common/model').IStudentResponse
+                            }
                         />
                     </Grid>
                     <Grid item xs={12}>
@@ -352,7 +383,9 @@ const ManualFiles = (props: ManualFilesProps) => {
                             (props.application &&
                                 props.application.closed !== 'O')) ? (
                             <ToggleableUploadFileForm
-                                application={props.application}
+                                application={
+                                    props.application ?? undefined
+                                }
                                 category={categoryState}
                                 filetype={props.filetype}
                                 handleCreateGeneralMessageThread={
@@ -362,9 +395,7 @@ const ManualFiles = (props: ManualFilesProps) => {
                                     handleCreateProgramSpecificMessageThread
                                 }
                                 handleSelect={handleSelect}
-                                isLocked={isLocked}
-                                student={props.student}
-                                user={user}
+                                student={props.student as { _id: string }}
                             />
                         ) : null}
                     </Grid>
@@ -379,64 +410,75 @@ const ManualFiles = (props: ManualFilesProps) => {
                                 disabled={
                                     isLocked ||
                                     !is_program_ml_rl_essay_finished(
-                                        props.application
+                                        props.application!
                                     )
                                 }
                                 fullWidth
                                 onClick={() =>
-                                    props.handleProgramStatus(
-                                        props.student._id.toString(),
-                                        props.application._id.toString(),
-                                        is_program_closed(props.application)
+                                    props.handleProgramStatus?.(
+                                        props.student._id?.toString() ?? '',
+                                        props.application!._id.toString(),
+                                        is_program_closed(props.application!)
                                     )
                                 }
                                 title={isLocked ? lockTooltip : ''}
                                 variant={
-                                    is_program_closed(props.application)
+                                    is_program_closed(props.application!)
                                         ? 'outlined'
                                         : 'contained'
                                 }
                             >
-                                {is_program_closed(props.application)
+                                {is_program_closed(props.application!)
                                     ? 'Reopen'
                                     : 'Mark Submitted'}
                             </Button>
                         ) : null}
                         <Typography>Veiw requirements:</Typography>
-                        {required_doc_keys.map(
-                            (doc_reqired_key, i) =>
-                                props.application.programId[doc_reqired_key] ===
-                                    'yes' && (
+                        {required_doc_keys.map((doc_reqired_key, i) => {
+                            const program = props.application?.programId as
+                                | Record<string, unknown>
+                                | undefined;
+                            const fileCatConst =
+                                file_category_const as Record<string, string>;
+                            return (
+                                program?.[doc_reqired_key] === 'yes' && (
                                     <Button
                                         color="secondary"
                                         fullWidth
                                         key={i}
                                         onClick={() =>
-                                            props.openRequirements_ModalWindow(
-                                                props.application.programId[
-                                                    doc_reqired_key.replace(
-                                                        'required',
-                                                        'requirements'
-                                                    )
-                                                ]
+                                            props.openRequirements_ModalWindow?.(
+                                                String(
+                                                    program?.[
+                                                        doc_reqired_key.replace(
+                                                            'required',
+                                                            'requirements'
+                                                        )
+                                                    ] ?? ''
+                                                )
                                             )
                                         }
                                         size="small"
-                                        title={`${file_category_const[doc_reqired_key]}`}
+                                        title={`${fileCatConst[doc_reqired_key]}`}
                                         variant="contained"
                                     >
-                                        {file_category_const[doc_reqired_key]}
+                                        {fileCatConst[doc_reqired_key]}
                                     </Button>
                                 )
-                        )}
-                        {props.application.programId.rl_required > 0 ? (
+                            );
+                        })}
+                        {Number(
+                            props.application?.programId?.rl_required ?? 0
+                        ) > 0 ? (
                             <Button
                                 color="info"
                                 fullWidth
                                 onClick={() =>
-                                    props.openRequirements_ModalWindow(
-                                        props.application.programId
-                                            .rl_requirements
+                                    props.openRequirements_ModalWindow?.(
+                                        String(
+                                            props.application?.programId
+                                                ?.rl_requirements ?? ''
+                                        )
                                     )
                                 }
                                 size="small"

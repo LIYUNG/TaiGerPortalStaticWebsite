@@ -80,7 +80,7 @@ const UsersTable = () => {
     };
 
     const AddUserSubmit = (
-        e: FormEvent<HTMLFormElement>,
+        _e: FormEvent<HTMLFormElement>,
         user_information: {
             firstname: string;
             lastname: string;

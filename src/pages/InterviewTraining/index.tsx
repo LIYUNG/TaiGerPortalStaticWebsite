@@ -11,6 +11,7 @@ import {
 import type {
     IEvent,
     IInterviewWithId,
+    IUser,
     IUserWithId,
     IStudentResponse,
     IProgram,
@@ -33,23 +34,39 @@ import {
 } from '@mui/icons-material';
 import { MRT_ColumnDef } from 'material-react-table';
 
+interface InterviewTrainingState {
+    error: string;
+    isLoaded: boolean;
+    data: IInterviewWithId[] | null;
+    success: boolean;
+    interviewslist: IInterviewWithId[];
+    student?: IStudentResponse;
+    program_id: string;
+    category: string;
+    available_interview_request_programs: { key: string; value: string }[];
+    res_status: number;
+    res_modal_message: string;
+    res_modal_status: number;
+}
+
 const InterviewTraining = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const [interviewTrainingState, setInterviewTrainingState] = useState({
-        error: '',
-        isLoaded: false,
-        data: null,
-        success: false,
-        interviewslist: [],
-        program_id: '',
-        category: '',
-        available_interview_request_programs: [],
-        res_status: 0,
-        res_modal_message: '',
-        res_modal_status: 0
-    });
+    const [interviewTrainingState, setInterviewTrainingState] =
+        useState<InterviewTrainingState>({
+            error: '',
+            isLoaded: false,
+            data: null,
+            success: false,
+            interviewslist: [],
+            program_id: '',
+            category: '',
+            available_interview_request_programs: [],
+            res_status: 0,
+            res_modal_message: '',
+            res_modal_status: 0
+        });
 
     const {
         res_status,
@@ -60,17 +77,20 @@ const InterviewTraining = () => {
     } = interviewTrainingState;
 
     useEffect(() => {
-        if (is_TaiGer_role(user)) {
+        if (is_TaiGer_role(user as IUser)) {
             getAllInterviews().then(
                 (resp) => {
-                    const { data, success, student } = resp.data;
+                    const { data, success } = resp.data;
+                    const student = (resp.data as Record<string, unknown>)
+                        .student as IStudentResponse | undefined;
                     const { status } = resp;
                     if (success) {
                         setInterviewTrainingState((prevState) => ({
                             ...prevState,
                             isLoaded: true,
-                            interviewslist: data,
-                            student: student,
+                            interviewslist:
+                                (data as unknown as IInterviewWithId[]) ?? [],
+                            student,
                             success: success,
                             res_status: status
                         }));
@@ -94,7 +114,9 @@ const InterviewTraining = () => {
         } else {
             getMyInterviews().then(
                 (resp) => {
-                    const { data, success, student } = resp.data;
+                    const { data, success } = resp.data;
+                    const student = (resp.data as Record<string, unknown>)
+                        .student as IStudentResponse | undefined;
                     const { status } = resp;
                     if (success) {
                         const available_interview_request_programs =
@@ -104,10 +126,13 @@ const InterviewTraining = () => {
                                         isProgramDecided(application) &&
                                         !isProgramAdmitted(application) &&
                                         !isProgramRejected(application) &&
-                                        !(data || []).find(
-                                            (interview: IInterviewWithId) =>
+                                        !(
+                                            (data as unknown as IInterviewWithId[]) ||
+                                            []
+                                        ).find(
+                                            (interview) =>
                                                 (
-                                                    interview.program_id as IProgramWithId
+                                                    interview.program_id as unknown as IProgramWithId
                                                 )?._id?.toString() ===
                                                 application.programId?._id?.toString()
                                         )
@@ -121,8 +146,9 @@ const InterviewTraining = () => {
                         setInterviewTrainingState((prevState) => ({
                             ...prevState,
                             isLoaded: true,
-                            interviewslist: data,
-                            student: student,
+                            interviewslist:
+                                (data as unknown as IInterviewWithId[]) ?? [],
+                            student,
                             available_interview_request_programs,
                             success: success,
                             res_status: status
@@ -208,18 +234,18 @@ const InterviewTraining = () => {
             Cell: (params) => {
                 const { row } = params;
                 const linkUrl = `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                    row.original.student_id,
+                    row.original.student_id as string,
                     DEMO.PROFILE_HASH
                 )}`;
                 return (
                     <Link
                         component={LinkDom}
                         target="_blank"
-                        title={row.original.firstname_lastname}
+                        title={row.original.firstname_lastname as string}
                         to={linkUrl}
                         underline="hover"
                     >
-                        {row.original.firstname_lastname}
+                        {row.original.firstname_lastname as string}
                     </Link>
                 );
             }
@@ -238,7 +264,7 @@ const InterviewTraining = () => {
             size: 280,
             Cell: (params) => {
                 const { row } = params;
-                return row.original.start;
+                return row.original.start as string;
             }
         },
         {
@@ -248,7 +274,7 @@ const InterviewTraining = () => {
             size: 220,
             Cell: (params) => {
                 const { row } = params;
-                return row.original.interview_date;
+                return row.original.interview_date as string;
             }
         },
         {
@@ -261,39 +287,51 @@ const InterviewTraining = () => {
                     <Link
                         component={LinkDom}
                         target="_blank"
-                        title={row.original.program_name}
-                        to={DEMO.INTERVIEW_SINGLE_LINK(row.original.id)}
+                        title={row.original.program_name as string}
+                        to={DEMO.INTERVIEW_SINGLE_LINK(
+                            row.original.id as string
+                        )}
                         underline="hover"
                     >
-                        {row.original.program_name}
+                        {row.original.program_name as string}
                     </Link>
                 );
             }
         }
     ];
     const transform = (interviews: IInterviewWithId[]) => {
-        const result = [];
+        const result: Record<string, unknown>[] = [];
         if (!interviews) {
             return [];
         }
 
         // Count occurrences of each student_id
-        const studentIdCounts = {};
+        const studentIdCounts: Record<string, number> = {};
         for (const interview of interviews) {
-            const studentId = (interview.student_id as IStudentResponse)._id;
-            studentIdCounts[studentId] = (studentIdCounts[studentId] || 0) + 1;
+            const studentId = (
+                interview.student_id as unknown as IStudentResponse
+            )._id;
+            studentIdCounts[studentId] =
+                (studentIdCounts[studentId] || 0) + 1;
         }
 
         for (const interview of interviews) {
-            const studentId = (interview.student_id as IStudentResponse)._id;
+            const studentId = (
+                interview.student_id as unknown as IStudentResponse
+            )._id;
+            const eventStart = (
+                interview.event_id as unknown as IEvent | undefined
+            )?.start;
+            const programId =
+                interview.program_id as unknown as IProgram;
+            const student =
+                interview.student_id as unknown as IStudentResponse;
             result.push({
                 ...interview,
                 id: `${interview._id}`,
                 start:
-                    ((interview.event_id as IEvent | undefined)?.start &&
-                        convertDate(
-                            (interview.event_id as IEvent | undefined)?.start
-                        )) ||
+                    (eventStart &&
+                        convertDate(eventStart ?? new Date())) ||
                     '',
                 interview_date:
                     (interview.interview_date &&
@@ -302,11 +340,13 @@ const InterviewTraining = () => {
                 student_id: studentId,
                 isDuplicate: studentIdCounts[studentId] > 1,
                 trainer_name:
-                    interview.trainer_id
-                        ?.map((trainer: IUserWithId) => trainer.firstname)
-                        ?.join(', ') || [],
-                program_name: `${(interview.program_id as IProgram).school} ${(interview.program_id as IProgram).program_name} ${(interview.program_id as IProgram).degree} ${(interview.program_id as IProgram).semester}`,
-                firstname_lastname: `${(interview.student_id as IStudentResponse).firstname} ${(interview.student_id as IStudentResponse).lastname}`
+                    (
+                        interview.trainer_id as unknown as IUserWithId[]
+                    )
+                        ?.map((trainer) => trainer.firstname)
+                        ?.join(', ') || '',
+                program_name: `${programId.school} ${programId.program_name} ${programId.degree} ${programId.semester}`,
+                firstname_lastname: `${student.firstname} ${student.lastname}`
             });
         }
         return result;
@@ -317,7 +357,7 @@ const InterviewTraining = () => {
         return <ErrorPage res_status={res_status} />;
     }
 
-    const rows = isLoaded && transform(interviewslist);
+    const rows = isLoaded ? transform(interviewslist) : undefined;
 
     return (
         <Box>
@@ -352,13 +392,13 @@ const InterviewTraining = () => {
                 sx={{ my: 1 }}
             >
                 <Typography variant="h6">
-                    {is_TaiGer_role(user)
+                    {is_TaiGer_role(user as IUser)
                         ? t('All Interviews', { ns: 'interviews' })
                         : t('My Interviews', { ns: 'interviews' })}
                 </Typography>
                 {/* Button on the right */}
                 <Box>
-                    {!is_TaiGer_role(user) &&
+                    {!is_TaiGer_role(user as IUser) &&
                     interviewTrainingState.available_interview_request_programs
                         ?.length > 0 ? (
                         <Button
@@ -370,7 +410,7 @@ const InterviewTraining = () => {
                             {t('Add', { ns: 'common' })}
                         </Button>
                     ) : null}
-                    {is_TaiGer_role(user) ? (
+                    {is_TaiGer_role(user as IUser) ? (
                         <Button
                             color="primary"
                             onClick={handleClick}

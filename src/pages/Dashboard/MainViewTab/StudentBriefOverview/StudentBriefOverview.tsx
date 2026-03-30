@@ -129,7 +129,7 @@ const StudentBriefOverview = (props: StudentBriefOverviewProps) => {
     };
 
     const submitUpdateAgentlist = (
-        e: React.FormEvent<HTMLFormElement>,
+        _e: React.FormEvent<HTMLFormElement>,
         updateAgentList: unknown,
         student_id: string
     ) => {
@@ -150,7 +150,7 @@ const StudentBriefOverview = (props: StudentBriefOverviewProps) => {
     };
 
     const submitUpdateEditorlist = (
-        e: React.FormEvent<HTMLFormElement>,
+        _e: React.FormEvent<HTMLFormElement>,
         updateEditorList: unknown,
         student_id: string
     ) => {

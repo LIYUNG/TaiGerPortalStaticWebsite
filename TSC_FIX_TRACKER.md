@@ -2,49 +2,39 @@
 
 **Date:** 2026-03-29  
 **Initial:** 4,267 errors from `npx tsc --noEmit -p tsconfig.app.json`  
-**Current:** 2,213 errors (from latest `tsc-errors.txt` refresh)  
+**Current:** 1,436 errors (from latest `tsc-errors.txt` refresh)  
 **Full output:** `tsc-errors.txt`  
 **Refactoring plan:** `TSC_REFACTOR_PLAN.md`
 
 **Note:** `tsc-errors.txt` includes **3× TS1294** under `node_modules/@editorjs/editorjs` (`erasableSyntaxOnly`). Remaining **2,373** errors are under `src/`.
 
 ---
+run:
+`npx tsc -b 2>&1 | Tee-Object -FilePath tsc-errors.txt`
 
 ## Error Breakdown by Code
 
 | Code | Count | Prev | Δ | Description | Category |
 |------|-------|------|---|-------------|----------|
-| TS2345 | 658 | 757 | -99 | Argument type not assignable | Type mismatch |
-| TS2339 | 451 | 679 | -228 | Property does not exist on type | Interface mismatch |
-| TS2322 | 435 | 472 | -37 | Type not assignable | Type mismatch |
-| TS18048 | 189 | 276 | -87 | Possibly undefined | Null safety |
-| TS2769 | 151 | 155 | -4 | No overload matches | Overload mismatch |
-| TS7053 | 102 | 105 | -3 | Index signature issue | Index types |
-| TS18047 | 95 | 148 | -53 | Possibly null | Null safety |
-| TS18046 | 62 | 68 | -6 | Type is unknown | Unknown narrowing |
-| TS6133 | 54 | 52 | +2 | Declared but never read | Unused |
-| TS2741 | 28 | 24 | +4 | Missing required property | Interface mismatch |
-| TS2559 | 14 | 14 | 0 | No common properties | Type mismatch |
-| TS2551 | 12 | 18 | -6 | Property name typo | Misc |
-| TS2538 | 11 | — | — | Type cannot be used as index | Index types |
-| TS2353 | 10 | 14 | -4 | Object literal excess props | Type mismatch |
-| TS2739 | 10 | — | — | Missing properties | Interface mismatch |
-| TS7034 | 9 | 10 | -1 | Variable implicitly has type | Untyped vars |
-| TS7005 | 9 | 10 | -1 | Variable implicitly has 'any' type | Untyped vars |
-| TS2488 | 8 | — | — | Iterable / tuple | Misc |
-| TS2722 | 6 | 13 | -7 | Object may be undefined | Null safety |
-| TS7006 | 6 | **0** | +6 | Parameter implicitly has 'any' type | **Re-check** |
-| TS2554 | 6 | — | — | Wrong arity | Misc |
-| TS2698 | 5 | — | — | Spread / rest | Misc |
-| TS2532 | 5 | — | — | Possibly undefined object | Null safety |
-| TS2304 | 4 | — | — | Cannot find name | Misc |
-| TS1294 | 3 | — | — | erasableSyntaxOnly (node_modules) | External |
-| TS2367 | 3 | — | — | Unintentional comparison | Misc |
-| TS2307 | 3 | — | — | Cannot find module | Misc |
-| TS2347 | 3 | — | — | Union / overlap | Misc |
-| Others | ~35 | ~150 | — | TS18049, TS2352, TS2315, TS2447, … | Misc |
+| TS2345 | 482 | 518 | -36 | Argument type not assignable | Type mismatch |
+| TS2322 | 298 | 358 | -60 | Type not assignable | Type mismatch |
+| TS2339 | 263 | 314 | -51 | Property does not exist on type | Interface mismatch |
+| TS18048 | 124 | 152 | -28 | Possibly undefined | Null safety |
+| TS2769 | 78 | 96 | -18 | No overload matches | Overload mismatch |
+| TS7053 | 62 | 69 | -7 | Index signature issue | Index types |
+| TS18047 | 60 | 67 | -7 | Possibly null | Null safety |
+| TS18046 | 46 | 48 | -2 | Type is unknown | Unknown narrowing |
+| TS2352 | 26 | 27 | -1 | Type conversion may be mistake | Misc |
+| TS2741 | 25 | 26 | -1 | Missing required property | Interface mismatch |
+| TS2739 | 9 | 9 | 0 | Missing properties | Interface mismatch |
+| TS2559 | 8 | 8 | 0 | No common properties | Type mismatch |
+| TS2698 | 8 | 8 | 0 | Spread / rest | Misc |
+| TS2538 | 7 | 8 | -1 | Type cannot be used as index | Index types |
+| TS7034 | 6 | 6 | 0 | Variable implicitly has type | Untyped vars |
+| TS6133 | **0** | **0** | 0 | Declared but never read | **Cleared** |
+| Others | ~73 | ~80 | — | TS2554, TS2488, TS2353, TS2551, TS7005, … | Misc |
 
-**Note:** Prev = counts from previous tracker row (2,926-total snapshot). Current run: **2,376** errors (−550 vs that snapshot).
+**Note:** Prev = counts from previous run (1,575-total snapshot). Current run: **1,436** errors (−139).
 
 ---
 
@@ -286,12 +276,11 @@
 
 ## Pending Actions (Next Session)
 
-1. **TS7006 (6)**: Re-clear implicit-any parameters (stricter config or new call sites).
-2. **Phase 3C**: Null safety (TS18048/TS18047/TS18046 — ~350 in `src/`).
-3. **Phase 3D**: Type mismatches (TS2345/TS2322 — large share of remaining errors).
-4. **Phase 3E**: Interface mismatches (TS2339 — ~451 in `src/`).
-5. **EditorJS TS1294**: Exclude or pin types / adjust `erasableSyntaxOnly` if blocking CI.
-6. **Phase 3A follow-up**: Export/re-export `IStudentResponse`, `StudentId`, `UserId` in `src/api/types.ts` where still needed.
+1. **Phase 3C**: Null safety (TS18048/TS18047/TS18046 — ~326 in `src/`).
+2. **Phase 3D**: Type mismatches (TS2345/TS2322 — ~996, largest share of remaining errors).
+3. **Phase 3E**: Interface mismatches (TS2339 — ~411 in `src/`).
+4. **EditorJS TS1294**: Exclude or pin types / adjust `erasableSyntaxOnly` if blocking CI.
+5. **Phase 3A follow-up**: Export/re-export `IStudentResponse`, `StudentId`, `UserId` in `src/api/types.ts` where still needed.
 
 ---
 
@@ -307,3 +296,7 @@
 | 2026-03-03 | Refreshed `tsc-errors.txt`; updated TSC_FIX_TRACKER.md and TSC_REFACTOR_PLAN.md to current code | 3,268 | 2,926 |
 | 2026-03-29 | Refreshed `tsc-errors.txt`; program-requirements React Query + `getData`; smoke test ESLint `any` fix; tracker tables recomputed | 2,926 | **2,376** |
 | 2026-03-29 | Batch 2 & 3 follow-up: ProgramCompare, ProgramsOverviewPage, MyDocumentCard, SingleInterview, DealModal, LeadPage; `tsc-errors.txt` refresh | 2,376 | **2,213** |
+| 2026-03-29 | **TS6133 cleared**: Removed all 54 unused imports/variables across ~42 files (unused React imports, event params, test imports, dead vars) | 2,213 | **2,133** |
+| 2026-03-29 | Batch 4: InterviewMetadataSidebar (72→0), MyCourses/index (52→0), contants.tsx (45→partial), ManualFiles (50→partial), AddInterview (42→0), util_functions.test (51→0), OfficeHours shared hook/types (partial) | 2,133 | **1,800** |
+| 2026-03-29 | Batch 5: OfficeHours 3 files + hook (96→0), InterviewSurveyForm (38→0), DocModificationThreadInput (37→0), SingleInterview (34→0), CustomerTicketDetailPageBody (33→0) | 1,800 | **1,575** |
+| 2026-03-30 | Batch 6: AgentMainView (32→0), SingleProgramView (30→0), InterviewTraining/index (28→0), ApplicationTableRow (28→0), StudentApplicationsTableTemplate (27→0) | 1,575 | **1,436** |

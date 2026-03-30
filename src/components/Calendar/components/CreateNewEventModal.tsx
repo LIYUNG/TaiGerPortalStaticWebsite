@@ -23,7 +23,8 @@ import { useAuth } from '../../AuthProvider';
 import { getLocalTime, getUTCTimezoneOffset } from '@utils/contants';
 
 interface TimeSlot {
-    start: string;
+    start: string | Date;
+    [key: string]: unknown;
 }
 
 interface Student {
@@ -39,7 +40,7 @@ interface CreateNewEventModalProps {
     handleUpdateTimeSlot: (e: { target: { value: string } }) => void;
     handleSelectStudent: (e: { target: { value: string } }) => void;
     students: Student[];
-    newEventStart: string;
+    newEventStart: string | Date | null;
     events?: unknown[];
     handleModalCreateEvent: (event: {
         id: number;
@@ -59,27 +60,35 @@ export const CreateNewEventModal = (props: CreateNewEventModalProps) => {
     const { user } = useAuth();
     const { available_termins } = props;
     const newEventTitle = '';
-    const getDate = (time: string) => {
-        const datePart = time.split('T')[0];
+    const toISOString = (time: string | Date | null): string => {
+        if (!time) return '';
+        return time instanceof Date ? time.toISOString() : String(time);
+    };
+    const getDate = (time: string | Date | null) => {
+        const iso = toISOString(time);
+        const datePart = iso.split('T')[0];
         return datePart;
     };
-    const getHour = (time: string) => {
-        const timePart = time.split('T')[1]?.split('+')[0] ?? '';
+    const getHour = (time: string | Date | null) => {
+        const iso = toISOString(time);
+        const timePart = iso.split('T')[1]?.split('+')[0] ?? '';
         const hours = timePart.split(':')[0];
         return hours;
     };
-    const getMinute = (time: string) => {
-        const timePart = time.split('T')[1]?.split('+')[0] ?? '';
+    const getMinute = (time: string | Date | null) => {
+        const iso = toISOString(time);
+        const timePart = iso.split('T')[1]?.split('+')[0] ?? '';
         const minutes = timePart.split(':')[1];
         return minutes;
     };
     const handleCreateEvent = () => {
-        const end_date = new Date(props.newEventStart);
+        const startValue = props.newEventStart ?? new Date();
+        const end_date = new Date(startValue);
         end_date.setMinutes(end_date.getMinutes() + 30);
         const newEvent = {
             id: (props.events?.length ?? 0) + 1,
             title: newEventTitle,
-            start: new Date(props.newEventStart),
+            start: new Date(startValue),
             end: end_date,
             description: newEventDescription
         };
@@ -141,7 +150,7 @@ export const CreateNewEventModal = (props: CreateNewEventModalProps) => {
                         labelId="Time_Slot"
                         name="Time_Slot"
                         onChange={props.handleUpdateTimeSlot}
-                        value={props.newEventStart}
+                        value={toISOString(props.newEventStart)}
                     >
                         {available_termins
                             ?.sort((a, b) => (a.start < b.start ? -1 : 1))
