@@ -19,7 +19,8 @@ import { convertDate } from '@utils/contants';
 import type {
     IInterviewWithId,
     IStudentResponse,
-    IProgram
+    IProgram,
+    IUser
 } from '@taiger-common/model';
 
 interface NoTrainersInterviewsCardProps {
@@ -40,7 +41,7 @@ const NoTrainersInterviewsCard = (props: NoTrainersInterviewsCardProps) => {
             showTrainerPage: false
         });
 
-    const [anchorEl, setAnchorEl] = useState(null);
+    const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
     const open = Boolean(anchorEl);
     const { t } = useTranslation();
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -85,7 +86,7 @@ const NoTrainersInterviewsCard = (props: NoTrainersInterviewsCardProps) => {
         return (
             <>
                 <TableRow>
-                    {is_TaiGer_role(user) && !props.isArchivPage ? (
+                    {is_TaiGer_role(user as IUser) && !props.isArchivPage ? (
                         <TableCell>
                             <Button
                                 aria-controls={open ? 'basic-menu' : undefined}
@@ -119,18 +120,18 @@ const NoTrainersInterviewsCard = (props: NoTrainersInterviewsCardProps) => {
                             to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
                                 (
                                     props.interview
-                                        .student_id as IStudentResponse
+                                        .student_id as unknown as IStudentResponse
                                 )?._id?.toString(),
                                 DEMO.PROFILE_HASH
                             )}`}
                         >
                             {
-                                (props.interview.student_id as IStudentResponse)
+                                (props.interview.student_id as unknown as IStudentResponse)
                                     ?.firstname
                             }
                             ,{' '}
                             {
-                                (props.interview.student_id as IStudentResponse)
+                                (props.interview.student_id as unknown as IStudentResponse)
                                     ?.lastname
                             }
                         </Link>
@@ -142,14 +143,14 @@ const NoTrainersInterviewsCard = (props: NoTrainersInterviewsCardProps) => {
                                 props.interview?._id?.toString()
                             )}`}
                         >
-                            {(props.interview?.program_id as IProgram)?.school}
+                            {(props.interview?.program_id as unknown as IProgram)?.school}
                             {
-                                (props.interview?.program_id as IProgram)
+                                (props.interview?.program_id as unknown as IProgram)
                                     ?.program_name
                             }
-                            {(props.interview?.program_id as IProgram)?.degree}
+                            {(props.interview?.program_id as unknown as IProgram)?.degree}
                             {
-                                (props.interview?.program_id as IProgram)
+                                (props.interview?.program_id as unknown as IProgram)
                                     ?.semester
                             }
                         </Link>
@@ -163,16 +164,20 @@ const NoTrainersInterviewsCard = (props: NoTrainersInterviewsCardProps) => {
                         )}
                     </TableCell>
                 </TableRow>
-                {is_TaiGer_role(user) &&
+                {is_TaiGer_role(user as IUser) &&
                 noTrainersInterviewsCardState.showTrainerPage ? (
                     <EditInterviewTrainersSubpage
                         actor="Interview Trainer"
-                        interview={props.interview}
+                        interview={props.interview as never}
                         onHide={setTrainerModalhide}
                         setmodalhide={setTrainerModalhide}
                         show={noTrainersInterviewsCardState.showTrainerPage}
                         submitUpdateInterviewTrainerlist={
-                            submitUpdateInterviewTrainerlist
+                            submitUpdateInterviewTrainerlist as unknown as (
+                                e: React.MouseEvent<HTMLElement>,
+                                updateTrainerList: Record<string, boolean>,
+                                interview_id: string
+                            ) => void
                         }
                     />
                 ) : null}

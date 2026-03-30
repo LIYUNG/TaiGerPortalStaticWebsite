@@ -29,12 +29,25 @@ import {
 import { request } from '@/api';
 import DEMO from '@store/constant';
 
+interface ApiError extends Error {
+    response?: {
+        status?: number;
+        statusText?: string;
+        data?: { message?: string };
+    };
+}
+
 const { STUDENT_DATABASE_STUDENTID_LINK, SINGLE_PROGRAM_LINK } = DEMO;
 
 /** Application item used in similar-student card */
 export interface SimilarStudentApplication {
     admission?: string;
     finalEnrolment?: boolean;
+    programId?: {
+        _id: string;
+        school?: string;
+        program_name?: string;
+    };
 }
 
 /** Student shape for SimilarStudents card */
@@ -71,7 +84,7 @@ const StudentCard = ({ student, matchReason }: StudentCardProps) => {
     const sortedApplications = useMemo(() => {
         return (applications || [])
             .filter((application) =>
-                ['O', 'X'].includes(application?.admission)
+                ['O', 'X'].includes(application?.admission ?? '')
             )
             .sort((a, b) => {
                 // Sort by finalEnrolment first
@@ -254,7 +267,7 @@ const StudentCard = ({ student, matchReason }: StudentCardProps) => {
                     >
                         <Link
                             href={SINGLE_PROGRAM_LINK(
-                                application.programId._id
+                                application.programId?._id ?? ''
                             )}
                             rel="noopener noreferrer"
                             sx={{
@@ -458,7 +471,7 @@ const SimilarStudents = ({
     similarUsers = []
 }: SimilarStudentsProps) => {
     // Reference to the scrollable container
-    const scrollContainerRef = useRef(null);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
     const { t } = useTranslation();
     const defaultErrorCopy = t('common.similarStudentsErrorFallback', {
         ns: 'crm',
@@ -479,10 +492,10 @@ const SimilarStudents = ({
                 `/crm-api/similar-students?leadId=${leadId}`
             );
             if (response?.status >= 400) {
-                const error = new Error(
+                const error: ApiError = new Error(
                     response?.data?.message || defaultErrorCopy
                 );
-                error.response = response;
+                error.response = response as ApiError['response'];
                 throw error;
             }
             return response?.data;
@@ -534,10 +547,10 @@ const SimilarStudents = ({
                 `/api/students/batch?ids=${studentIds.join(',')}`
             );
             if (response?.status >= 400) {
-                const error = new Error(
+                const error: ApiError = new Error(
                     response?.data?.message || defaultErrorCopy
                 );
-                error.response = response;
+                error.response = response as ApiError['response'];
                 throw error;
             }
             const data = response.data.data;
@@ -570,15 +583,15 @@ const SimilarStudents = ({
             }
 
             // If years are the same, sort by semester (WS > SS)
-            const semesterOrder = { WS: 1, SS: 0 };
+            const semesterOrder: Record<string, number> = { WS: 1, SS: 0 };
             const semesterA =
                 semesterOrder[
-                    a.application_preference?.expected_application_semester
-                ] || -1;
+                    a.application_preference?.expected_application_semester ?? ''
+                ] ?? -1;
             const semesterB =
                 semesterOrder[
-                    b.application_preference?.expected_application_semester
-                ] || -1;
+                    b.application_preference?.expected_application_semester ?? ''
+                ] ?? -1;
 
             if (semesterA !== semesterB) {
                 return semesterB - semesterA;
@@ -611,7 +624,9 @@ const SimilarStudents = ({
         });
     }, [userDetails]);
 
-    const queryError = similarStudentsError || userDetailsError;
+    const queryError = (similarStudentsError || userDetailsError) as
+        | ApiError
+        | null;
     const hasError = Boolean(queryError);
     const isLoading = isLoadingSimilarStudents || isLoadingUserDetails;
     const isRefreshing = isFetchingSimilarStudents || isFetchingUserDetails;

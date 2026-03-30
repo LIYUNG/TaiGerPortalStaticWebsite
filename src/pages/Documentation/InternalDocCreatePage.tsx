@@ -40,7 +40,29 @@ import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { useAuth } from '@components/AuthProvider';
 import Loading from '@components/Loading/Loading';
 import { appConfig } from '../../config';
-import type { IInternaldocWithId } from '@taiger-common/model';
+import type { IInternaldocWithId, IUser } from '@taiger-common/model';
+import type { OutputData } from '@editorjs/editorjs';
+import type { SelectChangeEvent } from '@mui/material';
+
+interface InternalDocCreatePageState {
+    error: string;
+    isLoaded: boolean;
+    data: null;
+    success: boolean;
+    documentlists: IInternaldocWithId[];
+    doc_id_toBeDelete: string;
+    doc_title_toBeDelete: string;
+    doc_title: string;
+    category: string;
+    SetDeleteDocModel: boolean;
+    isEdit: boolean;
+    expand: boolean;
+    editorState: OutputData | null;
+    res_status: number;
+    res_modal_status: number;
+    res_modal_message: string;
+    [key: string]: unknown;
+}
 
 interface InternalDocCreatePageProps {
     item?: string;
@@ -51,7 +73,7 @@ const InternalDocCreatePage = (props: InternalDocCreatePageProps) => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const [internalDocCreatePageState, setInternalDocCreatePageState] =
-        useState({
+        useState<InternalDocCreatePageState>({
             error: '',
             isLoaded: false,
             data: null,
@@ -64,7 +86,7 @@ const InternalDocCreatePage = (props: InternalDocCreatePageProps) => {
             SetDeleteDocModel: false,
             isEdit: false,
             expand: true,
-            editorState: '',
+            editorState: null,
             res_status: 0,
             res_modal_status: 0,
             res_modal_message: ''
@@ -79,7 +101,7 @@ const InternalDocCreatePage = (props: InternalDocCreatePageProps) => {
                     setInternalDocCreatePageState((prevState) => ({
                         ...prevState,
                         isLoaded: true,
-                        documentlists: data,
+                        documentlists: (data ?? []) as IInternaldocWithId[],
                         success: success,
                         res_status: status
                     }));
@@ -91,18 +113,18 @@ const InternalDocCreatePage = (props: InternalDocCreatePageProps) => {
                     }));
                 }
             },
-            (error) => {
+            (error: unknown) => {
                 setInternalDocCreatePageState((prevState) => ({
                     ...prevState,
                     isLoaded: true,
-                    error,
+                    error: String(error),
                     res_status: 500
                 }));
             }
         );
     }, []);
 
-    const handleChange_doc_title = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange_doc_title = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { value } = e.target;
         setInternalDocCreatePageState((prevState) => ({
             ...prevState,
@@ -110,9 +132,9 @@ const InternalDocCreatePage = (props: InternalDocCreatePageProps) => {
         }));
     };
 
-    const handleChange_category = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange_category = (e: SelectChangeEvent<unknown>) => {
         e.preventDefault();
-        const { value } = e.target;
+        const value = e.target.value as string;
         setInternalDocCreatePageState((prevState) => ({
             ...prevState,
             category: value
@@ -154,22 +176,22 @@ const InternalDocCreatePage = (props: InternalDocCreatePageProps) => {
                         ...prevState,
                         isLoaded: true,
                         res_modal_status: status,
-                        res_modal_message: message
+                        res_modal_message: message ?? ''
                     }));
                 }
             },
-            (error) => {
+            (error: unknown) => {
                 setInternalDocCreatePageState((prevState) => ({
                     ...prevState,
                     isLoaded: true,
-                    error,
+                    error: String(error),
                     res_modal_status: 500,
                     res_modal_message: ''
                 }));
             }
         );
     };
-    const openDeleteDocModalWindow = (doc: IInternaldocWithId) => {
+    const openDeleteDocModalWindow = (doc: { _id: string; title: string }) => {
         setInternalDocCreatePageState((prevState) => ({
             ...prevState,
             doc_id_toBeDelete: doc._id,
@@ -185,7 +207,7 @@ const InternalDocCreatePage = (props: InternalDocCreatePageProps) => {
         }));
     };
 
-    const handleClickEditToggle = () => {
+    const handleClickEditToggle = (_e?: React.MouseEvent) => {
         setInternalDocCreatePageState((prevState) => ({
             ...prevState,
             isEdit: !internalDocCreatePageState.isEdit
@@ -193,8 +215,8 @@ const InternalDocCreatePage = (props: InternalDocCreatePageProps) => {
     };
 
     const handleClickSave = (
-        e: React.MouseEvent<HTMLElement>,
-        editorState: unknown
+        e: React.MouseEvent,
+        editorState: OutputData
     ) => {
         e.preventDefault();
         // Editorjs. editorState is in JSON form
@@ -213,12 +235,14 @@ const InternalDocCreatePage = (props: InternalDocCreatePageProps) => {
                     const documentlists_temp = [
                         ...internalDocCreatePageState.documentlists
                     ];
-                    documentlists_temp.push(data);
+                    if (data) {
+                        documentlists_temp.push(data as IInternaldocWithId);
+                    }
                     setInternalDocCreatePageState((prevState) => ({
                         ...prevState,
                         success,
                         documentlists: documentlists_temp,
-                        editorState: '',
+                        editorState: null,
                         isEdit: !internalDocCreatePageState.isEdit,
                         isLoaded: true,
                         res_modal_status: status
@@ -229,15 +253,15 @@ const InternalDocCreatePage = (props: InternalDocCreatePageProps) => {
                         ...prevState,
                         isLoaded: true,
                         res_modal_status: status,
-                        res_modal_message: message
+                        res_modal_message: message ?? ''
                     }));
                 }
             },
-            (error) => {
+            (error: unknown) => {
                 setInternalDocCreatePageState((prevState) => ({
                     ...prevState,
                     isLoaded: true,
-                    error,
+                    error: String(error),
                     res_modal_status: 500,
                     res_modal_message: ''
                 }));
@@ -256,7 +280,7 @@ const InternalDocCreatePage = (props: InternalDocCreatePageProps) => {
             res_modal_message: ''
         }));
     };
-    if (!is_TaiGer_role(user)) {
+    if (!is_TaiGer_role(user as IUser)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
@@ -281,12 +305,11 @@ const InternalDocCreatePage = (props: InternalDocCreatePageProps) => {
         return sections[`${cat}`].map(
             (document: IInternaldocWithId, i: number) => (
                 <DocumentsListItems
-                    document={document}
+                    document={document as { _id: string; title: string }}
                     idx={i}
                     key={i}
                     openDeleteDocModalWindow={openDeleteDocModalWindow}
                     path="/docs/internal/search"
-                    user={user}
                 />
             )
         );
@@ -362,13 +385,11 @@ const InternalDocCreatePage = (props: InternalDocCreatePageProps) => {
                                         handleClickEditToggle
                                     }
                                     handleClickSave={handleClickSave}
-                                    // readOnlyMode={readOnlyMode}
-                                    role={props.role}
                                 />
                             </Box>
                         ) : (
                             <>
-                                {is_TaiGer_AdminAgent(user) ? (
+                                {is_TaiGer_AdminAgent(user as IUser) ? (
                                     <Button
                                         color="primary"
                                         fullWidth
@@ -387,7 +408,7 @@ const InternalDocCreatePage = (props: InternalDocCreatePageProps) => {
                                             -{' '}
                                             {
                                                 internal_documentation_categories[
-                                                    `${catego}`
+                                                    catego as keyof typeof internal_documentation_categories
                                                 ]
                                             }
                                         </Typography>

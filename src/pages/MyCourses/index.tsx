@@ -50,7 +50,6 @@ import { ProgramRequirementsTableWrapper } from './ProgramRequirementsTableWrapp
 import i18next from 'i18next';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import type { IUserWithId } from '@taiger-common/model';
-import type { Operation } from 'react-datasheet-grid/dist/types';
 
 interface CourseRow {
     course_chinese: string;
@@ -185,7 +184,7 @@ export default function MyCourses() {
         setValue(newValue);
     };
 
-    const onChange = (new_data: Record<string, any>[], _operations: Operation[]) => {
+    const onChange = (new_data: Record<string, unknown>[]) => {
         setStatedata((prevState) => ({
             ...prevState,
             coursesdata: new_data as unknown as CourseRow[]
@@ -201,7 +200,7 @@ export default function MyCourses() {
         }));
     };
 
-    const onChange_taiger_guided = (new_data: Record<string, any>[], _operations: Operation[]) => {
+    const onChange_taiger_guided = (new_data: Record<string, unknown>[]) => {
         setStatedata((prevState) => ({
             ...prevState,
             coursesdata_taiger_guided: new_data as unknown as CourseRow[]
@@ -556,7 +555,7 @@ export default function MyCourses() {
                         } as React.CSSProperties &
                             Record<string, string>
                     }
-                    value={statedata.coursesdata as Record<string, any>[]}
+                    value={statedata.coursesdata as Record<string, unknown>[]}
                 />
             </TableContainer>
             <Card
@@ -601,7 +600,7 @@ export default function MyCourses() {
                             } as React.CSSProperties &
                                 Record<string, string>
                         }
-                        value={statedata.coursesdata_taiger_guided as Record<string, any>[]}
+                        value={statedata.coursesdata_taiger_guided as Record<string, unknown>[]}
                     />
                 </TableContainer>
             </Card>

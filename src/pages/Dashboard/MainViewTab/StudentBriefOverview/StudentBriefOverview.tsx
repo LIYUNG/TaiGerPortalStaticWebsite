@@ -32,7 +32,7 @@ import EditAttributesSubpage from '../StudDocsOverview/EditAttributesSubpage';
 import { COLORS, stringAvatar } from '@utils/contants';
 import { useDialog } from '@hooks/useDialog';
 import { updateAgents, updateAttributes, updateEditors } from '@/api';
-import type { IUserWithId } from '@taiger-common/model';
+import type { IUserWithId, IStudentResponse } from '@taiger-common/model';
 import EditUserListSubpage from '../StudDocsOverview/EditUserListSubpage';
 
 interface TaiGerUsersAvartarProps {
@@ -129,16 +129,17 @@ const StudentBriefOverview = (props: StudentBriefOverviewProps) => {
     };
 
     const submitUpdateAgentlist = (
-        _e: React.FormEvent<HTMLFormElement>,
-        updateAgentList: unknown,
+        _e: React.SyntheticEvent,
+        updateAgentList: Record<string, boolean>,
         student_id: string
     ) => {
-        updateAgents(updateAgentList as string[], student_id).then(
+        updateAgents(updateAgentList, student_id).then(
             (resp) => {
                 const { data, success } = resp.data;
-                if (success) {
+                if (success && data) {
                     const students_temp = { ...student };
-                    students_temp.agents = data.agents; // datda is single student updated
+                    students_temp.agents =
+                        data.agents as typeof students_temp.agents;
                     setOpenAgentsDialog(false);
                     setStudent(students_temp);
                 }
@@ -150,16 +151,17 @@ const StudentBriefOverview = (props: StudentBriefOverviewProps) => {
     };
 
     const submitUpdateEditorlist = (
-        _e: React.FormEvent<HTMLFormElement>,
-        updateEditorList: unknown,
+        _e: React.SyntheticEvent,
+        updateEditorList: Record<string, boolean>,
         student_id: string
     ) => {
-        updateEditors(updateEditorList as string[], student_id).then(
+        updateEditors(updateEditorList, student_id).then(
             (resp) => {
                 const { data, success } = resp.data;
-                if (success) {
+                if (success && data) {
                     const students_temp = { ...student };
-                    students_temp.editors = data.editors; // datda is single student updated
+                    students_temp.editors =
+                        data.editors as typeof students_temp.editors;
                     setStudent(students_temp);
                     setOpenEditorsDialog(false);
                 } else {
@@ -174,7 +176,7 @@ const StudentBriefOverview = (props: StudentBriefOverviewProps) => {
     };
 
     const submitUpdateAttributeslist = (
-        e: React.FormEvent<HTMLFormElement>,
+        e: React.MouseEvent<HTMLElement>,
         updateAttributesList: unknown,
         student_id: string
     ) => {
@@ -182,9 +184,10 @@ const StudentBriefOverview = (props: StudentBriefOverviewProps) => {
         updateAttributes(updateAttributesList as string[], student_id).then(
             (resp) => {
                 const { data, success } = resp.data;
-                if (success) {
+                if (success && data) {
                     const students_temp = { ...student };
-                    students_temp.attributes = data.attributes; // datda is single student updated
+                    students_temp.attributes =
+                        data?.attributes as unknown as typeof students_temp.attributes;
                     setStudent(students_temp);
                     setOpenAttributesDialog(false);
                 } else {
@@ -203,7 +206,7 @@ const StudentBriefOverview = (props: StudentBriefOverviewProps) => {
                 <Grid container spacing={2}>
                     <Grid item md={6} xs={12}>
                         <Stack alignItems="center" direction="row" spacing={1}>
-                            {!is_TaiGer_Editor(user) ? (
+                            {user && !is_TaiGer_Editor(user) ? (
                                 <Box sx={{ display: 'flex' }}>
                                     <Tooltip
                                         placement="bottom-start"
@@ -260,8 +263,16 @@ const StudentBriefOverview = (props: StudentBriefOverviewProps) => {
                                 <Typography variant="body2">
                                     {props.student.email}
                                 </Typography>
-                                {is_TaiGer_role(user)
-                                    ? (student.attributes as Array<{ _id: string; value: number; name: string }> | undefined)?.map((attribute) => (
+                                {user && is_TaiGer_role(user)
+                                    ? (
+                                          student.attributes as
+                                              | Array<{
+                                                    _id: string;
+                                                    value: number;
+                                                    name: string;
+                                                }>
+                                              | undefined
+                                      )?.map((attribute) => (
                                           <Chip
                                               color={COLORS[attribute.value]}
                                               key={attribute._id}
@@ -357,13 +368,13 @@ const StudentBriefOverview = (props: StudentBriefOverviewProps) => {
                     </Grid>
                 </Grid>
             </Box>
-            {is_TaiGer_role(user) ? (
+            {user && is_TaiGer_role(user) ? (
                 <>
                     {openAgentsDialog ? (
                         <EditUserListSubpage
                             onHide={() => setOpenAgentsDialog(false)}
                             show={openAgentsDialog}
-                            student={student}
+                            student={student as unknown as IStudentResponse}
                             submitUpdateList={submitUpdateAgentlist}
                             variant="agent"
                         />
@@ -372,7 +383,7 @@ const StudentBriefOverview = (props: StudentBriefOverviewProps) => {
                         <EditUserListSubpage
                             onHide={() => setOpenEditorsDialog(false)}
                             show={openEditorsDialog}
-                            student={student}
+                            student={student as unknown as IStudentResponse}
                             submitUpdateList={submitUpdateEditorlist}
                             variant="editor"
                         />
@@ -381,7 +392,7 @@ const StudentBriefOverview = (props: StudentBriefOverviewProps) => {
                         <EditAttributesSubpage
                             onHide={() => setOpenAttributesDialog(false)}
                             show={openAttributesDialog}
-                            student={student}
+                            student={student as unknown as IStudentResponse}
                             submitUpdateAttributeslist={
                                 submitUpdateAttributeslist
                             }

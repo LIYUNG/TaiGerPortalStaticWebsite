@@ -64,6 +64,13 @@ interface DealFormValues {
     closedAt: string;
 }
 
+interface DealFormErrors {
+    leadId?: string;
+    salesUserId?: string;
+    dealSizeNtd?: string;
+    closedAt?: string;
+}
+
 interface DealModalProps {
     open: boolean;
     onClose: () => void;
@@ -116,7 +123,7 @@ const DealModal = ({
     });
     const allLeads =
         (
-            leadsData as { data?: { data?: Record<string, unknown>[] } } | undefined
+            leadsData as { data?: { data?: Array<{ id: string; fullName: string; status?: string }> } } | undefined
         )?.data?.data ?? [];
 
     // Fetch sales reps from API
@@ -157,7 +164,7 @@ const DealModal = ({
         }
     });
 
-    const [errors, setErrors] = useState({});
+    const [errors, setErrors] = useState<DealFormErrors>({});
     // Snapshot of initial values to compute diffs for update
     const initialRef = useRef<DealFormValues | null>(null);
 
@@ -204,9 +211,9 @@ const DealModal = ({
     const resetForm = () => {
         if (isEditMode && deal) {
             // Reset to original deal data in edit mode
-            const init = {
-                leadId: deal.leadId,
-                salesUserId: deal.salesUserId,
+            const init: DealFormValues = {
+                leadId: deal.leadId ?? '',
+                salesUserId: deal.salesUserId ?? '',
                 dealSizeNtd: deal.dealSizeNtd || '',
                 status: deal.status || 'initiated',
                 note: deal.note || '',
@@ -258,7 +265,7 @@ const DealModal = ({
     };
 
     const handleSubmitWithValues = async (values: DealFormValues) => {
-        const newErrors = {};
+        const newErrors: DealFormErrors = {};
 
         // Only validate leadId and salesUserId in create mode
         if (!isEditMode) {
@@ -426,18 +433,10 @@ const DealModal = ({
                                     >
                                         {allLeads
                                             .filter(
-                                                (l: {
-                                                    id: string;
-                                                    fullName: string;
-                                                    status?: string;
-                                                }) => l.status !== 'closed'
+                                                (l) => l.status !== 'closed'
                                             )
                                             .map(
-                                                (l: {
-                                                    id: string;
-                                                    fullName: string;
-                                                    status?: string;
-                                                }) => (
+                                                (l) => (
                                                     <MenuItem
                                                         key={l.id}
                                                         value={l.id}
@@ -579,7 +578,7 @@ const DealModal = ({
                                         }
                                         for (const k of toReset) {
                                             // Clear to empty string so submit maps it to null
-                                            form.setFieldValue(k, '');
+                                            form.setFieldValue(k as keyof DealFormValues, '');
                                         }
                                     }}
                                     value={field.state.value}

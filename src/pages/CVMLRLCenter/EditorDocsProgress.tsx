@@ -69,6 +69,7 @@ interface EditorDocsProgressState {
     res_modal_status: number;
     application_id?: string;
     isApplicationSubmitted?: boolean;
+    success?: boolean;
 }
 
 const EditorDocsProgress = (props: EditorDocsProgressProps) => {
@@ -191,17 +192,17 @@ const EditorDocsProgress = (props: EditorDocsProgressProps) => {
                         setEditorDocsProgressState((prevState) => ({
                             ...prevState,
                             isLoaded: true,
-                            res_modal_message: message,
+                            res_modal_message: message ?? '',
                             res_modal_status: status
                         }));
                     }
                 },
-                (error) => {
+                (error: unknown) => {
                     setEditorDocsProgressState((prevState) => ({
                         ...prevState,
                         isLoaded: true,
                         delete_field: '',
-                        error,
+                        error: String(error),
                         res_modal_status: 500,
                         res_modal_message: ''
                     }));
@@ -269,16 +270,16 @@ const EditorDocsProgress = (props: EditorDocsProgressProps) => {
                             ...prevState,
                             isLoaded: true,
                             delete_field: '',
-                            res_modal_message: message,
+                            res_modal_message: message ?? '',
                             res_modal_status: status
                         }));
                     }
                 },
-                (error) => {
+                (error: unknown) => {
                     setEditorDocsProgressState((prevState) => ({
                         ...prevState,
                         isLoaded: true,
-                        error,
+                        error: String(error),
                         delete_field: '',
                         res_modal_status: 500,
                         res_modal_message: ''
@@ -360,12 +361,12 @@ const EditorDocsProgress = (props: EditorDocsProgressProps) => {
                                   ] as ThreadWithFinal)
                                 : undefined;
                     }
-                    if (targetThread) {
+                    if (targetThread && data) {
                         targetThread.isFinalVersion = data.isFinalVersion;
-                        targetThread.updatedAt = data.updatedAt;
+                        targetThread.updatedAt = data.updatedAt ? String(data.updatedAt) : undefined;
                         if (targetThread.doc_thread_id)
                             targetThread.doc_thread_id.updatedAt =
-                                data.updatedAt;
+                                data.updatedAt ? String(data.updatedAt) : undefined;
                     }
                     setEditorDocsProgressState((prevState) => ({
                         ...prevState,
@@ -382,16 +383,16 @@ const EditorDocsProgress = (props: EditorDocsProgressProps) => {
                     setEditorDocsProgressState((prevState) => ({
                         ...prevState,
                         isLoaded: true,
-                        res_modal_message: message,
+                        res_modal_message: message ?? '',
                         res_modal_status: status
                     }));
                 }
             },
-            (error) => {
+            (error: unknown) => {
                 setEditorDocsProgressState((prevState) => ({
                     ...prevState,
                     isLoaded: true,
-                    error,
+                    error: String(error),
                     res_modal_status: 500,
                     res_modal_message: ''
                 }));
@@ -461,7 +462,7 @@ const EditorDocsProgress = (props: EditorDocsProgressProps) => {
                         application_idx !== -1
                             ? student_temp.applications?.[application_idx]
                             : undefined;
-                    if (appAtIdx) appAtIdx.closed = data.closed;
+                    if (appAtIdx && data) appAtIdx.closed = data.closed;
                     setEditorDocsProgressState((prevState) => ({
                         ...prevState,
                         studentId: '',
@@ -476,16 +477,16 @@ const EditorDocsProgress = (props: EditorDocsProgressProps) => {
                     setEditorDocsProgressState((prevState) => ({
                         ...prevState,
                         isLoaded: true,
-                        res_modal_message: message,
+                        res_modal_message: message ?? '',
                         res_modal_status: status
                     }));
                 }
             },
-            (error) => {
+            (error: unknown) => {
                 setEditorDocsProgressState((prevState) => ({
                     ...prevState,
                     isLoaded: true,
-                    error,
+                    error: String(error),
                     res_modal_status: 500,
                     res_modal_message: ''
                 }));
@@ -575,16 +576,16 @@ const EditorDocsProgress = (props: EditorDocsProgressProps) => {
                     setEditorDocsProgressState((prevState) => ({
                         ...prevState,
                         isLoaded: true,
-                        res_modal_message: message,
+                        res_modal_message: message ?? '',
                         res_modal_status: status
                     }));
                 }
             })
-            .catch((error) => {
+            .catch((error: unknown) => {
                 setEditorDocsProgressState((prevState) => ({
                     ...prevState,
                     isLoaded: true,
-                    error,
+                    error: String(error),
                     res_modal_status: 500,
                     res_modal_message: ''
                 }));
@@ -624,16 +625,16 @@ const EditorDocsProgress = (props: EditorDocsProgressProps) => {
                     setEditorDocsProgressState((prevState) => ({
                         ...prevState,
                         isLoaded: true,
-                        res_modal_message: message,
+                        res_modal_message: message ?? '',
                         res_modal_status: status
                     }));
                 }
             })
-            .catch((error) => {
+            .catch((error: unknown) => {
                 setEditorDocsProgressState((prevState) => ({
                     ...prevState,
                     isLoaded: true,
-                    error,
+                    error: String(error),
                     res_modal_status: 500,
                     res_modal_message: ''
                 }));

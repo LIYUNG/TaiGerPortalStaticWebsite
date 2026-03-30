@@ -50,6 +50,7 @@ interface SurveyResponse {
     q1?: number;
     q2?: number;
     q3?: number;
+    [key: string]: unknown;
 }
 
 const steps = ['Interview Experience', 'Program Feedback', 'Final Thoughts'];
@@ -84,9 +85,9 @@ const InterviewSurveyForm = () => {
         try {
             const {
                 data: { data, success }
-            } = await getInterviewSurvey(interview_id);
+            } = await getInterviewSurvey(interview_id ?? '');
             if (success) {
-                const result = (data?.responses ?? []).reduce(
+                const result = ((data?.responses ?? []) as SurveyResponse[]).reduce(
                     (acc: Record<string, number>, item: SurveyResponse) => {
                         acc[item.questionId] = item.answer;
                         return acc;
@@ -118,12 +119,12 @@ const InterviewSurveyForm = () => {
 
     useEffect(() => {
         void fetchInterviewAndSurvey();
-        getInterview(interview_id).then(
+        getInterview(interview_id ?? '').then(
             (resp) => {
                 const { data, success } = resp.data;
                 const { status } = resp;
                 if (success) {
-                    setInterview(data);
+                    setInterview(data as unknown as IInterviewPopulated);
                     setInterviewSurveyState((prevState) => ({
                         ...prevState,
                         isLoaded: true,
@@ -171,7 +172,7 @@ const InterviewSurveyForm = () => {
         try {
             setIsChanged(false);
 
-            const response = await updateInterviewSurvey(interview_id, {
+            const response = await updateInterviewSurvey(interview_id ?? '', {
                 student_id: interview?.student_id?._id?.toString(),
                 interview_id: interview_id,
                 responses: [
@@ -201,7 +202,7 @@ const InterviewSurveyForm = () => {
         try {
             setIsLoading(true);
 
-            const response = await updateInterviewSurvey(interview_id, {
+            const response = await updateInterviewSurvey(interview_id ?? '', {
                 student_id: interview?.student_id?._id?.toString(),
                 interview_id: interview_id,
                 responses: [
@@ -429,7 +430,7 @@ const InterviewSurveyForm = () => {
                         isValid={
                             currentStep === steps.length - 1
                                 ? formValidator().length === 0
-                                : isCurrentStepValid()
+                                : Boolean(isCurrentStepValid())
                         }
                         onNext={handleNext}
                         onOpenModal={() => {

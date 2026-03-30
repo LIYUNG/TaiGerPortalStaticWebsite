@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { Link, Link as LinkDom, useParams } from 'react-router-dom';
+import { Link as LinkDom, useParams } from 'react-router-dom';
 import { Box, Button } from '@mui/material';
 import { is_TaiGer_AdminAgent, is_TaiGer_Student } from '@taiger-common/core';
+import type { IUser } from '@taiger-common/model';
 import { useTranslation } from 'react-i18next';
 import MessageIcon from '@mui/icons-material/Message';
 
@@ -14,36 +15,52 @@ import { appConfig } from '../../../../config';
 import { BreadcrumbsNavigation } from '@components/BreadcrumbsNavigation/BreadcrumbsNavigation';
 import { useAuth } from '@components/AuthProvider';
 
+interface ThreadQueryResponse {
+    data: {
+        success: boolean;
+        data?: Record<string, unknown>;
+        agents?: unknown[];
+        conflict_list?: unknown[];
+        editors?: unknown[];
+        deadline?: unknown;
+        threadAuditLog?: unknown[];
+        similarThreads?: unknown[];
+    };
+}
+
 const SingleThreadPage = () => {
     const { documentsthreadId } = useParams();
     const { user } = useAuth();
     const { t } = useTranslation();
     const { data, isLoading, error } = useQuery(
-        getMessagThreadQuery(documentsthreadId)
+        getMessagThreadQuery(documentsthreadId ?? '')
     );
 
     if (isLoading) {
         return <Loading />;
     }
-    if (error || !data.data.success) {
+    const responseData = data as ThreadQueryResponse | undefined;
+    if (error || !responseData?.data?.success) {
         return <ErrorPage res_status={404} />;
     }
-    const thread = data.data?.data;
-    const agents = data.data?.agents;
-    const conflict_list = data.data?.conflict_list;
-    const editors = data.data?.editors;
-    const deadline = data.data?.deadline;
-    const threadAuditLog = data.data?.threadAuditLog;
-    const similarThreads = data.data?.similarThreads;
+    const thread = responseData.data?.data as Record<string, unknown>;
+    const agents = responseData.data?.agents;
+    const conflict_list = responseData.data?.conflict_list;
+    const editors = responseData.data?.editors;
+    const deadline = responseData.data?.deadline;
+    const threadAuditLog = responseData.data?.threadAuditLog;
+    const similarThreads = responseData.data?.similarThreads;
 
-    const student_name = `${thread.student_id.firstname} ${thread.student_id.lastname}`;
-    // const student_name_zh = `${thread.student_id.lastname_chinese}${thread.student_id.firstname_chinese}`;
-    let docName;
-    if (thread.program_id) {
-        const { school, degree, program_name } = thread.program_id;
+    const studentId = thread?.student_id as Record<string, unknown> | undefined;
+    const student_name = `${studentId?.firstname ?? ''} ${studentId?.lastname ?? ''}`;
+    // const student_name_zh = `${studentId?.lastname_chinese}${studentId?.firstname_chinese}`;
+    let docName: string;
+    if (thread?.program_id) {
+        const programId = thread.program_id as Record<string, unknown>;
+        const { school, degree, program_name } = programId;
         docName = `${school} - ${degree} - ${program_name} ${thread.file_type}`;
     } else {
-        docName = thread.file_type;
+        docName = String(thread?.file_type ?? '');
     }
 
     return (
@@ -63,7 +80,7 @@ const SingleThreadPage = () => {
                             {
                                 label: student_name,
                                 link: DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                                    thread.student_id._id.toString(),
+                                    String(studentId?._id ?? ''),
                                     DEMO.CVMLRL_HASH
                                 )
                             },
@@ -73,17 +90,13 @@ const SingleThreadPage = () => {
                         ]}
                     />
                 </Box>
-                {!is_TaiGer_Student(user) ? (
+                {!is_TaiGer_Student(user as IUser) ? (
                     <Box style={{ textAlign: 'left' }}>
-                        {is_TaiGer_AdminAgent(user) ? (
-                            <Link
-                                color="inherit"
-                                component={LinkDom}
-                                sx={{ mr: 1 }}
+                        {is_TaiGer_AdminAgent(user as IUser) ? (
+                            <LinkDom
                                 to={`${DEMO.COMMUNICATIONS_TAIGER_MODE_LINK(
-                                    thread.student_id._id
+                                    String(studentId?._id ?? '')
                                 )}`}
-                                underline="hover"
                             >
                                 <Button
                                     color="primary"
@@ -93,7 +106,7 @@ const SingleThreadPage = () => {
                                 >
                                     <b>{t('Message', { ns: 'common' })}</b>
                                 </Button>
-                            </Link>
+                            </LinkDom>
                         ) : null}
                         <Button
                             color="primary"

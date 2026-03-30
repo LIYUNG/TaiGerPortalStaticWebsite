@@ -467,9 +467,8 @@ const UsersList = (props: UsersListProps) => {
 
     const tableConfig = getTableConfig({}, isLoading);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const table = useMaterialReactTable({
-        ...(tableConfig as any),
+        ...(tableConfig as Record<string, unknown>),
         enableRowSelection: !props.readOnly,
         enableMultiRowSelection: !props.readOnly,
         columns,
