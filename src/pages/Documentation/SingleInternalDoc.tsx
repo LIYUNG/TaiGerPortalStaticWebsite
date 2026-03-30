@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import { is_TaiGer_role } from '@taiger-common/core';
 import { useMutation } from '@tanstack/react-query';
+import { OutputData } from '@editorjs/editorjs';
 
 import SingleDocEdit from './SingleDocEdit';
 import ErrorPage from '../Utils/ErrorPage';
@@ -15,19 +16,35 @@ import DocPageView from './DocPageView';
 /** Props reserved for parent; documentation_id comes from useParams */
 export type SingleDocProps = Record<string, never>;
 
+interface SingleInternalDocState {
+    error: string;
+    isLoaded: boolean;
+    success: boolean;
+    document_title: string;
+    editorState: OutputData | null;
+    isEdit: boolean;
+    internal: boolean;
+    res_status: number;
+    category: string;
+    author: string;
+}
+
 const SingleDoc = () => {
     const { documentation_id } = useParams();
     const { user } = useAuth();
-    const [singleInternalDocState, setSingleInternalDocState] = useState({
-        error: '',
-        isLoaded: false,
-        success: false,
-        document_title: '',
-        editorState: null,
-        isEdit: false,
-        internal: false,
-        res_status: 0
-    });
+    const [singleInternalDocState, setSingleInternalDocState] =
+        useState<SingleInternalDocState>({
+            error: '',
+            isLoaded: false,
+            success: false,
+            document_title: '',
+            editorState: null,
+            isEdit: false,
+            internal: false,
+            res_status: 0,
+            category: '',
+            author: ''
+        });
 
     useEffect(() => {
         getInternalDocumentation(documentation_id).then(
@@ -38,24 +55,24 @@ const SingleDoc = () => {
                     setSingleInternalDocState((prevState) => ({
                         ...prevState,
                         isLoaded: true,
-                        pagenotfounderror: true
+                        res_status: 404
                     }));
+                    return;
                 }
                 if (success) {
-                    let initialEditorState = null;
-                    const author = data.author;
+                    let initialEditorState: OutputData | null = null;
+                    const author = data.author ?? '';
                     if (data.text) {
                         initialEditorState = JSON.parse(data.text);
                     } else {
-                        initialEditorState = {};
+                        initialEditorState = {} as OutputData;
                     }
-                    initialEditorState = JSON.parse(data.text);
                     setSingleInternalDocState((prevState) => ({
                         ...prevState,
                         isLoaded: true,
-                        document_title: data.title,
-                        category: data.category,
-                        internal: data.internal,
+                        document_title: data.title ?? '',
+                        category: data.category ?? '',
+                        internal: data.internal ?? false,
                         editorState: initialEditorState,
                         author,
                         success: success,
@@ -69,11 +86,11 @@ const SingleDoc = () => {
                     }));
                 }
             },
-            (error) => {
+            (error: unknown) => {
                 setSingleInternalDocState((prevState) => ({
                     ...prevState,
                     isLoaded: true,
-                    error: error
+                    error: (error as Error).message ?? ''
                 }));
             }
         );
@@ -105,10 +122,10 @@ const SingleDoc = () => {
                 setSingleInternalDocState((prevState) => ({
                     ...prevState,
                     success,
-                    document_title: data.title,
-                    editorState: payload.editorState,
-                    isEdit: !singleInternalDocState.isEdit,
-                    author: data.author,
+                    document_title: data.title ?? '',
+                    editorState: payload.editorState as OutputData | null,
+                    isEdit: !prevState.isEdit,
+                    author: data.author ?? '',
                     isLoaded: true,
                     res_status: status
                 }));
@@ -123,7 +140,7 @@ const SingleDoc = () => {
         onError: (error: unknown) => {
             setSingleInternalDocState((prevState) => ({
                 ...prevState,
-                error
+                error: (error as Error).message ?? ''
             }));
         }
     });
@@ -167,27 +184,22 @@ const SingleDoc = () => {
     if (singleInternalDocState.isEdit) {
         return (
             <SingleDocEdit
-                author={singleInternalDocState.author}
                 category={singleInternalDocState.category}
-                document={document}
                 document_title={singleInternalDocState.document_title}
                 editorState={singleInternalDocState.editorState}
                 handleClickEditToggle={handleClickEditToggle}
                 handleClickSave={handleClickSave}
                 internal={singleInternalDocState.internal}
-                isLoaded={isLoaded}
             />
         );
     } else {
         return (
             <DocPageView
-                author={singleInternalDocState.author}
                 category={singleInternalDocState.category}
-                document={document}
-                document_title={singleInternalDocState.document_title}
-                editorState={singleInternalDocState.editorState}
+                author={singleInternalDocState.author}
+                editorState={singleInternalDocState.editorState ?? ({} as OutputData)}
                 handleClickEditToggle={handleClickEditToggle}
-                internal={singleInternalDocState.internal}
+                handleClickSave={() => {}}
             />
         );
     }

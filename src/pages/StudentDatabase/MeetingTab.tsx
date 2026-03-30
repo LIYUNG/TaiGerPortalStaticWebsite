@@ -20,8 +20,7 @@ import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import queryString from 'query-string';
 
-import type { EventResponse } from '@/api/types';
-import type { StudentId, IStudentResponse } from '@taiger-common/model';
+import type { StudentId, IStudentResponse, IMeeting } from '@taiger-common/model';
 import { useAuth } from '@components/AuthProvider';
 import {
     getEvents,
@@ -34,49 +33,65 @@ import { MeetingList } from './Meetings/MeetingList';
 import { MeetingFormModal } from './Meetings/MeetingFormModal';
 import { ConfirmationModal } from '@components/Modal/ConfirmationModal';
 
+/** Populated user object that may come back from the API */
+interface PopulatedUser {
+    _id?: string;
+    firstname?: string;
+    lastname?: string;
+    [key: string]: unknown;
+}
+
 // Helper function to transform Event data to Meeting display format
 const transformEventToMeeting = (
-    event: EventResponse
-): Record<string, unknown> => {
-    const isPast = new Date(event.start) < new Date();
-    const isConfirmed = event.isConfirmedRequester && event.isConfirmedReceiver;
-    const agent =
-        event.receiver_id && Array.isArray(event.receiver_id)
-            ? event.receiver_id[0]
-            : event.receiver_id;
-    const student =
-        event.requester_id && Array.isArray(event.requester_id)
-            ? event.requester_id[0]
-            : event.requester_id;
+    event: Record<string, unknown>
+): IMeeting => {
+    const start = event.start as string | Date | undefined;
+    const end = event.end as string | Date | undefined;
+    const isPast = start ? new Date(start) < new Date() : false;
+    const isConfirmed = !!(event.isConfirmedRequester && event.isConfirmedReceiver);
+    const receiverArr = event.receiver_id as (string | PopulatedUser)[] | undefined;
+    const requesterArr = event.requester_id as (string | PopulatedUser)[] | undefined;
+    const agent = receiverArr?.[0];
+    const student = requesterArr?.[0];
+
+    const agentObj = agent && typeof agent === 'object'
+        ? agent as PopulatedUser
+        : null;
+    const studentObj = student && typeof student === 'object'
+        ? student as PopulatedUser
+        : null;
 
     return {
-        _id: event._id,
-        title: event.title || event.description?.substring(0, 50) || 'Meeting',
-        dateTime: event.start,
-        endTime: event.end,
-        description: event.description,
+        _id: event._id as string,
+        title:
+            (event.title as string) ||
+            (event.description as string)?.substring(0, 50) ||
+            'Meeting',
+        dateTime: start as string | Date | undefined,
+        endTime: end as string | Date | undefined,
+        description: event.description as string | undefined,
         location: event.meetingLink ? 'Online' : 'TBD',
-        meetingLink: event.meetingLink,
+        meetingLink: event.meetingLink as string | undefined,
         isConfirmed,
-        isConfirmedRequester: event.isConfirmedRequester,
-        isConfirmedReceiver: event.isConfirmedReceiver,
-        agent: agent
+        isConfirmedRequester: event.isConfirmedRequester as boolean | undefined,
+        isConfirmedReceiver: event.isConfirmedReceiver as boolean | undefined,
+        agent: agentObj
             ? {
-                  _id: agent._id || agent,
-                  firstname: agent.firstname,
-                  lastname: agent.lastname
+                  _id: agentObj._id || (agent as string),
+                  firstname: agentObj.firstname,
+                  lastname: agentObj.lastname
               }
             : null,
-        student: student
+        student: studentObj
             ? {
-                  _id: student._id || student,
-                  firstname: student.firstname,
-                  lastname: student.lastname
+                  _id: studentObj._id || (student as string),
+                  firstname: studentObj.firstname,
+                  lastname: studentObj.lastname
               }
             : null,
         attended: isPast && isConfirmed,
         isPast
-    };
+    } as IMeeting;
 };
 
 export interface MeetingTabProps {
@@ -84,14 +99,6 @@ export interface MeetingTabProps {
     student: IStudentResponse | null;
 }
 
-/** Meeting-shaped object from transformEventToMeeting (for handlers) */
-interface MeetingDisplay {
-    _id: string;
-    dateTime?: string;
-    endTime?: string;
-    isPast?: boolean;
-    [key: string]: unknown;
-}
 
 export const MeetingTab = ({ studentId, student }: MeetingTabProps) => {
     const { t } = useTranslation();
@@ -102,11 +109,11 @@ export const MeetingTab = ({ studentId, student }: MeetingTabProps) => {
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [confirmModalOpen, setConfirmModalOpen] = useState(false);
     const [selectedMeeting, setSelectedMeeting] =
-        useState<MeetingDisplay | null>(null);
+        useState<IMeeting | null>(null);
     const [meetingToDelete, setMeetingToDelete] =
-        useState<MeetingDisplay | null>(null);
+        useState<IMeeting | null>(null);
     const [meetingToConfirm, setMeetingToConfirm] =
-        useState<MeetingDisplay | null>(null);
+        useState<IMeeting | null>(null);
     const [addAssistant, setAddAssistant] = useState(false);
 
     // Fetch events with a wide time range
@@ -133,7 +140,7 @@ export const MeetingTab = ({ studentId, student }: MeetingTabProps) => {
     });
 
     // Transform and filter events for this student
-    const allEvents = eventsResponse?.data?.data || [];
+    const allEvents = (eventsResponse?.data?.data || []) as Record<string, unknown>[];
     const studentEvents = allEvents;
     const meetings = studentEvents.map(transformEventToMeeting);
 
@@ -250,31 +257,32 @@ export const MeetingTab = ({ studentId, student }: MeetingTabProps) => {
         setFormModalOpen(true);
     };
 
-    const handleEditMeeting = (meeting: MeetingDisplay) => {
+    const handleEditMeeting = (meeting: IMeeting) => {
         setSelectedMeeting(meeting);
         setFormModalOpen(true);
     };
 
-    const handleDeleteMeeting = (meeting: MeetingDisplay) => {
+    const handleDeleteMeeting = (meeting: IMeeting) => {
         setMeetingToDelete(meeting);
         setDeleteModalOpen(true);
     };
 
-    const handleConfirmMeeting = (meeting: MeetingDisplay) => {
+    const handleConfirmMeeting = (meeting: IMeeting) => {
         setMeetingToConfirm(meeting);
         setAddAssistant(true);
         setConfirmModalOpen(true);
     };
 
-    const handleSaveMeeting = (formData: Record<string, unknown>) => {
+    const handleSaveMeeting = (formData: Partial<IMeeting> & { dateTime?: string | null }) => {
+        const dateTimeStr = formData.dateTime as string;
         if (selectedMeeting) {
             // Update existing event
             const eventData = {
-                start: formData.dateTime,
+                start: dateTimeStr,
                 end:
                     formData.endTime ||
                     new Date(
-                        new Date(formData.dateTime).getTime() + 30 * 60000
+                        new Date(dateTimeStr).getTime() + 30 * 60000
                     ).toISOString(),
                 description: formData.description || formData.title,
                 title: formData.title
@@ -287,12 +295,12 @@ export const MeetingTab = ({ studentId, student }: MeetingTabProps) => {
             // Create new event - agent creates event with student as requester
             const eventData = {
                 requester_id: studentId,
-                receiver_id: user._id,
-                start: formData.dateTime,
+                receiver_id: user?._id,
+                start: dateTimeStr,
                 end:
                     formData.endTime ||
                     new Date(
-                        new Date(formData.dateTime).getTime() + 30 * 60000
+                        new Date(dateTimeStr).getTime() + 30 * 60000
                     ).toISOString(),
                 description: formData.description || formData.title,
                 title: formData.title,
@@ -339,10 +347,10 @@ export const MeetingTab = ({ studentId, student }: MeetingTabProps) => {
     };
 
     const isAnyMutationLoading =
-        createMutation.isLoading ||
-        updateMutation.isLoading ||
-        confirmMutation.isLoading ||
-        deleteMutation.isLoading;
+        createMutation.isPending ||
+        updateMutation.isPending ||
+        confirmMutation.isPending ||
+        deleteMutation.isPending;
 
     if (isLoading) {
         return (
@@ -585,7 +593,7 @@ export const MeetingTab = ({ studentId, student }: MeetingTabProps) => {
                     'Are you sure you want to delete this meeting? This action cannot be undone.',
                     { ns: 'common' }
                 )}
-                isLoading={deleteMutation.isLoading}
+                isLoading={deleteMutation.isPending}
                 onClose={handleCloseDeleteModal}
                 onConfirm={handleConfirmDelete}
                 open={deleteModalOpen}
@@ -600,7 +608,7 @@ export const MeetingTab = ({ studentId, student }: MeetingTabProps) => {
                     'Are you sure you want to confirm this meeting? A meeting link will be generated.',
                     { ns: 'common' }
                 )}
-                isLoading={confirmMutation.isLoading}
+                isLoading={confirmMutation.isPending}
                 onClose={handleCloseConfirmModal}
                 onConfirm={handleConfirmMeetingAction}
                 open={confirmModalOpen}

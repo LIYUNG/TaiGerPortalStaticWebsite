@@ -1,4 +1,9 @@
-import { useState, useEffect, type SyntheticEvent } from 'react';
+import {
+    useState,
+    useEffect,
+    type ComponentProps,
+    type SyntheticEvent
+} from 'react';
 import {
     Navigate,
     Link as LinkDom,
@@ -42,6 +47,7 @@ import {
 import { TopBar } from '@components/TopBar/TopBar';
 import BaseDocumentStudentView from '../BaseDocuments/BaseDocumentStudentView';
 import EditorDocsProgress from '../CVMLRLCenter/EditorDocsProgress';
+import type { EditorDocsProgressStudent } from '../CVMLRLCenter/EditorDocsProgress';
 import UniAssistListCard from '../UniAssist/UniAssistListCard';
 import SurveyComponent from '../Survey/SurveyComponent';
 import Notes from '../Notes/index';
@@ -74,15 +80,25 @@ import Audit from '../Audit';
 import EnglishCertificateExpiredBeforeDeadlineBanner from '@components/Banner/EnglishCertificateExpiredBeforeDeadlineBanner';
 import { getStudentAndDocLinksQuery } from '@/api/query';
 import { MeetingTab } from './MeetingTab';
-import { IAuditWithId, IStudentResponse } from '@taiger-common/model';
+import type {
+    IAuditWithId,
+    IStudentResponse,
+    IBasedocumentationslinkWithId,
+    IUser
+} from '@taiger-common/model';
+import type { Application } from '@/api/types';
 
 export interface SingleStudentPageMainContentProps {
     survey_link: { key: string; link: string }[];
-    base_docs_link: string;
+    base_docs_link: IBasedocumentationslinkWithId[];
     data: IStudentResponse;
     audit: IAuditWithId[];
     refetch: () => void;
 }
+
+type StudentBriefOverviewStudentProp = ComponentProps<
+    typeof StudentBriefOverview
+>['student'];
 
 export const SingleStudentPageMainContent = ({
     survey_link,
@@ -97,7 +113,7 @@ export const SingleStudentPageMainContent = ({
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
     const [singleStudentPage, setSingleStudentPage] = useState({
         error: '',
-        isLoaded: {},
+        isLoaded: false,
         taiger_view: true,
         detailedView: false,
         student: data,
@@ -119,7 +135,7 @@ export const SingleStudentPageMainContent = ({
         }));
     }, [data]);
 
-    const [localLeadId, setLocalLeadId] = useState(null);
+    const [localLeadId, setLocalLeadId] = useState<string | null>(null);
 
     useEffect(() => {
         setLocalLeadId(null);
@@ -170,11 +186,15 @@ export const SingleStudentPageMainContent = ({
                 }
             }
         },
-        onError: (error) => {
-            const status = error?.response?.status ?? 500;
+        onError: (error: unknown) => {
+            const err = error as {
+                response?: { status?: number; data?: { message?: string } };
+                message?: string;
+            };
+            const status = err?.response?.status ?? 500;
             const message =
-                error?.response?.data?.message ??
-                error?.message ??
+                err?.response?.data?.message ??
+                err?.message ??
                 'Failed to create CRM lead';
             setSingleStudentPage((prevState) => ({
                 ...prevState,
@@ -198,7 +218,9 @@ export const SingleStudentPageMainContent = ({
 
     const handleChange = (_event: SyntheticEvent, newValue: number) => {
         setValue(newValue);
-        window.location.hash = SINGLE_STUDENT_REVERSED_TABS[newValue];
+        window.location.hash = (
+            SINGLE_STUDENT_REVERSED_TABS as Record<number, string>
+        )[newValue];
     };
 
     const updateStudentArchivStatus = (
@@ -226,15 +248,16 @@ export const SingleStudentPageMainContent = ({
                         ...prevState,
                         isLoaded: true,
                         res_modal_status: status,
-                        res_modal_message: message
+                        res_modal_message: message ?? ''
                     }));
                 }
             },
-            (error) => {
+            (error: unknown) => {
                 setSingleStudentPage((prevState) => ({
                     ...prevState,
                     isLoaded: true,
-                    error,
+                    error:
+                        error instanceof Error ? error.message : String(error),
                     res_modal_status: 500,
                     res_modal_message: ''
                 }));
@@ -263,7 +286,7 @@ export const SingleStudentPageMainContent = ({
         }));
     };
 
-    if (!is_TaiGer_role(user)) {
+    if (!is_TaiGer_role(user as IUser)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
@@ -395,7 +418,8 @@ export const SingleStudentPageMainContent = ({
                             )}
                             {t('Last Login', { ns: 'auth' })}:&nbsp;
                             {convertDate(
-                                singleStudentPage.student.lastLoginAt
+                                singleStudentPage.student.lastLoginAt ??
+                                    new Date()
                             )}{' '}
                             <Button
                                 color="secondary"
@@ -426,7 +450,8 @@ export const SingleStudentPageMainContent = ({
                                 &nbsp;:&nbsp;
                             </Alert>
                             {needGraduatedApplicantsPrograms(
-                                singleStudentPage.student.applications
+                                (singleStudentPage.student.applications ??
+                                    []) as Application[]
                             )?.map((app: Application) => (
                                 <ListItem
                                     key={app.programId?._id?.toString() ?? ''}
@@ -435,13 +460,13 @@ export const SingleStudentPageMainContent = ({
                                         component={LinkDom}
                                         target="_blank"
                                         to={DEMO.SINGLE_PROGRAM_LINK(
-                                            app.programId._id.toString()
+                                            app.programId?._id?.toString() ?? ''
                                         )}
                                     >
-                                        {app.programId.school}{' '}
-                                        {app.programId.program_name}{' '}
-                                        {app.programId.degree}{' '}
-                                        {app.programId.semester}
+                                        {app.programId?.school}{' '}
+                                        {app.programId?.program_name}{' '}
+                                        {app.programId?.degree}{' '}
+                                        {app.programId?.semester}
                                     </Link>
                                 </ListItem>
                             ))}
@@ -454,7 +479,12 @@ export const SingleStudentPageMainContent = ({
                             />
                         </Grid>
                         <EnglishCertificateExpiredBeforeDeadlineBanner
-                            student={singleStudentPage.student}
+                            student={
+                                singleStudentPage.student as unknown as Record<
+                                    string,
+                                    unknown
+                                >
+                            }
                         />
                     </Grid>
                     <Box
@@ -467,7 +497,9 @@ export const SingleStudentPageMainContent = ({
                         }}
                     >
                         <StudentBriefOverview
-                            student={singleStudentPage.student}
+                            student={
+                                singleStudentPage.student as StudentBriefOverviewStudentProp
+                            }
                             updateStudentArchivStatus={
                                 updateStudentArchivStatus
                             }
@@ -549,7 +581,7 @@ export const SingleStudentPageMainContent = ({
                                     {t('Program Recommender', { ns: 'common' })}
                                 </Button>
                             </Badge>
-                            {!is_TaiGer_Editor(user) ? (
+                            {!is_TaiGer_Editor(user as IUser) ? (
                                 <Link
                                     component={LinkDom}
                                     sx={{ mr: 1 }}
@@ -573,10 +605,8 @@ export const SingleStudentPageMainContent = ({
                                 {singleStudentPage.student
                                     .applying_program_count ? (
                                     <>
-                                        {
-                                            singleStudentPage.student
-                                                .applications.length
-                                        }{' '}
+                                        {singleStudentPage.student.applications
+                                            ?.length ?? 0}{' '}
                                         /{' '}
                                         {
                                             singleStudentPage.student.applications?.filter(
@@ -597,7 +627,8 @@ export const SingleStudentPageMainContent = ({
                         {singleStudentPage.detailedView ? (
                             <ProgramDetailsComparisonTable
                                 applications={
-                                    singleStudentPage.student?.applications
+                                    singleStudentPage.student?.applications ??
+                                    []
                                 }
                             />
                         ) : (
@@ -632,7 +663,6 @@ export const SingleStudentPageMainContent = ({
                     <CustomTabPanel index={2} value={value}>
                         <Card sx={{ p: 2 }}>
                             <EditorDocsProgress
-                                idx={0}
                                 onStudentUpdate={async () => {
                                     // Use the refetch function from the parent component
                                     if (refetch) {
@@ -667,7 +697,9 @@ export const SingleStudentPageMainContent = ({
                                         }
                                     }
                                 }}
-                                student={singleStudentPage.student}
+                                student={
+                                    singleStudentPage.student as EditorDocsProgressStudent
+                                }
                             />
                         </Card>
                     </CustomTabPanel>
@@ -742,12 +774,24 @@ export const SingleStudentPageMainContent = ({
                             {t('Student View', { ns: 'common' })}
                         </Typography>
                     </Alert>
-                    <StudentDashboard student={singleStudentPage.student} />
+                    <StudentDashboard
+                        student={singleStudentPage.student}
+                        isCoursesFilled={!!singleStudentPage.student.courses}
+                    />
                 </>
             )}
         </>
     );
 };
+
+/** Shape of the axios response data returned by getStudentAndDocLinks. */
+interface StudentDocLinksApiResponse {
+    success: boolean;
+    data: IStudentResponse;
+    survey_link: { key: string; link: string }[];
+    base_docs_link: IBasedocumentationslinkWithId[];
+    audit: IAuditWithId[];
+}
 
 const SingleStudentPage = () => {
     const { studentId } = useParams();
@@ -756,9 +800,13 @@ const SingleStudentPage = () => {
         data: response,
         isLoading,
         refetch
-    } = useQuery(getStudentAndDocLinksQuery({ studentId }));
+    } = useQuery(getStudentAndDocLinksQuery({ studentId: studentId ?? '' }));
 
-    if (isLoading || !response?.data) {
+    const axiosData = (
+        response as { data?: StudentDocLinksApiResponse } | undefined
+    )?.data;
+
+    if (isLoading || !axiosData) {
         return (
             <Box>
                 <CircularProgress />
@@ -768,8 +816,7 @@ const SingleStudentPage = () => {
 
     // response is the axios response: { data: { success: true, data: student, ... }, status, headers, ... }
     // So response.data is our API response: { success: true, data: student, ... }
-    const apiResponse = response.data;
-    const { survey_link, base_docs_link, data, audit } = apiResponse;
+    const { survey_link, base_docs_link, data, audit } = axiosData;
 
     return (
         <SingleStudentPageMainContent

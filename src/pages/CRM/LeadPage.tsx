@@ -21,10 +21,30 @@ import {
 
 import { is_TaiGer_role } from '@taiger-common/core';
 import type { IUser } from '@taiger-common/model';
+import type { CreateUserFromLeadLead } from '@pages/CRM/components/CreateUserFromLeadModal';
 import { getStudentQuery } from '@/api/query';
 import { useLead } from '@hooks/useLead';
 import { request } from '@/api';
 import { updateCRMDeal } from '@/api';
+
+interface LeadQueryCacheData {
+    data?: {
+        data?: Record<string, unknown>;
+        [key: string]: unknown;
+    };
+    [key: string]: unknown;
+}
+
+interface StatusMenuState {
+    anchorEl: HTMLElement | null;
+    row: Record<string, unknown> | null;
+}
+
+interface UpdateStatusVariables {
+    id: unknown;
+    status: string;
+    closedAt?: string;
+}
 
 import DEMO from '@store/constant';
 import { appConfig } from '../../config';
@@ -70,7 +90,9 @@ const LeadPage = () => {
           };
     const { data: studentData, isLoading: studentLoading } =
         useQuery(studentQueryOptions);
-    const student = studentData?.data?.data || {};
+    const student =
+        (studentData as { data?: { data?: Record<string, unknown> } })?.data
+            ?.data || {};
     const isLoading = leadLoading || (hasPortalUser && studentLoading);
 
     const [selectedLead, setSelectedLead] = useState<Record<
@@ -83,7 +105,10 @@ const LeadPage = () => {
         unknown
     > | null>(null);
     const [showDealModal, setShowDealModal] = useState(false);
-    const [statusMenu, setStatusMenu] = useState({ anchorEl: null, row: null });
+    const [statusMenu, setStatusMenu] = useState<StatusMenuState>({
+        anchorEl: null,
+        row: null
+    });
 
     const leadCardConfigurations = getLeadCardConfigurations(t);
     const studentCardConfigurations = getStudentCardConfigurations(t);
@@ -158,22 +183,29 @@ const LeadPage = () => {
         }
     }, [lead, form]);
 
-    const updateLeadMutation = useMutation({
+    const updateLeadMutation = useMutation<
+        Record<string, unknown>,
+        Error,
+        Record<string, unknown>
+    >({
         mutationFn: async (changed) => {
             const res = await request.put(`/api/crm/leads/${leadId}`, changed);
             return res.data || res;
         },
         onSuccess: (updated) => {
-            queryClient.setQueryData(['crm/lead', leadId], (old) => {
-                if (!old) return old;
-                return {
-                    ...old,
-                    data: {
-                        ...old.data,
-                        data: { ...old.data.data, ...updated }
-                    }
-                };
-            });
+            queryClient.setQueryData(
+                ['crm/lead', leadId],
+                (old: LeadQueryCacheData | undefined) => {
+                    if (!old) return old;
+                    return {
+                        ...old,
+                        data: {
+                            ...old.data,
+                            data: { ...old.data?.data, ...updated }
+                        }
+                    };
+                }
+            );
             queryClient.invalidateQueries({
                 queryKey: ['crm/lead', leadId]
             });
@@ -268,19 +300,30 @@ const LeadPage = () => {
         e: React.MouseEvent<HTMLElement>,
         deal: unknown
     ) => {
-        if (isTerminalStatus(deal?.status)) return;
-        setStatusMenu({ anchorEl: e.currentTarget, row: deal });
+        const dealRecord = deal as Record<string, unknown> | null;
+        if (isTerminalStatus(dealRecord?.status as string)) return;
+        setStatusMenu({
+            anchorEl: e.currentTarget,
+            row: dealRecord
+        });
     };
     const closeStatusMenu = () => setStatusMenu({ anchorEl: null, row: null });
-    const updateStatusMutation = useMutation({
+    const updateStatusMutation = useMutation<
+        { ok: boolean },
+        Error,
+        UpdateStatusVariables
+    >({
         mutationFn: async ({ id, status, closedAt }) => {
-            await updateCRMDeal(id, {
+            await updateCRMDeal(id as string, {
                 status,
                 ...(status === 'closed' && closedAt ? { closedAt } : {})
             });
             return { ok: true };
         },
-        onSuccess: () => queryClient.invalidateQueries(['crm/lead', leadId])
+        onSuccess: () =>
+            queryClient.invalidateQueries({
+                queryKey: ['crm/lead', leadId]
+            })
     });
     // Note: status changes are handled in StatusMenu onChoose
 
@@ -537,9 +580,9 @@ const LeadPage = () => {
 
                     {/* ------------ Modals ------------ */}
                     <CreateUserFromLeadModal
-                        lead={selectedLead}
+                        lead={selectedLead as CreateUserFromLeadLead}
                         onClose={handleCloseCreateUserModal}
-                        onSuccess={handleUserCreated}
+                        onSuccess={handleUserCreated as unknown as () => void}
                         open={showCreateUserModal}
                     />
                     <DealModal
@@ -548,10 +591,14 @@ const LeadPage = () => {
                         lockSalesUserSelect={lead?.salesRep?.userId ?? false}
                         onClose={closeDealModal}
                         onCreated={() =>
-                            queryClient.invalidateQueries(['crm/lead', leadId])
+                            queryClient.invalidateQueries({
+                                queryKey: ['crm/lead', leadId]
+                            })
                         }
                         onUpdated={() =>
-                            queryClient.invalidateQueries(['crm/lead', leadId])
+                            queryClient.invalidateQueries({
+                                queryKey: ['crm/lead', leadId]
+                            })
                         }
                         open={showDealModal}
                         preselectedLeadId={leadId}
@@ -559,7 +606,7 @@ const LeadPage = () => {
                     />
                     <StatusMenu
                         anchorEl={statusMenu.anchorEl}
-                        currentStatus={statusMenu.row?.status}
+                        currentStatus={statusMenu.row?.status as string | undefined}
                         onChoose={(s: string) => {
                             const id = getDealId(statusMenu.row);
                             updateStatusMutation.mutate(

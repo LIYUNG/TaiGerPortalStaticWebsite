@@ -97,7 +97,7 @@ const ProgramInfoTabs = ({
                         {...a11yProps(value, 3)}
                     />
                     <Tab label={t('Others')} {...a11yProps(value, 4)} />
-                    {versions?.changes?.length > 0 ? (
+                    {(versions?.changes?.length ?? 0) > 0 ? (
                         <Tab
                             label={t('Edit History', { ns: 'common' })}
                             {...a11yProps(value, 5)}
@@ -122,7 +122,7 @@ const ProgramInfoTabs = ({
                                     <LinkableNewlineText
                                         text={program[
                                             program_field.prop
-                                        ]?.toString()}
+                                        ]?.toString() ?? ''}
                                     />
                                 </Grid>
                             </Fragment>
@@ -146,7 +146,7 @@ const ProgramInfoTabs = ({
                                     </Grid>
                                     <Grid item md={8} xs={12}>
                                         <LinkableNewlineText
-                                            text={program[program_field.prop]}
+                                            text={program[program_field.prop]?.toString() ?? ''}
                                         />
                                     </Grid>
                                 </Fragment>
@@ -173,7 +173,7 @@ const ProgramInfoTabs = ({
                                         <LinkableNewlineText
                                             text={program[
                                                 program_field.prop
-                                            ]?.toString()}
+                                            ]?.toString() ?? ''}
                                         />
                                     </Grid>
                                 </Fragment>
@@ -191,7 +191,7 @@ const ProgramInfoTabs = ({
                                     </Grid>
                                     <Grid item md={2} xs={6}>
                                         <LinkableNewlineText
-                                            text={program[program_field.prop]}
+                                            text={program[program_field.prop]?.toString() ?? ''}
                                         />
                                     </Grid>
                                     <Grid item md={2} xs={3}>
@@ -278,7 +278,7 @@ const ProgramInfoTabs = ({
                                     <LinkableNewlineText
                                         text={program[
                                             program_field.prop
-                                        ]?.toString()}
+                                        ]?.toString() ?? ''}
                                     />
                                 </Grid>
                             </Fragment>
@@ -303,8 +303,8 @@ const ProgramInfoTabs = ({
                                     <Grid item md={8} xs={12}>
                                         <LinkableNewlineText
                                             text={convertToText(
-                                                program[program_field.prop]
-                                            )}
+                                                program[program_field.prop] as string | boolean | string[] | undefined | null
+                                            ) ?? ''}
                                         />
                                     </Grid>
                                 </Fragment>
@@ -328,7 +328,7 @@ const ProgramInfoTabs = ({
                                 </Grid>
                                 <Grid item md={8} xs={12}>
                                     <LinkableNewlineText
-                                        text={program[program_field.prop]}
+                                        text={program[program_field.prop]?.toString() ?? ''}
                                     />
                                 </Grid>
                             </Fragment>
@@ -347,7 +347,7 @@ const ProgramInfoTabs = ({
                                         maxWidth: '32px',
                                         maxHeight: '32px'
                                     }}
-                                    title={COUNTRIES_MAPPING[program.country]}
+                                    title={COUNTRIES_MAPPING[program.country as keyof typeof COUNTRIES_MAPPING]}
                                 />
                             </span>
                         </Grid>
@@ -360,7 +360,7 @@ const ProgramInfoTabs = ({
                                 </Grid>
                                 <Grid item md={8} xs={12}>
                                     <LinkableNewlineText
-                                        text={program.application_portal_a}
+                                        text={program.application_portal_a?.toString() ?? ''}
                                     />
                                 </Grid>
                                 <Grid item md={4} xs={12}>
@@ -371,7 +371,7 @@ const ProgramInfoTabs = ({
                                 <Grid item md={8} xs={12}>
                                     <LinkableNewlineText
                                         text={
-                                            program.application_portal_a_instructions
+                                            program.application_portal_a_instructions?.toString() ?? ''
                                         }
                                     />
                                 </Grid>
@@ -386,7 +386,7 @@ const ProgramInfoTabs = ({
                                 </Grid>
                                 <Grid item md={8} xs={12}>
                                     <LinkableNewlineText
-                                        text={program.application_portal_b}
+                                        text={program.application_portal_b?.toString() ?? ''}
                                     />
                                 </Grid>
                                 <Grid item md={4} xs={12}>
@@ -397,7 +397,7 @@ const ProgramInfoTabs = ({
                                 <Grid item md={8} xs={12}>
                                     <LinkableNewlineText
                                         text={
-                                            program.application_portal_b_instructions
+                                            program.application_portal_b_instructions?.toString() ?? ''
                                         }
                                     />
                                 </Grid>
@@ -410,10 +410,10 @@ const ProgramInfoTabs = ({
                         </Grid>
                         <Grid item md={8} xs={12}>
                             <Typography fontWeight="bold">
-                                {convertDate(program.updatedAt)}
+                                {convertDate(program.updatedAt as string)}
                             </Typography>
                         </Grid>
-                        {is_TaiGer_AdminAgent(user) ? (
+                        {user && is_TaiGer_AdminAgent(user as IUser) ? (
                             <>
                                 <Grid item md={4} xs={12}>
                                     <Typography>
@@ -436,7 +436,7 @@ const ProgramInfoTabs = ({
                 </Card>
             </CustomTabPanel>
 
-            {versions?.changes?.length > 0 ? (
+            {(versions?.changes?.length ?? 0) > 0 ? (
                 <CustomTabPanel
                     index={5}
                     style={{ width: '100%', overflowY: 'auto' }}
@@ -472,11 +472,11 @@ const ProgramInfoTabs = ({
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {versions.changes
+                            {versions.changes!
                                 .slice()
                                 .reverse()
                                 .map((change, index) => {
-                                    const reverseIndex = versions.changes.length
+                                    const reverseIndex = versions.changes?.length
                                         ? versions.changes.length - index
                                         : index;
                                     const keys = Object.keys({
@@ -513,7 +513,7 @@ const ProgramInfoTabs = ({
                                                     </div>
                                                     <div>
                                                         {convertDate(
-                                                            change.changedAt
+                                                            change.changedAt ?? ''
                                                         )}
                                                     </div>
                                                 </TableCell>

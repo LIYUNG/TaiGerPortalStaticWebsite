@@ -21,6 +21,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import DownloadIcon from '@mui/icons-material/Download';
 import { is_TaiGer_AdminAgent } from '@taiger-common/core';
 import { DocumentStatusType } from '@taiger-common/model';
+import type { IUser } from '@taiger-common/model';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import HelpIcon from '@mui/icons-material/Help';
 import { green, grey } from '@mui/material/colors';
@@ -39,7 +40,7 @@ import {
 import { useMutation } from '@tanstack/react-query';
 import { queryClient } from '@/api';
 import { useSnackBar } from '@contexts/use-snack-bar';
-import type { Application } from '@/api/types';
+import type { ApiPayload, Application } from '@/api/types';
 import type { IStudentResponse } from '@taiger-common/model';
 
 export interface IconStatusProps {
@@ -48,9 +49,9 @@ export interface IconStatusProps {
 
 const IconStatus = ({ condition }: IconStatusProps) =>
     condition ? (
-        <CheckCircleIcon size={18} style={{ color: green[500] }} />
+        <CheckCircleIcon sx={{ fontSize: 18, color: green[500] }} />
     ) : (
-        <HelpIcon size={18} style={{ color: grey[400] }} />
+        <HelpIcon sx={{ fontSize: 18, color: grey[400] }} />
     );
 
 const VisuallyHiddenInput = styled('input')({
@@ -85,7 +86,7 @@ const ProgramName = ({ application }: ProgramNameProps) => {
 
 export interface SetNeedButtonsProps {
     application: Application;
-    setAsNotNeededModelOpen: (open?: boolean) => void;
+    setAsNotNeededModelOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const SetNeedButtons = ({
@@ -101,7 +102,7 @@ const SetNeedButtons = ({
 
     return (
         <span>
-            {is_TaiGer_AdminAgent(user) &&
+            {is_TaiGer_AdminAgent(user as IUser) &&
             application.uni_assist?.vpd_paid_confirmation_file_path === '' &&
             application.uni_assist?.vpd_file_path === '' &&
             !application.uni_assist?.isPaid &&
@@ -116,7 +117,7 @@ const SetNeedButtons = ({
                 </Button>
             ) : null}
             {application.uni_assist?.status === DocumentStatusType.NotNeeded &&
-            is_TaiGer_AdminAgent(user) ? (
+            is_TaiGer_AdminAgent(user as IUser) ? (
                 <Button
                     color="success"
                     onClick={(e) => opensetAsNotNeededWindow(e)}
@@ -157,7 +158,7 @@ export const UniAssistProgramBlock = ({
         onSuccess: ({ data }) => {
             setSeverity('success');
             setMessage('VPD status marked successfully!');
-            setApplicationState(data);
+            if (data) setApplicationState(data as unknown as Application);
             queryClient.invalidateQueries({ queryKey: ['uniassist'] });
             setOpenSnackbar(true);
             setAsNotNeededModelOpen(false);
@@ -169,7 +170,7 @@ export const UniAssistProgramBlock = ({
         onSuccess: ({ data }) => {
             setSeverity('success');
             setMessage('VPD status updated successfully!');
-            setApplicationState(data);
+            if (data) setApplicationState(data as unknown as Application);
             queryClient.invalidateQueries({ queryKey: ['uniassist'] });
             setOpenSnackbar(true);
             setAsNotNeededModelOpen(false);
@@ -181,7 +182,7 @@ export const UniAssistProgramBlock = ({
         onSuccess: ({ data }) => {
             setSeverity('success');
             setMessage('File uploaded successfully!');
-            setApplicationState(data);
+            if (data) setApplicationState(data as unknown as Application);
             queryClient.invalidateQueries({ queryKey: ['uniassist'] });
             setOpenSnackbar(true);
             setDeleteVPDFileWarningModelOpen(false);
@@ -190,10 +191,27 @@ export const UniAssistProgramBlock = ({
     const { mutate: mutateDelete, isPending: isDeleting } = useMutation({
         mutationFn: deleteVPDFileV2,
         onError: handleMutationError,
-        onSuccess: ({ data }) => {
+        onSuccess: () => {
             setSeverity('success');
             setMessage('File deleted successfully!');
-            setApplicationState(data);
+            setApplicationState((prev) => ({
+                ...prev,
+                uni_assist: {
+                    ...prev.uni_assist,
+                    vpd_file_path:
+                        uniAssistProgramBlockState.fileType === 'VPD'
+                            ? ''
+                            : prev.uni_assist?.vpd_file_path ?? '',
+                    vpd_paid_confirmation_file_path:
+                        uniAssistProgramBlockState.fileType === 'VPDConfirmation'
+                            ? ''
+                            : prev.uni_assist?.vpd_paid_confirmation_file_path ?? '',
+                    status:
+                        uniAssistProgramBlockState.fileType === 'VPD'
+                            ? DocumentStatusType.Missing
+                            : prev.uni_assist?.status ?? DocumentStatusType.Missing
+                }
+            }));
             queryClient.invalidateQueries({ queryKey: ['uniassist'] });
             setOpenSnackbar(true);
             setDeleteVPDFileWarningModelOpen(false);
@@ -222,6 +240,7 @@ export const UniAssistProgramBlock = ({
         application_id: string
     ) => {
         e.preventDefault();
+        if (!e.target.files?.[0]) return;
         onSubmitVPDFileV2(
             e,
             e.target.files[0],
@@ -239,7 +258,7 @@ export const UniAssistProgramBlock = ({
     };
 
     const onSubmitVPDFileV2 = (
-        e: React.FormEvent<HTMLFormElement>,
+        e: React.SyntheticEvent,
         NewFile: File,
         studentId: string,
         applicationId: string,
@@ -248,7 +267,7 @@ export const UniAssistProgramBlock = ({
         e.preventDefault();
         const formData = new FormData();
         formData.append('file', NewFile);
-        mutateUpload({ studentId, applicationId, data: formData, fileType });
+        mutateUpload({ studentId, applicationId, data: formData as unknown as ApiPayload, fileType });
     };
 
     const handleUniAssistDocDeleteV2 = () => {
@@ -265,6 +284,7 @@ export const UniAssistProgramBlock = ({
         application_id: string
     ) => {
         e.preventDefault();
+        if (!e.target.files?.[0]) return;
         onSubmitVPDFileV2(
             e,
             e.target.files[0],
@@ -285,19 +305,18 @@ export const UniAssistProgramBlock = ({
 
     return (
         <Box>
-            {applicationState.programId.uni_assist?.includes('Yes-VPD') ? (
+            {applicationState.programId?.uni_assist?.includes('Yes-VPD') ? (
                 <>
                     <Box sx={{ display: 'flex' }}>
                         <ProgramName application={applicationState} />
                         <SetNeedButtons
                             application={applicationState}
                             setAsNotNeededModelOpen={setAsNotNeededModelOpen}
-                            student={student}
                         />
                     </Box>
                     {applicationState.uni_assist?.status ===
                     DocumentStatusType.NotNeeded ? (
-                        <Typography variant="string">
+                        <Typography variant="body2">
                             {i18next.t('uni-assist-not-necessary', {
                                 ns: 'uniassist'
                             })}
@@ -306,7 +325,7 @@ export const UniAssistProgramBlock = ({
                     {applicationState.uni_assist?.status !==
                     DocumentStatusType.NotNeeded ? (
                         <Box>
-                            {is_TaiGer_AdminAgent(user) ? (
+                            {is_TaiGer_AdminAgent(user as IUser) ? (
                                 <FormControlLabel
                                     control={
                                         <Checkbox
@@ -317,7 +336,7 @@ export const UniAssistProgramBlock = ({
                                             disabled={isChecking}
                                             onChange={(e) =>
                                                 onCheckHandlerV2(
-                                                    e,
+                                                    e as unknown as React.MouseEvent<HTMLElement>,
                                                     student._id.toString(),
                                                     applicationState._id.toString(),
                                                     !applicationState.uni_assist
@@ -543,7 +562,7 @@ export const UniAssistProgramBlock = ({
                     ) : null}
                 </>
             ) : null}
-            {applicationState.programId.uni_assist?.includes('Yes-FULL') ? (
+            {applicationState.programId?.uni_assist?.includes('Yes-FULL') ? (
                 <Grid container spacing={2}>
                     <Grid item sx={{ display: 'flex' }} xs={12}>
                         <ProgramName application={applicationState} />

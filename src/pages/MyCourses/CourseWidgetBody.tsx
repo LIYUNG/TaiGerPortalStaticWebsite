@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { CSSProperties, useState } from 'react';
 import {
     Box,
     Button,
@@ -21,15 +21,53 @@ import { convertDateUXFriendly } from '@utils/contants';
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { WidgetTranscriptanalyserV2 } from '@/api';
+import type { ApiPayload } from '@/api/types';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { a11yProps, CustomTabPanel } from '@components/Tabs';
 import { useSnackBar } from '@contexts/use-snack-bar';
-import { ProgramRequirementsTable } from '@components/ProgramRequirementsTable/ProgramRequirementsTable';
+import {
+    ProgramRequirementsTable,
+    ProgramRequirementRow
+} from '@components/ProgramRequirementsTable/ProgramRequirementsTable';
 import { IProgramrequirement } from '@taiger-common/model';
+import type { IUser } from '@taiger-common/model';
+
+interface PopulatedProgram {
+    school: string;
+    program_name: string;
+    degree: string;
+    lang: string;
+    country: string;
+}
+
+interface StateData {
+    error: string;
+    coursesdata: {
+        course_chinese: string;
+        course_english: string;
+        credits: string;
+        grades: string;
+    }[];
+    analysis: { isAnalysedV2?: boolean } & Record<string, unknown>;
+    success: boolean;
+    student: null;
+    analysis_language: string;
+    analyzed_course: string;
+    isAnalysing: boolean;
+    isDownloading: boolean;
+    res_status: number;
+    res_modal_status: number;
+    res_modal_message: string;
+}
+
+interface ProgramRequirementWithMeta extends IProgramrequirement {
+    _id: string;
+    updatedAt: string;
+}
 
 export interface CourseWidgetBodyProps {
-    programRequirements: IProgramrequirement[];
+    programRequirements: ProgramRequirementWithMeta[];
 }
 
 export default function CourseWidgetBody({
@@ -39,7 +77,7 @@ export default function CourseWidgetBody({
     const theme = useTheme(); // Get the current theme from Material UI
     const { student_id } = useParams();
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
-    const [statedata, setStatedata] = useState({
+    const [statedata, setStatedata] = useState<StateData>({
         error: '',
         coursesdata: [
             {
@@ -76,8 +114,11 @@ export default function CourseWidgetBody({
             course_english: string;
             credits: string;
             grades: string;
-        }[]
+        }[],
+        _operations: unknown[]
     ) => {
+        // The widget callback includes `_operations`, but this component doesn't use it.
+        void _operations;
         setStatedata((state) => ({
             ...state,
             coursesdata: new_data
@@ -92,24 +133,26 @@ export default function CourseWidgetBody({
         }));
     };
 
-    const transformedData = programRequirements.map((row) => {
-        return {
-            ...row, // Spread the original row object
-            program_name: `${row.programId[0]?.school} ${row.programId[0]?.program_name} ${row.programId[0]?.degree}`,
-            lang: `${row.programId[0]?.lang}`,
-            degree: `${row.programId[0]?.degree}`,
-            attributes: `${row.attributes?.join('-')}`,
-            country: `${row.programId[0]?.country}`,
-            updatedAt: convertDateUXFriendly(row.updatedAt),
-            id: row._id // Map MongoDB _id to id property
-            // other properties...
-        };
-    });
+    const transformedData: ProgramRequirementRow[] = programRequirements.map(
+        (row) => {
+            const programs = row.programId as unknown as
+                | PopulatedProgram[]
+                | undefined;
+            return {
+                id: row._id,
+                program_name: `${programs?.[0]?.school} ${programs?.[0]?.program_name} ${programs?.[0]?.degree}`,
+                lang: `${programs?.[0]?.lang}`,
+                country: `${programs?.[0]?.country}`,
+                attributes: row.attributes,
+                updatedAt: convertDateUXFriendly(row.updatedAt)
+            };
+        }
+    );
 
     const onAnalyseV2 = async (
         requirementIds: string[],
         lang: string,
-        factor: string
+        factor: number
     ) => {
         setStatedata((state) => ({
             ...state,
@@ -119,9 +162,9 @@ export default function CourseWidgetBody({
         try {
             const resp = await WidgetTranscriptanalyserV2(
                 lang,
-                statedata.coursesdata,
-                requirementIds,
-                factor
+                statedata.coursesdata as unknown as ApiPayload,
+                requirementIds as unknown as ApiPayload,
+                factor as unknown as ApiPayload
             );
 
             const { data, success } = resp.data;
@@ -148,11 +191,14 @@ export default function CourseWidgetBody({
             }
         } catch (error) {
             setSeverity('error');
-            setMessage(error.message || 'An error occurred. Please try again.');
+            setMessage(
+                (error as Error).message ||
+                    'An error occurred. Please try again.'
+            );
             setStatedata((state) => ({
                 ...state,
                 isAnalysing: false,
-                error,
+                error: (error as Error).message || 'Unknown error',
                 res_modal_status: 500,
                 res_modal_message:
                     'Make sure that you updated your courses and select the right target group and language!'
@@ -177,7 +223,7 @@ export default function CourseWidgetBody({
     ];
 
     if (!student_id) {
-        if (!is_TaiGer_role(user)) {
+        if (!is_TaiGer_role(user as IUser)) {
             return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
         }
     }
@@ -263,18 +309,20 @@ export default function CourseWidgetBody({
                         height={1000}
                         onChange={onChange}
                         rowHeight={25}
-                        style={{
-                            minWidth: '450px',
-                            '--dsg-selection-border-color':
-                                theme.palette.text.primary,
-                            '--dsg-cell-color': theme.palette.text.primary,
-                            '--dsg-cell-background-color':
-                                theme.palette.background.default,
-                            '--dsg-header-text-color':
-                                theme.palette.text.primary,
-                            '--dsg-header-active-text-color':
-                                theme.palette.text.primary
-                        }}
+                        style={
+                            {
+                                minWidth: '450px',
+                                '--dsg-selection-border-color':
+                                    theme.palette.text.primary,
+                                '--dsg-cell-color': theme.palette.text.primary,
+                                '--dsg-cell-background-color':
+                                    theme.palette.background.default,
+                                '--dsg-header-text-color':
+                                    theme.palette.text.primary,
+                                '--dsg-header-active-text-color':
+                                    theme.palette.text.primary
+                            } as CSSProperties & Record<string, string>
+                        }
                         value={statedata.coursesdata}
                     />
                     <br />
@@ -317,7 +365,7 @@ export default function CourseWidgetBody({
                                 <Link
                                     component={LinkDom}
                                     target="_blank"
-                                    to={`${DEMO.INTERNAL_WIDGET_V2_LINK(user._id.toString())}`}
+                                    to={`${DEMO.INTERNAL_WIDGET_V2_LINK(user?._id?.toString() ?? '')}`}
                                 >
                                     {i18next.t('View Online', {
                                         ns: 'courses'

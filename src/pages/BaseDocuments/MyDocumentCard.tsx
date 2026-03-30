@@ -400,7 +400,10 @@ const MyDocumentCard = (props: MyDocumentCardProps) => {
                 setOpenSnackbar(true);
             },
             onSuccess: (res) => {
-                const data = res.data as { status?: string; path?: string };
+                const data = res as unknown as {
+                    status?: string;
+                    path?: string;
+                };
                 setSeverity('success');
                 setMessage('Deleted file successfully.');
                 if (data?.status) {
@@ -454,7 +457,7 @@ const MyDocumentCard = (props: MyDocumentCardProps) => {
     };
 
     const handleRejectMessage = (
-        e: React.FormEvent<HTMLFormElement>,
+        e: React.SyntheticEvent,
         rejectmessage: string
     ) => {
         e.preventDefault();
@@ -488,7 +491,7 @@ const MyDocumentCard = (props: MyDocumentCardProps) => {
         }
     };
 
-    const updateDocLink = (e: React.MouseEvent<HTMLElement>) => {
+    const updateDocLink = (e: React.MouseEvent<Element>) => {
         e.preventDefault();
         setBaseDocsflagOffcanvas(true);
 
@@ -516,7 +519,9 @@ const MyDocumentCard = (props: MyDocumentCardProps) => {
         }));
     };
 
-    const onChangeDeleteField = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const onChangeDeleteField = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
         setMyDocumentCardState((prevState) => ({
             ...prevState,
             delete_field: e.target.value
@@ -536,7 +541,7 @@ const MyDocumentCard = (props: MyDocumentCardProps) => {
         mutateUploadFile({ category, studentId, formData });
     };
 
-    const onDeleteFilefromstudentV2 = (e: React.FormEvent<HTMLFormElement>) => {
+    const onDeleteFilefromstudentV2 = (e: React.SyntheticEvent) => {
         e.preventDefault();
         mutateDeleteFile({
             category: MyDocumentCardState.category,
@@ -583,7 +588,7 @@ const MyDocumentCard = (props: MyDocumentCardProps) => {
                 setShowPreview={setShowPreview}
                 st={status}
                 time={props.time}
-                user={user}
+                user={user as IUserWithId}
             />
             <Dialog
                 aria-labelledby="contained-modal-title-vcenter"
@@ -676,7 +681,6 @@ const MyDocumentCard = (props: MyDocumentCardProps) => {
             </Dialog>
             <Dialog
                 aria-labelledby="contained-modal-title-vcenter"
-                centered
                 onClose={() => setAcceptProfileFileModelOpen(false)}
                 open={acceptProfileFileModelOpen}
             >
@@ -722,17 +726,36 @@ const MyDocumentCard = (props: MyDocumentCardProps) => {
                     path={`${MyDocumentCardState.student_id}/${fileName}`}
                 />
                 <DialogContent>
-                    {is_TaiGer_AdminAgent(user) ? (
+                    {is_TaiGer_AdminAgent(user as IUserWithId) ? (
                         <>
                             <Typography fontWeight="bold" variant="body1">
-                                {base_documents_checklist[props.category] &&
-                                base_documents_checklist[props.category]
-                                    .length !== 0
+                                {(
+                                    base_documents_checklist as Record<
+                                        string,
+                                        string[]
+                                    >
+                                )[props.category] &&
+                                (
+                                    base_documents_checklist as Record<
+                                        string,
+                                        string[]
+                                    >
+                                )[props.category].length !== 0
                                     ? 'Check list: Please check the following points so that you can flag this document as valid.'
                                     : null}
                             </Typography>
-                            {base_documents_checklist[props.category]
-                                ? base_documents_checklist[props.category].map(
+                            {(
+                                base_documents_checklist as Record<
+                                    string,
+                                    string[]
+                                >
+                            )[props.category]
+                                ? (
+                                      base_documents_checklist as Record<
+                                          string,
+                                          string[]
+                                      >
+                                  )[props.category].map(
                                       (check_item: string, i: number) => (
                                           <FormControlLabel
                                               control={
@@ -771,7 +794,7 @@ const MyDocumentCard = (props: MyDocumentCardProps) => {
                     ) : null}
                 </DialogContent>
                 <DialogActions>
-                    {is_TaiGer_AdminAgent(user) ? (
+                    {is_TaiGer_AdminAgent(user as IUserWithId) ? (
                         <>
                             {status !== DocumentStatusType.Accepted ? (
                                 <Button

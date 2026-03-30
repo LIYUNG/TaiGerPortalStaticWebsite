@@ -16,6 +16,10 @@ import {
     Tooltip
 } from '@mui/material';
 import { is_TaiGer_role } from '@taiger-common/core';
+import type {
+    IUserWithId,
+    IDocumentthreadPopulated
+} from '@taiger-common/model';
 import queryString from 'query-string';
 import {
     Description as DescriptionIcon,
@@ -27,6 +31,7 @@ import {
 } from '@mui/icons-material';
 
 import CVMLRLOverview from '../CVMLRLCenter/CVMLRLOverview';
+import type { OpenTaskRow } from '@/api/types';
 import {
     AGENT_SUPPORT_DOCUMENTS_A,
     FILE_TYPE_E,
@@ -34,6 +39,7 @@ import {
     frequencyDistribution,
     open_tasks_v2
 } from '../Utils/util_functions';
+import type { FrequencyDistributionTask } from '../Utils/util_functions';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import TasksDistributionBarChart from '@components/Charts/TasksDistributionBarChart';
@@ -80,11 +86,11 @@ const EditorPage = () => {
                     active: number;
                     potentials: number;
                 }[],
-                new_message_tasks: [] as unknown[],
-                fav_message_tasks: [] as unknown[],
-                followup_tasks: [] as unknown[],
-                pending_progress_tasks: [] as unknown[],
-                closed_tasks: [] as unknown[],
+                new_message_tasks: [] as OpenTaskRow[],
+                fav_message_tasks: [] as OpenTaskRow[],
+                followup_tasks: [] as OpenTaskRow[],
+                pending_progress_tasks: [] as OpenTaskRow[],
+                closed_tasks: [] as OpenTaskRow[],
                 stats: {
                     totalTasks: 0,
                     newMessages: 0,
@@ -94,24 +100,24 @@ const EditorPage = () => {
                     completed: 0,
                     completionRate: 0
                 },
-                editorUser: null as {
-                    _id: { toString(): string };
-                    firstname?: string;
-                    lastname?: string;
-                    pictureUrl?: string;
-                    lastLoginAt?: string;
-                } | null
+                editorUser: null as IUserWithId | null
             };
         }
 
-        const open_tasks_arr = open_tasks_v2(myStudentsThreads.threads);
-        const editorUser = myStudentsThreads.user;
+        const open_tasks_arr = open_tasks_v2(
+            myStudentsThreads.threads as unknown as IDocumentthreadPopulated[]
+        );
+        const editorUser = myStudentsThreads.user as IUserWithId;
         const tasksWithMyEssay = open_tasks_arr.filter((open_task) =>
             [...AGENT_SUPPORT_DOCUMENTS_A, FILE_TYPE_E.essay_required].includes(
-                open_task.file_type
+                open_task.file_type ?? ''
             )
-                ? open_task.outsourced_user_id?.some(
-                      (outsourcedUser: { _id: { toString(): string } }) =>
+                ? (
+                      open_task.outsourced_user_id as
+                          | { _id: { toString(): string } }[]
+                          | undefined
+                  )?.some(
+                      (outsourcedUser) =>
                           outsourcedUser._id.toString() === user_id
                   )
                 : true
@@ -122,26 +128,18 @@ const EditorPage = () => {
                 open_task.show && !open_task.isFinalVersion
         );
 
-        const task_distribution = openTasksWithMyEssay
-            .filter(
-                ({ isFinalVersion }: { isFinalVersion?: boolean }) =>
-                    isFinalVersion !== true
-            )
-            .map(
-                ({
-                    deadline,
-                    file_type,
-                    show,
-                    isPotentials
-                }: {
-                    deadline?: string;
-                    file_type?: string;
-                    show?: number;
-                    isPotentials?: number;
-                }) => {
-                    return { deadline, file_type, show, isPotentials };
-                }
-            );
+        const task_distribution: FrequencyDistributionTask[] =
+            openTasksWithMyEssay
+                .filter(
+                    ({ isFinalVersion }: { isFinalVersion?: boolean }) =>
+                        isFinalVersion !== true
+                )
+                .map((task) => ({
+                    deadline: task.deadline as string | undefined,
+                    show: task.show,
+                    file_type: task.file_type as string | undefined,
+                    isPotentials: task.isPotentials as boolean | undefined
+                }));
         const open_distr = frequencyDistribution(task_distribution);
 
         const sort_date = Object.keys(open_distr).sort();
@@ -159,23 +157,23 @@ const EditorPage = () => {
             });
         });
 
-        const newMessages = openTasksWithMyEssay?.filter((open_task: unknown) =>
-            is_new_message_status(editorUser, open_task)
+        const newMessages = openTasksWithMyEssay?.filter((open_task) =>
+            is_new_message_status(editorUser, open_task as never)
         );
 
-        const favMessages = openTasksWithMyEssay?.filter((open_task: unknown) =>
-            is_my_fav_message_status(editorUser, open_task)
+        const favMessages = openTasksWithMyEssay?.filter((open_task) =>
+            is_my_fav_message_status(editorUser, open_task as never)
         );
 
         const followups = openTasksWithMyEssay?.filter(
-            (open_task: { latest_message_left_by_id?: string }) =>
-                is_pending_status(editorUser, open_task) &&
+            (open_task) =>
+                is_pending_status(editorUser, open_task as never) &&
                 open_task.latest_message_left_by_id !== '- None - '
         );
 
         const pendingProgress = openTasksWithMyEssay?.filter(
-            (open_task: { latest_message_left_by_id?: string }) =>
-                is_pending_status(editorUser, open_task) &&
+            (open_task) =>
+                is_pending_status(editorUser, open_task as never) &&
                 open_task.latest_message_left_by_id === '- None - '
         );
 
@@ -397,7 +395,7 @@ const EditorPage = () => {
                                         fontWeight: 'bold'
                                     }}
                                 >
-                                    {formatDate(editorUser?.lastLoginAt)}
+                                    {formatDate(editorUser?.lastLoginAt ?? '')}
                                 </Typography>
                             </Box>
                         </Box>
@@ -655,6 +653,7 @@ const EditorPage = () => {
                 closed_tasks={closed_tasks}
                 fav_message_tasks={fav_message_tasks}
                 followup_tasks={followup_tasks}
+                handleFavoriteToggle={() => {}}
                 new_message_tasks={new_message_tasks}
                 pending_progress_tasks={pending_progress_tasks}
             />

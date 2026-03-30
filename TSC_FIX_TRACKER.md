@@ -2,7 +2,7 @@
 
 **Date:** 2026-03-29  
 **Initial:** 4,267 errors from `npx tsc --noEmit -p tsconfig.app.json`  
-**Current:** 1,436 errors (from latest `tsc-errors.txt` refresh)  
+**Current:** 687 errors (from latest `tsc-errors.txt` refresh)  
 **Full output:** `tsc-errors.txt`  
 **Refactoring plan:** `TSC_REFACTOR_PLAN.md`
 
@@ -16,25 +16,25 @@ run:
 
 | Code | Count | Prev | Δ | Description | Category |
 |------|-------|------|---|-------------|----------|
-| TS2345 | 482 | 518 | -36 | Argument type not assignable | Type mismatch |
-| TS2322 | 298 | 358 | -60 | Type not assignable | Type mismatch |
-| TS2339 | 263 | 314 | -51 | Property does not exist on type | Interface mismatch |
-| TS18048 | 124 | 152 | -28 | Possibly undefined | Null safety |
-| TS2769 | 78 | 96 | -18 | No overload matches | Overload mismatch |
-| TS7053 | 62 | 69 | -7 | Index signature issue | Index types |
-| TS18047 | 60 | 67 | -7 | Possibly null | Null safety |
-| TS18046 | 46 | 48 | -2 | Type is unknown | Unknown narrowing |
-| TS2352 | 26 | 27 | -1 | Type conversion may be mistake | Misc |
-| TS2741 | 25 | 26 | -1 | Missing required property | Interface mismatch |
-| TS2739 | 9 | 9 | 0 | Missing properties | Interface mismatch |
-| TS2559 | 8 | 8 | 0 | No common properties | Type mismatch |
+| TS2345 | 345 | 482 | -137 | Argument type not assignable | Type mismatch |
+| TS2322 | 225 | 298 | -73 | Type not assignable | Type mismatch |
+| TS2339 | 170 | 263 | -93 | Property does not exist on type | Interface mismatch |
+| TS18048 | 78 | 124 | -46 | Possibly undefined | Null safety |
+| TS2769 | 58 | 78 | -20 | No overload matches | Overload mismatch |
+| TS7053 | 48 | 62 | -14 | Index signature issue | Index types |
+| TS18047 | 37 | 60 | -23 | Possibly null | Null safety |
+| TS2741 | 22 | 25 | -3 | Missing required property | Interface mismatch |
+| TS18046 | 19 | 46 | -27 | Type is unknown | Unknown narrowing |
+| TS2352 | 18 | 26 | -8 | Type conversion may be mistake | Misc |
 | TS2698 | 8 | 8 | 0 | Spread / rest | Misc |
-| TS2538 | 7 | 8 | -1 | Type cannot be used as index | Index types |
+| TS2739 | 7 | 9 | -2 | Missing properties | Interface mismatch |
 | TS7034 | 6 | 6 | 0 | Variable implicitly has type | Untyped vars |
+| TS7005 | 6 | 6 | 0 | Variable implicitly has 'any' type | Untyped vars |
+| TS2719 | 5 | — | — | Two different types with same name | Misc |
 | TS6133 | **0** | **0** | 0 | Declared but never read | **Cleared** |
-| Others | ~73 | ~80 | — | TS2554, TS2488, TS2353, TS2551, TS7005, … | Misc |
+| Others | ~65 | ~73 | — | TS2554, TS2488, TS2353, TS2559, TS2538, … | Misc |
 
-**Note:** Prev = counts from previous run (1,575-total snapshot). Current run: **1,436** errors (−139).
+**Note:** Prev = counts from previous run (920-total snapshot). Current run: **687** errors (−233).
 
 ---
 
@@ -300,3 +300,7 @@ run:
 | 2026-03-29 | Batch 4: InterviewMetadataSidebar (72→0), MyCourses/index (52→0), contants.tsx (45→partial), ManualFiles (50→partial), AddInterview (42→0), util_functions.test (51→0), OfficeHours shared hook/types (partial) | 2,133 | **1,800** |
 | 2026-03-29 | Batch 5: OfficeHours 3 files + hook (96→0), InterviewSurveyForm (38→0), DocModificationThreadInput (37→0), SingleInterview (34→0), CustomerTicketDetailPageBody (33→0) | 1,800 | **1,575** |
 | 2026-03-30 | Batch 6: AgentMainView (32→0), SingleProgramView (30→0), InterviewTraining/index (28→0), ApplicationTableRow (28→0), StudentApplicationsTableTemplate (27→0) | 1,575 | **1,436** |
+| 2026-03-30 | Batch 7: LeadPage (29→0), CVMLRLCenter/index (27→0), EditorPage (25→0), CourseWidgetBody (25→0), StudentDashboard (25→0) | 1,436 | **1,312** |
+| 2026-03-30 | Batch 8: Message (23→0), ProgramReport (22→0), SingleStudentPage (21→0), ProgramInfoTabs (21→partial), CourseAnalysisV2 (21→0), CourseKeywordsOverview (21→0), MeetingTab (20→0) | 1,312 | **1,117** |
+| 2026-03-30 | Batch 9: MyCourses/index, DownloadPage, DealDashboard, BaseDocumentStudentView, UsersList, UniAssistProgramBlock, CommunicationThreadEditor, InternalDashboard, Profile, StudentBriefOverview, LeadDashboard, Documentation/index, CVMLRLOverview (13 files) | 1,117 | **920** |
+| 2026-03-30 | Batch 10: Profile, StudentBriefOverview, DealModal, EssayOverview, DocCreatePage, InternalDocCreatePage, StudentsTable, SimilarStudents, LeadProfileHeader, MyDocumentCard, ProgramsTable, NoTrainersCard, EditorMainView, EditorDocsProgress, SingleThreadPage, InterviewSurveyForm, DealItem, App.test (18 files) | 920 | **687** |

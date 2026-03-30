@@ -25,6 +25,8 @@ import {
     Transgender as OtherGenderIcon
 } from '@mui/icons-material';
 
+import type { TFunction } from 'i18next';
+import type { CRMDealItem } from '@taiger-common/model';
 import DealItem from '@pages/CRM/components/DealItem';
 import { getDealId } from '@pages/CRM/components/statusUtils';
 
@@ -49,8 +51,8 @@ interface LeadProfileHeaderProps {
         variables?: { id: string };
         mutate: (args: unknown, opts?: unknown) => void;
     };
-    openStatusMenu: (e: MouseEvent<HTMLElement>, deal: unknown) => void;
-    t: (key: string, opts?: Record<string, unknown>) => string;
+    openStatusMenu: (e: MouseEvent<HTMLElement>, deal: CRMDealItem) => void;
+    t: TFunction;
 }
 
 const LeadProfileHeader = ({
@@ -113,13 +115,15 @@ const LeadProfileHeader = ({
                                 fontSize: 20
                             }}
                         >
-                            {(lead.fullName || '')
+                            {(String(lead.fullName || ''))
                                 .split(' ')
                                 .map((n: string) => n?.[0])
                                 .filter(Boolean)
                                 .slice(0, 2)
                                 .join('') ||
-                                (lead.fullName ? lead.fullName[0] : '?')}
+                                (lead.fullName
+                                    ? String(lead.fullName)[0]
+                                    : '?')}
                         </Avatar>
                         <Box
                             sx={{
@@ -138,7 +142,8 @@ const LeadProfileHeader = ({
                                 }}
                                 variant="h5"
                             >
-                                {lead.fullName || t('common.na', { ns: 'crm' })}
+                                {(lead.fullName as string) ||
+                                    t('common.na', { ns: 'crm' })}
                             </Typography>
                             <Typography
                                 sx={{
@@ -150,7 +155,7 @@ const LeadProfileHeader = ({
                                 }}
                                 variant="body2"
                             >
-                                {lead.applicantRole || ''}
+                                {(lead.applicantRole as string) || ''}
                             </Typography>
                         </Box>
                         <Box
@@ -160,7 +165,7 @@ const LeadProfileHeader = ({
                                 gap: 1
                             }}
                         >
-                            {lead.gender && (
+                            {!!lead.gender && (
                                 <Box
                                     title={`${t('leads.gender', { ns: 'crm' })}: ${String(lead.gender).charAt(0).toUpperCase() + String(lead.gender).slice(1)}`}
                                 >
@@ -217,7 +222,7 @@ const LeadProfileHeader = ({
                                     })()}
                                 </Box>
                             )}
-                            {lead.closeLikelihood && (
+                            {!!lead.closeLikelihood && (
                                 <Chip
                                     label={
                                         lead.closeLikelihood === 'high'
@@ -285,8 +290,8 @@ const LeadProfileHeader = ({
                                     variant="body2"
                                 >
                                     {t('common.sales', { ns: 'crm' })}:{' '}
-                                    {(lead?.salesRep as Record<string, unknown>)
-                                        ?.label ||
+                                    {((lead?.salesRep as Record<string, unknown>)
+                                        ?.label as string) ||
                                         t('leads.unassigned', {
                                             ns: 'crm'
                                         })}
@@ -305,7 +310,7 @@ const LeadProfileHeader = ({
                             gap: 2
                         }}
                     >
-                        {lead.applicantRole && (
+                        {!!lead.applicantRole && (
                             <Typography
                                 sx={{
                                     color: 'text.secondary',
@@ -445,13 +450,20 @@ const LeadProfileHeader = ({
                                                     }
                                                 >
                                                     <DealItem
-                                                        deal={deal}
+                                                        deal={
+                                                            deal as unknown as CRMDealItem
+                                                        }
                                                         isUpdating={isUpdating}
                                                         onEditDeal={
-                                                            handleEditDeal
+                                                            handleEditDeal as unknown as (
+                                                                deal: CRMDealItem
+                                                            ) => void
                                                         }
                                                         onOpenStatusMenu={
-                                                            openStatusMenu
+                                                            openStatusMenu as (
+                                                                e: MouseEvent<HTMLElement>,
+                                                                deal: CRMDealItem
+                                                            ) => void
                                                         }
                                                         t={t}
                                                     />
@@ -523,7 +535,9 @@ const LeadProfileHeader = ({
                                     onChange={(e) =>
                                         onFieldChange('gender', e.target.value)
                                     }
-                                    value={formData.gender || ''}
+                                    value={
+                                        (formData.gender as string) || ''
+                                    }
                                 >
                                     <MenuItem value="male">Male</MenuItem>
                                     <MenuItem value="female">Female</MenuItem>
@@ -566,10 +580,14 @@ const LeadProfileHeader = ({
                                         );
                                         onFieldChange(
                                             'salesUserId',
-                                            selectedId ? selected?.userId : null
+                                            selectedId
+                                                ? (selected?.userId ?? '')
+                                                : ''
                                         );
                                     }}
-                                    value={formData?.salesUserId || ''}
+                                    value={
+                                        (formData?.salesUserId as string) || ''
+                                    }
                                 >
                                     <MenuItem value="">
                                         {t('leads.unassigned', {
@@ -637,7 +655,7 @@ const LeadProfileHeader = ({
                                     onChange={(e) =>
                                         onFieldChange('status', e.target.value)
                                     }
-                                    value={formData.status || ''}
+                                    value={(formData.status as string) || ''}
                                 >
                                     <MenuItem value="open">Open</MenuItem>
                                     <MenuItem value="not-qualified">
@@ -668,7 +686,10 @@ const LeadProfileHeader = ({
                                             e.target.value
                                         )
                                     }
-                                    value={formData.closeLikelihood || ''}
+                                    value={
+                                        (formData.closeLikelihood as string) ||
+                                        ''
+                                    }
                                 >
                                     <MenuItem value="high">High</MenuItem>
                                     <MenuItem value="medium">Medium</MenuItem>
@@ -757,15 +778,22 @@ const LeadProfileHeader = ({
                                                             }
                                                         >
                                                             <DealItem
-                                                                deal={deal}
+                                                                deal={
+                                                                    deal as unknown as CRMDealItem
+                                                                }
                                                                 isUpdating={
                                                                     isUpdating
                                                                 }
                                                                 onEditDeal={
-                                                                    handleEditDealItem
+                                                                    handleEditDealItem as unknown as (
+                                                                        deal: CRMDealItem
+                                                                    ) => void
                                                                 }
                                                                 onOpenStatusMenu={
-                                                                    openStatusMenu
+                                                                    openStatusMenu as (
+                                                                        e: MouseEvent<HTMLElement>,
+                                                                        deal: CRMDealItem
+                                                                    ) => void
                                                                 }
                                                                 t={t}
                                                             />

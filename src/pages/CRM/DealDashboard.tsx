@@ -28,7 +28,8 @@ import {
     getStatusColor
 } from '@pages/CRM/components/statusUtils';
 import { is_TaiGer_role } from '@taiger-common/core';
-import type { CRMDealItem } from '@taiger-common/model';
+import type { CRMDealItem, IUser } from '@taiger-common/model';
+import type { Palette } from '@mui/material';
 import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
@@ -43,9 +44,9 @@ import StatusMenu from '@pages/CRM/components/StatusMenu';
 const currencyFormatter = (
     value: unknown,
     options: Intl.NumberFormatOptions = {}
-) => {
+): string => {
     const n = Number(value);
-    if (!Number.isFinite(n)) return value ?? '';
+    if (!Number.isFinite(n)) return String(value ?? '');
     try {
         return new Intl.NumberFormat(undefined, {
             style: 'currency',
@@ -96,11 +97,19 @@ const DealDashboard = () => {
         }
     });
 
-    if (!is_TaiGer_role(user)) {
+    if (!is_TaiGer_role(user as IUser)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
     }
 
-    const allDeals: CRMDealItem[] = data?.data?.data || [];
+    const allDeals: CRMDealItem[] =
+        (data as Record<string, unknown> | undefined)?.data
+            ? ((
+                  (data as Record<string, unknown>).data as Record<
+                      string,
+                      unknown
+                  >
+              )?.data as CRMDealItem[]) ?? []
+            : [];
 
     const handleCreateDeal = () => {
         setEditingDeal(null);
@@ -130,7 +139,7 @@ const DealDashboard = () => {
         event: MouseEvent<HTMLElement>,
         row: CRMDealItem
     ) => {
-        if (isTerminalStatus(row?.status)) return; // don't open for closed/canceled
+        if (isTerminalStatus(row?.status as string)) return; // don't open for closed/canceled
         setStatusMenu({ anchorEl: event.currentTarget, row });
     };
     const closeStatusMenu = () => setStatusMenu({ anchorEl: null, row: null });
@@ -142,8 +151,8 @@ const DealDashboard = () => {
             header: t('common.status', { ns: 'crm' }),
             size: 140,
             Cell: ({ row, cell }) => {
-                const value = cell.getValue();
-                const id = getDealId(row.original);
+                const value = cell.getValue<string>() ?? '';
+                const id = getDealId(row.original) as string;
                 const isUpdating =
                     updateStatusMutation.isPending &&
                     updateStatusMutation.variables?.id === id;
@@ -167,7 +176,7 @@ const DealDashboard = () => {
                             <span>
                                 <Chip
                                     clickable={!terminal}
-                                    color={getStatusColor(value)}
+                                    color={getStatusColor(value) as 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning'}
                                     disabled={isUpdating || terminal}
                                     icon={<StatusIcon fontSize="small" />}
                                     label={t(`deals.statusLabels.${value}`, {
@@ -201,7 +210,7 @@ const DealDashboard = () => {
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap'
                 },
-                title: cell.getValue()
+                title: cell.getValue<string>() ?? ''
             }),
             Cell: ({ cell }) => (
                 <Stack alignItems="center" direction="row" spacing={1}>
@@ -218,7 +227,7 @@ const DealDashboard = () => {
                         underline="hover"
                         variant="body2"
                     >
-                        {cell.getValue()}
+                        {cell.getValue<string>()}
                     </Link>
                 </Stack>
             )
@@ -229,8 +238,8 @@ const DealDashboard = () => {
             size: 100,
             Cell: ({ cell }) => (
                 <Chip
-                    color={getSalesColor(cell.getValue())}
-                    label={cell.getValue()}
+                    color={getSalesColor(cell.getValue<string>() ?? '') as 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning'}
+                    label={cell.getValue<string>()}
                     size="small"
                 />
             )
@@ -241,7 +250,7 @@ const DealDashboard = () => {
             size: 120,
             Cell: ({ cell }) => (
                 <Typography variant="body2">
-                    {currencyFormatter(cell.getValue())}
+                    {currencyFormatter(cell.getValue<number>())}
                 </Typography>
             )
         },
@@ -249,16 +258,19 @@ const DealDashboard = () => {
             accessorKey: 'closedAt',
             header: t('common.closedDate', { ns: 'crm' }),
             size: 140,
-            Cell: ({ cell }) => (
-                <Stack alignItems="center" direction="row" spacing={1}>
-                    <ScheduleIcon color="action" fontSize="small" />
-                    <Typography variant="body2">
-                        {cell.getValue()
-                            ? new Date(cell.getValue()).toLocaleDateString()
-                            : t('common.na', { ns: 'crm' })}
-                    </Typography>
-                </Stack>
-            )
+            Cell: ({ cell }) => {
+                const val = cell.getValue<string>();
+                return (
+                    <Stack alignItems="center" direction="row" spacing={1}>
+                        <ScheduleIcon color="action" fontSize="small" />
+                        <Typography variant="body2">
+                            {val
+                                ? new Date(val).toLocaleDateString()
+                                : t('common.na', { ns: 'crm' })}
+                        </Typography>
+                    </Stack>
+                );
+            }
         },
         {
             accessorKey: 'note',
@@ -271,11 +283,11 @@ const DealDashboard = () => {
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap'
                 },
-                title: cell.getValue()
+                title: cell.getValue<string>() ?? ''
             }),
             Cell: ({ cell }) => (
                 <Typography noWrap sx={{ minWidth: 0 }} variant="body2">
-                    {cell.getValue() || t('common.na', { ns: 'crm' })}
+                    {cell.getValue<string>() || t('common.na', { ns: 'crm' })}
                 </Typography>
             )
         },
@@ -363,11 +375,11 @@ const DealDashboard = () => {
                     }
                 })}
                 muiTableHeadCellProps={{ sx: { px: 1 } }}
-                muiTablePaginationProps={{
+                muiPaginationProps={{
                     rowsPerPageOptions: [10, 15, 25, 50, 100]
                 }}
                 renderDetailPanel={({ row }) => {
-                    const d = row.original || {};
+                    const d = (row.original || {}) as Record<string, unknown>;
                     // Build timeline events for statuses that have dates
                     const items = [
                         { key: 'initiatedAt', status: 'initiated' },
@@ -394,7 +406,7 @@ const DealDashboard = () => {
                             <Stack spacing={1.25}>
                                 {events.map((it, idx) => {
                                     const colorKey = getStatusColor(it.status);
-                                    const date = new Date(d[it.key]);
+                                    const date = new Date(d[it.key] as string | number);
                                     const dateStr = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
                                     return (
                                         <Stack
@@ -437,9 +449,9 @@ const DealDashboard = () => {
                                                             'default'
                                                                 ? theme.palette
                                                                       .grey[500]
-                                                                : theme.palette[
-                                                                      colorKey
-                                                                  ].main
+                                                                : (theme.palette[
+                                                                      colorKey as keyof Palette
+                                                                  ] as Palette['primary']).main
                                                     }}
                                                 />
                                                 <Box
@@ -473,9 +485,9 @@ const DealDashboard = () => {
                                                                 ? theme.palette
                                                                       .text
                                                                       .secondary
-                                                                : theme.palette[
-                                                                      colorKey
-                                                                  ].main
+                                                                : (theme.palette[
+                                                                      colorKey as keyof Palette
+                                                                  ] as Palette['primary']).main
                                                     }}
                                                     variant="body2"
                                                 >
@@ -501,9 +513,9 @@ const DealDashboard = () => {
 
             <StatusMenu
                 anchorEl={statusMenu.anchorEl}
-                currentStatus={statusMenu.row?.status}
+                currentStatus={statusMenu.row?.status as string | undefined}
                 onChoose={(s: string) => {
-                    const id = getDealId(statusMenu.row);
+                    const id = getDealId(statusMenu.row) as string;
                     updateStatusMutation.mutate(
                         { id, status: s },
                         { onSettled: () => closeStatusMenu() }

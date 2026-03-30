@@ -31,11 +31,12 @@ import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { updatePersonalData, getUser } from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
 import { is_personal_data_filled } from '../Utils/util_functions';
+import type { IStudentResponse } from '@taiger-common/model';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
 import Loading from '@components/Loading/Loading';
-import type { IUserWithId } from '@taiger-common/model';
+import type { IUser, IUserWithId } from '@taiger-common/model';
 
 interface PersonalData {
     firstname: string;
@@ -90,15 +91,15 @@ const Profile = () => {
                   linkedIn: ''
               }
             : {
-                  firstname: user.firstname ?? '',
-                  firstname_chinese: user.firstname_chinese ?? '',
-                  lastname: user.lastname ?? '',
-                  lastname_chinese: user.lastname_chinese ?? '',
-                  birthday: user.birthday ?? '',
-                  role: user.role ?? '',
-                  email: user.email ?? '',
-                  lineId: user.lineId ?? '',
-                  linkedIn: user.linkedIn ?? ''
+                  firstname: user?.firstname ?? '',
+                  firstname_chinese: user?.firstname_chinese ?? '',
+                  lastname: user?.lastname ?? '',
+                  lastname_chinese: user?.lastname_chinese ?? '',
+                  birthday: user?.birthday ?? '',
+                  role: user?.role ?? '',
+                  email: user?.email ?? '',
+                  lineId: user?.lineId ?? '',
+                  linkedIn: user?.linkedIn ?? ''
               },
         updateconfirmed: false,
         res_status: 0,
@@ -115,10 +116,7 @@ const Profile = () => {
     const getUser_function = () => {
         if (user_id) {
             getUser(user_id).then(
-                (resp: {
-                    data: { success?: boolean; data?: PersonalData };
-                    status?: number;
-                }) => {
+                (resp) => {
                     const { success, data } = resp.data;
                     const { status } = resp;
                     if (success && data) {
@@ -136,7 +134,7 @@ const Profile = () => {
                                 email: data.email ?? '',
                                 linkedIn: data.linkedIn ?? '',
                                 lineId: data.lineId ?? ''
-                            },
+                            } as PersonalData,
                             user_id: user_id ?? user?._id?.toString() ?? '',
                             res_status: status ?? 0
                         }));
@@ -185,24 +183,17 @@ const Profile = () => {
         updatePersonalData(
             user_id
                 ? (profileState.user_id ?? '')
-                : (user._id?.toString() ?? ''),
+                : (user?._id?.toString() ?? ''),
             personaldata
         ).then(
-            (resp: {
-                data: {
-                    data?: PersonalData;
-                    success?: boolean;
-                    message?: string;
-                };
-                status?: number;
-            }) => {
+            (resp) => {
                 const { data, success } = resp.data;
                 const { status } = resp;
                 if (success && data) {
                     setProfileState((prevState) => ({
                         ...prevState,
                         isLoaded: true,
-                        personaldata: data,
+                        personaldata: data as PersonalData,
                         success: success ?? false,
                         changed_personaldata: false,
                         updateconfirmed: true,
@@ -349,7 +340,7 @@ const Profile = () => {
             <Box component="form" noValidate sx={{ mt: 3 }}>
                 <Grid container spacing={2}>
                     <Grid item xs={12}>
-                        {!is_personal_data_filled(profileState.personaldata) ? (
+                        {!is_personal_data_filled(profileState.personaldata as unknown as IStudentResponse) ? (
                             <Accordion
                                 defaultExpanded
                                 disableGutters
@@ -438,13 +429,13 @@ const Profile = () => {
                     {t('Update', { ns: 'common' })}
                 </Button>
             </Box>
-            {!user_id && (is_TaiGer_Agent(user) || is_TaiGer_Editor(user)) ? (
+            {!user_id && user && (is_TaiGer_Agent(user as IUser) || is_TaiGer_Editor(user as IUser)) ? (
                 <Card sx={{ padding: 2, mb: 2 }}>
                     <Typography>{t('Profile', { ns: 'common' })}</Typography>
                     <Typography variant="h5">
                         {t('Introduction', { ns: 'common' })}
                     </Typography>
-                    <Typography>{user.selfIntroduction as string}</Typography>
+                    <Typography>{(user as unknown as { selfIntroduction?: string }).selfIntroduction ?? ''}</Typography>
                 </Card>
             ) : null}
             <Dialog

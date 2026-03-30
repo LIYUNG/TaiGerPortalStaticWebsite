@@ -46,7 +46,7 @@ export const ProgramsTable = ({
 }: ProgramsTableProps) => {
     const customTableStyles = useTableStyles();
     const { t } = useTranslation();
-    const tableConfig = getTableConfig(customTableStyles, isLoading);
+    const tableConfig = getTableConfig(customTableStyles as Parameters<typeof getTableConfig>[0], isLoading);
     const [openAssignDialog, setOpenAssignDialog] = useState(false);
 
     // Get unique subject groups from PROGRAM_SUBJECTS
@@ -62,7 +62,7 @@ export const ProgramsTable = ({
     const columns: Array<MRT_ColumnDef<ProgramsTableProgramRow>> = [
         {
             accessorFn: (row) => {
-                const lockStatus = calculateProgramLockStatus(row.original);
+                const lockStatus = calculateProgramLockStatus(row as never);
                 return lockStatus.isLocked ? 'Locked' : 'Unlocked';
             },
             id: 'status',
@@ -70,7 +70,7 @@ export const ProgramsTable = ({
             size: 110,
             filterVariant: 'select',
             filterFn: (row, _columnId, filterValue) => {
-                const lockStatus = calculateProgramLockStatus(row.original);
+                const lockStatus = calculateProgramLockStatus(row.original as never);
                 const status = lockStatus.isLocked ? 'Locked' : 'Unlocked';
                 return status === filterValue;
             },
@@ -85,7 +85,7 @@ export const ProgramsTable = ({
                 }
             ],
             Cell: ({ row }) => {
-                const lockStatus = calculateProgramLockStatus(row.original);
+                const lockStatus = calculateProgramLockStatus(row.original as never);
 
                 return lockStatus.isLocked ? (
                     <Chip
@@ -111,7 +111,7 @@ export const ProgramsTable = ({
             filterFn: 'contains',
             size: 250,
             Cell: (params) => {
-                const linkUrl = `${DEMO.SINGLE_PROGRAM_LINK(params.row.original._id)}`;
+                const linkUrl = `${DEMO.SINGLE_PROGRAM_LINK(String(params.row.original._id ?? ''))}`;
                 return (
                     <Link
                         component={LinkDom}
@@ -129,7 +129,7 @@ export const ProgramsTable = ({
             header: t('Program', { ns: 'common' }),
             size: 250,
             Cell: (params) => {
-                const linkUrl = `${DEMO.SINGLE_PROGRAM_LINK(params.row.original._id)}`;
+                const linkUrl = `${DEMO.SINGLE_PROGRAM_LINK(String(params.row.original._id ?? ''))}`;
                 return (
                     <Link
                         component={LinkDom}
@@ -146,7 +146,7 @@ export const ProgramsTable = ({
             accessorKey: 'programSubjects',
             header: t('Subjects', { ns: 'common' }),
             filterVariant: 'multi-select',
-            filterSelectOptions: subjectGroups.map((item) => item.value),
+            filterSelectOptions: subjectGroups.map((item) => item.label),
             size: 200,
             Cell: ({ row }) => {
                 const subjects = row.original.programSubjects || [];
@@ -168,7 +168,7 @@ export const ProgramsTable = ({
             accessorKey: 'tags',
             header: t('Tags', { ns: 'common' }),
             filterVariant: 'multi-select',
-            filterSelectOptions: subjectGroups.map((item) => item.value),
+            filterSelectOptions: subjectGroups.map((item) => item.label),
             size: 200,
             Cell: ({ row }) => {
                 const tags = row.original.tags || [];
@@ -235,11 +235,11 @@ export const ProgramsTable = ({
     ];
 
     const table = useMaterialReactTable({
-        ...tableConfig,
+        ...(tableConfig as Record<string, unknown>),
         columns,
         state: { isLoading },
         data: data || []
-    });
+    } as Parameters<typeof useMaterialReactTable<ProgramsTableProgramRow>>[0]);
     const selectedRows = table.getSelectedRowModel().rows ?? [];
     const programsForDialog = selectedRows.map(({ original }) => original);
     const handleAssignClick = () => {
@@ -263,7 +263,7 @@ export const ProgramsTable = ({
     table.options.renderTopToolbar = (
         <TopToolbar
             onAssignClick={handleAssignClick}
-            table={table}
+            table={table as never}
             toolbarStyle={customTableStyles.toolbarStyle}
         />
     );
@@ -275,8 +275,8 @@ export const ProgramsTable = ({
                 handleOnSuccess={handleOnSuccess}
                 onClose={handleDialogClose}
                 open={openAssignDialog}
-                programs={programsForDialog}
-                student={student}
+                programs={programsForDialog as never[]}
+                student={student as never}
             />
         </>
     );
