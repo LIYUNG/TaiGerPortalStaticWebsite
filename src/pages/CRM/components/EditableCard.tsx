@@ -18,12 +18,12 @@ import {
 
 interface EditableCardProps {
     title: string;
-    isEditing: boolean;
-    onEdit: () => void;
-    onSave: () => void;
-    onCancel: () => void;
+    isEditing?: boolean;
+    onEdit?: () => void;
+    onSave?: () => void;
+    onCancel?: () => void;
     viewContent: ReactNode;
-    editContent: ReactNode;
+    editContent?: ReactNode;
     isLoading?: boolean;
     hasUnsavedChanges?: boolean;
     disableEdit?: boolean;

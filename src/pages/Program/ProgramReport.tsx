@@ -12,7 +12,7 @@ import {
     is_TaiGer_Editor,
     is_TaiGer_role
 } from '@taiger-common/core';
-import type { ITicketWithId } from '@taiger-common/model';
+import type { ITicketWithId, IUser } from '@taiger-common/model';
 
 import {
     createProgramReport,
@@ -35,6 +35,28 @@ export interface ProgramReportProps {
     uni_name: string;
 }
 
+type PopulatedTicket = Omit<ITicketWithId, 'requester_id'> & {
+    requester_id:
+        | string
+        | { _id?: string; firstname?: string; lastname?: string };
+    updatedAt?: Date;
+};
+
+interface ProgramReportState {
+    isReport: boolean;
+    isReportDelete: boolean;
+    isUpdateReport: boolean;
+    description: string;
+    isLoaded: boolean;
+    tickets: PopulatedTicket[];
+    ticket: PopulatedTicket | null;
+    res_status: number;
+    res_modal_message: string;
+    res_modal_status: number;
+    success?: boolean;
+    error?: unknown;
+}
+
 const ProgramReport = ({
     program_id,
     program_name,
@@ -42,14 +64,14 @@ const ProgramReport = ({
 }: ProgramReportProps) => {
     const { t } = useTranslation();
     const { user } = useAuth();
-    const [programReportState, setProgramReportState] = useState({
+    const [programReportState, setProgramReportState] = useState<ProgramReportState>({
         isReport: false,
         isReportDelete: false,
         isUpdateReport: false,
         description: '',
         isLoaded: false,
         tickets: [],
-        ticket: {},
+        ticket: null,
         res_status: 0,
         res_modal_message: '',
         res_modal_status: 0
@@ -94,7 +116,7 @@ const ProgramReport = ({
         }));
     };
 
-    const handleReportDeleteClick = (ticket: ITicketWithId) => {
+    const handleReportDeleteClick = (ticket: PopulatedTicket) => {
         setProgramReportState((prevState) => ({
             ...prevState,
             isReportDelete: !programReportState.isReportDelete,
@@ -102,7 +124,7 @@ const ProgramReport = ({
         }));
     };
 
-    const handleReportUpdateClick = (ticket: ITicketWithId) => {
+    const handleReportUpdateClick = (ticket: PopulatedTicket) => {
         setProgramReportState((prevState) => ({
             ...prevState,
             isUpdateReport: !programReportState.isUpdateReport,
@@ -290,11 +312,11 @@ const ProgramReport = ({
                         <LinkableNewlineText text={ticket.feedback} />
                     </Typography>
                 </Grid>
-                {is_TaiGer_AdminAgent(user) || is_TaiGer_Editor(user) ? (
+                {is_TaiGer_AdminAgent(user as IUser) || is_TaiGer_Editor(user as IUser) ? (
                     <Grid item xs={12}>
                         <Typography>
                             {t('Reqested by')}:{' '}
-                            {`${ticket.requester_id?.firstname} ${ticket.requester_id?.lastname}`}
+                            {`${(ticket.requester_id as { firstname?: string; lastname?: string })?.firstname} ${(ticket.requester_id as { firstname?: string; lastname?: string })?.lastname}`}
                         </Typography>
                     </Grid>
                 ) : null}
@@ -321,9 +343,9 @@ const ProgramReport = ({
                         color="secondary"
                         disabled={
                             ticket.status === 'resolved' ||
-                            (!is_TaiGer_role(user) &&
+                            (!is_TaiGer_role(user as IUser) &&
                                 ticket.requester_id?.toString() !==
-                                    user._id?.toString())
+                                    user?._id?.toString())
                         }
                         onClick={() => handleReportDeleteClick(ticket)}
                         size="small"
@@ -366,7 +388,12 @@ const ProgramReport = ({
                 program_name={program_name}
                 setReportDeleteModalHide={setReportDeleteModalHide}
                 submitProgramDeleteReport={submitProgramDeleteReport}
-                ticket={programReportState.ticket}
+                ticket={
+                    (programReportState.ticket ?? {}) as Record<
+                        string,
+                        unknown
+                    >
+                }
                 uni_name={uni_name}
             />
             <ProgramReportUpdateModal
@@ -374,7 +401,9 @@ const ProgramReport = ({
                 program_name={program_name}
                 setReportUpdateModalHide={setReportUpdateModalHide}
                 submitProgramUpdateReport={submitProgramUpdateReport}
-                ticket={programReportState.ticket}
+                ticket={
+                    (programReportState.ticket ?? {}) as ITicketWithId
+                }
                 uni_name={uni_name}
             />
         </>

@@ -30,7 +30,9 @@ import EditIcon from '@mui/icons-material/Edit';
 import { useTranslation } from 'react-i18next';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { is_TaiGer_AdminAgent, is_TaiGer_Student } from '@taiger-common/core';
+import type { IUser } from '@taiger-common/core';
 import { FileIcon, defaultStyles } from 'react-file-icon';
+import type { OutputData } from '@editorjs/editorjs';
 
 import EditorSimple from '@components/EditorJs/EditorSimple';
 import { stringAvatar, convertDate } from '@utils/contants';
@@ -69,6 +71,20 @@ export interface MessageProps {
     ) => void;
 }
 
+interface MessageState {
+    editorState: OutputData | null;
+    message_id: string;
+    isLoaded: boolean;
+    filePath: string;
+    fileName: string;
+    createdAt: string;
+    previewModalShow: boolean;
+    deleteMessageModalShow: boolean;
+    ignoredMessageBy: MessageUser | undefined;
+    ignoredMessageUpdatedAt: string | Date | number | unknown;
+    ignore_message: boolean;
+}
+
 const Message = ({
     idx,
     accordionKeys,
@@ -84,11 +100,13 @@ const Message = ({
     // const onlyWidth = useWindowWidth();
     const { user } = useAuth();
     const { t } = useTranslation();
-    const [messageState, setMessageState] = useState({
+    const [messageState, setMessageState] = useState<MessageState>({
         editorState: null,
         message_id: '',
         isLoaded: false,
         filePath: '',
+        fileName: '',
+        createdAt: '',
         previewModalShow: false,
         deleteMessageModalShow: false,
         ignoredMessageBy: message?.ignoredMessageBy,
@@ -117,15 +135,15 @@ const Message = ({
         }
     });
     useEffect(() => {
-        let initialEditorState: unknown = null;
+        let initialEditorState: OutputData | null = null;
         if (message.message && message.message !== '{}') {
             try {
-                initialEditorState = JSON.parse(message.message);
+                initialEditorState = JSON.parse(message.message) as OutputData;
             } catch {
-                initialEditorState = { time: new Date(), blocks: [] };
+                initialEditorState = { time: Date.now(), blocks: [] };
             }
         } else {
-            initialEditorState = { time: new Date(), blocks: [] };
+            initialEditorState = { time: Date.now(), blocks: [] };
         }
         queueMicrotask(() => {
             setMessageState((prevState) => ({
@@ -188,13 +206,13 @@ const Message = ({
         setMessageState((prevState) => ({
             ...prevState,
             ignore_message: ignoreMessageState,
-            ignoredMessageBy: user,
+            ignoredMessageBy: user as unknown as MessageUser,
             ignoredMessageUpdatedAt: new Date()
         }));
         mutate({
-            student_id: message.student_id._id.toString(),
+            student_id: message.student_id?._id?.toString() ?? '',
             communication_messageId: message._id,
-            message: message.message,
+            message: (message.message ?? '') as unknown as Record<string, unknown>,
             ignoreMessageState: ignoreMessageState
         });
     };
@@ -207,7 +225,7 @@ const Message = ({
         ? message.user_id.lastname
         : appConfig.companyName;
     const editable = message.user_id
-        ? message.user_id._id.toString() === user._id.toString()
+        ? message.user_id._id.toString() === user?._id?.toString()
             ? true
             : false
         : false;
@@ -243,7 +261,7 @@ const Message = ({
                     <Box style={{ marginLeft: '10px', flex: 1 }}>
                         <b style={{ cursor: 'pointer' }}>{full_name}</b>
                         <span style={{ display: 'flex', float: 'right' }}>
-                            {convertDate(message.createdAt)}
+                            {convertDate(message.createdAt ?? new Date())}
                             {editable ? (
                                 <>
                                     <IconButton onClick={() => onEditMode()}>
@@ -259,7 +277,7 @@ const Message = ({
                                             onOpendeleteMessageModalShow(
                                                 e,
                                                 message._id.toString(),
-                                                message.createdAt
+                                                String(message.createdAt ?? '')
                                             )
                                         }
                                     >
@@ -285,7 +303,7 @@ const Message = ({
                     >
                         <EditorSimple
                             defaultHeight={0}
-                            editorState={messageState.editorState}
+                            editorState={messageState.editorState ?? undefined}
                             handleClickSave={handleClickSave}
                             holder={`${message._id.toString()}`}
                             imageEnable={false}
@@ -303,7 +321,7 @@ const Message = ({
                                                 file.name
                                             )
                                         }
-                                        underline="hover"
+                                        sx={{ textDecoration: 'underline', cursor: 'pointer' }}
                                     >
                                         <svg
                                             className="mx-2"
@@ -317,9 +335,9 @@ const Message = ({
                                                 extension={file.name
                                                     .split('.')
                                                     .pop()}
-                                                {...defaultStyles[
-                                                    file.name.split('.').pop()
-                                                ]}
+                                                {...(defaultStyles[
+                                                    file.name.split('.').pop() as string
+                                                ] ?? {})}
                                             />
                                         </svg>
                                         {file.name}
@@ -347,7 +365,7 @@ const Message = ({
                         display="flex"
                         justifyContent="space-between"
                     >
-                        {is_TaiGer_AdminAgent(user) ? (
+                        {user && is_TaiGer_AdminAgent(user as unknown as IUser) ? (
                             <AvatarGroup>
                                 {message?.readBy
                                     ?.filter(
@@ -355,7 +373,7 @@ const Message = ({
                                             (message.student_id?._id?.toString() !==
                                                 message.user_id?._id?.toString() &&
                                                 usr._id?.toString() !==
-                                                    user._id.toString()) ||
+                                                    user?._id?.toString()) ||
                                             (message.student_id?._id?.toString() ===
                                                 message.user_id?._id?.toString() &&
                                                 usr._id?.toString() !==
@@ -364,13 +382,13 @@ const Message = ({
                                     .map((usr) => (
                                         <Tooltip
                                             key={usr._id?.toString()}
-                                            title={`Read by ${usr?.firstname} ${usr?.lastname} at ${convertDate(message.timeStampReadBy?.[usr._id?.toString()])}`}
+                                            title={`Read by ${usr?.firstname} ${usr?.lastname} at ${convertDate(message.timeStampReadBy?.[usr._id?.toString()] ?? new Date())}`}
                                         >
                                             <Avatar
                                                 {...stringAvatar(
                                                     `${usr?.firstname} ${usr?.lastname}`
                                                 )}
-                                                size="small"
+
                                                 src={usr?.pictureUrl}
                                                 sx={{
                                                     ...stringAvatar(
@@ -389,16 +407,15 @@ const Message = ({
                             direction="row"
                             justifyContent="flex-end"
                         >
-                            {!is_TaiGer_Student(user) &&
-                            is_TaiGer_Student(message.user_id) ? (
+                            {user && !is_TaiGer_Student(user as unknown as IUser) &&
+                            message.user_id && is_TaiGer_Student(message.user_id as unknown as IUser) ? (
                                 <>
                                     {messageState.ignore_message ? (
                                         <Avatar
-                                            key={user._id?.toString()}
+                                            key={user?._id?.toString()}
                                             {...stringAvatar(
                                                 `${messageState.ignoredMessageBy?.firstname} ${messageState.ignoredMessageBy?.lastname}`
                                             )}
-                                            size="small"
                                             src={
                                                 messageState.ignoredMessageBy
                                                     ?.pictureUrl
@@ -410,7 +427,7 @@ const Message = ({
                                                 width: 8,
                                                 height: 8 // Override the size
                                             }}
-                                            title={`Ignored by ${messageState.ignoredMessageBy?.firstname} ${messageState.ignoredMessageBy?.lastname} at ${convertDate(messageState.ignoredMessageUpdatedAt)}`}
+                                            title={`Ignored by ${messageState.ignoredMessageBy?.firstname} ${messageState.ignoredMessageBy?.lastname} at ${convertDate((messageState.ignoredMessageUpdatedAt as string | Date | number) ?? new Date())}`}
                                         />
                                     ) : null}
                                     <FormGroup>

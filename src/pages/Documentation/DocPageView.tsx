@@ -9,6 +9,7 @@ import { OutputData } from '@editorjs/editorjs';
 
 export interface DocPageViewProps {
     editorState: OutputData;
+    category: string;
     handleClickEditToggle: () => void;
     handleClickSave: () => void;
     author?: string;
@@ -20,6 +21,7 @@ const DocPageView = (props: DocPageViewProps) => {
     return (
         <Card sx={{ p: 2 }}>
             <EditorNew
+                category={props.category}
                 editorState={props.editorState}
                 handleClickEditToggle={props.handleClickEditToggle}
                 handleClickSave={props.handleClickSave}

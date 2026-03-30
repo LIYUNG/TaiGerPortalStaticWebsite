@@ -89,7 +89,7 @@ interface GenericCardContentProps {
     config: CardConfig;
     lead: Record<string, unknown>;
     isEditing: boolean;
-    formData: Record<string, string>;
+    formData?: Record<string, string> | Record<string, unknown>;
     onFieldChange: (key: string, value: string) => void;
 }
 
@@ -166,9 +166,10 @@ export const GenericCardContent = ({
     config,
     lead,
     isEditing,
-    formData,
+    formData: rawFormData,
     onFieldChange
 }: GenericCardContentProps) => {
+    const formData = (rawFormData ?? {}) as Record<string, string>;
     const { t } = useTranslation();
     if (!isEditing) {
         return (

@@ -28,8 +28,15 @@ import DEMO from '@store/constant';
 import { useSnackBar } from '@contexts/use-snack-bar';
 
 export interface CourseKeywordsEditCardData {
-    keywords?: { zh?: string[]; en?: string[] };
-    antiKeywords?: { zh?: string[]; en?: string[] };
+    _id?: string;
+    categoryName?: string;
+    description?: string;
+    keywords?: Record<string, string[]>;
+    antiKeywords?: Record<string, string[]>;
+    keywords_zh?: string;
+    keywords_en?: string;
+    antiKeywords_zh?: string;
+    antiKeywords_en?: string;
     [key: string]: unknown;
 }
 
@@ -52,7 +59,7 @@ const EditCard = (props: CourseKeywordsEditCardProps) => {
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
 
     const handleAddCourseKeyword = (lang: string, keyword: string) => {
-        if (selectedCategory.keywords[lang]?.includes(keywordsZH)) {
+        if (selectedCategory.keywords?.[lang]?.includes(keywordsZH)) {
             setErrorMessage('This keyword already exists in the list.');
             setIsErrorDialogOpen(true); // Open error dialog
             return;
@@ -62,7 +69,7 @@ const EditCard = (props: CourseKeywordsEditCardProps) => {
                 ...prevCategory,
                 keywords: {
                     ...prevCategory.keywords,
-                    [lang]: [...(prevCategory.keywords[lang] || []), keyword]
+                    [lang]: [...(prevCategory.keywords?.[lang] || []), keyword]
                 }
             }));
             if (lang === 'zh') {
@@ -75,7 +82,7 @@ const EditCard = (props: CourseKeywordsEditCardProps) => {
     };
 
     const handleAddCourseAntiKeyword = (lang: string, keyword: string) => {
-        if (selectedCategory.antiKeywords[lang]?.includes(antiKeywordsZH)) {
+        if (selectedCategory.antiKeywords?.[lang]?.includes(antiKeywordsZH)) {
             setErrorMessage('This keyword already exists in the list.');
             setIsErrorDialogOpen(true); // Open error dialog
             return;
@@ -86,7 +93,7 @@ const EditCard = (props: CourseKeywordsEditCardProps) => {
                 antiKeywords: {
                     ...prevCategory.antiKeywords,
                     [lang]: [
-                        ...(prevCategory.antiKeywords[lang] || []),
+                        ...(prevCategory.antiKeywords?.[lang] || []),
                         keyword
                     ]
                 }
@@ -117,7 +124,7 @@ const EditCard = (props: CourseKeywordsEditCardProps) => {
     };
 
     const handleCategoryNameAndDescription = (
-        e: React.ChangeEvent<HTMLInputElement>
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => {
         setSelectedCategory((prevCategory) => ({
             ...prevCategory,
@@ -178,7 +185,7 @@ const EditCard = (props: CourseKeywordsEditCardProps) => {
         });
         setIsEditMode(false);
         const resp = await putKeywordSet(
-            selectedCategory._id,
+            selectedCategory._id as string,
             selectedCategory
         );
         const { success } = resp.data;
@@ -582,7 +589,9 @@ export interface CourseKeywordsOverviewProps {
 const CourseKeywordsOverview = ({
     courseKeywordSets
 }: CourseKeywordsOverviewProps) => {
-    const [courseKeywordSetsState, setCourseKeywordSetsState] = useState(
+    const [courseKeywordSetsState, setCourseKeywordSetsState] = useState<
+        CourseKeywordsEditCardData[]
+    >(
         courseKeywordSets.map((courseKeywordSet) => ({
             ...courseKeywordSet,
             keywords_zh: courseKeywordSet.keywords?.zh?.join(', '),
@@ -591,7 +600,8 @@ const CourseKeywordsOverview = ({
             antiKeywords_en: courseKeywordSet.antiKeywords?.en?.join(', ')
         }))
     );
-    const [itemToBeDeleted, setItemToBeDeleted] = useState({});
+    const [itemToBeDeleted, setItemToBeDeleted] =
+        useState<CourseKeywordsEditCardData>({});
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [rowSelection, setRowSelection] = useState({});
     const [drawerOpen, setDrawerOpen] = useState(false);
@@ -625,8 +635,8 @@ const CourseKeywordsOverview = ({
         setCourseKeywordSetsState((prevState) =>
             prevState.filter((item) => item._id !== itemToBeDeleted._id)
         );
-        const resp = await deleteKeywordSet(itemToBeDeleted._id);
-        if (!resp.success) {
+        const resp = await deleteKeywordSet(itemToBeDeleted._id as string);
+        if (!resp.data.success) {
             setSeverity('error');
             setMessage(
                 resp.data?.message || 'An error occurred. Please try again.'
@@ -635,6 +645,9 @@ const CourseKeywordsOverview = ({
         }
         setIsDeleteDialogOpen(false);
         setItemToBeDeleted({});
+        setSeverity('info');
+        setMessage(i18next.t('Keyword set deleted successfully.', { ns: 'common' }));
+        setOpenSnackbar(true);
     }, [
         setIsDeleteDialogOpen,
         setRowSelection,
@@ -697,11 +710,22 @@ const CourseKeywordsOverview = ({
                         enableRowSelection={true}
                         muiTableBodyRowProps={({ row }) => ({
                             //add onClick to row to select upon clicking anywhere in the row
-                            onClick: row.getToggleSelectedHandler(),
+                            onClick: (
+                                row as unknown as {
+                                    getToggleSelectedHandler: () => (
+                                        e: unknown
+                                    ) => void;
+                                }
+                            ).getToggleSelectedHandler(),
                             sx: { cursor: 'pointer' }
                         })}
-                        onRowSelectionChange={(e: Record<string, boolean>) =>
-                            handleCategoryClick(e)
+                        onRowSelectionChange={
+                            ((e: Record<string, boolean>) =>
+                                handleCategoryClick(e)) as unknown as (
+                                updater: (
+                                    old: Record<string, boolean>
+                                ) => Record<string, boolean>
+                            ) => void
                         }
                         rowSelection={rowSelection}
                     />

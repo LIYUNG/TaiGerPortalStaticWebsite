@@ -8,11 +8,11 @@ export const FetchStudentLayer = () => {
     const { studentId } = useParams();
 
     // Fetch student and doc links using React Query
-    const { data: response, isLoading } = useQuery(
-        getStudentAndDocLinksQuery({ studentId })
+    const { data: response, isLoading, refetch } = useQuery(
+        getStudentAndDocLinksQuery({ studentId: studentId ?? '' })
     );
 
-    if (isLoading || !response?.data) {
+    if (isLoading || !(response as any)?.data) {
         return (
             <Box
                 sx={{
@@ -27,13 +27,15 @@ export const FetchStudentLayer = () => {
         );
     }
 
-    const { survey_link, base_docs_link, data, audit } = response.data;
+    const apiData = (response as any).data;
+    const { survey_link, base_docs_link, data, audit } = apiData;
     return (
         <Box sx={{ width: window.innerWidth - 60 }}>
             <SingleStudentPageMainContent
                 audit={audit}
                 base_docs_link={base_docs_link}
                 data={data}
+                refetch={refetch}
                 survey_link={survey_link}
             />
         </Box>
