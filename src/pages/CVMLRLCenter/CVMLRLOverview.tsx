@@ -17,6 +17,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { is_TaiGer_role } from '@taiger-common/core';
+import type { IUser } from '@taiger-common/model';
 
 import {
     ATTRIBUTES,
@@ -28,23 +29,17 @@ import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { useAuth } from '@components/AuthProvider';
 import { CustomTabPanel, a11yProps } from '@components/Tabs';
 import { useTranslation } from 'react-i18next';
-import { MuiDataGrid } from '@components/MuiDataGrid';
+import { MuiDataGrid, type MuiDataGridColumn } from '@components/MuiDataGrid';
 import DEMO from '@store/constant';
 import { APPROVAL_COUNTRIES } from '../Utils/util_functions';
-import type { GridRenderCellParams } from '@mui/x-data-grid';
 import type { OpenTaskRow } from '@/api/types';
+
+type CellParams = { value: unknown; row: OpenTaskRow; field: string };
 
 interface TaskAttribute {
     _id: string;
     name: string;
     value: number;
-}
-
-interface FilterRow {
-    original?: OpenTaskRow & {
-        isApplicationLocked?: boolean;
-        isProgramLocked?: boolean;
-    };
 }
 
 export interface CVMLRLOverviewProps {
@@ -63,14 +58,19 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
     const { t } = useTranslation();
     const { hash } = useLocation();
     const [tabTag, setTabTag] = useState(
-        THREADS_TABLE_TABS[hash.replace('#', '')] || 0
+        THREADS_TABLE_TABS[
+            hash.replace('#', '') as keyof typeof THREADS_TABLE_TABS
+        ] ?? 0
     );
     const handleTabChange = (
         _event: React.SyntheticEvent,
         newValue: number
     ) => {
         setTabTag(newValue);
-        window.location.hash = THREADS_TABLE_REVERSED_TABS[newValue];
+        window.location.hash =
+            THREADS_TABLE_REVERSED_TABS[
+                newValue as keyof typeof THREADS_TABLE_REVERSED_TABS
+            ];
     };
 
     const [cVMLRLOverviewState, setCVMLRLOverviewState] = useState({
@@ -93,7 +93,7 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
 
     const { res_modal_status, res_modal_message } = cVMLRLOverviewState;
 
-    const commonColumn = [
+    const commonColumn: MuiDataGridColumn<OpenTaskRow>[] = [
         {
             field: 'aged_days',
             headerName: 'Aged days',
@@ -125,18 +125,19 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
         }
     ];
 
-    const c2 = [
+    const c2: MuiDataGridColumn<OpenTaskRow>[] = [
         {
             field: 'firstname_lastname',
             headerName: t('First-, Last Name', { ns: 'common' }),
             align: 'left',
             headerAlign: 'left',
             minWidth: 200,
-            renderCell: (params: GridRenderCellParams) => {
+            renderCell: (params: CellParams) => {
                 const linkUrl = `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                    params.row.student_id,
+                    String(params.row.student_id ?? ''),
                     DEMO.PROFILE_HASH
                 )}`;
+                const val = params.value as string;
                 return (
                     <>
                         <IconButton
@@ -145,25 +146,25 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
                             }
                         >
                             {params.row.flag_by_user_id?.includes(
-                                user._id.toString()
+                                user?._id.toString() ?? ''
                             ) ? (
                                 <StarRoundedIcon
-                                    color={params.value ? 'primary' : 'action'}
+                                    color={val ? 'primary' : 'action'}
                                 />
                             ) : (
                                 <StarBorderRoundedIcon
-                                    color={params.value ? 'primary' : 'action'}
+                                    color={val ? 'primary' : 'action'}
                                 />
                             )}
                         </IconButton>
                         <Link
                             component={LinkDom}
                             target="_blank"
-                            title={params.value}
+                            title={val}
                             to={linkUrl}
                             underline="hover"
                         >
-                            {params.value}
+                            {val}
                         </Link>
                     </>
                 );
@@ -188,26 +189,10 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
             field: 'status',
             headerName: t('Status', { ns: 'common' }),
             minWidth: 110,
-            filterVariant: 'select',
-            filterSelectOptions: [
-                { value: 'Locked', label: t('Locked', { ns: 'common' }) },
-                { value: 'Unlocked', label: t('Unlocked', { ns: 'common' }) }
-            ],
-            filterFn: (
-                row: FilterRow,
-                _columnId: string,
-                filterValue: string
-            ) => {
+            renderCell: (params: CellParams) => {
                 const isLocked =
-                    row.original?.isApplicationLocked === true ||
-                    row.original?.isProgramLocked === true;
-                const status = isLocked ? 'Locked' : 'Unlocked';
-                return status === filterValue;
-            },
-            renderCell: (params: GridRenderCellParams) => {
-                const isLocked =
-                    params.row?.isApplicationLocked === true ||
-                    params.row?.isProgramLocked === true;
+                    (params.row?.isApplicationLocked as boolean) === true ||
+                    (params.row?.isProgramLocked as boolean) === true;
                 return isLocked ? (
                     <Chip
                         color="warning"
@@ -229,26 +214,32 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
             field: 'document_name',
             headerName: t('Document name', { ns: 'common' }),
             minWidth: 380,
-            renderCell: (params: GridRenderCellParams) => {
+            renderCell: (params: CellParams) => {
                 const linkUrl = `${DEMO.DOCUMENT_MODIFICATION_LINK(
-                    params.row.thread_id
+                    params.row.thread_id as string
                 )}`;
                 // Check if program is from non-approval country
+                const programId = params.row?.program_id as
+                    | Record<string, unknown>
+                    | undefined;
                 const programCountry =
-                    params.row?.program_id?.country || params.row?.country;
+                    programId?.country || params.row?.country;
                 const isNonApprovalCountry = programCountry
                     ? !APPROVAL_COUNTRIES.includes(
                           String(programCountry).toLowerCase()
                       )
                     : false;
+                const attributes = (params.row?.attributes ??
+                    []) as TaskAttribute[];
+                const val = params.value as string;
 
                 return (
                     <Box>
-                        {params.row?.attributes
-                            ?.filter((attribute: TaskAttribute) =>
+                        {attributes
+                            .filter((attribute: TaskAttribute) =>
                                 [1, 3, 9, 10, 11].includes(attribute.value)
                             )
-                            ?.map((attribute: TaskAttribute) => (
+                            .map((attribute: TaskAttribute) => (
                                 <Tooltip
                                     key={attribute._id}
                                     title={`${attribute.name}: ${
@@ -285,16 +276,16 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
                                 <Link
                                     component={LinkDom}
                                     target="_blank"
-                                    title={params.value}
+                                    title={val}
                                     to={linkUrl}
                                     underline="hover"
                                 >
-                                    {params.row.file_type}{' '}
+                                    {params.row.file_type as string}{' '}
                                     {params.row.program_id
                                         ? ' - ' +
-                                          params.row.program_name +
+                                          (params.row.program_name as string) +
                                           ' - ' +
-                                          params.row.degree
+                                          (params.row.degree as string)
                                         : ''}
                                 </Link>
                                 <Typography
@@ -302,7 +293,7 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
                                     sx={{ display: 'block', mt: 0.25 }}
                                     variant="caption"
                                 >
-                                    {params.row.school}
+                                    {params.row.school as string}
                                 </Typography>
                             </>
                         }
@@ -313,14 +304,15 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
         ...commonColumn
     ];
 
-    const c2Student = [
+    const c2Student: MuiDataGridColumn<OpenTaskRow>[] = [
         {
             field: 'firstname_lastname',
             headerName: t('First-, Last Name', { ns: 'common' }),
             align: 'left',
             headerAlign: 'left',
             width: 200,
-            renderCell: (params: GridRenderCellParams) => {
+            renderCell: (params: CellParams) => {
+                const val = params.value as string;
                 return (
                     <>
                         <IconButton
@@ -329,18 +321,18 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
                             }
                         >
                             {params.row.flag_by_user_id?.includes(
-                                user._id.toString()
+                                user?._id.toString() ?? ''
                             ) ? (
                                 <StarRoundedIcon
-                                    color={params.value ? 'primary' : 'action'}
+                                    color={val ? 'primary' : 'action'}
                                 />
                             ) : (
                                 <StarBorderRoundedIcon
-                                    color={params.value ? 'primary' : 'action'}
+                                    color={val ? 'primary' : 'action'}
                                 />
                             )}
                         </IconButton>
-                        <span title={params.value}>{params.value}</span>
+                        <span title={val}>{val}</span>
                     </>
                 );
             }
@@ -359,26 +351,10 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
             field: 'status',
             headerName: t('Status', { ns: 'common' }),
             minWidth: 110,
-            filterVariant: 'select',
-            filterSelectOptions: [
-                { value: 'Locked', label: t('Locked', { ns: 'common' }) },
-                { value: 'Unlocked', label: t('Unlocked', { ns: 'common' }) }
-            ],
-            filterFn: (
-                row: FilterRow,
-                _columnId: string,
-                filterValue: string
-            ) => {
+            renderCell: (params: CellParams) => {
                 const isLocked =
-                    row.original?.isApplicationLocked === true ||
-                    row.original?.isProgramLocked === true;
-                const status = isLocked ? 'Locked' : 'Unlocked';
-                return status === filterValue;
-            },
-            renderCell: (params: GridRenderCellParams) => {
-                const isLocked =
-                    params.row?.isApplicationLocked === true ||
-                    params.row?.isProgramLocked === true;
+                    (params.row?.isApplicationLocked as boolean) === true ||
+                    (params.row?.isProgramLocked as boolean) === true;
                 return isLocked ? (
                     <Chip
                         color="warning"
@@ -400,26 +376,27 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
             field: 'document_name',
             headerName: t('Document name', { ns: 'common' }),
             width: 450,
-            renderCell: (params: GridRenderCellParams) => {
+            renderCell: (params: CellParams) => {
                 const linkUrl = `${DEMO.DOCUMENT_MODIFICATION_LINK(
-                    params.row.thread_id
+                    params.row.thread_id as string
                 )}`;
+                const val = params.value as string;
 
                 return (
                     <Box>
                         <Link
                             component={LinkDom}
                             target="_blank"
-                            title={params.value}
+                            title={val}
                             to={linkUrl}
                             underline="hover"
                         >
-                            {params.row.file_type}{' '}
+                            {params.row.file_type as string}{' '}
                             {params.row.program_id
                                 ? ' - ' +
-                                  params.row.program_name +
+                                  (params.row.program_name as string) +
                                   ' - ' +
-                                  params.row.degree
+                                  (params.row.degree as string)
                                 : ''}
                         </Link>
                         <Typography
@@ -427,7 +404,7 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
                             sx={{ display: 'block', mt: 0.25 }}
                             variant="caption"
                         >
-                            {params.row.school}
+                            {params.row.school as string}
                         </Typography>
                     </Box>
                 );
@@ -436,7 +413,7 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
         ...commonColumn
     ];
 
-    const memoizedColumns = is_TaiGer_role(user) ? c2 : c2Student;
+    const memoizedColumns = is_TaiGer_role(user as IUser) ? c2 : c2Student;
 
     return (
         <>
@@ -499,7 +476,7 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
                         number_input_from_student: false
                     }}
                     columns={memoizedColumns}
-                    rows={props.new_message_tasks}
+                    rows={props.new_message_tasks ?? []}
                 />
             </CustomTabPanel>
             <CustomTabPanel index={1} value={tabTag}>
@@ -509,7 +486,7 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
                         number_input_from_student: false
                     }}
                     columns={memoizedColumns}
-                    rows={props.fav_message_tasks}
+                    rows={props.fav_message_tasks ?? []}
                 />
             </CustomTabPanel>
             <CustomTabPanel index={2} value={tabTag}>
@@ -520,12 +497,12 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
                         number_input_from_student: false
                     }}
                     columns={memoizedColumns}
-                    rows={props.followup_tasks}
+                    rows={props.followup_tasks ?? []}
                 />
             </CustomTabPanel>
             <CustomTabPanel index={3} value={tabTag}>
                 <Alert severity="info">
-                    {is_TaiGer_role(user)
+                    {is_TaiGer_role(user as IUser)
                         ? 'Waiting inputs. No action needed'
                         : 'Please provide input as soon as possible'}
                 </Alert>
@@ -535,7 +512,7 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
                         number_input_from_student: false
                     }}
                     columns={memoizedColumns}
-                    rows={props.pending_progress_tasks}
+                    rows={props.pending_progress_tasks ?? []}
                 />
             </CustomTabPanel>
             <CustomTabPanel index={4} value={tabTag}>
@@ -546,7 +523,7 @@ const CVMLRLOverview = (props: CVMLRLOverviewProps) => {
                         number_input_from_student: false
                     }}
                     columns={memoizedColumns}
-                    rows={props.closed_tasks}
+                    rows={props.closed_tasks ?? []}
                 />
                 <Typography variant="body2">
                     {t(

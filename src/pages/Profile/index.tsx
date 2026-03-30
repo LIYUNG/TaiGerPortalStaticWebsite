@@ -31,6 +31,7 @@ import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { updatePersonalData, getUser } from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
 import { is_personal_data_filled } from '../Utils/util_functions';
+import type { IStudentResponse } from '@taiger-common/model';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
@@ -349,7 +350,7 @@ const Profile = () => {
             <Box component="form" noValidate sx={{ mt: 3 }}>
                 <Grid container spacing={2}>
                     <Grid item xs={12}>
-                        {!is_personal_data_filled(profileState.personaldata) ? (
+                        {!is_personal_data_filled(profileState.personaldata as unknown as IStudentResponse) ? (
                             <Accordion
                                 defaultExpanded
                                 disableGutters

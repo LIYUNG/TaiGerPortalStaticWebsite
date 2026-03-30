@@ -18,6 +18,20 @@ import Loading from '@components/Loading/Loading';
 import { appConfig } from '../../config';
 import { useTranslation } from 'react-i18next';
 import { Role } from '@taiger-common/core';
+import type { OutputData } from '@editorjs/editorjs';
+
+interface DocumentationState {
+    error: string;
+    isLoaded: boolean;
+    success: boolean;
+    editorState: OutputData | null;
+    isEdit: boolean;
+    author: string;
+    document_title?: string;
+    res_status: number;
+    res_modal_message: string;
+    res_modal_status: number;
+}
 
 interface DocumentationProps {
     item?: string;
@@ -27,29 +41,33 @@ const Documentation = (props: DocumentationProps) => {
     const { category } = useParams();
     const { user } = useAuth();
     const { t } = useTranslation();
-    const [documentationState, setDocumentationState] = useState({
-        error: '',
-        isLoaded: false,
-        success: false,
-        editorState: null,
-        isEdit: false,
-        author: '',
-        res_status: 0,
-        res_modal_message: '',
-        res_modal_status: 0
-    });
+    const [documentationState, setDocumentationState] =
+        useState<DocumentationState>({
+            error: '',
+            isLoaded: false,
+            success: false,
+            editorState: null,
+            isEdit: false,
+            author: '',
+            res_status: 0,
+            res_modal_message: '',
+            res_modal_status: 0
+        });
     useEffect(() => {
-        getCategorizedDocumentationPage(category).then(
+        getCategorizedDocumentationPage(category ?? '').then(
             (resp) => {
                 const { data, success } = resp.data;
                 const { status } = resp;
-                if (success) {
-                    let initialEditorState = null;
+                if (success && data) {
+                    let initialEditorState: OutputData | null = null;
                     const author = data.author;
                     if (data.text) {
                         initialEditorState = JSON.parse(data.text);
                     } else {
-                        initialEditorState = { time: new Date(), blocks: [] };
+                        initialEditorState = {
+                            time: new Date().getTime(),
+                            blocks: []
+                        };
                     }
                     // initialEditorState = JSON.parse(data.text);
 
@@ -57,7 +75,7 @@ const Documentation = (props: DocumentationProps) => {
                         ...prevState,
                         isLoaded: true,
                         editorState: initialEditorState,
-                        author,
+                        author: author ?? '',
                         success: success,
                         res_status: status
                     }));
@@ -88,9 +106,9 @@ const Documentation = (props: DocumentationProps) => {
         }));
     };
     const handleClickSave = (
-        e: React.MouseEvent<HTMLElement>,
+        e: React.MouseEvent,
         doc_title: string,
-        editorState: unknown
+        editorState: OutputData
     ) => {
         e.preventDefault();
         const message = JSON.stringify(editorState);
@@ -100,18 +118,18 @@ const Documentation = (props: DocumentationProps) => {
             prop: props.item,
             text: message
         };
-        updateDocumentationPage(category, msg).then(
+        updateDocumentationPage(category ?? '', msg).then(
             (resp) => {
                 const { success, data } = resp.data;
                 const { status } = resp;
-                if (success) {
+                if (success && data) {
                     setDocumentationState((prevState) => ({
                         ...prevState,
                         success,
-                        document_title: data.title,
-                        editorState,
+                        document_title: data.title ?? '',
+                        editorState: editorState as OutputData,
                         isEdit: !documentationState.isEdit,
-                        author: data.author,
+                        author: data.author ?? '',
                         isLoaded: true,
                         res_modal_status: status
                     }));
@@ -120,7 +138,7 @@ const Documentation = (props: DocumentationProps) => {
                     setDocumentationState((prevState) => ({
                         ...prevState,
                         isLoaded: true,
-                        res_modal_message: message,
+                        res_modal_message: message ?? '',
                         res_modal_status: status
                     }));
                 }
@@ -173,9 +191,9 @@ const Documentation = (props: DocumentationProps) => {
         return <Loading />;
     }
 
-    const category_name = valid_categories.find(
-        (categorie) => categorie.key === category
-    ).value;
+    const category_name =
+        valid_categories.find((categorie) => categorie.key === category)
+            ?.value ?? '';
     TabTitle(`Doc: ${category_name}`);
     return (
         <>
@@ -202,23 +220,25 @@ const Documentation = (props: DocumentationProps) => {
             </Breadcrumbs>
             {documentationState.isEdit ? (
                 <DocPageEdit
-                    category="category"
-                    document={document}
-                    document_title={documentationState.document_title}
-                    editorState={documentationState.editorState}
+                    category={category ?? ''}
+                    document_title={
+                        documentationState.document_title ?? ''
+                    }
+                    editorState={
+                        documentationState.editorState as OutputData
+                    }
                     handleClickEditToggle={handleClickEditToggle}
                     handleClickSave={handleClickSave}
-                    isLoaded={isLoaded}
                 />
             ) : (
                 <DocPageView
                     author={documentationState.author}
-                    document={document}
-                    document_title={documentationState.document_title}
-                    editorState={documentationState.editorState}
+                    category={category ?? ''}
+                    editorState={
+                        documentationState.editorState as OutputData
+                    }
                     handleClickEditToggle={handleClickEditToggle}
-                    isLoaded={isLoaded}
-                    user={user}
+                    handleClickSave={() => {}}
                 />
             )}
         </>

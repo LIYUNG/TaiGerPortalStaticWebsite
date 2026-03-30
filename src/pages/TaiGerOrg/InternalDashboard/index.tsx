@@ -34,6 +34,36 @@ interface FinishedDoc {
     student_id?: { firstname?: string; lastname?: string };
 }
 
+interface OverviewData {
+    agents_data: unknown[];
+    documents: unknown[];
+    editors_data: unknown[];
+    students_creation_dates: unknown[];
+    students_years_pair: unknown[];
+}
+
+interface AgentsData {
+    agentStudentDistribution: unknown[];
+}
+
+interface KPIData {
+    finished_docs: FinishedDoc[];
+}
+
+interface ResponseTimeData {
+    agents_data: Array<{
+        _id: string;
+        firstname: string;
+        lastname: string;
+    }>;
+    editors_data: Array<{
+        _id: string;
+        firstname: string;
+        lastname: string;
+    }>;
+    studentAvgResponseTime: unknown;
+}
+
 const InternalDashboard = () => {
     const { user } = useAuth();
     const { hash } = useLocation();
@@ -43,40 +73,46 @@ const InternalDashboard = () => {
 
     // Lazy load data based on active tab
     const {
-        data: overviewData,
+        data: overviewDataRaw,
         isLoading: isLoadingOverview,
         refetch: refetchOverview
     } = useQuery({
         ...getStatisticsOverviewQuery(),
         enabled: value === 0 // Only load when Overview tab is active
     });
+    const overviewData = overviewDataRaw as OverviewData | undefined;
 
     const {
-        data: agentsData,
+        data: agentsDataRaw,
         isLoading: isLoadingAgents,
         refetch: refetchAgents
     } = useQuery({
         ...getStatisticsAgentsQuery(),
         enabled: value === 1 // Only load when Agents tab is active
     });
+    const agentsData = agentsDataRaw as AgentsData | undefined;
 
     const {
-        data: kpiData,
+        data: kpiDataRaw,
         isLoading: isLoadingKPI,
         refetch: refetchKPI
     } = useQuery({
         ...getStatisticsKPIQuery(),
         enabled: value === 2 // Only load when KPI tab is active
     });
+    const kpiData = kpiDataRaw as KPIData | undefined;
 
     const {
-        data: responseTimeData,
+        data: responseTimeDataRaw,
         isLoading: isLoadingResponseTime,
         refetch: refetchResponseTime
     } = useQuery({
         ...getStatisticsResponseTimeQuery(),
         enabled: value === 3 // Only load when Response Time tab is active
     });
+    const responseTimeData = responseTimeDataRaw as
+        | ResponseTimeData
+        | undefined;
 
     // Process KPI data; useMemo must run before any conditional return (rules-of-hooks)
     const kpiProcessedData = useMemo(() => {

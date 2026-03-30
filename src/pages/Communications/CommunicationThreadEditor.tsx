@@ -19,6 +19,7 @@ import {
     is_TaiGer_Student,
     is_TaiGer_role
 } from '@taiger-common/core';
+import type { IUser } from '@taiger-common/model';
 import { useParams } from 'react-router-dom';
 
 import ComposeEditor from '@components/EditorJs/ComposeEditor';
@@ -29,13 +30,22 @@ import { CVMLRL_DOC_PRECHECK_STATUS_E, stringAvatar } from '@utils/contants';
 import { TaiGerChatAssistant } from '@/api';
 import { appConfig } from '../../config';
 
+export interface CheckResultItem {
+    text: string;
+    value?: boolean;
+    hasMetadata?: boolean;
+    metaData?: React.ReactNode;
+}
+
 export interface CommunicationThreadEditorProps {
-    buttonDisabled: boolean;
+    buttonDisabled?: boolean;
     editorState: unknown;
     handleClickSave?: (e: React.MouseEvent, editorState: OutputData) => void;
     thread: unknown;
     files?: Array<{ name: string; path?: string }>;
     count?: number;
+    checkResult?: Array<Record<string, CheckResultItem>>;
+    onFileChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
@@ -72,7 +82,7 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
 
     const onSubmit = async () => {
         setStreamingData((prev) => ({ ...prev, isGenerating: true }));
-        const response = await TaiGerChatAssistant('abc', studentId);
+        const response = await TaiGerChatAssistant('abc', studentId ?? '');
         const reader = response.body
             ?.pipeThrough(new TextDecoderStream())
             .getReader();
@@ -92,18 +102,18 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
     return (
         <>
             <Box
-                style={{
+                sx={{
                     my: 1,
                     display: 'flex',
                     alignItems: 'center'
                 }}
             >
                 <Avatar
-                    {...stringAvatar(`${user.firstname} ${user.lastname}`)}
+                    {...stringAvatar(`${user?.firstname} ${user?.lastname}`)}
                     src={user?.pictureUrl}
                 />
                 <Typography variant="body1">
-                    {user.firstname} {user.lastname}
+                    {user?.firstname} {user?.lastname}
                 </Typography>
             </Box>
             <Box
@@ -141,7 +151,7 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
                 />
             </Box>
             <Box>
-                {is_TaiGer_role(user)
+                {is_TaiGer_role(user as IUser)
                     ? props.files?.map((fl, i) => (
                           <Box
                               key={`${fl.name}${i}`}
@@ -154,26 +164,26 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
                                   {fl.name} :
                               </Typography>
                               {props.checkResult?.length
-                                  ? Object.keys(props.checkResult[i]).map(
+                                  ? Object.keys(props.checkResult![i]).map(
                                         (ky) => (
                                             <Typography
                                                 key={
-                                                    props.checkResult[i][ky]
+                                                    props.checkResult![i][ky]
                                                         .text
                                                 }
                                                 sx={{ ml: 2 }}
                                             >
-                                                {props.checkResult[i][ky]
+                                                {props.checkResult![i][ky]
                                                     .value === undefined
                                                     ? CVMLRL_DOC_PRECHECK_STATUS_E.WARNING_SYMBOK
-                                                    : props.checkResult[i][ky]
+                                                    : props.checkResult![i][ky]
                                                             .value
                                                       ? CVMLRL_DOC_PRECHECK_STATUS_E.OK_SYMBOL
                                                       : CVMLRL_DOC_PRECHECK_STATUS_E.NOT_OK_SYMBOL}
-                                                {props.checkResult[i][ky].text}
-                                                {props.checkResult[i][ky]
+                                                {props.checkResult![i][ky].text}
+                                                {props.checkResult![i][ky]
                                                     .hasMetadata
-                                                    ? props.checkResult[i][ky]
+                                                    ? props.checkResult![i][ky]
                                                           .metaData
                                                     : null}
                                             </Typography>
@@ -183,7 +193,7 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
                           </Box>
                       ))
                     : null}
-                {is_TaiGer_Student(user)
+                {is_TaiGer_Student(user as IUser)
                     ? props.files?.map((fl, i) => (
                           <Box key={`${fl.name}${i}`}>
                               <Typography
@@ -245,7 +255,7 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
                         <input
                             id="file-input"
                             multiple
-                            onChange={(e) => props.onFileChange(e)}
+                            onChange={(e) => props.onFileChange?.(e)}
                             style={{ display: 'none' }}
                             type="file"
                         />
@@ -259,7 +269,7 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
                         </IconButton>
                     </span>
                 </Tooltip>
-                {appConfig.AIEnable && is_TaiGer_role(user) ? (
+                {appConfig.AIEnable && is_TaiGer_role(user as IUser) ? (
                     <IconButton
                         disabled={streamingData.isGenerating}
                         onClick={onSubmit}
@@ -271,7 +281,7 @@ const CommunicationThreadEditor = (props: CommunicationThreadEditorProps) => {
                         )}
                     </IconButton>
                 ) : null}
-                {is_TaiGer_Agent(user) ? (
+                {is_TaiGer_Agent(user as IUser) ? (
                     <Typography variant="body1">
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>
                             {streamingData.data}

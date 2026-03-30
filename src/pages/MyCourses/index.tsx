@@ -50,6 +50,7 @@ import { ProgramRequirementsTableWrapper } from './ProgramRequirementsTableWrapp
 import i18next from 'i18next';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import type { IUserWithId } from '@taiger-common/model';
+import type { Operation } from 'react-datasheet-grid/dist/types';
 
 interface CourseRow {
     course_chinese: string;
@@ -59,9 +60,13 @@ interface CourseRow {
 }
 
 interface AnalysisData {
+    updatedAt?: Date;
+    path?: string;
+    analyzed_course?: string[];
+    isAnalysed?: boolean;
     isAnalysedV2?: boolean;
-    updatedAtV2?: string;
-    [key: string]: unknown;
+    pathV2?: string;
+    updatedAtV2?: Date;
 }
 
 interface MyCoursesState {
@@ -82,7 +87,7 @@ interface MyCoursesState {
     isDownloading: boolean;
     res_status: number;
     res_modal_status: number;
-    res_modal_message: string | React.ReactNode;
+    res_modal_message: string;
     updatedAt?: string;
 }
 
@@ -130,7 +135,7 @@ export default function MyCourses() {
             (resp) => {
                 const { data, success } = resp.data;
                 const { status } = resp;
-                if (success) {
+                if (success && data) {
                     const course_from_database = data.table_data_string
                         ? JSON.parse(data.table_data_string)
                         : {};
@@ -141,13 +146,16 @@ export default function MyCourses() {
                     setStatedata((prevState) => ({
                         ...prevState,
                         isLoaded: true,
-                        updatedAt: data.updatedAt,
+                        updatedAt: data.updatedAt
+                            ? String(data.updatedAt)
+                            : undefined,
                         coursesdata: course_from_database,
-                        table_data_string_locked: data.table_data_string_locked,
+                        table_data_string_locked:
+                            data.table_data_string_locked ?? false,
                         coursesdata_taiger_guided:
                             course_taiger_guided_from_database,
-                        analysis: data.analysis,
-                        student: data.student_id, // populated
+                        analysis: data.analysis ?? {},
+                        student: data.student_id as unknown as IUserWithId, // populated
                         success: success,
                         res_status: status
                     }));
@@ -177,10 +185,10 @@ export default function MyCourses() {
         setValue(newValue);
     };
 
-    const onChange = (new_data: CourseRow[]) => {
+    const onChange = (new_data: Record<string, any>[], _operations: Operation[]) => {
         setStatedata((prevState) => ({
             ...prevState,
-            coursesdata: new_data
+            coursesdata: new_data as unknown as CourseRow[]
         }));
     };
 
@@ -188,24 +196,15 @@ export default function MyCourses() {
         setStatedata((prevState) => ({
             ...prevState,
             res_modal_status: 423,
-            res_modal_message: (
-                <>
-                    <Typography>
-                        <b>表格一</b>已鎖，請更新新的課程至<b>表格二</b>
-                    </Typography>
-                    <Typography>
-                        This table is locked. Please update new courses in{' '}
-                        <b>Table 2</b>
-                    </Typography>
-                </>
-            )
+            res_modal_message:
+                '表格一已鎖，請更新新的課程至表格二 / This table is locked. Please update new courses in Table 2'
         }));
     };
 
-    const onChange_taiger_guided = (new_data: CourseRow[]) => {
+    const onChange_taiger_guided = (new_data: Record<string, any>[], _operations: Operation[]) => {
         setStatedata((prevState) => ({
             ...prevState,
-            coursesdata_taiger_guided: new_data
+            coursesdata_taiger_guided: new_data as unknown as CourseRow[]
         }));
     };
 
@@ -271,11 +270,16 @@ export default function MyCourses() {
         onSuccess: (resp, variables) => {
             const { data, success } = resp.data;
             const { status } = resp;
-            const course_from_database = JSON.parse(data.table_data_string);
+            if (!data) return;
+            const course_from_database = JSON.parse(
+                data.table_data_string ?? '[]'
+            );
             setStatedata((prevState) => ({
                 ...prevState,
                 isLoaded: true,
-                updatedAt: data.updatedAt,
+                updatedAt: data.updatedAt
+                    ? String(data.updatedAt)
+                    : undefined,
                 coursesdata: course_from_database,
                 success: success,
                 res_modal_status: status
@@ -324,7 +328,7 @@ export default function MyCourses() {
         try {
             const response = await transcriptanalyser_testV2({
                 language: lang,
-                studentId: statedata.student?._id.toString(),
+                studentId: statedata.student?._id?.toString() ?? '',
                 requirementIds,
                 factor
             });
@@ -337,7 +341,7 @@ export default function MyCourses() {
                 setOpenSnackbar(true);
                 setStatedata((prevState) => ({
                     ...prevState,
-                    analysis: data,
+                    analysis: (data as AnalysisData) ?? {},
                     success: success,
                     res_modal_status: status
                 }));
@@ -531,7 +535,6 @@ export default function MyCourses() {
                     disableExpandSelection={false}
                     headerRowHeight={30}
                     height={6000}
-                    id={1}
                     onChange={
                         statedata.table_data_string_locked
                             ? onChange_ReadOnly
@@ -553,7 +556,7 @@ export default function MyCourses() {
                         } as React.CSSProperties &
                             Record<string, string>
                     }
-                    value={statedata.coursesdata}
+                    value={statedata.coursesdata as Record<string, any>[]}
                 />
             </TableContainer>
             <Card
@@ -581,7 +584,6 @@ export default function MyCourses() {
                         disableExpandSelection={false}
                         headerRowHeight={30}
                         height={6000}
-                        id={2}
                         onChange={onChange_taiger_guided}
                         rowHeight={25}
                         style={
@@ -599,7 +601,7 @@ export default function MyCourses() {
                             } as React.CSSProperties &
                                 Record<string, string>
                         }
-                        value={statedata.coursesdata_taiger_guided}
+                        value={statedata.coursesdata_taiger_guided as Record<string, any>[]}
                     />
                 </TableContainer>
             </Card>
@@ -619,7 +621,7 @@ export default function MyCourses() {
             ) : null}
             <Typography sx={{ my: 2 }} variant="body2">
                 {t('Last update', { ns: 'common' })}&nbsp;
-                {convertDate(statedata.updatedAt)}
+                {convertDate(statedata.updatedAt ?? '')}
             </Typography>
             <Button
                 color="primary"
@@ -733,7 +735,7 @@ export default function MyCourses() {
                                             ns: 'courses'
                                         })}
                                         :{' '}
-                                        {statedata.analysis
+                                        {statedata.analysis?.updatedAtV2
                                             ? convertDate(
                                                   statedata.analysis.updatedAtV2
                                               )

@@ -2,7 +2,7 @@
 
 **Date:** 2026-03-29  
 **Initial:** 4,267 errors from `npx tsc --noEmit -p tsconfig.app.json`  
-**Current:** 1,117 errors (from latest `tsc-errors.txt` refresh)  
+**Current:** 920 errors (from latest `tsc-errors.txt` refresh)  
 **Full output:** `tsc-errors.txt`  
 **Refactoring plan:** `TSC_REFACTOR_PLAN.md`
 
@@ -34,7 +34,7 @@ run:
 | TS6133 | **0** | **0** | 0 | Declared but never read | **Cleared** |
 | Others | ~65 | ~73 | — | TS2554, TS2488, TS2353, TS2559, TS2538, … | Misc |
 
-**Note:** Prev = counts from previous run (1,312-total snapshot). Current run: **1,117** errors (−195).
+**Note:** Prev = counts from previous run (1,117-total snapshot). Current run: **920** errors (−197).
 
 ---
 
@@ -302,3 +302,4 @@ run:
 | 2026-03-30 | Batch 6: AgentMainView (32→0), SingleProgramView (30→0), InterviewTraining/index (28→0), ApplicationTableRow (28→0), StudentApplicationsTableTemplate (27→0) | 1,575 | **1,436** |
 | 2026-03-30 | Batch 7: LeadPage (29→0), CVMLRLCenter/index (27→0), EditorPage (25→0), CourseWidgetBody (25→0), StudentDashboard (25→0) | 1,436 | **1,312** |
 | 2026-03-30 | Batch 8: Message (23→0), ProgramReport (22→0), SingleStudentPage (21→0), ProgramInfoTabs (21→partial), CourseAnalysisV2 (21→0), CourseKeywordsOverview (21→0), MeetingTab (20→0) | 1,312 | **1,117** |
+| 2026-03-30 | Batch 9: MyCourses/index (20→0), DownloadPage (20→0), DealDashboard (20→0), BaseDocumentStudentView (20→0), UsersList (19→0), UniAssistProgramBlock (19→0), CommunicationThreadEditor (19→0), InternalDashboard (18→0), Profile (17→0), StudentBriefOverview (17→0), LeadDashboard (17→0), Documentation/index (16→0), CVMLRLOverview (16→0) | 1,117 | **920** |

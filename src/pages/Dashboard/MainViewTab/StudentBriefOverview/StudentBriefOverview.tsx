@@ -51,7 +51,7 @@ const TaiGerUsersAvartar = ({ users, link }: TaiGerUsersAvartarProps) => {
     return (
         users?.map((usr) => (
             <Tooltip
-                key={usr._id}
+                key={usr._id.toString()}
                 placement="bottom-start"
                 title={`${usr.firstname} ${usr.lastname}`}
             >
@@ -261,7 +261,7 @@ const StudentBriefOverview = (props: StudentBriefOverviewProps) => {
                                     {props.student.email}
                                 </Typography>
                                 {is_TaiGer_role(user)
-                                    ? student.attributes?.map((attribute) => (
+                                    ? (student.attributes as Array<{ _id: string; value: number; name: string }> | undefined)?.map((attribute) => (
                                           <Chip
                                               color={COLORS[attribute.value]}
                                               key={attribute._id}

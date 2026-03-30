@@ -64,12 +64,13 @@ const UsersList = (props: UsersListProps) => {
     };
 
     const link = (user: Record<string, unknown>) => {
+        const userId = String(user._id ?? '');
         if (is_TaiGer_Student(user)) {
-            return `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(user._id)}`;
+            return `${DEMO.STUDENT_DATABASE_STUDENTID_LINK(userId)}`;
         } else if (is_TaiGer_Agent(user)) {
-            return `${DEMO.TEAM_AGENT_LINK(user._id)}`;
+            return `${DEMO.TEAM_AGENT_LINK(userId)}`;
         } else if (is_TaiGer_Editor(user)) {
-            return `${DEMO.TEAM_EDITOR_LINK(user._id)}`;
+            return `${DEMO.TEAM_EDITOR_LINK(userId)}`;
         }
         return ``;
     };
@@ -103,7 +104,7 @@ const UsersList = (props: UsersListProps) => {
                         >
                             <Avatar
                                 {...stringAvatar(fullName)}
-                                src={user.pictureUrl}
+                                src={user.pictureUrl as string | undefined}
                                 sx={{ width: 40, height: 40 }}
                             />
                             <Box
@@ -132,7 +133,7 @@ const UsersList = (props: UsersListProps) => {
                                     sx={{ display: 'block', mt: 0.25 }}
                                     variant="caption"
                                 >
-                                    {user.email || '-'}
+                                    {(user.email as string) || '-'}
                                 </Typography>
                             </Box>
                         </Box>
@@ -159,8 +160,8 @@ const UsersList = (props: UsersListProps) => {
                 Cell: ({ row }) => {
                     return (
                         <Chip
-                            key={row.original._id}
-                            label={row.original.role}
+                            key={row.original._id as string}
+                            label={row.original.role as string}
                             size="small"
                             sx={{
                                 fontSize: '0.75rem',
@@ -183,13 +184,13 @@ const UsersList = (props: UsersListProps) => {
                 // Return searchable string for global filter
                 accessorFn: (row) => {
                     if (!row.lastLoginAt) return '';
-                    return formatDate(row.lastLoginAt).toLowerCase();
+                    return formatDate(row.lastLoginAt as string | number | Date).toLowerCase();
                 },
                 Cell: ({ row }) => {
                     return (
                         <Typography color="text.secondary" variant="body2">
                             {row.original.lastLoginAt
-                                ? formatDate(row.original.lastLoginAt)
+                                ? formatDate(row.original.lastLoginAt as string | number | Date)
                                 : '-'}
                         </Typography>
                     );
@@ -197,10 +198,10 @@ const UsersList = (props: UsersListProps) => {
                 enableSorting: true,
                 sortingFn: (rowA, rowB): number => {
                     const dateA = rowA.original.lastLoginAt
-                        ? new Date(rowA.original.lastLoginAt).getTime()
+                        ? new Date(rowA.original.lastLoginAt as string | number | Date).getTime()
                         : 0;
                     const dateB = rowB.original.lastLoginAt
-                        ? new Date(rowB.original.lastLoginAt).getTime()
+                        ? new Date(rowB.original.lastLoginAt as string | number | Date).getTime()
                         : 0;
                     return dateA - dateB;
                 }
@@ -212,13 +213,13 @@ const UsersList = (props: UsersListProps) => {
                 // Return searchable string for global filter
                 accessorFn: (row) => {
                     if (!row.createdAt) return '';
-                    return formatDate(row.createdAt).toLowerCase();
+                    return formatDate(row.createdAt as string | number | Date).toLowerCase();
                 },
                 Cell: ({ row }) => {
                     return (
                         <Typography color="text.secondary" variant="body2">
                             {row.original.createdAt
-                                ? formatDate(row.original.createdAt)
+                                ? formatDate(row.original.createdAt as string | number | Date)
                                 : '-'}
                         </Typography>
                     );
@@ -226,10 +227,10 @@ const UsersList = (props: UsersListProps) => {
                 enableSorting: true,
                 sortingFn: (rowA, rowB) => {
                     const dateA = rowA.original.createdAt
-                        ? new Date(rowA.original.createdAt).getTime()
+                        ? new Date(rowA.original.createdAt as string | number | Date).getTime()
                         : 0;
                     const dateB = rowB.original.createdAt
-                        ? new Date(rowB.original.createdAt).getTime()
+                        ? new Date(rowB.original.createdAt as string | number | Date).getTime()
                         : 0;
                     return dateA - dateB;
                 }
@@ -445,8 +446,8 @@ const UsersList = (props: UsersListProps) => {
         });
     };
 
-    const handleChange2 = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { value } = e.target;
+    const handleChange2 = (e: unknown) => {
+        const { value } = (e as React.ChangeEvent<HTMLInputElement>).target;
         setUsersListState((prevState) => ({
             ...prevState,
             selected_user_role: value
@@ -457,21 +458,22 @@ const UsersList = (props: UsersListProps) => {
         changeUserRoleMutation({ id: user_data._id, role: user_data.role });
     };
 
-    const onSubmit2 = (e: MouseEvent<HTMLButtonElement>) => {
+    const onSubmit2 = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         const user_role = usersListState.selected_user_role;
         const user_id = usersListState.selected_user_id;
         assignUserAs({ role: user_role, _id: user_id });
     };
 
-    const tableConfig = getTableConfig(customTableStyles, isLoading);
+    const tableConfig = getTableConfig({}, isLoading);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const table = useMaterialReactTable({
-        ...tableConfig,
+        ...(tableConfig as any),
         enableRowSelection: !props.readOnly,
         enableMultiRowSelection: !props.readOnly,
         columns,
-        data: usersList || [],
+        data: (usersList as Record<string, unknown>[]) || [],
         state: { isLoading },
         enableGlobalFilter: true,
         enableColumnFilters: false, // Hide column filters by default, show via Filters button
@@ -499,12 +501,12 @@ const UsersList = (props: UsersListProps) => {
         muiTablePaperProps: {
             elevation: 0
         },
-        renderTopToolbar: ({ table }) => (
+        renderTopToolbar: ({ table: tbl }) => (
             <TopToolbar
                 onArchiveClick={handleArchiveClick}
                 onDeleteClick={handleDeleteClick}
                 onEditClick={setModalShow}
-                table={table}
+                table={tbl as unknown as { getSelectedRowModel: () => { rows: { original: { firstname: string; lastname: string; _id: string; role?: string; archiv?: boolean } }[] } }}
                 toolbarStyle={customTableStyles.toolbarStyle}
             />
         )
@@ -520,7 +522,6 @@ const UsersList = (props: UsersListProps) => {
                 handleChange2={handleChange2}
                 lastname={usersListState.lastname}
                 onSubmit2={onSubmit2}
-                selected_user_id={usersListState.selected_user_id}
                 selected_user_role={usersListState.selected_user_role}
                 setModalHide={setModalHide}
                 show={usersListState.modalShow}
