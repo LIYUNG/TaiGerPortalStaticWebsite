@@ -1,4 +1,9 @@
-import { useState, useEffect, type SyntheticEvent } from 'react';
+import {
+    useState,
+    useEffect,
+    type ComponentProps,
+    type SyntheticEvent
+} from 'react';
 import {
     Navigate,
     Link as LinkDom,
@@ -91,6 +96,10 @@ export interface SingleStudentPageMainContentProps {
     refetch: () => void;
 }
 
+type StudentBriefOverviewStudentProp = ComponentProps<
+    typeof StudentBriefOverview
+>['student'];
+
 export const SingleStudentPageMainContent = ({
     survey_link,
     base_docs_link,
@@ -178,7 +187,10 @@ export const SingleStudentPageMainContent = ({
             }
         },
         onError: (error: unknown) => {
-            const err = error as { response?: { status?: number; data?: { message?: string } }; message?: string };
+            const err = error as {
+                response?: { status?: number; data?: { message?: string } };
+                message?: string;
+            };
             const status = err?.response?.status ?? 500;
             const message =
                 err?.response?.data?.message ??
@@ -206,7 +218,9 @@ export const SingleStudentPageMainContent = ({
 
     const handleChange = (_event: SyntheticEvent, newValue: number) => {
         setValue(newValue);
-        window.location.hash = (SINGLE_STUDENT_REVERSED_TABS as Record<number, string>)[newValue];
+        window.location.hash = (
+            SINGLE_STUDENT_REVERSED_TABS as Record<number, string>
+        )[newValue];
     };
 
     const updateStudentArchivStatus = (
@@ -242,7 +256,8 @@ export const SingleStudentPageMainContent = ({
                 setSingleStudentPage((prevState) => ({
                     ...prevState,
                     isLoaded: true,
-                    error: error instanceof Error ? error.message : String(error),
+                    error:
+                        error instanceof Error ? error.message : String(error),
                     res_modal_status: 500,
                     res_modal_message: ''
                 }));
@@ -403,7 +418,8 @@ export const SingleStudentPageMainContent = ({
                             )}
                             {t('Last Login', { ns: 'auth' })}:&nbsp;
                             {convertDate(
-                                singleStudentPage.student.lastLoginAt ?? new Date()
+                                singleStudentPage.student.lastLoginAt ??
+                                    new Date()
                             )}{' '}
                             <Button
                                 color="secondary"
@@ -434,7 +450,8 @@ export const SingleStudentPageMainContent = ({
                                 &nbsp;:&nbsp;
                             </Alert>
                             {needGraduatedApplicantsPrograms(
-                                (singleStudentPage.student.applications ?? []) as Application[]
+                                (singleStudentPage.student.applications ??
+                                    []) as Application[]
                             )?.map((app: Application) => (
                                 <ListItem
                                     key={app.programId?._id?.toString() ?? ''}
@@ -462,7 +479,12 @@ export const SingleStudentPageMainContent = ({
                             />
                         </Grid>
                         <EnglishCertificateExpiredBeforeDeadlineBanner
-                            student={singleStudentPage.student as unknown as Record<string, unknown>}
+                            student={
+                                singleStudentPage.student as unknown as Record<
+                                    string,
+                                    unknown
+                                >
+                            }
                         />
                     </Grid>
                     <Box
@@ -475,7 +497,9 @@ export const SingleStudentPageMainContent = ({
                         }}
                     >
                         <StudentBriefOverview
-                            student={singleStudentPage.student as any}
+                            student={
+                                singleStudentPage.student as StudentBriefOverviewStudentProp
+                            }
                             updateStudentArchivStatus={
                                 updateStudentArchivStatus
                             }
@@ -581,10 +605,8 @@ export const SingleStudentPageMainContent = ({
                                 {singleStudentPage.student
                                     .applying_program_count ? (
                                     <>
-                                        {
-                                            singleStudentPage.student
-                                                .applications?.length ?? 0
-                                        }{' '}
+                                        {singleStudentPage.student.applications
+                                            ?.length ?? 0}{' '}
                                         /{' '}
                                         {
                                             singleStudentPage.student.applications?.filter(
@@ -605,7 +627,8 @@ export const SingleStudentPageMainContent = ({
                         {singleStudentPage.detailedView ? (
                             <ProgramDetailsComparisonTable
                                 applications={
-                                    singleStudentPage.student?.applications ?? []
+                                    singleStudentPage.student?.applications ??
+                                    []
                                 }
                             />
                         ) : (
@@ -674,7 +697,9 @@ export const SingleStudentPageMainContent = ({
                                         }
                                     }
                                 }}
-                                student={singleStudentPage.student as EditorDocsProgressStudent}
+                                student={
+                                    singleStudentPage.student as EditorDocsProgressStudent
+                                }
                             />
                         </Card>
                     </CustomTabPanel>
@@ -749,7 +774,10 @@ export const SingleStudentPageMainContent = ({
                             {t('Student View', { ns: 'common' })}
                         </Typography>
                     </Alert>
-                    <StudentDashboard student={singleStudentPage.student} isCoursesFilled={!!singleStudentPage.student.courses} />
+                    <StudentDashboard
+                        student={singleStudentPage.student}
+                        isCoursesFilled={!!singleStudentPage.student.courses}
+                    />
                 </>
             )}
         </>
@@ -774,7 +802,9 @@ const SingleStudentPage = () => {
         refetch
     } = useQuery(getStudentAndDocLinksQuery({ studentId: studentId ?? '' }));
 
-    const axiosData = (response as { data?: StudentDocLinksApiResponse } | undefined)?.data;
+    const axiosData = (
+        response as { data?: StudentDocLinksApiResponse } | undefined
+    )?.data;
 
     if (isLoading || !axiosData) {
         return (

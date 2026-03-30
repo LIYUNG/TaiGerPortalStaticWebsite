@@ -117,6 +117,8 @@ export default function CourseWidgetBody({
         }[],
         _operations: unknown[]
     ) => {
+        // The widget callback includes `_operations`, but this component doesn't use it.
+        void _operations;
         setStatedata((state) => ({
             ...state,
             coursesdata: new_data
@@ -133,7 +135,9 @@ export default function CourseWidgetBody({
 
     const transformedData: ProgramRequirementRow[] = programRequirements.map(
         (row) => {
-            const programs = row.programId as unknown as PopulatedProgram[] | undefined;
+            const programs = row.programId as unknown as
+                | PopulatedProgram[]
+                | undefined;
             return {
                 id: row._id,
                 program_name: `${programs?.[0]?.school} ${programs?.[0]?.program_name} ${programs?.[0]?.degree}`,
@@ -310,8 +314,7 @@ export default function CourseWidgetBody({
                                 minWidth: '450px',
                                 '--dsg-selection-border-color':
                                     theme.palette.text.primary,
-                                '--dsg-cell-color':
-                                    theme.palette.text.primary,
+                                '--dsg-cell-color': theme.palette.text.primary,
                                 '--dsg-cell-background-color':
                                     theme.palette.background.default,
                                 '--dsg-header-text-color':

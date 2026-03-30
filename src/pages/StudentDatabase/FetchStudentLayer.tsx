@@ -3,16 +3,38 @@ import { useQuery } from '@tanstack/react-query';
 import { getStudentAndDocLinksQuery } from '@/api/query';
 import { SingleStudentPageMainContent } from './SingleStudentPage';
 import { Box, CircularProgress } from '@mui/material';
+import type {
+    IAuditWithId,
+    IBasedocumentationslinkWithId,
+    IStudentResponse
+} from '@taiger-common/model';
+
+interface StudentDocLinksApiResponse {
+    success: boolean;
+    data: IStudentResponse;
+    survey_link: { key: string; link: string }[];
+    base_docs_link: IBasedocumentationslinkWithId[];
+    audit: IAuditWithId[];
+}
+
+type StudentDocLinksAxiosLikeResponse = {
+    data?: StudentDocLinksApiResponse;
+};
 
 export const FetchStudentLayer = () => {
     const { studentId } = useParams();
 
     // Fetch student and doc links using React Query
-    const { data: response, isLoading, refetch } = useQuery(
-        getStudentAndDocLinksQuery({ studentId: studentId ?? '' })
-    );
+    const {
+        data: response,
+        isLoading,
+        refetch
+    } = useQuery(getStudentAndDocLinksQuery({ studentId: studentId ?? '' }));
 
-    if (isLoading || !(response as any)?.data) {
+    const axiosData = (response as StudentDocLinksAxiosLikeResponse | undefined)
+        ?.data;
+
+    if (isLoading || !axiosData) {
         return (
             <Box
                 sx={{
@@ -27,8 +49,7 @@ export const FetchStudentLayer = () => {
         );
     }
 
-    const apiData = (response as any).data;
-    const { survey_link, base_docs_link, data, audit } = apiData;
+    const { survey_link, base_docs_link, data, audit } = axiosData;
     return (
         <Box sx={{ width: window.innerWidth - 60 }}>
             <SingleStudentPageMainContent
