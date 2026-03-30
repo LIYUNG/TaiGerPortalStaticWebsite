@@ -44,16 +44,35 @@ import { useMyStudentsApplicationsV2 } from '@hooks/useMyStudentsApplicationsV2'
 import { useMyStudentsThreads } from '@hooks/useMyStudentsThreads';
 import { useStudentsV3 } from '@hooks/useStudentsV3';
 import Loading from '@components/Loading/Loading';
-import { IApplication, IUserWithId } from '@taiger-common/model';
+import type {
+    IUserWithId,
+    IStudentResponse,
+    IApplicationPopulated,
+    IDocumentthreadPopulated
+} from '@taiger-common/model';
+import type { Application } from '@/api/types';
+
+/** Shape returned by programs_refactor_v2 */
+type RefactoredApplication = {
+    application: IApplicationPopulated;
+    student: IStudentResponse;
+    studentId: IStudentResponse;
+    firstname_lastname: string;
+    program_name: string;
+    school: string;
+    application_deadline: string;
+    closed: string;
+    [key: string]: unknown;
+};
 
 const AgentMainView = () => {
     const { user } = useAuth();
     const { t } = useTranslation();
     const { data: myStudentsApplications, isLoading: isLoadingApplications } =
-        useMyStudentsApplicationsV2({ userId: user._id, decided: 'O' });
+        useMyStudentsApplicationsV2({ userId: user!._id, decided: 'O' });
 
     const { data: fetchedMyStudents, isLoading: isLoadingMyStudents } =
-        useStudentsV3({ agents: user._id, archiv: false });
+        useStudentsV3({ agents: user!._id, archiv: false });
 
     const { data: myStudentsThreads, isLoading: isLoadingThreads } =
         useMyStudentsThreads(
@@ -67,7 +86,10 @@ const AgentMainView = () => {
                 : null
         );
 
-    const [agentMainViewState, setAgentMainViewState] = useState({
+    const [agentMainViewState, setAgentMainViewState] = useState<{
+        error: string;
+        collapsedRows: Record<number, boolean>;
+    }>({
         error: '',
         collapsedRows: {}
     });
@@ -85,11 +107,13 @@ const AgentMainView = () => {
     if (isLoadingApplications || isLoadingThreads || isLoadingMyStudents) {
         return <Loading />;
     }
-    const applications_arr = programs_refactor_v2(
-        myStudentsApplications.applications ?? []
+    const applications_arr = (
+        programs_refactor_v2(
+            myStudentsApplications.applications ?? []
+        ) as RefactoredApplication[]
     )
         .filter(
-            (application: IApplication) =>
+            (application) =>
                 isProgramDecided(application) &&
                 application.closed === '-' &&
                 application.program_name !== 'No Program'
@@ -98,14 +122,18 @@ const AgentMainView = () => {
             a.application_deadline > b.application_deadline ? 1 : -1
         );
 
-    const myStudents = fetchedMyStudents;
+    const myStudents = fetchedMyStudents ?? [];
 
-    const refactored_threads = open_tasks_v2(myStudentsThreads.threads);
+    const refactored_threads = open_tasks_v2(
+        myStudentsThreads.threads as IDocumentthreadPopulated[]
+    );
 
     const refactored_agent_threads = refactored_threads.filter(
         (open_task) =>
-            [...AGENT_SUPPORT_DOCUMENTS_A].includes(open_task.file_type) ||
-            open_task.outsourced_user_id?.some(
+            [...AGENT_SUPPORT_DOCUMENTS_A].includes(open_task.file_type ?? '') ||
+            (
+                open_task.outsourced_user_id as IUserWithId[] | undefined
+            )?.some(
                 (outsourcedUser: IUserWithId) =>
                     outsourcedUser._id?.toString() === user?._id?.toString()
             )
@@ -116,12 +144,12 @@ const AgentMainView = () => {
     );
 
     const new_message_tasks = open_tasks_withMyEssay_arr.filter((open_task) =>
-        is_new_message_status(user, open_task)
+        is_new_message_status(user as IUserWithId, open_task)
     );
 
     const follow_up_task = open_tasks_withMyEssay_arr.filter(
         (open_task) =>
-            is_pending_status(user, open_task) &&
+            is_pending_status(user as IUserWithId, open_task) &&
             open_task.latest_message_left_by_id !== '- None - '
     );
 
@@ -282,7 +310,7 @@ const AgentMainView = () => {
                                                 {agentMainViewState
                                                     .collapsedRows[idx] ? (
                                                     <TableRow>
-                                                        <TableCell colSpan="12">
+                                                        <TableCell colSpan={12}>
                                                             <ApplicationProgressCardBody
                                                                 application={
                                                                     application.application
@@ -305,16 +333,16 @@ const AgentMainView = () => {
                 {is_any_programs_ready_to_submit(myStudents) ? (
                     <Grid item md={6} sm={12}>
                         <ReadyToSubmitTasksCard
-                            applications={applications_arr}
+                            applications={applications_arr as unknown as IApplicationPopulated[]}
                             students={myStudents}
                         />
                     </Grid>
                 ) : null}
                 {appConfig.vpdEnable &&
-                is_any_vpd_missing_v2(applications_arr) ? (
+                is_any_vpd_missing_v2(applications_arr as unknown as Application[]) ? (
                     <Grid item md={4} xs={12}>
                         <VPDToSubmitTasksCard
-                            applications={applications_arr}
+                            applications={applications_arr as unknown as IApplicationPopulated[]}
                             students={myStudents}
                             user={user}
                         />

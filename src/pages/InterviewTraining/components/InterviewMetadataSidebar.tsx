@@ -1240,7 +1240,6 @@ const InterviewMetadataSidebar = ({
                                             notes_id={`${interview._id.toString()}-description`}
                                             readOnly={false}
                                             thread={null}
-                                            unique_id={`${interview._id.toString()}-description`}
                                         />
                                     </Box>
                                 </Stack>

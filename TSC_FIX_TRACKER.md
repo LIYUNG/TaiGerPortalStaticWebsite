@@ -2,7 +2,7 @@
 
 **Date:** 2026-03-29  
 **Initial:** 4,267 errors from `npx tsc --noEmit -p tsconfig.app.json`  
-**Current:** 1,575 errors (from latest `tsc-errors.txt` refresh)  
+**Current:** 1,436 errors (from latest `tsc-errors.txt` refresh)  
 **Full output:** `tsc-errors.txt`  
 **Refactoring plan:** `TSC_REFACTOR_PLAN.md`
 
@@ -34,7 +34,7 @@ run:
 | TS6133 | **0** | **0** | 0 | Declared but never read | **Cleared** |
 | Others | ~73 | ~80 | — | TS2554, TS2488, TS2353, TS2551, TS7005, … | Misc |
 
-**Note:** Prev = counts from previous run (1,800-total snapshot). Current run: **1,575** errors (−225).
+**Note:** Prev = counts from previous run (1,575-total snapshot). Current run: **1,436** errors (−139).
 
 ---
 
@@ -299,3 +299,4 @@ run:
 | 2026-03-29 | **TS6133 cleared**: Removed all 54 unused imports/variables across ~42 files (unused React imports, event params, test imports, dead vars) | 2,213 | **2,133** |
 | 2026-03-29 | Batch 4: InterviewMetadataSidebar (72→0), MyCourses/index (52→0), contants.tsx (45→partial), ManualFiles (50→partial), AddInterview (42→0), util_functions.test (51→0), OfficeHours shared hook/types (partial) | 2,133 | **1,800** |
 | 2026-03-29 | Batch 5: OfficeHours 3 files + hook (96→0), InterviewSurveyForm (38→0), DocModificationThreadInput (37→0), SingleInterview (34→0), CustomerTicketDetailPageBody (33→0) | 1,800 | **1,575** |
+| 2026-03-30 | Batch 6: AgentMainView (32→0), SingleProgramView (30→0), InterviewTraining/index (28→0), ApplicationTableRow (28→0), StudentApplicationsTableTemplate (27→0) | 1,575 | **1,436** |

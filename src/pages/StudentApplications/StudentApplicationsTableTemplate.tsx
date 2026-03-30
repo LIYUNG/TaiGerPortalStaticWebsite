@@ -2,7 +2,6 @@ import {
     MouseEvent,
     useState,
     ChangeEvent,
-    FormEvent,
     SyntheticEvent
 } from 'react';
 import {
@@ -16,6 +15,7 @@ import {
     Link,
     MenuItem,
     Select,
+    type SelectChangeEvent,
     Table,
     TableBody,
     TableCell,
@@ -33,6 +33,7 @@ import {
     is_TaiGer_Student,
     is_TaiGer_Admin
 } from '@taiger-common/core';
+import type { IUser } from '@taiger-common/model';
 import type { Application } from '@/api/types';
 
 import {
@@ -64,11 +65,12 @@ import { ConfirmationModal } from '@components/Modal/ConfirmationModal';
 
 export interface StudentApplicationsTableTemplateProps {
     student: {
-        _id?: unknown;
+        _id?: string;
         firstname?: string;
         lastname?: string;
         applications?: Application[];
         applying_program_count?: number;
+        [key: string]: unknown;
     };
 }
 
@@ -81,6 +83,7 @@ const StudentApplicationsTableTemplate = (
     props: StudentApplicationsTableTemplateProps
 ) => {
     const { user } = useAuth();
+    const typedUser = user as IUser;
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
     const { t } = useTranslation();
     const navigate = useNavigate();
@@ -101,13 +104,27 @@ const StudentApplicationsTableTemplate = (
     const [
         studentApplicationsTableTemplateState,
         setStudentApplicationsTableTemplateState
-    ] = useState({
+    ] = useState<{
+        error: string;
+        isLoaded: boolean;
+        program_ids: string[];
+        student_id: string | null;
+        application_id: string | null;
+        application_year: number | null;
+        success: boolean;
+        modalDeleteApplication: boolean;
+        modalEditApplication: boolean;
+        showProgramCorrectnessReminderModal: boolean;
+        res_status: number;
+        res_modal_status: number;
+        res_modal_message: string;
+    }>({
         error: '',
         isLoaded: true,
         program_ids: [],
-        student_id: null as string | null,
-        application_id: null as string | null,
-        application_year: null as number | null,
+        student_id: null,
+        application_id: null,
+        application_year: null,
         success: false,
         modalDeleteApplication: false,
         modalEditApplication: false,
@@ -117,8 +134,9 @@ const StudentApplicationsTableTemplate = (
         res_modal_message: ''
     });
 
-    const handleChangeProgramCount = (e: ChangeEvent<HTMLInputElement>) => {
-        e.preventDefault();
+    const handleChangeProgramCount = (
+        e: SelectChangeEvent<string | number>
+    ) => {
         const applying_program_count = e.target.value;
         setDraft((prev) => ({
             ...prev,
@@ -127,7 +145,7 @@ const StudentApplicationsTableTemplate = (
     };
 
     const handleChange = (
-        e: ChangeEvent<HTMLInputElement>,
+        e: ChangeEvent<HTMLInputElement> | SelectChangeEvent<string>,
         application_idx: number
     ) => {
         e.preventDefault();
@@ -144,14 +162,17 @@ const StudentApplicationsTableTemplate = (
     };
 
     const handleSingleChange = (
-        e: ChangeEvent<HTMLInputElement>,
-        application_id: string
+        e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+        application_id: string | null
     ) => {
         e.preventDefault();
+        const { name, value } = e.target;
         setStudentApplicationsTableTemplateState((prevState) => ({
             ...prevState,
             application_id,
-            [e.target.name]: e.target.value
+            ...(name === 'application_year'
+                ? { application_year: Number(value) }
+                : {})
         }));
     };
 
@@ -208,14 +229,13 @@ const StudentApplicationsTableTemplate = (
             modalEditApplication: false
         }));
     };
-    const handleEditConfirm = (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+    const handleEditConfirm = () => {
         const payload = {
             application_year:
                 studentApplicationsTableTemplateState.application_year
         };
         updateStudentApplication(
-            studentToShow._id,
+            String(studentToShow._id),
             studentApplicationsTableTemplateState.application_id!,
             payload
         ).then((resp) => {
@@ -239,9 +259,9 @@ const StudentApplicationsTableTemplate = (
                 setStudentApplicationsTableTemplateState((prevState) => ({
                     ...prevState,
                     isLoaded: true,
-                    error: message,
+                    error: message ?? '',
                     res_modal_status: 400,
-                    res_modal_message: message
+                    res_modal_message: message ?? ''
                 }));
             }
         });
@@ -254,8 +274,7 @@ const StudentApplicationsTableTemplate = (
         }));
     };
 
-    const handleDeleteConfirm = (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+    const handleDeleteConfirm = () => {
         setStudentApplicationsTableTemplateState((prevState) => ({
             ...prevState,
             isLoaded: false
@@ -294,7 +313,7 @@ const StudentApplicationsTableTemplate = (
                         ...prevState,
                         isLoaded: true,
                         res_modal_status: status,
-                        res_modal_message: message
+                        res_modal_message: message ?? ''
                     }));
                 }
             },
@@ -307,7 +326,7 @@ const StudentApplicationsTableTemplate = (
                 setStudentApplicationsTableTemplateState((prevState) => ({
                     ...prevState,
                     isLoaded: true,
-                    error,
+                    error: error?.message || String(error),
                     res_modal_status: 500,
                     res_modal_message: ''
                 }));
@@ -315,15 +334,11 @@ const StudentApplicationsTableTemplate = (
         );
     };
 
-    const handleSubmit = (
-        e: FormEvent<HTMLFormElement>,
-        student_id: string
-    ) => {
-        e.preventDefault();
+    const handleSubmit = (student_id: string) => {
         const applications_temp = studentToShow.applications?.map(
             (application) => ({
                 _id: application._id,
-                programId: application.programId._id,
+                programId: application.programId?._id,
                 decided: application.decided,
                 closed: application.closed,
                 admission: application.admission,
@@ -337,8 +352,8 @@ const StudentApplicationsTableTemplate = (
         }));
         updateStudentApplications(
             student_id,
-            applications_temp,
-            applying_program_count
+            applications_temp as unknown as Record<string, unknown>,
+            applying_program_count as number
         ).then(
             (resp) => {
                 const { success } = resp.data;
@@ -367,7 +382,7 @@ const StudentApplicationsTableTemplate = (
                         ...prevState,
                         isLoaded: true,
                         res_modal_status: status,
-                        res_modal_message: message
+                        res_modal_message: message ?? ''
                     }));
                 }
             },
@@ -380,7 +395,7 @@ const StudentApplicationsTableTemplate = (
                 setStudentApplicationsTableTemplateState((prevState) => ({
                     ...prevState,
                     isLoaded: true,
-                    error,
+                    error: error?.message || String(error),
                     res_modal_status: 500,
                     res_modal_message: ''
                 }));
@@ -389,7 +404,7 @@ const StudentApplicationsTableTemplate = (
     };
 
     const onClickProgramAssignHandler = () => {
-        navigate(`/student-applications/edit/${studentToShow._id.toString()}`);
+        navigate(`/student-applications/edit/${String(studentToShow._id)}`);
     };
 
     const closeProgramCorrectnessModal = () => {
@@ -434,7 +449,7 @@ const StudentApplicationsTableTemplate = (
                     res_modal_status={res_modal_status}
                 />
             ) : null}
-            {is_TaiGer_Student(user) ? (
+            {is_TaiGer_Student(typedUser) ? (
                 <ConfirmDialog
                     open={showProgramCorrectnessReminderModal}
                     onClose={closeProgramCorrectnessModal}
@@ -454,7 +469,7 @@ const StudentApplicationsTableTemplate = (
                 >
                     {appConfig.companyName}
                 </Link>
-                {is_TaiGer_role(user) ? (
+                {is_TaiGer_role(typedUser) ? (
                     <Link
                         color="inherit"
                         component={LinkDom}
@@ -464,12 +479,12 @@ const StudentApplicationsTableTemplate = (
                         {t('Students Database', { ns: 'common' })}
                     </Link>
                 ) : null}
-                {is_TaiGer_role(user) ? (
+                {is_TaiGer_role(typedUser) ? (
                     <Link
                         color="inherit"
                         component={LinkDom}
                         to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                            props.student._id.toString(),
+                            String(props.student._id),
                             DEMO.PROFILE_HASH
                         )}`}
                         underline="hover"
@@ -484,10 +499,10 @@ const StudentApplicationsTableTemplate = (
             </Breadcrumbs>
             <Box>
                 <Grid container spacing={2} sx={{ mt: 0 }}>
-                    <Grid item md={is_TaiGer_role(user) ? 6 : 12} xs={12}>
-                        <StudentPreferenceCard student={studentToShow} />
+                    <Grid item md={is_TaiGer_role(typedUser) ? 6 : 12} xs={12}>
+                        <StudentPreferenceCard student={studentToShow as any} />
                     </Grid>
-                    {is_TaiGer_role(user) ? (
+                    {is_TaiGer_role(typedUser) ? (
                         <Grid item md={6} xs={12}>
                             <ImportStudentProgramsCard
                                 student={studentToShow}
@@ -497,14 +512,14 @@ const StudentApplicationsTableTemplate = (
                 </Grid>
             </Box>
             <>
-                {isProgramNotSelectedEnough([studentToShow]) ? (
+                {isProgramNotSelectedEnough([studentToShow as any]) ? (
                     <Card>
                         {props.student.firstname} {props.student.lastname} did
                         not choose enough programs.
                     </Card>
                 ) : null}
-                {is_TaiGer_Admin(user) &&
-                is_num_Program_Not_specified(studentToShow) ? (
+                {is_TaiGer_Admin(typedUser) &&
+                is_num_Program_Not_specified(studentToShow as any) ? (
                     <Card>
                         The number of student&apos;s applications is not
                         specified! Please determine the number of the programs
@@ -517,7 +532,7 @@ const StudentApplicationsTableTemplate = (
                             {t('Applying Program Count', { ns: 'common' })}:{' '}
                         </Typography>
                     </Grid>
-                    {is_TaiGer_Admin(user) ? (
+                    {is_TaiGer_Admin(typedUser) ? (
                         <Grid item xs={2}>
                             <FormControl fullWidth>
                                 <Select
@@ -559,7 +574,7 @@ const StudentApplicationsTableTemplate = (
                                 <Table size="small">
                                     <TableHead>
                                         <TableRow>
-                                            {!is_TaiGer_Student(user) ? (
+                                            {!is_TaiGer_Student(typedUser) ? (
                                                 <TableCell>-</TableCell>
                                             ) : null}
                                             {programstatuslist.map(
@@ -580,7 +595,7 @@ const StudentApplicationsTableTemplate = (
                                         studentToShow.applications.length ===
                                             0 ? (
                                             <TableRow>
-                                                {!is_TaiGer_Student(user) ? (
+                                                {!is_TaiGer_Student(typedUser) ? (
                                                     <TableCell />
                                                 ) : null}
                                                 <TableCell>
@@ -632,10 +647,10 @@ const StudentApplicationsTableTemplate = (
                                                             handleWithdraw
                                                         }
                                                         studentToShow={
-                                                            studentToShow
+                                                            studentToShow as any
                                                         }
                                                         today={today}
-                                                        user={user}
+                                                        user={typedUser}
                                                     />
                                                 )
                                             )
@@ -653,8 +668,8 @@ const StudentApplicationsTableTemplate = (
                                 !studentApplicationsTableTemplateState.isLoaded
                             }
                             fullWidth
-                            onClick={(e) =>
-                                handleSubmit(e, String(studentToShow._id))
+                            onClick={() =>
+                                handleSubmit(String(studentToShow._id))
                             }
                             sx={{ mt: 2 }}
                             variant="contained"
@@ -666,7 +681,7 @@ const StudentApplicationsTableTemplate = (
                             )}
                         </Button>
                     </Box>
-                    {is_TaiGer_role(user) ? (
+                    {is_TaiGer_role(typedUser) ? (
                         <>
                             <Box>
                                 <Typography>
@@ -734,9 +749,6 @@ const StudentApplicationsTableTemplate = (
                                             studentApplicationsTableTemplateState.application_id
                                         )
                                     }
-                                    options={APPLICATION_YEARS_FUTURE().map(
-                                        (year) => year.value
-                                    )}
                                     select
                                     value={
                                         studentApplicationsTableTemplateState.application_year

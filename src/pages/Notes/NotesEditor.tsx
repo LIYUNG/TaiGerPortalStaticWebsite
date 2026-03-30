@@ -7,12 +7,15 @@ import { OutputData } from '@editorjs/editorjs';
 
 interface NotesEditorProps {
     editorState: OutputData;
-    handleEditorChange: (content: unknown) => void;
+    handleEditorChange: (content: OutputData) => void;
     notes_id: string;
     readOnly?: boolean;
     thread?: unknown;
     buttonDisabled: boolean;
-    handleClickSave: (e: MouseEvent, editorState: OutputData) => void;
+    handleClickSave: (
+        e: MouseEvent<HTMLButtonElement>,
+        editorState: OutputData
+    ) => void;
 }
 
 const NotesEditor = ({

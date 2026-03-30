@@ -11,6 +11,7 @@ import {
     Tooltip,
     Typography
 } from '@mui/material';
+import type { SelectChangeEvent } from '@mui/material/Select';
 import { Link as LinkDom } from 'react-router-dom';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -36,7 +37,7 @@ import OverlayButton from '@components/Overlay/OverlayButton';
 import { IS_SUBMITTED_STATE_OPTIONS } from '@utils/contants';
 import DEMO from '@store/constant';
 import { appConfig } from '../../../config';
-import type { IUser } from '@taiger-common/model';
+import type { IUser, IStudentResponse } from '@taiger-common/model';
 
 export interface ApplicationTableRowStudent {
     _id?: unknown;
@@ -53,7 +54,7 @@ export interface ApplicationTableRowProps {
     user: IUser | null;
     today: Date;
     handleChange: (
-        e: ChangeEvent<HTMLInputElement>,
+        e: ChangeEvent<HTMLInputElement> | SelectChangeEvent<string>,
         application_idx: number
     ) => void;
     handleWithdraw: (
@@ -89,7 +90,7 @@ const ApplicationTableRow = ({
 
     return (
         <TableRow>
-            {!is_TaiGer_Student(user) ? (
+            {!is_TaiGer_Student(user as IUser) ? (
                 <TableCell>
                     <Stack direction="row" spacing={1}>
                         <IconButton
@@ -101,7 +102,6 @@ const ApplicationTableRow = ({
                                     studentToShow._id as string
                                 )
                             }
-                            variant="contained"
                         >
                             <DeleteIcon />
                         </IconButton>
@@ -111,11 +111,10 @@ const ApplicationTableRow = ({
                                 handleEdit(
                                     e,
                                     application._id as string,
-                                    application.application_year,
+                                    Number(application.application_year),
                                     studentToShow._id as string
                                 )
                             }
-                            variant="contained"
                         >
                             <EditIcon />
                         </IconButton>
@@ -127,9 +126,9 @@ const ApplicationTableRow = ({
                     <Link
                         component={LinkDom}
                         style={{ textDecoration: 'none' }}
-                        to={`${DEMO.SINGLE_PROGRAM_LINK(application.programId._id)}`}
+                        to={`${DEMO.SINGLE_PROGRAM_LINK(application.programId?._id ?? '')}`}
                     >
-                        {application.programId.school}
+                        {application.programId?.school}
                     </Link>
                 </Typography>
             </TableCell>
@@ -138,9 +137,9 @@ const ApplicationTableRow = ({
                     <Link
                         component={LinkDom}
                         style={{ textDecoration: 'none' }}
-                        to={`${DEMO.SINGLE_PROGRAM_LINK(application.programId._id)}`}
+                        to={`${DEMO.SINGLE_PROGRAM_LINK(application.programId?._id ?? '')}`}
                     >
-                        {application.programId.degree}
+                        {application.programId?.degree}
                     </Link>
                 </Typography>
             </TableCell>
@@ -149,9 +148,9 @@ const ApplicationTableRow = ({
                     <Link
                         component={LinkDom}
                         style={{ textDecoration: 'none' }}
-                        to={`${DEMO.SINGLE_PROGRAM_LINK(application.programId._id)}`}
+                        to={`${DEMO.SINGLE_PROGRAM_LINK(application.programId?._id ?? '')}`}
                     >
-                        {application.programId.program_name}
+                        {application.programId?.program_name}
                     </Link>
                 </Typography>
             </TableCell>
@@ -160,9 +159,9 @@ const ApplicationTableRow = ({
                     <Link
                         component={LinkDom}
                         style={{ textDecoration: 'none' }}
-                        to={`${DEMO.SINGLE_PROGRAM_LINK(application.programId._id)}`}
+                        to={`${DEMO.SINGLE_PROGRAM_LINK(application.programId?._id ?? '')}`}
                     >
-                        {application.programId.semester}
+                        {application.programId?.semester}
                     </Link>
                 </Typography>
             </TableCell>
@@ -171,10 +170,10 @@ const ApplicationTableRow = ({
                     <Link
                         component={LinkDom}
                         style={{ textDecoration: 'none' }}
-                        to={`${DEMO.SINGLE_PROGRAM_LINK(application.programId._id)}`}
+                        to={`${DEMO.SINGLE_PROGRAM_LINK(application.programId?._id ?? '')}`}
                     >
-                        {application.programId.toefl
-                            ? application.programId.toefl
+                        {application.programId?.toefl
+                            ? application.programId?.toefl
                             : '-'}
                     </Link>
                 </Typography>
@@ -184,10 +183,10 @@ const ApplicationTableRow = ({
                     <Link
                         component={LinkDom}
                         style={{ textDecoration: 'none' }}
-                        to={`${DEMO.SINGLE_PROGRAM_LINK(application.programId._id)}`}
+                        to={`${DEMO.SINGLE_PROGRAM_LINK(application.programId?._id ?? '')}`}
                     >
-                        {application.programId.ielts
-                            ? application.programId.ielts
+                        {application.programId?.ielts
+                            ? application.programId?.ielts
                             : '-'}
                     </Link>
                 </Typography>
@@ -227,7 +226,7 @@ const ApplicationTableRow = ({
                 <TableCell>
                     {isProgramSubmitted(application) ||
                     (is_program_ml_rl_essay_ready(application) &&
-                        isCVFinished(studentToShow) &&
+                        isCVFinished(studentToShow as unknown as IStudentResponse) &&
                         (!appConfig.vpdEnable ||
                             is_the_uni_assist_vpd_uploaded(application))) ? (
                         <FormControl fullWidth>
@@ -252,7 +251,7 @@ const ApplicationTableRow = ({
                     ) : (
                         <OverlayButton
                             text={`Please make sure ${
-                                !isCVFinished(studentToShow) ? 'CV ' : ''
+                                !isCVFinished(studentToShow as unknown as IStudentResponse) ? 'CV ' : ''
                             }${
                                 !is_program_ml_rl_essay_ready(application)
                                     ? 'ML/RL/Essay '
@@ -314,18 +313,20 @@ const ApplicationTableRow = ({
             isProgramAdmitted(application) ? (
                 <TableCell>
                     <FormControl fullWidth>
-                        <Select
-                            defaultValue={application.finalEnrolment ?? false}
+                        <Select<string>
+                            defaultValue={
+                                String(application.finalEnrolment ?? false)
+                            }
                             id="finalEnrolment"
                             labelId="finalEnrolment"
                             name="finalEnrolment"
                             onChange={(e) => handleChange(e, application_idx)}
                             size="small"
                         >
-                            <MenuItem value={false}>
+                            <MenuItem value="false">
                                 {t('No', { ns: 'common' })}
                             </MenuItem>
-                            <MenuItem value={true}>
+                            <MenuItem value="true">
                                 {t('Yes', { ns: 'common' })}
                             </MenuItem>
                         </Select>
@@ -338,15 +339,15 @@ const ApplicationTableRow = ({
                 <Typography>
                     {isProgramSubmitted(application)
                         ? '-'
-                        : application.programId.application_deadline
+                        : application.programId?.application_deadline
                           ? differenceInDays(
-                                application_deadline_V2_calculator(application),
+                                new Date(application_deadline_V2_calculator(application)),
                                 today
                             )
                           : '-'}
                 </Typography>
             </TableCell>
-            {is_TaiGer_role(user) && (
+            {is_TaiGer_role(user as IUser) && (
                 <TableCell>
                     {isProgramDecided(application) &&
                         !isProgramSubmitted(application) &&
