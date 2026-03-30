@@ -1,9 +1,4 @@
-import {
-    MouseEvent,
-    useState,
-    ChangeEvent,
-    SyntheticEvent
-} from 'react';
+import { MouseEvent, useState, ChangeEvent, SyntheticEvent } from 'react';
 import {
     Box,
     Breadcrumbs,
@@ -33,14 +28,16 @@ import {
     is_TaiGer_Student,
     is_TaiGer_Admin
 } from '@taiger-common/core';
-import type { IUser } from '@taiger-common/model';
+import type { IUser, IStudentResponse } from '@taiger-common/model';
 import type { Application } from '@/api/types';
 
 import {
     isProgramNotSelectedEnough,
     is_num_Program_Not_specified
 } from '../Utils/util_functions';
-import ApplicationTableRow from './components/ApplicationTableRow';
+import ApplicationTableRow, {
+    type ApplicationTableRowStudent
+} from './components/ApplicationTableRow';
 import ApplicationsTableBanners from './components/ApplicationsTableBanners';
 import { ConfirmDialog } from '@components/ConfirmDialog';
 import { APPLICATION_YEARS_FUTURE, programstatuslist } from '@utils/contants';
@@ -500,7 +497,9 @@ const StudentApplicationsTableTemplate = (
             <Box>
                 <Grid container spacing={2} sx={{ mt: 0 }}>
                     <Grid item md={is_TaiGer_role(typedUser) ? 6 : 12} xs={12}>
-                        <StudentPreferenceCard student={studentToShow as any} />
+                        <StudentPreferenceCard
+                            student={studentToShow as IStudentResponse}
+                        />
                     </Grid>
                     {is_TaiGer_role(typedUser) ? (
                         <Grid item md={6} xs={12}>
@@ -512,14 +511,18 @@ const StudentApplicationsTableTemplate = (
                 </Grid>
             </Box>
             <>
-                {isProgramNotSelectedEnough([studentToShow as any]) ? (
+                {isProgramNotSelectedEnough([
+                    studentToShow as IStudentResponse
+                ]) ? (
                     <Card>
                         {props.student.firstname} {props.student.lastname} did
                         not choose enough programs.
                     </Card>
                 ) : null}
                 {is_TaiGer_Admin(typedUser) &&
-                is_num_Program_Not_specified(studentToShow as any) ? (
+                is_num_Program_Not_specified(
+                    studentToShow as IStudentResponse
+                ) ? (
                     <Card>
                         The number of student&apos;s applications is not
                         specified! Please determine the number of the programs
@@ -595,7 +598,9 @@ const StudentApplicationsTableTemplate = (
                                         studentToShow.applications.length ===
                                             0 ? (
                                             <TableRow>
-                                                {!is_TaiGer_Student(typedUser) ? (
+                                                {!is_TaiGer_Student(
+                                                    typedUser
+                                                ) ? (
                                                     <TableCell />
                                                 ) : null}
                                                 <TableCell>
@@ -647,7 +652,7 @@ const StudentApplicationsTableTemplate = (
                                                             handleWithdraw
                                                         }
                                                         studentToShow={
-                                                            studentToShow as any
+                                                            studentToShow as ApplicationTableRowStudent
                                                         }
                                                         today={today}
                                                         user={typedUser}

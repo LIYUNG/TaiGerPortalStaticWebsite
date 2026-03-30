@@ -32,10 +32,8 @@ import ApplicationProgressCardBody from '@components/ApplicationProgressCard/App
 import ProgramReportCard from '../../Program/ProgramReportCard';
 import CVAssignTasksCard from '../MainViewTab/AgentTasks/CVAssignTasksCard';
 import ReadyToSubmitTasksCard from '../MainViewTab/AgentTasks/ReadyToSubmitTasksCard';
-import NoEnoughDecidedProgramsTasksCard from '../MainViewTab/AgentTasks/NoEnoughDecidedProgramsTasksCard';
 import VPDToSubmitTasksCard from '../MainViewTab/AgentTasks/VPDToSubmitTasksCard';
 import { useAuth } from '@components/AuthProvider';
-import NoProgramStudentTable from '../MainViewTab/AgentTasks/NoProgramStudentTable';
 import BaseDocumentCheckingTable from '../MainViewTab/AgentTasks/BaseDocumentCheckingTable';
 import ProgramSpecificDocumentCheckCard from '../MainViewTab/AgentTasks/ProgramSpecificDocumentCheckCard';
 import ActionRequiredTaskCard from '../ActionRequiredTaskCard';
@@ -130,10 +128,10 @@ const AgentMainView = () => {
 
     const refactored_agent_threads = refactored_threads.filter(
         (open_task) =>
-            [...AGENT_SUPPORT_DOCUMENTS_A].includes(open_task.file_type ?? '') ||
-            (
-                open_task.outsourced_user_id as IUserWithId[] | undefined
-            )?.some(
+            [...AGENT_SUPPORT_DOCUMENTS_A].includes(
+                open_task.file_type ?? ''
+            ) ||
+            (open_task.outsourced_user_id as IUserWithId[] | undefined)?.some(
                 (outsourcedUser: IUserWithId) =>
                     outsourcedUser._id?.toString() === user?._id?.toString()
             )
@@ -333,16 +331,22 @@ const AgentMainView = () => {
                 {is_any_programs_ready_to_submit(myStudents) ? (
                     <Grid item md={6} sm={12}>
                         <ReadyToSubmitTasksCard
-                            applications={applications_arr as unknown as IApplicationPopulated[]}
+                            applications={
+                                applications_arr as unknown as IApplicationPopulated[]
+                            }
                             students={myStudents}
                         />
                     </Grid>
                 ) : null}
                 {appConfig.vpdEnable &&
-                is_any_vpd_missing_v2(applications_arr as unknown as Application[]) ? (
+                is_any_vpd_missing_v2(
+                    applications_arr as unknown as Application[]
+                ) ? (
                     <Grid item md={4} xs={12}>
                         <VPDToSubmitTasksCard
-                            applications={applications_arr as unknown as IApplicationPopulated[]}
+                            applications={
+                                applications_arr as unknown as IApplicationPopulated[]
+                            }
                             students={myStudents}
                             user={user}
                         />
@@ -361,22 +365,22 @@ const AgentMainView = () => {
                         <CVAssignTasksCard students={myStudents} user={user} />
                     </Grid>
                 ) : null}
-                {/* TODO: Add NoProgramStudentTable */}
-                {false && <NoProgramStudentTable students={myStudents} />}
+                {/* TODO: Add NoProgramStudentTable — <NoProgramStudentTable students={myStudents} /> */}
+                {/* {false && <NoProgramStudentTable students={myStudents} />} */}
                 <Grid item md={4} sm={6} xs={12}>
                     <ProgramSpecificDocumentCheckCard
                         refactored_threads={refactored_threads}
                     />
                 </Grid>
                 {/* TODO: Add NoEnoughDecidedProgramsTasksCard */}
-                {false && (
+                {/* {false && (
                     <Grid item md={4} sm={6} xs={12}>
                         <NoEnoughDecidedProgramsTasksCard
                             students={myStudents}
                             user={user}
                         />
                     </Grid>
-                )}
+                )} */}
             </Grid>
         </Box>
     );
