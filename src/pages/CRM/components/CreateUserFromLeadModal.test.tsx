@@ -6,7 +6,13 @@ vi.mock('react-i18next', () => ({
 }));
 
 vi.mock('@/api', () => ({
-    addUser: vi.fn(() => Promise.resolve({ data: { success: true } }))
+    addUser: vi.fn(() => Promise.resolve({ data: { success: true } })),
+    createCRMDeal: vi.fn(() => Promise.resolve({ data: { success: true } })),
+    getCRMSalesReps: vi.fn(() => Promise.resolve({ data: { data: [] } }))
+}));
+
+vi.mock('@tanstack/react-query', () => ({
+    useQuery: vi.fn(() => ({ data: [], isLoading: false }))
 }));
 
 vi.mock('@tanstack/react-form', () => ({
@@ -66,5 +72,12 @@ describe('CreateUserFromLeadModal', () => {
 
     it('renders submit button', () => {
         expect(screen.getByText('actions.createUserAccount')).toBeTruthy();
+    });
+
+    it('renders deal inputs', () => {
+        expect(screen.getByText('deals.createDeal')).toBeTruthy();
+        expect(screen.getByLabelText('deals.dealSizeNtd')).toBeTruthy();
+        expect(screen.getByText('deals.statusLabels.closed')).toBeTruthy();
+        expect(screen.getByLabelText('deals.salesRep')).toBeTruthy();
     });
 });
