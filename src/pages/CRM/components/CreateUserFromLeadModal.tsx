@@ -351,10 +351,13 @@ const CreateUserFromLeadModal = ({
                         }
                     } catch (dealError) {
                         // User was created successfully, but deal creation failed.
-                        // Show a deal-specific error and avoid treating this as a user-creation failure.
-
+                        // Avoid duplicate addUser calls on retry by treating this
+                        // as a non-blocking deal failure and closing the modal.
                         console.error(dealError);
-                        setError(t('deals.errors.failedCreate', { ns: 'crm' }));
+                        if (onSuccess) {
+                            onSuccess(responseData as Record<string, string>);
+                        }
+                        handleClose();
                         return;
                     }
 

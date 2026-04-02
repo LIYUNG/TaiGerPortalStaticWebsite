@@ -246,9 +246,11 @@ const LeadProfileHeader = ({
                                 />
                             )}
                             <Chip
-                                label={getLeadStatusLabel(
-                                    lead.status as string | null | undefined
-                                )}
+                                label={
+                                    getLeadStatusLabel(
+                                        lead.status as string | null | undefined
+                                    ) ?? t('common.na', { ns: 'crm' })
+                                }
                                 size="small"
                                 sx={{
                                     bgcolor:
