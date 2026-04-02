@@ -27,6 +27,7 @@ import {
 
 import DealItem from '@pages/CRM/components/DealItem';
 import { getDealId } from '@pages/CRM/components/statusUtils';
+import { getLeadStatusOptions } from '@pages/CRM/constants/statusOptions';
 
 interface LeadProfileHeaderProps {
     lead: Record<string, unknown>;
@@ -639,14 +640,19 @@ const LeadProfileHeader = ({
                                     }
                                     value={formData.status || ''}
                                 >
-                                    <MenuItem value="open">Open</MenuItem>
-                                    <MenuItem value="not-qualified">
-                                        Not Qualified
-                                    </MenuItem>
-                                    <MenuItem value="closed">Closed</MenuItem>
-                                    <MenuItem value="converted">
-                                        Converted
-                                    </MenuItem>
+                                    {getLeadStatusOptions().map(
+                                        (s: {
+                                            value: string;
+                                            label: string;
+                                        }) => (
+                                            <MenuItem
+                                                key={s.value}
+                                                value={s.value}
+                                            >
+                                                {s.label}
+                                            </MenuItem>
+                                        )
+                                    )}
                                 </Select>
                             </FormControl>
                         </Grid>
