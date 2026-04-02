@@ -6,6 +6,19 @@ export const LEAD_STATUS_OPTIONS = [
     { value: 'converted', label: 'Converted' }
 ];
 
+const LEAD_STATUS_LABELS = LEAD_STATUS_OPTIONS.reduce<Record<string, string>>(
+    (acc, option) => {
+        acc[option.value] = option.label;
+        return acc;
+    },
+    {}
+);
+
 export function getLeadStatusOptions() {
     return LEAD_STATUS_OPTIONS;
+}
+
+export function getLeadStatusLabel(status?: string | null) {
+    if (!status) return 'N/A';
+    return LEAD_STATUS_LABELS[status] || status;
 }

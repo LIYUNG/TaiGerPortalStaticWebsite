@@ -27,7 +27,10 @@ import {
 
 import DealItem from '@pages/CRM/components/DealItem';
 import { getDealId } from '@pages/CRM/components/statusUtils';
-import { getLeadStatusOptions } from '@pages/CRM/constants/statusOptions';
+import {
+    getLeadStatusLabel,
+    getLeadStatusOptions
+} from '@pages/CRM/constants/statusOptions';
 
 interface LeadProfileHeaderProps {
     lead: Record<string, unknown>;
@@ -243,14 +246,9 @@ const LeadProfileHeader = ({
                                 />
                             )}
                             <Chip
-                                label={
-                                    lead.status
-                                        ? (lead.status as string)
-                                              .charAt(0)
-                                              .toUpperCase() +
-                                          (lead.status as string).slice(1)
-                                        : t('common.na', { ns: 'crm' })
-                                }
+                                label={getLeadStatusLabel(
+                                    lead.status as string | null | undefined
+                                )}
                                 size="small"
                                 sx={{
                                     bgcolor:

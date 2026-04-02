@@ -29,6 +29,7 @@ import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
+import { getLeadStatusLabel } from '@pages/CRM/constants/statusOptions';
 
 import { getCRMLeadsQuery } from '@/api/query';
 
@@ -119,7 +120,7 @@ const LeadDashboard = () => {
                     <Chip
                         color={getStatusColor(value)}
                         icon={<StatusIcon fontSize="small" />}
-                        label={value}
+                        label={getLeadStatusLabel(value)}
                         size="small"
                         variant="outlined"
                     />
