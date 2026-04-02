@@ -674,7 +674,7 @@ const CRMDashboard = () => {
                     <Box
                         sx={{
                             p: 1.5,
-                            backgroundColor: 'background.paper',
+                            backgroundColor: 'action.selected',
                             borderRadius: 1,
                             boxShadow: 1
                         }}
@@ -702,7 +702,7 @@ const CRMDashboard = () => {
                     <Box
                         sx={{
                             p: 1.5,
-                            backgroundColor: 'background.paper',
+                            backgroundColor: 'action.selected',
                             borderRadius: 1,
                             boxShadow: 1
                         }}
@@ -730,7 +730,7 @@ const CRMDashboard = () => {
                     <Box
                         sx={{
                             p: 1.5,
-                            backgroundColor: 'background.paper',
+                            backgroundColor: 'action.selected',
                             borderRadius: 1,
                             boxShadow: 1
                         }}
@@ -758,7 +758,7 @@ const CRMDashboard = () => {
                     <Box
                         sx={{
                             p: 1.5,
-                            backgroundColor: 'background.paper',
+                            backgroundColor: 'action.selected',
                             borderRadius: 1,
                             boxShadow: 1
                         }}
