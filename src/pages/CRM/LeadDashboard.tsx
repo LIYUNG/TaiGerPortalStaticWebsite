@@ -91,11 +91,11 @@ const LeadDashboard = () => {
 
     const getStatusColor = (status: string): ChipProps['color'] => {
         const colors: Record<string, ChipProps['color']> = {
-            open: 'info',
-            contacted: 'warning',
-            qualified: 'success',
+            open: 'warning',
+            'not-qualified': 'error',
+            migrated: 'success',
             converted: 'primary',
-            lost: 'error',
+            'in-progress': 'info',
             closed: 'default'
         };
         return colors[status] || 'default';
