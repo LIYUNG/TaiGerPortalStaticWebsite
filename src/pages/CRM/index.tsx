@@ -12,7 +12,8 @@ import {
     Tooltip,
     IconButton,
     Tabs,
-    Tab
+    Tab,
+    useTheme
 } from '@mui/material';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { BarChart } from '@mui/x-charts/BarChart';
@@ -83,11 +84,12 @@ const sumByWeeks = (
 };
 
 const CRMDashboard = () => {
+    const theme = useTheme();
     const { t } = useTranslation();
     TabTitle(t('breadcrumbs.dashboard', { ns: 'crm' }));
     const { user } = useAuth();
     const { data, isLoading } = useQuery(getCRMStatsQuery());
-    const [timePreset, setTimePreset] = useState<TimePreset>('ytd');
+    const [timePreset, setTimePreset] = useState<TimePreset>('3m');
     const isAuthorized = Boolean(user) && is_TaiGer_role(user as IUser);
     const now = new Date();
     const currentYear = now.getFullYear();
@@ -310,6 +312,11 @@ const CRMDashboard = () => {
         return Math.ceil(rate);
     });
 
+    const barLabelFill =
+        theme.palette.mode === 'dark'
+            ? 'rgba(255,255,255,0.92)'
+            : 'rgba(0,0,0,0.72)';
+
     const leadsBarLabel = ((
         valueObj: { seriesId?: string; dataIndex?: number },
         meta: { bar?: { height?: number } }
@@ -321,13 +328,13 @@ const CRMDashboard = () => {
                 const label = idx >= 0 ? unifiedConversionRates[idx] : null;
                 if (!label) return null;
                 const bar = meta?.bar || {};
-                const dy = bar.height ? -(bar.height / 2 + 12) : -12;
+                const dy = bar.height ? -(bar.height / 2 + 14) : -14;
                 return (
                     <tspan
                         dy={dy}
                         style={{
-                            fontSize: '12px',
-                            fill: 'rgba(0,0,0,0.54)'
+                            fontSize: '11px',
+                            fill: barLabelFill
                         }}
                     >
                         {`${label}%`}
@@ -338,6 +345,35 @@ const CRMDashboard = () => {
             // fall through to no label
         }
         return null;
+    }) as unknown as NonNullable<ComponentProps<typeof BarChart>['barLabel']>;
+
+    const meetingsBarLabel = ((
+        valueObj: { dataIndex?: number },
+        meta: { bar?: { height?: number } }
+    ) => {
+        try {
+            const idx =
+                typeof valueObj?.dataIndex === 'number'
+                    ? valueObj.dataIndex
+                    : -1;
+            const count = idx >= 0 ? unifiedMeetingsData[idx] : null;
+            if (count == null || Number(count) <= 0) return null;
+            const bar = meta?.bar || {};
+            const dy = bar.height ? -(bar.height / 2 + 14) : -14;
+            return (
+                <tspan
+                    dy={dy}
+                    style={{
+                        fontSize: '11px',
+                        fill: barLabelFill
+                    }}
+                >
+                    {`${Math.round(Number(count))}`}
+                </tspan>
+            );
+        } catch {
+            return null;
+        }
     }) as unknown as NonNullable<ComponentProps<typeof BarChart>['barLabel']>;
 
     const formatDays = (value: number | null | undefined) =>
@@ -874,6 +910,7 @@ const CRMDashboard = () => {
                             </Typography>
                             {filteredWeekLabels.length > 0 ? (
                                 <BarChart
+                                    barLabel={meetingsBarLabel}
                                     height={250}
                                     series={[
                                         {
