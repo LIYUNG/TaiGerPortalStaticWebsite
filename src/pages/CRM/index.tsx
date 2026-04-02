@@ -87,7 +87,7 @@ const CRMDashboard = () => {
     TabTitle(t('breadcrumbs.dashboard', { ns: 'crm' }));
     const { user } = useAuth();
     const { data, isLoading } = useQuery(getCRMStatsQuery());
-    const [timePreset, setTimePreset] = useState<TimePreset>('full');
+    const [timePreset, setTimePreset] = useState<TimePreset>('ytd');
     const isAuthorized = Boolean(user) && is_TaiGer_role(user as IUser);
     const now = new Date();
     const currentYear = now.getFullYear();
@@ -369,33 +369,175 @@ const CRMDashboard = () => {
 
     return (
         <>
-            <Breadcrumbs aria-label="breadcrumb">
-                <Link
-                    color="inherit"
-                    component="a"
-                    href={`${DEMO.DASHBOARD_LINK}`}
-                    underline="hover"
-                >
-                    {appConfig.companyName}
-                </Link>
-                <Typography color="text.primary">
-                    {t('breadcrumbs.dashboard', { ns: 'crm' })}
-                </Typography>
-            </Breadcrumbs>
+            <Box
+                sx={{
+                    mt: 0.25,
+                    mb: 0.75,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 1,
+                    flexWrap: 'wrap'
+                }}
+            >
+                <Breadcrumbs aria-label="breadcrumb">
+                    <Link
+                        color="inherit"
+                        component="a"
+                        href={`${DEMO.DASHBOARD_LINK}`}
+                        underline="hover"
+                    >
+                        {appConfig.companyName}
+                    </Link>
+                    <Typography color="text.primary">
+                        {t('breadcrumbs.dashboard', { ns: 'crm' })}
+                    </Typography>
+                </Breadcrumbs>
 
-            <Box sx={{ mt: 1, mb: 0.5 }}>
                 <Tabs
                     onChange={(_event, value) => setTimePreset(value)}
                     value={timePreset}
                     variant="scrollable"
                     scrollButtons="auto"
+                    sx={{
+                        ml: 'auto',
+                        minHeight: 26,
+                        p: 0.125,
+                        borderRadius: 12,
+                        bgcolor: 'action.hover',
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        '& .MuiTabs-indicator': {
+                            display: 'none'
+                        }
+                    }}
                 >
-                    <Tab label="1M" value="1m" />
-                    <Tab label="3M" value="3m" />
-                    <Tab label="6M" value="6m" />
-                    <Tab label="YTD" value="ytd" />
-                    <Tab label="1Y" value="1y" />
-                    <Tab label="MAX" value="full" />
+                    <Tab
+                        label="1M"
+                        value="1m"
+                        sx={{
+                            minHeight: 20,
+                            minWidth: 'auto',
+                            py: 0.125,
+                            px: 0.875,
+                            borderRadius: 8,
+                            color: 'text.secondary',
+                            textTransform: 'none',
+                            fontWeight: 600,
+                            fontSize: '0.75rem',
+                            '&.Mui-selected': {
+                                color: 'primary.main',
+                                bgcolor: 'action.selected',
+                                border: '1px solid',
+                                borderColor: 'primary.main'
+                            }
+                        }}
+                    />
+                    <Tab
+                        label="3M"
+                        value="3m"
+                        sx={{
+                            minHeight: 20,
+                            minWidth: 'auto',
+                            py: 0.125,
+                            px: 0.875,
+                            borderRadius: 8,
+                            color: 'text.secondary',
+                            textTransform: 'none',
+                            fontWeight: 600,
+                            fontSize: '0.75rem',
+                            '&.Mui-selected': {
+                                color: 'primary.main',
+                                bgcolor: 'action.selected',
+                                border: '1px solid',
+                                borderColor: 'primary.main'
+                            }
+                        }}
+                    />
+                    <Tab
+                        label="6M"
+                        value="6m"
+                        sx={{
+                            minHeight: 20,
+                            minWidth: 'auto',
+                            py: 0.125,
+                            px: 0.875,
+                            borderRadius: 8,
+                            color: 'text.secondary',
+                            textTransform: 'none',
+                            fontWeight: 600,
+                            fontSize: '0.75rem',
+                            '&.Mui-selected': {
+                                color: 'primary.main',
+                                bgcolor: 'action.selected',
+                                border: '1px solid',
+                                borderColor: 'primary.main'
+                            }
+                        }}
+                    />
+                    <Tab
+                        label="YTD"
+                        value="ytd"
+                        sx={{
+                            minHeight: 20,
+                            minWidth: 'auto',
+                            py: 0.125,
+                            px: 0.875,
+                            borderRadius: 8,
+                            color: 'text.secondary',
+                            textTransform: 'none',
+                            fontWeight: 600,
+                            fontSize: '0.75rem',
+                            '&.Mui-selected': {
+                                color: 'primary.main',
+                                bgcolor: 'action.selected',
+                                border: '1px solid',
+                                borderColor: 'primary.main'
+                            }
+                        }}
+                    />
+                    <Tab
+                        label="1Y"
+                        value="1y"
+                        sx={{
+                            minHeight: 20,
+                            minWidth: 'auto',
+                            py: 0.125,
+                            px: 0.875,
+                            borderRadius: 8,
+                            color: 'text.secondary',
+                            textTransform: 'none',
+                            fontWeight: 600,
+                            fontSize: '0.75rem',
+                            '&.Mui-selected': {
+                                color: 'primary.main',
+                                bgcolor: 'action.selected',
+                                border: '1px solid',
+                                borderColor: 'primary.main'
+                            }
+                        }}
+                    />
+                    <Tab
+                        label="MAX"
+                        value="full"
+                        sx={{
+                            minHeight: 20,
+                            minWidth: 'auto',
+                            py: 0.125,
+                            px: 0.875,
+                            borderRadius: 8,
+                            color: 'text.secondary',
+                            textTransform: 'none',
+                            fontWeight: 600,
+                            fontSize: '0.75rem',
+                            '&.Mui-selected': {
+                                color: 'primary.main',
+                                bgcolor: 'action.selected',
+                                border: '1px solid',
+                                borderColor: 'primary.main'
+                            }
+                        }}
+                    />
                 </Tabs>
             </Box>
 
