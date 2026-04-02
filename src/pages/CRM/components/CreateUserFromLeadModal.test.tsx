@@ -34,7 +34,8 @@ vi.mock('@tanstack/react-form', () => ({
             children: (...args: unknown[]) => React.ReactNode;
         }) => children('', '', ''),
         handleSubmit: vi.fn(),
-        reset: vi.fn()
+        reset: vi.fn(),
+        setFieldValue: vi.fn()
     }))
 }));
 
@@ -76,8 +77,12 @@ describe('CreateUserFromLeadModal', () => {
 
     it('renders deal inputs', () => {
         expect(screen.getByText('deals.createDeal')).toBeTruthy();
-        expect(screen.getByLabelText('deals.dealSizeNtd')).toBeTruthy();
+        expect(
+            screen.getByLabelText('deals.dealSizeNtd', { exact: false })
+        ).toBeTruthy();
         expect(screen.getByText('deals.statusLabels.closed')).toBeTruthy();
-        expect(screen.getByLabelText('deals.salesRep')).toBeTruthy();
+        expect(
+            screen.getByLabelText('deals.salesRep', { exact: false })
+        ).toBeTruthy();
     });
 });
