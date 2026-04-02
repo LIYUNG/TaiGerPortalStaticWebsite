@@ -1,8 +1,10 @@
-import { MouseEvent, SyntheticEvent, ChangeEvent } from 'react';
+import { MouseEvent, SyntheticEvent, ChangeEvent, useState } from 'react';
 import {
+    Button,
     FormControl,
     IconButton,
     Link,
+    Menu,
     MenuItem,
     Select,
     Stack,
@@ -34,10 +36,11 @@ import {
     application_deadline_V2_calculator
 } from '../../Utils/util_functions';
 import OverlayButton from '@components/Overlay/OverlayButton';
-import { IS_SUBMITTED_STATE_OPTIONS } from '@utils/contants';
 import DEMO from '@store/constant';
 import { appConfig } from '../../../config';
 import type { IUser, IStudentResponse } from '@taiger-common/model';
+
+type AdmissionResult = '-' | 'O' | 'X';
 
 export interface ApplicationTableRowStudent {
     _id?: unknown;
@@ -73,6 +76,10 @@ export interface ApplicationTableRowProps {
         application_year: number,
         student_id: string
     ) => void;
+    handleAdmissionResultChange: (
+        application: Application,
+        result: AdmissionResult
+    ) => Promise<void>;
 }
 
 const ApplicationTableRow = ({
@@ -84,9 +91,64 @@ const ApplicationTableRow = ({
     handleChange,
     handleWithdraw,
     handleDelete,
-    handleEdit
+    handleEdit,
+    handleAdmissionResultChange
 }: ApplicationTableRowProps) => {
     const { t } = useTranslation();
+    const [isSubmittingAdmission, setIsSubmittingAdmission] = useState(false);
+    const [admissionMenuAnchor, setAdmissionMenuAnchor] =
+        useState<null | HTMLElement>(null);
+
+    const canUpdateAdmission =
+        application.closed !== '-' &&
+        application.closed !== 'X' &&
+        !(application.finalEnrolment ?? false);
+
+    const admissionOptions: Array<{ value: AdmissionResult; label: string }> = [
+        { value: '-', label: '-' },
+        { value: 'O', label: t('Yes', { ns: 'common' }) },
+        { value: 'X', label: t('No', { ns: 'common' }) }
+    ];
+
+    const currentAdmission =
+        application.admission === 'O' || application.admission === 'X'
+            ? application.admission
+            : '-';
+
+    const admissionLabel =
+        admissionOptions.find((option) => option.value === currentAdmission)
+            ?.label ?? '-';
+
+    const admissionColor =
+        currentAdmission === 'X'
+            ? 'error'
+            : currentAdmission === 'O'
+              ? 'success'
+              : 'primary';
+
+    const admissionMenuOpen = Boolean(admissionMenuAnchor);
+
+    const openAdmissionMenu = (e: MouseEvent<HTMLButtonElement>) => {
+        setAdmissionMenuAnchor(e.currentTarget);
+    };
+
+    const closeAdmissionMenu = () => {
+        setAdmissionMenuAnchor(null);
+    };
+
+    const onClickAdmissionResult = async (result: AdmissionResult) => {
+        if (result === currentAdmission) {
+            closeAdmissionMenu();
+            return;
+        }
+        closeAdmissionMenu();
+        setIsSubmittingAdmission(true);
+        try {
+            await handleAdmissionResultChange(application, result);
+        } finally {
+            setIsSubmittingAdmission(false);
+        }
+    };
 
     return (
         <TableRow>
@@ -226,7 +288,9 @@ const ApplicationTableRow = ({
                 <TableCell>
                     {isProgramSubmitted(application) ||
                     (is_program_ml_rl_essay_ready(application) &&
-                        isCVFinished(studentToShow as unknown as IStudentResponse) &&
+                        isCVFinished(
+                            studentToShow as unknown as IStudentResponse
+                        ) &&
                         (!appConfig.vpdEnable ||
                             is_the_uni_assist_vpd_uploaded(application))) ? (
                         <FormControl fullWidth>
@@ -251,7 +315,11 @@ const ApplicationTableRow = ({
                     ) : (
                         <OverlayButton
                             text={`Please make sure ${
-                                !isCVFinished(studentToShow as unknown as IStudentResponse) ? 'CV ' : ''
+                                !isCVFinished(
+                                    studentToShow as unknown as IStudentResponse
+                                )
+                                    ? 'CV '
+                                    : ''
                             }${
                                 !is_program_ml_rl_essay_ready(application)
                                     ? 'ML/RL/Essay '
@@ -278,32 +346,41 @@ const ApplicationTableRow = ({
             {isProgramDecided(application) &&
             isProgramSubmitted(application) ? (
                 <TableCell>
-                    <FormControl fullWidth>
-                        <Select
-                            defaultValue={application.admission ?? '-'}
+                    <>
+                        <Button
+                            color={admissionColor}
                             disabled={
-                                !(
-                                    application.closed !== '-' &&
-                                    application.closed !== 'X'
-                                ) ||
-                                (application.finalEnrolment ?? false)
+                                !canUpdateAdmission || isSubmittingAdmission
                             }
-                            id="admission"
-                            labelId="admission"
-                            name="admission"
-                            onChange={(e) => handleChange(e, application_idx)}
+                            fullWidth
+                            onClick={openAdmissionMenu}
                             size="small"
+                            variant="outlined"
                         >
-                            {IS_SUBMITTED_STATE_OPTIONS.map((option) => (
+                            {admissionLabel}
+                        </Button>
+                        <Menu
+                            anchorEl={admissionMenuAnchor}
+                            onClose={closeAdmissionMenu}
+                            open={admissionMenuOpen}
+                        >
+                            {admissionOptions.map((option) => (
                                 <MenuItem
+                                    disabled={
+                                        isSubmittingAdmission ||
+                                        option.value === currentAdmission
+                                    }
                                     key={option.value}
-                                    value={option.value}
+                                    onClick={() =>
+                                        onClickAdmissionResult(option.value)
+                                    }
+                                    selected={option.value === currentAdmission}
                                 >
-                                    {t(option.label, { ns: 'common' })}
+                                    {option.label}
                                 </MenuItem>
                             ))}
-                        </Select>
-                    </FormControl>
+                        </Menu>
+                    </>
                 </TableCell>
             ) : (
                 <TableCell>-</TableCell>
@@ -314,9 +391,9 @@ const ApplicationTableRow = ({
                 <TableCell>
                     <FormControl fullWidth>
                         <Select<string>
-                            defaultValue={
-                                String(application.finalEnrolment ?? false)
-                            }
+                            defaultValue={String(
+                                application.finalEnrolment ?? false
+                            )}
                             id="finalEnrolment"
                             labelId="finalEnrolment"
                             name="finalEnrolment"
@@ -341,7 +418,11 @@ const ApplicationTableRow = ({
                         ? '-'
                         : application.programId?.application_deadline
                           ? differenceInDays(
-                                new Date(application_deadline_V2_calculator(application)),
+                                new Date(
+                                    application_deadline_V2_calculator(
+                                        application
+                                    )
+                                ),
                                 today
                             )
                           : '-'}
