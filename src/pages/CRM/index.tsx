@@ -30,18 +30,42 @@ import { getCRMStatsQuery } from '@/api/query';
 
 type TimePreset = '1m' | '3m' | '6m' | 'ytd' | '1y' | 'full';
 type ChartPoint = { week: string; [key: string]: unknown };
+type AxisValueFormatterContext = { location?: 'tick' | 'tooltip' | string };
 
-const WEEK_PATTERN = /^(\d{4})-W(\d{1,2})$/;
+const WEEK_PATTERN = /^(\d{4})-W?(\d{1,2})$/;
 const YEAR_PATTERN = /(20\d{2})/;
+const MONTH_SHORT = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec'
+];
 
 const toWeekOrdinal = (year: number, week: number) => year * 100 + week;
+
+const getISOWeekStartDate = (year: number, week: number) => {
+    const jan4 = new Date(Date.UTC(year, 0, 4));
+    const jan4Day = jan4.getUTCDay() || 7;
+    const firstIsoMonday = new Date(jan4);
+    firstIsoMonday.setUTCDate(jan4.getUTCDate() - (jan4Day - 1));
+
+    const target = new Date(firstIsoMonday);
+    target.setUTCDate(firstIsoMonday.getUTCDate() + (week - 1) * 7);
+    return target;
+};
 
 const parseWeekLabel = (weekLabel: string) => {
     const meta = getWeekMeta(weekLabel);
     if (!meta) return null;
-    const day = new Date(Date.UTC(meta.year, 0, 1));
-    day.setUTCDate(day.getUTCDate() + (meta.week - 1) * 7);
-    return day;
+    return getISOWeekStartDate(meta.year, meta.week);
 };
 
 const getWeekMeta = (weekLabel: string) => {
@@ -196,6 +220,7 @@ const CRMDashboard = () => {
             return orderedWeekLabels;
         }
 
+        // Fixed windows by week count.
         const rangeWeeks: Record<
             Exclude<TimePreset, 'full' | 'ytd'>,
             number
@@ -206,30 +231,29 @@ const CRMDashboard = () => {
             '1y': 52
         };
 
-        // If backend week labels are not ISO-like, fallback to index-based slicing.
-        if (!sortedWeekMeta.length) {
-            if (timePreset === 'ytd') {
-                return orderedWeekLabels.filter(
-                    (label) => getYearFromLabel(label) === currentYear
-                );
-            }
-            const count =
-                rangeWeeks[timePreset as keyof typeof rangeWeeks] || 52;
-            return orderedWeekLabels.slice(-count);
-        }
-
         if (timePreset === 'ytd') {
-            const ytdLabels = sortedWeekMeta
-                .filter((w) => w?.year === currentYear)
-                .map((w) => w?.label || '')
-                .filter(Boolean);
-            if (ytdLabels.length) return ytdLabels;
+            if (sortedWeekMeta.length) {
+                const ytdLabels = sortedWeekMeta
+                    .filter((w) => w?.year === currentYear)
+                    .map((w) => w?.label || '')
+                    .filter(Boolean);
+                if (ytdLabels.length) return ytdLabels;
+            }
+
             return orderedWeekLabels.filter(
                 (label) => getYearFromLabel(label) === currentYear
             );
         }
 
-        const count = rangeWeeks[timePreset as keyof typeof rangeWeeks] || 52;
+        const count = rangeWeeks[timePreset as keyof typeof rangeWeeks] || 48;
+
+        if (sortedWeekMeta.length) {
+            return sortedWeekMeta
+                .map((w) => w?.label || '')
+                .filter(Boolean)
+                .slice(-count);
+        }
+
         return orderedWeekLabels.slice(-count);
     }, [currentYear, orderedWeekLabels, sortedWeekMeta, timePreset]);
 
@@ -237,6 +261,73 @@ const CRMDashboard = () => {
         () => new Set(filteredWeekLabels),
         [filteredWeekLabels]
     );
+
+    const monthStartLabels = useMemo(() => {
+        const starts = new Set<string>();
+        let previousMonthKey: string | null = null;
+
+        filteredWeekLabels.forEach((label, index) => {
+            const date = parseWeekLabel(label);
+            if (date) {
+                const year = date.getUTCFullYear();
+                const month = date.getUTCMonth();
+                const monthKey = `${year}-${month}`;
+                if (monthKey !== previousMonthKey) {
+                    starts.add(label);
+                    previousMonthKey = monthKey;
+                }
+                return;
+            }
+
+            // Fallback when week labels are not parseable: approximate 4 weeks per month.
+            if (index % 4 === 0) {
+                starts.add(label);
+            }
+        });
+
+        return starts;
+    }, [filteredWeekLabels]);
+
+    const monthTickValues = useMemo(
+        () => filteredWeekLabels.filter((label) => monthStartLabels.has(label)),
+        [filteredWeekLabels, monthStartLabels]
+    );
+
+    const formatWeekTickLabel = (
+        label: string,
+        context?: AxisValueFormatterContext
+    ) => {
+        const weekMeta = getWeekMeta(label);
+        const weekText = weekMeta ? `W${weekMeta.week}` : label;
+
+        // Keep calendar week index visible in hover tooltip.
+        if (context?.location === 'tooltip') {
+            const parsedDate = parseWeekLabel(label);
+            if (parsedDate) {
+                const monthText = MONTH_SHORT[parsedDate.getUTCMonth()];
+                const yearText = parsedDate.getUTCFullYear();
+                return `${monthText} ${yearText} (${weekText})`;
+            }
+            return weekText;
+        }
+
+        if (!monthStartLabels.has(label)) {
+            return '';
+        }
+
+        const parsedDate = parseWeekLabel(label);
+        if (parsedDate) {
+            const monthText = MONTH_SHORT[parsedDate.getUTCMonth()];
+            const yearText = parsedDate.getUTCFullYear();
+            return `${monthText} ${yearText}`;
+        }
+
+        // Fallback when week label is not parseable: still show month-year at each 4-week boundary.
+        const index = filteredWeekLabels.indexOf(label);
+        const monthText = MONTH_SHORT[Math.floor(index / 4) % 12];
+        const yearText = getYearFromLabel(label) || currentYear;
+        return `${monthText} ${yearText}`;
+    };
 
     // Always show latest 7-day delta (approximated by latest week bucket)
     const latestWeekSet = useMemo(() => {
@@ -877,7 +968,13 @@ const CRMDashboard = () => {
                                                 ns: 'crm'
                                             }),
                                             data: filteredWeekLabels,
-                                            scaleType: 'band'
+                                            scaleType: 'band',
+                                            tickInterval: monthTickValues,
+                                            valueFormatter: (value, context) =>
+                                                formatWeekTickLabel(
+                                                    String(value),
+                                                    context as AxisValueFormatterContext
+                                                )
                                         }
                                     ]}
                                     yAxis={[
@@ -929,7 +1026,13 @@ const CRMDashboard = () => {
                                                 ns: 'crm'
                                             }),
                                             data: filteredWeekLabels,
-                                            scaleType: 'band'
+                                            scaleType: 'band',
+                                            tickInterval: monthTickValues,
+                                            valueFormatter: (value, context) =>
+                                                formatWeekTickLabel(
+                                                    String(value),
+                                                    context as AxisValueFormatterContext
+                                                )
                                         }
                                     ]}
                                     yAxis={[
