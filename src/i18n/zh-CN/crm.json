@@ -13,6 +13,8 @@
         "edit": "编辑",
         "assign": "指派",
         "change": "更改",
+        "changeStatus": "更改状态",
+        "noStatusChange": "当前无可进一步变更的状态",
         "unassign": "移除指派",
         "archive": "归档会议",
         "unarchive": "取消归档会议",

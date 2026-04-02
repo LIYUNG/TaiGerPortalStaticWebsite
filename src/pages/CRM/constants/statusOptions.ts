@@ -41,7 +41,11 @@ export function getAvailableLeadStatusOptions(status?: string | null) {
         blockedValues.add('not-qualified');
     }
 
-    if (status === 'closed' || status === 'converted') {
+    if (
+        status === 'closed' ||
+        status === 'converted' ||
+        status === 'migrated'
+    ) {
         return [];
     }
 

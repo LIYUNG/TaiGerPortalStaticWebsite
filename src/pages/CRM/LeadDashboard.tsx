@@ -159,19 +159,21 @@ const LeadDashboard = () => {
 
                 return (
                     <Tooltip
-                        title={t('actions.changeStatus', {
-                            ns: 'crm',
-                            defaultValue: 'Change status'
-                        })}
+                        title={
+                            availableStatusOptions.length === 0
+                                ? t('actions.noStatusChange', {
+                                      ns: 'crm'
+                                  })
+                                : t('actions.changeStatus', {
+                                      ns: 'crm'
+                                  })
+                        }
                     >
                         <span>
                             <Chip
                                 clickable={availableStatusOptions.length > 0}
                                 color={getStatusColor(value)}
-                                disabled={
-                                    isUpdating ||
-                                    availableStatusOptions.length === 0
-                                }
+                                disabled={isUpdating}
                                 icon={<StatusIcon fontSize="small" />}
                                 label={getLeadStatusLabel(value)}
                                 onClick={(

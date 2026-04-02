@@ -13,6 +13,8 @@
         "edit": "Edit",
         "assign": "Assign",
         "change": "Change",
+        "changeStatus": "Change status",
+        "noStatusChange": "No further status change allowed",
         "unassign": "Remove Assignment",
         "archive": "Archive meeting",
         "unarchive": "Unarchive meeting",

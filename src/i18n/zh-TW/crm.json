@@ -13,6 +13,8 @@
         "edit": "編輯",
         "assign": "指派",
         "change": "變更",
+        "changeStatus": "變更狀態",
+        "noStatusChange": "目前無可進一步變更的狀態",
         "unassign": "移除指派",
         "archive": "封存會議",
         "unarchive": "取消封存會議",
