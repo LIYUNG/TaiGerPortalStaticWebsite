@@ -60,7 +60,7 @@ const mockApplication = {
     admission: '-',
     finalEnrolment: false,
     application_year: 2025
-} as any;
+};
 
 const mockStudent = {
     _id: 'student1',
@@ -76,6 +76,7 @@ const defaultProps = {
     user: null,
     today: new Date('2025-11-01'),
     handleChange: vi.fn(),
+    handleAdmissionResultChange: vi.fn(() => Promise.resolve()),
     handleWithdraw: vi.fn(),
     handleDelete: vi.fn(),
     handleEdit: vi.fn()
@@ -159,7 +160,38 @@ describe('ApplicationTableRow', () => {
     it('hides action buttons for student users', async () => {
         const { is_TaiGer_Student } = await import('@taiger-common/core');
         (is_TaiGer_Student as ReturnType<typeof vi.fn>).mockReturnValue(true);
-        renderRow({ user: { role: 'Student' } as any });
+        renderRow({ user: { role: 'Student' } });
         expect(screen.queryByRole('button')).not.toBeInTheDocument();
+    });
+
+    it('triggers direct admission update when admission button clicked', async () => {
+        const { isProgramDecided, isProgramSubmitted, is_TaiGer_Student } =
+            await import('@taiger-common/core');
+
+        (is_TaiGer_Student as ReturnType<typeof vi.fn>).mockReturnValue(false);
+        (isProgramDecided as ReturnType<typeof vi.fn>).mockReturnValue(true);
+        (isProgramSubmitted as ReturnType<typeof vi.fn>).mockReturnValue(true);
+
+        const handleAdmissionResultChange = vi.fn(() => Promise.resolve());
+
+        renderRow({
+            application: {
+                ...mockApplication,
+                closed: 'O',
+                admission: '-'
+            },
+            handleAdmissionResultChange
+        });
+
+        fireEvent.click(screen.getByRole('button', { name: '-' }));
+        const yesMenuItem = await screen.findByRole('menuitem', {
+            name: 'Yes'
+        });
+        fireEvent.click(yesMenuItem);
+
+        expect(handleAdmissionResultChange).toHaveBeenCalledWith(
+            expect.objectContaining({ _id: 'app1' }),
+            'O'
+        );
     });
 });

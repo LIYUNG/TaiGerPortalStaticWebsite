@@ -47,7 +47,8 @@ import { useSnackBar } from '@contexts/use-snack-bar';
 import {
     updateStudentApplications,
     deleteApplicationStudentV2,
-    updateStudentApplication
+    updateStudentApplication,
+    updateStudentApplicationResult
 } from '@/api';
 import { queryClient } from '@/api';
 import { TabTitle } from '../Utils/TabTitle';
@@ -75,6 +76,8 @@ type StudentDraft = {
     applications?: Application[];
     applying_program_count?: number | string;
 };
+
+type AdmissionResult = '-' | 'O' | 'X';
 
 const StudentApplicationsTableTemplate = (
     props: StudentApplicationsTableTemplateProps
@@ -189,6 +192,93 @@ const StudentApplicationsTableTemplate = (
             ...prev,
             applications: applications_temp
         }));
+    };
+
+    const updateDraftAdmissionByApplicationId = (
+        applicationId: string,
+        nextResult: AdmissionResult
+    ) => {
+        const base = studentToShow.applications ?? [];
+        const applicationIndex = base.findIndex(
+            (application) => String(application._id ?? '') === applicationId
+        );
+
+        if (applicationIndex < 0) {
+            return;
+        }
+
+        const nextApplications = [...base];
+        nextApplications[applicationIndex] = {
+            ...nextApplications[applicationIndex],
+            admission: nextResult
+        };
+
+        setDraft((prev) => ({
+            ...prev,
+            applications: nextApplications
+        }));
+    };
+
+    const handleAdmissionResultChange = async (
+        application: Application,
+        result: AdmissionResult
+    ) => {
+        const previousResult =
+            application.admission === 'O' || application.admission === 'X'
+                ? application.admission
+                : '-';
+        const studentId = String(studentToShow._id ?? '');
+        const applicationId = String(application._id ?? '');
+        const programId = String(application.programId?._id ?? '');
+
+        if (!studentId || !applicationId || !programId) {
+            setSeverity('error');
+            setMessage('Missing student/application/program id.');
+            setOpenSnackbar(true);
+            return;
+        }
+
+        updateDraftAdmissionByApplicationId(applicationId, result);
+
+        const formData = new FormData();
+        try {
+            const resp = await updateStudentApplicationResult(
+                studentId,
+                applicationId,
+                programId,
+                result,
+                formData
+            );
+
+            const { success, message } = resp.data;
+            if (success) {
+                setDraft(null);
+                queryClient.invalidateQueries({
+                    queryKey: ['applications/student', studentId]
+                });
+                setSeverity('success');
+                setMessage(
+                    t('Applications status updated successfully!', {
+                        ns: 'common'
+                    })
+                );
+                setOpenSnackbar(true);
+                return;
+            }
+
+            updateDraftAdmissionByApplicationId(applicationId, previousResult);
+            setSeverity('error');
+            setMessage(message ?? 'Failed to update application result.');
+            setOpenSnackbar(true);
+        } catch (error) {
+            updateDraftAdmissionByApplicationId(applicationId, previousResult);
+            setSeverity('error');
+            setMessage(
+                (error as { message?: string }).message ||
+                    'An error occurred. Please try again.'
+            );
+            setOpenSnackbar(true);
+        }
     };
 
     const handleDelete = (
@@ -648,6 +738,9 @@ const StudentApplicationsTableTemplate = (
                                                             handleDelete
                                                         }
                                                         handleEdit={handleEdit}
+                                                        handleAdmissionResultChange={
+                                                            handleAdmissionResultChange
+                                                        }
                                                         handleWithdraw={
                                                             handleWithdraw
                                                         }
