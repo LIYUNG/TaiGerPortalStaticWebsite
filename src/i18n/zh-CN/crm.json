@@ -145,18 +145,24 @@
     },
     "deals": {
         "createDeal": "创建订单",
+        "closeExistingDeal": "关闭现有订单",
         "editDeal": "编辑订单",
         "dealSizeNtd": "订单金额 (NTD)",
         "placeholderDealSize": "例如 69999",
         "status": "状态",
         "note": "备注",
+        "closedAt": "结案时间",
         "closedDate": "结案日期",
         "leadIsRequired": "线索为必填",
         "salesRepIsRequired": "销售代表为必填",
         "mustBePositive": "必须为正数",
+        "closedAtRequired": "状态为已结案时需填写结案时间",
         "closedDateRequired": "状态为已结案时需填写结案日期",
         "lead": "线索",
         "salesRepresentative": "销售代表",
+        "errors": {
+            "failedCreate": "用户账号已创建，但创建或关闭订单失败，请重试。"
+        },
         "statusLabels": {
             "initiated": "已发起",
             "sent": "已发送",

@@ -145,18 +145,24 @@
     },
     "deals": {
         "createDeal": "Create Deal",
+        "closeExistingDeal": "Close Existing Deal",
         "editDeal": "Edit Deal",
         "dealSizeNtd": "Deal Size (NTD)",
         "placeholderDealSize": "e.g. 69999",
         "status": "Status",
         "note": "Note",
+        "closedAt": "Closed At",
         "closedDate": "Closed Date",
         "leadIsRequired": "Lead is required",
         "salesRepIsRequired": "Sales representative is required",
         "mustBePositive": "Must be positive",
+        "closedAtRequired": "Closed at is required when status is closed",
         "closedDateRequired": "Closed date required when status is closed",
         "lead": "Lead",
         "salesRepresentative": "Sales representative",
+        "errors": {
+            "failedCreate": "User account created, but failed to create or close deal. Please retry deal update."
+        },
         "statusLabels": {
             "initiated": "Initiated",
             "sent": "Sent",

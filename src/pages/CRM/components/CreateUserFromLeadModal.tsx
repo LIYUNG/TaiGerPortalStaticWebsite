@@ -19,7 +19,8 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useForm } from '@tanstack/react-form';
 import { useQuery } from '@tanstack/react-query';
-import { addUser, createCRMDeal, getCRMSalesReps } from '@/api';
+import { addUser, createCRMDeal, getCRMSalesReps, updateCRMDeal } from '@/api';
+import { getDealId, isTerminalStatus } from './statusUtils';
 
 function parseGPA(value: string | number | undefined) {
     if (!value || typeof value !== 'string') {
@@ -181,6 +182,7 @@ export interface CreateUserFromLeadLead {
         userId?: string;
         label?: string;
     };
+    deals?: Record<string, unknown>[];
 }
 
 export interface CreateUserFromLeadModalProps {
@@ -199,7 +201,37 @@ const CreateUserFromLeadModal = ({
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const leadId = lead?.id || lead?.leadId || '';
-    const defaultSalesUserId = lead?.salesRep?.userId || '';
+
+    const existingOpenDeal =
+        (Array.isArray(lead?.deals)
+            ? (lead.deals as Record<string, unknown>[])
+            : []
+        ).find((deal) => !isTerminalStatus(String(deal?.status || ''))) || null;
+    const existingOpenDealId = getDealId(existingOpenDeal);
+    const hasExistingOpenDeal = Boolean(existingOpenDealId);
+
+    const existingSalesRep =
+        (existingOpenDeal?.salesRep as Record<string, unknown> | undefined) ||
+        undefined;
+    const existingSalesUserId =
+        typeof existingOpenDeal?.salesUserId === 'string'
+            ? existingOpenDeal.salesUserId
+            : typeof existingSalesRep?.userId === 'string'
+              ? existingSalesRep.userId
+              : '';
+    const existingSalesLabel =
+        typeof existingSalesRep?.label === 'string'
+            ? existingSalesRep.label
+            : '';
+    const existingDealSizeNtd =
+        existingOpenDeal?.dealSizeNtd == null
+            ? ''
+            : String(existingOpenDeal.dealSizeNtd);
+    const existingDealNote =
+        typeof existingOpenDeal?.note === 'string' ? existingOpenDeal.note : '';
+
+    const defaultSalesUserId =
+        existingSalesUserId || lead?.salesRep?.userId || '';
 
     const { data: salesData } = useQuery({
         queryKey: ['crm/sales-reps'],
@@ -244,8 +276,10 @@ const CreateUserFromLeadModal = ({
             }
 
             if (!value.dealSizeNtd || Number(value.dealSizeNtd) <= 0) {
-                setError(t('deals.mustBePositive', { ns: 'crm' }));
-                return;
+                if (!hasExistingOpenDeal) {
+                    setError(t('deals.mustBePositive', { ns: 'crm' }));
+                    return;
+                }
             }
 
             if (!leadId) {
@@ -254,8 +288,10 @@ const CreateUserFromLeadModal = ({
             }
 
             if (!value.dealSalesUserId) {
-                setError(t('deals.salesRepIsRequired', { ns: 'crm' }));
-                return;
+                if (!hasExistingOpenDeal) {
+                    setError(t('deals.salesRepIsRequired', { ns: 'crm' }));
+                    return;
+                }
             }
 
             if (value.dealStatus === 'closed' && !value.dealClosedAt) {
@@ -289,21 +325,36 @@ const CreateUserFromLeadModal = ({
 
                 if (responseData.success) {
                     try {
-                        await createCRMDeal({
-                            leadId,
-                            salesUserId: dealSalesUserId,
-                            dealSizeNtd: Number(dealSizeNtd),
-                            status: dealStatus,
-                            note: dealNote || undefined,
-                            closedAt:
-                                dealStatus === 'closed' && dealClosedAt
+                        if (hasExistingOpenDeal && existingOpenDealId) {
+                            await updateCRMDeal(String(existingOpenDealId), {
+                                leadId,
+                                salesUserId: dealSalesUserId || undefined,
+                                dealSizeNtd: dealSizeNtd
+                                    ? Number(dealSizeNtd)
+                                    : undefined,
+                                status: 'closed',
+                                note: dealNote || undefined,
+                                closedAt: dealClosedAt
                                     ? new Date(dealClosedAt).toISOString()
                                     : undefined
-                        });
+                            });
+                        } else {
+                            await createCRMDeal({
+                                leadId,
+                                salesUserId: dealSalesUserId,
+                                dealSizeNtd: Number(dealSizeNtd),
+                                status: dealStatus,
+                                note: dealNote || undefined,
+                                closedAt:
+                                    dealStatus === 'closed' && dealClosedAt
+                                        ? new Date(dealClosedAt).toISOString()
+                                        : undefined
+                            });
+                        }
                     } catch (dealError) {
                         // User was created successfully, but deal creation failed.
                         // Show a deal-specific error and avoid treating this as a user-creation failure.
-                         
+
                         console.error(dealError);
                         setError(t('deals.errors.failedCreate', { ns: 'crm' }));
                         return;
@@ -350,8 +401,8 @@ const CreateUserFromLeadModal = ({
                 email: prefillEmail,
                 applying_program_count: '1',
                 dealSalesUserId: defaultSalesUserId,
-                dealSizeNtd: '',
-                dealNote: '',
+                dealSizeNtd: hasExistingOpenDeal ? existingDealSizeNtd : '',
+                dealNote: hasExistingOpenDeal ? existingDealNote : '',
                 dealClosedAt: formatDateForInput(new Date()),
                 dealStatus: 'closed'
             };
@@ -365,7 +416,15 @@ const CreateUserFromLeadModal = ({
             form.setFieldValue('email', newData.email);
             setError('');
         }
-    }, [lead, open, form, defaultSalesUserId]);
+    }, [
+        lead,
+        open,
+        form,
+        defaultSalesUserId,
+        hasExistingOpenDeal,
+        existingDealSizeNtd,
+        existingDealNote
+    ]);
 
     const handleClose = () => {
         setError('');
@@ -588,72 +647,100 @@ const CreateUserFromLeadModal = ({
                     <Divider sx={{ mb: 2, mt: 1 }} />
 
                     <Typography sx={{ mb: 1 }} variant="subtitle2">
-                        {t('deals.createDeal', {
-                            ns: 'crm',
-                            defaultValue: 'Create deal'
-                        })}
+                        {hasExistingOpenDeal
+                            ? t('deals.closeExistingDeal', {
+                                  ns: 'crm',
+                                  defaultValue: 'Close existing deal'
+                              })
+                            : t('deals.createDeal', {
+                                  ns: 'crm',
+                                  defaultValue: 'Create deal'
+                              })}
                     </Typography>
 
-                    <form.Field
-                        name="dealSalesUserId"
-                        validators={{
-                            onChange: ({ value }) =>
-                                !value
-                                    ? t('deals.salesRepIsRequired', {
-                                          ns: 'crm'
-                                      })
-                                    : undefined
-                        }}
-                    >
-                        {(field) => (
-                            <FormControl
-                                error={!!field.state.meta.errors.length}
-                                fullWidth
-                                sx={{ mb: 2 }}
-                            >
-                                <InputLabel id="deal-sales-rep-label">
-                                    {t('deals.salesRep', {
-                                        ns: 'crm',
-                                        defaultValue: 'Sales Representative'
-                                    })}
-                                </InputLabel>
-                                <Select
-                                    disabled={loading}
-                                    label={t('deals.salesRep', {
-                                        ns: 'crm',
-                                        defaultValue: 'Sales Representative'
-                                    })}
-                                    labelId="deal-sales-rep-label"
-                                    name={field.name}
-                                    onBlur={field.handleBlur}
-                                    onChange={(e) =>
-                                        field.handleChange(e.target.value)
-                                    }
-                                    value={field.state.value}
+                    {hasExistingOpenDeal ? (
+                        <TextField
+                            disabled
+                            fullWidth
+                            label={t('deals.salesRep', {
+                                ns: 'crm',
+                                defaultValue: 'Sales Representative'
+                            })}
+                            sx={{ mb: 2 }}
+                            value={
+                                existingSalesLabel ||
+                                salesOptions.find(
+                                    (s) => s.userId === existingSalesUserId
+                                )?.label ||
+                                existingSalesUserId ||
+                                t('common.unknown', { ns: 'crm' })
+                            }
+                        />
+                    ) : (
+                        <form.Field
+                            name="dealSalesUserId"
+                            validators={{
+                                onChange: ({ value }) =>
+                                    !value
+                                        ? t('deals.salesRepIsRequired', {
+                                              ns: 'crm'
+                                          })
+                                        : undefined
+                            }}
+                        >
+                            {(field) => (
+                                <FormControl
+                                    error={!!field.state.meta.errors.length}
+                                    fullWidth
+                                    sx={{ mb: 2 }}
                                 >
-                                    <MenuItem value="">
-                                        {t('common.select', {
+                                    <InputLabel id="deal-sales-rep-label">
+                                        {t('deals.salesRep', {
                                             ns: 'crm',
-                                            defaultValue: 'Select'
+                                            defaultValue: 'Sales Representative'
                                         })}
-                                    </MenuItem>
-                                    {salesOptions.map((s) => (
-                                        <MenuItem
-                                            key={s.userId}
-                                            value={s.userId}
-                                        >
-                                            {s.label}
+                                    </InputLabel>
+                                    <Select
+                                        disabled={loading}
+                                        label={t('deals.salesRep', {
+                                            ns: 'crm',
+                                            defaultValue: 'Sales Representative'
+                                        })}
+                                        labelId="deal-sales-rep-label"
+                                        name={field.name}
+                                        onBlur={field.handleBlur}
+                                        onChange={(e) =>
+                                            field.handleChange(e.target.value)
+                                        }
+                                        value={field.state.value}
+                                    >
+                                        <MenuItem value="">
+                                            {t('common.select', {
+                                                ns: 'crm',
+                                                defaultValue: 'Select'
+                                            })}
                                         </MenuItem>
-                                    ))}
-                                </Select>
-                                {!!field.state.meta.errors.length && (
-                                    <Typography color="error" variant="caption">
-                                        {field.state.meta.errors.join(', ')}
-                                    </Typography>
-                                )}
-                            </FormControl>
-                        )}
-                    </form.Field>
+                                        {salesOptions.map((s) => (
+                                            <MenuItem
+                                                key={s.userId}
+                                                value={s.userId}
+                                            >
+                                                {s.label}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                    {!!field.state.meta.errors.length && (
+                                        <Typography
+                                            color="error"
+                                            variant="caption"
+                                        >
+                                            {field.state.meta.errors.join(', ')}
+                                        </Typography>
+                                    )}
+                                </FormControl>
+                            )}
+                        </form.Field>
+                    )}
 
                     <form.Field
                         name="dealSizeNtd"
@@ -666,7 +753,7 @@ const CreateUserFromLeadModal = ({
                     >
                         {(field) => (
                             <TextField
-                                disabled={loading}
+                                disabled={loading || hasExistingOpenDeal}
                                 error={!!field.state.meta.errors.length}
                                 fullWidth
                                 helperText={field.state.meta.errors.join(', ')}
@@ -705,7 +792,7 @@ const CreateUserFromLeadModal = ({
                     <form.Field name="dealNote">
                         {(field) => (
                             <TextField
-                                disabled={loading}
+                                disabled={loading || hasExistingOpenDeal}
                                 fullWidth
                                 label={t('deals.note', { ns: 'crm' })}
                                 minRows={2}
