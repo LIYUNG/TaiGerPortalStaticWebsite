@@ -276,10 +276,8 @@ const CreateUserFromLeadModal = ({
             }
 
             if (!value.dealSizeNtd || Number(value.dealSizeNtd) <= 0) {
-                if (!hasExistingOpenDeal) {
-                    setError(t('deals.mustBePositive', { ns: 'crm' }));
-                    return;
-                }
+                setError(t('deals.mustBePositive', { ns: 'crm' }));
+                return;
             }
 
             if (!leadId) {
@@ -753,7 +751,7 @@ const CreateUserFromLeadModal = ({
                     >
                         {(field) => (
                             <TextField
-                                disabled={loading || hasExistingOpenDeal}
+                                disabled={loading}
                                 error={!!field.state.meta.errors.length}
                                 fullWidth
                                 helperText={field.state.meta.errors.join(', ')}
@@ -792,7 +790,7 @@ const CreateUserFromLeadModal = ({
                     <form.Field name="dealNote">
                         {(field) => (
                             <TextField
-                                disabled={loading || hasExistingOpenDeal}
+                                disabled={loading}
                                 fullWidth
                                 label={t('deals.note', { ns: 'crm' })}
                                 minRows={2}
