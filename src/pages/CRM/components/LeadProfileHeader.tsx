@@ -27,6 +27,10 @@ import {
 
 import DealItem from '@pages/CRM/components/DealItem';
 import { getDealId } from '@pages/CRM/components/statusUtils';
+import {
+    getLeadStatusLabel,
+    getLeadStatusOptions
+} from '@pages/CRM/constants/statusOptions';
 
 interface LeadProfileHeaderProps {
     lead: Record<string, unknown>;
@@ -243,12 +247,9 @@ const LeadProfileHeader = ({
                             )}
                             <Chip
                                 label={
-                                    lead.status
-                                        ? (lead.status as string)
-                                              .charAt(0)
-                                              .toUpperCase() +
-                                          (lead.status as string).slice(1)
-                                        : t('common.na', { ns: 'crm' })
+                                    getLeadStatusLabel(
+                                        lead.status as string | null | undefined
+                                    ) ?? t('common.na', { ns: 'crm' })
                                 }
                                 size="small"
                                 sx={{
@@ -639,14 +640,42 @@ const LeadProfileHeader = ({
                                     }
                                     value={formData.status || ''}
                                 >
-                                    <MenuItem value="open">Open</MenuItem>
-                                    <MenuItem value="not-qualified">
-                                        Not Qualified
-                                    </MenuItem>
-                                    <MenuItem value="closed">Closed</MenuItem>
-                                    <MenuItem value="converted">
-                                        Converted
-                                    </MenuItem>
+                                    {(() => {
+                                        const options = [
+                                            ...getLeadStatusOptions()
+                                        ];
+                                        const currentStatus =
+                                            formData.status as
+                                                | string
+                                                | undefined;
+                                        if (
+                                            currentStatus &&
+                                            !options.some(
+                                                (o) => o.value === currentStatus
+                                            )
+                                        ) {
+                                            options.push({
+                                                value: currentStatus,
+                                                label:
+                                                    getLeadStatusLabel(
+                                                        currentStatus
+                                                    ) || currentStatus
+                                            });
+                                        }
+                                        return options.map(
+                                            (s: {
+                                                value: string;
+                                                label: string;
+                                            }) => (
+                                                <MenuItem
+                                                    key={s.value}
+                                                    value={s.value}
+                                                >
+                                                    {s.label}
+                                                </MenuItem>
+                                            )
+                                        );
+                                    })()}
                                 </Select>
                             </FormControl>
                         </Grid>

@@ -13,6 +13,8 @@
         "edit": "編輯",
         "assign": "指派",
         "change": "變更",
+        "changeStatus": "變更狀態",
+        "noStatusChange": "目前無可進一步變更的狀態",
         "unassign": "移除指派",
         "archive": "封存會議",
         "unarchive": "取消封存會議",
@@ -145,18 +147,24 @@
     },
     "deals": {
         "createDeal": "建立訂單",
+        "closeExistingDeal": "關閉既有訂單",
         "editDeal": "編輯訂單",
         "dealSizeNtd": "訂單金額 (NTD)",
         "placeholderDealSize": "例如 69999",
         "status": "狀態",
         "note": "備註",
+        "closedAt": "結案時間",
         "closedDate": "結案日期",
         "leadIsRequired": "線索為必填",
         "salesRepIsRequired": "業務代表為必填",
         "mustBePositive": "必須為正數",
+        "closedAtRequired": "狀態為已結案時需填寫結案時間",
         "closedDateRequired": "狀態為已結案時需填寫結案日期",
         "lead": "線索",
         "salesRepresentative": "業務代表",
+        "errors": {
+            "failedCreate": "使用者帳號已建立，但建立或關閉訂單失敗，請重試。"
+        },
         "statusLabels": {
             "initiated": "已發起",
             "sent": "已寄出",

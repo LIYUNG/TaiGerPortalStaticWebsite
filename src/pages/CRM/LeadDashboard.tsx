@@ -1,9 +1,8 @@
-import { SyntheticEvent } from 'react';
+import { MouseEvent, SyntheticEvent, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { MaterialReactTable, type MRT_ColumnDef } from 'material-react-table';
-import { useState } from 'react';
 
 import {
     Box,
@@ -13,9 +12,11 @@ import {
     Card,
     CardContent,
     Chip,
+    type ChipProps,
     Stack,
     Tabs,
-    Tab
+    Tab,
+    Tooltip
 } from '@mui/material';
 import {
     Schedule as ScheduleIcon,
@@ -29,7 +30,13 @@ import { TabTitle } from '../Utils/TabTitle';
 import DEMO from '@store/constant';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
+import {
+    getAvailableLeadStatusOptions,
+    getLeadStatusLabel
+} from '@pages/CRM/constants/statusOptions';
+import LeadStatusMenu from '@pages/CRM/components/LeadStatusMenu';
 
+import { request } from '@/api';
 import { getCRMLeadsQuery } from '@/api/query';
 
 const LeadDashboard = () => {
@@ -38,10 +45,23 @@ const LeadDashboard = () => {
         `${t('breadcrumbs.crm', { ns: 'crm' })} - ${t('breadcrumbs.leads', { ns: 'crm' })}`
     );
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const [tabValue, setTabValue] = useState(1);
+    const [statusMenu, setStatusMenu] = useState<{
+        anchorEl: HTMLElement | null;
+        row: CRMLeadItem | null;
+    }>({ anchorEl: null, row: null });
 
     const { user } = useAuth();
     const { data, isLoading } = useQuery(getCRMLeadsQuery());
+    const updateLeadStatusMutation = useMutation({
+        mutationFn: async ({ id, status }: { id: string; status: string }) => {
+            const res = await request.put(`/api/crm/leads/${id}`, { status });
+            return res.data || res;
+        },
+        onSuccess: () =>
+            queryClient.invalidateQueries({ queryKey: ['crm/leads'] })
+    });
 
     if (!is_TaiGer_role(user)) {
         return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
@@ -61,28 +81,30 @@ const LeadDashboard = () => {
     const closedLeads = allLeads.filter((lead) => lead.status === 'closed');
     const migratedLeads = leads.filter((lead) => lead.status === 'migrated');
 
-    const getSalesColor = (salesName: string): string => {
-        const colors: Record<string, string> = {
+    const getSalesColor = (salesName: string): ChipProps['color'] => {
+        const colors: Record<string, ChipProps['color']> = {
             David: 'primary',
             Winnie: 'success'
         };
         return colors[salesName] || 'default';
     };
 
-    const getStatusColor = (status: string): string => {
-        const colors: Record<string, string> = {
-            open: 'info',
-            contacted: 'warning',
-            qualified: 'success',
+    const getStatusColor = (status: string): ChipProps['color'] => {
+        const colors: Record<string, ChipProps['color']> = {
+            open: 'warning',
+            'not-qualified': 'error',
+            migrated: 'success',
             converted: 'primary',
-            lost: 'error',
+            'in-progress': 'info',
             closed: 'default'
         };
         return colors[status] || 'default';
     };
 
-    const getCloseLikelihoodColor = (closeLikelihood: string): string => {
-        const colors: Record<string, string> = {
+    const getCloseLikelihoodColor = (
+        closeLikelihood: string
+    ): ChipProps['color'] => {
+        const colors: Record<string, ChipProps['color']> = {
             high: 'success',
             medium: 'warning',
             low: 'error'
@@ -90,13 +112,21 @@ const LeadDashboard = () => {
         return colors[closeLikelihood] || 'default';
     };
 
+    const openStatusMenu = (
+        event: MouseEvent<HTMLElement>,
+        row: CRMLeadItem
+    ) => {
+        setStatusMenu({ anchorEl: event.currentTarget, row });
+    };
+    const closeStatusMenu = () => setStatusMenu({ anchorEl: null, row: null });
+
     const columns: MRT_ColumnDef<CRMLeadItem>[] = [
         {
             accessorKey: 'closeLikelihood',
             header: t('leads.chance', { ns: 'crm' }),
             size: 100,
             Cell: ({ cell }) => {
-                const value = cell.getValue();
+                const value = cell.getValue() as string | null | undefined;
                 if (!value) return null;
                 return (
                     <Chip
@@ -113,16 +143,52 @@ const LeadDashboard = () => {
             accessorKey: 'status',
             header: t('common.status', { ns: 'crm' }),
             size: 100,
-            Cell: ({ cell }) => {
-                const value = cell.getValue();
+            Cell: ({ row, cell }) => {
+                const value = cell.getValue() as string | undefined;
+                if (!value) return null;
+                const availableStatusOptions =
+                    getAvailableLeadStatusOptions(value);
+                const id = row.original.id;
+                const isUpdating =
+                    updateLeadStatusMutation.isPending &&
+                    (
+                        updateLeadStatusMutation.variables as
+                            | { id?: string }
+                            | undefined
+                    )?.id === id;
+
                 return (
-                    <Chip
-                        color={getStatusColor(value)}
-                        icon={<StatusIcon fontSize="small" />}
-                        label={value}
-                        size="small"
-                        variant="outlined"
-                    />
+                    <Tooltip
+                        title={
+                            availableStatusOptions.length === 0
+                                ? t('actions.noStatusChange', {
+                                      ns: 'crm'
+                                  })
+                                : t('actions.changeStatus', {
+                                      ns: 'crm'
+                                  })
+                        }
+                    >
+                        <span>
+                            <Chip
+                                clickable={availableStatusOptions.length > 0}
+                                color={getStatusColor(value)}
+                                disabled={isUpdating}
+                                icon={<StatusIcon fontSize="small" />}
+                                label={getLeadStatusLabel(value)}
+                                onClick={(
+                                    event: MouseEvent<HTMLDivElement>
+                                ) => {
+                                    if (availableStatusOptions.length === 0)
+                                        return;
+                                    event.stopPropagation();
+                                    openStatusMenu(event, row.original);
+                                }}
+                                size="small"
+                                variant="outlined"
+                            />
+                        </span>
+                    </Tooltip>
                 );
             }
         },
@@ -195,13 +261,16 @@ const LeadDashboard = () => {
                 t('common.na', { ns: 'crm' }),
             header: t('common.sales', { ns: 'crm' }),
             size: 100,
-            Cell: ({ cell }) => (
-                <Chip
-                    color={getSalesColor(cell.getValue())}
-                    label={cell.getValue()}
-                    size="small"
-                />
-            )
+            Cell: ({ cell }) => {
+                const value = cell.getValue() as string;
+                return (
+                    <Chip
+                        color={getSalesColor(value)}
+                        label={value}
+                        size="small"
+                    />
+                );
+            }
         },
         {
             accessorKey: 'salesNote',
@@ -386,6 +455,19 @@ const LeadDashboard = () => {
                             rowsPerPageOptions: [10, 15, 25, 50, 100] // include 15 in the selector
                         }}
                         state={{ isLoading }}
+                    />
+                    <LeadStatusMenu
+                        anchorEl={statusMenu.anchorEl}
+                        currentStatus={statusMenu.row?.status}
+                        onChoose={(status) => {
+                            const leadId = statusMenu.row?.id;
+                            if (!leadId) return;
+                            updateLeadStatusMutation.mutate(
+                                { id: leadId, status },
+                                { onSettled: () => closeStatusMenu() }
+                            );
+                        }}
+                        onClose={closeStatusMenu}
                     />
                 </CardContent>
             </Card>
