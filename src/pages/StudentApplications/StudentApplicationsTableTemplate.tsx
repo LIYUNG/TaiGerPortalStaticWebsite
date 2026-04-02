@@ -252,6 +252,7 @@ const StudentApplicationsTableTemplate = (
 
             const { success, message } = resp.data;
             if (success) {
+                setDraft(null);
                 queryClient.invalidateQueries({
                     queryKey: ['applications/student', studentId]
                 });

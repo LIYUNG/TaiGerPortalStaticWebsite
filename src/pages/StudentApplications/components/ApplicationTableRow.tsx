@@ -127,6 +127,8 @@ const ApplicationTableRow = ({
               : 'primary';
 
     const admissionMenuOpen = Boolean(admissionMenuAnchor);
+    const admissionButtonId = `admission-button-${application_idx}`;
+    const admissionMenuId = `admission-menu-${application_idx}`;
 
     const openAdmissionMenu = (e: MouseEvent<HTMLButtonElement>) => {
         setAdmissionMenuAnchor(e.currentTarget);
@@ -348,11 +350,19 @@ const ApplicationTableRow = ({
                 <TableCell>
                     <>
                         <Button
+                            aria-controls={
+                                admissionMenuOpen ? admissionMenuId : undefined
+                            }
+                            aria-expanded={
+                                admissionMenuOpen ? 'true' : undefined
+                            }
+                            aria-haspopup="menu"
                             color={admissionColor}
                             disabled={
                                 !canUpdateAdmission || isSubmittingAdmission
                             }
                             fullWidth
+                            id={admissionButtonId}
                             onClick={openAdmissionMenu}
                             size="small"
                             variant="outlined"
@@ -361,6 +371,10 @@ const ApplicationTableRow = ({
                         </Button>
                         <Menu
                             anchorEl={admissionMenuAnchor}
+                            id={admissionMenuId}
+                            MenuListProps={{
+                                'aria-labelledby': admissionButtonId
+                            }}
                             onClose={closeAdmissionMenu}
                             open={admissionMenuOpen}
                         >

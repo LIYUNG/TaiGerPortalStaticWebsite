@@ -184,7 +184,10 @@ describe('ApplicationTableRow', () => {
         });
 
         fireEvent.click(screen.getByRole('button', { name: '-' }));
-        fireEvent.click(screen.getByRole('menuitem', { name: 'Yes' }));
+        const yesMenuItem = await screen.findByRole('menuitem', {
+            name: 'Yes'
+        });
+        fireEvent.click(yesMenuItem);
 
         expect(handleAdmissionResultChange).toHaveBeenCalledWith(
             expect.objectContaining({ _id: 'app1' }),
