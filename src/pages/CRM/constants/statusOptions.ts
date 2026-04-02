@@ -18,8 +18,8 @@ export function getLeadStatusOptions() {
     return LEAD_STATUS_OPTIONS;
 }
 
-export function getLeadStatusLabel(status?: string | null) {
-    if (!status) return 'N/A';
+export function getLeadStatusLabel(status?: string | null): string | undefined {
+    if (!status) return undefined;
     return LEAD_STATUS_LABELS[status] || status;
 }
 

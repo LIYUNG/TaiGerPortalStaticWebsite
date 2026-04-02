@@ -638,19 +638,42 @@ const LeadProfileHeader = ({
                                     }
                                     value={formData.status || ''}
                                 >
-                                    {getLeadStatusOptions().map(
-                                        (s: {
-                                            value: string;
-                                            label: string;
-                                        }) => (
-                                            <MenuItem
-                                                key={s.value}
-                                                value={s.value}
-                                            >
-                                                {s.label}
-                                            </MenuItem>
-                                        )
-                                    )}
+                                    {(() => {
+                                        const options = [
+                                            ...getLeadStatusOptions()
+                                        ];
+                                        const currentStatus =
+                                            formData.status as
+                                                | string
+                                                | undefined;
+                                        if (
+                                            currentStatus &&
+                                            !options.some(
+                                                (o) => o.value === currentStatus
+                                            )
+                                        ) {
+                                            options.push({
+                                                value: currentStatus,
+                                                label:
+                                                    getLeadStatusLabel(
+                                                        currentStatus
+                                                    ) || currentStatus
+                                            });
+                                        }
+                                        return options.map(
+                                            (s: {
+                                                value: string;
+                                                label: string;
+                                            }) => (
+                                                <MenuItem
+                                                    key={s.value}
+                                                    value={s.value}
+                                                >
+                                                    {s.label}
+                                                </MenuItem>
+                                            )
+                                        );
+                                    })()}
                                 </Select>
                             </FormControl>
                         </Grid>

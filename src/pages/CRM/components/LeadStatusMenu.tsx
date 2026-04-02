@@ -30,7 +30,10 @@ const LeadStatusMenu = ({
             {statusOptions.map((option) => (
                 <MenuItem
                     key={option.value}
-                    onClick={() => onChoose(option.value)}
+                    onClick={() => {
+                        onClose();
+                        onChoose(option.value);
+                    }}
                 >
                     <ListItemIcon>
                         <ArrowForwardIcon fontSize="small" />

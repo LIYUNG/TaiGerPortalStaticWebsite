@@ -288,15 +288,26 @@ const CreateUserFromLeadModal = ({
                     (response?.data as Record<string, unknown>) || {};
 
                 if (responseData.success) {
-                    await createCRMDeal({
-                        leadId,
-                        salesUserId: dealSalesUserId,
-                        dealSizeNtd: Number(dealSizeNtd),
-                        status: dealStatus,
-                        note: dealNote || undefined,
-                        closedAt:
-                            dealStatus === 'closed' ? dealClosedAt : undefined
-                    });
+                    try {
+                        await createCRMDeal({
+                            leadId,
+                            salesUserId: dealSalesUserId,
+                            dealSizeNtd: Number(dealSizeNtd),
+                            status: dealStatus,
+                            note: dealNote || undefined,
+                            closedAt:
+                                dealStatus === 'closed' && dealClosedAt
+                                    ? new Date(dealClosedAt).toISOString()
+                                    : undefined
+                        });
+                    } catch (dealError) {
+                        // User was created successfully, but deal creation failed.
+                        // Show a deal-specific error and avoid treating this as a user-creation failure.
+                         
+                        console.error(dealError);
+                        setError(t('deals.errors.failedCreate', { ns: 'crm' }));
+                        return;
+                    }
 
                     if (onSuccess) {
                         onSuccess(responseData as Record<string, string>);
