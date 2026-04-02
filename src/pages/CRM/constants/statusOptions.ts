@@ -22,3 +22,30 @@ export function getLeadStatusLabel(status?: string | null) {
     if (!status) return 'N/A';
     return LEAD_STATUS_LABELS[status] || status;
 }
+
+export function getAvailableLeadStatusOptions(status?: string | null) {
+    const blockedValues = new Set(['converted']);
+
+    if (status === 'open' || status == null) {
+        blockedValues.add('open');
+    }
+
+    if (status === 'in-progress') {
+        blockedValues.add('open');
+        blockedValues.add('in-progress');
+    }
+
+    if (status === 'not-qualified') {
+        blockedValues.add('open');
+        blockedValues.add('in-progress');
+        blockedValues.add('not-qualified');
+    }
+
+    if (status === 'closed' || status === 'converted') {
+        return [];
+    }
+
+    return LEAD_STATUS_OPTIONS.filter(
+        (option) => !blockedValues.has(option.value)
+    );
+}
