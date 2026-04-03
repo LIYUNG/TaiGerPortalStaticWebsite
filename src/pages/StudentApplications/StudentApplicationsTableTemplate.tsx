@@ -1,15 +1,25 @@
-import { MouseEvent, useState, ChangeEvent, SyntheticEvent } from 'react';
+import {
+    MouseEvent,
+    useEffect,
+    useRef,
+    useState,
+    ChangeEvent,
+    SyntheticEvent
+} from 'react';
 import {
     Box,
+    Chip,
     Breadcrumbs,
     Button,
     Card,
     FormControl,
     Grid,
     Link,
+    LinearProgress,
     MenuItem,
     Select,
     type SelectChangeEvent,
+    Stack,
     Table,
     TableBody,
     TableCell,
@@ -89,6 +99,11 @@ const StudentApplicationsTableTemplate = (
 
     const [draft, setDraft] = useState<StudentDraft | null>(null);
     const [isSubmittingUpdate, setIsSubmittingUpdate] = useState(false);
+    const updateTimerRef = useRef<number | null>(null);
+    const queuedUpdateRef = useRef<{
+        applications: Application[];
+        applyingProgramCount: number | string | undefined;
+    } | null>(null);
     const studentToShow =
         draft == null
             ? props.student
@@ -138,7 +153,7 @@ const StudentApplicationsTableTemplate = (
         e: SelectChangeEvent<string | number>
     ) => {
         const applying_program_count = Number(e.target.value);
-        void persistStudentApplicationsUpdate(
+        queueStudentApplicationsUpdate(
             studentToShow.applications ?? [],
             applying_program_count
         );
@@ -155,7 +170,7 @@ const StudentApplicationsTableTemplate = (
             ...applications_temp[application_idx],
             [e.target.name]: e.target.value
         };
-        void persistStudentApplicationsUpdate(
+        queueStudentApplicationsUpdate(
             applications_temp,
             studentToShow.applying_program_count
         );
@@ -188,11 +203,19 @@ const StudentApplicationsTableTemplate = (
             ...applications_temp[application_idx],
             closed: programWithdraw
         };
-        void persistStudentApplicationsUpdate(
+        queueStudentApplicationsUpdate(
             applications_temp,
             studentToShow.applying_program_count
         );
     };
+
+    useEffect(() => {
+        return () => {
+            if (updateTimerRef.current) {
+                window.clearTimeout(updateTimerRef.current);
+            }
+        };
+    }, []);
 
     const updateDraftAdmissionByApplicationId = (
         applicationId: string,
@@ -353,7 +376,55 @@ const StudentApplicationsTableTemplate = (
             setOpenSnackbar(true);
         } finally {
             setIsSubmittingUpdate(false);
+
+            if (queuedUpdateRef.current && !updateTimerRef.current) {
+                updateTimerRef.current = window.setTimeout(() => {
+                    updateTimerRef.current = null;
+                    void flushQueuedStudentApplicationsUpdate();
+                }, 0);
+            }
         }
+    };
+
+    const flushQueuedStudentApplicationsUpdate = async () => {
+        if (isSubmittingUpdate) {
+            return;
+        }
+
+        const nextUpdate = queuedUpdateRef.current;
+        if (!nextUpdate) {
+            return;
+        }
+
+        queuedUpdateRef.current = null;
+        await persistStudentApplicationsUpdate(
+            nextUpdate.applications,
+            nextUpdate.applyingProgramCount
+        );
+    };
+
+    const queueStudentApplicationsUpdate = (
+        nextApplications: Application[],
+        nextApplyingProgramCount: number | string | undefined
+    ) => {
+        setDraft({
+            applications: nextApplications,
+            applying_program_count: nextApplyingProgramCount
+        });
+
+        queuedUpdateRef.current = {
+            applications: nextApplications,
+            applyingProgramCount: nextApplyingProgramCount
+        };
+
+        if (updateTimerRef.current) {
+            window.clearTimeout(updateTimerRef.current);
+        }
+
+        updateTimerRef.current = window.setTimeout(() => {
+            updateTimerRef.current = null;
+            void flushQueuedStudentApplicationsUpdate();
+        }, 250);
     };
 
     const handleDelete = (
@@ -536,7 +607,17 @@ const StudentApplicationsTableTemplate = (
     const today = new Date();
 
     return (
-        <Box>
+        <Box
+            sx={{
+                maxWidth: 1600,
+                mx: 'auto',
+                px: { xs: 2, md: 3 },
+                py: { xs: 2, md: 3 },
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 3
+            }}
+        >
             {res_modal_status >= 400 ? (
                 <ModalMain
                     ConfirmError={ConfirmError}
@@ -544,6 +625,75 @@ const StudentApplicationsTableTemplate = (
                     res_modal_status={res_modal_status}
                 />
             ) : null}
+            <Card sx={{ p: 2.5 }}>
+                <Stack spacing={1.25}>
+                    <Breadcrumbs aria-label="breadcrumb">
+                        <Link
+                            color="inherit"
+                            component={LinkDom}
+                            to={`${DEMO.DASHBOARD_LINK}`}
+                            underline="hover"
+                        >
+                            {appConfig.companyName}
+                        </Link>
+                        {is_TaiGer_role(typedUser) ? (
+                            <Link
+                                color="inherit"
+                                component={LinkDom}
+                                to={`${DEMO.STUDENT_DATABASE_LINK}`}
+                                underline="hover"
+                            >
+                                {t('Students Database', { ns: 'common' })}
+                            </Link>
+                        ) : null}
+                        {is_TaiGer_role(typedUser) ? (
+                            <Link
+                                color="inherit"
+                                component={LinkDom}
+                                to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
+                                    String(props.student._id),
+                                    DEMO.PROFILE_HASH
+                                )}`}
+                                underline="hover"
+                            >
+                                {t('Student', { ns: 'common' })}{' '}
+                                {props.student.firstname}{' '}
+                                {props.student.lastname}
+                            </Link>
+                        ) : null}
+                        <Typography color="text.primary">
+                            {t('Applications', { ns: 'common' })}
+                        </Typography>
+                    </Breadcrumbs>
+                    <Stack
+                        alignItems="center"
+                        direction={{ xs: 'column', md: 'row' }}
+                        justifyContent="space-between"
+                        spacing={1}
+                    >
+                        <Box>
+                            <Typography variant="h5">
+                                {props.student.firstname}{' '}
+                                {props.student.lastname}
+                            </Typography>
+                            <Typography color="text.secondary" variant="body2">
+                                Auto-save is enabled. Changes will sync shortly
+                                after you edit a field.
+                            </Typography>
+                        </Box>
+                        <Chip
+                            color={isSubmittingUpdate ? 'warning' : 'success'}
+                            label={
+                                isSubmittingUpdate
+                                    ? 'Saving changes...'
+                                    : 'Auto-save on'
+                            }
+                            variant={isSubmittingUpdate ? 'filled' : 'outlined'}
+                        />
+                    </Stack>
+                    {isSubmittingUpdate ? <LinearProgress /> : null}
+                </Stack>
+            </Card>
             {is_TaiGer_Student(typedUser) ? (
                 <ConfirmDialog
                     open={showProgramCorrectnessReminderModal}
@@ -555,45 +705,8 @@ const StudentApplicationsTableTemplate = (
                     onConfirm={closeProgramCorrectnessModal}
                 />
             ) : null}
-            <Breadcrumbs aria-label="breadcrumb">
-                <Link
-                    color="inherit"
-                    component={LinkDom}
-                    to={`${DEMO.DASHBOARD_LINK}`}
-                    underline="hover"
-                >
-                    {appConfig.companyName}
-                </Link>
-                {is_TaiGer_role(typedUser) ? (
-                    <Link
-                        color="inherit"
-                        component={LinkDom}
-                        to={`${DEMO.STUDENT_DATABASE_LINK}`}
-                        underline="hover"
-                    >
-                        {t('Students Database', { ns: 'common' })}
-                    </Link>
-                ) : null}
-                {is_TaiGer_role(typedUser) ? (
-                    <Link
-                        color="inherit"
-                        component={LinkDom}
-                        to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                            String(props.student._id),
-                            DEMO.PROFILE_HASH
-                        )}`}
-                        underline="hover"
-                    >
-                        {t('Student', { ns: 'common' })}{' '}
-                        {props.student.firstname} {props.student.lastname}
-                    </Link>
-                ) : null}
-                <Typography color="text.primary">
-                    {t('Applications', { ns: 'common' })}
-                </Typography>
-            </Breadcrumbs>
             <Box>
-                <Grid container spacing={2} sx={{ mt: 0 }}>
+                <Grid container spacing={3} sx={{ mt: 0 }} alignItems="stretch">
                     <Grid item md={is_TaiGer_role(typedUser) ? 6 : 12} xs={12}>
                         <StudentPreferenceCard
                             student={studentToShow as IStudentResponse}
@@ -608,7 +721,7 @@ const StudentApplicationsTableTemplate = (
                     ) : null}
                 </Grid>
             </Box>
-            <>
+            <Stack spacing={2}>
                 {isProgramNotSelectedEnough([
                     studentToShow as IStudentResponse
                 ]) ? (
@@ -627,48 +740,61 @@ const StudentApplicationsTableTemplate = (
                         according to the contract
                     </Card>
                 ) : null}
-                <Grid container spacing={2}>
-                    <Grid item xs={4}>
-                        <Typography variant="h6">
-                            {t('Applying Program Count', { ns: 'common' })}:{' '}
-                        </Typography>
-                    </Grid>
-                    {is_TaiGer_Admin(typedUser) ? (
-                        <Grid item xs={2}>
-                            <FormControl fullWidth>
-                                <Select
-                                    id="applying_program_count"
-                                    name="applying_program_count"
-                                    onChange={(e) =>
-                                        handleChangeProgramCount(e)
-                                    }
-                                    size="small"
-                                    value={studentToShow.applying_program_count}
+                <Card sx={{ p: { xs: 2, md: 2.5 } }}>
+                    <Stack spacing={2}>
+                        <Stack
+                            alignItems={{ xs: 'flex-start', md: 'center' }}
+                            direction={{ xs: 'column', md: 'row' }}
+                            justifyContent="space-between"
+                            spacing={2}
+                        >
+                            <Box>
+                                <Typography variant="h6">
+                                    {t('Applying Program Count', {
+                                        ns: 'common'
+                                    })}
+                                </Typography>
+                                <Typography
+                                    color="text.secondary"
+                                    variant="body2"
                                 >
-                                    <MenuItem value="0">Please Select</MenuItem>
-                                    <MenuItem value="1">1</MenuItem>
-                                    <MenuItem value="2">2</MenuItem>
-                                    <MenuItem value="3">3</MenuItem>
-                                    <MenuItem value="4">4</MenuItem>
-                                    <MenuItem value="5">5</MenuItem>
-                                    <MenuItem value="6">6</MenuItem>
-                                    <MenuItem value="7">7</MenuItem>
-                                    <MenuItem value="8">8</MenuItem>
-                                    <MenuItem value="9">9</MenuItem>
-                                    <MenuItem value="10">10</MenuItem>
-                                </Select>
-                            </FormControl>
-                        </Grid>
-                    ) : (
-                        <Grid item xs={2}>
-                            <Typography variant="h6">
-                                {studentToShow.applying_program_count}
-                            </Typography>
-                        </Grid>
-                    )}
-                </Grid>
-                <Box>
-                    <Card>
+                                    This field now saves automatically.
+                                </Typography>
+                            </Box>
+                            {is_TaiGer_Admin(typedUser) ? (
+                                <FormControl sx={{ minWidth: 180 }}>
+                                    <Select
+                                        id="applying_program_count"
+                                        name="applying_program_count"
+                                        onChange={(e) =>
+                                            handleChangeProgramCount(e)
+                                        }
+                                        size="small"
+                                        value={
+                                            studentToShow.applying_program_count
+                                        }
+                                    >
+                                        <MenuItem value="0">
+                                            Please Select
+                                        </MenuItem>
+                                        <MenuItem value="1">1</MenuItem>
+                                        <MenuItem value="2">2</MenuItem>
+                                        <MenuItem value="3">3</MenuItem>
+                                        <MenuItem value="4">4</MenuItem>
+                                        <MenuItem value="5">5</MenuItem>
+                                        <MenuItem value="6">6</MenuItem>
+                                        <MenuItem value="7">7</MenuItem>
+                                        <MenuItem value="8">8</MenuItem>
+                                        <MenuItem value="9">9</MenuItem>
+                                        <MenuItem value="10">10</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            ) : (
+                                <Typography variant="h6">
+                                    {studentToShow.applying_program_count}
+                                </Typography>
+                            )}
+                        </Stack>
                         <Box>
                             <ApplicationsTableBanners />
                             <TableContainer style={{ overflowX: 'auto' }}>
@@ -768,105 +894,97 @@ const StudentApplicationsTableTemplate = (
                                 </Table>
                             </TableContainer>
                         </Box>
-                    </Card>
-                    {is_TaiGer_role(typedUser) ? (
-                        <>
-                            <Box>
-                                <Typography>
-                                    <span
-                                        style={{
-                                            display: 'flex',
-                                            justifyContent: 'center'
-                                        }}
-                                    >
-                                        You want to add more programs to{' '}
-                                        {props.student.firstname}{' '}
-                                        {props.student.lastname}?
-                                    </span>
-                                </Typography>
-                            </Box>
-                            <Box>
-                                <Typography>
-                                    <span
-                                        style={{
-                                            display: 'flex',
-                                            justifyContent: 'center'
-                                        }}
-                                    >
-                                        <Button
-                                            color="primary"
-                                            onClick={
-                                                onClickProgramAssignHandler
-                                            }
-                                            size="small"
-                                            variant="contained"
-                                        >
-                                            {t('Add New Program')}
-                                        </Button>{' '}
-                                    </span>
-                                </Typography>
-                            </Box>
-                        </>
-                    ) : null}
-                    <ConfirmationModal
-                        closeText={t('No', { ns: 'common' })}
-                        confirmText={t('Yes', { ns: 'common' })}
-                        content="This will delete all message and editted files in discussion. Are you sure?"
-                        isLoading={
-                            !studentApplicationsTableTemplateState.isLoaded
-                        }
-                        onClose={onHideModalDeleteApplication}
-                        onConfirm={handleDeleteConfirm}
-                        open={
-                            studentApplicationsTableTemplateState.modalDeleteApplication
-                        }
-                        title={t('Warning', { ns: 'common' })}
-                    />
-                    <ConfirmationModal
-                        closeText={t('No', { ns: 'common' })}
-                        confirmText={t('Yes', { ns: 'common' })}
-                        content={
-                            <Box>
-                                <TextField
-                                    fullWidth
-                                    label={t('Application Year')}
-                                    name="application_year"
-                                    onChange={(e) =>
-                                        handleSingleChange(
-                                            e,
-                                            studentApplicationsTableTemplateState.application_id
-                                        )
-                                    }
-                                    select
-                                    value={
-                                        studentApplicationsTableTemplateState.application_year
-                                    }
+                    </Stack>
+                </Card>
+                {is_TaiGer_role(typedUser) ? (
+                    <>
+                        <Box>
+                            <Typography>
+                                <span
+                                    style={{
+                                        display: 'flex',
+                                        justifyContent: 'center'
+                                    }}
                                 >
-                                    {APPLICATION_YEARS_FUTURE().map(
-                                        (option) => (
-                                            <MenuItem
-                                                key={option.value}
-                                                value={option.value}
-                                            >
-                                                {option.label}
-                                            </MenuItem>
-                                        )
-                                    )}
-                                </TextField>
-                            </Box>
-                        }
-                        isLoading={
-                            !studentApplicationsTableTemplateState.isLoaded
-                        }
-                        onClose={onHideModalEditApplication}
-                        onConfirm={handleEditConfirm}
-                        open={
-                            studentApplicationsTableTemplateState.modalEditApplication
-                        }
-                        title={t('Edit Application Year', { ns: 'common' })}
-                    />
-                </Box>
-            </>
+                                    You want to add more programs to{' '}
+                                    {props.student.firstname}{' '}
+                                    {props.student.lastname}?
+                                </span>
+                            </Typography>
+                        </Box>
+                        <Box>
+                            <Typography>
+                                <span
+                                    style={{
+                                        display: 'flex',
+                                        justifyContent: 'center'
+                                    }}
+                                >
+                                    <Button
+                                        color="primary"
+                                        onClick={onClickProgramAssignHandler}
+                                        size="small"
+                                        variant="contained"
+                                    >
+                                        {t('Add New Program')}
+                                    </Button>{' '}
+                                </span>
+                            </Typography>
+                        </Box>
+                    </>
+                ) : null}
+                <ConfirmationModal
+                    closeText={t('No', { ns: 'common' })}
+                    confirmText={t('Yes', { ns: 'common' })}
+                    content="This will delete all message and editted files in discussion. Are you sure?"
+                    isLoading={!studentApplicationsTableTemplateState.isLoaded}
+                    onClose={onHideModalDeleteApplication}
+                    onConfirm={handleDeleteConfirm}
+                    open={
+                        studentApplicationsTableTemplateState.modalDeleteApplication
+                    }
+                    title={t('Warning', { ns: 'common' })}
+                />
+                <ConfirmationModal
+                    closeText={t('No', { ns: 'common' })}
+                    confirmText={t('Yes', { ns: 'common' })}
+                    content={
+                        <Box>
+                            <TextField
+                                fullWidth
+                                label={t('Application Year')}
+                                name="application_year"
+                                onChange={(e) =>
+                                    handleSingleChange(
+                                        e,
+                                        studentApplicationsTableTemplateState.application_id
+                                    )
+                                }
+                                select
+                                value={
+                                    studentApplicationsTableTemplateState.application_year
+                                }
+                            >
+                                {APPLICATION_YEARS_FUTURE().map((option) => (
+                                    <MenuItem
+                                        key={option.value}
+                                        value={option.value}
+                                    >
+                                        {option.label}
+                                    </MenuItem>
+                                ))}
+                            </TextField>
+                        </Box>
+                    }
+                    isLoading={!studentApplicationsTableTemplateState.isLoaded}
+                    onClose={onHideModalEditApplication}
+                    onConfirm={handleEditConfirm}
+                    open={
+                        studentApplicationsTableTemplateState.modalEditApplication
+                    }
+                    title={t('Edit Application Year', { ns: 'common' })}
+                />
+            </Stack>
         </Box>
     );
 };
