@@ -94,6 +94,108 @@ type PendingChanges = {
 
 type AdmissionResult = '-' | 'O' | 'X';
 
+const createEmptyPendingChanges = (): PendingChanges => ({
+    applicationsById: {}
+});
+
+const hasPendingChanges = (pending: PendingChanges): boolean =>
+    Object.keys(pending.applicationsById).length > 0 ||
+    pending.applyingProgramCount !== undefined;
+
+const mergeApplicationsWithPatches = (
+    applications: Application[],
+    patchesById: Record<string, ApplicationPatch>
+): Application[] =>
+    applications.map((application) => {
+        const applicationId = String(application._id ?? '');
+        const patch = patchesById[applicationId];
+        return patch
+            ? ({ ...application, ...patch } as Application)
+            : application;
+    });
+
+const arePatchesEqual = (
+    left: Record<string, ApplicationPatch>,
+    right: Record<string, ApplicationPatch>
+): boolean => {
+    const leftIds = Object.keys(left);
+    const rightIds = Object.keys(right);
+
+    if (leftIds.length !== rightIds.length) {
+        return false;
+    }
+
+    for (const id of leftIds) {
+        const leftPatch = left[id] ?? {};
+        const rightPatch = right[id] ?? {};
+        const leftEntries = Object.entries(leftPatch);
+        const rightEntries = Object.entries(rightPatch);
+
+        if (leftEntries.length !== rightEntries.length) {
+            return false;
+        }
+
+        for (const [key, value] of leftEntries) {
+            if ((rightPatch as Record<string, unknown>)[key] !== value) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+};
+
+const arePendingChangesEqual = (
+    left: PendingChanges,
+    right: PendingChanges
+): boolean =>
+    left.applyingProgramCount === right.applyingProgramCount &&
+    arePatchesEqual(left.applicationsById, right.applicationsById);
+
+const pruneSyncedPendingChanges = (
+    pending: PendingChanges,
+    studentApplications: Application[],
+    studentApplyingProgramCount: number | string | undefined
+): PendingChanges => {
+    const nextApplicationsById: Record<string, ApplicationPatch> = {};
+
+    Object.entries(pending.applicationsById).forEach(
+        ([applicationId, patch]) => {
+            const studentApp = studentApplications.find(
+                (app) => String(app._id ?? '') === applicationId
+            );
+
+            if (!studentApp) {
+                nextApplicationsById[applicationId] = patch;
+                return;
+            }
+
+            const unsyncedPatchEntries = Object.entries(patch).filter(
+                ([key, value]) =>
+                    (studentApp as unknown as Record<string, unknown>)[key] !==
+                    value
+            );
+
+            if (unsyncedPatchEntries.length > 0) {
+                nextApplicationsById[applicationId] =
+                    Object.fromEntries(unsyncedPatchEntries);
+            }
+        }
+    );
+
+    const isProgramCountSynced =
+        pending.applyingProgramCount === undefined ||
+        Number(pending.applyingProgramCount) ===
+            Number(studentApplyingProgramCount ?? 0);
+
+    return {
+        applicationsById: nextApplicationsById,
+        applyingProgramCount: isProgramCountSynced
+            ? undefined
+            : pending.applyingProgramCount
+    };
+};
+
 const StudentApplicationsTableTemplate = (
     props: StudentApplicationsTableTemplateProps
 ) => {
@@ -103,12 +205,12 @@ const StudentApplicationsTableTemplate = (
     const { t } = useTranslation();
     const navigate = useNavigate();
 
-    const [pendingChanges, setPendingChanges] = useState<PendingChanges>({
-        applicationsById: {}
-    });
-    const pendingChangesRef = useRef<PendingChanges>({
-        applicationsById: {}
-    });
+    const [pendingChanges, setPendingChanges] = useState<PendingChanges>(
+        createEmptyPendingChanges
+    );
+    const pendingChangesRef = useRef<PendingChanges>(
+        createEmptyPendingChanges()
+    );
     const [isSubmittingUpdate, setIsSubmittingUpdate] = useState(false);
     const isSubmittingUpdateRef = useRef(false);
     const [isMetaExpanded, setIsMetaExpanded] = useState(true);
@@ -127,13 +229,10 @@ const StudentApplicationsTableTemplate = (
 
     const studentToShow = {
         ...props.student,
-        applications: (props.student.applications ?? []).map((application) => {
-            const applicationId = String(application._id ?? '');
-            const patch = pendingChanges.applicationsById[applicationId];
-            return patch
-                ? ({ ...application, ...patch } as Application)
-                : application;
-        }),
+        applications: mergeApplicationsWithPatches(
+            props.student.applications ?? [],
+            pendingChanges.applicationsById
+        ),
         applying_program_count:
             pendingChanges.applyingProgramCount ??
             props.student.applying_program_count
@@ -254,70 +353,14 @@ const StudentApplicationsTableTemplate = (
     // Remove synced local patches after props refreshes to the same values.
     useEffect(() => {
         const currentPending = pendingChangesRef.current;
-        const studentApps = props.student.applications ?? [];
-
-        const nextApplicationsById: Record<string, ApplicationPatch> = {};
-
-        Object.entries(currentPending.applicationsById).forEach(
-            ([applicationId, patch]) => {
-                const studentApp = studentApps.find(
-                    (app) => String(app._id ?? '') === applicationId
-                );
-
-                if (!studentApp) {
-                    nextApplicationsById[applicationId] = patch;
-                    return;
-                }
-
-                const unsyncedPatchEntries = Object.entries(patch).filter(
-                    ([key, value]) =>
-                        (studentApp as unknown as Record<string, unknown>)[
-                            key
-                        ] !== value
-                );
-
-                if (unsyncedPatchEntries.length > 0) {
-                    nextApplicationsById[applicationId] =
-                        Object.fromEntries(unsyncedPatchEntries);
-                }
-            }
+        const nextPending = pruneSyncedPendingChanges(
+            currentPending,
+            props.student.applications ?? [],
+            props.student.applying_program_count
         );
 
-        const isProgramCountSynced =
-            currentPending.applyingProgramCount === undefined ||
-            Number(currentPending.applyingProgramCount) ===
-                Number(props.student.applying_program_count ?? 0);
-
-        const nextPending: PendingChanges = {
-            applicationsById: nextApplicationsById,
-            applyingProgramCount: isProgramCountSynced
-                ? undefined
-                : currentPending.applyingProgramCount
-        };
-
-        const hasChanges =
-            Object.keys(nextPending.applicationsById).length > 0 ||
-            nextPending.applyingProgramCount !== undefined;
-
-        const currentHasChanges =
-            Object.keys(currentPending.applicationsById).length > 0 ||
-            currentPending.applyingProgramCount !== undefined;
-
-        if (hasChanges !== currentHasChanges) {
+        if (!arePendingChangesEqual(currentPending, nextPending)) {
             updatePendingChanges(() => nextPending);
-            return;
-        }
-
-        if (hasChanges) {
-            const changed =
-                JSON.stringify(nextPending.applicationsById) !==
-                    JSON.stringify(currentPending.applicationsById) ||
-                nextPending.applyingProgramCount !==
-                    currentPending.applyingProgramCount;
-
-            if (changed) {
-                updatePendingChanges(() => nextPending);
-            }
         }
     }, [props.student]);
 
@@ -432,10 +475,7 @@ const StudentApplicationsTableTemplate = (
         const pending = pendingChangesRef.current;
         const patchMap = pending.applicationsById;
 
-        if (
-            Object.keys(patchMap).length === 0 &&
-            pending.applyingProgramCount === undefined
-        ) {
+        if (!hasPendingChanges(pending)) {
             return;
         }
 
@@ -464,13 +504,7 @@ const StudentApplicationsTableTemplate = (
 
         const mergedApplicationsForSubmit =
             latestApplications.length > 0
-                ? latestApplications.map((application) => {
-                      const applicationId = String(application._id ?? '');
-                      const patch = patchMap[applicationId];
-                      return patch
-                          ? ({ ...application, ...patch } as Application)
-                          : application;
-                  })
+                ? mergeApplicationsWithPatches(latestApplications, patchMap)
                 : latestApplications;
 
         const applicationsPayload = buildApplicationsPayload(
@@ -603,7 +637,7 @@ const StudentApplicationsTableTemplate = (
         ).then((resp) => {
             const { success } = resp.data;
             if (success) {
-                updatePendingChanges(() => ({ applicationsById: {} }));
+                updatePendingChanges(createEmptyPendingChanges);
                 queryClient.invalidateQueries({
                     queryKey: [
                         'applications/student',
@@ -648,7 +682,7 @@ const StudentApplicationsTableTemplate = (
                 const { success } = resp.data;
                 const { status } = resp;
                 if (success) {
-                    updatePendingChanges(() => ({ applicationsById: {} }));
+                    updatePendingChanges(createEmptyPendingChanges);
                     queryClient.invalidateQueries({
                         queryKey: [
                             'applications/student',
