@@ -101,7 +101,6 @@ const StudentApplicationsTableTemplate = (
     const [draft, setDraft] = useState<StudentDraft | null>(null);
     const [isSubmittingUpdate, setIsSubmittingUpdate] = useState(false);
     const [isMetaExpanded, setIsMetaExpanded] = useState(true);
-    const [isImportPanelOpen, setIsImportPanelOpen] = useState(false);
     const updateTimerRef = useRef<number | null>(null);
     const queuedUpdateRef = useRef<{
         applications: Application[];
@@ -764,21 +763,6 @@ const StudentApplicationsTableTemplate = (
                                             ns: 'common'
                                         })}
                                     </Typography>
-                                    {is_TaiGer_role(typedUser) ? (
-                                        <Button
-                                            onClick={() =>
-                                                setIsImportPanelOpen(
-                                                    (prev) => !prev
-                                                )
-                                            }
-                                            size="small"
-                                            variant="outlined"
-                                        >
-                                            {isImportPanelOpen
-                                                ? t('Hide import programs')
-                                                : t('Import programs')}
-                                        </Button>
-                                    ) : null}
                                 </Stack>
                                 <Typography
                                     color="text.secondary"
@@ -792,52 +776,61 @@ const StudentApplicationsTableTemplate = (
                                 direction={{ xs: 'column', md: 'row' }}
                                 spacing={1.5}
                             >
-                                {is_TaiGer_Admin(typedUser) ? (
-                                    <FormControl sx={{ minWidth: 180 }}>
-                                        <Select
-                                            id="applying_program_count"
-                                            name="applying_program_count"
-                                            onChange={(e) =>
-                                                handleChangeProgramCount(e)
-                                            }
-                                            size="small"
-                                            value={
+                                <Stack
+                                    alignItems={{ xs: 'stretch', md: 'center' }}
+                                    direction={{ xs: 'column', md: 'row' }}
+                                    spacing={1.25}
+                                    sx={{
+                                        flexWrap: 'wrap',
+                                        justifyContent: 'flex-end'
+                                    }}
+                                >
+                                    {is_TaiGer_Admin(typedUser) ? (
+                                        <FormControl sx={{ minWidth: 180 }}>
+                                            <Select
+                                                id="applying_program_count"
+                                                name="applying_program_count"
+                                                onChange={(e) =>
+                                                    handleChangeProgramCount(e)
+                                                }
+                                                size="small"
+                                                value={
+                                                    studentToShow.applying_program_count
+                                                }
+                                            >
+                                                <MenuItem value="0">
+                                                    Please Select
+                                                </MenuItem>
+                                                <MenuItem value="1">1</MenuItem>
+                                                <MenuItem value="2">2</MenuItem>
+                                                <MenuItem value="3">3</MenuItem>
+                                                <MenuItem value="4">4</MenuItem>
+                                                <MenuItem value="5">5</MenuItem>
+                                                <MenuItem value="6">6</MenuItem>
+                                                <MenuItem value="7">7</MenuItem>
+                                                <MenuItem value="8">8</MenuItem>
+                                                <MenuItem value="9">9</MenuItem>
+                                                <MenuItem value="10">
+                                                    10
+                                                </MenuItem>
+                                            </Select>
+                                        </FormControl>
+                                    ) : (
+                                        <Typography variant="h6">
+                                            {
                                                 studentToShow.applying_program_count
                                             }
-                                        >
-                                            <MenuItem value="0">
-                                                Please Select
-                                            </MenuItem>
-                                            <MenuItem value="1">1</MenuItem>
-                                            <MenuItem value="2">2</MenuItem>
-                                            <MenuItem value="3">3</MenuItem>
-                                            <MenuItem value="4">4</MenuItem>
-                                            <MenuItem value="5">5</MenuItem>
-                                            <MenuItem value="6">6</MenuItem>
-                                            <MenuItem value="7">7</MenuItem>
-                                            <MenuItem value="8">8</MenuItem>
-                                            <MenuItem value="9">9</MenuItem>
-                                            <MenuItem value="10">10</MenuItem>
-                                        </Select>
-                                    </FormControl>
-                                ) : (
-                                    <Typography variant="h6">
-                                        {studentToShow.applying_program_count}
-                                    </Typography>
-                                )}
+                                        </Typography>
+                                    )}
+                                    {is_TaiGer_role(typedUser) ? (
+                                        <ImportStudentProgramsCard
+                                            compact
+                                            student={studentToShow}
+                                        />
+                                    ) : null}
+                                </Stack>
                             </Stack>
                         </Stack>
-                        <Collapse
-                            in={isImportPanelOpen}
-                            timeout="auto"
-                            unmountOnExit
-                        >
-                            <Box sx={{ mt: 1.5 }}>
-                                <ImportStudentProgramsCard
-                                    student={studentToShow}
-                                />
-                            </Box>
-                        </Collapse>
                         <Box>
                             <ApplicationsTableBanners />
                             <TableContainer style={{ overflowX: 'auto' }}>
@@ -940,41 +933,16 @@ const StudentApplicationsTableTemplate = (
                     </Stack>
                 </Card>
                 {is_TaiGer_role(typedUser) ? (
-                    <>
-                        <Box>
-                            <Typography>
-                                <span
-                                    style={{
-                                        display: 'flex',
-                                        justifyContent: 'center'
-                                    }}
-                                >
-                                    You want to add more programs to{' '}
-                                    {props.student.firstname}{' '}
-                                    {props.student.lastname}?
-                                </span>
-                            </Typography>
-                        </Box>
-                        <Box>
-                            <Typography>
-                                <span
-                                    style={{
-                                        display: 'flex',
-                                        justifyContent: 'center'
-                                    }}
-                                >
-                                    <Button
-                                        color="primary"
-                                        onClick={onClickProgramAssignHandler}
-                                        size="small"
-                                        variant="contained"
-                                    >
-                                        {t('Add New Program')}
-                                    </Button>{' '}
-                                </span>
-                            </Typography>
-                        </Box>
-                    </>
+                    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                        <Button
+                            color="primary"
+                            onClick={onClickProgramAssignHandler}
+                            size="small"
+                            variant="contained"
+                        >
+                            {t('Add New Program')}
+                        </Button>
+                    </Box>
                 ) : null}
                 <ConfirmationModal
                     closeText={t('No', { ns: 'common' })}

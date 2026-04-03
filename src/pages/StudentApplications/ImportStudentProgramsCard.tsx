@@ -12,7 +12,6 @@ import {
     DialogContentText,
     DialogTitle,
     List,
-    ListItem,
     ListItemButton,
     ListItemIcon,
     ListItemText,
@@ -221,7 +220,9 @@ export const ImportStudentProgramsCard = (
                 sx={{
                     p: compact ? 1 : 2,
                     minHeight: compact ? 'auto' : '340px',
-                    zIndex: 0,
+                    position: 'relative',
+                    zIndex: compact ? 3 : 0,
+                    overflow: 'visible',
                     width: compact ? { xs: '100%', md: 360 } : '100%'
                 }}
                 variant={compact ? 'outlined' : 'elevation'}
@@ -241,7 +242,7 @@ export const ImportStudentProgramsCard = (
                         className="search-input"
                         fullWidth
                         onChange={handleInputChange}
-                        onMouseDown={handleInputBlur}
+                        onBlur={handleInputBlur}
                         placeholder={
                             compact
                                 ? t('Search student to import...')
@@ -257,24 +258,28 @@ export const ImportStudentProgramsCard = (
                         searchQueryIsSuccess) ? (
                         searchDisplayResults.length > 0 ? (
                             <Paper
+                                onMouseDown={(event) => event.stopPropagation()}
                                 sx={{
                                     marginTop: '5px',
                                     position: 'absolute',
-                                    zIndex: 2,
+                                    zIndex: 4,
                                     left: 0,
                                     right: 0,
+                                    bgcolor: 'background.paper',
                                     maxHeight: '220px',
                                     overflowY: 'auto'
                                 }}
                             >
                                 <List>
                                     {searchDisplayResults.map((result, i) => (
-                                        <ListItem
-                                            button
+                                        <ListItemButton
                                             key={i}
-                                            onClick={() =>
-                                                onClickStudentHandler(result)
-                                            }
+                                            onMouseDown={(event) => {
+                                                event.preventDefault();
+                                                event.stopPropagation();
+                                                onClickStudentHandler(result);
+                                            }}
+                                            role={undefined}
                                         >
                                             <ListItemText
                                                 primary={
@@ -317,24 +322,26 @@ export const ImportStudentProgramsCard = (
                                                     </>
                                                 }
                                             />
-                                        </ListItem>
+                                        </ListItemButton>
                                     ))}
                                 </List>
                             </Paper>
                         ) : (
                             <Paper
+                                onMouseDown={(event) => event.stopPropagation()}
                                 sx={{
                                     marginTop: '5px',
                                     position: 'absolute',
-                                    zIndex: 2,
+                                    zIndex: 4,
                                     left: 0,
-                                    right: 0
+                                    right: 0,
+                                    bgcolor: 'background.paper'
                                 }}
                             >
                                 <List>
-                                    <ListItem button>
+                                    <ListItemButton role={undefined}>
                                         <ListItemText primary="No result" />
-                                    </ListItem>
+                                    </ListItemButton>
                                 </List>
                             </Paper>
                         )
