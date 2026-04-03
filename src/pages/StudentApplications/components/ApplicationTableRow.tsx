@@ -368,7 +368,7 @@ const ApplicationTableRow = ({
                 <TableCell>
                     <FormControl fullWidth>
                         <Select<number>
-                            defaultValue={application.finalEnrolment ? 1 : 0}
+                            value={application.finalEnrolment ? 1 : 0}
                             id="finalEnrolment"
                             labelId="finalEnrolment"
                             name="finalEnrolment"

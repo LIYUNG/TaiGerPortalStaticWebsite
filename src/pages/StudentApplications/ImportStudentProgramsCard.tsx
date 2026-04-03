@@ -245,7 +245,7 @@ export const ImportStudentProgramsCard = (
                         onBlur={handleInputBlur}
                         placeholder={
                             compact
-                                ? t('Search student to import...')
+                                ? t('Search student...')
                                 : t('Search student...')
                         }
                         size="small"
@@ -274,10 +274,12 @@ export const ImportStudentProgramsCard = (
                                     {searchDisplayResults.map((result, i) => (
                                         <ListItemButton
                                             key={i}
+                                            onClick={() =>
+                                                onClickStudentHandler(result)
+                                            }
                                             onMouseDown={(event) => {
                                                 event.preventDefault();
                                                 event.stopPropagation();
-                                                onClickStudentHandler(result);
                                             }}
                                             role={undefined}
                                         >

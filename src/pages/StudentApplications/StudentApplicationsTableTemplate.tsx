@@ -68,7 +68,7 @@ import { useNavigate } from 'react-router-dom';
 import { ImportStudentProgramsCard } from './ImportStudentProgramsCard';
 import { StudentPreferenceCard } from './StudentPreferenceCard';
 import { ConfirmationModal } from '@components/Modal/ConfirmationModal';
-import { useStudentApplicationsAutosave } from './hooks/useStudentApplicationsAutosave';
+import { useStudentApplicationsAutosave } from './hooks/useStudentApplicationsAutosave.ts';
 
 export interface StudentApplicationsTableTemplateProps {
     student: {
@@ -553,8 +553,8 @@ const StudentApplicationsTableTemplate = (
                     color={isSubmittingUpdate ? 'warning' : 'success'}
                     label={
                         isSubmittingUpdate
-                            ? t('Saving changes...', { ns: 'common' })
-                            : t('Auto-save on', { ns: 'common' })
+                            ? 'Saving changes...'
+                            : 'Auto-save on'
                     }
                     variant={isSubmittingUpdate ? 'filled' : 'outlined'}
                 />
@@ -773,8 +773,8 @@ const StudentApplicationsTableTemplate = (
                                         ) : (
                                             studentToShow.applications.map(
                                                 (
-                                                    application,
-                                                    application_idx
+                                                    application: Application,
+                                                    application_idx: number
                                                 ) => (
                                                     <ApplicationTableRow
                                                         key={application_idx}
@@ -821,10 +821,9 @@ const StudentApplicationsTableTemplate = (
                 <ConfirmationModal
                     closeText={t('No', { ns: 'common' })}
                     confirmText={t('Yes', { ns: 'common' })}
-                    content={t(
-                        'This will delete all messages and edited files in discussion. Are you sure?',
-                        { ns: 'common' }
-                    )}
+                    content={
+                        'This will delete all messages and edited files in discussion. Are you sure?'
+                    }
                     isLoading={!studentApplicationsTableTemplateState.isLoaded}
                     onClose={onHideModalDeleteApplication}
                     onConfirm={handleDeleteConfirm}

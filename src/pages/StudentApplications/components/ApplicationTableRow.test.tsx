@@ -77,6 +77,7 @@ const defaultProps = {
     user: null,
     today: new Date('2025-11-01'),
     handleChange: vi.fn(),
+    handleFinalEnrolmentChange: vi.fn(),
     handleAdmissionResultChange: vi.fn(() => Promise.resolve()),
     handleWithdraw: vi.fn(),
     handleDelete: vi.fn(),

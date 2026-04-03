@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import type { Application } from '@/api/types';
 import { getApplicationStudentV2, updateStudentApplications } from '@/api';
 import { queryClient } from '@/api';
@@ -12,6 +13,13 @@ type PendingChanges = {
     applyingProgramCount?: number | string;
 };
 
+type StudentApplicationsDraftSource = {
+    _id?: string;
+    applications?: Application[];
+    applying_program_count?: number | string;
+    [key: string]: unknown;
+};
+
 type AutosaveStatus = 'idle' | 'saving' | 'success' | 'error';
 
 type AutosaveState = {
@@ -20,12 +28,34 @@ type AutosaveState = {
     resultId: number;
 };
 
-type StudentApplicationsDraftSource = {
+type StudentApplicationsQueryData = {
     _id?: string;
     applications?: Application[];
     applying_program_count?: number | string;
     [key: string]: unknown;
 };
+
+type AutosaveMutationVars = {
+    studentId: string;
+    queryKey: readonly ['applications/student', string];
+    optimisticStudent: StudentApplicationsQueryData;
+    applicationsPayload: Array<{
+        _id: unknown;
+        programId: unknown;
+        decided: unknown;
+        closed: unknown;
+        admission: unknown;
+        finalEnrolment: unknown;
+    }>;
+    applyingProgramCount: number;
+};
+
+type AutosaveMutationContext = {
+    previousStudent: StudentApplicationsQueryData | undefined;
+    queryKey: readonly ['applications/student', string];
+};
+
+const STUDENT_APPLICATIONS_SYNC_KEY = 'taiger:sync:applications:student';
 
 const createEmptyPendingChanges = (): PendingChanges => ({
     applicationsById: {}
@@ -139,6 +169,40 @@ const buildApplicationsPayload = (applications: Application[]) =>
         finalEnrolment: application.finalEnrolment
     }));
 
+const applyPendingChangesToStudent = <
+    TStudent extends StudentApplicationsDraftSource
+>(
+    baseStudent: TStudent,
+    pending: PendingChanges
+): TStudent => ({
+    ...baseStudent,
+    applications: mergeApplicationsWithPatches(
+        (baseStudent.applications ?? []) as Application[],
+        pending.applicationsById
+    ),
+    applying_program_count:
+        pending.applyingProgramCount ?? baseStudent.applying_program_count
+});
+
+const emitStudentApplicationsSync = (studentId: string) => {
+    if (typeof window === 'undefined') {
+        return;
+    }
+
+    try {
+        window.localStorage.setItem(
+            STUDENT_APPLICATIONS_SYNC_KEY,
+            JSON.stringify({
+                studentId,
+                ts: Date.now(),
+                id: Math.random().toString(36).slice(2)
+            })
+        );
+    } catch {
+        // Ignore sync failures in restricted environments.
+    }
+};
+
 export const useStudentApplicationsAutosave = <
     TStudent extends StudentApplicationsDraftSource
 >({
@@ -224,6 +288,66 @@ export const useStudentApplicationsAutosave = <
             student.applying_program_count
     };
 
+    const updateMutation = useMutation<
+        unknown,
+        Error,
+        AutosaveMutationVars,
+        AutosaveMutationContext
+    >({
+        mutationKey: ['autosave-student-applications'],
+        mutationFn: async (variables) => {
+            const resp = await updateStudentApplications(
+                variables.studentId,
+                variables.applicationsPayload as unknown as Record<
+                    string,
+                    unknown
+                >,
+                variables.applyingProgramCount
+            );
+
+            const { success, message } = resp.data;
+            if (!success) {
+                throw new Error(message ?? 'Failed to update applications.');
+            }
+
+            return resp.data;
+        },
+        onMutate: async (variables) => {
+            await queryClient.cancelQueries({ queryKey: variables.queryKey });
+
+            const previousStudent =
+                queryClient.getQueryData<StudentApplicationsQueryData>(
+                    variables.queryKey
+                );
+
+            queryClient.setQueryData(
+                variables.queryKey,
+                variables.optimisticStudent
+            );
+
+            return {
+                previousStudent,
+                queryKey: variables.queryKey
+            };
+        },
+        onError: (error, _variables, context) => {
+            if (context?.previousStudent) {
+                queryClient.setQueryData(
+                    context.queryKey,
+                    context.previousStudent
+                );
+            }
+            setError(error.message || 'An error occurred. Please try again.');
+        },
+        onSuccess: (_data, variables) => {
+            queryClient.invalidateQueries({
+                queryKey: variables.queryKey
+            });
+            setSuccess();
+            emitStudentApplicationsSync(variables.studentId);
+        }
+    });
+
     const queueStudentApplicationsUpdate = () => {
         hasQueuedUpdateRef.current = true;
 
@@ -275,7 +399,7 @@ export const useStudentApplicationsAutosave = <
     };
 
     const persistStudentApplicationsUpdate = async () => {
-        if (isSubmittingUpdateRef.current) {
+        if (isSubmittingUpdateRef.current || updateMutation.isPending) {
             return;
         }
 
@@ -290,42 +414,26 @@ export const useStudentApplicationsAutosave = <
             return;
         }
 
-        let latestApplications = (student.applications ?? []) as Application[];
-        let latestApplyingProgramCount: number | string =
-            student.applying_program_count ?? 0;
+        const queryKey = ['applications/student', studentId] as const;
+        let latestStudent: StudentApplicationsQueryData =
+            queryClient.getQueryData<StudentApplicationsQueryData>(queryKey) ??
+            student;
 
         try {
-            const latestStudentResp = await getApplicationStudentV2(studentId);
-            const latestStudent = (
-                latestStudentResp as {
-                    data?: {
-                        applications?: Application[];
-                        applying_program_count?: number | string;
-                    };
-                }
-            ).data;
-            latestApplications =
-                latestStudent?.applications ?? latestApplications;
-            latestApplyingProgramCount =
-                latestStudent?.applying_program_count ??
-                latestApplyingProgramCount;
+            latestStudent = await getApplicationStudentV2(studentId);
         } catch {
-            // Fall back to local snapshot when latest fetch fails.
+            // Fall back to cached/local snapshot when latest fetch fails.
         }
 
-        const mergedApplicationsForSubmit =
-            latestApplications.length > 0
-                ? mergeApplicationsWithPatches(
-                      latestApplications,
-                      pending.applicationsById
-                  )
-                : latestApplications;
-
+        const optimisticStudent = applyPendingChangesToStudent(
+            latestStudent,
+            pending
+        );
         const applicationsPayload = buildApplicationsPayload(
-            mergedApplicationsForSubmit
+            (optimisticStudent.applications ?? []) as Application[]
         );
         const applyingProgramCount = Number(
-            pending.applyingProgramCount ?? latestApplyingProgramCount ?? 0
+            optimisticStudent.applying_program_count ?? 0
         );
 
         isSubmittingUpdateRef.current = true;
@@ -333,27 +441,13 @@ export const useStudentApplicationsAutosave = <
         setSaving();
 
         try {
-            const resp = await updateStudentApplications(
+            await updateMutation.mutateAsync({
                 studentId,
-                applicationsPayload as unknown as Record<string, unknown>,
+                queryKey,
+                optimisticStudent,
+                applicationsPayload,
                 applyingProgramCount
-            );
-
-            const { success, message } = resp.data;
-            if (success) {
-                queryClient.invalidateQueries({
-                    queryKey: ['applications/student', studentId]
-                });
-                setSuccess();
-                return;
-            }
-
-            setError(message ?? 'Failed to update applications.');
-        } catch (error) {
-            setError(
-                (error as { message?: string }).message ||
-                    'An error occurred. Please try again.'
-            );
+            });
         } finally {
             isSubmittingUpdateRef.current = false;
             setIsSubmittingUpdate(false);
@@ -396,6 +490,47 @@ export const useStudentApplicationsAutosave = <
             updatePendingChanges(() => nextPending);
         }
     }, [student]);
+
+    useEffect(() => {
+        if (typeof window === 'undefined') {
+            return;
+        }
+
+        const currentStudentId = String(student._id ?? '');
+        if (!currentStudentId) {
+            return;
+        }
+
+        const onStorage = (event: StorageEvent) => {
+            if (
+                event.key !== STUDENT_APPLICATIONS_SYNC_KEY ||
+                !event.newValue
+            ) {
+                return;
+            }
+
+            try {
+                const payload = JSON.parse(event.newValue) as {
+                    studentId?: string;
+                };
+
+                if (String(payload.studentId ?? '') !== currentStudentId) {
+                    return;
+                }
+
+                void queryClient.invalidateQueries({
+                    queryKey: ['applications/student', currentStudentId]
+                });
+            } catch {
+                // Ignore malformed sync payloads.
+            }
+        };
+
+        window.addEventListener('storage', onStorage);
+        return () => {
+            window.removeEventListener('storage', onStorage);
+        };
+    }, [student._id]);
 
     useEffect(() => {
         return () => {
