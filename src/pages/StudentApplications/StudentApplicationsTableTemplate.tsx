@@ -226,6 +226,22 @@ const StudentApplicationsTableTemplate = (
         }
     };
 
+    const handleFinalEnrolmentChange = (
+        application_idx: number,
+        finalEnrolment: boolean
+    ) => {
+        const applicationId = String(
+            studentToShow.applications?.[application_idx]?._id ?? ''
+        );
+        if (applicationId) {
+            updatePendingApplicationPatch(
+                applicationId,
+                { finalEnrolment },
+                true
+            );
+        }
+    };
+
     const updateDraftAdmissionByApplicationId = (
         applicationId: string,
         nextResult: AdmissionResult
@@ -777,6 +793,9 @@ const StudentApplicationsTableTemplate = (
                                                         handleEdit={handleEdit}
                                                         handleAdmissionResultChange={
                                                             handleAdmissionResultChange
+                                                        }
+                                                        handleFinalEnrolmentChange={
+                                                            handleFinalEnrolmentChange
                                                         }
                                                         isSubmitting={
                                                             isSubmittingUpdate

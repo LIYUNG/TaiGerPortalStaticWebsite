@@ -59,6 +59,10 @@ export interface ApplicationTableRowProps {
         e: ChangeEvent<HTMLInputElement> | SelectChangeEvent<string>,
         application_idx: number
     ) => void;
+    handleFinalEnrolmentChange: (
+        application_idx: number,
+        finalEnrolment: boolean
+    ) => void;
     handleWithdraw: (
         e: SyntheticEvent,
         application_idx: number,
@@ -89,6 +93,7 @@ const ApplicationTableRow = ({
     today,
     isSubmitting,
     handleChange,
+    handleFinalEnrolmentChange,
     handleWithdraw,
     handleDelete,
     handleEdit,
@@ -362,21 +367,24 @@ const ApplicationTableRow = ({
             isProgramAdmitted(application) ? (
                 <TableCell>
                     <FormControl fullWidth>
-                        <Select<string>
-                            defaultValue={String(
-                                application.finalEnrolment ?? false
-                            )}
+                        <Select<number>
+                            defaultValue={application.finalEnrolment ? 1 : 0}
                             id="finalEnrolment"
                             labelId="finalEnrolment"
                             name="finalEnrolment"
                             disabled={isInteractionDisabled}
-                            onChange={(e) => handleChange(e, application_idx)}
+                            onChange={(e) =>
+                                handleFinalEnrolmentChange(
+                                    application_idx,
+                                    Number(e.target.value) === 1
+                                )
+                            }
                             size="small"
                         >
-                            <MenuItem value="false">
+                            <MenuItem value={0}>
                                 {t('No', { ns: 'common' })}
                             </MenuItem>
-                            <MenuItem value="true">
+                            <MenuItem value={1}>
                                 {t('Yes', { ns: 'common' })}
                             </MenuItem>
                         </Select>
