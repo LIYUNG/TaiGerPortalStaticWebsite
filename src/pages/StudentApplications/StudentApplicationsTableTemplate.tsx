@@ -744,70 +744,73 @@ const StudentApplicationsTableTemplate = (
                         according to the contract
                     </Card>
                 ) : null}
-                <Card sx={{ p: { xs: 1.25, md: 1.5 } }}>
-                    <Stack spacing={1.25}>
+                <Card sx={{ p: { xs: 1, md: 1.25 } }}>
+                    <Stack spacing={1}>
                         <Stack
                             alignItems={{ xs: 'flex-start', md: 'center' }}
                             direction={{ xs: 'column', md: 'row' }}
                             justifyContent="space-between"
-                            spacing={2}
+                            spacing={1.25}
                         >
-                            <Stack spacing={0.5}>
-                                <Stack
-                                    alignItems="center"
-                                    direction="row"
-                                    spacing={1.25}
-                                    sx={{ flexWrap: 'wrap' }}
-                                >
-                                    <Typography variant="h6">
-                                        {t('Applying Program Count', {
-                                            ns: 'common'
-                                        })}
-                                    </Typography>
-                                    {is_TaiGer_Admin(typedUser) ? (
-                                        <FormControl sx={{ minWidth: 180 }}>
-                                            <Select
-                                                id="applying_program_count"
-                                                name="applying_program_count"
-                                                onChange={(e) =>
-                                                    handleChangeProgramCount(e)
+                            <Stack
+                                alignItems="center"
+                                direction="row"
+                                spacing={1}
+                                sx={{ flexWrap: 'wrap' }}
+                            >
+                                <Typography variant="h6">
+                                    {t('Applying Program Count', {
+                                        ns: 'common'
+                                    })}
+                                </Typography>
+                                {is_TaiGer_Admin(typedUser) ? (
+                                    <FormControl sx={{ minWidth: 60 }}>
+                                        <Select
+                                            id="applying_program_count"
+                                            name="applying_program_count"
+                                            onChange={(e) =>
+                                                handleChangeProgramCount(e)
+                                            }
+                                            size="small"
+                                            sx={{
+                                                '& .MuiSelect-select': {
+                                                    py: 0.75,
+                                                    fontSize: 14
                                                 }
-                                                size="small"
-                                                value={
-                                                    studentToShow.applying_program_count
-                                                }
-                                            >
-                                                <MenuItem value="0">
-                                                    Please Select
-                                                </MenuItem>
-                                                <MenuItem value="1">1</MenuItem>
-                                                <MenuItem value="2">2</MenuItem>
-                                                <MenuItem value="3">3</MenuItem>
-                                                <MenuItem value="4">4</MenuItem>
-                                                <MenuItem value="5">5</MenuItem>
-                                                <MenuItem value="6">6</MenuItem>
-                                                <MenuItem value="7">7</MenuItem>
-                                                <MenuItem value="8">8</MenuItem>
-                                                <MenuItem value="9">9</MenuItem>
-                                                <MenuItem value="10">
-                                                    10
-                                                </MenuItem>
-                                            </Select>
-                                        </FormControl>
-                                    ) : (
-                                        <Typography variant="h6">
-                                            {
+                                            }}
+                                            value={
                                                 studentToShow.applying_program_count
                                             }
-                                        </Typography>
-                                    )}
-                                </Stack>
+                                        >
+                                            <MenuItem value="0">
+                                                Please Select
+                                            </MenuItem>
+                                            <MenuItem value="1">1</MenuItem>
+                                            <MenuItem value="2">2</MenuItem>
+                                            <MenuItem value="3">3</MenuItem>
+                                            <MenuItem value="4">4</MenuItem>
+                                            <MenuItem value="5">5</MenuItem>
+                                            <MenuItem value="6">6</MenuItem>
+                                            <MenuItem value="7">7</MenuItem>
+                                            <MenuItem value="8">8</MenuItem>
+                                            <MenuItem value="9">9</MenuItem>
+                                            <MenuItem value="10">10</MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                ) : (
+                                    <Typography variant="h6">
+                                        {studentToShow.applying_program_count}
+                                    </Typography>
+                                )}
                             </Stack>
                             <Stack
                                 alignItems={{ xs: 'stretch', md: 'center' }}
                                 direction={{ xs: 'column', md: 'row' }}
-                                spacing={1.5}
-                                sx={{ justifyContent: 'flex-end' }}
+                                spacing={1}
+                                sx={{
+                                    justifyContent: 'flex-end',
+                                    flexWrap: 'wrap'
+                                }}
                             >
                                 {is_TaiGer_role(typedUser) ? (
                                     <>
