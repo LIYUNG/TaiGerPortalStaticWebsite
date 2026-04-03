@@ -1,10 +1,8 @@
 import { MouseEvent, SyntheticEvent, ChangeEvent, useState } from 'react';
 import {
-    Button,
     FormControl,
     IconButton,
     Link,
-    Menu,
     MenuItem,
     Select,
     Stack,
@@ -98,8 +96,6 @@ const ApplicationTableRow = ({
 }: ApplicationTableRowProps) => {
     const { t } = useTranslation();
     const [isSubmittingAdmission, setIsSubmittingAdmission] = useState(false);
-    const [admissionMenuAnchor, setAdmissionMenuAnchor] =
-        useState<null | HTMLElement>(null);
     const isInteractionDisabled = isSubmitting || isSubmittingAdmission;
 
     const canUpdateAdmission =
@@ -118,35 +114,10 @@ const ApplicationTableRow = ({
             ? application.admission
             : '-';
 
-    const admissionLabel =
-        admissionOptions.find((option) => option.value === currentAdmission)
-            ?.label ?? '-';
-
-    const admissionColor =
-        currentAdmission === 'X'
-            ? 'error'
-            : currentAdmission === 'O'
-              ? 'success'
-              : 'primary';
-
-    const admissionMenuOpen = Boolean(admissionMenuAnchor);
-    const admissionButtonId = `admission-button-${application_idx}`;
-    const admissionMenuId = `admission-menu-${application_idx}`;
-
-    const openAdmissionMenu = (e: MouseEvent<HTMLButtonElement>) => {
-        setAdmissionMenuAnchor(e.currentTarget);
-    };
-
-    const closeAdmissionMenu = () => {
-        setAdmissionMenuAnchor(null);
-    };
-
     const onClickAdmissionResult = async (result: AdmissionResult) => {
         if (result === currentAdmission) {
-            closeAdmissionMenu();
             return;
         }
-        closeAdmissionMenu();
         setIsSubmittingAdmission(true);
         try {
             await handleAdmissionResultChange(application, result);
@@ -354,53 +325,34 @@ const ApplicationTableRow = ({
             {isProgramDecided(application) &&
             isProgramSubmitted(application) ? (
                 <TableCell>
-                    <>
-                        <Button
-                            aria-controls={
-                                admissionMenuOpen ? admissionMenuId : undefined
-                            }
-                            aria-expanded={
-                                admissionMenuOpen ? 'true' : undefined
-                            }
-                            aria-haspopup="menu"
-                            color={admissionColor}
+                    <FormControl fullWidth>
+                        <Select
                             disabled={
                                 !canUpdateAdmission || isInteractionDisabled
                             }
-                            fullWidth
-                            id={admissionButtonId}
-                            onClick={openAdmissionMenu}
+                            id="admission"
+                            labelId="admission"
+                            name="admission"
+                            inputProps={{ 'aria-label': 'admission result' }}
+                            onChange={(e) =>
+                                onClickAdmissionResult(
+                                    e.target.value as AdmissionResult
+                                )
+                            }
                             size="small"
-                            variant="outlined"
-                        >
-                            {admissionLabel}
-                        </Button>
-                        <Menu
-                            anchorEl={admissionMenuAnchor}
-                            id={admissionMenuId}
-                            MenuListProps={{
-                                'aria-labelledby': admissionButtonId
-                            }}
-                            onClose={closeAdmissionMenu}
-                            open={admissionMenuOpen}
+                            value={currentAdmission}
                         >
                             {admissionOptions.map((option) => (
                                 <MenuItem
-                                    disabled={
-                                        isSubmittingAdmission ||
-                                        option.value === currentAdmission
-                                    }
+                                    disabled={option.value === currentAdmission}
                                     key={option.value}
-                                    onClick={() =>
-                                        onClickAdmissionResult(option.value)
-                                    }
-                                    selected={option.value === currentAdmission}
+                                    value={option.value}
                                 >
                                     {option.label}
                                 </MenuItem>
                             ))}
-                        </Menu>
-                    </>
+                        </Select>
+                    </FormControl>
                 </TableCell>
             ) : (
                 <TableCell>-</TableCell>
