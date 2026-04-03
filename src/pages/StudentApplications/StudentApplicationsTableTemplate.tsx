@@ -216,6 +216,31 @@ const StudentApplicationsTableTemplate = (
         isSubmittingUpdateRef.current = isSubmittingUpdate;
     }, [isSubmittingUpdate]);
 
+    // Clear draft only after props.student has been updated by the query
+    useEffect(() => {
+        if (draft) {
+            const draftApps = draft.applications ?? [];
+            const studentApps = props.student.applications ?? [];
+
+            // Check if props.student.applications matches draft.applications
+            // (indicating the query has refreshed with new data)
+            if (
+                draftApps.length === studentApps.length &&
+                draftApps.every((draftApp, idx) => {
+                    const studentApp = studentApps[idx];
+                    return (
+                        String(draftApp._id ?? '') ===
+                            String(studentApp._id ?? '') &&
+                        draftApp.closed === studentApp.closed
+                    );
+                })
+            ) {
+                // Data has been synced, clear draft
+                setDraft(null);
+            }
+        }
+    }, [props.student, draft]);
+
     useEffect(() => {
         return () => {
             if (updateTimerRef.current) {
@@ -356,7 +381,7 @@ const StudentApplicationsTableTemplate = (
 
             const { success, message } = resp.data;
             if (success) {
-                setDraft(null);
+                // Don't clear draft here - let useEffect handle it after props.student is updated
                 queryClient.invalidateQueries({
                     queryKey: ['applications/student', studentId]
                 });
