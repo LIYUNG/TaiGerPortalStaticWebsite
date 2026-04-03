@@ -609,13 +609,9 @@ const StudentApplicationsTableTemplate = (
     return (
         <Box
             sx={{
-                maxWidth: 1600,
-                mx: 'auto',
-                px: { xs: 1, md: 1.5 },
-                py: { xs: 1, md: 1.5 },
                 display: 'flex',
                 flexDirection: 'column',
-                gap: 2
+                gap: 1.5
             }}
         >
             {res_modal_status >= 400 ? (
@@ -625,7 +621,7 @@ const StudentApplicationsTableTemplate = (
                     res_modal_status={res_modal_status}
                 />
             ) : null}
-            <Card sx={{ p: { xs: 1.25, md: 1.5 } }}>
+            <Card>
                 <Stack spacing={0.75}>
                     <Breadcrumbs aria-label="breadcrumb">
                         <Link
@@ -708,7 +704,12 @@ const StudentApplicationsTableTemplate = (
                 />
             ) : null}
             <Box>
-                <Grid container spacing={2} sx={{ mt: 0 }} alignItems="stretch">
+                <Grid
+                    container
+                    spacing={1.5}
+                    sx={{ mt: 0 }}
+                    alignItems="stretch"
+                >
                     <Grid item md={is_TaiGer_role(typedUser) ? 4 : 12} xs={12}>
                         <StudentPreferenceCard
                             student={studentToShow as IStudentResponse}
@@ -742,8 +743,8 @@ const StudentApplicationsTableTemplate = (
                         according to the contract
                     </Card>
                 ) : null}
-                <Card sx={{ p: { xs: 2, md: 2.5 } }}>
-                    <Stack spacing={2}>
+                <Card sx={{ p: { xs: 1.25, md: 1.5 } }}>
+                    <Stack spacing={1.25}>
                         <Stack
                             alignItems={{ xs: 'flex-start', md: 'center' }}
                             direction={{ xs: 'column', md: 'row' }}
