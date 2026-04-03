@@ -611,11 +611,11 @@ const StudentApplicationsTableTemplate = (
             sx={{
                 maxWidth: 1600,
                 mx: 'auto',
-                px: { xs: 2, md: 3 },
-                py: { xs: 2, md: 3 },
+                px: { xs: 1, md: 1.5 },
+                py: { xs: 1, md: 1.5 },
                 display: 'flex',
                 flexDirection: 'column',
-                gap: 3
+                gap: 2
             }}
         >
             {res_modal_status >= 400 ? (
@@ -625,8 +625,8 @@ const StudentApplicationsTableTemplate = (
                     res_modal_status={res_modal_status}
                 />
             ) : null}
-            <Card sx={{ p: 2.5 }}>
-                <Stack spacing={1.25}>
+            <Card sx={{ p: { xs: 1.25, md: 1.5 } }}>
+                <Stack spacing={0.75}>
                     <Breadcrumbs aria-label="breadcrumb">
                         <Link
                             color="inherit"
@@ -669,16 +669,18 @@ const StudentApplicationsTableTemplate = (
                         alignItems="center"
                         direction={{ xs: 'column', md: 'row' }}
                         justifyContent="space-between"
-                        spacing={1}
+                        spacing={0.75}
                     >
                         <Box>
-                            <Typography variant="h5">
+                            <Typography variant="h6">
                                 {props.student.firstname}{' '}
                                 {props.student.lastname}
                             </Typography>
-                            <Typography color="text.secondary" variant="body2">
-                                Auto-save is enabled. Changes will sync shortly
-                                after you edit a field.
+                            <Typography
+                                color="text.secondary"
+                                variant="caption"
+                            >
+                                Auto-save is enabled for application edits.
                             </Typography>
                         </Box>
                         <Chip
@@ -706,14 +708,14 @@ const StudentApplicationsTableTemplate = (
                 />
             ) : null}
             <Box>
-                <Grid container spacing={3} sx={{ mt: 0 }} alignItems="stretch">
-                    <Grid item md={is_TaiGer_role(typedUser) ? 6 : 12} xs={12}>
+                <Grid container spacing={2} sx={{ mt: 0 }} alignItems="stretch">
+                    <Grid item md={is_TaiGer_role(typedUser) ? 4 : 12} xs={12}>
                         <StudentPreferenceCard
                             student={studentToShow as IStudentResponse}
                         />
                     </Grid>
                     {is_TaiGer_role(typedUser) ? (
-                        <Grid item md={6} xs={12}>
+                        <Grid item md={8} xs={12}>
                             <ImportStudentProgramsCard
                                 student={studentToShow}
                             />
