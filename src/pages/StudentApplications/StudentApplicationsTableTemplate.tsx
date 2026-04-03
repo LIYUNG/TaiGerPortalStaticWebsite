@@ -100,6 +100,7 @@ const StudentApplicationsTableTemplate = (
 
     const [draft, setDraft] = useState<StudentDraft | null>(null);
     const [isSubmittingUpdate, setIsSubmittingUpdate] = useState(false);
+    const isSubmittingUpdateRef = useRef(false);
     const [isMetaExpanded, setIsMetaExpanded] = useState(true);
     const updateTimerRef = useRef<number | null>(null);
     const queuedUpdateRef = useRef<{
@@ -212,6 +213,10 @@ const StudentApplicationsTableTemplate = (
     };
 
     useEffect(() => {
+        isSubmittingUpdateRef.current = isSubmittingUpdate;
+    }, [isSubmittingUpdate]);
+
+    useEffect(() => {
         return () => {
             if (updateTimerRef.current) {
                 window.clearTimeout(updateTimerRef.current);
@@ -320,7 +325,7 @@ const StudentApplicationsTableTemplate = (
         nextApplications: Application[],
         nextApplyingProgramCount: number | string | undefined
     ) => {
-        if (isSubmittingUpdate) {
+        if (isSubmittingUpdateRef.current) {
             return;
         }
 
@@ -335,6 +340,7 @@ const StudentApplicationsTableTemplate = (
         const applicationsPayload = buildApplicationsPayload(nextApplications);
         const applyingProgramCount = Number(nextApplyingProgramCount ?? 0);
 
+        isSubmittingUpdateRef.current = true;
         setIsSubmittingUpdate(true);
         setDraft({
             applications: nextApplications,
@@ -364,12 +370,10 @@ const StudentApplicationsTableTemplate = (
                 return;
             }
 
-            setDraft(null);
             setSeverity('error');
             setMessage(message ?? 'Failed to update applications.');
             setOpenSnackbar(true);
         } catch (error) {
-            setDraft(null);
             setSeverity('error');
             setMessage(
                 (error as { message?: string }).message ||
@@ -377,6 +381,7 @@ const StudentApplicationsTableTemplate = (
             );
             setOpenSnackbar(true);
         } finally {
+            isSubmittingUpdateRef.current = false;
             setIsSubmittingUpdate(false);
 
             if (queuedUpdateRef.current && !updateTimerRef.current) {
@@ -389,7 +394,7 @@ const StudentApplicationsTableTemplate = (
     };
 
     const flushQueuedStudentApplicationsUpdate = async () => {
-        if (isSubmittingUpdate) {
+        if (isSubmittingUpdateRef.current) {
             return;
         }
 
@@ -670,8 +675,8 @@ const StudentApplicationsTableTemplate = (
                     color={isSubmittingUpdate ? 'warning' : 'success'}
                     label={
                         isSubmittingUpdate
-                            ? 'Saving changes...'
-                            : 'Auto-save on'
+                            ? t('Saving changes...', { ns: 'common' })
+                            : t('Auto-save on', { ns: 'common' })
                     }
                     variant={isSubmittingUpdate ? 'filled' : 'outlined'}
                 />
@@ -778,23 +783,24 @@ const StudentApplicationsTableTemplate = (
                                                     fontSize: 14
                                                 }
                                             }}
-                                            value={
-                                                studentToShow.applying_program_count
-                                            }
+                                            value={Number(
+                                                studentToShow.applying_program_count ??
+                                                    0
+                                            )}
                                         >
-                                            <MenuItem value="0">
+                                            <MenuItem value={0}>
                                                 Please Select
                                             </MenuItem>
-                                            <MenuItem value="1">1</MenuItem>
-                                            <MenuItem value="2">2</MenuItem>
-                                            <MenuItem value="3">3</MenuItem>
-                                            <MenuItem value="4">4</MenuItem>
-                                            <MenuItem value="5">5</MenuItem>
-                                            <MenuItem value="6">6</MenuItem>
-                                            <MenuItem value="7">7</MenuItem>
-                                            <MenuItem value="8">8</MenuItem>
-                                            <MenuItem value="9">9</MenuItem>
-                                            <MenuItem value="10">10</MenuItem>
+                                            <MenuItem value={1}>1</MenuItem>
+                                            <MenuItem value={2}>2</MenuItem>
+                                            <MenuItem value={3}>3</MenuItem>
+                                            <MenuItem value={4}>4</MenuItem>
+                                            <MenuItem value={5}>5</MenuItem>
+                                            <MenuItem value={6}>6</MenuItem>
+                                            <MenuItem value={7}>7</MenuItem>
+                                            <MenuItem value={8}>8</MenuItem>
+                                            <MenuItem value={9}>9</MenuItem>
+                                            <MenuItem value={10}>10</MenuItem>
                                         </Select>
                                     </FormControl>
                                 ) : (
@@ -934,7 +940,10 @@ const StudentApplicationsTableTemplate = (
                 <ConfirmationModal
                     closeText={t('No', { ns: 'common' })}
                     confirmText={t('Yes', { ns: 'common' })}
-                    content="This will delete all message and editted files in discussion. Are you sure?"
+                    content={t(
+                        'This will delete all messages and edited files in discussion. Are you sure?',
+                        { ns: 'common' }
+                    )}
                     isLoading={!studentApplicationsTableTemplateState.isLoaded}
                     onClose={onHideModalDeleteApplication}
                     onConfirm={handleDeleteConfirm}

@@ -233,7 +233,7 @@ export const ImportStudentProgramsCard = (
                 {!compact ? (
                     <Typography>
                         {t(
-                            'Find the student (name or email) and import his/her progams'
+                            'Find the student (name or email) and import his/her programs'
                         )}
                     </Typography>
                 ) : null}

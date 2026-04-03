@@ -407,43 +407,39 @@ const ApplicationTableRow = ({
                         !isProgramSubmitted(application) &&
                         (isProgramWithdraw(application) ? (
                             <Tooltip arrow title="Undo Withdraw">
-                                <RedoIcon
-                                    style={{
-                                        cursor: isInteractionDisabled
-                                            ? 'not-allowed'
-                                            : 'pointer',
-                                        opacity: isInteractionDisabled ? 0.4 : 1
-                                    }}
-                                    onClick={(e) =>
-                                        isInteractionDisabled
-                                            ? undefined
-                                            : handleWithdraw(
-                                                  e,
-                                                  application_idx,
-                                                  '-'
-                                              )
-                                    }
-                                />
+                                <span>
+                                    <IconButton
+                                        disabled={isInteractionDisabled}
+                                        onClick={(e) =>
+                                            handleWithdraw(
+                                                e,
+                                                application_idx,
+                                                '-'
+                                            )
+                                        }
+                                        size="small"
+                                    >
+                                        <RedoIcon />
+                                    </IconButton>
+                                </span>
                             </Tooltip>
                         ) : (
                             <Tooltip arrow title="Withdraw">
-                                <UndoIcon
-                                    style={{
-                                        cursor: isInteractionDisabled
-                                            ? 'not-allowed'
-                                            : 'pointer',
-                                        opacity: isInteractionDisabled ? 0.4 : 1
-                                    }}
-                                    onClick={(e) =>
-                                        isInteractionDisabled
-                                            ? undefined
-                                            : handleWithdraw(
-                                                  e,
-                                                  application_idx,
-                                                  'X'
-                                              )
-                                    }
-                                />
+                                <span>
+                                    <IconButton
+                                        disabled={isInteractionDisabled}
+                                        onClick={(e) =>
+                                            handleWithdraw(
+                                                e,
+                                                application_idx,
+                                                'X'
+                                            )
+                                        }
+                                        size="small"
+                                    >
+                                        <UndoIcon />
+                                    </IconButton>
+                                </span>
                             </Tooltip>
                         ))}
                 </TableCell>
