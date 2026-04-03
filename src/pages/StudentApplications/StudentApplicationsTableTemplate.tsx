@@ -55,6 +55,7 @@ import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import {
+    getApplicationStudentV2,
     updateStudentApplications,
     deleteApplicationStudentV2,
     updateStudentApplication,
@@ -103,6 +104,12 @@ const StudentApplicationsTableTemplate = (
     const isSubmittingUpdateRef = useRef(false);
     const [isMetaExpanded, setIsMetaExpanded] = useState(true);
     const updateTimerRef = useRef<number | null>(null);
+    const pendingApplicationFieldPatchesRef = useRef<
+        Record<string, Record<string, unknown>>
+    >({});
+    const pendingApplyingProgramCountRef = useRef<number | string | undefined>(
+        undefined
+    );
     const queuedUpdateRef = useRef<{
         applications: Application[];
         applyingProgramCount: number | string | undefined;
@@ -156,6 +163,7 @@ const StudentApplicationsTableTemplate = (
         e: SelectChangeEvent<string | number>
     ) => {
         const applying_program_count = Number(e.target.value);
+        pendingApplyingProgramCountRef.current = applying_program_count;
         queueStudentApplicationsUpdate(
             studentToShow.applications ?? [],
             applying_program_count
@@ -173,6 +181,18 @@ const StudentApplicationsTableTemplate = (
             ...applications_temp[application_idx],
             [e.target.name]: e.target.value
         };
+
+        const applicationId = String(
+            applications_temp[application_idx]?._id ?? ''
+        );
+        if (applicationId) {
+            pendingApplicationFieldPatchesRef.current[applicationId] = {
+                ...(pendingApplicationFieldPatchesRef.current[applicationId] ??
+                    {}),
+                [e.target.name]: e.target.value
+            };
+        }
+
         queueStudentApplicationsUpdate(
             applications_temp,
             studentToShow.applying_program_count
@@ -206,6 +226,18 @@ const StudentApplicationsTableTemplate = (
             ...applications_temp[application_idx],
             closed: programWithdraw
         };
+
+        const applicationId = String(
+            applications_temp[application_idx]?._id ?? ''
+        );
+        if (applicationId) {
+            pendingApplicationFieldPatchesRef.current[applicationId] = {
+                ...(pendingApplicationFieldPatchesRef.current[applicationId] ??
+                    {}),
+                closed: programWithdraw
+            };
+        }
+
         queueStudentApplicationsUpdate(
             applications_temp,
             studentToShow.applying_program_count
@@ -362,8 +394,51 @@ const StudentApplicationsTableTemplate = (
             return;
         }
 
-        const applicationsPayload = buildApplicationsPayload(nextApplications);
-        const applyingProgramCount = Number(nextApplyingProgramCount ?? 0);
+        const patchMap = pendingApplicationFieldPatchesRef.current;
+
+        let latestApplications = props.student.applications ?? [];
+        let latestApplyingProgramCount =
+            props.student.applying_program_count ?? 0;
+
+        try {
+            const latestStudentResp = await getApplicationStudentV2(studentId);
+            const latestStudent = (
+                latestStudentResp as {
+                    data?: {
+                        applications?: Application[];
+                        applying_program_count?: number | string;
+                    };
+                }
+            ).data;
+            latestApplications =
+                latestStudent?.applications ?? latestApplications;
+            latestApplyingProgramCount =
+                latestStudent?.applying_program_count ??
+                latestApplyingProgramCount;
+        } catch {
+            // Fall back to local props snapshot when latest fetch fails.
+        }
+
+        const mergedApplicationsForSubmit =
+            latestApplications.length > 0
+                ? latestApplications.map((application) => {
+                      const applicationId = String(application._id ?? '');
+                      const patch = patchMap[applicationId];
+                      return patch
+                          ? ({ ...application, ...patch } as Application)
+                          : application;
+                  })
+                : nextApplications;
+
+        const applicationsPayload = buildApplicationsPayload(
+            mergedApplicationsForSubmit
+        );
+        const applyingProgramCount = Number(
+            pendingApplyingProgramCountRef.current ??
+                nextApplyingProgramCount ??
+                latestApplyingProgramCount ??
+                0
+        );
 
         isSubmittingUpdateRef.current = true;
         setIsSubmittingUpdate(true);
@@ -381,6 +456,8 @@ const StudentApplicationsTableTemplate = (
 
             const { success, message } = resp.data;
             if (success) {
+                pendingApplicationFieldPatchesRef.current = {};
+                pendingApplyingProgramCountRef.current = undefined;
                 // Don't clear draft here - let useEffect handle it after props.student is updated
                 queryClient.invalidateQueries({
                     queryKey: ['applications/student', studentId]
