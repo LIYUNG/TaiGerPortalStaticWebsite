@@ -1,8 +1,7 @@
 import {
     MouseEvent,
-    useEffect,
-    useRef,
     useState,
+    useEffect,
     ChangeEvent,
     SyntheticEvent
 } from 'react';
@@ -55,8 +54,6 @@ import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
 import { useSnackBar } from '@contexts/use-snack-bar';
 import {
-    getApplicationStudentV2,
-    updateStudentApplications,
     deleteApplicationStudentV2,
     updateStudentApplication,
     updateStudentApplicationResult
@@ -71,6 +68,7 @@ import { useNavigate } from 'react-router-dom';
 import { ImportStudentProgramsCard } from './ImportStudentProgramsCard';
 import { StudentPreferenceCard } from './StudentPreferenceCard';
 import { ConfirmationModal } from '@components/Modal/ConfirmationModal';
+import { useStudentApplicationsAutosave } from './hooks/useStudentApplicationsAutosave';
 
 export interface StudentApplicationsTableTemplateProps {
     student: {
@@ -83,118 +81,7 @@ export interface StudentApplicationsTableTemplateProps {
     };
 }
 
-type ApplicationPatch = Partial<
-    Pick<Application, 'decided' | 'closed' | 'admission' | 'finalEnrolment'>
->;
-
-type PendingChanges = {
-    applicationsById: Record<string, ApplicationPatch>;
-    applyingProgramCount?: number | string;
-};
-
 type AdmissionResult = '-' | 'O' | 'X';
-
-const createEmptyPendingChanges = (): PendingChanges => ({
-    applicationsById: {}
-});
-
-const hasPendingChanges = (pending: PendingChanges): boolean =>
-    Object.keys(pending.applicationsById).length > 0 ||
-    pending.applyingProgramCount !== undefined;
-
-const mergeApplicationsWithPatches = (
-    applications: Application[],
-    patchesById: Record<string, ApplicationPatch>
-): Application[] =>
-    applications.map((application) => {
-        const applicationId = String(application._id ?? '');
-        const patch = patchesById[applicationId];
-        return patch
-            ? ({ ...application, ...patch } as Application)
-            : application;
-    });
-
-const arePatchesEqual = (
-    left: Record<string, ApplicationPatch>,
-    right: Record<string, ApplicationPatch>
-): boolean => {
-    const leftIds = Object.keys(left);
-    const rightIds = Object.keys(right);
-
-    if (leftIds.length !== rightIds.length) {
-        return false;
-    }
-
-    for (const id of leftIds) {
-        const leftPatch = left[id] ?? {};
-        const rightPatch = right[id] ?? {};
-        const leftEntries = Object.entries(leftPatch);
-        const rightEntries = Object.entries(rightPatch);
-
-        if (leftEntries.length !== rightEntries.length) {
-            return false;
-        }
-
-        for (const [key, value] of leftEntries) {
-            if ((rightPatch as Record<string, unknown>)[key] !== value) {
-                return false;
-            }
-        }
-    }
-
-    return true;
-};
-
-const arePendingChangesEqual = (
-    left: PendingChanges,
-    right: PendingChanges
-): boolean =>
-    left.applyingProgramCount === right.applyingProgramCount &&
-    arePatchesEqual(left.applicationsById, right.applicationsById);
-
-const pruneSyncedPendingChanges = (
-    pending: PendingChanges,
-    studentApplications: Application[],
-    studentApplyingProgramCount: number | string | undefined
-): PendingChanges => {
-    const nextApplicationsById: Record<string, ApplicationPatch> = {};
-
-    Object.entries(pending.applicationsById).forEach(
-        ([applicationId, patch]) => {
-            const studentApp = studentApplications.find(
-                (app) => String(app._id ?? '') === applicationId
-            );
-
-            if (!studentApp) {
-                nextApplicationsById[applicationId] = patch;
-                return;
-            }
-
-            const unsyncedPatchEntries = Object.entries(patch).filter(
-                ([key, value]) =>
-                    (studentApp as unknown as Record<string, unknown>)[key] !==
-                    value
-            );
-
-            if (unsyncedPatchEntries.length > 0) {
-                nextApplicationsById[applicationId] =
-                    Object.fromEntries(unsyncedPatchEntries);
-            }
-        }
-    );
-
-    const isProgramCountSynced =
-        pending.applyingProgramCount === undefined ||
-        Number(pending.applyingProgramCount) ===
-            Number(studentApplyingProgramCount ?? 0);
-
-    return {
-        applicationsById: nextApplicationsById,
-        applyingProgramCount: isProgramCountSynced
-            ? undefined
-            : pending.applyingProgramCount
-    };
-};
 
 const StudentApplicationsTableTemplate = (
     props: StudentApplicationsTableTemplateProps
@@ -205,38 +92,49 @@ const StudentApplicationsTableTemplate = (
     const { t } = useTranslation();
     const navigate = useNavigate();
 
-    const [pendingChanges, setPendingChanges] = useState<PendingChanges>(
-        createEmptyPendingChanges
-    );
-    const pendingChangesRef = useRef<PendingChanges>(
-        createEmptyPendingChanges()
-    );
-    const [isSubmittingUpdate, setIsSubmittingUpdate] = useState(false);
-    const isSubmittingUpdateRef = useRef(false);
     const [isMetaExpanded, setIsMetaExpanded] = useState(true);
-    const updateTimerRef = useRef<number | null>(null);
-    const hasQueuedUpdateRef = useRef(false);
+    const {
+        studentToShow,
+        isSubmittingUpdate,
+        saveState,
+        updatePendingProgramCount,
+        updatePendingApplicationPatch,
+        clearPendingChanges
+    } = useStudentApplicationsAutosave({
+        student: props.student
+    });
 
-    const updatePendingChanges = (
-        updater: (prev: PendingChanges) => PendingChanges
-    ) => {
-        setPendingChanges((prev) => {
-            const next = updater(prev);
-            pendingChangesRef.current = next;
-            return next;
-        });
-    };
+    useEffect(() => {
+        if (saveState.status === 'success') {
+            setSeverity('success');
+            setMessage(
+                t('Applications status updated successfully!', {
+                    ns: 'common'
+                })
+            );
+            setOpenSnackbar(true);
+            return;
+        }
 
-    const studentToShow = {
-        ...props.student,
-        applications: mergeApplicationsWithPatches(
-            props.student.applications ?? [],
-            pendingChanges.applicationsById
-        ),
-        applying_program_count:
-            pendingChanges.applyingProgramCount ??
-            props.student.applying_program_count
-    };
+        if (saveState.status === 'error') {
+            setSeverity('error');
+            setMessage(
+                saveState.errorMessage ||
+                    t('An error occurred. Please try again.', {
+                        ns: 'common'
+                    })
+            );
+            setOpenSnackbar(true);
+        }
+    }, [
+        saveState.resultId,
+        saveState.status,
+        saveState.errorMessage,
+        setSeverity,
+        setMessage,
+        setOpenSnackbar,
+        t
+    ]);
 
     const [
         studentApplicationsTableTemplateState,
@@ -275,11 +173,7 @@ const StudentApplicationsTableTemplate = (
         e: SelectChangeEvent<string | number>
     ) => {
         const applying_program_count = Number(e.target.value);
-        updatePendingChanges((prev) => ({
-            ...prev,
-            applyingProgramCount: applying_program_count
-        }));
-        queueStudentApplicationsUpdate();
+        updatePendingProgramCount(applying_program_count);
     };
 
     const handleChange = (
@@ -291,19 +185,12 @@ const StudentApplicationsTableTemplate = (
             studentToShow.applications?.[application_idx]?._id ?? ''
         );
         if (applicationId) {
-            updatePendingChanges((prev) => ({
-                ...prev,
-                applicationsById: {
-                    ...prev.applicationsById,
-                    [applicationId]: {
-                        ...(prev.applicationsById[applicationId] ?? {}),
-                        [e.target.name]: e.target.value
-                    }
-                }
-            }));
+            updatePendingApplicationPatch(
+                applicationId,
+                { [e.target.name]: e.target.value } as Partial<Application>,
+                true
+            );
         }
-
-        queueStudentApplicationsUpdate();
     };
 
     const handleSingleChange = (
@@ -331,61 +218,21 @@ const StudentApplicationsTableTemplate = (
             studentToShow.applications?.[application_idx]?._id ?? ''
         );
         if (applicationId) {
-            updatePendingChanges((prev) => ({
-                ...prev,
-                applicationsById: {
-                    ...prev.applicationsById,
-                    [applicationId]: {
-                        ...(prev.applicationsById[applicationId] ?? {}),
-                        closed: programWithdraw
-                    }
-                }
-            }));
+            updatePendingApplicationPatch(
+                applicationId,
+                { closed: programWithdraw },
+                true
+            );
         }
-
-        queueStudentApplicationsUpdate();
     };
-
-    useEffect(() => {
-        isSubmittingUpdateRef.current = isSubmittingUpdate;
-    }, [isSubmittingUpdate]);
-
-    // Remove synced local patches after props refreshes to the same values.
-    useEffect(() => {
-        const currentPending = pendingChangesRef.current;
-        const nextPending = pruneSyncedPendingChanges(
-            currentPending,
-            props.student.applications ?? [],
-            props.student.applying_program_count
-        );
-
-        if (!arePendingChangesEqual(currentPending, nextPending)) {
-            updatePendingChanges(() => nextPending);
-        }
-    }, [props.student]);
-
-    useEffect(() => {
-        return () => {
-            if (updateTimerRef.current) {
-                window.clearTimeout(updateTimerRef.current);
-            }
-        };
-    }, []);
 
     const updateDraftAdmissionByApplicationId = (
         applicationId: string,
         nextResult: AdmissionResult
     ) => {
-        updatePendingChanges((prev) => ({
-            ...prev,
-            applicationsById: {
-                ...prev.applicationsById,
-                [applicationId]: {
-                    ...(prev.applicationsById[applicationId] ?? {}),
-                    admission: nextResult
-                }
-            }
-        }));
+        updatePendingApplicationPatch(applicationId, {
+            admission: nextResult
+        });
     };
 
     const handleAdmissionResultChange = async (
@@ -449,145 +296,6 @@ const StudentApplicationsTableTemplate = (
         }
     };
 
-    const buildApplicationsPayload = (applications: Application[]) =>
-        applications.map((application) => ({
-            _id: application._id,
-            programId: application.programId?._id,
-            decided: application.decided,
-            closed: application.closed,
-            admission: application.admission,
-            finalEnrolment: application.finalEnrolment
-        }));
-
-    const persistStudentApplicationsUpdate = async () => {
-        if (isSubmittingUpdateRef.current) {
-            return;
-        }
-
-        const studentId = String(studentToShow._id ?? '');
-        if (!studentId) {
-            setSeverity('error');
-            setMessage('Missing student id.');
-            setOpenSnackbar(true);
-            return;
-        }
-
-        const pending = pendingChangesRef.current;
-        const patchMap = pending.applicationsById;
-
-        if (!hasPendingChanges(pending)) {
-            return;
-        }
-
-        let latestApplications = props.student.applications ?? [];
-        let latestApplyingProgramCount: number | string =
-            props.student.applying_program_count ?? 0;
-
-        try {
-            const latestStudentResp = await getApplicationStudentV2(studentId);
-            const latestStudent = (
-                latestStudentResp as {
-                    data?: {
-                        applications?: Application[];
-                        applying_program_count?: number | string;
-                    };
-                }
-            ).data;
-            latestApplications =
-                latestStudent?.applications ?? latestApplications;
-            latestApplyingProgramCount =
-                latestStudent?.applying_program_count ??
-                latestApplyingProgramCount;
-        } catch {
-            // Fall back to local props snapshot when latest fetch fails.
-        }
-
-        const mergedApplicationsForSubmit =
-            latestApplications.length > 0
-                ? mergeApplicationsWithPatches(latestApplications, patchMap)
-                : latestApplications;
-
-        const applicationsPayload = buildApplicationsPayload(
-            mergedApplicationsForSubmit
-        );
-        const applyingProgramCount = Number(
-            pending.applyingProgramCount ?? latestApplyingProgramCount ?? 0
-        );
-
-        isSubmittingUpdateRef.current = true;
-        setIsSubmittingUpdate(true);
-
-        try {
-            const resp = await updateStudentApplications(
-                studentId,
-                applicationsPayload as unknown as Record<string, unknown>,
-                applyingProgramCount
-            );
-
-            const { success, message } = resp.data;
-            if (success) {
-                queryClient.invalidateQueries({
-                    queryKey: ['applications/student', studentId]
-                });
-                setSeverity('success');
-                setMessage(
-                    t('Applications status updated successfully!', {
-                        ns: 'common'
-                    })
-                );
-                setOpenSnackbar(true);
-                return;
-            }
-
-            setSeverity('error');
-            setMessage(message ?? 'Failed to update applications.');
-            setOpenSnackbar(true);
-        } catch (error) {
-            setSeverity('error');
-            setMessage(
-                (error as { message?: string }).message ||
-                    'An error occurred. Please try again.'
-            );
-            setOpenSnackbar(true);
-        } finally {
-            isSubmittingUpdateRef.current = false;
-            setIsSubmittingUpdate(false);
-
-            if (hasQueuedUpdateRef.current && !updateTimerRef.current) {
-                updateTimerRef.current = window.setTimeout(() => {
-                    updateTimerRef.current = null;
-                    void flushQueuedStudentApplicationsUpdate();
-                }, 0);
-            }
-        }
-    };
-
-    const flushQueuedStudentApplicationsUpdate = async () => {
-        if (isSubmittingUpdateRef.current) {
-            return;
-        }
-
-        if (!hasQueuedUpdateRef.current) {
-            return;
-        }
-
-        hasQueuedUpdateRef.current = false;
-        await persistStudentApplicationsUpdate();
-    };
-
-    const queueStudentApplicationsUpdate = () => {
-        hasQueuedUpdateRef.current = true;
-
-        if (updateTimerRef.current) {
-            window.clearTimeout(updateTimerRef.current);
-        }
-
-        updateTimerRef.current = window.setTimeout(() => {
-            updateTimerRef.current = null;
-            void flushQueuedStudentApplicationsUpdate();
-        }, 250);
-    };
-
     const handleDelete = (
         e: MouseEvent<HTMLElement>,
         application_id: string,
@@ -637,7 +345,7 @@ const StudentApplicationsTableTemplate = (
         ).then((resp) => {
             const { success } = resp.data;
             if (success) {
-                updatePendingChanges(createEmptyPendingChanges);
+                clearPendingChanges();
                 queryClient.invalidateQueries({
                     queryKey: [
                         'applications/student',
@@ -682,7 +390,7 @@ const StudentApplicationsTableTemplate = (
                 const { success } = resp.data;
                 const { status } = resp;
                 if (success) {
-                    updatePendingChanges(createEmptyPendingChanges);
+                    clearPendingChanges();
                     queryClient.invalidateQueries({
                         queryKey: [
                             'applications/student',
