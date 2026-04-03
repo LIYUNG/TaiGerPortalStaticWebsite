@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import type { Application } from '@/api/types';
 import { getApplicationStudentV2, updateStudentApplications } from '@/api';
 import { queryClient } from '@/api';
-import { useAutosaveState, type AutosaveState } from '@/hooks/useAutosaveState';
 
 type ApplicationPatch = Partial<
     Pick<Application, 'decided' | 'closed' | 'admission' | 'finalEnrolment'>
@@ -11,6 +10,14 @@ type ApplicationPatch = Partial<
 type PendingChanges = {
     applicationsById: Record<string, ApplicationPatch>;
     applyingProgramCount?: number | string;
+};
+
+type AutosaveStatus = 'idle' | 'saving' | 'success' | 'error';
+
+type AutosaveState = {
+    status: AutosaveStatus;
+    errorMessage?: string;
+    resultId: number;
 };
 
 type StudentApplicationsDraftSource = {
@@ -149,11 +156,49 @@ export const useStudentApplicationsAutosave = <
     );
     const [isSubmittingUpdate, setIsSubmittingUpdate] = useState(false);
     const isSubmittingUpdateRef = useRef(false);
-    const { saveState, setSaving, setSuccess, setError } = useAutosaveState({
-        onStateChange
+    const [saveState, setSaveState] = useState<AutosaveState>({
+        status: 'idle',
+        resultId: 0
     });
+    const saveStateResultIdRef = useRef(0);
     const updateTimerRef = useRef<number | null>(null);
     const hasQueuedUpdateRef = useRef(false);
+
+    const updateSaveState = (
+        next: AutosaveState | ((prev: AutosaveState) => AutosaveState)
+    ) => {
+        setSaveState((prev) => {
+            const resolved = typeof next === 'function' ? next(prev) : next;
+            onStateChange?.(resolved);
+            return resolved;
+        });
+    };
+
+    const setSaving = () => {
+        updateSaveState((prev) => ({
+            status: 'saving',
+            errorMessage: undefined,
+            resultId: prev.resultId
+        }));
+    };
+
+    const setSuccess = () => {
+        saveStateResultIdRef.current += 1;
+        updateSaveState({
+            status: 'success',
+            errorMessage: undefined,
+            resultId: saveStateResultIdRef.current
+        });
+    };
+
+    const setError = (errorMessage: string) => {
+        saveStateResultIdRef.current += 1;
+        updateSaveState({
+            status: 'error',
+            errorMessage,
+            resultId: saveStateResultIdRef.current
+        });
+    };
 
     const updatePendingChanges = (
         updater: (prev: PendingChanges) => PendingChanges
