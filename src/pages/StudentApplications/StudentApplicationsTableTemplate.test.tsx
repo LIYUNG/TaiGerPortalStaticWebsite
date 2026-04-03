@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -139,6 +139,7 @@ describe('StudentApplicationsTableTemplate', () => {
 
     it('renders the student preference card', () => {
         renderTemplate();
+        fireEvent.click(screen.getByRole('button', { name: 'Expand' }));
         expect(screen.getByTestId('preference-card')).toBeInTheDocument();
     });
 });
