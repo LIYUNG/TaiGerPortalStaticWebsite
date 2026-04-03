@@ -756,35 +756,14 @@ const StudentApplicationsTableTemplate = (
                                 <Stack
                                     alignItems="center"
                                     direction="row"
-                                    spacing={1}
+                                    spacing={1.25}
+                                    sx={{ flexWrap: 'wrap' }}
                                 >
                                     <Typography variant="h6">
                                         {t('Applying Program Count', {
                                             ns: 'common'
                                         })}
                                     </Typography>
-                                </Stack>
-                                <Typography
-                                    color="text.secondary"
-                                    variant="body2"
-                                >
-                                    This field now saves automatically.
-                                </Typography>
-                            </Stack>
-                            <Stack
-                                alignItems={{ xs: 'stretch', md: 'center' }}
-                                direction={{ xs: 'column', md: 'row' }}
-                                spacing={1.5}
-                            >
-                                <Stack
-                                    alignItems={{ xs: 'stretch', md: 'center' }}
-                                    direction={{ xs: 'column', md: 'row' }}
-                                    spacing={1.25}
-                                    sx={{
-                                        flexWrap: 'wrap',
-                                        justifyContent: 'flex-end'
-                                    }}
-                                >
                                     {is_TaiGer_Admin(typedUser) ? (
                                         <FormControl sx={{ minWidth: 180 }}>
                                             <Select
@@ -822,13 +801,20 @@ const StudentApplicationsTableTemplate = (
                                             }
                                         </Typography>
                                     )}
-                                    {is_TaiGer_role(typedUser) ? (
-                                        <ImportStudentProgramsCard
-                                            compact
-                                            student={studentToShow}
-                                        />
-                                    ) : null}
                                 </Stack>
+                            </Stack>
+                            <Stack
+                                alignItems={{ xs: 'stretch', md: 'center' }}
+                                direction={{ xs: 'column', md: 'row' }}
+                                spacing={1.5}
+                                sx={{ justifyContent: 'flex-end' }}
+                            >
+                                {is_TaiGer_role(typedUser) ? (
+                                    <ImportStudentProgramsCard
+                                        compact
+                                        student={studentToShow}
+                                    />
+                                ) : null}
                             </Stack>
                         </Stack>
                         <Box>
