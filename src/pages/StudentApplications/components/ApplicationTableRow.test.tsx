@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import ApplicationTableRow from './ApplicationTableRow';
+import type { Application } from '@/api/types';
 
 vi.mock('i18next', () => ({
     default: { t: (key: string) => key }
@@ -43,7 +44,7 @@ vi.mock('@utils/contants', () => ({
     ]
 }));
 
-const mockApplication = {
+const mockApplication: Application = {
     _id: 'app1',
     programId: {
         _id: 'prog1',
@@ -51,15 +52,15 @@ const mockApplication = {
         degree: 'MSc',
         program_name: 'Computer Science',
         semester: 'WS',
-        toefl: 100,
-        ielts: 7.0,
+        toefl: '100',
+        ielts: '7.0',
         application_deadline: '2025-12-01'
     },
     decided: '-',
     closed: '-',
     admission: '-',
     finalEnrolment: false,
-    application_year: 2025
+    application_year: '2025'
 };
 
 const mockStudent = {
@@ -76,6 +77,7 @@ const defaultProps = {
     user: null,
     today: new Date('2025-11-01'),
     handleChange: vi.fn(),
+    handleFinalEnrolmentChange: vi.fn(),
     handleAdmissionResultChange: vi.fn(() => Promise.resolve()),
     handleWithdraw: vi.fn(),
     handleDelete: vi.fn(),
@@ -183,8 +185,11 @@ describe('ApplicationTableRow', () => {
             handleAdmissionResultChange
         });
 
-        fireEvent.click(screen.getByRole('button', { name: '-' }));
-        const yesMenuItem = await screen.findByRole('menuitem', {
+        const admissionSelect = screen.getByRole('combobox', {
+            name: 'admission result'
+        });
+        fireEvent.mouseDown(admissionSelect);
+        const yesMenuItem = await screen.findByRole('option', {
             name: 'Yes'
         });
         fireEvent.click(yesMenuItem);

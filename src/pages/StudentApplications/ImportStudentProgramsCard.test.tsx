@@ -40,7 +40,7 @@ const mockStudent = {
     firstname: 'John',
     lastname: 'Doe',
     applications: []
-} as any;
+};
 
 describe('ImportStudentProgramsCard', () => {
     it('renders the import programs heading', () => {
@@ -61,7 +61,7 @@ describe('ImportStudentProgramsCard', () => {
         render(<ImportStudentProgramsCard student={mockStudent} />);
         expect(
             screen.getByText(
-                'Find the student (name or email) and import his/her progams'
+                'Find the student (name or email) and import his/her programs'
             )
         ).toBeInTheDocument();
     });

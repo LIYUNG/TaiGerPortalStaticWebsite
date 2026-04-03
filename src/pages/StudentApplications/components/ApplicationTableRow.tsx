@@ -1,10 +1,8 @@
 import { MouseEvent, SyntheticEvent, ChangeEvent, useState } from 'react';
 import {
-    Button,
     FormControl,
     IconButton,
     Link,
-    Menu,
     MenuItem,
     Select,
     Stack,
@@ -56,9 +54,14 @@ export interface ApplicationTableRowProps {
     studentToShow: ApplicationTableRowStudent;
     user: IUser | null;
     today: Date;
+    isSubmitting?: boolean;
     handleChange: (
         e: ChangeEvent<HTMLInputElement> | SelectChangeEvent<string>,
         application_idx: number
+    ) => void;
+    handleFinalEnrolmentChange: (
+        application_idx: number,
+        finalEnrolment: boolean
     ) => void;
     handleWithdraw: (
         e: SyntheticEvent,
@@ -88,7 +91,9 @@ const ApplicationTableRow = ({
     studentToShow,
     user,
     today,
+    isSubmitting,
     handleChange,
+    handleFinalEnrolmentChange,
     handleWithdraw,
     handleDelete,
     handleEdit,
@@ -96,8 +101,7 @@ const ApplicationTableRow = ({
 }: ApplicationTableRowProps) => {
     const { t } = useTranslation();
     const [isSubmittingAdmission, setIsSubmittingAdmission] = useState(false);
-    const [admissionMenuAnchor, setAdmissionMenuAnchor] =
-        useState<null | HTMLElement>(null);
+    const isInteractionDisabled = isSubmitting || isSubmittingAdmission;
 
     const canUpdateAdmission =
         application.closed !== '-' &&
@@ -115,35 +119,10 @@ const ApplicationTableRow = ({
             ? application.admission
             : '-';
 
-    const admissionLabel =
-        admissionOptions.find((option) => option.value === currentAdmission)
-            ?.label ?? '-';
-
-    const admissionColor =
-        currentAdmission === 'X'
-            ? 'error'
-            : currentAdmission === 'O'
-              ? 'success'
-              : 'primary';
-
-    const admissionMenuOpen = Boolean(admissionMenuAnchor);
-    const admissionButtonId = `admission-button-${application_idx}`;
-    const admissionMenuId = `admission-menu-${application_idx}`;
-
-    const openAdmissionMenu = (e: MouseEvent<HTMLButtonElement>) => {
-        setAdmissionMenuAnchor(e.currentTarget);
-    };
-
-    const closeAdmissionMenu = () => {
-        setAdmissionMenuAnchor(null);
-    };
-
     const onClickAdmissionResult = async (result: AdmissionResult) => {
         if (result === currentAdmission) {
-            closeAdmissionMenu();
             return;
         }
-        closeAdmissionMenu();
         setIsSubmittingAdmission(true);
         try {
             await handleAdmissionResultChange(application, result);
@@ -267,7 +246,9 @@ const ApplicationTableRow = ({
             <TableCell>
                 <FormControl fullWidth>
                     <Select
-                        disabled={application.closed !== '-'}
+                        disabled={
+                            application.closed !== '-' || isInteractionDisabled
+                        }
                         id="decided"
                         labelId="decided"
                         name="decided"
@@ -300,6 +281,7 @@ const ApplicationTableRow = ({
                                 id="closed"
                                 labelId="closed"
                                 name="closed"
+                                disabled={isInteractionDisabled}
                                 onChange={(e) =>
                                     handleChange(e, application_idx)
                                 }
@@ -348,53 +330,34 @@ const ApplicationTableRow = ({
             {isProgramDecided(application) &&
             isProgramSubmitted(application) ? (
                 <TableCell>
-                    <>
-                        <Button
-                            aria-controls={
-                                admissionMenuOpen ? admissionMenuId : undefined
-                            }
-                            aria-expanded={
-                                admissionMenuOpen ? 'true' : undefined
-                            }
-                            aria-haspopup="menu"
-                            color={admissionColor}
+                    <FormControl fullWidth>
+                        <Select
                             disabled={
-                                !canUpdateAdmission || isSubmittingAdmission
+                                !canUpdateAdmission || isInteractionDisabled
                             }
-                            fullWidth
-                            id={admissionButtonId}
-                            onClick={openAdmissionMenu}
+                            id="admission"
+                            labelId="admission"
+                            name="admission"
+                            inputProps={{ 'aria-label': 'admission result' }}
+                            onChange={(e) =>
+                                onClickAdmissionResult(
+                                    e.target.value as AdmissionResult
+                                )
+                            }
                             size="small"
-                            variant="outlined"
-                        >
-                            {admissionLabel}
-                        </Button>
-                        <Menu
-                            anchorEl={admissionMenuAnchor}
-                            id={admissionMenuId}
-                            MenuListProps={{
-                                'aria-labelledby': admissionButtonId
-                            }}
-                            onClose={closeAdmissionMenu}
-                            open={admissionMenuOpen}
+                            value={currentAdmission}
                         >
                             {admissionOptions.map((option) => (
                                 <MenuItem
-                                    disabled={
-                                        isSubmittingAdmission ||
-                                        option.value === currentAdmission
-                                    }
+                                    disabled={option.value === currentAdmission}
                                     key={option.value}
-                                    onClick={() =>
-                                        onClickAdmissionResult(option.value)
-                                    }
-                                    selected={option.value === currentAdmission}
+                                    value={option.value}
                                 >
                                     {option.label}
                                 </MenuItem>
                             ))}
-                        </Menu>
-                    </>
+                        </Select>
+                    </FormControl>
                 </TableCell>
             ) : (
                 <TableCell>-</TableCell>
@@ -404,20 +367,24 @@ const ApplicationTableRow = ({
             isProgramAdmitted(application) ? (
                 <TableCell>
                     <FormControl fullWidth>
-                        <Select<string>
-                            defaultValue={String(
-                                application.finalEnrolment ?? false
-                            )}
+                        <Select<number>
+                            value={application.finalEnrolment ? 1 : 0}
                             id="finalEnrolment"
                             labelId="finalEnrolment"
                             name="finalEnrolment"
-                            onChange={(e) => handleChange(e, application_idx)}
+                            disabled={isInteractionDisabled}
+                            onChange={(e) =>
+                                handleFinalEnrolmentChange(
+                                    application_idx,
+                                    Number(e.target.value) === 1
+                                )
+                            }
                             size="small"
                         >
-                            <MenuItem value="false">
+                            <MenuItem value={0}>
                                 {t('No', { ns: 'common' })}
                             </MenuItem>
-                            <MenuItem value="true">
+                            <MenuItem value={1}>
                                 {t('Yes', { ns: 'common' })}
                             </MenuItem>
                         </Select>
@@ -448,19 +415,39 @@ const ApplicationTableRow = ({
                         !isProgramSubmitted(application) &&
                         (isProgramWithdraw(application) ? (
                             <Tooltip arrow title="Undo Withdraw">
-                                <RedoIcon
-                                    onClick={(e) =>
-                                        handleWithdraw(e, application_idx, '-')
-                                    }
-                                />
+                                <span>
+                                    <IconButton
+                                        disabled={isInteractionDisabled}
+                                        onClick={(e) =>
+                                            handleWithdraw(
+                                                e,
+                                                application_idx,
+                                                '-'
+                                            )
+                                        }
+                                        size="small"
+                                    >
+                                        <RedoIcon />
+                                    </IconButton>
+                                </span>
                             </Tooltip>
                         ) : (
                             <Tooltip arrow title="Withdraw">
-                                <UndoIcon
-                                    onClick={(e) =>
-                                        handleWithdraw(e, application_idx, 'X')
-                                    }
-                                />
+                                <span>
+                                    <IconButton
+                                        disabled={isInteractionDisabled}
+                                        onClick={(e) =>
+                                            handleWithdraw(
+                                                e,
+                                                application_idx,
+                                                'X'
+                                            )
+                                        }
+                                        size="small"
+                                    >
+                                        <UndoIcon />
+                                    </IconButton>
+                                </span>
                             </Tooltip>
                         ))}
                 </TableCell>

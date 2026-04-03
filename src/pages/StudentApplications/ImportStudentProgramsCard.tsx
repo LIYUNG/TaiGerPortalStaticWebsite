@@ -12,7 +12,6 @@ import {
     DialogContentText,
     DialogTitle,
     List,
-    ListItem,
     ListItemButton,
     ListItemIcon,
     ListItemText,
@@ -31,6 +30,7 @@ import { useSnackBar } from '@contexts/use-snack-bar';
 
 export interface ImportStudentProgramsCardProps {
     student: Record<string, unknown> & { applications?: Application[] };
+    compact?: boolean;
 }
 
 type CreateApplicationResponse = {
@@ -42,6 +42,7 @@ type CreateApplicationResponse = {
 export const ImportStudentProgramsCard = (
     props: ImportStudentProgramsCardProps
 ) => {
+    const { compact = false } = props;
     const { t } = useTranslation();
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
     const [importStudentProgramsCard, setImportStudentProgramsCardState] =
@@ -215,22 +216,38 @@ export const ImportStudentProgramsCard = (
     };
     return (
         <>
-            <Card sx={{ p: 2, minHeight: '340px', zIndex: 0 }}>
-                <Typography>
+            <Card
+                sx={{
+                    p: compact ? 1 : 2,
+                    minHeight: compact ? 'auto' : '340px',
+                    position: 'relative',
+                    zIndex: compact ? 3 : 0,
+                    overflow: 'visible',
+                    width: compact ? { xs: '100%', md: 360 } : '100%'
+                }}
+                variant={compact ? 'outlined' : 'elevation'}
+            >
+                <Typography variant={compact ? 'subtitle2' : 'body1'}>
                     {t('Import programs from another student')}
                 </Typography>
-                <Typography>
-                    {t(
-                        'Find the student (name or email) and import his/her progams'
-                    )}
-                </Typography>
+                {!compact ? (
+                    <Typography>
+                        {t(
+                            'Find the student (name or email) and import his/her programs'
+                        )}
+                    </Typography>
+                ) : null}
                 <Box sx={{ position: 'relative' }}>
                     <TextField
                         className="search-input"
                         fullWidth
                         onChange={handleInputChange}
-                        onMouseDown={handleInputBlur}
-                        placeholder={t('Search student...')}
+                        onBlur={handleInputBlur}
+                        placeholder={
+                            compact
+                                ? t('Search student...')
+                                : t('Search student...')
+                        }
                         size="small"
                         type="text"
                         value={importStudentProgramsCard.searchTerm}
@@ -241,24 +258,30 @@ export const ImportStudentProgramsCard = (
                         searchQueryIsSuccess) ? (
                         searchDisplayResults.length > 0 ? (
                             <Paper
+                                onMouseDown={(event) => event.stopPropagation()}
                                 sx={{
                                     marginTop: '5px',
                                     position: 'absolute',
-                                    zIndex: 2,
+                                    zIndex: 4,
                                     left: 0,
                                     right: 0,
+                                    bgcolor: 'background.paper',
                                     maxHeight: '220px',
                                     overflowY: 'auto'
                                 }}
                             >
                                 <List>
                                     {searchDisplayResults.map((result, i) => (
-                                        <ListItem
-                                            button
+                                        <ListItemButton
                                             key={i}
                                             onClick={() =>
                                                 onClickStudentHandler(result)
                                             }
+                                            onMouseDown={(event) => {
+                                                event.preventDefault();
+                                                event.stopPropagation();
+                                            }}
+                                            role={undefined}
                                         >
                                             <ListItemText
                                                 primary={
@@ -301,24 +324,26 @@ export const ImportStudentProgramsCard = (
                                                     </>
                                                 }
                                             />
-                                        </ListItem>
+                                        </ListItemButton>
                                     ))}
                                 </List>
                             </Paper>
                         ) : (
                             <Paper
+                                onMouseDown={(event) => event.stopPropagation()}
                                 sx={{
                                     marginTop: '5px',
                                     position: 'absolute',
-                                    zIndex: 2,
+                                    zIndex: 4,
                                     left: 0,
-                                    right: 0
+                                    right: 0,
+                                    bgcolor: 'background.paper'
                                 }}
                             >
                                 <List>
-                                    <ListItem button>
+                                    <ListItemButton role={undefined}>
                                         <ListItemText primary="No result" />
-                                    </ListItem>
+                                    </ListItemButton>
                                 </List>
                             </Paper>
                         )
