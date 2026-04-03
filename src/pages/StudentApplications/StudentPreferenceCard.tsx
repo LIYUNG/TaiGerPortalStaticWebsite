@@ -19,9 +19,6 @@ export const StudentPreferenceCard = ({
 
     return (
         <Box>
-            <Typography variant="subtitle1" sx={{ mb: 0.75 }}>
-                {t('Application Preference From Survey')}
-            </Typography>
             <Box
                 sx={{
                     display: 'grid',
@@ -125,7 +122,6 @@ export const StudentPreferenceCard = ({
                                 py: 0.75,
                                 whiteSpace: 'pre-wrap',
                                 lineHeight: 1.45,
-                                maxHeight: 84,
                                 overflowY: 'auto'
                             }}
                         >

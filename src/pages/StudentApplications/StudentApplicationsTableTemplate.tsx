@@ -698,10 +698,7 @@ const StudentApplicationsTableTemplate = (
                 >
                     <Box>
                         <Typography variant="subtitle2">
-                            Reference Metadata
-                        </Typography>
-                        <Typography color="text.secondary" variant="caption">
-                            Student preferences are optional reference info.
+                            {t('Application Preference From Survey')}
                         </Typography>
                     </Box>
                     <Button
