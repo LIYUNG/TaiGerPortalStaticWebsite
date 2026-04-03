@@ -802,35 +802,33 @@ const StudentApplicationsTableTemplate = (
                                         {studentToShow.applying_program_count}
                                     </Typography>
                                 )}
-                            </Stack>
-                            <Stack
-                                alignItems={{ xs: 'stretch', md: 'center' }}
-                                direction={{ xs: 'column', md: 'row' }}
-                                spacing={1}
-                                sx={{
-                                    justifyContent: 'flex-end',
-                                    flexWrap: 'wrap'
-                                }}
-                            >
                                 {is_TaiGer_role(typedUser) ? (
-                                    <>
-                                        <ImportStudentProgramsCard
-                                            compact
-                                            student={studentToShow}
-                                        />
-                                        <Button
-                                            color="primary"
-                                            onClick={
-                                                onClickProgramAssignHandler
-                                            }
-                                            size="small"
-                                            variant="contained"
-                                        >
-                                            {t('Add New Program')}
-                                        </Button>
-                                    </>
+                                    <Button
+                                        color="primary"
+                                        onClick={onClickProgramAssignHandler}
+                                        size="small"
+                                        variant="contained"
+                                    >
+                                        {t('Add New Program')}
+                                    </Button>
                                 ) : null}
                             </Stack>
+                            {is_TaiGer_role(typedUser) ? (
+                                <Stack
+                                    alignItems={{ xs: 'stretch', md: 'center' }}
+                                    direction={{ xs: 'column', md: 'row' }}
+                                    spacing={1}
+                                    sx={{
+                                        justifyContent: 'flex-end',
+                                        flexWrap: 'wrap'
+                                    }}
+                                >
+                                    <ImportStudentProgramsCard
+                                        compact
+                                        student={studentToShow}
+                                    />
+                                </Stack>
+                            ) : null}
                         </Stack>
                         <Box>
                             <ApplicationsTableBanners />
