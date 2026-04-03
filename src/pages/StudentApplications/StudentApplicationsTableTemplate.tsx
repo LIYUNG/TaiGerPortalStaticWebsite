@@ -100,7 +100,7 @@ const StudentApplicationsTableTemplate = (
 
     const [draft, setDraft] = useState<StudentDraft | null>(null);
     const [isSubmittingUpdate, setIsSubmittingUpdate] = useState(false);
-    const [isMetaExpanded, setIsMetaExpanded] = useState(false);
+    const [isMetaExpanded, setIsMetaExpanded] = useState(true);
     const [isImportPanelOpen, setIsImportPanelOpen] = useState(false);
     const updateTimerRef = useRef<number | null>(null);
     const queuedUpdateRef = useRef<{
@@ -706,9 +706,7 @@ const StudentApplicationsTableTemplate = (
                         size="small"
                         variant="text"
                     >
-                        {isMetaExpanded
-                            ? 'Collapse Metadata'
-                            : 'Expand Metadata'}
+                        {isMetaExpanded ? t('Collapse') : t('Expand')}
                     </Button>
                 </Stack>
                 <Collapse in={isMetaExpanded} timeout="auto" unmountOnExit>
