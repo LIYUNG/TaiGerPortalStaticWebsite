@@ -31,6 +31,7 @@ import { useSnackBar } from '@contexts/use-snack-bar';
 
 export interface ImportStudentProgramsCardProps {
     student: Record<string, unknown> & { applications?: Application[] };
+    compact?: boolean;
 }
 
 type CreateApplicationResponse = {
@@ -42,6 +43,7 @@ type CreateApplicationResponse = {
 export const ImportStudentProgramsCard = (
     props: ImportStudentProgramsCardProps
 ) => {
+    const { compact = false } = props;
     const { t } = useTranslation();
     const { setMessage, setSeverity, setOpenSnackbar } = useSnackBar();
     const [importStudentProgramsCard, setImportStudentProgramsCardState] =
@@ -215,22 +217,36 @@ export const ImportStudentProgramsCard = (
     };
     return (
         <>
-            <Card sx={{ p: 2, minHeight: '340px', zIndex: 0 }}>
-                <Typography>
+            <Card
+                sx={{
+                    p: compact ? 1 : 2,
+                    minHeight: compact ? 'auto' : '340px',
+                    zIndex: 0,
+                    width: compact ? { xs: '100%', md: 360 } : '100%'
+                }}
+                variant={compact ? 'outlined' : 'elevation'}
+            >
+                <Typography variant={compact ? 'subtitle2' : 'body1'}>
                     {t('Import programs from another student')}
                 </Typography>
-                <Typography>
-                    {t(
-                        'Find the student (name or email) and import his/her progams'
-                    )}
-                </Typography>
+                {!compact ? (
+                    <Typography>
+                        {t(
+                            'Find the student (name or email) and import his/her progams'
+                        )}
+                    </Typography>
+                ) : null}
                 <Box sx={{ position: 'relative' }}>
                     <TextField
                         className="search-input"
                         fullWidth
                         onChange={handleInputChange}
                         onMouseDown={handleInputBlur}
-                        placeholder={t('Search student...')}
+                        placeholder={
+                            compact
+                                ? t('Search student to import...')
+                                : t('Search student...')
+                        }
                         size="small"
                         type="text"
                         value={importStudentProgramsCard.searchTerm}

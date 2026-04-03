@@ -9,6 +9,7 @@ import {
 import {
     Box,
     Chip,
+    Collapse,
     Breadcrumbs,
     Button,
     Card,
@@ -99,6 +100,8 @@ const StudentApplicationsTableTemplate = (
 
     const [draft, setDraft] = useState<StudentDraft | null>(null);
     const [isSubmittingUpdate, setIsSubmittingUpdate] = useState(false);
+    const [isMetaExpanded, setIsMetaExpanded] = useState(false);
+    const [isImportPanelOpen, setIsImportPanelOpen] = useState(false);
     const updateTimerRef = useRef<number | null>(null);
     const queuedUpdateRef = useRef<{
         applications: Application[];
@@ -621,77 +624,60 @@ const StudentApplicationsTableTemplate = (
                     res_modal_status={res_modal_status}
                 />
             ) : null}
-            <Card>
-                <Stack spacing={0.75}>
-                    <Breadcrumbs aria-label="breadcrumb">
+            <Stack
+                alignItems={{ xs: 'flex-start', md: 'center' }}
+                direction={{ xs: 'column', md: 'row' }}
+                justifyContent="space-between"
+                spacing={1}
+            >
+                <Breadcrumbs aria-label="breadcrumb">
+                    <Link
+                        color="inherit"
+                        component={LinkDom}
+                        to={`${DEMO.DASHBOARD_LINK}`}
+                        underline="hover"
+                    >
+                        {appConfig.companyName}
+                    </Link>
+                    {is_TaiGer_role(typedUser) ? (
                         <Link
                             color="inherit"
                             component={LinkDom}
-                            to={`${DEMO.DASHBOARD_LINK}`}
+                            to={`${DEMO.STUDENT_DATABASE_LINK}`}
                             underline="hover"
                         >
-                            {appConfig.companyName}
+                            {t('Students Database', { ns: 'common' })}
                         </Link>
-                        {is_TaiGer_role(typedUser) ? (
-                            <Link
-                                color="inherit"
-                                component={LinkDom}
-                                to={`${DEMO.STUDENT_DATABASE_LINK}`}
-                                underline="hover"
-                            >
-                                {t('Students Database', { ns: 'common' })}
-                            </Link>
-                        ) : null}
-                        {is_TaiGer_role(typedUser) ? (
-                            <Link
-                                color="inherit"
-                                component={LinkDom}
-                                to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
-                                    String(props.student._id),
-                                    DEMO.PROFILE_HASH
-                                )}`}
-                                underline="hover"
-                            >
-                                {t('Student', { ns: 'common' })}{' '}
-                                {props.student.firstname}{' '}
-                                {props.student.lastname}
-                            </Link>
-                        ) : null}
-                        <Typography color="text.primary">
-                            {t('Applications', { ns: 'common' })}
-                        </Typography>
-                    </Breadcrumbs>
-                    <Stack
-                        alignItems="center"
-                        direction={{ xs: 'column', md: 'row' }}
-                        justifyContent="space-between"
-                        spacing={0.75}
-                    >
-                        <Box>
-                            <Typography variant="h6">
-                                {props.student.firstname}{' '}
-                                {props.student.lastname}
-                            </Typography>
-                            <Typography
-                                color="text.secondary"
-                                variant="caption"
-                            >
-                                Auto-save is enabled for application edits.
-                            </Typography>
-                        </Box>
-                        <Chip
-                            color={isSubmittingUpdate ? 'warning' : 'success'}
-                            label={
-                                isSubmittingUpdate
-                                    ? 'Saving changes...'
-                                    : 'Auto-save on'
-                            }
-                            variant={isSubmittingUpdate ? 'filled' : 'outlined'}
-                        />
-                    </Stack>
-                    {isSubmittingUpdate ? <LinearProgress /> : null}
-                </Stack>
-            </Card>
+                    ) : null}
+                    {is_TaiGer_role(typedUser) ? (
+                        <Link
+                            color="inherit"
+                            component={LinkDom}
+                            to={`${DEMO.STUDENT_DATABASE_STUDENTID_LINK(
+                                String(props.student._id),
+                                DEMO.PROFILE_HASH
+                            )}`}
+                            underline="hover"
+                        >
+                            {t('Student', { ns: 'common' })}{' '}
+                            {props.student.firstname} {props.student.lastname}
+                        </Link>
+                    ) : null}
+                    <Typography color="text.primary">
+                        {t('Applications', { ns: 'common' })}
+                    </Typography>
+                </Breadcrumbs>
+                <Chip
+                    color={isSubmittingUpdate ? 'warning' : 'success'}
+                    label={
+                        isSubmittingUpdate
+                            ? 'Saving changes...'
+                            : 'Auto-save on'
+                    }
+                    variant={isSubmittingUpdate ? 'filled' : 'outlined'}
+                />
+            </Stack>
+            {isSubmittingUpdate ? <LinearProgress /> : null}
             {is_TaiGer_Student(typedUser) ? (
                 <ConfirmDialog
                     open={showProgramCorrectnessReminderModal}
@@ -703,27 +689,48 @@ const StudentApplicationsTableTemplate = (
                     onConfirm={closeProgramCorrectnessModal}
                 />
             ) : null}
-            <Box>
-                <Grid
-                    container
-                    spacing={1.5}
-                    sx={{ mt: 0 }}
-                    alignItems="stretch"
+            <Card sx={{ p: { xs: 1, md: 1.25 } }} variant="outlined">
+                <Stack
+                    alignItems={{ xs: 'flex-start', md: 'center' }}
+                    direction={{ xs: 'column', md: 'row' }}
+                    justifyContent="space-between"
+                    spacing={1}
                 >
-                    <Grid item md={is_TaiGer_role(typedUser) ? 4 : 12} xs={12}>
-                        <StudentPreferenceCard
-                            student={studentToShow as IStudentResponse}
-                        />
-                    </Grid>
-                    {is_TaiGer_role(typedUser) ? (
-                        <Grid item md={8} xs={12}>
-                            <ImportStudentProgramsCard
-                                student={studentToShow}
-                            />
+                    <Box>
+                        <Typography variant="subtitle2">
+                            Reference Metadata
+                        </Typography>
+                        <Typography color="text.secondary" variant="caption">
+                            Student preferences are optional reference info.
+                        </Typography>
+                    </Box>
+                    <Button
+                        onClick={() => setIsMetaExpanded((prev) => !prev)}
+                        size="small"
+                        variant="text"
+                    >
+                        {isMetaExpanded
+                            ? 'Collapse Metadata'
+                            : 'Expand Metadata'}
+                    </Button>
+                </Stack>
+                <Collapse in={isMetaExpanded} timeout="auto" unmountOnExit>
+                    <Box sx={{ mt: 1.25 }}>
+                        <Grid
+                            container
+                            spacing={1.5}
+                            sx={{ mt: 0 }}
+                            alignItems="stretch"
+                        >
+                            <Grid item md={12} xs={12}>
+                                <StudentPreferenceCard
+                                    student={studentToShow as IStudentResponse}
+                                />
+                            </Grid>
                         </Grid>
-                    ) : null}
-                </Grid>
-            </Box>
+                    </Box>
+                </Collapse>
+            </Card>
             <Stack spacing={2}>
                 {isProgramNotSelectedEnough([
                     studentToShow as IStudentResponse
@@ -751,53 +758,91 @@ const StudentApplicationsTableTemplate = (
                             justifyContent="space-between"
                             spacing={2}
                         >
-                            <Box>
-                                <Typography variant="h6">
-                                    {t('Applying Program Count', {
-                                        ns: 'common'
-                                    })}
-                                </Typography>
+                            <Stack spacing={0.5}>
+                                <Stack
+                                    alignItems="center"
+                                    direction="row"
+                                    spacing={1}
+                                >
+                                    <Typography variant="h6">
+                                        {t('Applying Program Count', {
+                                            ns: 'common'
+                                        })}
+                                    </Typography>
+                                    {is_TaiGer_role(typedUser) ? (
+                                        <Button
+                                            onClick={() =>
+                                                setIsImportPanelOpen(
+                                                    (prev) => !prev
+                                                )
+                                            }
+                                            size="small"
+                                            variant="outlined"
+                                        >
+                                            {isImportPanelOpen
+                                                ? t('Hide import programs')
+                                                : t('Import programs')}
+                                        </Button>
+                                    ) : null}
+                                </Stack>
                                 <Typography
                                     color="text.secondary"
                                     variant="body2"
                                 >
                                     This field now saves automatically.
                                 </Typography>
-                            </Box>
-                            {is_TaiGer_Admin(typedUser) ? (
-                                <FormControl sx={{ minWidth: 180 }}>
-                                    <Select
-                                        id="applying_program_count"
-                                        name="applying_program_count"
-                                        onChange={(e) =>
-                                            handleChangeProgramCount(e)
-                                        }
-                                        size="small"
-                                        value={
-                                            studentToShow.applying_program_count
-                                        }
-                                    >
-                                        <MenuItem value="0">
-                                            Please Select
-                                        </MenuItem>
-                                        <MenuItem value="1">1</MenuItem>
-                                        <MenuItem value="2">2</MenuItem>
-                                        <MenuItem value="3">3</MenuItem>
-                                        <MenuItem value="4">4</MenuItem>
-                                        <MenuItem value="5">5</MenuItem>
-                                        <MenuItem value="6">6</MenuItem>
-                                        <MenuItem value="7">7</MenuItem>
-                                        <MenuItem value="8">8</MenuItem>
-                                        <MenuItem value="9">9</MenuItem>
-                                        <MenuItem value="10">10</MenuItem>
-                                    </Select>
-                                </FormControl>
-                            ) : (
-                                <Typography variant="h6">
-                                    {studentToShow.applying_program_count}
-                                </Typography>
-                            )}
+                            </Stack>
+                            <Stack
+                                alignItems={{ xs: 'stretch', md: 'center' }}
+                                direction={{ xs: 'column', md: 'row' }}
+                                spacing={1.5}
+                            >
+                                {is_TaiGer_Admin(typedUser) ? (
+                                    <FormControl sx={{ minWidth: 180 }}>
+                                        <Select
+                                            id="applying_program_count"
+                                            name="applying_program_count"
+                                            onChange={(e) =>
+                                                handleChangeProgramCount(e)
+                                            }
+                                            size="small"
+                                            value={
+                                                studentToShow.applying_program_count
+                                            }
+                                        >
+                                            <MenuItem value="0">
+                                                Please Select
+                                            </MenuItem>
+                                            <MenuItem value="1">1</MenuItem>
+                                            <MenuItem value="2">2</MenuItem>
+                                            <MenuItem value="3">3</MenuItem>
+                                            <MenuItem value="4">4</MenuItem>
+                                            <MenuItem value="5">5</MenuItem>
+                                            <MenuItem value="6">6</MenuItem>
+                                            <MenuItem value="7">7</MenuItem>
+                                            <MenuItem value="8">8</MenuItem>
+                                            <MenuItem value="9">9</MenuItem>
+                                            <MenuItem value="10">10</MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                ) : (
+                                    <Typography variant="h6">
+                                        {studentToShow.applying_program_count}
+                                    </Typography>
+                                )}
+                            </Stack>
                         </Stack>
+                        <Collapse
+                            in={isImportPanelOpen}
+                            timeout="auto"
+                            unmountOnExit
+                        >
+                            <Box sx={{ mt: 1.5 }}>
+                                <ImportStudentProgramsCard
+                                    student={studentToShow}
+                                />
+                            </Box>
+                        </Collapse>
                         <Box>
                             <ApplicationsTableBanners />
                             <TableContainer style={{ overflowX: 'auto' }}>

@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Box, List, ListItem, Stack, Typography } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 import type { IStudentResponse } from '@taiger-common/model';
 
 export const StudentPreferenceCard = ({
@@ -22,14 +22,14 @@ export const StudentPreferenceCard = ({
             <Typography variant="subtitle1" sx={{ mb: 0.75 }}>
                 {t('Application Preference From Survey')}
             </Typography>
-            <List
-                disablePadding
+            <Box
                 sx={{
                     display: 'grid',
-                    gap: 0.75
+                    gap: 0.75,
+                    gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }
                 }}
             >
-                <ListItem disableGutters sx={{ display: 'block', py: 0.25 }}>
+                <Box sx={{ py: 0.25 }}>
                     <Stack spacing={0}>
                         <Typography color="text.secondary" variant="overline">
                             {t('Target Application Fields')}
@@ -41,8 +41,8 @@ export const StudentPreferenceCard = ({
                             )}
                         </Typography>
                     </Stack>
-                </ListItem>
-                <ListItem disableGutters sx={{ display: 'block', py: 0.25 }}>
+                </Box>
+                <Box sx={{ py: 0.25 }}>
                     <Stack spacing={0}>
                         <Typography color="text.secondary" variant="overline">
                             {t('Target Application Subjects')}
@@ -54,8 +54,8 @@ export const StudentPreferenceCard = ({
                             )}
                         </Typography>
                     </Stack>
-                </ListItem>
-                <ListItem disableGutters sx={{ display: 'block', py: 0.25 }}>
+                </Box>
+                <Box sx={{ py: 0.25 }}>
                     <Stack spacing={0}>
                         <Typography color="text.secondary" variant="overline">
                             {t('Target Degree Programs')}
@@ -66,8 +66,8 @@ export const StudentPreferenceCard = ({
                             )}
                         </Typography>
                     </Stack>
-                </ListItem>
-                <ListItem disableGutters sx={{ display: 'block', py: 0.25 }}>
+                </Box>
+                <Box sx={{ py: 0.25 }}>
                     <Stack spacing={0}>
                         <Typography color="text.secondary" variant="overline">
                             {t('Target Program Language')}
@@ -79,8 +79,8 @@ export const StudentPreferenceCard = ({
                             )}
                         </Typography>
                     </Stack>
-                </ListItem>
-                <ListItem disableGutters sx={{ display: 'block', py: 0.25 }}>
+                </Box>
+                <Box sx={{ py: 0.25 }}>
                     <Stack spacing={0}>
                         <Typography color="text.secondary" variant="overline">
                             {t(
@@ -94,8 +94,8 @@ export const StudentPreferenceCard = ({
                             )}
                         </Typography>
                     </Stack>
-                </ListItem>
-                <ListItem disableGutters sx={{ display: 'block', py: 0.25 }}>
+                </Box>
+                <Box sx={{ py: 0.25 }}>
                     <Stack spacing={0}>
                         <Typography color="text.secondary" variant="overline">
                             {t('Considering universities outside Germany?')}
@@ -107,8 +107,10 @@ export const StudentPreferenceCard = ({
                             )}
                         </Typography>
                     </Stack>
-                </ListItem>
-                <ListItem disableGutters sx={{ display: 'block', py: 0.25 }}>
+                </Box>
+                <Box
+                    sx={{ gridColumn: { xs: 'auto', md: '1 / -1' }, py: 0.25 }}
+                >
                     <Stack spacing={0.5}>
                         <Typography color="text.secondary" variant="overline">
                             {t('Other wish', { ns: 'survey' })}
@@ -122,8 +124,8 @@ export const StudentPreferenceCard = ({
                                 px: 1,
                                 py: 0.75,
                                 whiteSpace: 'pre-wrap',
-                                lineHeight: 1.5,
-                                maxHeight: 96,
+                                lineHeight: 1.45,
+                                maxHeight: 84,
                                 overflowY: 'auto'
                             }}
                         >
@@ -133,8 +135,8 @@ export const StudentPreferenceCard = ({
                             </Typography>
                         </Box>
                     </Stack>
-                </ListItem>
-            </List>
+                </Box>
+            </Box>
         </Box>
     );
 };
