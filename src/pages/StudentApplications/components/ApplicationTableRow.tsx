@@ -56,6 +56,7 @@ export interface ApplicationTableRowProps {
     studentToShow: ApplicationTableRowStudent;
     user: IUser | null;
     today: Date;
+    isSubmitting?: boolean;
     handleChange: (
         e: ChangeEvent<HTMLInputElement> | SelectChangeEvent<string>,
         application_idx: number
@@ -88,6 +89,7 @@ const ApplicationTableRow = ({
     studentToShow,
     user,
     today,
+    isSubmitting,
     handleChange,
     handleWithdraw,
     handleDelete,
@@ -98,6 +100,7 @@ const ApplicationTableRow = ({
     const [isSubmittingAdmission, setIsSubmittingAdmission] = useState(false);
     const [admissionMenuAnchor, setAdmissionMenuAnchor] =
         useState<null | HTMLElement>(null);
+    const isInteractionDisabled = isSubmitting || isSubmittingAdmission;
 
     const canUpdateAdmission =
         application.closed !== '-' &&
@@ -267,7 +270,9 @@ const ApplicationTableRow = ({
             <TableCell>
                 <FormControl fullWidth>
                     <Select
-                        disabled={application.closed !== '-'}
+                        disabled={
+                            application.closed !== '-' || isInteractionDisabled
+                        }
                         id="decided"
                         labelId="decided"
                         name="decided"
@@ -300,6 +305,7 @@ const ApplicationTableRow = ({
                                 id="closed"
                                 labelId="closed"
                                 name="closed"
+                                disabled={isInteractionDisabled}
                                 onChange={(e) =>
                                     handleChange(e, application_idx)
                                 }
@@ -359,7 +365,7 @@ const ApplicationTableRow = ({
                             aria-haspopup="menu"
                             color={admissionColor}
                             disabled={
-                                !canUpdateAdmission || isSubmittingAdmission
+                                !canUpdateAdmission || isInteractionDisabled
                             }
                             fullWidth
                             id={admissionButtonId}
@@ -411,6 +417,7 @@ const ApplicationTableRow = ({
                             id="finalEnrolment"
                             labelId="finalEnrolment"
                             name="finalEnrolment"
+                            disabled={isInteractionDisabled}
                             onChange={(e) => handleChange(e, application_idx)}
                             size="small"
                         >
@@ -449,16 +456,40 @@ const ApplicationTableRow = ({
                         (isProgramWithdraw(application) ? (
                             <Tooltip arrow title="Undo Withdraw">
                                 <RedoIcon
+                                    style={{
+                                        cursor: isInteractionDisabled
+                                            ? 'not-allowed'
+                                            : 'pointer',
+                                        opacity: isInteractionDisabled ? 0.4 : 1
+                                    }}
                                     onClick={(e) =>
-                                        handleWithdraw(e, application_idx, '-')
+                                        isInteractionDisabled
+                                            ? undefined
+                                            : handleWithdraw(
+                                                  e,
+                                                  application_idx,
+                                                  '-'
+                                              )
                                     }
                                 />
                             </Tooltip>
                         ) : (
                             <Tooltip arrow title="Withdraw">
                                 <UndoIcon
+                                    style={{
+                                        cursor: isInteractionDisabled
+                                            ? 'not-allowed'
+                                            : 'pointer',
+                                        opacity: isInteractionDisabled ? 0.4 : 1
+                                    }}
                                     onClick={(e) =>
-                                        handleWithdraw(e, application_idx, 'X')
+                                        isInteractionDisabled
+                                            ? undefined
+                                            : handleWithdraw(
+                                                  e,
+                                                  application_idx,
+                                                  'X'
+                                              )
                                     }
                                 />
                             </Tooltip>

@@ -4,7 +4,6 @@ import {
     Breadcrumbs,
     Button,
     Card,
-    CircularProgress,
     FormControl,
     Grid,
     Link,
@@ -89,6 +88,7 @@ const StudentApplicationsTableTemplate = (
     const navigate = useNavigate();
 
     const [draft, setDraft] = useState<StudentDraft | null>(null);
+    const [isSubmittingUpdate, setIsSubmittingUpdate] = useState(false);
     const studentToShow =
         draft == null
             ? props.student
@@ -137,11 +137,11 @@ const StudentApplicationsTableTemplate = (
     const handleChangeProgramCount = (
         e: SelectChangeEvent<string | number>
     ) => {
-        const applying_program_count = e.target.value;
-        setDraft((prev) => ({
-            ...prev,
+        const applying_program_count = Number(e.target.value);
+        void persistStudentApplicationsUpdate(
+            studentToShow.applications ?? [],
             applying_program_count
-        }));
+        );
     };
 
     const handleChange = (
@@ -155,10 +155,10 @@ const StudentApplicationsTableTemplate = (
             ...applications_temp[application_idx],
             [e.target.name]: e.target.value
         };
-        setDraft((prev) => ({
-            ...prev,
-            applications: applications_temp
-        }));
+        void persistStudentApplicationsUpdate(
+            applications_temp,
+            studentToShow.applying_program_count
+        );
     };
 
     const handleSingleChange = (
@@ -188,10 +188,10 @@ const StudentApplicationsTableTemplate = (
             ...applications_temp[application_idx],
             closed: programWithdraw
         };
-        setDraft((prev) => ({
-            ...prev,
-            applications: applications_temp
-        }));
+        void persistStudentApplicationsUpdate(
+            applications_temp,
+            studentToShow.applying_program_count
+        );
     };
 
     const updateDraftAdmissionByApplicationId = (
@@ -281,6 +281,81 @@ const StudentApplicationsTableTemplate = (
         }
     };
 
+    const buildApplicationsPayload = (applications: Application[]) =>
+        applications.map((application) => ({
+            _id: application._id,
+            programId: application.programId?._id,
+            decided: application.decided,
+            closed: application.closed,
+            admission: application.admission,
+            finalEnrolment: application.finalEnrolment
+        }));
+
+    const persistStudentApplicationsUpdate = async (
+        nextApplications: Application[],
+        nextApplyingProgramCount: number | string | undefined
+    ) => {
+        if (isSubmittingUpdate) {
+            return;
+        }
+
+        const studentId = String(studentToShow._id ?? '');
+        if (!studentId) {
+            setSeverity('error');
+            setMessage('Missing student id.');
+            setOpenSnackbar(true);
+            return;
+        }
+
+        const applicationsPayload = buildApplicationsPayload(nextApplications);
+        const applyingProgramCount = Number(nextApplyingProgramCount ?? 0);
+
+        setIsSubmittingUpdate(true);
+        setDraft({
+            applications: nextApplications,
+            applying_program_count: nextApplyingProgramCount
+        });
+
+        try {
+            const resp = await updateStudentApplications(
+                studentId,
+                applicationsPayload as unknown as Record<string, unknown>,
+                applyingProgramCount
+            );
+
+            const { success, message } = resp.data;
+            if (success) {
+                setDraft(null);
+                queryClient.invalidateQueries({
+                    queryKey: ['applications/student', studentId]
+                });
+                setSeverity('success');
+                setMessage(
+                    t('Applications status updated successfully!', {
+                        ns: 'common'
+                    })
+                );
+                setOpenSnackbar(true);
+                return;
+            }
+
+            setDraft(null);
+            setSeverity('error');
+            setMessage(message ?? 'Failed to update applications.');
+            setOpenSnackbar(true);
+        } catch (error) {
+            setDraft(null);
+            setSeverity('error');
+            setMessage(
+                (error as { message?: string }).message ||
+                    'An error occurred. Please try again.'
+            );
+            setOpenSnackbar(true);
+        } finally {
+            setIsSubmittingUpdate(false);
+        }
+    };
+
     const handleDelete = (
         e: MouseEvent<HTMLElement>,
         application_id: string,
@@ -310,12 +385,14 @@ const StudentApplicationsTableTemplate = (
             modalEditApplication: true
         }));
     };
+
     const onHideModalEditApplication = () => {
         setStudentApplicationsTableTemplateState((prevState) => ({
             ...prevState,
             modalEditApplication: false
         }));
     };
+
     const handleEditConfirm = () => {
         const payload = {
             application_year:
@@ -392,75 +469,6 @@ const StudentApplicationsTableTemplate = (
                         isLoaded: true,
                         success,
                         modalDeleteApplication: false,
-                        res_modal_status: status
-                    }));
-                } else {
-                    const { message } = resp.data;
-                    setStudentApplicationsTableTemplateState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        res_modal_status: status,
-                        res_modal_message: message ?? ''
-                    }));
-                }
-            },
-            (error) => {
-                setSeverity('error');
-                setMessage(
-                    error.message || 'An error occurred. Please try again.'
-                );
-                setOpenSnackbar(true);
-                setStudentApplicationsTableTemplateState((prevState) => ({
-                    ...prevState,
-                    isLoaded: true,
-                    error: error?.message || String(error),
-                    res_modal_status: 500,
-                    res_modal_message: ''
-                }));
-            }
-        );
-    };
-
-    const handleSubmit = (student_id: string) => {
-        const applications_temp = studentToShow.applications?.map(
-            (application) => ({
-                _id: application._id,
-                programId: application.programId?._id,
-                decided: application.decided,
-                closed: application.closed,
-                admission: application.admission,
-                finalEnrolment: application.finalEnrolment
-            })
-        );
-        const applying_program_count = studentToShow.applying_program_count;
-        setStudentApplicationsTableTemplateState((prevState) => ({
-            ...prevState,
-            isLoaded: false
-        }));
-        updateStudentApplications(
-            student_id,
-            applications_temp as unknown as Record<string, unknown>,
-            applying_program_count as number
-        ).then(
-            (resp) => {
-                const { success } = resp.data;
-                const { status } = resp;
-                if (success) {
-                    setDraft(null);
-                    queryClient.invalidateQueries({
-                        queryKey: ['applications/student', student_id]
-                    });
-                    setSeverity('success');
-                    setMessage(
-                        t('Applications status updated successfully!', {
-                            ns: 'common'
-                        })
-                    );
-                    setOpenSnackbar(true);
-                    setStudentApplicationsTableTemplateState((prevState) => ({
-                        ...prevState,
-                        isLoaded: true,
-                        success,
                         res_modal_status: status
                     }));
                 } else {
@@ -741,6 +749,9 @@ const StudentApplicationsTableTemplate = (
                                                         handleAdmissionResultChange={
                                                             handleAdmissionResultChange
                                                         }
+                                                        isSubmitting={
+                                                            isSubmittingUpdate
+                                                        }
                                                         handleWithdraw={
                                                             handleWithdraw
                                                         }
@@ -758,27 +769,6 @@ const StudentApplicationsTableTemplate = (
                             </TableContainer>
                         </Box>
                     </Card>
-                    <Box>
-                        <Button
-                            color="primary"
-                            disabled={
-                                !draft ||
-                                !studentApplicationsTableTemplateState.isLoaded
-                            }
-                            fullWidth
-                            onClick={() =>
-                                handleSubmit(String(studentToShow._id))
-                            }
-                            sx={{ mt: 2 }}
-                            variant="contained"
-                        >
-                            {studentApplicationsTableTemplateState.isLoaded ? (
-                                t('Update', { ns: 'common' })
-                            ) : (
-                                <CircularProgress size={16} />
-                            )}
-                        </Button>
-                    </Box>
                     {is_TaiGer_role(typedUser) ? (
                         <>
                             <Box>
