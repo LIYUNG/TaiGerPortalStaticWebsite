@@ -810,10 +810,22 @@ const StudentApplicationsTableTemplate = (
                                 sx={{ justifyContent: 'flex-end' }}
                             >
                                 {is_TaiGer_role(typedUser) ? (
-                                    <ImportStudentProgramsCard
-                                        compact
-                                        student={studentToShow}
-                                    />
+                                    <>
+                                        <ImportStudentProgramsCard
+                                            compact
+                                            student={studentToShow}
+                                        />
+                                        <Button
+                                            color="primary"
+                                            onClick={
+                                                onClickProgramAssignHandler
+                                            }
+                                            size="small"
+                                            variant="contained"
+                                        >
+                                            {t('Add New Program')}
+                                        </Button>
+                                    </>
                                 ) : null}
                             </Stack>
                         </Stack>
@@ -918,18 +930,6 @@ const StudentApplicationsTableTemplate = (
                         </Box>
                     </Stack>
                 </Card>
-                {is_TaiGer_role(typedUser) ? (
-                    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                        <Button
-                            color="primary"
-                            onClick={onClickProgramAssignHandler}
-                            size="small"
-                            variant="contained"
-                        >
-                            {t('Add New Program')}
-                        </Button>
-                    </Box>
-                ) : null}
                 <ConfirmationModal
                     closeText={t('No', { ns: 'common' })}
                     confirmText={t('Yes', { ns: 'common' })}
