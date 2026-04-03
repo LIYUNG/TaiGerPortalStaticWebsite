@@ -92,7 +92,7 @@ const StudentApplicationsTableTemplate = (
     const { t } = useTranslation();
     const navigate = useNavigate();
 
-    const [isMetaExpanded, setIsMetaExpanded] = useState(true);
+    const [isMetaExpanded, setIsMetaExpanded] = useState(false);
     const {
         studentToShow,
         isSubmittingUpdate,
