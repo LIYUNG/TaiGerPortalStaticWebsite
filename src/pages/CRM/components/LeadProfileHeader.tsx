@@ -413,14 +413,16 @@ const LeadProfileHeader = ({
                                     variant="body2"
                                 >
                                     {t('common.sales', { ns: 'crm' })}:{' '}
-                                    {String(
-                                        (
-                                            lead?.salesRep as Record<
-                                                string,
-                                                unknown
-                                            >
-                                        )?.label ?? ''
-                                    ) ||
+                                    {(typeof lead?.salesRep === 'string'
+                                        ? lead.salesRep
+                                        : String(
+                                              (
+                                                  lead?.salesRep as Record<
+                                                      string,
+                                                      unknown
+                                                  >
+                                              )?.label ?? ''
+                                          )) ||
                                         t('leads.unassigned', {
                                             ns: 'crm'
                                         })}
@@ -577,6 +579,11 @@ const LeadProfileHeader = ({
                             {showTagsEditor && (
                                 <Box sx={{ mt: 1 }}>
                                     <TextField
+                                        inputProps={{
+                                            'aria-label': t('common.tags', {
+                                                ns: 'crm'
+                                            })
+                                        }}
                                         InputProps={{
                                             endAdornment: (
                                                 <InputAdornment position="end">
@@ -757,6 +764,12 @@ const LeadProfileHeader = ({
                                             >
                                                 {editingNoteId === note.id ? (
                                                     <TextField
+                                                        inputProps={{
+                                                            'aria-label': t(
+                                                                'common.notes',
+                                                                { ns: 'crm' }
+                                                            )
+                                                        }}
                                                         fullWidth
                                                         minRows={2}
                                                         multiline
@@ -977,6 +990,11 @@ const LeadProfileHeader = ({
                                     }}
                                 >
                                     <TextField
+                                        inputProps={{
+                                            'aria-label': t('common.notes', {
+                                                ns: 'crm'
+                                            })
+                                        }}
                                         fullWidth
                                         minRows={2}
                                         multiline
