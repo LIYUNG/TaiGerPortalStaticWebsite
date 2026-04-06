@@ -21,6 +21,7 @@ vi.mock('@components/AuthProvider', () => ({
 }));
 
 vi.mock('@taiger-common/core', () => ({
+    is_TaiGer_role: vi.fn(() => false),
     is_TaiGer_Agent: vi.fn(() => false),
     is_TaiGer_Editor: vi.fn(() => false)
 }));
