@@ -76,6 +76,9 @@
         "speakers": "讲者",
         "attendees": "与会者",
         "studentDetails": "学生详情",
+        "studentProfile": "查看学生档案",
+        "noTagsYet": "尚无标签。",
+        "noNotesYet": "尚无备注。",
         "unsavedChanges": "• 未保存的更改",
         "noteCreatedAt": "创建于"
     },

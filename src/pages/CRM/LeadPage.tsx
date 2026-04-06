@@ -374,7 +374,7 @@ const LeadPage = () => {
         onSuccess: (updated) => {
             if (!updated) return;
             queryClient.setQueryData(['crm/lead', leadId], (old) => {
-                if (!old) return old;
+                if (!old) return updated;
                 if (typeof old === 'object' && old !== null) {
                     return {
                         ...(old as Record<string, unknown>),
@@ -674,12 +674,7 @@ const LeadPage = () => {
                                                 viewContent={
                                                     <GenericCardContent
                                                         config={config}
-                                                        formData={
-                                                            formData as Record<
-                                                                string,
-                                                                string
-                                                            >
-                                                        }
+                                                        formData={formData}
                                                         isEditing={false}
                                                         lead={flattenObject(
                                                             student
@@ -737,10 +732,7 @@ const LeadPage = () => {
                                                             <GenericCardContent
                                                                 config={config}
                                                                 formData={
-                                                                    formData as Record<
-                                                                        string,
-                                                                        string
-                                                                    >
+                                                                    formData
                                                                 }
                                                                 isEditing={true}
                                                                 lead={lead}
@@ -780,10 +772,7 @@ const LeadPage = () => {
                                                             <GenericCardContent
                                                                 config={config}
                                                                 formData={
-                                                                    formData as Record<
-                                                                        string,
-                                                                        string
-                                                                    >
+                                                                    formData
                                                                 }
                                                                 isEditing={
                                                                     false

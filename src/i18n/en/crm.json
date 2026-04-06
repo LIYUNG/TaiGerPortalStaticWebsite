@@ -77,6 +77,8 @@
         "attendees": "Attendees",
         "studentDetails": "Student Details",
         "studentProfile": "View Student Profile",
+        "noTagsYet": "No tags yet.",
+        "noNotesYet": "No notes yet.",
         "unsavedChanges": "• Unsaved changes",
         "noteCreatedAt": "Created"
     },

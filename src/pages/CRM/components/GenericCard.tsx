@@ -27,6 +27,11 @@ interface FieldEditConfig {
     rows?: number;
     inputType?: string;
     options?: SelectOption[];
+    renderEdit?: (args: {
+        field: FieldConfig;
+        formData: Record<string, unknown>;
+        onFieldChange: (key: string, value: string) => void;
+    }) => ReactNode;
 }
 
 interface FieldConfig {
@@ -51,6 +56,11 @@ interface FieldConfig {
         | 'warning';
     additionalContent?: (record: Record<string, unknown>) => ReactNode;
     render?: (record: Record<string, unknown>) => ReactNode;
+    renderEdit?: (args: {
+        field: FieldConfig;
+        formData: Record<string, unknown>;
+        onFieldChange: (key: string, value: string) => void;
+    }) => ReactNode;
     editField?: FieldEditConfig;
     options?: SelectOption[];
 }
@@ -68,7 +78,7 @@ interface CardConfig {
     divider?: boolean;
     additionalContent?: (record: Record<string, unknown>) => ReactNode;
     editAdditionalContent?: (
-        formData: Record<string, string>,
+        formData: Record<string, unknown>,
         onFieldChange: (key: string, value: string) => void
     ) => ReactNode;
 }
@@ -81,7 +91,7 @@ interface ViewFieldProps {
 
 interface EditFieldProps {
     field: FieldConfig;
-    formData: Record<string, string>;
+    formData: Record<string, unknown>;
     onFieldChange: (key: string, value: string) => void;
 }
 
@@ -89,20 +99,26 @@ interface GenericCardContentProps {
     config: CardConfig;
     lead: Record<string, unknown>;
     isEditing: boolean;
-    formData: Record<string, string>;
+    formData: Record<string, unknown>;
     onFieldChange: (key: string, value: string) => void;
 }
 
 // Generic field renderer for view mode
 const ViewField = ({ field, lead, t }: ViewFieldProps) => {
     const value = field.accessor ? field.accessor(lead) : lead[field.key];
+    const displayValue =
+        value == null || value === ''
+            ? null
+            : Array.isArray(value)
+              ? value.join(', ')
+              : `${value}`;
 
     if (field.type === 'chip') {
         return (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Chip
                     color={field.color ? field.color(value) : 'default'}
-                    label={value || t('common.unknown', { ns: 'crm' })}
+                    label={displayValue ?? t('common.unknown', { ns: 'crm' })}
                     size="small"
                 />
                 {field.additionalContent && field.additionalContent(lead)}
@@ -111,12 +127,14 @@ const ViewField = ({ field, lead, t }: ViewFieldProps) => {
     }
 
     if (field.type === 'custom') {
-        return field.render(lead);
+        return field.render ? field.render(lead) : null;
     }
 
     return (
         <Typography sx={field.sx} variant="body1">
-            {value || field.defaultValue || t('common.na', { ns: 'crm' })}
+            {displayValue ||
+                field.defaultValue ||
+                t('common.na', { ns: 'crm' })}
         </Typography>
     );
 };
@@ -124,16 +142,27 @@ const ViewField = ({ field, lead, t }: ViewFieldProps) => {
 // Generic field renderer for edit mode
 const EditField = ({ field, formData, onFieldChange }: EditFieldProps) => {
     const rawValue = formData[field.key];
-    let value = rawValue ?? '';
+    let value = typeof rawValue === 'string' ? rawValue : `${rawValue ?? ''}`;
 
     if (Array.isArray(rawValue)) {
         if (rawValue.length > 0 && typeof rawValue[0] === 'object') {
             value = rawValue
-                .map((item) => item?.note ?? '')
+                .map((item) => {
+                    if (!item || typeof item !== 'object')
+                        return `${item ?? ''}`;
+                    const obj = item as Record<string, unknown>;
+                    const candidate =
+                        obj.note ??
+                        obj.tag ??
+                        obj.label ??
+                        obj.value ??
+                        obj.name;
+                    return `${candidate ?? ''}`.trim();
+                })
                 .filter(Boolean)
                 .join('\n');
         } else {
-            value = rawValue.join(', ');
+            value = rawValue.map((item) => `${item ?? ''}`).join(', ');
         }
     }
 
@@ -195,49 +224,55 @@ export const GenericCardContent = ({
                 {config.layout === 'grid' ? (
                     <>
                         <Grid container spacing={2}>
-                            {config.sections.map((section, sectionIndex) => (
-                                <Grid
-                                    item
-                                    key={sectionIndex}
-                                    md={section.gridSize || 4}
-                                    xs={12}
-                                >
-                                    {section.title && (
-                                        <Typography
-                                            fontWeight="bold"
-                                            variant="subtitle2"
-                                        >
-                                            {section.title}
-                                        </Typography>
-                                    )}
-                                    {section.fields.map((field, fieldIndex) => (
-                                        <Box
-                                            key={fieldIndex}
-                                            sx={{
-                                                mb:
-                                                    field.type === 'title'
-                                                        ? 1
-                                                        : 2
-                                            }}
-                                        >
-                                            {field.type !== 'custom' &&
-                                                field.type !== 'chip' && (
-                                                    <Typography
-                                                        color="text.secondary"
-                                                        variant="body2"
-                                                    >
-                                                        {field.label}
-                                                    </Typography>
-                                                )}
-                                            <ViewField
-                                                field={field}
-                                                lead={lead}
-                                                t={t}
-                                            />
-                                        </Box>
-                                    ))}
-                                </Grid>
-                            ))}
+                            {(config.sections ?? []).map(
+                                (section, sectionIndex) => (
+                                    <Grid
+                                        item
+                                        key={sectionIndex}
+                                        md={section.gridSize || 4}
+                                        xs={12}
+                                    >
+                                        {section.title && (
+                                            <Typography
+                                                fontWeight="bold"
+                                                variant="subtitle2"
+                                            >
+                                                {section.title}
+                                            </Typography>
+                                        )}
+                                        {section.fields.map(
+                                            (field, fieldIndex) => (
+                                                <Box
+                                                    key={fieldIndex}
+                                                    sx={{
+                                                        mb:
+                                                            field.type ===
+                                                            'title'
+                                                                ? 1
+                                                                : 2
+                                                    }}
+                                                >
+                                                    {field.type !== 'custom' &&
+                                                        field.type !==
+                                                            'chip' && (
+                                                            <Typography
+                                                                color="text.secondary"
+                                                                variant="body2"
+                                                            >
+                                                                {field.label}
+                                                            </Typography>
+                                                        )}
+                                                    <ViewField
+                                                        field={field}
+                                                        lead={lead}
+                                                        t={t}
+                                                    />
+                                                </Box>
+                                            )
+                                        )}
+                                    </Grid>
+                                )
+                            )}
                         </Grid>
                         {/* Render additional fields if they exist */}
                         {config.fields &&
@@ -261,7 +296,7 @@ export const GenericCardContent = ({
                             ))}
                     </>
                 ) : (
-                    config.fields.map((field, index) => (
+                    (config.fields ?? []).map((field, index) => (
                         <Box key={index} sx={{ mb: 2 }}>
                             {field.type !== 'custom' &&
                                 field.type !== 'chip' && (
@@ -287,32 +322,34 @@ export const GenericCardContent = ({
             {config.layout === 'grid' ? (
                 <>
                     <Grid container spacing={2}>
-                        {config.sections.map((section, sectionIndex) => (
-                            <Grid
-                                item
-                                key={sectionIndex}
-                                md={section.gridSize || 4}
-                                xs={12}
-                            >
-                                {section.title && (
-                                    <Typography
-                                        fontWeight="bold"
-                                        sx={{ mb: 1 }}
-                                        variant="subtitle2"
-                                    >
-                                        {section.title}
-                                    </Typography>
-                                )}
-                                {section.fields.map((field, fieldIndex) => (
-                                    <EditField
-                                        field={field}
-                                        formData={formData}
-                                        key={fieldIndex}
-                                        onFieldChange={onFieldChange}
-                                    />
-                                ))}
-                            </Grid>
-                        ))}
+                        {(config.sections ?? []).map(
+                            (section, sectionIndex) => (
+                                <Grid
+                                    item
+                                    key={sectionIndex}
+                                    md={section.gridSize || 4}
+                                    xs={12}
+                                >
+                                    {section.title && (
+                                        <Typography
+                                            fontWeight="bold"
+                                            sx={{ mb: 1 }}
+                                            variant="subtitle2"
+                                        >
+                                            {section.title}
+                                        </Typography>
+                                    )}
+                                    {section.fields.map((field, fieldIndex) => (
+                                        <EditField
+                                            field={field}
+                                            formData={formData}
+                                            key={fieldIndex}
+                                            onFieldChange={onFieldChange}
+                                        />
+                                    ))}
+                                </Grid>
+                            )
+                        )}
                     </Grid>
                     {/* Render additional fields if they exist */}
                     {config.fields &&
@@ -326,7 +363,7 @@ export const GenericCardContent = ({
                         ))}
                 </>
             ) : (
-                config.fields.map((field, index) => (
+                (config.fields ?? []).map((field, index) => (
                     <EditField
                         field={field}
                         formData={formData}

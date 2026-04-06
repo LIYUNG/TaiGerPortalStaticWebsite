@@ -77,6 +77,8 @@
         "attendees": "與會者",
         "studentDetails": "學生詳情",
         "studentProfile": "檢視學生資料",
+        "noTagsYet": "尚無標籤。",
+        "noNotesYet": "尚無備註。",
         "unsavedChanges": "• 尚未儲存的變更",
         "noteCreatedAt": "建立於"
     },
