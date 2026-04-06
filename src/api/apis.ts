@@ -240,8 +240,6 @@ import {
     type GetCRMStatsResponse,
     type GetCRMLeadsResponse,
     type GetCRMLeadResponse,
-    type GetLeadIdByUserIdResponse,
-    type CreateLeadFromStudentResponse,
     type GetCRMMeetingsResponse,
     type GetCRMMeetingResponse,
     type UpdateCRMMeetingResponse,
@@ -1565,12 +1563,95 @@ export const getCRMLeads = () =>
     request.get<GetCRMLeadsResponse>(`/api/crm/leads`);
 export const getCRMLead = (leadId: LeadId) =>
     getData<GetCRMLeadResponse>(`/api/crm/leads/${leadId}`);
+export const updateCRMLead = (leadId: LeadId, payload: ApiPayload) =>
+    request.put(`/api/crm/leads/${leadId}`, payload);
+const getCRMData = async <T = unknown>(url: string): Promise<T> => {
+    const response = await request.get<T>(url);
+    if (response.status >= 400) {
+        throw new Error(
+            (response.data as { message?: string })?.message || 'Request failed'
+        );
+    }
+    return response.data;
+};
+
+const postCRMData = async <T = unknown>(
+    url: string,
+    payload: unknown
+): Promise<T> => {
+    const response = await request.post<T>(url, payload);
+    if (response.status >= 400) {
+        throw new Error(
+            (response.data as { message?: string })?.message || 'Request failed'
+        );
+    }
+    return response.data;
+};
+
+const putCRMData = async <T = unknown>(
+    url: string,
+    payload: unknown
+): Promise<T> => {
+    const response = await request.put<T>(url, payload);
+    if (response.status >= 400) {
+        throw new Error(
+            (response.data as { message?: string })?.message || 'Request failed'
+        );
+    }
+    return response.data;
+};
+
+const patchCRMData = async <T = unknown>(
+    url: string,
+    payload: unknown
+): Promise<T> => {
+    const response = await request.patch<T>(url, payload);
+    if (response.status >= 400) {
+        throw new Error(
+            (response.data as { message?: string })?.message || 'Request failed'
+        );
+    }
+    return response.data;
+};
+
+const deleteCRMData = async <T = unknown>(
+    url: string,
+    config?: { data?: unknown }
+): Promise<T> => {
+    const response = await request.delete<T>(url, config);
+    if (response.status >= 400) {
+        throw new Error(
+            (response.data as { message?: string })?.message || 'Request failed'
+        );
+    }
+    return response.data;
+};
+
 export const getLeadIdByUserId = (userId: UserId) =>
-    request.get<GetLeadIdByUserIdResponse>(`/api/crm/students/${userId}/lead`);
+    request.get(`/api/crm/students/${userId}/lead`);
 export const createLeadFromStudent = (userId: UserId) =>
-    request.post<CreateLeadFromStudentResponse>(
-        `/api/crm/students/${userId}/lead`
-    );
+    request.post(`/api/crm/students/${userId}/lead`);
+export const getCRMLeadTags = (leadId: LeadId) =>
+    getCRMData(`/api/crm/leads/${leadId}/tags`);
+export const updateCRMLeadTags = (leadId: LeadId, tags: string[]) =>
+    putCRMData(`/api/crm/leads/${leadId}/tags`, { tags });
+export const appendCRMLeadTags = (leadId: LeadId, tags: string[]) =>
+    postCRMData(`/api/crm/leads/${leadId}/tags`, { tags });
+export const deleteCRMLeadTags = (leadId: LeadId, tagIds: string[]) =>
+    deleteCRMData(`/api/crm/leads/${leadId}/tags`, { data: { tagIds } });
+export const getCRMLeadNotes = (leadId: LeadId) =>
+    getCRMData(`/api/crm/leads/${leadId}/notes`);
+export const createCRMLeadNote = (leadId: LeadId, payload: ApiPayload) =>
+    postCRMData(`/api/crm/leads/${leadId}/notes`, payload);
+export const replaceCRMLeadNotes = (leadId: LeadId, notes: string[]) =>
+    putCRMData(`/api/crm/leads/${leadId}/notes`, { notes });
+export const updateCRMLeadNote = (
+    leadId: LeadId,
+    noteId: string,
+    payload: ApiPayload
+) => patchCRMData(`/api/crm/leads/${leadId}/notes/${noteId}`, payload);
+export const deleteCRMLeadNote = (leadId: LeadId, noteId: string) =>
+    deleteCRMData(`/api/crm/leads/${leadId}/notes/${noteId}`);
 export const getCRMMeetings = () =>
     request.get<GetCRMMeetingsResponse>(`/api/crm/meetings`);
 export const getCRMMeeting = (meetingId: MeetingId) =>

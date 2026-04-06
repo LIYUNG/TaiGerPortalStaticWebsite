@@ -24,7 +24,16 @@ import type { IUser } from '@taiger-common/model';
 import { getStudentQuery } from '@/api/query';
 import { useLead } from '@hooks/useLead';
 import { request } from '@/api';
-import { updateCRMDeal } from '@/api';
+import {
+    appendCRMLeadTags,
+    createCRMLeadNote,
+    deleteCRMLeadNote,
+    deleteCRMLeadTags,
+    getCRMLead,
+    updateCRMDeal,
+    updateCRMLead,
+    updateCRMLeadNote
+} from '@/api';
 
 import DEMO from '@store/constant';
 import { appConfig } from '../../config';
@@ -44,8 +53,25 @@ import StatusMenu from '@pages/CRM/components/StatusMenu';
 import { getDealId, isTerminalStatus } from '@pages/CRM/components/statusUtils';
 import LeadProfileHeader from '@pages/CRM/components/LeadProfileHeader';
 import MeetingsList from '@pages/CRM/components/MeetingsList';
+import type { SimilarUserMatchItem } from '@pages/CRM/components/SimilarStudents';
+import type { CreateUserFromLeadLead } from '@pages/CRM/components/CreateUserFromLeadModal';
 import { flattenObject } from '../Utils/util_functions';
 import { TabTitle } from '../Utils/TabTitle';
+
+type LeadTagObject = { id?: string; tag: string };
+type LeadNoteObject = { id?: string; note: string; createdAt?: string };
+type StatusMenuRow = { status?: string; [key: string]: unknown };
+type StatusMenuState = {
+    anchorEl: HTMLElement | null;
+    row: StatusMenuRow | null;
+};
+type DealRecord = Record<string, unknown>;
+type MeetingItem = {
+    id: string;
+    title: string;
+    date: string;
+    summary?: { gist?: string };
+};
 
 const LeadPage = () => {
     const { leadId } = useParams();
@@ -70,20 +96,20 @@ const LeadPage = () => {
           };
     const { data: studentData, isLoading: studentLoading } =
         useQuery(studentQueryOptions);
-    const student = studentData?.data?.data || {};
+    const student =
+        (studentData as { data?: { data?: Record<string, unknown> } })?.data
+            ?.data || {};
     const isLoading = leadLoading || (hasPortalUser && studentLoading);
 
-    const [selectedLead, setSelectedLead] = useState<Record<
-        string,
-        unknown
-    > | null>(null);
+    const [selectedLead, setSelectedLead] =
+        useState<CreateUserFromLeadLead | null>(null);
     const [showCreateUserModal, setShowCreateUserModal] = useState(false);
-    const [editingDeal, setEditingDeal] = useState<Record<
-        string,
-        unknown
-    > | null>(null);
+    const [editingDeal, setEditingDeal] = useState<DealRecord | null>(null);
     const [showDealModal, setShowDealModal] = useState(false);
-    const [statusMenu, setStatusMenu] = useState({ anchorEl: null, row: null });
+    const [statusMenu, setStatusMenu] = useState<StatusMenuState>({
+        anchorEl: null,
+        row: null
+    });
 
     const leadCardConfigurations = getLeadCardConfigurations(t);
     const studentCardConfigurations = getStudentCardConfigurations(t);
@@ -95,9 +121,8 @@ const LeadPage = () => {
             ),
         [leadCardConfigurations]
     );
-    const [leadEditStates, setLeadEditStates] = useState<
-        Record<string, boolean>
-    >(initLeadEditStates);
+    const [leadEditStates, setLeadEditStates] =
+        useState<Record<string, boolean>>(initLeadEditStates);
     const [formData, setFormData] = useState<Record<string, unknown>>({});
 
     const { data: salesData } = useQuery({
@@ -125,7 +150,10 @@ const LeadPage = () => {
     const form = useForm({
         defaultValues: formData,
         onSubmit: async ({ value }) => {
-            const changed = getChangedFields(lead, value);
+            const changed = getChangedFields(
+                (lead ?? {}) as Record<string, unknown>,
+                (value ?? {}) as Record<string, unknown>
+            );
             if (Object.keys(changed).length === 0) return;
             await updateLeadMutation.mutateAsync(changed);
         }
@@ -137,7 +165,16 @@ const LeadPage = () => {
     ) => {
         const out: Record<string, unknown> = {};
         Object.keys(cur).forEach((k) => {
-            if (['createdAt', 'updatedAt', 'meetings', 'id'].includes(k))
+            if (
+                [
+                    'createdAt',
+                    'updatedAt',
+                    'meetings',
+                    'id',
+                    '_tagDraft',
+                    '_noteDraft'
+                ].includes(k)
+            )
                 return;
             const ov = orig[k];
             const cv = cur[k];
@@ -158,27 +195,213 @@ const LeadPage = () => {
         }
     }, [lead, form]);
 
+    const normalizeTagObjects = (value: unknown): LeadTagObject[] => {
+        if (Array.isArray(value)) {
+            return value
+                .map((t) => {
+                    if (t && typeof t === 'object') {
+                        const obj = t as Record<string, unknown>;
+                        const id =
+                            typeof obj.id === 'string' ? obj.id : undefined;
+                        return { id, tag: `${obj.tag ?? ''}`.trim() };
+                    }
+                    return { tag: `${t ?? ''}`.trim() };
+                })
+                .filter((t) => t.tag.length > 0);
+        }
+
+        if (typeof value === 'string') {
+            const normalized = value.trim();
+            return normalized.length > 0 ? [{ tag: normalized }] : [];
+        }
+
+        return [];
+    };
+
+    const normalizeTagsInput = (value: unknown): string[] => {
+        const raw = Array.isArray(value)
+            ? value
+            : typeof value === 'string'
+              ? value.split(/[\n,]/)
+              : [];
+
+        const normalized = raw
+            .map((t) =>
+                t && typeof t === 'object' ? (t as LeadTagObject).tag : t
+            )
+            .map((t) => `${t ?? ''}`.trim())
+            .filter((t) => t.length > 0);
+
+        const seen = new Set<string>();
+        return normalized.filter((tag) => {
+            if (seen.has(tag)) return false;
+            seen.add(tag);
+            return true;
+        });
+    };
+
+    const normalizeNotesInput = (value: unknown): LeadNoteObject[] => {
+        if (Array.isArray(value)) {
+            return value
+                .map((n) => {
+                    if (n && typeof n === 'object') {
+                        const obj = n as Record<string, unknown>;
+                        return {
+                            id: typeof obj.id === 'string' ? obj.id : undefined,
+                            note: `${obj.note ?? ''}`,
+                            createdAt:
+                                typeof obj.createdAt === 'string'
+                                    ? obj.createdAt
+                                    : undefined
+                        };
+                    }
+                    return { note: `${n ?? ''}` };
+                })
+                .filter((n) => n.note.trim().length > 0);
+        }
+
+        if (typeof value === 'string') {
+            const normalized = value;
+            return normalized.trim().length > 0 ? [{ note: normalized }] : [];
+        }
+
+        return [];
+    };
+
     const updateLeadMutation = useMutation({
-        mutationFn: async (changed) => {
-            const res = await request.put(`/api/crm/leads/${leadId}`, changed);
-            return res.data || res;
+        mutationFn: async (changed: Record<string, unknown>) => {
+            if (!leadId) return null;
+
+            const { tags, notes, ...rest } = changed || {};
+            const tasks: Promise<unknown>[] = [];
+
+            if (Object.keys(rest).length > 0) {
+                tasks.push(updateCRMLead(leadId, rest));
+            }
+
+            if (tags !== undefined) {
+                const normalizedTags = normalizeTagsInput(tags);
+                const existingTagObjects = normalizeTagObjects(
+                    lead?.tags ?? []
+                );
+                const existingTags = existingTagObjects.map((t) => t.tag);
+
+                const addedTags = normalizedTags.filter(
+                    (tag) => !existingTags.includes(tag)
+                );
+                const removedTagIds = existingTagObjects
+                    .filter(
+                        (t) => !normalizedTags.includes(t.tag) && Boolean(t.id)
+                    )
+                    .map((t) => t.id as string);
+
+                if (removedTagIds.length > 0) {
+                    tasks.push(deleteCRMLeadTags(leadId, removedTagIds));
+                }
+                if (addedTags.length > 0) {
+                    tasks.push(appendCRMLeadTags(leadId, addedTags));
+                }
+            }
+
+            if (notes !== undefined) {
+                const normalizedNotes = normalizeNotesInput(notes);
+                const existingNotes = normalizeNotesInput(lead?.notes ?? []);
+
+                const existingById = new Map(
+                    existingNotes
+                        .filter((n) => Boolean(n.id))
+                        .map((n) => [n.id as string, n])
+                );
+                const currentById = new Map(
+                    normalizedNotes
+                        .filter(
+                            (n) =>
+                                Boolean(n.id) &&
+                                !String(n.id).startsWith('new-')
+                        )
+                        .map((n) => [n.id as string, n])
+                );
+
+                const addedNotes = normalizedNotes.filter(
+                    (n) => !n.id || String(n.id).startsWith('new-')
+                );
+                const removedNotes = existingNotes.filter(
+                    (n) => Boolean(n.id) && !currentById.has(n.id as string)
+                );
+                const updatedNotes = normalizedNotes.filter((n) => {
+                    if (!n.id) return false;
+                    const existing = existingById.get(n.id);
+                    return Boolean(existing && existing.note !== n.note);
+                });
+
+                if (addedNotes.length > 0) {
+                    tasks.push(
+                        createCRMLeadNote(leadId, {
+                            notes: addedNotes.map((n) => n.note)
+                        })
+                    );
+                }
+
+                if (updatedNotes.length > 0) {
+                    tasks.push(
+                        Promise.all(
+                            updatedNotes.map((n) =>
+                                updateCRMLeadNote(leadId, n.id as string, {
+                                    note: n.note
+                                })
+                            )
+                        )
+                    );
+                }
+
+                if (removedNotes.length > 0) {
+                    tasks.push(
+                        Promise.all(
+                            removedNotes.map((n) =>
+                                deleteCRMLeadNote(leadId, n.id as string)
+                            )
+                        )
+                    );
+                }
+            }
+
+            if (tasks.length === 0) return null;
+
+            await Promise.all(tasks);
+            const refreshed = await getCRMLead(leadId);
+            return refreshed?.data ?? refreshed;
         },
         onSuccess: (updated) => {
+            if (!updated) return;
             queryClient.setQueryData(['crm/lead', leadId], (old) => {
-                if (!old) return old;
-                return {
-                    ...old,
-                    data: {
-                        ...old.data,
-                        data: { ...old.data.data, ...updated }
-                    }
-                };
+                if (!old) return updated;
+                if (typeof old === 'object' && old !== null) {
+                    return {
+                        ...(old as Record<string, unknown>),
+                        ...(updated as Record<string, unknown>)
+                    };
+                }
+                return updated;
             });
             queryClient.invalidateQueries({
                 queryKey: ['crm/lead', leadId]
             });
         }
     });
+
+    const applyTagsUpdate = async (nextTags: string[]) => {
+        await updateLeadMutation.mutateAsync({ tags: nextTags });
+    };
+
+    const deleteTagById = async (tagId?: string) => {
+        if (!tagId || !leadId) return;
+        await deleteCRMLeadTags(leadId, [tagId]);
+        await queryClient.invalidateQueries({ queryKey: ['crm/lead', leadId] });
+    };
+
+    const applyNotesUpdate = async (nextNotes: LeadNoteObject[]) => {
+        await updateLeadMutation.mutateAsync({ notes: nextNotes });
+    };
 
     const handleEdit = (cardId: string) => {
         setLeadEditStates((p) => ({ ...p, [cardId]: true }));
@@ -206,7 +429,7 @@ const LeadPage = () => {
         await updateLeadMutation.mutateAsync(changed);
         setLeadEditStates((p) => ({ ...p, [cardId]: false }));
     };
-    const handleFieldChange = (field: string, value: string) => {
+    const handleFieldChange = (field: string, value: string | null) => {
         setFormData((p) => ({ ...p, [field]: value }));
         form.setFieldValue(field, value);
     };
@@ -236,7 +459,7 @@ const LeadPage = () => {
         setShowCreateUserModal(false);
         setSelectedLead(null);
     };
-    const handleUserCreated = async (userData: Record<string, string>) => {
+    const handleUserCreated = async (userData?: Record<string, string>) => {
         const newUserId = userData?.newUser;
         if (newUserId) {
             try {
@@ -264,15 +487,49 @@ const LeadPage = () => {
         setShowDealModal(true);
     };
 
+    const meetingsForList: MeetingItem[] = Array.isArray(lead?.meetings)
+        ? (lead.meetings as Record<string, unknown>[])
+              .map((m) => ({
+                  id: String(m.id ?? ''),
+                  title: String(m.title ?? m.leadFullName ?? 'N/A'),
+                  date: String(m.date ?? m.dateTime ?? ''),
+                  summary:
+                      m.summary && typeof m.summary === 'object'
+                          ? ({
+                                gist: String(
+                                    (m.summary as Record<string, unknown>)
+                                        .gist ?? ''
+                                )
+                            } as { gist?: string })
+                          : undefined
+              }))
+              .filter((m) => m.id && m.date)
+        : [];
+
+    const similarUsersForList: SimilarUserMatchItem[] = Array.isArray(
+        lead?.leadSimilarUsers
+    )
+        ? (lead.leadSimilarUsers as Record<string, unknown>[])
+              .map((u) => ({
+                  mongoId: String(u.mongoId ?? u.id ?? ''),
+                  reason: typeof u.reason === 'string' ? u.reason : undefined
+              }))
+              .filter((u) => u.mongoId.length > 0)
+        : [];
+
     const openStatusMenu = (
         e: React.MouseEvent<HTMLElement>,
-        deal: unknown
+        deal: StatusMenuRow
     ) => {
-        if (isTerminalStatus(deal?.status)) return;
+        if (isTerminalStatus(String(deal?.status ?? ''))) return;
         setStatusMenu({ anchorEl: e.currentTarget, row: deal });
     };
     const closeStatusMenu = () => setStatusMenu({ anchorEl: null, row: null });
-    const updateStatusMutation = useMutation({
+    const updateStatusMutation = useMutation<
+        { ok: true },
+        Error,
+        { id: string; status: string; closedAt?: string }
+    >({
         mutationFn: async ({ id, status, closedAt }) => {
             await updateCRMDeal(id, {
                 status,
@@ -280,7 +537,8 @@ const LeadPage = () => {
             });
             return { ok: true };
         },
-        onSuccess: () => queryClient.invalidateQueries(['crm/lead', leadId])
+        onSuccess: () =>
+            queryClient.invalidateQueries({ queryKey: ['crm/lead', leadId] })
     });
     // Note: status changes are handled in StatusMenu onChoose
 
@@ -347,14 +605,17 @@ const LeadPage = () => {
                             setShowDealModal(true);
                         }}
                         onEditDeal={handleEditDeal}
+                        onApplyNotesUpdate={applyNotesUpdate}
+                        onApplyTagsUpdate={applyTagsUpdate}
+                        onDeleteTagById={deleteTagById}
                         updateStatusMutation={updateStatusMutation}
                         openStatusMenu={openStatusMenu}
                         t={t}
                     />
-                    <MeetingsList meetings={lead?.meetings ?? []} t={t} />
+                    <MeetingsList meetings={meetingsForList} t={t} />
                     <SimilarStudents
                         leadId={leadId}
-                        similarUsers={lead?.leadSimilarUsers}
+                        similarUsers={similarUsersForList}
                     />
                     {/* Student data */}
                     {hasPortalUser && (
@@ -404,10 +665,16 @@ const LeadPage = () => {
                                         >
                                             <EditableCard
                                                 disableEdit={hasPortalUser}
+                                                editContent={<></>}
+                                                isEditing={false}
+                                                onCancel={() => {}}
+                                                onEdit={() => {}}
+                                                onSave={() => {}}
                                                 title={config.title}
                                                 viewContent={
                                                     <GenericCardContent
                                                         config={config}
+                                                        formData={formData}
                                                         isEditing={false}
                                                         lead={flattenObject(
                                                             student
@@ -537,7 +804,7 @@ const LeadPage = () => {
 
                     {/* ------------ Modals ------------ */}
                     <CreateUserFromLeadModal
-                        lead={selectedLead}
+                        lead={selectedLead || {}}
                         onClose={handleCloseCreateUserModal}
                         onSuccess={handleUserCreated}
                         open={showCreateUserModal}
@@ -545,17 +812,27 @@ const LeadPage = () => {
                     <DealModal
                         deal={editingDeal}
                         lockLeadSelect={true}
-                        lockSalesUserSelect={lead?.salesRep?.userId ?? false}
+                        lockSalesUserSelect={Boolean(
+                            (lead?.salesRep as { userId?: string } | undefined)
+                                ?.userId
+                        )}
                         onClose={closeDealModal}
                         onCreated={() =>
-                            queryClient.invalidateQueries(['crm/lead', leadId])
+                            queryClient.invalidateQueries({
+                                queryKey: ['crm/lead', leadId]
+                            })
                         }
                         onUpdated={() =>
-                            queryClient.invalidateQueries(['crm/lead', leadId])
+                            queryClient.invalidateQueries({
+                                queryKey: ['crm/lead', leadId]
+                            })
                         }
                         open={showDealModal}
                         preselectedLeadId={leadId}
-                        preselectedSalesUserId={lead?.salesRep?.userId || null}
+                        preselectedSalesUserId={
+                            ((lead?.salesRep as { userId?: string } | undefined)
+                                ?.userId || undefined) as string | undefined
+                        }
                     />
                     <StatusMenu
                         anchorEl={statusMenu.anchorEl}
@@ -563,7 +840,7 @@ const LeadPage = () => {
                         onChoose={(s: string) => {
                             const id = getDealId(statusMenu.row);
                             updateStatusMutation.mutate(
-                                { id, status: s },
+                                { id: String(id), status: s },
                                 { onSettled: () => closeStatusMenu() }
                             );
                         }}
