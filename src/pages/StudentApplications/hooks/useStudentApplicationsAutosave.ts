@@ -35,6 +35,18 @@ type StudentApplicationsQueryData = {
     [key: string]: unknown;
 };
 
+type StudentApplicationsResponseEnvelope = {
+    success?: boolean;
+    data?: StudentApplicationsQueryData;
+};
+
+const toStudentResponseEnvelope = (
+    student: StudentApplicationsQueryData
+): StudentApplicationsResponseEnvelope => ({
+    success: true,
+    data: student
+});
+
 type AutosaveMutationVars = {
     studentId: string;
     queryKey: readonly ['applications/student', string];
@@ -51,7 +63,7 @@ type AutosaveMutationVars = {
 };
 
 type AutosaveMutationContext = {
-    previousStudent: StudentApplicationsQueryData | undefined;
+    previousStudent: unknown;
     queryKey: readonly ['applications/student', string];
 };
 
@@ -184,6 +196,30 @@ const applyPendingChangesToStudent = <
         pending.applyingProgramCount ?? baseStudent.applying_program_count
 });
 
+const normalizeStudentQueryData = (
+    source: unknown
+): StudentApplicationsQueryData | null => {
+    if (!source || typeof source !== 'object') {
+        return null;
+    }
+
+    const raw = source as StudentApplicationsQueryData;
+    if (
+        Array.isArray(raw.applications) ||
+        raw._id !== undefined ||
+        raw.applying_program_count !== undefined
+    ) {
+        return raw;
+    }
+
+    const envelope = source as StudentApplicationsResponseEnvelope;
+    if (envelope.data && typeof envelope.data === 'object') {
+        return envelope.data;
+    }
+
+    return null;
+};
+
 const emitStudentApplicationsSync = (studentId: string) => {
     if (typeof window === 'undefined') {
         return;
@@ -315,14 +351,13 @@ export const useStudentApplicationsAutosave = <
         onMutate: async (variables) => {
             await queryClient.cancelQueries({ queryKey: variables.queryKey });
 
-            const previousStudent =
-                queryClient.getQueryData<StudentApplicationsQueryData>(
-                    variables.queryKey
-                );
+            const previousStudent = queryClient.getQueryData(
+                variables.queryKey
+            );
 
             queryClient.setQueryData(
                 variables.queryKey,
-                variables.optimisticStudent
+                toStudentResponseEnvelope(variables.optimisticStudent)
             );
 
             return {
@@ -331,7 +366,7 @@ export const useStudentApplicationsAutosave = <
             };
         },
         onError: (error, _variables, context) => {
-            if (context?.previousStudent) {
+            if (context?.previousStudent !== undefined) {
                 queryClient.setQueryData(
                     context.queryKey,
                     context.previousStudent
@@ -340,9 +375,10 @@ export const useStudentApplicationsAutosave = <
             setError(error.message || 'An error occurred. Please try again.');
         },
         onSuccess: (_data, variables) => {
-            queryClient.invalidateQueries({
-                queryKey: variables.queryKey
-            });
+            queryClient.setQueryData(
+                variables.queryKey,
+                toStudentResponseEnvelope(variables.optimisticStudent)
+            );
             setSuccess();
             emitStudentApplicationsSync(variables.studentId);
         }
@@ -416,11 +452,13 @@ export const useStudentApplicationsAutosave = <
 
         const queryKey = ['applications/student', studentId] as const;
         let latestStudent: StudentApplicationsQueryData =
-            queryClient.getQueryData<StudentApplicationsQueryData>(queryKey) ??
-            student;
+            normalizeStudentQueryData(
+                queryClient.getQueryData<StudentApplicationsQueryData>(queryKey)
+            ) ?? (student as StudentApplicationsQueryData);
 
         try {
-            latestStudent = await getApplicationStudentV2(studentId);
+            const fetched = await getApplicationStudentV2(studentId);
+            latestStudent = normalizeStudentQueryData(fetched) ?? latestStudent;
         } catch {
             // Fall back to cached/local snapshot when latest fetch fails.
         }
