@@ -325,7 +325,7 @@ export const useStudentApplicationsAutosave = <
     };
 
     const updateMutation = useMutation<
-        unknown,
+        StudentApplicationsResponseEnvelope | StudentApplicationsQueryData,
         Error,
         AutosaveMutationVars,
         AutosaveMutationContext
@@ -374,10 +374,13 @@ export const useStudentApplicationsAutosave = <
             }
             setError(error.message || 'An error occurred. Please try again.');
         },
-        onSuccess: (_data, variables) => {
+        onSuccess: (data, variables) => {
+            const serverStudent =
+                normalizeStudentQueryData(data) ?? variables.optimisticStudent;
+
             queryClient.setQueryData(
                 variables.queryKey,
-                toStudentResponseEnvelope(variables.optimisticStudent)
+                toStudentResponseEnvelope(serverStudent)
             );
             setSuccess();
             emitStudentApplicationsSync(variables.studentId);
@@ -453,7 +456,7 @@ export const useStudentApplicationsAutosave = <
         const queryKey = ['applications/student', studentId] as const;
         let latestStudent: StudentApplicationsQueryData =
             normalizeStudentQueryData(
-                queryClient.getQueryData<StudentApplicationsQueryData>(queryKey)
+                queryClient.getQueryData<unknown>(queryKey)
             ) ?? (student as StudentApplicationsQueryData);
 
         try {
