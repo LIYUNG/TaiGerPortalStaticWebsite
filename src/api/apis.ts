@@ -240,8 +240,6 @@ import {
     type GetCRMStatsResponse,
     type GetCRMLeadsResponse,
     type GetCRMLeadResponse,
-    type GetLeadIdByUserIdResponse,
-    type CreateLeadFromStudentResponse,
     type GetCRMMeetingsResponse,
     type GetCRMMeetingResponse,
     type UpdateCRMMeetingResponse,
@@ -1565,12 +1563,33 @@ export const getCRMLeads = () =>
     request.get<GetCRMLeadsResponse>(`/api/crm/leads`);
 export const getCRMLead = (leadId: LeadId) =>
     getData<GetCRMLeadResponse>(`/api/crm/leads/${leadId}`);
+export const updateCRMLead = (leadId: LeadId, payload: ApiPayload) =>
+    request.put(`/api/crm/leads/${leadId}`, payload);
 export const getLeadIdByUserId = (userId: UserId) =>
-    request.get<GetLeadIdByUserIdResponse>(`/api/crm/students/${userId}/lead`);
+    request.get(`/api/crm/students/${userId}/lead`);
 export const createLeadFromStudent = (userId: UserId) =>
-    request.post<CreateLeadFromStudentResponse>(
-        `/api/crm/students/${userId}/lead`
-    );
+    request.post(`/api/crm/students/${userId}/lead`);
+export const getCRMLeadTags = (leadId: LeadId) =>
+    request.get(`/api/crm/leads/${leadId}/tags`);
+export const updateCRMLeadTags = (leadId: LeadId, tags: string[]) =>
+    request.put(`/api/crm/leads/${leadId}/tags`, { tags });
+export const appendCRMLeadTags = (leadId: LeadId, tags: string[]) =>
+    request.post(`/api/crm/leads/${leadId}/tags`, { tags });
+export const deleteCRMLeadTags = (leadId: LeadId, tagIds: string[]) =>
+    request.delete(`/api/crm/leads/${leadId}/tags`, { data: { tagIds } });
+export const getCRMLeadNotes = (leadId: LeadId) =>
+    request.get(`/api/crm/leads/${leadId}/notes`);
+export const createCRMLeadNote = (leadId: LeadId, payload: ApiPayload) =>
+    request.post(`/api/crm/leads/${leadId}/notes`, payload);
+export const replaceCRMLeadNotes = (leadId: LeadId, notes: string[]) =>
+    request.put(`/api/crm/leads/${leadId}/notes`, { notes });
+export const updateCRMLeadNote = (
+    leadId: LeadId,
+    noteId: string,
+    payload: ApiPayload
+) => request.patch(`/api/crm/leads/${leadId}/notes/${noteId}`, payload);
+export const deleteCRMLeadNote = (leadId: LeadId, noteId: string) =>
+    request.delete(`/api/crm/leads/${leadId}/notes/${noteId}`);
 export const getCRMMeetings = () =>
     request.get<GetCRMMeetingsResponse>(`/api/crm/meetings`);
 export const getCRMMeeting = (meetingId: MeetingId) =>
