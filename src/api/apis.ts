@@ -12,7 +12,9 @@ import type {
     ResetPasswordPayload,
     ForgotPasswordPayload,
     ApiPayload,
-    QueryString
+    QueryString,
+    ChatbotMessagePayload,
+    ChatbotMessageResponse
 } from './types';
 import {
     // Model types
@@ -448,6 +450,9 @@ export const refreshApplication = (applicationId: string) =>
 
 export const getStudentUniAssistV2 = ({ studentId }: { studentId: string }) =>
     getData<GetStudentUniAssistResponse>(`/api/uniassist/${studentId}`);
+
+export const postChatbotMessage = (payload: ChatbotMessagePayload) =>
+    postData<ChatbotMessageResponse>('/api/chatbot/message', payload);
 
 export const getArchivStudents = (TaiGerStaffId?: string) =>
     request.get<GetArchivStudentsResponse>(

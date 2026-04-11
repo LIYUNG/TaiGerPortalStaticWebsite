@@ -53,6 +53,7 @@ import StatusMenu from '@pages/CRM/components/StatusMenu';
 import { getDealId, isTerminalStatus } from '@pages/CRM/components/statusUtils';
 import LeadProfileHeader from '@pages/CRM/components/LeadProfileHeader';
 import MeetingsList from '@pages/CRM/components/MeetingsList';
+import LeadStudentAssistant from '@pages/CRM/components/LeadStudentAssistant';
 import type { SimilarUserMatchItem } from '@pages/CRM/components/SimilarStudents';
 import type { CreateUserFromLeadLead } from '@pages/CRM/components/CreateUserFromLeadModal';
 import { flattenObject } from '../Utils/util_functions';
@@ -616,6 +617,12 @@ const LeadPage = () => {
                     <SimilarStudents
                         leadId={leadId}
                         similarUsers={similarUsersForList}
+                    />
+                    <LeadStudentAssistant
+                        leadName={lead.fullName}
+                        studentId={
+                            hasPortalUser ? String(lead.userId) : undefined
+                        }
                     />
                     {/* Student data */}
                     {hasPortalUser && (
