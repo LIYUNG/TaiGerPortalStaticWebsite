@@ -218,3 +218,73 @@ export interface ChatbotMessageResponse {
         };
     };
 }
+
+export interface AIAssistConversation {
+    id: string;
+    ownerUserId?: string;
+    ownerRole?: string;
+    title: string;
+    status?: string;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+export interface AIAssistMessage {
+    id: string;
+    conversationId?: string;
+    role: 'user' | 'assistant' | 'system';
+    content: string;
+    model?: string;
+    responseId?: string;
+    usage?: Record<string, unknown>;
+    createdAt?: string;
+}
+
+export interface AIAssistToolCall {
+    id: string;
+    conversationId?: string;
+    assistantMessageId?: string;
+    toolName: string;
+    arguments?: unknown;
+    result?: unknown;
+    status: 'success' | 'failed' | 'permission_denied' | 'limited';
+    durationMs?: number;
+    permissionOutcome?: unknown;
+    errorCode?: string;
+    errorMessage?: string;
+    createdAt?: string;
+}
+
+export interface CreateAIAssistConversationResponse {
+    success: boolean;
+    data: AIAssistConversation;
+}
+
+export interface GetAIAssistConversationsResponse {
+    success: boolean;
+    data: AIAssistConversation[];
+}
+
+export interface GetAIAssistConversationResponse {
+    success: boolean;
+    data: {
+        conversation: AIAssistConversation;
+        messages: AIAssistMessage[];
+        trace: AIAssistToolCall[];
+    };
+}
+
+export interface PostAIAssistMessagePayload {
+    message: string;
+}
+
+export interface PostAIAssistMessageResponse {
+    success: boolean;
+    data: {
+        userMessage: AIAssistMessage;
+        assistantMessage: AIAssistMessage;
+        answer: string;
+        trace: AIAssistToolCall[];
+        usage?: Record<string, unknown>;
+    };
+}

@@ -126,6 +126,8 @@ const CustomerSupport = lazy(
     async () => await import('@pages/CustomerSupport')
 );
 
+const AIAssist = lazy(async () => await import('@pages/AIAssist'));
+
 const CustomerTicketDetailPage = lazy(
     async () => await import('@pages/CustomerSupport/CustomerTicketDetailPage')
 );
@@ -690,6 +692,11 @@ const routes = [
         errorElement: <DefaultErrorPage />,
         loader: getAllComplaintTicketsLoader,
         element: <CustomerSupport />
+    },
+    {
+        path: '/ai-assist',
+        errorElement: <DefaultErrorPage />,
+        element: <AIAssist />
     },
     {
         path: '/customer-center/add-ticket',

@@ -14,7 +14,12 @@ import type {
     ApiPayload,
     QueryString,
     ChatbotMessagePayload,
-    ChatbotMessageResponse
+    ChatbotMessageResponse,
+    CreateAIAssistConversationResponse,
+    GetAIAssistConversationResponse,
+    GetAIAssistConversationsResponse,
+    PostAIAssistMessagePayload,
+    PostAIAssistMessageResponse
 } from './types';
 import {
     // Model types
@@ -453,6 +458,29 @@ export const getStudentUniAssistV2 = ({ studentId }: { studentId: string }) =>
 
 export const postChatbotMessage = (payload: ChatbotMessagePayload) =>
     postData<ChatbotMessageResponse>('/api/chatbot/message', payload);
+
+export const createAIAssistConversation = () =>
+    postData<CreateAIAssistConversationResponse>(
+        '/api/ai-assist/conversations',
+        {}
+    );
+
+export const getAIAssistConversations = () =>
+    getData<GetAIAssistConversationsResponse>('/api/ai-assist/conversations');
+
+export const getAIAssistConversation = (conversationId: string) =>
+    getData<GetAIAssistConversationResponse>(
+        `/api/ai-assist/conversations/${conversationId}`
+    );
+
+export const postAIAssistMessage = (
+    conversationId: string,
+    payload: PostAIAssistMessagePayload
+) =>
+    postData<PostAIAssistMessageResponse>(
+        `/api/ai-assist/conversations/${conversationId}/messages`,
+        payload
+    );
 
 export const getArchivStudents = (TaiGerStaffId?: string) =>
     request.get<GetArchivStudentsResponse>(
