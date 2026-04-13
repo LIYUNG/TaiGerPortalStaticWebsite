@@ -224,9 +224,19 @@ export interface AIAssistConversation {
     ownerUserId?: string;
     ownerRole?: string;
     title: string;
+    studentId?: string;
+    studentDisplayName?: string;
     status?: string;
     createdAt?: string;
     updatedAt?: string;
+}
+
+export interface AIAssistPickerStudent {
+    id: string;
+    name: string;
+    chineseName?: string;
+    email?: string;
+    applyingProgramCount?: number;
 }
 
 export interface AIAssistMessage {
@@ -260,6 +270,11 @@ export interface CreateAIAssistConversationResponse {
     data: AIAssistConversation;
 }
 
+export interface GetAIAssistPickerStudentsResponse {
+    success: boolean;
+    data: AIAssistPickerStudent[];
+}
+
 export interface GetAIAssistConversationsResponse {
     success: boolean;
     data: AIAssistConversation[];
@@ -272,6 +287,15 @@ export interface GetAIAssistConversationResponse {
         messages: AIAssistMessage[];
         trace: AIAssistToolCall[];
     };
+}
+
+export interface UpdateAIAssistConversationPayload {
+    title: string;
+}
+
+export interface UpdateAIAssistConversationResponse {
+    success: boolean;
+    data: AIAssistConversation;
 }
 
 export interface PostAIAssistMessagePayload {
@@ -287,4 +311,27 @@ export interface PostAIAssistMessageResponse {
         trace: AIAssistToolCall[];
         usage?: Record<string, unknown>;
     };
+}
+
+export interface PostAIAssistFirstMessagePayload {
+    message: string;
+    studentId?: string;
+    studentDisplayName?: string;
+}
+
+export interface PostAIAssistFirstMessageResponse {
+    success: boolean;
+    data: {
+        conversation: AIAssistConversation;
+        userMessage: AIAssistMessage;
+        assistantMessage: AIAssistMessage;
+        answer: string;
+        trace: AIAssistToolCall[];
+        usage?: Record<string, unknown>;
+    };
+}
+
+export interface DeleteAIAssistConversationResponse {
+    success: boolean;
+    data: AIAssistConversation;
 }

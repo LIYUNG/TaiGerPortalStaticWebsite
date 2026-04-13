@@ -3,6 +3,7 @@ import {
     deleteData,
     getData,
     getDataBlob,
+    patchData,
     postData,
     putData,
     request
@@ -16,10 +17,16 @@ import type {
     ChatbotMessagePayload,
     ChatbotMessageResponse,
     CreateAIAssistConversationResponse,
+    DeleteAIAssistConversationResponse,
     GetAIAssistConversationResponse,
     GetAIAssistConversationsResponse,
+    GetAIAssistPickerStudentsResponse,
+    PostAIAssistFirstMessagePayload,
+    PostAIAssistFirstMessageResponse,
     PostAIAssistMessagePayload,
-    PostAIAssistMessageResponse
+    PostAIAssistMessageResponse,
+    UpdateAIAssistConversationPayload,
+    UpdateAIAssistConversationResponse
 } from './types';
 import {
     // Model types
@@ -465,11 +472,33 @@ export const createAIAssistConversation = () =>
         {}
     );
 
+export const postAIAssistFirstMessage = (
+    payload: PostAIAssistFirstMessagePayload
+) =>
+    postData<PostAIAssistFirstMessageResponse>(
+        '/api/ai-assist/conversations/first-message',
+        payload
+    );
+
 export const getAIAssistConversations = () =>
     getData<GetAIAssistConversationsResponse>('/api/ai-assist/conversations');
 
 export const getAIAssistConversation = (conversationId: string) =>
     getData<GetAIAssistConversationResponse>(
+        `/api/ai-assist/conversations/${conversationId}`
+    );
+
+export const updateAIAssistConversation = (
+    conversationId: string,
+    payload: UpdateAIAssistConversationPayload
+) =>
+    patchData<UpdateAIAssistConversationResponse>(
+        `/api/ai-assist/conversations/${conversationId}`,
+        payload
+    );
+
+export const deleteAIAssistConversation = (conversationId: string) =>
+    deleteData<DeleteAIAssistConversationResponse>(
         `/api/ai-assist/conversations/${conversationId}`
     );
 
@@ -480,6 +509,19 @@ export const postAIAssistMessage = (
     postData<PostAIAssistMessageResponse>(
         `/api/ai-assist/conversations/${conversationId}/messages`,
         payload
+    );
+
+export const getAIAssistRecentStudents = () =>
+    getData<GetAIAssistPickerStudentsResponse>(
+        '/api/ai-assist/students/recent'
+    );
+
+export const getAIAssistMyStudents = () =>
+    getData<GetAIAssistPickerStudentsResponse>('/api/ai-assist/students/mine');
+
+export const searchAIAssistStudents = (query: string) =>
+    getData<GetAIAssistPickerStudentsResponse>(
+        `/api/ai-assist/students/search?q=${encodeURIComponent(query)}`
     );
 
 export const getArchivStudents = (TaiGerStaffId?: string) =>
