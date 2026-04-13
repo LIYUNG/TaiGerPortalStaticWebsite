@@ -14,8 +14,6 @@ import type {
     ForgotPasswordPayload,
     ApiPayload,
     QueryString,
-    ChatbotMessagePayload,
-    ChatbotMessageResponse,
     CreateAIAssistConversationResponse,
     DeleteAIAssistConversationResponse,
     GetAIAssistConversationResponse,
@@ -462,9 +460,6 @@ export const refreshApplication = (applicationId: string) =>
 
 export const getStudentUniAssistV2 = ({ studentId }: { studentId: string }) =>
     getData<GetStudentUniAssistResponse>(`/api/uniassist/${studentId}`);
-
-export const postChatbotMessage = (payload: ChatbotMessagePayload) =>
-    postData<ChatbotMessageResponse>('/api/chatbot/message', payload);
 
 export const createAIAssistConversation = () =>
     postData<CreateAIAssistConversationResponse>(

@@ -190,35 +190,6 @@ export interface OpenTaskRow {
     [key: string]: unknown;
 }
 
-export interface ChatbotStudentSummary {
-    id?: string;
-    name?: string;
-    chineseName?: string;
-    email?: string;
-    role?: string;
-    archived?: boolean;
-    applyingProgramCount?: number;
-}
-
-export interface ChatbotMessagePayload {
-    message: string;
-    studentId?: string;
-    maxMessagePages?: number;
-}
-
-export interface ChatbotMessageResponse {
-    success: boolean;
-    data: {
-        answer: string;
-        contextSummary?: {
-            student?: ChatbotStudentSummary;
-            applicationCount?: number;
-            messageCount?: number;
-            profileDocumentCount?: number;
-        };
-    };
-}
-
 export interface AIAssistConversation {
     id: string;
     ownerUserId?: string;
