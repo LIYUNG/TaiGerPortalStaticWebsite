@@ -35,9 +35,13 @@ import {
     updateAIAssistConversation
 } from '@/api';
 import type {
+    AIAssistAssistContext,
     AIAssistConversation,
     AIAssistMessage,
+    AIAssistMentionedStudent,
     AIAssistPickerStudent,
+    AIAssistQuickSkill,
+    AIAssistSkillTrace,
     AIAssistToolCall
 } from '@/api/types';
 
@@ -48,43 +52,60 @@ interface DraftConversationState {
     student: AIAssistPickerStudent | null;
 }
 
-interface StarterAction {
-    label: string;
-    buildPrompt: (student: AIAssistPickerStudent | null) => string;
+interface ComposerState {
+    mentionedStudent: AIAssistMentionedStudent | null;
+    requestedSkill: AIAssistQuickSkill | null;
+    unknownSkillText: string | null;
 }
 
-const starterActions: StarterAction[] = [
+interface QuickSkillOption {
+    id: AIAssistQuickSkill;
+    label: string;
+    buildPrompt: (student: AIAssistMentionedStudent | null) => string;
+}
+
+const quickSkills: QuickSkillOption[] = [
     {
+        id: 'summarize_student',
         label: 'Summarize a student',
         buildPrompt: (student) =>
             student
-                ? `Summarize ${student.name}'s current situation, including active applications, recent progress, and the next actions that need attention.`
+                ? `Summarize ${student.displayName}'s current situation, including active applications, recent progress, and the next actions that need attention.`
                 : 'Summarize this student, including active applications, recent progress, and the next actions that need attention.'
     },
     {
+        id: 'identify_risk',
         label: 'Find application risks',
         buildPrompt: (student) =>
             student
-                ? `Please identify the main risks in ${student.name}'s applications and explain what needs attention next.`
+                ? `Please identify the main risks in ${student.displayName}'s applications and explain what needs attention next.`
                 : 'Please identify the main risks in this application set and explain what needs attention next.'
     },
     {
+        id: 'review_messages',
         label: 'Check latest messages',
         buildPrompt: (student) =>
             student
-                ? `Review ${student.name}'s latest messages and point out anything that needs a reply or follow-up.`
+                ? `Review ${student.displayName}'s latest messages and point out anything that needs a reply or follow-up.`
                 : 'Review the latest messages and point out anything that needs a reply or follow-up.'
     },
     {
+        id: 'review_open_tasks',
         label: 'Review open tasks',
         buildPrompt: (student) =>
             student
-                ? `Review ${student.name}'s open tasks and flag the items that need the most immediate attention.`
+                ? `Review ${student.displayName}'s open tasks and flag the items that need the most immediate attention.`
                 : 'Review the open tasks and flag the items that need the most immediate attention.'
     }
 ];
 
 const defaultInput = '';
+const defaultComposerState: ComposerState = {
+    mentionedStudent: null,
+    requestedSkill: null,
+    unknownSkillText: null
+};
+const skillTagPattern = /(^|\s)#([a-z_]+)/g;
 
 const formatJson = (value: unknown): string => {
     if (value == null) {
@@ -152,6 +173,61 @@ const formatStudentMeta = (student: AIAssistPickerStudent): string =>
         .filter(Boolean)
         .join(' | ');
 
+const createMentionedStudent = (
+    studentId?: string,
+    displayName?: string
+): AIAssistMentionedStudent | null =>
+    studentId && displayName
+        ? {
+              id: studentId,
+              displayName
+          }
+        : null;
+
+const parseSkillTrace = (value: string): AIAssistSkillTrace => {
+    let matchedSkillTag: string | null = null;
+
+    for (const match of value.matchAll(skillTagPattern)) {
+        matchedSkillTag = match[2] ?? null;
+    }
+
+    if (!matchedSkillTag) {
+        return { source: 'auto' };
+    }
+
+    const matchedSkill = quickSkills.find(
+        (quickSkill) => quickSkill.id === matchedSkillTag
+    );
+
+    if (matchedSkill) {
+        return {
+            source: 'composer_tag',
+            requestedSkill: matchedSkill.id
+        };
+    }
+
+    return {
+        source: 'composer_tag',
+        unknownSkillText: matchedSkillTag
+    };
+};
+
+const buildComposerState = ({
+    mentionedStudent,
+    selectedQuickSkill,
+    skillTrace
+}: {
+    mentionedStudent: AIAssistMentionedStudent | null;
+    selectedQuickSkill: AIAssistQuickSkill | null;
+    skillTrace: AIAssistSkillTrace;
+}): ComposerState => ({
+    mentionedStudent,
+    requestedSkill:
+        skillTrace.requestedSkill ??
+        (skillTrace.unknownSkillText ? null : selectedQuickSkill),
+    unknownSkillText: skillTrace.unknownSkillText ?? null
+});
+
 const renderToolTraceCard = (
     toolCall: AIAssistToolCall,
     key: string
@@ -200,6 +276,10 @@ const AIAssistPage = (): JSX.Element => {
     const [draftConversation, setDraftConversation] =
         useState<DraftConversationState | null>(null);
     const [input, setInput] = useState(defaultInput);
+    const [selectedQuickSkill, setSelectedQuickSkill] =
+        useState<AIAssistQuickSkill | null>(null);
+    const [composerState, setComposerState] =
+        useState<ComposerState>(defaultComposerState);
     const [messages, setMessages] = useState<AIAssistMessage[]>([]);
     const [trace, setTrace] = useState<AIAssistToolCall[]>([]);
     const [recentStudents, setRecentStudents] = useState<
@@ -240,12 +320,50 @@ const AIAssistPage = (): JSX.Element => {
         [trace]
     );
 
+    const activeConversation = useMemo(
+        () =>
+            conversationId
+                ? (conversations.find(
+                      (conversation) => conversation.id === conversationId
+                  ) ?? null)
+                : null,
+        [conversationId, conversations]
+    );
+
+    const mentionedStudent = useMemo<AIAssistMentionedStudent | null>(() => {
+        if (draftConversation?.student) {
+            return createMentionedStudent(
+                draftConversation.student.id,
+                draftConversation.student.name
+            );
+        }
+
+        return createMentionedStudent(
+            activeConversation?.studentId,
+            activeConversation?.studentDisplayName
+        );
+    }, [activeConversation, draftConversation]);
+
+    const skillTrace = useMemo(() => parseSkillTrace(input), [input]);
+
+    useEffect(() => {
+        setComposerState(
+            buildComposerState({
+                mentionedStudent,
+                selectedQuickSkill,
+                skillTrace
+            })
+        );
+    }, [mentionedStudent, selectedQuickSkill, skillTrace]);
+
     const clearActiveWorkspace = useCallback((): void => {
         setConversationId(null);
         setDraftConversation(null);
         setMessages([]);
         setTrace([]);
         setInput(defaultInput);
+        setSelectedQuickSkill(null);
+        setComposerState(defaultComposerState);
         setEditingConversationId(null);
         setDraftTitle('');
     }, []);
@@ -257,6 +375,8 @@ const AIAssistPage = (): JSX.Element => {
             setEditingConversationId(null);
             setDraftTitle('');
             setInput(defaultInput);
+            setSelectedQuickSkill(null);
+            setComposerState(defaultComposerState);
             setMessages([]);
             setTrace([]);
             setIsLoadingConversation(true);
@@ -454,6 +574,8 @@ const AIAssistPage = (): JSX.Element => {
         setMessages([]);
         setTrace([]);
         setInput(defaultInput);
+        setSelectedQuickSkill(null);
+        setComposerState(defaultComposerState);
         setEditingConversationId(null);
         setDraftTitle('');
         setDraftConversation({
@@ -469,6 +591,8 @@ const AIAssistPage = (): JSX.Element => {
         setMessages([]);
         setTrace([]);
         setInput(defaultInput);
+        setSelectedQuickSkill(null);
+        setComposerState(defaultComposerState);
         setEditingConversationId(null);
         setDraftTitle('');
         setDraftConversation((previous) => ({
@@ -479,14 +603,43 @@ const AIAssistPage = (): JSX.Element => {
     };
 
     const handleSelectStudent = (student: AIAssistPickerStudent): void => {
+        setSelectedQuickSkill(null);
+        setComposerState(defaultComposerState);
         setDraftConversation({
             mode: 'studentReady',
             student
         });
     };
 
-    const handleStarterClick = (starterAction: StarterAction): void => {
-        setInput(starterAction.buildPrompt(draftConversation?.student ?? null));
+    const handleQuickSkillClick = (quickSkill: QuickSkillOption): void => {
+        setSelectedQuickSkill((previous) =>
+            previous === quickSkill.id ? null : quickSkill.id
+        );
+        setInput((previous) =>
+            previous.trim()
+                ? previous
+                : quickSkill.buildPrompt(mentionedStudent)
+        );
+    };
+
+    const buildAssistContext = (): AIAssistAssistContext | undefined => {
+        const assistContext: AIAssistAssistContext = {};
+
+        if (composerState.mentionedStudent) {
+            assistContext.mentionedStudent = composerState.mentionedStudent;
+        }
+
+        if (composerState.requestedSkill) {
+            assistContext.requestedSkill = composerState.requestedSkill;
+        }
+
+        if (composerState.unknownSkillText) {
+            assistContext.unknownSkillText = composerState.unknownSkillText;
+        }
+
+        return Object.keys(assistContext).length > 0
+            ? assistContext
+            : undefined;
     };
 
     const handleSubmit = async (): Promise<void> => {
@@ -500,10 +653,13 @@ const AIAssistPage = (): JSX.Element => {
         setError(null);
 
         try {
+            const assistContext = buildAssistContext();
+
             if (!conversationId) {
                 const selectedStudent = draftConversation?.student ?? null;
                 const response = await postAIAssistFirstMessage({
                     message: trimmedInput,
+                    ...(assistContext ? { assistContext } : {}),
                     ...(selectedStudent
                         ? {
                               studentId: selectedStudent.id,
@@ -528,7 +684,8 @@ const AIAssistPage = (): JSX.Element => {
             }
 
             const response = await postAIAssistMessage(conversationId, {
-                message: trimmedInput
+                message: trimmedInput,
+                ...(assistContext ? { assistContext } : {})
             });
             const {
                 userMessage,
@@ -657,6 +814,28 @@ const AIAssistPage = (): JSX.Element => {
         </Stack>
     );
 
+    const renderQuickSkillChips = (): JSX.Element => (
+        <Stack direction="row" flexWrap="wrap" gap={1}>
+            {quickSkills.map((quickSkill) => {
+                const isSelected =
+                    composerState.requestedSkill === quickSkill.id;
+
+                return (
+                    <Chip
+                        clickable
+                        color={isSelected ? 'primary' : 'default'}
+                        key={quickSkill.id}
+                        label={quickSkill.label}
+                        onClick={() => {
+                            handleQuickSkillClick(quickSkill);
+                        }}
+                        variant={isSelected ? 'filled' : 'outlined'}
+                    />
+                );
+            })}
+        </Stack>
+    );
+
     const renderDraftState = (): JSX.Element => {
         if (draftConversation?.mode === 'studentPicker') {
             return (
@@ -739,18 +918,6 @@ const AIAssistPage = (): JSX.Element => {
                             {studentMeta}
                         </Typography>
                     ) : null}
-                    <Stack direction="row" flexWrap="wrap" gap={1}>
-                        {starterActions.map((starterAction) => (
-                            <Chip
-                                key={starterAction.label}
-                                label={starterAction.label}
-                                onClick={() => {
-                                    handleStarterClick(starterAction);
-                                }}
-                                variant="outlined"
-                            />
-                        ))}
-                    </Stack>
                 </Stack>
             );
         }
@@ -763,18 +930,6 @@ const AIAssistPage = (): JSX.Element => {
                         Draft the first message locally, then send when it is
                         ready.
                     </Typography>
-                    <Stack direction="row" flexWrap="wrap" gap={1}>
-                        {starterActions.map((starterAction) => (
-                            <Chip
-                                key={starterAction.label}
-                                label={starterAction.label}
-                                onClick={() => {
-                                    handleStarterClick(starterAction);
-                                }}
-                                variant="outlined"
-                            />
-                        ))}
-                    </Stack>
                 </Stack>
             );
         }
@@ -972,6 +1127,35 @@ const AIAssistPage = (): JSX.Element => {
                                 }}
                             >
                                 <Stack spacing={1.5}>
+                                    <Stack spacing={1}>
+                                        {composerState.mentionedStudent ? (
+                                            <Stack
+                                                direction="row"
+                                                flexWrap="wrap"
+                                                gap={1}
+                                            >
+                                                <Chip
+                                                    color="primary"
+                                                    label={
+                                                        composerState
+                                                            .mentionedStudent
+                                                            .displayName
+                                                    }
+                                                    size="small"
+                                                    variant="outlined"
+                                                />
+                                            </Stack>
+                                        ) : null}
+                                        {renderQuickSkillChips()}
+                                        {composerState.unknownSkillText ? (
+                                            <Typography
+                                                color="text.secondary"
+                                                variant="caption"
+                                            >
+                                                Unknown skill, using auto mode
+                                            </Typography>
+                                        ) : null}
+                                    </Stack>
                                     <TextField
                                         disabled={
                                             isSending || isLoadingConversation

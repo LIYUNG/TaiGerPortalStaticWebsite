@@ -390,13 +390,54 @@ describe('AIAssistPage', () => {
             expect(apiMocks.postAIAssistFirstMessage).toHaveBeenCalledWith({
                 message: expect.stringContaining('identify the main risks'),
                 studentId: 'student_abby',
-                studentDisplayName: 'Abby Student'
+                studentDisplayName: 'Abby Student',
+                assistContext: {
+                    mentionedStudent: {
+                        id: 'student_abby',
+                        displayName: 'Abby Student'
+                    },
+                    requestedSkill: 'identify_risk'
+                }
             });
         });
         expect(apiMocks.postAIAssistMessage).not.toHaveBeenCalled();
     });
 
-    it('uses the persisted conversation message endpoint for follow-up messages', async () => {
+    it('sends quick skill context with follow-up messages', async () => {
+        const user = userEvent.setup();
+        render(<AIAssistPage />);
+
+        await waitFor(() => {
+            expect(screen.getByText('latest persisted answer')).toBeTruthy();
+        });
+
+        await user.click(
+            screen.getByRole('button', { name: 'Review open tasks' })
+        );
+
+        const input = screen.getByLabelText('Ask TaiGer AI');
+        await user.clear(input);
+        await user.type(input, 'Any new risks?{Enter}');
+
+        await waitFor(() => {
+            expect(apiMocks.postAIAssistMessage).toHaveBeenCalledWith(
+                'conv_latest',
+                {
+                    message: 'Any new risks?',
+                    assistContext: {
+                        mentionedStudent: {
+                            id: 'student_abby',
+                            displayName: 'Abby Student'
+                        },
+                        requestedSkill: 'review_open_tasks'
+                    }
+                }
+            );
+        });
+        expect(apiMocks.postAIAssistFirstMessage).not.toHaveBeenCalled();
+    });
+
+    it('shows a passive fallback hint for unknown #skill tags', async () => {
         const user = userEvent.setup();
         render(<AIAssistPage />);
 
@@ -406,15 +447,9 @@ describe('AIAssistPage', () => {
 
         const input = screen.getByLabelText('Ask TaiGer AI');
         await user.clear(input);
-        await user.type(input, 'Any new risks?{Enter}');
+        await user.type(input, '#unknown_skill Review this thread');
 
-        await waitFor(() => {
-            expect(apiMocks.postAIAssistMessage).toHaveBeenCalledWith(
-                'conv_latest',
-                { message: 'Any new risks?' }
-            );
-        });
-        expect(apiMocks.postAIAssistFirstMessage).not.toHaveBeenCalled();
+        expect(screen.getByText('Unknown skill, using auto mode')).toBeTruthy();
     });
 
     it('preserves the draft text when the first message request fails', async () => {

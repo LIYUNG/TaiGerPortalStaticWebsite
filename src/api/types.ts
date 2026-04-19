@@ -210,6 +210,29 @@ export interface AIAssistPickerStudent {
     applyingProgramCount?: number;
 }
 
+export type AIAssistQuickSkill =
+    | 'summarize_student'
+    | 'identify_risk'
+    | 'review_messages'
+    | 'review_open_tasks';
+
+export interface AIAssistMentionedStudent {
+    id: string;
+    displayName: string;
+}
+
+export interface AIAssistAssistContext {
+    mentionedStudent?: AIAssistMentionedStudent;
+    requestedSkill?: AIAssistQuickSkill;
+    unknownSkillText?: string;
+}
+
+export interface AIAssistSkillTrace {
+    source: 'quick_skill' | 'composer_tag' | 'auto';
+    requestedSkill?: AIAssistQuickSkill;
+    unknownSkillText?: string;
+}
+
 export interface AIAssistMessage {
     id: string;
     conversationId?: string;
@@ -271,6 +294,7 @@ export interface UpdateAIAssistConversationResponse {
 
 export interface PostAIAssistMessagePayload {
     message: string;
+    assistContext?: AIAssistAssistContext;
 }
 
 export interface PostAIAssistMessageResponse {
@@ -280,6 +304,7 @@ export interface PostAIAssistMessageResponse {
         assistantMessage: AIAssistMessage;
         answer: string;
         trace: AIAssistToolCall[];
+        skillTrace?: AIAssistSkillTrace;
         usage?: Record<string, unknown>;
     };
 }
@@ -288,6 +313,7 @@ export interface PostAIAssistFirstMessagePayload {
     message: string;
     studentId?: string;
     studentDisplayName?: string;
+    assistContext?: AIAssistAssistContext;
 }
 
 export interface PostAIAssistFirstMessageResponse {
@@ -298,6 +324,7 @@ export interface PostAIAssistFirstMessageResponse {
         assistantMessage: AIAssistMessage;
         answer: string;
         trace: AIAssistToolCall[];
+        skillTrace?: AIAssistSkillTrace;
         usage?: Record<string, unknown>;
     };
 }

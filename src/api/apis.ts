@@ -472,7 +472,12 @@ export const postAIAssistFirstMessage = (
 ) =>
     postData<PostAIAssistFirstMessageResponse>(
         '/api/ai-assist/conversations/first-message',
-        payload
+        {
+            message: payload.message,
+            studentId: payload.studentId,
+            studentDisplayName: payload.studentDisplayName,
+            assistContext: payload.assistContext
+        }
     );
 
 export const getAIAssistConversations = () =>
@@ -503,7 +508,10 @@ export const postAIAssistMessage = (
 ) =>
     postData<PostAIAssistMessageResponse>(
         `/api/ai-assist/conversations/${conversationId}/messages`,
-        payload
+        {
+            message: payload.message,
+            assistContext: payload.assistContext
+        }
     );
 
 export const getAIAssistRecentStudents = () =>
