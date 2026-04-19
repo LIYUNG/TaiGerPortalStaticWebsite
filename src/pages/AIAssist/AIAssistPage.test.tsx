@@ -45,7 +45,18 @@ const conversationDetails = {
                 id: 'msg_latest_assistant',
                 conversationId: 'conv_latest',
                 role: 'assistant',
-                content: 'latest persisted answer'
+                content: 'latest persisted answer',
+                skillTrace: {
+                    requestedSkill: 'identify_risk',
+                    resolvedSkill: 'identify_risk',
+                    mode: 'skill',
+                    student: {
+                        id: 'student_abby',
+                        displayName: 'Abby Student'
+                    },
+                    status: 'completed',
+                    steps: []
+                }
             }
         ],
         trace: [
@@ -129,6 +140,17 @@ describe('AIAssistPage', () => {
                     role: 'assistant',
                     content: 'mocked AI Assist answer'
                 },
+                skillTrace: {
+                    requestedSkill: 'identify_risk',
+                    resolvedSkill: 'identify_risk',
+                    mode: 'skill',
+                    student: {
+                        id: 'student_abby',
+                        displayName: 'Abby Student'
+                    },
+                    status: 'completed',
+                    steps: []
+                },
                 trace: [
                     {
                         id: 'trace_first',
@@ -156,6 +178,17 @@ describe('AIAssistPage', () => {
                     conversationId: 'conv_latest',
                     role: 'assistant',
                     content: 'follow-up answer'
+                },
+                skillTrace: {
+                    requestedSkill: 'review_open_tasks',
+                    resolvedSkill: 'review_open_tasks',
+                    mode: 'skill',
+                    student: {
+                        id: 'student_abby',
+                        displayName: 'Abby Student'
+                    },
+                    status: 'completed',
+                    steps: []
                 },
                 trace: [
                     {
@@ -450,6 +483,17 @@ describe('AIAssistPage', () => {
         await user.type(input, '#unknown_skill Review this thread');
 
         expect(screen.getByText('Unknown skill, using auto mode')).toBeTruthy();
+    });
+
+    it('shows skill used and student used under the assistant message', async () => {
+        render(<AIAssistPage />);
+
+        await waitFor(() => {
+            expect(screen.getByText('latest persisted answer')).toBeTruthy();
+        });
+
+        expect(screen.getByText('Skill used: identify_risk')).toBeTruthy();
+        expect(screen.getByText('Student: Abby Student')).toBeTruthy();
     });
 
     it('preserves the draft text when the first message request fails', async () => {

@@ -228,9 +228,23 @@ export interface AIAssistAssistContext {
 }
 
 export interface AIAssistSkillTrace {
-    source: 'quick_skill' | 'composer_tag' | 'auto';
-    requestedSkill?: AIAssistQuickSkill;
-    unknownSkillText?: string;
+    source?: 'quick_skill' | 'composer_tag' | 'auto';
+    requestedSkill?: AIAssistQuickSkill | null;
+    resolvedSkill?: AIAssistQuickSkill | null;
+    unknownSkillText?: string | null;
+    mode?: 'skill' | 'general';
+    student?: AIAssistMentionedStudent | null;
+    status?: 'completed' | 'fallback' | 'success' | 'failed' | string;
+    steps?: Array<
+        | string
+        | {
+              toolName?: string;
+              status?: string;
+              arguments?: unknown;
+              description?: string | null;
+          }
+    >;
+    fallbackReason?: string | null;
 }
 
 export interface AIAssistMessage {
@@ -238,6 +252,7 @@ export interface AIAssistMessage {
     conversationId?: string;
     role: 'user' | 'assistant' | 'system';
     content: string;
+    skillTrace?: AIAssistSkillTrace | null;
     model?: string;
     responseId?: string;
     usage?: Record<string, unknown>;

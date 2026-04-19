@@ -228,6 +228,14 @@ const buildComposerState = ({
     unknownSkillText: skillTrace.unknownSkillText ?? null
 });
 
+const withResponseSkillTrace = (
+    message: AIAssistMessage,
+    skillTrace?: AIAssistSkillTrace
+): AIAssistMessage => ({
+    ...message,
+    skillTrace: message.skillTrace ?? skillTrace ?? null
+});
+
 const renderToolTraceCard = (
     toolCall: AIAssistToolCall,
     key: string
@@ -671,13 +679,17 @@ const AIAssistPage = (): JSX.Element => {
                     conversation,
                     userMessage,
                     assistantMessage,
-                    trace: responseTrace
+                    trace: responseTrace,
+                    skillTrace: responseSkillTrace
                 } = response.data;
 
                 addConversationToTop(conversation);
                 setConversationId(conversation.id);
                 setDraftConversation(null);
-                setMessages([userMessage, assistantMessage]);
+                setMessages([
+                    userMessage,
+                    withResponseSkillTrace(assistantMessage, responseSkillTrace)
+                ]);
                 setTrace(responseTrace || []);
                 setInput(defaultInput);
                 return;
@@ -690,13 +702,14 @@ const AIAssistPage = (): JSX.Element => {
             const {
                 userMessage,
                 assistantMessage,
-                trace: responseTrace
+                trace: responseTrace,
+                skillTrace: responseSkillTrace
             } = response.data;
 
             setMessages((previous) => [
                 ...previous,
                 userMessage,
-                assistantMessage
+                withResponseSkillTrace(assistantMessage, responseSkillTrace)
             ]);
             setTrace((previous) => mergeTrace(previous, responseTrace || []));
             setInput(defaultInput);
@@ -1084,6 +1097,41 @@ const AIAssistPage = (): JSX.Element => {
                                                     >
                                                         {message.content}
                                                     </Typography>
+                                                    {message.role ===
+                                                        'assistant' &&
+                                                    message.skillTrace ? (
+                                                        <Stack
+                                                            spacing={0.25}
+                                                            sx={{ mt: 1.25 }}
+                                                        >
+                                                            <Typography
+                                                                fontWeight={700}
+                                                                variant="caption"
+                                                            >
+                                                                Skill used:{' '}
+                                                                {message
+                                                                    .skillTrace
+                                                                    .resolvedSkill ||
+                                                                    'auto'}
+                                                            </Typography>
+                                                            {message.skillTrace
+                                                                .student
+                                                                ?.displayName ? (
+                                                                <Typography
+                                                                    color="text.secondary"
+                                                                    variant="caption"
+                                                                >
+                                                                    Student:{' '}
+                                                                    {
+                                                                        message
+                                                                            .skillTrace
+                                                                            .student
+                                                                            .displayName
+                                                                    }
+                                                                </Typography>
+                                                            ) : null}
+                                                        </Stack>
+                                                    ) : null}
                                                     {assistantTrace.length >
                                                     0 ? (
                                                         <Stack
