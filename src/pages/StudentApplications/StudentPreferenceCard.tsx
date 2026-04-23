@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { List, ListItem, TextField, Typography } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 import type { IStudentResponse } from '@taiger-common/model';
 
 export const StudentPreferenceCard = ({
@@ -8,87 +8,131 @@ export const StudentPreferenceCard = ({
     student: IStudentResponse;
 }) => {
     const { t } = useTranslation();
+
+    const preferenceValue = (value?: string | string[] | null) => {
+        if (Array.isArray(value)) {
+            return value.length > 0 ? value.join(', ') : '-';
+        }
+
+        return value && value.trim() ? value : '-';
+    };
+
     return (
-        <>
-            <Typography variant="h6">
-                {t('Application Preference From Survey')}
-            </Typography>
-            <List
-                subheader={<li />}
+        <Box>
+            <Box
                 sx={{
-                    width: '100%',
-                    bgcolor: 'background.paper',
-                    position: 'relative',
-                    overflow: 'auto',
-                    '& ul': { padding: 0 }
+                    display: 'grid',
+                    gap: 0.75,
+                    gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }
                 }}
             >
-                <ListItem>
-                    {t('Target Application Fields')}:{' '}
-                    <b>
-                        {
-                            student.application_preference
-                                ?.target_application_field
-                        }
-                    </b>
-                </ListItem>
-                <ListItem>
-                    {t('Target Application Subjects')}:{' '}
-                    <b>
-                        {student.application_preference?.targetApplicationSubjects?.join(
-                            ', '
-                        )}
-                    </b>
-                </ListItem>
-                <ListItem>
-                    {t('Target Degree Programs')}:{' '}
-                    <b>{student.application_preference?.target_degree}</b>
-                </ListItem>
-                <ListItem>
-                    {t('Target Program Language')}:{' '}
-                    <b>
-                        {
-                            student.application_preference
-                                ?.target_program_language
-                        }
-                    </b>
-                </ListItem>
-                <ListItem>
-                    {t(
-                        'Considering private universities? (Tuition Fee: ~15000 EURO/year)'
-                    )}
-                    :{' '}
-                    <b>
-                        {
-                            student.application_preference
-                                ?.considered_privat_universities
-                        }
-                    </b>
-                </ListItem>
-                <ListItem>
-                    {t('Considering universities outside Germany?')}:{' '}
-                    <b>
-                        {
-                            student.application_preference
-                                ?.application_outside_germany
-                        }
-                    </b>
-                </ListItem>
-                <ListItem>
-                    {t('Other wish', { ns: 'survey' })}:
-                    <TextField
-                        fullWidth
-                        id="special_wished"
-                        multiline
-                        readOnly
-                        rows={4}
-                        value={
-                            student.application_preference?.special_wished || ''
-                        }
-                        variant="standard"
-                    />
-                </ListItem>
-            </List>
-        </>
+                <Box sx={{ py: 0.25 }}>
+                    <Stack spacing={0}>
+                        <Typography color="text.secondary" variant="overline">
+                            {t('Target Application Fields')}
+                        </Typography>
+                        <Typography fontWeight={600} variant="body2">
+                            {preferenceValue(
+                                student.application_preference
+                                    ?.target_application_field
+                            )}
+                        </Typography>
+                    </Stack>
+                </Box>
+                <Box sx={{ py: 0.25 }}>
+                    <Stack spacing={0}>
+                        <Typography color="text.secondary" variant="overline">
+                            {t('Target Application Subjects')}
+                        </Typography>
+                        <Typography fontWeight={600} variant="body2">
+                            {preferenceValue(
+                                student.application_preference
+                                    ?.targetApplicationSubjects
+                            )}
+                        </Typography>
+                    </Stack>
+                </Box>
+                <Box sx={{ py: 0.25 }}>
+                    <Stack spacing={0}>
+                        <Typography color="text.secondary" variant="overline">
+                            {t('Target Degree Programs')}
+                        </Typography>
+                        <Typography fontWeight={600} variant="body2">
+                            {preferenceValue(
+                                student.application_preference?.target_degree
+                            )}
+                        </Typography>
+                    </Stack>
+                </Box>
+                <Box sx={{ py: 0.25 }}>
+                    <Stack spacing={0}>
+                        <Typography color="text.secondary" variant="overline">
+                            {t('Target Program Language')}
+                        </Typography>
+                        <Typography fontWeight={600} variant="body2">
+                            {preferenceValue(
+                                student.application_preference
+                                    ?.target_program_language
+                            )}
+                        </Typography>
+                    </Stack>
+                </Box>
+                <Box sx={{ py: 0.25 }}>
+                    <Stack spacing={0}>
+                        <Typography color="text.secondary" variant="overline">
+                            {t(
+                                'Considering private universities? (Tuition Fee: ~15000 EURO/year)'
+                            )}
+                        </Typography>
+                        <Typography fontWeight={600} variant="body2">
+                            {preferenceValue(
+                                student.application_preference
+                                    ?.considered_privat_universities
+                            )}
+                        </Typography>
+                    </Stack>
+                </Box>
+                <Box sx={{ py: 0.25 }}>
+                    <Stack spacing={0}>
+                        <Typography color="text.secondary" variant="overline">
+                            {t('Considering universities outside Germany?')}
+                        </Typography>
+                        <Typography fontWeight={600} variant="body2">
+                            {preferenceValue(
+                                student.application_preference
+                                    ?.application_outside_germany
+                            )}
+                        </Typography>
+                    </Stack>
+                </Box>
+                <Box
+                    sx={{ gridColumn: { xs: 'auto', md: '1 / -1' }, py: 0.25 }}
+                >
+                    <Stack spacing={0.5}>
+                        <Typography color="text.secondary" variant="overline">
+                            {t('Other wish', { ns: 'survey' })}
+                        </Typography>
+                        <Box
+                            sx={{
+                                border: '1px solid',
+                                borderColor: 'divider',
+                                borderRadius: 2,
+                                bgcolor: 'background.default',
+                                px: 1,
+                                py: 0.75,
+                                whiteSpace: 'pre-wrap',
+                                lineHeight: 1.45,
+                                overflowY: 'auto'
+                            }}
+                        >
+                            <Typography variant="body2" sx={{ fontSize: 13 }}>
+                                {student.application_preference?.special_wished?.trim() ||
+                                    '-'}
+                            </Typography>
+                        </Box>
+                    </Stack>
+                </Box>
+            </Box>
+        </Box>
     );
 };

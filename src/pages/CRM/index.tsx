@@ -1,5 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { useMemo, useState, type ComponentProps } from 'react';
 import {
     Breadcrumbs,
     Link,
@@ -9,7 +10,10 @@ import {
     Card,
     CardContent,
     Tooltip,
-    IconButton
+    IconButton,
+    Tabs,
+    Tab,
+    useTheme
 } from '@mui/material';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { BarChart } from '@mui/x-charts/BarChart';
@@ -21,29 +25,125 @@ import Loading from '@components/Loading/Loading';
 import { useAuth } from '@components/AuthProvider';
 import { appConfig } from '../../config';
 import { is_TaiGer_role } from '@taiger-common/core';
+import type { IUser } from '@taiger-common/model';
 import { getCRMStatsQuery } from '@/api/query';
 
+type TimePreset = '1m' | '3m' | '6m' | 'ytd' | '1y' | 'full';
+type ChartPoint = { week: string; [key: string]: unknown };
+type AxisValueFormatterContext = { location?: 'tick' | 'tooltip' | string };
+
+const WEEK_PATTERN = /^(\d{4})-W?(\d{1,2})$/;
+const YEAR_PATTERN = /(20\d{2})/;
+const MONTH_SHORT = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec'
+];
+
+const toWeekOrdinal = (year: number, week: number) => year * 100 + week;
+
+const getISOWeekStartDate = (year: number, week: number) => {
+    const jan4 = new Date(Date.UTC(year, 0, 4));
+    const jan4Day = jan4.getUTCDay() || 7;
+    const firstIsoMonday = new Date(jan4);
+    firstIsoMonday.setUTCDate(jan4.getUTCDate() - (jan4Day - 1));
+
+    const target = new Date(firstIsoMonday);
+    target.setUTCDate(firstIsoMonday.getUTCDate() + (week - 1) * 7);
+    return target;
+};
+
+const parseWeekLabel = (weekLabel: string) => {
+    const meta = getWeekMeta(weekLabel);
+    if (!meta) return null;
+    return getISOWeekStartDate(meta.year, meta.week);
+};
+
+const getWeekMeta = (weekLabel: string) => {
+    const match = WEEK_PATTERN.exec(weekLabel);
+    if (!match) return null;
+    const year = Number(match[1]);
+    const week = Number(match[2]);
+    if (!year || !week) return null;
+    return {
+        label: weekLabel,
+        year,
+        week,
+        ordinal: toWeekOrdinal(year, week)
+    };
+};
+
+const getYearFromLabel = (label: string) => {
+    const match = YEAR_PATTERN.exec(label);
+    return match ? Number(match[1]) : null;
+};
+
+const getNumeric = (item: Record<string, unknown>, keys: string[]) => {
+    for (const key of keys) {
+        const value = Number(item[key]);
+        if (!Number.isNaN(value)) return value;
+    }
+    return 0;
+};
+
+const sumByWeeks = (
+    data: ChartPoint[] | undefined,
+    selectedWeeks: Set<string>,
+    keys: string[]
+) => {
+    if (!Array.isArray(data)) return 0;
+    return data.reduce((sum, item) => {
+        if (!selectedWeeks.has(item.week)) return sum;
+        return sum + getNumeric(item as Record<string, unknown>, keys);
+    }, 0);
+};
+
 const CRMDashboard = () => {
+    const theme = useTheme();
     const { t } = useTranslation();
     TabTitle(t('breadcrumbs.dashboard', { ns: 'crm' }));
     const { user } = useAuth();
     const { data, isLoading } = useQuery(getCRMStatsQuery());
-
-    if (!is_TaiGer_role(user)) {
-        return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
-    }
-    const stats = data?.data?.data || {};
-
-    if (isLoading) {
-        return <Loading />;
-    }
-
-    // Calculate conversion rate (converted leads / total leads)
-    const totalLeads = Number(stats.totalLeadCount) || 0;
-    const convertedLeads = Number(stats.convertedLeadCount) || 0;
-    const conversionRate = totalLeads
-        ? Number(((convertedLeads / totalLeads) * 100).toFixed(1))
-        : 0;
+    const [timePreset, setTimePreset] = useState<TimePreset>('3m');
+    const isAuthorized = Boolean(user) && is_TaiGer_role(user as IUser);
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const stats =
+        (
+            data as
+                | {
+                      data?: {
+                          data?: {
+                              totalLeadCount?: number;
+                              convertedLeadCount?: number;
+                              totalMeetingCount?: number;
+                              recentLeadCount?: number;
+                              recentMeetingCount?: number;
+                              avgResponseTimeDays?: number | null;
+                              p50ResponseTimeDays?: number | null;
+                              p95ResponseTimeDays?: number | null;
+                              totalLeadsWithMeeting?: number;
+                              totalLeadsWithFollowUp?: number;
+                              avgSalesCycleDays?: number | null;
+                              p50SalesCycleDays?: number | null;
+                              p95SalesCycleDays?: number | null;
+                              leadsCountByDate?: ChartPoint[];
+                              meetingCountByDate?: ChartPoint[];
+                              [key: string]: unknown;
+                          };
+                      };
+                  }
+                | undefined
+        )?.data?.data || {};
 
     // Create unified week range for consistent x-axis across both charts
     const createUnifiedWeekRange = (
@@ -87,32 +187,214 @@ const CRMDashboard = () => {
         stats.meetingCountByDate
     );
 
+    const sortedWeekMeta = useMemo(
+        () =>
+            allWeeks
+                .map((w) => {
+                    const meta = getWeekMeta(w);
+                    return meta
+                        ? {
+                              ...meta,
+                              date: parseWeekLabel(w)
+                          }
+                        : null;
+                })
+                .filter(Boolean)
+                .sort(
+                    (a, b) =>
+                        (a?.date?.getTime() || 0) - (b?.date?.getTime() || 0)
+                ),
+        [allWeeks]
+    );
+
+    // Keep a stable ordered week axis even when week labels are not ISO-like.
+    const orderedWeekLabels = useMemo(() => {
+        if (sortedWeekMeta.length) {
+            return sortedWeekMeta.map((w) => w?.label || '').filter(Boolean);
+        }
+        return allWeeks;
+    }, [allWeeks, sortedWeekMeta]);
+
+    const filteredWeekLabels = useMemo(() => {
+        if (timePreset === 'full') {
+            return orderedWeekLabels;
+        }
+
+        // Fixed windows by week count.
+        const rangeWeeks: Record<
+            Exclude<TimePreset, 'full' | 'ytd'>,
+            number
+        > = {
+            '1m': 4,
+            '3m': 13,
+            '6m': 26,
+            '1y': 52
+        };
+
+        if (timePreset === 'ytd') {
+            if (sortedWeekMeta.length) {
+                const ytdLabels = sortedWeekMeta
+                    .filter((w) => w?.year === currentYear)
+                    .map((w) => w?.label || '')
+                    .filter(Boolean);
+                if (ytdLabels.length) return ytdLabels;
+            }
+
+            return orderedWeekLabels.filter(
+                (label) => getYearFromLabel(label) === currentYear
+            );
+        }
+
+        const count = rangeWeeks[timePreset as keyof typeof rangeWeeks] || 48;
+
+        if (sortedWeekMeta.length) {
+            return sortedWeekMeta
+                .map((w) => w?.label || '')
+                .filter(Boolean)
+                .slice(-count);
+        }
+
+        return orderedWeekLabels.slice(-count);
+    }, [currentYear, orderedWeekLabels, sortedWeekMeta, timePreset]);
+
+    const filteredWeekSet = useMemo(
+        () => new Set(filteredWeekLabels),
+        [filteredWeekLabels]
+    );
+
+    const monthStartLabels = useMemo(() => {
+        const starts = new Set<string>();
+        let previousMonthKey: string | null = null;
+
+        filteredWeekLabels.forEach((label, index) => {
+            const date = parseWeekLabel(label);
+            if (date) {
+                const year = date.getUTCFullYear();
+                const month = date.getUTCMonth();
+                const monthKey = `${year}-${month}`;
+                if (monthKey !== previousMonthKey) {
+                    starts.add(label);
+                    previousMonthKey = monthKey;
+                }
+                return;
+            }
+
+            // Fallback when week labels are not parseable: approximate 4 weeks per month.
+            if (index % 4 === 0) {
+                starts.add(label);
+            }
+        });
+
+        return starts;
+    }, [filteredWeekLabels]);
+
+    const monthTickValues = useMemo(
+        () => filteredWeekLabels.filter((label) => monthStartLabels.has(label)),
+        [filteredWeekLabels, monthStartLabels]
+    );
+
+    const formatWeekTickLabel = (
+        label: string,
+        context?: AxisValueFormatterContext
+    ) => {
+        const weekMeta = getWeekMeta(label);
+        const weekText = weekMeta ? `W${weekMeta.week}` : label;
+
+        // Keep calendar week index visible in hover tooltip.
+        if (context?.location === 'tooltip') {
+            const parsedDate = parseWeekLabel(label);
+            if (parsedDate) {
+                const monthText = MONTH_SHORT[parsedDate.getUTCMonth()];
+                const yearText = parsedDate.getUTCFullYear();
+                return `${monthText} ${yearText} (${weekText})`;
+            }
+            return weekText;
+        }
+
+        if (!monthStartLabels.has(label)) {
+            return '';
+        }
+
+        const parsedDate = parseWeekLabel(label);
+        if (parsedDate) {
+            const monthText = MONTH_SHORT[parsedDate.getUTCMonth()];
+            const yearText = parsedDate.getUTCFullYear();
+            return `${monthText} ${yearText}`;
+        }
+
+        // Fallback when week label is not parseable: still show month-year at each 4-week boundary.
+        const index = filteredWeekLabels.indexOf(label);
+        const monthText = MONTH_SHORT[Math.floor(index / 4) % 12];
+        const yearText = getYearFromLabel(label) || currentYear;
+        return `${monthText} ${yearText}`;
+    };
+
+    // Always show latest 7-day delta (approximated by latest week bucket)
+    const latestWeekSet = useMemo(() => {
+        const latestLabel = orderedWeekLabels[orderedWeekLabels.length - 1];
+        return new Set(latestLabel ? [latestLabel] : []);
+    }, [orderedWeekLabels]);
+
+    const recent7dLeads = sumByWeeks(stats.leadsCountByDate, latestWeekSet, [
+        'count',
+        'leadCount',
+        'totalLeadCount'
+    ]);
+    const recent7dMeetings = sumByWeeks(
+        stats.meetingCountByDate,
+        latestWeekSet,
+        ['count', 'meetingCount', 'totalMeetingCount']
+    );
+    const recent7dConverted = sumByWeeks(
+        stats.leadsCountByDate,
+        latestWeekSet,
+        ['convertedCount', 'convertedLeadCount']
+    );
+
+    const totalLeads = sumByWeeks(stats.leadsCountByDate, filteredWeekSet, [
+        'count',
+        'leadCount',
+        'totalLeadCount'
+    ]);
+    const convertedLeads = sumByWeeks(stats.leadsCountByDate, filteredWeekSet, [
+        'convertedCount',
+        'convertedLeadCount'
+    ]);
+    const totalMeetings = sumByWeeks(
+        stats.meetingCountByDate,
+        filteredWeekSet,
+        ['count', 'meetingCount', 'totalMeetingCount']
+    );
+    const conversionRate = totalLeads
+        ? Number(((convertedLeads / totalLeads) * 100).toFixed(1))
+        : 0;
+
     // Prepare data for both charts with consistent x-axis (null for missing weeks)
     const unifiedLeadsData = prepareChartData(
         stats.leadsCountByDate,
-        allWeeks,
+        filteredWeekLabels,
         'count'
     );
     const unifiedHighChanceLeadsData = prepareChartData(
         stats.leadsCountByDate,
-        allWeeks,
+        filteredWeekLabels,
         'highChanceCount'
     );
 
     const unifiedConvertedLeadsData = prepareChartData(
         stats.leadsCountByDate,
-        allWeeks,
+        filteredWeekLabels,
         'convertedCount'
     );
     const unifiedMeetingsData = prepareChartData(
         stats.meetingCountByDate,
-        allWeeks,
+        filteredWeekLabels,
         'count'
     );
 
     // Prepare per-week conversion rate labels (converted / leads * 100)
     // Round up to nearest integer and omit decimals
-    const unifiedConversionRates = allWeeks.map((_, idx) => {
+    const unifiedConversionRates = filteredWeekLabels.map((_, idx) => {
         const leads = unifiedLeadsData[idx];
         const converted = unifiedConvertedLeadsData[idx];
         if (leads === null || leads === 0 || leads === undefined) return null;
@@ -121,8 +403,74 @@ const CRMDashboard = () => {
         return Math.ceil(rate);
     });
 
+    const barLabelFill =
+        theme.palette.mode === 'dark'
+            ? 'rgba(255,255,255,0.92)'
+            : 'rgba(0,0,0,0.72)';
+
+    const leadsBarLabel = ((
+        valueObj: { seriesId?: string; dataIndex?: number },
+        meta: { bar?: { height?: number } }
+    ) => {
+        try {
+            const { seriesId, dataIndex } = valueObj || {};
+            if (seriesId === 'newLeads') {
+                const idx = typeof dataIndex === 'number' ? dataIndex : -1;
+                const label = idx >= 0 ? unifiedConversionRates[idx] : null;
+                if (!label) return null;
+                const bar = meta?.bar || {};
+                const dy = bar.height ? -(bar.height / 2 + 14) : -14;
+                return (
+                    <tspan
+                        dy={dy}
+                        style={{
+                            fontSize: '11px',
+                            fill: barLabelFill
+                        }}
+                    >
+                        {`${label}%`}
+                    </tspan>
+                );
+            }
+        } catch {
+            // fall through to no label
+        }
+        return null;
+    }) as unknown as NonNullable<ComponentProps<typeof BarChart>['barLabel']>;
+
+    const meetingsBarLabel = ((
+        valueObj: { dataIndex?: number },
+        meta: { bar?: { height?: number } }
+    ) => {
+        try {
+            const idx =
+                typeof valueObj?.dataIndex === 'number'
+                    ? valueObj.dataIndex
+                    : -1;
+            const count = idx >= 0 ? unifiedMeetingsData[idx] : null;
+            if (count == null || Number(count) <= 0) return null;
+            const bar = meta?.bar || {};
+            const dy = bar.height ? -(bar.height / 2 + 14) : -14;
+            return (
+                <tspan
+                    dy={dy}
+                    style={{
+                        fontSize: '11px',
+                        fill: barLabelFill
+                    }}
+                >
+                    {`${Math.round(Number(count))}`}
+                </tspan>
+            );
+        } catch {
+            return null;
+        }
+    }) as unknown as NonNullable<ComponentProps<typeof BarChart>['barLabel']>;
+
     const formatDays = (value: number | null | undefined) =>
-        value === null || isNaN(value) ? '-' : `${Number(value).toFixed(2)}d`;
+        value == null || Number.isNaN(Number(value))
+            ? '-'
+            : `${Number(value).toFixed(2)}d`;
     const percentileLine = (
         p50: number | null | undefined,
         p95: number | null | undefined
@@ -138,21 +486,187 @@ const CRMDashboard = () => {
         );
     };
 
+    if (!isAuthorized) {
+        return <Navigate to={`${DEMO.DASHBOARD_LINK}`} />;
+    }
+
+    if (isLoading) {
+        return <Loading />;
+    }
+
     return (
         <>
-            <Breadcrumbs aria-label="breadcrumb">
-                <Link
-                    color="inherit"
-                    component="a"
-                    href={`${DEMO.DASHBOARD_LINK}`}
-                    underline="hover"
+            <Box
+                sx={{
+                    mt: 0.25,
+                    mb: 0.75,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 1,
+                    flexWrap: 'wrap'
+                }}
+            >
+                <Breadcrumbs aria-label="breadcrumb">
+                    <Link
+                        color="inherit"
+                        component="a"
+                        href={`${DEMO.DASHBOARD_LINK}`}
+                        underline="hover"
+                    >
+                        {appConfig.companyName}
+                    </Link>
+                    <Typography color="text.primary">
+                        {t('breadcrumbs.dashboard', { ns: 'crm' })}
+                    </Typography>
+                </Breadcrumbs>
+
+                <Tabs
+                    onChange={(_event, value) => setTimePreset(value)}
+                    value={timePreset}
+                    variant="scrollable"
+                    scrollButtons="auto"
+                    sx={{
+                        ml: 'auto',
+                        minHeight: 26,
+                        p: 0.125,
+                        borderRadius: 12,
+                        bgcolor: 'action.hover',
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        '& .MuiTabs-indicator': {
+                            display: 'none'
+                        }
+                    }}
                 >
-                    {appConfig.companyName}
-                </Link>
-                <Typography color="text.primary">
-                    {t('breadcrumbs.dashboard', { ns: 'crm' })}
-                </Typography>
-            </Breadcrumbs>
+                    <Tab
+                        label="1M"
+                        value="1m"
+                        sx={{
+                            minHeight: 20,
+                            minWidth: 'auto',
+                            py: 0.125,
+                            px: 0.875,
+                            borderRadius: 8,
+                            color: 'text.secondary',
+                            textTransform: 'none',
+                            fontWeight: 600,
+                            fontSize: '0.75rem',
+                            '&.Mui-selected': {
+                                color: 'primary.main',
+                                bgcolor: 'action.selected',
+                                border: '1px solid',
+                                borderColor: 'primary.main'
+                            }
+                        }}
+                    />
+                    <Tab
+                        label="3M"
+                        value="3m"
+                        sx={{
+                            minHeight: 20,
+                            minWidth: 'auto',
+                            py: 0.125,
+                            px: 0.875,
+                            borderRadius: 8,
+                            color: 'text.secondary',
+                            textTransform: 'none',
+                            fontWeight: 600,
+                            fontSize: '0.75rem',
+                            '&.Mui-selected': {
+                                color: 'primary.main',
+                                bgcolor: 'action.selected',
+                                border: '1px solid',
+                                borderColor: 'primary.main'
+                            }
+                        }}
+                    />
+                    <Tab
+                        label="6M"
+                        value="6m"
+                        sx={{
+                            minHeight: 20,
+                            minWidth: 'auto',
+                            py: 0.125,
+                            px: 0.875,
+                            borderRadius: 8,
+                            color: 'text.secondary',
+                            textTransform: 'none',
+                            fontWeight: 600,
+                            fontSize: '0.75rem',
+                            '&.Mui-selected': {
+                                color: 'primary.main',
+                                bgcolor: 'action.selected',
+                                border: '1px solid',
+                                borderColor: 'primary.main'
+                            }
+                        }}
+                    />
+                    <Tab
+                        label="YTD"
+                        value="ytd"
+                        sx={{
+                            minHeight: 20,
+                            minWidth: 'auto',
+                            py: 0.125,
+                            px: 0.875,
+                            borderRadius: 8,
+                            color: 'text.secondary',
+                            textTransform: 'none',
+                            fontWeight: 600,
+                            fontSize: '0.75rem',
+                            '&.Mui-selected': {
+                                color: 'primary.main',
+                                bgcolor: 'action.selected',
+                                border: '1px solid',
+                                borderColor: 'primary.main'
+                            }
+                        }}
+                    />
+                    <Tab
+                        label="1Y"
+                        value="1y"
+                        sx={{
+                            minHeight: 20,
+                            minWidth: 'auto',
+                            py: 0.125,
+                            px: 0.875,
+                            borderRadius: 8,
+                            color: 'text.secondary',
+                            textTransform: 'none',
+                            fontWeight: 600,
+                            fontSize: '0.75rem',
+                            '&.Mui-selected': {
+                                color: 'primary.main',
+                                bgcolor: 'action.selected',
+                                border: '1px solid',
+                                borderColor: 'primary.main'
+                            }
+                        }}
+                    />
+                    <Tab
+                        label="MAX"
+                        value="full"
+                        sx={{
+                            minHeight: 20,
+                            minWidth: 'auto',
+                            py: 0.125,
+                            px: 0.875,
+                            borderRadius: 8,
+                            color: 'text.secondary',
+                            textTransform: 'none',
+                            fontWeight: 600,
+                            fontSize: '0.75rem',
+                            '&.Mui-selected': {
+                                color: 'primary.main',
+                                bgcolor: 'action.selected',
+                                border: '1px solid',
+                                borderColor: 'primary.main'
+                            }
+                        }}
+                    />
+                </Tabs>
+            </Box>
 
             <Grid container spacing={1} sx={{ mt: 0.5 }}>
                 {/* Leads Box */}
@@ -160,7 +674,7 @@ const CRMDashboard = () => {
                     <Box
                         sx={{
                             p: 1.5,
-                            backgroundColor: 'background.paper',
+                            backgroundColor: 'action.selected',
                             borderRadius: 1,
                             boxShadow: 1
                         }}
@@ -169,13 +683,13 @@ const CRMDashboard = () => {
                             {t('dashboard.leads', { ns: 'crm' })}
                         </Typography>
                         <Typography component="div" variant="h5">
-                            {stats.totalLeadCount || 0}
+                            {totalLeads}
                             <Typography
                                 component="span"
                                 sx={{ color: 'success.main', ml: 1 }}
                                 variant="body2"
                             >
-                                (+{stats.recentLeadCount || 0})
+                                (+{recent7dLeads})
                             </Typography>
                         </Typography>
                         <Typography color="textSecondary" variant="caption">
@@ -188,7 +702,7 @@ const CRMDashboard = () => {
                     <Box
                         sx={{
                             p: 1.5,
-                            backgroundColor: 'background.paper',
+                            backgroundColor: 'action.selected',
                             borderRadius: 1,
                             boxShadow: 1
                         }}
@@ -197,13 +711,13 @@ const CRMDashboard = () => {
                             {t('dashboard.meetings', { ns: 'crm' })}
                         </Typography>
                         <Typography component="div" variant="h5">
-                            {stats.totalMeetingCount || 0}
+                            {totalMeetings}
                             <Typography
                                 component="span"
                                 sx={{ color: 'success.main', ml: 1 }}
                                 variant="body2"
                             >
-                                (+{stats.recentMeetingCount || 0})
+                                (+{recent7dMeetings})
                             </Typography>
                         </Typography>
                         <Typography color="textSecondary" variant="caption">
@@ -216,7 +730,7 @@ const CRMDashboard = () => {
                     <Box
                         sx={{
                             p: 1.5,
-                            backgroundColor: 'background.paper',
+                            backgroundColor: 'action.selected',
                             borderRadius: 1,
                             boxShadow: 1
                         }}
@@ -225,7 +739,14 @@ const CRMDashboard = () => {
                             {t('dashboard.convertedLeads', { ns: 'crm' })}
                         </Typography>
                         <Typography component="div" variant="h5">
-                            {stats.convertedLeadCount || 0}
+                            {convertedLeads}
+                            <Typography
+                                component="span"
+                                sx={{ color: 'success.main', ml: 1 }}
+                                variant="body2"
+                            >
+                                (+{recent7dConverted})
+                            </Typography>
                         </Typography>
                         <Typography color="textSecondary" variant="caption">
                             {t('dashboard.totalConverted', { ns: 'crm' })}
@@ -237,7 +758,7 @@ const CRMDashboard = () => {
                     <Box
                         sx={{
                             p: 1.5,
-                            backgroundColor: 'background.paper',
+                            backgroundColor: 'action.selected',
                             borderRadius: 1,
                             boxShadow: 1
                         }}
@@ -403,50 +924,11 @@ const CRMDashboard = () => {
                             <Typography gutterBottom variant="h6">
                                 {t('dashboard.leadsCountByWeek', { ns: 'crm' })}
                             </Typography>
-                            {allWeeks.length > 0 ? (
+                            {filteredWeekLabels.length > 0 ? (
                                 <BarChart
-                                    barLabel={(valueObj, meta) => {
-                                        try {
-                                            const { seriesId, dataIndex } =
-                                                valueObj || {};
-                                            const bar = meta?.bar || {};
-                                            if (seriesId === 'newLeads') {
-                                                const label =
-                                                    unifiedConversionRates[
-                                                        dataIndex
-                                                    ] ?? null;
-                                                if (!label) return null;
-                                                // place label above the bar by shifting it up by half the bar height + padding
-                                                // move label higher and make it slightly bigger
-                                                const dy = bar.height
-                                                    ? -(bar.height / 2 + 12)
-                                                    : -12;
-                                                return (
-                                                    <tspan
-                                                        dy={dy}
-                                                        style={{
-                                                            fontSize: '12px',
-                                                            fill: 'rgba(0,0,0,0.54)'
-                                                        }}
-                                                    >
-                                                        {`${label}%`}
-                                                    </tspan>
-                                                );
-                                            }
-                                        } catch {
-                                            // fall through to no label
-                                        }
-                                        return null;
-                                    }}
+                                    barLabel={leadsBarLabel}
                                     height={250}
                                     series={[
-                                        {
-                                            id: 'newLeads',
-                                            data: unifiedLeadsData,
-                                            label: t('dashboard.newLeads', {
-                                                ns: 'crm'
-                                            })
-                                        },
                                         {
                                             id: 'highChance',
                                             data: unifiedHighChanceLeadsData,
@@ -454,7 +936,8 @@ const CRMDashboard = () => {
                                                 'dashboard.highChanceLeads',
                                                 { ns: 'crm' }
                                             ),
-                                            color: '#F28E2B'
+                                            color: '#F28E2B',
+                                            stack: 'leadStack'
                                         },
                                         {
                                             id: 'convertedLeads',
@@ -463,7 +946,17 @@ const CRMDashboard = () => {
                                                 'dashboard.convertedLeadsSeries',
                                                 { ns: 'crm' }
                                             ),
-                                            color: '#59A14F'
+                                            color: '#59A14F',
+                                            stack: 'leadStack'
+                                        },
+                                        {
+                                            id: 'newLeads',
+                                            data: unifiedLeadsData,
+                                            label: t('dashboard.newLeads', {
+                                                ns: 'crm'
+                                            }),
+                                            color: '#4BC0C0',
+                                            stack: 'leadStack'
                                         }
                                     ]}
                                     slotProps={{
@@ -474,9 +967,14 @@ const CRMDashboard = () => {
                                             label: t('dashboard.calendarWeek', {
                                                 ns: 'crm'
                                             }),
-                                            data: allWeeks,
+                                            data: filteredWeekLabels,
                                             scaleType: 'band',
-                                            barGapRatio: -1
+                                            tickInterval: monthTickValues,
+                                            valueFormatter: (value, context) =>
+                                                formatWeekTickLabel(
+                                                    String(value),
+                                                    context as AxisValueFormatterContext
+                                                )
                                         }
                                     ]}
                                     yAxis={[
@@ -507,8 +1005,9 @@ const CRMDashboard = () => {
                                     ns: 'crm'
                                 })}
                             </Typography>
-                            {allWeeks.length > 0 ? (
+                            {filteredWeekLabels.length > 0 ? (
                                 <BarChart
+                                    barLabel={meetingsBarLabel}
                                     height={250}
                                     series={[
                                         {
@@ -526,8 +1025,14 @@ const CRMDashboard = () => {
                                             label: t('dashboard.calendarWeek', {
                                                 ns: 'crm'
                                             }),
-                                            data: allWeeks,
-                                            scaleType: 'band'
+                                            data: filteredWeekLabels,
+                                            scaleType: 'band',
+                                            tickInterval: monthTickValues,
+                                            valueFormatter: (value, context) =>
+                                                formatWeekTickLabel(
+                                                    String(value),
+                                                    context as AxisValueFormatterContext
+                                                )
                                         }
                                     ]}
                                     yAxis={[

@@ -210,7 +210,7 @@ const DocCreatePage = (props: DocCreatePageProps) => {
         }));
     };
 
-    const handleClickEditToggle = (_e?: React.MouseEvent) => {
+    const handleClickEditToggle = () => {
         setDocCreatePage((prevState) => ({
             ...prevState,
             isEdit: !DocCreatePageState.isEdit

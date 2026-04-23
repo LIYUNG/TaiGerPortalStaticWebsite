@@ -1,5 +1,6 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 vi.mock('./components/ApplicationTableRow', () => ({
     default: () => (
@@ -103,6 +104,8 @@ vi.mock('@/api', () => ({
 
 import StudentApplicationsTableTemplate from './StudentApplicationsTableTemplate';
 
+const queryClient = new QueryClient();
+
 const mockStudent = {
     _id: 'stu1',
     firstname: 'John',
@@ -113,12 +116,14 @@ const mockStudent = {
 
 const renderTemplate = (props = {}) =>
     render(
-        <MemoryRouter>
-            <StudentApplicationsTableTemplate
-                student={mockStudent}
-                {...props}
-            />
-        </MemoryRouter>
+        <QueryClientProvider client={queryClient}>
+            <MemoryRouter>
+                <StudentApplicationsTableTemplate
+                    student={mockStudent}
+                    {...props}
+                />
+            </MemoryRouter>
+        </QueryClientProvider>
     );
 
 describe('StudentApplicationsTableTemplate', () => {
@@ -134,6 +139,7 @@ describe('StudentApplicationsTableTemplate', () => {
 
     it('renders the student preference card', () => {
         renderTemplate();
+        fireEvent.click(screen.getByRole('button', { name: 'Expand' }));
         expect(screen.getByTestId('preference-card')).toBeInTheDocument();
     });
 });

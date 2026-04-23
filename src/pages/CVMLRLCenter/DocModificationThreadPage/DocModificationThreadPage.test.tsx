@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import DocModificationThreadPage from './DocModificationThreadPage';
 
@@ -151,10 +152,15 @@ const mockThread = {
 
 describe('DocModificationThreadPage', () => {
     beforeEach(() => {
+        const queryClient = new QueryClient({
+            defaultOptions: { queries: { retry: false }, mutations: { retry: false } }
+        });
         render(
-            <MemoryRouter>
-                <DocModificationThreadPage threadProps={mockThread} />
-            </MemoryRouter>
+            <QueryClientProvider client={queryClient}>
+                <MemoryRouter>
+                    <DocModificationThreadPage threadProps={mockThread} />
+                </MemoryRouter>
+            </QueryClientProvider>
         );
     });
 

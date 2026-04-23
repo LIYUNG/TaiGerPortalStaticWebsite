@@ -14,13 +14,13 @@ const mockStudent = {
         application_outside_germany: 'No',
         special_wished: 'Top universities only'
     }
-} as any;
+};
 
 describe('StudentPreferenceCard', () => {
-    it('renders the application preference heading', () => {
+    it('renders preference labels', () => {
         render(<StudentPreferenceCard student={mockStudent} />);
         expect(
-            screen.getByText('Application Preference From Survey')
+            screen.getByText('Target Application Fields')
         ).toBeInTheDocument();
     });
 

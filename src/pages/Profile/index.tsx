@@ -24,7 +24,11 @@ import { Link as LinkDom, useParams } from 'react-router-dom';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import { useTranslation } from 'react-i18next';
-import { is_TaiGer_Agent, is_TaiGer_Editor } from '@taiger-common/core';
+import {
+    is_TaiGer_role,
+    is_TaiGer_Agent,
+    is_TaiGer_Editor
+} from '@taiger-common/core';
 
 import ErrorPage from '../Utils/ErrorPage';
 import ModalMain from '../Utils/ModalHandler/ModalMain';
@@ -48,6 +52,7 @@ interface PersonalData {
     role?: string;
     lineId?: string;
     linkedIn?: string;
+    slackId?: string;
     [key: string]: string | undefined;
 }
 
@@ -88,18 +93,22 @@ const Profile = () => {
                   birthday: '',
                   email: '',
                   lineId: '',
-                  linkedIn: ''
+                  linkedIn: '',
+                  slackId: ''
               }
             : {
-                  firstname: user?.firstname ?? '',
-                  firstname_chinese: user?.firstname_chinese ?? '',
-                  lastname: user?.lastname ?? '',
-                  lastname_chinese: user?.lastname_chinese ?? '',
-                  birthday: user?.birthday ?? '',
-                  role: user?.role ?? '',
-                  email: user?.email ?? '',
-                  lineId: user?.lineId ?? '',
-                  linkedIn: user?.linkedIn ?? ''
+                  firstname: user.firstname ?? '',
+                  firstname_chinese: user.firstname_chinese ?? '',
+                  lastname: user.lastname ?? '',
+                  lastname_chinese: user.lastname_chinese ?? '',
+                  birthday: user.birthday ?? '',
+                  role: user.role ?? '',
+                  email: user.email ?? '',
+                  lineId: user.lineId ?? '',
+                  linkedIn: user.linkedIn ?? '',
+                  slackId:
+                      (user as (IUserWithId & { slackId?: string }) | null)
+                          ?.slackId ?? ''
               },
         updateconfirmed: false,
         res_status: 0,
@@ -133,8 +142,9 @@ const Profile = () => {
                                 role: data.role ?? '',
                                 email: data.email ?? '',
                                 linkedIn: data.linkedIn ?? '',
-                                lineId: data.lineId ?? ''
-                            } as PersonalData,
+                                lineId: data.lineId ?? '',
+                                slackId: data.slackId ?? ''
+                            },
                             user_id: user_id ?? user?._id?.toString() ?? '',
                             res_status: status ?? 0
                         }));
@@ -288,7 +298,17 @@ const Profile = () => {
             label: t('Line ID', { ns: 'common' }),
             sm: 12,
             inputLabelProps: { shrink: true }
-        }
+        },
+        ...(!user_id && is_TaiGer_role(user)
+            ? [
+                  {
+                      name: 'slackId',
+                      label: t('Slack ID', { ns: 'common' }),
+                      sm: 12,
+                      inputLabelProps: { shrink: true }
+                  }
+              ]
+            : [])
     ];
 
     return (

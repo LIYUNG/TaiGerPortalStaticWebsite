@@ -1,4 +1,4 @@
-import { MouseEvent, SyntheticEvent, ChangeEvent } from 'react';
+import { MouseEvent, SyntheticEvent, ChangeEvent, useState } from 'react';
 import {
     FormControl,
     IconButton,
@@ -34,10 +34,11 @@ import {
     application_deadline_V2_calculator
 } from '../../Utils/util_functions';
 import OverlayButton from '@components/Overlay/OverlayButton';
-import { IS_SUBMITTED_STATE_OPTIONS } from '@utils/contants';
 import DEMO from '@store/constant';
 import { appConfig } from '../../../config';
 import type { IUser, IStudentResponse } from '@taiger-common/model';
+
+type AdmissionResult = '-' | 'O' | 'X';
 
 export interface ApplicationTableRowStudent {
     _id?: unknown;
@@ -53,9 +54,14 @@ export interface ApplicationTableRowProps {
     studentToShow: ApplicationTableRowStudent;
     user: IUser | null;
     today: Date;
+    isSubmitting?: boolean;
     handleChange: (
         e: ChangeEvent<HTMLInputElement> | SelectChangeEvent<string>,
         application_idx: number
+    ) => void;
+    handleFinalEnrolmentChange: (
+        application_idx: number,
+        finalEnrolment: boolean
     ) => void;
     handleWithdraw: (
         e: SyntheticEvent,
@@ -73,6 +79,10 @@ export interface ApplicationTableRowProps {
         application_year: number,
         student_id: string
     ) => void;
+    handleAdmissionResultChange: (
+        application: Application,
+        result: AdmissionResult
+    ) => Promise<void>;
 }
 
 const ApplicationTableRow = ({
@@ -81,12 +91,45 @@ const ApplicationTableRow = ({
     studentToShow,
     user,
     today,
+    isSubmitting,
     handleChange,
+    handleFinalEnrolmentChange,
     handleWithdraw,
     handleDelete,
-    handleEdit
+    handleEdit,
+    handleAdmissionResultChange
 }: ApplicationTableRowProps) => {
     const { t } = useTranslation();
+    const [isSubmittingAdmission, setIsSubmittingAdmission] = useState(false);
+    const isInteractionDisabled = isSubmitting || isSubmittingAdmission;
+
+    const canUpdateAdmission =
+        application.closed !== '-' &&
+        application.closed !== 'X' &&
+        !(application.finalEnrolment ?? false);
+
+    const admissionOptions: Array<{ value: AdmissionResult; label: string }> = [
+        { value: '-', label: '-' },
+        { value: 'O', label: t('Yes', { ns: 'common' }) },
+        { value: 'X', label: t('No', { ns: 'common' }) }
+    ];
+
+    const currentAdmission =
+        application.admission === 'O' || application.admission === 'X'
+            ? application.admission
+            : '-';
+
+    const onClickAdmissionResult = async (result: AdmissionResult) => {
+        if (result === currentAdmission) {
+            return;
+        }
+        setIsSubmittingAdmission(true);
+        try {
+            await handleAdmissionResultChange(application, result);
+        } finally {
+            setIsSubmittingAdmission(false);
+        }
+    };
 
     return (
         <TableRow>
@@ -203,7 +246,9 @@ const ApplicationTableRow = ({
             <TableCell>
                 <FormControl fullWidth>
                     <Select
-                        disabled={application.closed !== '-'}
+                        disabled={
+                            application.closed !== '-' || isInteractionDisabled
+                        }
                         id="decided"
                         labelId="decided"
                         name="decided"
@@ -226,7 +271,9 @@ const ApplicationTableRow = ({
                 <TableCell>
                     {isProgramSubmitted(application) ||
                     (is_program_ml_rl_essay_ready(application) &&
-                        isCVFinished(studentToShow as unknown as IStudentResponse) &&
+                        isCVFinished(
+                            studentToShow as unknown as IStudentResponse
+                        ) &&
                         (!appConfig.vpdEnable ||
                             is_the_uni_assist_vpd_uploaded(application))) ? (
                         <FormControl fullWidth>
@@ -234,6 +281,7 @@ const ApplicationTableRow = ({
                                 id="closed"
                                 labelId="closed"
                                 name="closed"
+                                disabled={isInteractionDisabled}
                                 onChange={(e) =>
                                     handleChange(e, application_idx)
                                 }
@@ -251,7 +299,11 @@ const ApplicationTableRow = ({
                     ) : (
                         <OverlayButton
                             text={`Please make sure ${
-                                !isCVFinished(studentToShow as unknown as IStudentResponse) ? 'CV ' : ''
+                                !isCVFinished(
+                                    studentToShow as unknown as IStudentResponse
+                                )
+                                    ? 'CV '
+                                    : ''
                             }${
                                 !is_program_ml_rl_essay_ready(application)
                                     ? 'ML/RL/Essay '
@@ -280,26 +332,28 @@ const ApplicationTableRow = ({
                 <TableCell>
                     <FormControl fullWidth>
                         <Select
-                            defaultValue={application.admission ?? '-'}
                             disabled={
-                                !(
-                                    application.closed !== '-' &&
-                                    application.closed !== 'X'
-                                ) ||
-                                (application.finalEnrolment ?? false)
+                                !canUpdateAdmission || isInteractionDisabled
                             }
                             id="admission"
                             labelId="admission"
                             name="admission"
-                            onChange={(e) => handleChange(e, application_idx)}
+                            inputProps={{ 'aria-label': 'admission result' }}
+                            onChange={(e) =>
+                                onClickAdmissionResult(
+                                    e.target.value as AdmissionResult
+                                )
+                            }
                             size="small"
+                            value={currentAdmission}
                         >
-                            {IS_SUBMITTED_STATE_OPTIONS.map((option) => (
+                            {admissionOptions.map((option) => (
                                 <MenuItem
+                                    disabled={option.value === currentAdmission}
                                     key={option.value}
                                     value={option.value}
                                 >
-                                    {t(option.label, { ns: 'common' })}
+                                    {option.label}
                                 </MenuItem>
                             ))}
                         </Select>
@@ -313,20 +367,24 @@ const ApplicationTableRow = ({
             isProgramAdmitted(application) ? (
                 <TableCell>
                     <FormControl fullWidth>
-                        <Select<string>
-                            defaultValue={
-                                String(application.finalEnrolment ?? false)
-                            }
+                        <Select<number>
+                            value={application.finalEnrolment ? 1 : 0}
                             id="finalEnrolment"
                             labelId="finalEnrolment"
                             name="finalEnrolment"
-                            onChange={(e) => handleChange(e, application_idx)}
+                            disabled={isInteractionDisabled}
+                            onChange={(e) =>
+                                handleFinalEnrolmentChange(
+                                    application_idx,
+                                    Number(e.target.value) === 1
+                                )
+                            }
                             size="small"
                         >
-                            <MenuItem value="false">
+                            <MenuItem value={0}>
                                 {t('No', { ns: 'common' })}
                             </MenuItem>
-                            <MenuItem value="true">
+                            <MenuItem value={1}>
                                 {t('Yes', { ns: 'common' })}
                             </MenuItem>
                         </Select>
@@ -341,7 +399,11 @@ const ApplicationTableRow = ({
                         ? '-'
                         : application.programId?.application_deadline
                           ? differenceInDays(
-                                new Date(application_deadline_V2_calculator(application)),
+                                new Date(
+                                    application_deadline_V2_calculator(
+                                        application
+                                    )
+                                ),
                                 today
                             )
                           : '-'}
@@ -353,19 +415,39 @@ const ApplicationTableRow = ({
                         !isProgramSubmitted(application) &&
                         (isProgramWithdraw(application) ? (
                             <Tooltip arrow title="Undo Withdraw">
-                                <RedoIcon
-                                    onClick={(e) =>
-                                        handleWithdraw(e, application_idx, '-')
-                                    }
-                                />
+                                <span>
+                                    <IconButton
+                                        disabled={isInteractionDisabled}
+                                        onClick={(e) =>
+                                            handleWithdraw(
+                                                e,
+                                                application_idx,
+                                                '-'
+                                            )
+                                        }
+                                        size="small"
+                                    >
+                                        <RedoIcon />
+                                    </IconButton>
+                                </span>
                             </Tooltip>
                         ) : (
                             <Tooltip arrow title="Withdraw">
-                                <UndoIcon
-                                    onClick={(e) =>
-                                        handleWithdraw(e, application_idx, 'X')
-                                    }
-                                />
+                                <span>
+                                    <IconButton
+                                        disabled={isInteractionDisabled}
+                                        onClick={(e) =>
+                                            handleWithdraw(
+                                                e,
+                                                application_idx,
+                                                'X'
+                                            )
+                                        }
+                                        size="small"
+                                    >
+                                        <UndoIcon />
+                                    </IconButton>
+                                </span>
                             </Tooltip>
                         ))}
                 </TableCell>

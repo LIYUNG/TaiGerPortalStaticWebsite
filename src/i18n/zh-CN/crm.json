@@ -13,6 +13,8 @@
         "edit": "编辑",
         "assign": "指派",
         "change": "更改",
+        "changeStatus": "更改状态",
+        "noStatusChange": "当前无可进一步变更的状态",
         "unassign": "移除指派",
         "archive": "归档会议",
         "unarchive": "取消归档会议",
@@ -28,6 +30,12 @@
         "na": "无",
         "unknown": "未知",
         "note": "备注",
+        "notes": "备注",
+        "tags": "标签",
+        "add": "添加",
+        "edit": "编辑",
+        "done": "完成",
+        "cancel": "取消",
         "status": "状态",
         "lead": "线索",
         "leadDetails": "线索详情",
@@ -69,7 +77,10 @@
         "attendees": "与会者",
         "studentDetails": "学生详情",
         "studentProfile": "查看学生档案",
-        "unsavedChanges": "• 未保存的更改"
+        "noTagsYet": "尚无标签。",
+        "noNotesYet": "尚无备注。",
+        "unsavedChanges": "• 未保存的更改",
+        "noteCreatedAt": "创建于"
     },
     "leads": {
         "fullName": "姓名",
@@ -145,18 +156,24 @@
     },
     "deals": {
         "createDeal": "创建订单",
+        "closeExistingDeal": "关闭现有订单",
         "editDeal": "编辑订单",
         "dealSizeNtd": "订单金额 (NTD)",
         "placeholderDealSize": "例如 69999",
         "status": "状态",
         "note": "备注",
+        "closedAt": "结案时间",
         "closedDate": "结案日期",
         "leadIsRequired": "线索为必填",
         "salesRepIsRequired": "销售代表为必填",
         "mustBePositive": "必须为正数",
+        "closedAtRequired": "状态为已结案时需填写结案时间",
         "closedDateRequired": "状态为已结案时需填写结案日期",
         "lead": "线索",
         "salesRepresentative": "销售代表",
+        "errors": {
+            "failedCreate": "用户账号已创建，但创建或关闭订单失败，请重试。"
+        },
         "statusLabels": {
             "initiated": "已发起",
             "sent": "已发送",

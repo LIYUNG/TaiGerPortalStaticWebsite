@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import ApplicationTableRow from './ApplicationTableRow';
+import type { Application } from '@/api/types';
 
 vi.mock('i18next', () => ({
     default: { t: (key: string) => key }
@@ -43,7 +44,7 @@ vi.mock('@utils/contants', () => ({
     ]
 }));
 
-const mockApplication = {
+const mockApplication: Application = {
     _id: 'app1',
     programId: {
         _id: 'prog1',
@@ -51,16 +52,16 @@ const mockApplication = {
         degree: 'MSc',
         program_name: 'Computer Science',
         semester: 'WS',
-        toefl: 100,
-        ielts: 7.0,
+        toefl: '100',
+        ielts: '7.0',
         application_deadline: '2025-12-01'
     },
     decided: '-',
     closed: '-',
     admission: '-',
     finalEnrolment: false,
-    application_year: 2025
-} as any;
+    application_year: '2025'
+};
 
 const mockStudent = {
     _id: 'student1',
@@ -76,6 +77,8 @@ const defaultProps = {
     user: null,
     today: new Date('2025-11-01'),
     handleChange: vi.fn(),
+    handleFinalEnrolmentChange: vi.fn(),
+    handleAdmissionResultChange: vi.fn(() => Promise.resolve()),
     handleWithdraw: vi.fn(),
     handleDelete: vi.fn(),
     handleEdit: vi.fn()
@@ -159,7 +162,41 @@ describe('ApplicationTableRow', () => {
     it('hides action buttons for student users', async () => {
         const { is_TaiGer_Student } = await import('@taiger-common/core');
         (is_TaiGer_Student as ReturnType<typeof vi.fn>).mockReturnValue(true);
-        renderRow({ user: { role: 'Student' } as any });
+        renderRow({ user: { role: 'Student' } });
         expect(screen.queryByRole('button')).not.toBeInTheDocument();
+    });
+
+    it('triggers direct admission update when admission button clicked', async () => {
+        const { isProgramDecided, isProgramSubmitted, is_TaiGer_Student } =
+            await import('@taiger-common/core');
+
+        (is_TaiGer_Student as ReturnType<typeof vi.fn>).mockReturnValue(false);
+        (isProgramDecided as ReturnType<typeof vi.fn>).mockReturnValue(true);
+        (isProgramSubmitted as ReturnType<typeof vi.fn>).mockReturnValue(true);
+
+        const handleAdmissionResultChange = vi.fn(() => Promise.resolve());
+
+        renderRow({
+            application: {
+                ...mockApplication,
+                closed: 'O',
+                admission: '-'
+            },
+            handleAdmissionResultChange
+        });
+
+        const admissionSelect = screen.getByRole('combobox', {
+            name: 'admission result'
+        });
+        fireEvent.mouseDown(admissionSelect);
+        const yesMenuItem = await screen.findByRole('option', {
+            name: 'Yes'
+        });
+        fireEvent.click(yesMenuItem);
+
+        expect(handleAdmissionResultChange).toHaveBeenCalledWith(
+            expect.objectContaining({ _id: 'app1' }),
+            'O'
+        );
     });
 });

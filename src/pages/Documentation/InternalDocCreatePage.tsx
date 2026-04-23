@@ -207,7 +207,7 @@ const InternalDocCreatePage = (props: InternalDocCreatePageProps) => {
         }));
     };
 
-    const handleClickEditToggle = (_e?: React.MouseEvent) => {
+    const handleClickEditToggle = () => {
         setInternalDocCreatePageState((prevState) => ({
             ...prevState,
             isEdit: !internalDocCreatePageState.isEdit
